@@ -1,0 +1,36 @@
+{
+  "name": "periodo-client",
+  "version": "0.0.1",
+  "author": "Patrick Golden",
+  "description": "Client for browsing and editing PeriodO data.",
+  "private": true,
+  "dependencies": {
+    "backbone": "^1.1.2",
+    "backbone.stickit": "^0.8.0",
+    "d3": "^3.4.8",
+    "jquery": "^1.11.0",
+    "underscore": "^1.6.0"
+  },
+  "devDependencies": {
+    "browserify": "^4.1.2",
+    "browserify-shim": "^3.5.0",
+    "node-underscorify": "0.0.9",
+    "brfs": "1.0.0",
+    "watchify": "^0.9.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim",
+      "node-underscorify",
+      "brfs"
+    ]
+  },
+  "browser": {
+    "jquery-bootstrap": "./lib/bootstrap.js"
+  },
+  "browserify-shim": {
+    "jquery-bootstrap": {
+      "depends": [ "jquery:jQuery" ]
+    }
+  }
+}
