@@ -6,7 +6,7 @@ var Backbone = require('backbone')
 
 Backbone.$ = $;
 require('backbone.stickit');
-require('backbone.validation');
+require('backbone-validation');
 _.extend(Backbone.Model.prototype, Backbone.Validation.mixin);
 
 module.exports = Backbone;

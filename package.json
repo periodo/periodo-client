@@ -6,17 +6,16 @@
   "private": true,
   "dependencies": {
     "backbone": "^1.1.2",
+    "backbone-validation": "thedersen/backbone.validation#v0.9.1",
     "backbone.stickit": "^0.8.0",
-    "backbone.validation": "thedersen/backbone.validation#v0.9.1",
-    "d3": "^3.4.8",
-    "jquery": "^1.11.0",
-    "underscore": "^1.6.0"
-  },
-  "devDependencies": {
+    "brfs": "1.0.0",
     "browserify": "^4.1.2",
     "browserify-shim": "^3.5.0",
+    "d3": "^3.4.8",
+    "jquery": "^1.11.0",
     "node-underscorify": "0.0.9",
-    "brfs": "1.0.0",
+    "pegjs": "^0.8.0",
+    "underscore": "^1.6.0",
     "watchify": "^0.9.0"
   },
   "browserify": {
@@ -27,11 +26,14 @@
     ]
   },
   "browser": {
-    "jquery-bootstrap": "./lib/bootstrap.js"
+    "jquery-bootstrap": "./lib/bootstrap.js",
+    "backbone.validation": "backbone-validation"
   },
   "browserify-shim": {
     "jquery-bootstrap": {
-      "depends": [ "jquery:jQuery" ]
+      "depends": [
+        "jquery:jQuery"
+      ]
     }
   }
 }
