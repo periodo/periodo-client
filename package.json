@@ -53,6 +53,6 @@
     ]
   },
   "scripts": {
-    "test": "mocha src/tests/*.js"
+    "test": "mocha -R spec src/tests/*.js"
   }
 }
