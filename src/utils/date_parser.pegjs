@@ -62,5 +62,5 @@ fourdigits = a:digit b:digit c:digit d:digit { return a + b + c + d }
 manydigits = digits:digit+ { return digits.join('') }
 
 bp = 'b'i '.'? 'p'i '.'? { return 'BP' }
-bc = b:'b'i '.'? c:'c'i '.'? e:('e'i '.'?)? { return 'BC' + (e ? 'E' : '') }
+bc = b:'b'i '.'? c:'c'i '.'? e:('e'i '.'?)? { return 'BC' }
 ad = 'a'i '.'? 'd'i '.'? { return 'AD' }
