@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
   , Period = require('../models/period')
   , dateParser = require('../utils/date_parser')
   , bindings
@@ -68,19 +69,63 @@ bindings = {
 
 module.exports = Backbone.View.extend({
   model: Period,
-  bindings: bindings,
+  bindings: _.extend({}, bindings),
+  events: {
+    'click #js-save-period': 'save'
+  },
+  appendError: function (label, message) {
+    var $container = this.$('[data-error-container=' + label + ']')
+      , html = '<div class="error-message alert alert-danger">' + message + '</div>'
+      , $label
+
+    if (!$container.length) {
+      this.$el.prepend(html);
+    } else {
+      $label = $container.find('label').first();
+      if ($label.length) {
+        $label.after(html);
+      } else {
+        $container.prepend(html);
+      }
+    }
+  },
   initialize: function () {
     this.render();
     this.stickit();
 
-    var $monitor = Backbone.$('<div>').appendTo(this.$el);
+    this.listenTo(this.model, 'validated:invalid', function (model, errors) {
+      this.$('.error-message').remove();
+      for (var field in errors) {
+        this.appendError(field, errors[field]);
+      }
+    });
+
+    this.listenTo(this.model, 'validated:valid', function () {
+      this.$('.error-message').remove();
+    });
+
+    this.listenToOnce(this.model, 'validated:invalid', function () {
+      this.unstickit();
+      for (var binding in this.bindings) {
+        if (!this.bindings[binding].setOptions) this.bindings[binding].setOptions = {};
+        this.bindings[binding].setOptions.validate = true;
+      }
+      this.stickit();
+    });
+
+
+    var $monitor = Backbone.$('<pre>').appendTo(this.$el);
+    $monitor.before('<h2>Output preview</h2>');
     this.listenTo(this.model, 'change', function () {
-      $monitor.html(JSON.stringify(this.model));
+      $monitor.html(JSON.stringify(this.model, null, '  '));
     });
 
   },
   render: function () {
     var template = require('../templates/period_form.html');
     this.$el.html(template());
+  },
+  save: function () {
+    this.model.validate();
   }
 });

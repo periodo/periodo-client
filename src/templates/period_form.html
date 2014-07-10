@@ -1,46 +1,33 @@
 <form>
-  <div class="form-group">
+  <div class="form-group" data-error-container="label">
     <label class="control-label" for="js-label">Label</label>
     <input class="form-control" id="js-label" type="text" />
   </div>
 
-  <div class="form-group">
+  <div class="form-group" data-error-container="source">
     <label class="control-label" for="js-source">Source</label>
     <input class="form-control" id="js-source" type="text" />
   </div>
 
-  <div class="form-group">
+  <div class="form-group" data-error-container="dateType">
     <label class="control-label" for="js-dateType">
       Date type
       &nbsp;(detect <input type="checkbox" checked="checked" />)
     </label>
-    <p>
-    </p>
     <select class="form-control" id="js-dateType" disabled="true"></select>
   </div>
 
-  <div class="form-group">
+  <div class="form-group" data-error-container="startDate">
     <label class="control-label" for="js-startDate">Start</label>
     <input class="form-control" id="js-startDate" type="text" />
   </div>
 
-  <!--
-  <div class="form-group">
-    <label class="control-label" for="js-startDateSignificance">Start significant digits</label>
-    <input class="form-control" id="js-startDateSignificance" type="text" disabled="true" />
-  </div>
-  --!>
-
-  <div class="form-group">
+  <div class="form-group" data-error-container="endDate">
     <label class="control-label" for="js-endDate">End</label>
     <input class="form-control" id="js-endDate" type="text" />
   </div>
 
-  <!--
-  <div class="form-group">
-    <label class="control-label" for="js-endDateSignificance">End significant digits</label>
-    <input class="form-control" id="js-endDateSignificance" type="text" disabled="true" />
+  <div>
+    <button type="button" class="btn btn-primary" id="js-save-period">Save</button>
   </div>
-  --!>
-
 </form>
