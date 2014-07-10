@@ -1,6 +1,11 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , stringify = require('json-stable-stringify')
+  , stringifyOpts = {
+    space: '  ',
+    cmp: function (a, b) { return a.key > b.key ? 1 : -1; },
+  }
 
 /*
  *  Period
@@ -24,9 +29,6 @@ module.exports = Backbone.Model.extend({
         return this.dateTypes.indexOf(val) === -1;
       }
     },
-    source: {
-      required: true
-    },
     startDate: {
       required: true,
       pattern: /[+\-]\d+/
@@ -40,8 +42,37 @@ module.exports = Backbone.Model.extend({
         }
       }
     },
+    startDateLabel: {
+      required: true
+    },
+    endDateLabel: {
+      required: true
+    }
   },
   toJSONLD: function () {
+    var obj = {};
 
+    obj.label = this.get('label');
+    obj.localizedLabel = { en: this.get('label') };
+
+    if (this.has('note')) {
+      obj.note = this.get('note')
+    }
+
+    obj.spatialCoverage = [];
+
+    obj.start = {
+      label: this.get('startDateLabel'),
+      type: this.get('dateType'),
+      isoValue: this.get('startDate')
+    }
+
+    obj.stop = {
+      label: this.get('endDateLabel'),
+      type: this.get('dateType'),
+      isoValue: this.get('endDate')
+    }
+
+    return stringify(obj, stringifyOpts);
   }
 });

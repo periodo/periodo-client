@@ -31,10 +31,6 @@ bindings = {
     observe: 'label',
     //setOptions: { validate: true }
   },
-  '#js-source': {
-    observe: 'source',
-    //setOptions: { validate: true }
-  },
   '#js-dateType': {
     observe: 'dateType',
     //setOptions: { validate: true },
@@ -44,25 +40,32 @@ bindings = {
     }
   },
   '#js-startDate': {
-    observe: 'startDate',
+    observe: 'startDateLabel',
     getVal: function ($el) {
       var val = $el.val()
         , parsed = parseDate(val)
 
       if (parsed) {
         this.model.set('dateType', parsed.type);
+        this.model.set('startDate', parsed.isoValue);
       } else {
         this.model.unset('dateType');
+        this.model.unset('startDate');
       }
 
-      return this.model.has('dateType') && parsed.isoValue;
+      return this.model.has('dateType') && parsed.value;
     }
   },
   '#js-endDate': {
-    observe: 'endDate',
+    observe: 'endDateLabel',
     getVal: function ($el) {
       var parsed = parseDate($el.val(), this.model.get('dateType'));
-      return parsed && parsed.isoValue;
+      if (parsed) {
+        this.model.set('endDate', parsed.isoValue);
+      } else {
+        this.model.unset('endDate');
+      }
+      return parsed && parsed.value;
     }
   }
 }
@@ -117,7 +120,7 @@ module.exports = Backbone.View.extend({
     var $monitor = Backbone.$('<pre>').appendTo(this.$el);
     $monitor.before('<h2>Output preview</h2>');
     this.listenTo(this.model, 'change', function () {
-      $monitor.html(JSON.stringify(this.model, null, '  '));
+      $monitor.html(this.model.toJSONLD());
     });
 
   },
