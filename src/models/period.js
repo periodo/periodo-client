@@ -20,7 +20,7 @@ module.exports = Backbone.Model.extend({
     this.spatialCoverages = new SpatialCoverageCollection();
   },
   dateTypes: [
-    'bp2000', 'bp1950', 'gregorian', 'iso8601', 'julian'
+    'bp2000', 'bp1950', 'gregorian', 'iso8601'
   ],
   validation: {
     label: {
