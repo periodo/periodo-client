@@ -59,7 +59,7 @@ module.exports = Backbone.Model.extend({
     obj.label = this.get('label');
     obj.localizedLabel = { en: this.get('label') };
 
-    if (this.has('note')) {
+    if (this.has('note') && this.get('note')) {
       obj.note = this.get('note')
     }
 
@@ -75,13 +75,13 @@ module.exports = Backbone.Model.extend({
     obj.start = {
       label: this.get('startDateLabel'),
       type: this.get('dateType'),
-      isoValue: this.get('startDate')
+      gYear: this.get('startDate')
     }
 
     obj.stop = {
       label: this.get('endDateLabel'),
       type: this.get('dateType'),
-      isoValue: this.get('endDate')
+      gYear: this.get('endDate')
     }
 
     return stringify(obj, stringifyOpts);

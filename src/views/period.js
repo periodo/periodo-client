@@ -50,6 +50,9 @@ bindings = {
     observe: 'label',
     //setOptions: { validate: true }
   },
+  '#js-note': {
+    observe: 'note'
+  },
   '#js-dateType': {
     observe: 'dateType',
     //setOptions: { validate: true },
