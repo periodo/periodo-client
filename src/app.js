@@ -10,6 +10,5 @@ $(document).ready(function () {
 
   view.$el
     .appendTo('#main')
-    .css('width', '500px')
 
 });
