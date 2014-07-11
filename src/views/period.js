@@ -27,6 +27,24 @@ function parseDate(input, type) {
 
 }
 
+function setDateMessage($el, parsed, view) {
+  var $msgEl = $el.next('div');
+
+  if (!$el.val()) {
+    $msgEl.text('')
+  } else if (parsed) {
+    $msgEl.text('Parsed as ISO year: ' + parsed.isoValue);
+  } else {
+    if (view.model.get('dateType')) {
+      $msgEl.text('Could not detect date in ' + view.model.get('dateType') + ' format.');
+    } else if (view.autodetectDate) {
+      $msgEl.text('Could not detect date.');
+    } else {
+      $msgEl.text('Date type must be set');
+    }
+  }
+}
+
 bindings = {
   '#js-label': {
     observe: 'label',
@@ -44,28 +62,41 @@ bindings = {
     observe: 'startDateLabel',
     getVal: function ($el) {
       var val = $el.val()
-        , parsed = parseDate(val)
+        , dateType
+        , parsed
+
+      if (this.autodetectDate) {
+        parsed = parseDate(val)
+      } else {
+        parsed = this.model.has('dateType') ? parseDate(val, this.model.get('dateType')) : null;
+      }
 
       if (parsed) {
-        this.model.set('dateType', parsed.type);
+        if (this.autodetectDate) this.model.set('dateType', parsed.type);
         this.model.set('startDate', parsed.isoValue);
       } else {
-        this.model.unset('dateType');
+        if (this.autodetectDate) this.model.unset('dateType');
         this.model.unset('startDate');
       }
 
-      return this.model.has('dateType') && parsed.value;
+      setDateMessage($el, parsed, this);
+      this.$('#js-endDate').trigger('input');
+
+      return parsed && parsed.value;
     }
   },
   '#js-endDate': {
     observe: 'endDateLabel',
     getVal: function ($el) {
-      var parsed = parseDate($el.val(), this.model.get('dateType'));
+      var parsed = this.model.has('dateType') ? parseDate($el.val(), this.model.get('dateType')) : null;
       if (parsed) {
         this.model.set('endDate', parsed.isoValue);
       } else {
         this.model.unset('endDate');
       }
+
+      setDateMessage($el, parsed, this);
+
       return parsed && parsed.value;
     }
   }
@@ -75,7 +106,13 @@ module.exports = Backbone.View.extend({
   model: Period,
   bindings: _.extend({}, bindings),
   events: {
-    'click #js-save-period': 'save'
+    'click #js-save-period': 'save',
+    'change #js-detect-dateType': 'updateDetectDateType',
+    'change #js-dateType': function () {
+      if (!this.autodetectDate) {
+        this.$('#js-startDate, #js-endDate').trigger('input');
+      }
+    }
   },
   appendError: function (label, message) {
     var $container = this.$('[data-error-container=' + label + ']')
@@ -97,6 +134,7 @@ module.exports = Backbone.View.extend({
     var spatialCoverageView
 
     this.render();
+    this.updateDetectDateType();
     this.stickit();
 
     spatialCoverageView = new SpatialCoverageView({
@@ -127,6 +165,10 @@ module.exports = Backbone.View.extend({
 
     this.listenTo(this.model, 'change', this.updateMonitor);
     this.listenTo(this.model.spatialCoverages, 'add remove', this.updateMonitor);
+  },
+  updateDetectDateType: function (e) {
+    this.autodetectDate = this.$('#js-detect-dateType').prop('checked');
+    this.$('#js-dateType').prop('disabled', this.autodetectDate);
   },
   updateMonitor: function () {
     if (!this.$monitor) this.$monitor = this.$('pre');
