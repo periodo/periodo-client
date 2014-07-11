@@ -32,10 +32,16 @@
   },
   "browser": {
     "jquery-bootstrap": "./lib/bootstrap.js",
+    "jquery-typeahead": "./lib/typeahead.bundle.js",
     "backbone.validation": "backbone-validation"
   },
   "browserify-shim": {
     "jquery-bootstrap": {
+      "depends": [
+        "jquery:jQuery"
+      ]
+    },
+    "jquery-typeahead": {
       "depends": [
         "jquery:jQuery"
       ]

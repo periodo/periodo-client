@@ -1,6 +1,7 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , SpatialCoverageCollection = require('../collections/spatial_coverage')
   , stringify = require('json-stable-stringify')
   , stringifyOpts = {
     space: '  ',
@@ -15,6 +16,9 @@ var Backbone = require('../backbone')
  */
 
 module.exports = Backbone.Model.extend({
+  initialize: function () {
+    this.spatialCoverages = new SpatialCoverageCollection();
+  },
   dateTypes: [
     'bp2000', 'bp1950', 'gregorian', 'iso8601', 'julian'
   ],
@@ -59,7 +63,14 @@ module.exports = Backbone.Model.extend({
       obj.note = this.get('note')
     }
 
-    obj.spatialCoverage = [];
+    if (this.spatialCoverages.length) {
+      obj.spatialCoverage = this.spatialCoverages.map(function (model) {
+        return {
+          '@id': model.get('@id'),
+          'label': model.get('label')
+        }
+      });
+    }
 
     obj.start = {
       label: this.get('startDateLabel'),

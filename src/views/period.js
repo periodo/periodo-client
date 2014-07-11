@@ -4,6 +4,7 @@ var _ = require('underscore')
   , Backbone = require('../backbone')
   , Period = require('../models/period')
   , dateParser = require('../utils/date_parser')
+  , SpatialCoverageView = require('./spatial_coverage')
   , bindings
 
 function parseDate(input, type) {
@@ -93,8 +94,15 @@ module.exports = Backbone.View.extend({
     }
   },
   initialize: function () {
+    var spatialCoverageView
+
     this.render();
     this.stickit();
+
+    spatialCoverageView = new SpatialCoverageView({
+      collection: this.model.spatialCoverages,
+      el: this.$('#js-spatial-coverage-container')
+    });
 
     this.listenTo(this.model, 'validated:invalid', function (model, errors) {
       this.$('.error-message').remove();
