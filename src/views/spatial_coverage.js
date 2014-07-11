@@ -16,7 +16,15 @@ module.exports = Backbone.View.extend({
 
     this.views = {};
     this.listenTo(this.collection, 'add', function (item) {
-      this.views[item.cid] = $('<li>' + item.get('label') + '</li>').appendTo($ul);
+      var $el = $('<li>' + item.get('label') + '</li>').appendTo($ul);
+      $('<button type="button" class="close">&times;</button>')
+        .prependTo($el)
+        .css('float', 'none')
+        .css('margin-right', '6px')
+        .on('click', function () {
+          item.collection.remove(item);
+        });
+      this.views[item.cid] = $el;
     });
 
     this.listenTo(this.collection, 'remove', function (item) {

@@ -11,5 +11,6 @@ module.exports = Backbone.Model.extend({
     'label': {
       required: true
     }
-  }
+  },
+  idAttribute: '@id'
 });
