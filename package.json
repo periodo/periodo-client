@@ -11,8 +11,10 @@
     "d3": "^3.4.8",
     "jquery": "^1.11.0",
     "json-stable-stringify": "^1.0.0",
+    "less": "^1.7.3",
     "pegjs": "^0.8.0",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "watch-lessc": "0.0.2"
   },
   "devDependencies": {
     "brfs": "1.0.0",
