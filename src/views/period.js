@@ -125,16 +125,20 @@ module.exports = Backbone.View.extend({
     });
 
 
-    var $monitor = Backbone.$('<pre>').appendTo(this.$el);
-    $monitor.before('<h2>Output preview</h2>');
-    this.listenTo(this.model, 'change', function () {
-      $monitor.html(this.model.toJSONLD());
-    });
-
+    this.listenTo(this.model, 'change', this.updateMonitor);
+    this.listenTo(this.model.spatialCoverages, 'add remove', this.updateMonitor);
+  },
+  updateMonitor: function () {
+    if (!this.$monitor) this.$monitor = this.$('pre');
+    this.$monitor.html(this.model.toJSONLD());
   },
   render: function () {
     var template = require('../templates/period_form.html');
     this.$el.html(template());
+
+    Backbone.$('<pre>')
+      .appendTo(this.$el)
+      .before('<h2>Output preview</h2>');
   },
   save: function () {
     this.model.validate();
