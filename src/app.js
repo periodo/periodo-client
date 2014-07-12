@@ -1,14 +1,15 @@
 "use strict";
 
 var $ = require('jquery')
-  , Period = require('./models/period')
+  , Source = require('./models/source')
 
 $(document).ready(function () {
-  var PeriodEditView = require('./views/period');
+  var SourceEditView = require('./views/source');
 
-  var view = new PeriodEditView({ model: new Period() });
+  // Test item
+  var view = new SourceEditView({ model: new Source({
+    '@id': 'http://www.worldcat.org/oclc/26257582'
+  })});
 
-  view.$el
-    .appendTo('#main')
-
+  view.$el.appendTo('#main')
 });
