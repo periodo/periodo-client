@@ -17,7 +17,6 @@ module.exports = Backbone.Model.extend({
   initialize: function () {
     this.contributors = new CreatorCollection();
     this.creators = new CreatorCollection();
-    global.z = this;
   },
   url: function () {
     var uri = this.get('@id') || ''
