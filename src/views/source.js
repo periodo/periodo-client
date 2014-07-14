@@ -1,6 +1,18 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , Source = require('../models/source')
+
+var URL_PATTERNS = [
+  {
+    pattern: /worldcat.org\/.*?oclc\/(\d+).*/i,
+    replaceFn: function (match, oclcID) { return 'http://www.worldcat.org/oclc/' + oclcID }
+  },
+  {
+    pattern: /(?:dx.doi.org\/|doi:)([^\/]+\/[^\/\s]+)/i,
+    replaceFn: function (match, doi) { return 'http://dx.doi.org/' + doi }
+  }
+]
 
 module.exports = Backbone.View.extend({
   initialize: function () {
@@ -8,11 +20,42 @@ module.exports = Backbone.View.extend({
     this.stickit();
   },
   events: {
+    'input textarea': 'handleSourceTextChange'
   },
   bindings: {
   },
   render: function () {
     var template = require('../templates/source_form.html');
     this.$el.html(template());
+    this.$srcMsg = this.$('.message');
+  },
+  handleSourceTextChange: function (e) {
+    var that = this
+      , text = e.currentTarget.value
+      , match
+      , url
+      , source
+
+    if (!text) {
+      this.$srcMsg.text('');
+      return;
+    }
+
+    for (var i = 0; i < URL_PATTERNS.length; i++) {
+      match = text.match(URL_PATTERNS[i].pattern);
+      if (match) {
+        url = match[0].replace(URL_PATTERNS[i].pattern, URL_PATTERNS[i].replaceFn);
+        break;
+      }
+    }
+
+    if (!url) {
+      this.$srcMsg.text('Could not detect source');
+    } else {
+      source = new Source({ '@id': url });
+      source.fetchLD().then(function () {
+        that.$('pre').text(source.toJSONLD());
+      });
+    }
   }
 });
