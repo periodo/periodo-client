@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "backbone": "^1.1.2",
+    "backbone-relational": "^0.8.8",
     "backbone-validation": "thedersen/backbone.validation#v0.9.1",
     "backbone.stickit": "^0.8.0",
     "d3": "^3.4.8",
