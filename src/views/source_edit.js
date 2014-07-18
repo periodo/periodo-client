@@ -17,12 +17,9 @@ var URL_PATTERNS = [
 module.exports = Backbone.View.extend({
   initialize: function () {
     this.render();
-    this.stickit();
   },
   events: {
     'input textarea': 'handleSourceTextChange'
-  },
-  bindings: {
   },
   render: function () {
     var template = require('../templates/source_form.html');
@@ -52,9 +49,11 @@ module.exports = Backbone.View.extend({
     if (!url) {
       this.$srcMsg.text('Could not detect source');
     } else {
-      source = new Source({ '@id': url });
+      source = Source.findOrCreate({ 'id': url });
+      this.$srcMsg.text('Fetching source information...');
       source.fetchLD().then(function () {
-        that.$('pre').text(source.toJSONLD());
+        that.$srcMsg.text('');
+        that.trigger('sourceSelected', source);
       });
     }
   }

@@ -1,0 +1,35 @@
+<dl>
+  <dt>Title</dt>
+  <dd><%= source.title %></dd>
+
+  <dt>Year published</dt>
+  <dd><%= source.yearPublished || 'unknown' %></dd>
+
+  <% if (source.creators && source.creators.length) { %>
+  <dt>Creators</dt>
+  <dd>
+    <ul>
+      <% source.creators.forEach(function (creator) { %>
+      <li><%= creator.name %></li>
+      <% }); %>
+    </ul>
+  </dd>
+  <% } %>
+
+  <% if (source.contributors && source.contributors.length) { %>
+  <dt>Contributors</dt>
+  <dd>
+    <ul>
+      <% source.contributors.forEach(function (contributor) { %>
+      <li><%= contributor.name %></li>
+      <% }); %>
+    </ul>
+  </dd>
+  <% } %>
+</dl>
+
+<p>Is this the correct source?</p>
+<div>
+  <button id="js-accept-source" class="btn btn-primary">Yes</button>
+  <button id="js-reject-source" class="btn btn-default">No</button>
+</div>

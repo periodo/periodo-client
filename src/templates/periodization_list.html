@@ -1,0 +1,18 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Source title</th>
+      <th># of definitions</th>
+      <th>Time span</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% periodizations.forEach(function (periodization) { %>
+    <tr>
+      <td><%= periodization.get('source').get('title') %></td>
+      <td><%= periodization.get('definitions').length %></td>
+      <td>xxx</td>
+    </tr>
+  <% }); %>
+  </tbody>
+</table>
