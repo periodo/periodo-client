@@ -17,12 +17,14 @@ module.exports = Backbone.RelationalModel.extend({
     {
       type: Backbone.HasOne,
       key: 'start',
-      relatedModel: PeriodTerminus
+      relatedModel: PeriodTerminus,
+      parse: true
     },
     {
       type: Backbone.HasOne,
       key: 'stop',
-      relatedModel: PeriodTerminus
+      relatedModel: PeriodTerminus,
+      parse: true
     },
     {
       type: Backbone.HasMany,

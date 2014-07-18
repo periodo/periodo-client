@@ -23,9 +23,8 @@ module.exports = Backbone.RelationalModel.extend({
       collectionType: CreatorCollection
     }
   ],
-  idAttribute: '@id',
   url: function () {
-    var uri = this.get('@id') || ''
+    var uri = this.id || ''
 
     if (uri.match(WORLDCAT_REGEX)) {
       return 'http://ptgolden.org/oclc/' + uri.match(WORLDCAT_REGEX)[1];

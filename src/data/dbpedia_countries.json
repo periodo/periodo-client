@@ -1,1974 +1,1974 @@
 [
   {
-    "@id": "http://dbpedia.org/resource/Abkhazia", 
+    "id": "http://dbpedia.org/resource/Abkhazia", 
     "label": "Abkhazia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/27/Flag_of_Abkhazia.svg", 
     "geonamesURI": "http://sws.geonames.org/6643410/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Achterhoek", 
+    "id": "http://dbpedia.org/resource/Achterhoek", 
     "label": "Achterhoek", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/30/LocatieAchterhoek.svg", 
     "geonamesURI": "http://sws.geonames.org/2755384/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Adjara", 
+    "id": "http://dbpedia.org/resource/Adjara", 
     "label": "Adjara", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Adjara.svg", 
     "geonamesURI": "http://sws.geonames.org/615929/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ad%C3%A9lie_Land", 
+    "id": "http://dbpedia.org/resource/Ad%C3%A9lie_Land", 
     "label": "Ad\u00e9lie Land", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/6690917/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Afghanistan", 
+    "id": "http://dbpedia.org/resource/Afghanistan", 
     "label": "Afghanistan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Afghanistan.svg", 
     "geonamesURI": "http://sws.geonames.org/1149361/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Albania", 
+    "id": "http://dbpedia.org/resource/Albania", 
     "label": "Albania", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/36/Flag_of_Albania.svg", 
     "geonamesURI": "http://sws.geonames.org/783754/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Alderney", 
+    "id": "http://dbpedia.org/resource/Alderney", 
     "label": "Alderney", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Alderney.svg", 
     "geonamesURI": "http://sws.geonames.org/3042422/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Algeria", 
+    "id": "http://dbpedia.org/resource/Algeria", 
     "label": "Algeria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Algeria.svg", 
     "geonamesURI": "http://sws.geonames.org/2589581/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/American_Samoa", 
+    "id": "http://dbpedia.org/resource/American_Samoa", 
     "label": "American Samoa", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/87/Flag_of_American_Samoa.svg", 
     "geonamesURI": "http://sws.geonames.org/5880801/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Andorra", 
+    "id": "http://dbpedia.org/resource/Andorra", 
     "label": "Andorra", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_Andorra.svg", 
     "geonamesURI": "http://sws.geonames.org/3041565/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Angola", 
+    "id": "http://dbpedia.org/resource/Angola", 
     "label": "Angola", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Angola.svg", 
     "geonamesURI": "http://sws.geonames.org/3351879/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Anguilla", 
+    "id": "http://dbpedia.org/resource/Anguilla", 
     "label": "Anguilla", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Anguilla.svg", 
     "geonamesURI": "http://sws.geonames.org/3573511/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Anjouan", 
+    "id": "http://dbpedia.org/resource/Anjouan", 
     "label": "Anjouan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a6/Flag_of_Anjouan_(official).svg", 
     "geonamesURI": "http://sws.geonames.org/922001/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Antigua_and_Barbuda", 
+    "id": "http://dbpedia.org/resource/Antigua_and_Barbuda", 
     "label": "Antigua and Barbuda", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Antigua_and_Barbuda.svg", 
     "geonamesURI": "http://sws.geonames.org/3576396/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ap_Lei_Chau", 
+    "id": "http://dbpedia.org/resource/Ap_Lei_Chau", 
     "label": "Ap Lei Chau", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/7f/Ap_Lei_Chau_location_map.svg", 
     "geonamesURI": "http://sws.geonames.org/1820039/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Argentina", 
+    "id": "http://dbpedia.org/resource/Argentina", 
     "label": "Argentina", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg", 
     "geonamesURI": "http://sws.geonames.org/3865483/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Armenia", 
+    "id": "http://dbpedia.org/resource/Armenia", 
     "label": "Armenia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_Armenia.svg", 
     "geonamesURI": "http://sws.geonames.org/174982/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Aruba", 
+    "id": "http://dbpedia.org/resource/Aruba", 
     "label": "Aruba", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f6/Flag_of_Aruba.svg", 
     "geonamesURI": "http://sws.geonames.org/3577279/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ascension_Island", 
+    "id": "http://dbpedia.org/resource/Ascension_Island", 
     "label": "Ascension Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/2a/Ascension_Island_flag_proposal_2012.svg", 
     "geonamesURI": "http://sws.geonames.org/2411429/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Asia", 
+    "id": "http://dbpedia.org/resource/Asia", 
     "label": "Asia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/80/Asia_(orthographic_projection).svg", 
     "geonamesURI": "http://sws.geonames.org/6255147/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Australia", 
+    "id": "http://dbpedia.org/resource/Australia", 
     "label": "Australia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg", 
     "geonamesURI": "http://sws.geonames.org/2077456/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Austria", 
+    "id": "http://dbpedia.org/resource/Austria", 
     "label": "Austria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_Austria.svg", 
     "geonamesURI": "http://sws.geonames.org/2782113/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Azerbaijan", 
+    "id": "http://dbpedia.org/resource/Azerbaijan", 
     "label": "Azerbaijan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg", 
     "geonamesURI": "http://sws.geonames.org/587116/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bahrain", 
+    "id": "http://dbpedia.org/resource/Bahrain", 
     "label": "Bahrain", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/2c/Flag_of_Bahrain.svg", 
     "geonamesURI": "http://sws.geonames.org/290291/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bangladesh", 
+    "id": "http://dbpedia.org/resource/Bangladesh", 
     "label": "Bangladesh", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f9/Flag_of_Bangladesh.svg", 
     "geonamesURI": "http://sws.geonames.org/1210997/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Barbados", 
+    "id": "http://dbpedia.org/resource/Barbados", 
     "label": "Barbados", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ef/Flag_of_Barbados.svg", 
     "geonamesURI": "http://sws.geonames.org/3374084/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bassas_da_India", 
+    "id": "http://dbpedia.org/resource/Bassas_da_India", 
     "label": "Bassas da India", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/936202/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Belarus", 
+    "id": "http://dbpedia.org/resource/Belarus", 
     "label": "Belarus", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/85/Flag_of_Belarus.svg", 
     "geonamesURI": "http://sws.geonames.org/630336/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Belgium", 
+    "id": "http://dbpedia.org/resource/Belgium", 
     "label": "Belgium", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Belgium.svg", 
     "geonamesURI": "http://sws.geonames.org/2802361/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Belize", 
+    "id": "http://dbpedia.org/resource/Belize", 
     "label": "Belize", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e7/Flag_of_Belize.svg", 
     "geonamesURI": "http://sws.geonames.org/3582678/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Benin", 
+    "id": "http://dbpedia.org/resource/Benin", 
     "label": "Benin", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0a/Flag_of_Benin.svg", 
     "geonamesURI": "http://sws.geonames.org/2395170/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bermuda", 
+    "id": "http://dbpedia.org/resource/Bermuda", 
     "label": "Bermuda", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bf/Flag_of_Bermuda.svg", 
     "geonamesURI": "http://sws.geonames.org/3573345/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bhutan", 
+    "id": "http://dbpedia.org/resource/Bhutan", 
     "label": "Bhutan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/91/Flag_of_Bhutan.svg", 
     "geonamesURI": "http://sws.geonames.org/1252634/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bissagos_Islands", 
+    "id": "http://dbpedia.org/resource/Bissagos_Islands", 
     "label": "Bissagos Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4a/Cercle_rouge_100%25.svg", 
     "geonamesURI": "http://sws.geonames.org/2374876/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bolivia", 
+    "id": "http://dbpedia.org/resource/Bolivia", 
     "label": "Bolivia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/06/Coat_of_arms_of_Bolivia.svg", 
     "geonamesURI": "http://sws.geonames.org/3923057/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bosnia_and_Herzegovina", 
+    "id": "http://dbpedia.org/resource/Bosnia_and_Herzegovina", 
     "label": "Bosnia and Herzegovina", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bf/Flag_of_Bosnia_and_Herzegovina.svg", 
     "geonamesURI": "http://sws.geonames.org/3277605/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Botswana", 
+    "id": "http://dbpedia.org/resource/Botswana", 
     "label": "Botswana", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fa/Flag_of_Botswana.svg", 
     "geonamesURI": "http://sws.geonames.org/933860/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bouvet_Island", 
+    "id": "http://dbpedia.org/resource/Bouvet_Island", 
     "label": "Bouvet Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg", 
     "geonamesURI": "http://sws.geonames.org/3371123/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Brazil", 
+    "id": "http://dbpedia.org/resource/Brazil", 
     "label": "Brazil", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg", 
     "geonamesURI": "http://sws.geonames.org/3469034/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/British_Indian_Ocean_Territory", 
+    "id": "http://dbpedia.org/resource/British_Indian_Ocean_Territory", 
     "label": "British Indian Ocean Territory", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/6e/Flag_of_the_British_Indian_Ocean_Territory.svg", 
     "geonamesURI": "http://sws.geonames.org/1282588/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/British_Virgin_Islands", 
+    "id": "http://dbpedia.org/resource/British_Virgin_Islands", 
     "label": "British Virgin Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/42/Flag_of_the_British_Virgin_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/3577718/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Brookhaven_National_Laboratory", 
+    "id": "http://dbpedia.org/resource/Brookhaven_National_Laboratory", 
     "label": "Brookhaven National Laboratory", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/45/Brookhaven_National_Laboratory_logo.svg", 
     "geonamesURI": "http://sws.geonames.org/5141955/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Brunei", 
+    "id": "http://dbpedia.org/resource/Brunei", 
     "label": "Brunei", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9c/Flag_of_Brunei.svg", 
     "geonamesURI": "http://sws.geonames.org/1820814/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Bulgaria", 
+    "id": "http://dbpedia.org/resource/Bulgaria", 
     "label": "Bulgaria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Bulgaria.svg", 
     "geonamesURI": "http://sws.geonames.org/732800/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Burkina_Faso", 
+    "id": "http://dbpedia.org/resource/Burkina_Faso", 
     "label": "Burkina Faso", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/31/Flag_of_Burkina_Faso.svg", 
     "geonamesURI": "http://sws.geonames.org/2361809/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Burma", 
+    "id": "http://dbpedia.org/resource/Burma", 
     "label": "Burma", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_Myanmar.svg", 
     "geonamesURI": "http://sws.geonames.org/1327865/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Burundi", 
+    "id": "http://dbpedia.org/resource/Burundi", 
     "label": "Burundi", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/50/Flag_of_Burundi.svg", 
     "geonamesURI": "http://sws.geonames.org/433561/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cameroon", 
+    "id": "http://dbpedia.org/resource/Cameroon", 
     "label": "Cameroon", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4f/Flag_of_Cameroon.svg", 
     "geonamesURI": "http://sws.geonames.org/2233387/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Canada", 
+    "id": "http://dbpedia.org/resource/Canada", 
     "label": "Canada", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg", 
     "geonamesURI": "http://sws.geonames.org/6251999/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Canton_of_Neuch%C3%A2tel", 
+    "id": "http://dbpedia.org/resource/Canton_of_Neuch%C3%A2tel", 
     "label": "Canton of Neuch\u00e2tel", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/57/Flag_of_Canton_of_Neuch\u00e2tel.svg", 
     "geonamesURI": "http://sws.geonames.org/2659495/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cape_Verde", 
+    "id": "http://dbpedia.org/resource/Cape_Verde", 
     "label": "Cape Verde", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/38/Flag_of_Cape_Verde.svg", 
     "geonamesURI": "http://sws.geonames.org/3374766/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Caribbean", 
+    "id": "http://dbpedia.org/resource/Caribbean", 
     "label": "Caribbean", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/1f/Antillas_(orthographic_projection).svg", 
     "geonamesURI": "http://sws.geonames.org/7729891/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Carriacou_and_Petite_Martinique", 
+    "id": "http://dbpedia.org/resource/Carriacou_and_Petite_Martinique", 
     "label": "Carriacou and Petite Martinique", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Grenada.svg", 
     "geonamesURI": "http://sws.geonames.org/7303836/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cayman_Islands", 
+    "id": "http://dbpedia.org/resource/Cayman_Islands", 
     "label": "Cayman Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0f/Flag_of_the_Cayman_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/3580718/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Central_African_Republic", 
+    "id": "http://dbpedia.org/resource/Central_African_Republic", 
     "label": "Central African Republic", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/6f/Flag_of_the_Central_African_Republic.svg", 
     "geonamesURI": "http://sws.geonames.org/239880/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Chad", 
+    "id": "http://dbpedia.org/resource/Chad", 
     "label": "Chad", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4b/Flag_of_Chad.svg", 
     "geonamesURI": "http://sws.geonames.org/2434508/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Chalco", 
+    "id": "http://dbpedia.org/resource/Chalco", 
     "label": "Chalco", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_New_Spain.svg", 
     "geonamesURI": "http://sws.geonames.org/3531200/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Chester_Gap", 
+    "id": "http://dbpedia.org/resource/Chester_Gap", 
     "label": "Chester Gap", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e3/US_522.svg", 
     "geonamesURI": "http://sws.geonames.org/4752235/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Chile", 
+    "id": "http://dbpedia.org/resource/Chile", 
     "label": "Chile", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/78/Flag_of_Chile.svg", 
     "geonamesURI": "http://sws.geonames.org/3895114/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Christmas_Island", 
+    "id": "http://dbpedia.org/resource/Christmas_Island", 
     "label": "Christmas Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/67/Flag_of_Christmas_Island.svg", 
     "geonamesURI": "http://sws.geonames.org/2078138/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Circuit_de_Monaco", 
+    "id": "http://dbpedia.org/resource/Circuit_de_Monaco", 
     "label": "Circuit de Monaco", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/36/Monte_Carlo_Formula_1_track_map.svg", 
     "geonamesURI": "http://sws.geonames.org/6640329/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cocos_(Keeling)_Islands", 
+    "id": "http://dbpedia.org/resource/Cocos_(Keeling)_Islands", 
     "label": "Cocos (Keeling) Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/74/Flag_of_the_Cocos_(Keeling)_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/1547376/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Collectivity_of_Saint_Martin", 
+    "id": "http://dbpedia.org/resource/Collectivity_of_Saint_Martin", 
     "label": "Collectivity of Saint Martin", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ec/Flag_of_Saint-Martin_(local).svg", 
     "geonamesURI": "http://sws.geonames.org/3578422/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Colombia", 
+    "id": "http://dbpedia.org/resource/Colombia", 
     "label": "Colombia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Colombia.svg", 
     "geonamesURI": "http://sws.geonames.org/3686110/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Comoros", 
+    "id": "http://dbpedia.org/resource/Comoros", 
     "label": "Comoros", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/94/Flag_of_the_Comoros.svg", 
     "geonamesURI": "http://sws.geonames.org/921929/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Comtat_Venaissin", 
+    "id": "http://dbpedia.org/resource/Comtat_Venaissin", 
     "label": "Comtat Venaissin", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg", 
     "geonamesURI": "http://sws.geonames.org/3024049/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Concei%C3%A7%C3%A3o_do_Mato_Dentro", 
+    "id": "http://dbpedia.org/resource/Concei%C3%A7%C3%A3o_do_Mato_Dentro", 
     "label": "Concei\u00e7\u00e3o do Mato Dentro", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/47/MinasGerais_Municip_ConceicaodoMatoDentro.svg", 
     "geonamesURI": "http://sws.geonames.org/3465745/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Conondale_Range", 
+    "id": "http://dbpedia.org/resource/Conondale_Range", 
     "label": "Conondale Range", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ef/RedMountain.svg", 
     "geonamesURI": "http://sws.geonames.org/2170747/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cook_Islands", 
+    "id": "http://dbpedia.org/resource/Cook_Islands", 
     "label": "Cook Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/35/Flag_of_the_Cook_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/1899402/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cornwall", 
+    "id": "http://dbpedia.org/resource/Cornwall", 
     "label": "Cornwall", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b8/Flag_of_Cornwall.svg", 
     "geonamesURI": "http://sws.geonames.org/2652355/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Crimea", 
+    "id": "http://dbpedia.org/resource/Crimea", 
     "label": "Crimea", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/aa/Flag_of_Crimea.svg", 
     "geonamesURI": "http://sws.geonames.org/703883/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Crnoljeva", 
+    "id": "http://dbpedia.org/resource/Crnoljeva", 
     "label": "Crnoljeva", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/8e/Kosovo_map-en.svg", 
     "geonamesURI": "http://sws.geonames.org/791764/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Croatia", 
+    "id": "http://dbpedia.org/resource/Croatia", 
     "label": "Croatia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Croatia.svg", 
     "geonamesURI": "http://sws.geonames.org/3202326/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cuba", 
+    "id": "http://dbpedia.org/resource/Cuba", 
     "label": "Cuba", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bd/Flag_of_Cuba.svg", 
     "geonamesURI": "http://sws.geonames.org/3562981/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cura%C3%A7ao", 
+    "id": "http://dbpedia.org/resource/Cura%C3%A7ao", 
     "label": "Cura\u00e7ao", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b1/Flag_of_Cura\u00e7ao.svg", 
     "geonamesURI": "http://sws.geonames.org/7626836/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Cyprus", 
+    "id": "http://dbpedia.org/resource/Cyprus", 
     "label": "Cyprus", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Cyprus.svg", 
     "geonamesURI": "http://sws.geonames.org/146669/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Czech_Republic", 
+    "id": "http://dbpedia.org/resource/Czech_Republic", 
     "label": "Czech Republic", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/cb/Flag_of_the_Czech_Republic.svg", 
     "geonamesURI": "http://sws.geonames.org/3077311/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Czechoslovakia", 
+    "id": "http://dbpedia.org/resource/Czechoslovakia", 
     "label": "Czechoslovakia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_Austria-Hungary_1869-1918.svg", 
     "geonamesURI": "http://sws.geonames.org/8505031/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Darfur", 
+    "id": "http://dbpedia.org/resource/Darfur", 
     "label": "Darfur", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/71/Bandera_Darfur.svg", 
     "geonamesURI": "http://sws.geonames.org/376731/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Dejima", 
+    "id": "http://dbpedia.org/resource/Dejima", 
     "label": "Dejima", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/65/Flag_Portugal_(1640).svg", 
     "geonamesURI": "http://sws.geonames.org/7562123/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Democratic_Republic_of_the_Congo", 
+    "id": "http://dbpedia.org/resource/Democratic_Republic_of_the_Congo", 
     "label": "Democratic Republic of the Congo", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/6f/Flag_of_the_Democratic_Republic_of_the_Congo.svg", 
     "geonamesURI": "http://sws.geonames.org/203312/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Denmark", 
+    "id": "http://dbpedia.org/resource/Denmark", 
     "label": "Denmark", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9c/Flag_of_Denmark.svg", 
     "geonamesURI": "http://sws.geonames.org/2623032/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Derbyshire", 
+    "id": "http://dbpedia.org/resource/Derbyshire", 
     "label": "Derbyshire", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0f/Derbyshire_UK_locator_map_2010.svg", 
     "geonamesURI": "http://sws.geonames.org/2651346/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Djibouti", 
+    "id": "http://dbpedia.org/resource/Djibouti", 
     "label": "Djibouti", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/34/Flag_of_Djibouti.svg", 
     "geonamesURI": "http://sws.geonames.org/223816/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Dominica", 
+    "id": "http://dbpedia.org/resource/Dominica", 
     "label": "Dominica", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c4/Flag_of_Dominica.svg", 
     "geonamesURI": "http://sws.geonames.org/3575830/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Dominican_Republic", 
+    "id": "http://dbpedia.org/resource/Dominican_Republic", 
     "label": "Dominican Republic", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_the_Dominican_Republic.svg", 
     "geonamesURI": "http://sws.geonames.org/3508796/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Dutch_East_Indies", 
+    "id": "http://dbpedia.org/resource/Dutch_East_Indies", 
     "label": "Dutch East Indies", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/81/Flag_of_the_Dutch_East_India_Company.svg", 
     "geonamesURI": "http://sws.geonames.org/1643084/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/East_Germany", 
+    "id": "http://dbpedia.org/resource/East_Germany", 
     "label": "East Germany", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Germany_(1946-1949).svg", 
     "geonamesURI": "http://sws.geonames.org/8354410/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/East_Timor", 
+    "id": "http://dbpedia.org/resource/East_Timor", 
     "label": "East Timor", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/26/Flag_of_East_Timor.svg", 
     "geonamesURI": "http://sws.geonames.org/1966436/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ecuador", 
+    "id": "http://dbpedia.org/resource/Ecuador", 
     "label": "Ecuador", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e8/Flag_of_Ecuador.svg", 
     "geonamesURI": "http://sws.geonames.org/3658394/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Egypt", 
+    "id": "http://dbpedia.org/resource/Egypt", 
     "label": "Egypt", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fe/Flag_of_Egypt.svg", 
     "geonamesURI": "http://sws.geonames.org/357994/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/El_Salvador", 
+    "id": "http://dbpedia.org/resource/El_Salvador", 
     "label": "El Salvador", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/34/Flag_of_El_Salvador.svg", 
     "geonamesURI": "http://sws.geonames.org/3585968/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Emae", 
+    "id": "http://dbpedia.org/resource/Emae", 
     "label": "Emae", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4a/Cercle_rouge_100%25.svg", 
     "geonamesURI": "http://sws.geonames.org/2137121/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/England", 
+    "id": "http://dbpedia.org/resource/England", 
     "label": "England", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/be/Flag_of_England.svg", 
     "geonamesURI": "http://sws.geonames.org/6269131/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Equatorial_Guinea", 
+    "id": "http://dbpedia.org/resource/Equatorial_Guinea", 
     "label": "Equatorial Guinea", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/31/Flag_of_Equatorial_Guinea.svg", 
     "geonamesURI": "http://sws.geonames.org/2309096/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Eritrea", 
+    "id": "http://dbpedia.org/resource/Eritrea", 
     "label": "Eritrea", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/29/Flag_of_Eritrea.svg", 
     "geonamesURI": "http://sws.geonames.org/338010/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Estonia", 
+    "id": "http://dbpedia.org/resource/Estonia", 
     "label": "Estonia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/8f/Flag_of_Estonia.svg", 
     "geonamesURI": "http://sws.geonames.org/453733/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ethiopia", 
+    "id": "http://dbpedia.org/resource/Ethiopia", 
     "label": "Ethiopia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/71/Flag_of_Ethiopia.svg", 
     "geonamesURI": "http://sws.geonames.org/337996/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Europa_Island", 
+    "id": "http://dbpedia.org/resource/Europa_Island", 
     "label": "Europa Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/933909/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Falkland_Islands", 
+    "id": "http://dbpedia.org/resource/Falkland_Islands", 
     "label": "Falkland Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_the_Falkland_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/3474414/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Federated_States_of_Micronesia", 
+    "id": "http://dbpedia.org/resource/Federated_States_of_Micronesia", 
     "label": "Federated States of Micronesia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4c/Flag_of_Federated_States_of_Micronesia.svg", 
     "geonamesURI": "http://sws.geonames.org/2081918/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Federation_of_Bosnia_and_Herzegovina", 
+    "id": "http://dbpedia.org/resource/Federation_of_Bosnia_and_Herzegovina", 
     "label": "Federation of Bosnia and Herzegovina", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/3c/Bosnia_and_Herzegovina,_administrative_divisions_-_en_(entities)_-_colored.svg", 
     "geonamesURI": "http://sws.geonames.org/3229999/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Fiji", 
+    "id": "http://dbpedia.org/resource/Fiji", 
     "label": "Fiji", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/ba/Flag_of_Fiji.svg", 
     "geonamesURI": "http://sws.geonames.org/2205218/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Finland", 
+    "id": "http://dbpedia.org/resource/Finland", 
     "label": "Finland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Finland.svg", 
     "geonamesURI": "http://sws.geonames.org/660013/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/France", 
+    "id": "http://dbpedia.org/resource/France", 
     "label": "France", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg", 
     "geonamesURI": "http://sws.geonames.org/3017382/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Frauenchiemsee", 
+    "id": "http://dbpedia.org/resource/Frauenchiemsee", 
     "label": "Frauenchiemsee", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_Bavaria_(lozengy).svg", 
     "geonamesURI": "http://sws.geonames.org/2925339/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Fraum%C3%BCnster", 
+    "id": "http://dbpedia.org/resource/Fraum%C3%BCnster", 
     "label": "Fraum\u00fcnster", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Switzerland.svg", 
     "geonamesURI": "http://sws.geonames.org/6946269/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/French_Polynesia", 
+    "id": "http://dbpedia.org/resource/French_Polynesia", 
     "label": "French Polynesia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/db/Flag_of_French_Polynesia.svg", 
     "geonamesURI": "http://sws.geonames.org/4030656/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/French_Southern_and_Antarctic_Lands", 
+    "id": "http://dbpedia.org/resource/French_Southern_and_Antarctic_Lands", 
     "label": "French Southern and Antarctic Lands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/1546748/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Gabon", 
+    "id": "http://dbpedia.org/resource/Gabon", 
     "label": "Gabon", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/04/Flag_of_Gabon.svg", 
     "geonamesURI": "http://sws.geonames.org/2400553/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Gagauzia", 
+    "id": "http://dbpedia.org/resource/Gagauzia", 
     "label": "Gagauzia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/69/Flag_of_Gagauzia.svg", 
     "geonamesURI": "http://sws.geonames.org/858895/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Gallic_Empire", 
+    "id": "http://dbpedia.org/resource/Gallic_Empire", 
     "label": "Gallic Empire", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/83/Vexilloid_of_the_Roman_Empire.svg", 
     "geonamesURI": "http://sws.geonames.org/8378564/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Gaza_Strip", 
+    "id": "http://dbpedia.org/resource/Gaza_Strip", 
     "label": "Gaza Strip", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_Palestine.svg", 
     "geonamesURI": "http://sws.geonames.org/281132/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Georgia_(country)", 
+    "id": "http://dbpedia.org/resource/Georgia_(country)", 
     "label": "Georgia (country)", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0f/Flag_of_Georgia.svg", 
     "geonamesURI": "http://sws.geonames.org/614540/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Germany", 
+    "id": "http://dbpedia.org/resource/Germany", 
     "label": "Germany", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/ba/Flag_of_Germany.svg", 
     "geonamesURI": "http://sws.geonames.org/2921044/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ghana", 
+    "id": "http://dbpedia.org/resource/Ghana", 
     "label": "Ghana", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_Ghana.svg", 
     "geonamesURI": "http://sws.geonames.org/2300660/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Gibraltar", 
+    "id": "http://dbpedia.org/resource/Gibraltar", 
     "label": "Gibraltar", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/02/Flag_of_Gibraltar.svg", 
     "geonamesURI": "http://sws.geonames.org/2411586/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Glorioso_Islands", 
+    "id": "http://dbpedia.org/resource/Glorioso_Islands", 
     "label": "Glorioso Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/1024033/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Grande_Comore", 
+    "id": "http://dbpedia.org/resource/Grande_Comore", 
     "label": "Grande Comore", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/33/Flag_of_Grande_Comore.svg", 
     "geonamesURI": "http://sws.geonames.org/921882/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Greece", 
+    "id": "http://dbpedia.org/resource/Greece", 
     "label": "Greece", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Greece.svg", 
     "geonamesURI": "http://sws.geonames.org/390903/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Greenland", 
+    "id": "http://dbpedia.org/resource/Greenland", 
     "label": "Greenland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/09/Flag_of_Greenland.svg", 
     "geonamesURI": "http://sws.geonames.org/3425505/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Grenada", 
+    "id": "http://dbpedia.org/resource/Grenada", 
     "label": "Grenada", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Grenada.svg", 
     "geonamesURI": "http://sws.geonames.org/3580239/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Guam", 
+    "id": "http://dbpedia.org/resource/Guam", 
     "label": "Guam", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/07/Flag_of_Guam.svg", 
     "geonamesURI": "http://sws.geonames.org/4043542/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Guatemala", 
+    "id": "http://dbpedia.org/resource/Guatemala", 
     "label": "Guatemala", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ec/Flag_of_Guatemala.svg", 
     "geonamesURI": "http://sws.geonames.org/3595528/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Guernsey", 
+    "id": "http://dbpedia.org/resource/Guernsey", 
     "label": "Guernsey", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fa/Flag_of_Guernsey.svg", 
     "geonamesURI": "http://sws.geonames.org/3042363/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Guinea", 
+    "id": "http://dbpedia.org/resource/Guinea", 
     "label": "Guinea", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ed/Flag_of_Guinea.svg", 
     "geonamesURI": "http://sws.geonames.org/2420477/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Guinea-Bissau", 
+    "id": "http://dbpedia.org/resource/Guinea-Bissau", 
     "label": "Guinea-Bissau", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Guinea-Bissau.svg", 
     "geonamesURI": "http://sws.geonames.org/2372248/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Guyana", 
+    "id": "http://dbpedia.org/resource/Guyana", 
     "label": "Guyana", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_Guyana.svg", 
     "geonamesURI": "http://sws.geonames.org/3378535/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Haiti", 
+    "id": "http://dbpedia.org/resource/Haiti", 
     "label": "Haiti", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/56/Flag_of_Haiti.svg", 
     "geonamesURI": "http://sws.geonames.org/3723988/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Hampshire", 
+    "id": "http://dbpedia.org/resource/Hampshire", 
     "label": "Hampshire", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e9/Flag_of_Hampshire.svg", 
     "geonamesURI": "http://sws.geonames.org/2647554/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Herm", 
+    "id": "http://dbpedia.org/resource/Herm", 
     "label": "Herm", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b8/Flag_of_Herm.svg", 
     "geonamesURI": "http://sws.geonames.org/3042359/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Honduras", 
+    "id": "http://dbpedia.org/resource/Honduras", 
     "label": "Honduras", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/82/Flag_of_Honduras.svg", 
     "geonamesURI": "http://sws.geonames.org/3608932/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Hungary", 
+    "id": "http://dbpedia.org/resource/Hungary", 
     "label": "Hungary", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c1/Flag_of_Hungary.svg", 
     "geonamesURI": "http://sws.geonames.org/719819/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Iceland", 
+    "id": "http://dbpedia.org/resource/Iceland", 
     "label": "Iceland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Iceland.svg", 
     "geonamesURI": "http://sws.geonames.org/2629691/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/India", 
+    "id": "http://dbpedia.org/resource/India", 
     "label": "India", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_India.svg", 
     "geonamesURI": "http://sws.geonames.org/1269750/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Indonesia", 
+    "id": "http://dbpedia.org/resource/Indonesia", 
     "label": "Indonesia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Indonesia.svg", 
     "geonamesURI": "http://sws.geonames.org/1643084/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Iran", 
+    "id": "http://dbpedia.org/resource/Iran", 
     "label": "Iran", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/ca/Flag_of_Iran.svg", 
     "geonamesURI": "http://sws.geonames.org/130758/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Iraq", 
+    "id": "http://dbpedia.org/resource/Iraq", 
     "label": "Iraq", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f6/Flag_of_Iraq.svg", 
     "geonamesURI": "http://sws.geonames.org/99237/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Isle_of_Man", 
+    "id": "http://dbpedia.org/resource/Isle_of_Man", 
     "label": "Isle of Man", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_the_Isle_of_Man.svg", 
     "geonamesURI": "http://sws.geonames.org/3042225/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Israel", 
+    "id": "http://dbpedia.org/resource/Israel", 
     "label": "Israel", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Israel.svg", 
     "geonamesURI": "http://sws.geonames.org/294640/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Italy", 
+    "id": "http://dbpedia.org/resource/Italy", 
     "label": "Italy", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/03/Flag_of_Italy.svg", 
     "geonamesURI": "http://sws.geonames.org/3175395/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Jamaica", 
+    "id": "http://dbpedia.org/resource/Jamaica", 
     "label": "Jamaica", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0a/Flag_of_Jamaica.svg", 
     "geonamesURI": "http://sws.geonames.org/3489940/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Japan", 
+    "id": "http://dbpedia.org/resource/Japan", 
     "label": "Japan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9e/Flag_of_Japan.svg", 
     "geonamesURI": "http://sws.geonames.org/1861060/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Jersey", 
+    "id": "http://dbpedia.org/resource/Jersey", 
     "label": "Jersey", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/1c/Flag_of_Jersey.svg", 
     "geonamesURI": "http://sws.geonames.org/3042142/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Jordan", 
+    "id": "http://dbpedia.org/resource/Jordan", 
     "label": "Jordan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c0/Flag_of_Jordan.svg", 
     "geonamesURI": "http://sws.geonames.org/248816/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Juan_de_Nova_Island", 
+    "id": "http://dbpedia.org/resource/Juan_de_Nova_Island", 
     "label": "Juan de Nova Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/1024028/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Karakalpakstan", 
+    "id": "http://dbpedia.org/resource/Karakalpakstan", 
     "label": "Karakalpakstan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/16/Flag_of_Karakalpakstan.svg", 
     "geonamesURI": "http://sws.geonames.org/453752/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kazakhstan", 
+    "id": "http://dbpedia.org/resource/Kazakhstan", 
     "label": "Kazakhstan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg", 
     "geonamesURI": "http://sws.geonames.org/1522867/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kenya", 
+    "id": "http://dbpedia.org/resource/Kenya", 
     "label": "Kenya", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/49/Flag_of_Kenya.svg", 
     "geonamesURI": "http://sws.geonames.org/192950/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Keweenaw_Peninsula", 
+    "id": "http://dbpedia.org/resource/Keweenaw_Peninsula", 
     "label": "Keweenaw Peninsula", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/8f/KeweenawPeninsula.svg", 
     "geonamesURI": "http://sws.geonames.org/4998070/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Khmer_Republic", 
+    "id": "http://dbpedia.org/resource/Khmer_Republic", 
     "label": "Khmer Republic", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_Cambodia.svg", 
     "geonamesURI": "http://sws.geonames.org/1831722/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kingdom_of_Mapungubwe", 
+    "id": "http://dbpedia.org/resource/Kingdom_of_Mapungubwe", 
     "label": "Kingdom of Mapungubwe", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/16/Zimbabwe_Bird.svg", 
     "geonamesURI": "http://sws.geonames.org/7302216/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kiribati", 
+    "id": "http://dbpedia.org/resource/Kiribati", 
     "label": "Kiribati", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kiribati.svg", 
     "geonamesURI": "http://sws.geonames.org/4030945/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Klingenm%C3%BCnster_Abbey", 
+    "id": "http://dbpedia.org/resource/Klingenm%C3%BCnster_Abbey", 
     "label": "Klingenm\u00fcnster Abbey", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b2/Wappen_Jugenheim_(Rheinhessen).svg", 
     "geonamesURI": "http://sws.geonames.org/6555200/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kosovo", 
+    "id": "http://dbpedia.org/resource/Kosovo", 
     "label": "Kosovo", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0c/Kosovo_in_its_region.svg", 
     "geonamesURI": "http://sws.geonames.org/831053/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kuwait", 
+    "id": "http://dbpedia.org/resource/Kuwait", 
     "label": "Kuwait", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/aa/Flag_of_Kuwait.svg", 
     "geonamesURI": "http://sws.geonames.org/285570/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Kyrgyzstan", 
+    "id": "http://dbpedia.org/resource/Kyrgyzstan", 
     "label": "Kyrgyzstan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg", 
     "geonamesURI": "http://sws.geonames.org/1527747/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Laos", 
+    "id": "http://dbpedia.org/resource/Laos", 
     "label": "Laos", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/56/Flag_of_Laos.svg", 
     "geonamesURI": "http://sws.geonames.org/1655842/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Latvia", 
+    "id": "http://dbpedia.org/resource/Latvia", 
     "label": "Latvia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Latvia.svg", 
     "geonamesURI": "http://sws.geonames.org/458258/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Lebanon", 
+    "id": "http://dbpedia.org/resource/Lebanon", 
     "label": "Lebanon", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/59/Flag_of_Lebanon.svg", 
     "geonamesURI": "http://sws.geonames.org/272103/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Lesotho", 
+    "id": "http://dbpedia.org/resource/Lesotho", 
     "label": "Lesotho", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4a/Flag_of_Lesotho.svg", 
     "geonamesURI": "http://sws.geonames.org/932692/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Liberia", 
+    "id": "http://dbpedia.org/resource/Liberia", 
     "label": "Liberia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b8/Flag_of_Liberia.svg", 
     "geonamesURI": "http://sws.geonames.org/2275384/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Libya", 
+    "id": "http://dbpedia.org/resource/Libya", 
     "label": "Libya", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Libya.svg", 
     "geonamesURI": "http://sws.geonames.org/2215636/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Liechtenstein", 
+    "id": "http://dbpedia.org/resource/Liechtenstein", 
     "label": "Liechtenstein", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/47/Flag_of_Liechtenstein.svg", 
     "geonamesURI": "http://sws.geonames.org/3042058/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Lithuania", 
+    "id": "http://dbpedia.org/resource/Lithuania", 
     "label": "Lithuania", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_Lithuania.svg", 
     "geonamesURI": "http://sws.geonames.org/597427/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Lithuanian_Soviet_Socialist_Republic_(1918%E2%80%931919)", 
+    "id": "http://dbpedia.org/resource/Lithuanian_Soviet_Socialist_Republic_(1918%E2%80%931919)", 
     "label": "Lithuanian Soviet Socialist Republic (1918\u20131919)", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9c/Flag_of_Lithuania_1918-1940.svg", 
     "geonamesURI": "http://sws.geonames.org/597427/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Los_R%C3%ADos_Region", 
+    "id": "http://dbpedia.org/resource/Los_R%C3%ADos_Region", 
     "label": "Los R\u00edos Region", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/ae/Los_Rios_in_Chile_(equirectangular_projection)_(zoom).svg", 
     "geonamesURI": "http://sws.geonames.org/6693563/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Luxembourg", 
+    "id": "http://dbpedia.org/resource/Luxembourg", 
     "label": "Luxembourg", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/da/Flag_of_Luxembourg.svg", 
     "geonamesURI": "http://sws.geonames.org/2960313/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Macau", 
+    "id": "http://dbpedia.org/resource/Macau", 
     "label": "Macau", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/63/Flag_of_Macau.svg", 
     "geonamesURI": "http://sws.geonames.org/1821275/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Madagascar", 
+    "id": "http://dbpedia.org/resource/Madagascar", 
     "label": "Madagascar", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Madagascar.svg", 
     "geonamesURI": "http://sws.geonames.org/1062947/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Malawi", 
+    "id": "http://dbpedia.org/resource/Malawi", 
     "label": "Malawi", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d1/Flag_of_Malawi.svg", 
     "geonamesURI": "http://sws.geonames.org/927384/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Malaysia", 
+    "id": "http://dbpedia.org/resource/Malaysia", 
     "label": "Malaysia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/66/Flag_of_Malaysia.svg", 
     "geonamesURI": "http://sws.geonames.org/1733045/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Maldives", 
+    "id": "http://dbpedia.org/resource/Maldives", 
     "label": "Maldives", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0f/Flag_of_Maldives.svg", 
     "geonamesURI": "http://sws.geonames.org/1282028/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mali", 
+    "id": "http://dbpedia.org/resource/Mali", 
     "label": "Mali", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_Mali.svg", 
     "geonamesURI": "http://sws.geonames.org/2453866/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Malta", 
+    "id": "http://dbpedia.org/resource/Malta", 
     "label": "Malta", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/73/Flag_of_Malta.svg", 
     "geonamesURI": "http://sws.geonames.org/2562770/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Marshall_Islands", 
+    "id": "http://dbpedia.org/resource/Marshall_Islands", 
     "label": "Marshall Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/2e/Flag_of_the_Marshall_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/2080185/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mauritania", 
+    "id": "http://dbpedia.org/resource/Mauritania", 
     "label": "Mauritania", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/43/Flag_of_Mauritania.svg", 
     "geonamesURI": "http://sws.geonames.org/2378080/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mauritius", 
+    "id": "http://dbpedia.org/resource/Mauritius", 
     "label": "Mauritius", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Mauritius.svg", 
     "geonamesURI": "http://sws.geonames.org/934292/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mayotte", 
+    "id": "http://dbpedia.org/resource/Mayotte", 
     "label": "Mayotte", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4a/Flag_of_Mayotte_(local).svg", 
     "geonamesURI": "http://sws.geonames.org/1024031/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mexico", 
+    "id": "http://dbpedia.org/resource/Mexico", 
     "label": "Mexico", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg", 
     "geonamesURI": "http://sws.geonames.org/3996063/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Moh%C3%A9li", 
+    "id": "http://dbpedia.org/resource/Moh%C3%A9li", 
     "label": "Moh\u00e9li", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/c2/Flag_of_Moh\u00e9li_(official).svg", 
     "geonamesURI": "http://sws.geonames.org/921780/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Monaco", 
+    "id": "http://dbpedia.org/resource/Monaco", 
     "label": "Monaco", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ea/Flag_of_Monaco.svg", 
     "geonamesURI": "http://sws.geonames.org/2993457/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mongolia", 
+    "id": "http://dbpedia.org/resource/Mongolia", 
     "label": "Mongolia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4c/Flag_of_Mongolia.svg", 
     "geonamesURI": "http://sws.geonames.org/2029969/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Montenegro", 
+    "id": "http://dbpedia.org/resource/Montenegro", 
     "label": "Montenegro", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Montenegro.svg", 
     "geonamesURI": "http://sws.geonames.org/3194884/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Montserrat", 
+    "id": "http://dbpedia.org/resource/Montserrat", 
     "label": "Montserrat", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d0/Flag_of_Montserrat.svg", 
     "geonamesURI": "http://sws.geonames.org/3578097/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Morocco", 
+    "id": "http://dbpedia.org/resource/Morocco", 
     "label": "Morocco", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/2c/Flag_of_Morocco.svg", 
     "geonamesURI": "http://sws.geonames.org/2542007/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mozambique", 
+    "id": "http://dbpedia.org/resource/Mozambique", 
     "label": "Mozambique", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d0/Flag_of_Mozambique.svg", 
     "geonamesURI": "http://sws.geonames.org/1036973/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Mykolaiv_Oblast", 
+    "id": "http://dbpedia.org/resource/Mykolaiv_Oblast", 
     "label": "Mykolaiv Oblast", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e1/Flag_of_Mykolaiv_Oblast.svg", 
     "geonamesURI": "http://sws.geonames.org/700567/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Namibia", 
+    "id": "http://dbpedia.org/resource/Namibia", 
     "label": "Namibia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_Namibia.svg", 
     "geonamesURI": "http://sws.geonames.org/3355338/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Nauru", 
+    "id": "http://dbpedia.org/resource/Nauru", 
     "label": "Nauru", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/30/Flag_of_Nauru.svg", 
     "geonamesURI": "http://sws.geonames.org/2110425/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Nepal", 
+    "id": "http://dbpedia.org/resource/Nepal", 
     "label": "Nepal", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9b/Flag_of_Nepal.svg", 
     "geonamesURI": "http://sws.geonames.org/1282988/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Netherlands", 
+    "id": "http://dbpedia.org/resource/Netherlands", 
     "label": "Netherlands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg", 
     "geonamesURI": "http://sws.geonames.org/2750405/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Netherlands_Antilles", 
+    "id": "http://dbpedia.org/resource/Netherlands_Antilles", 
     "label": "Netherlands Antilles", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_the_Netherlands_Antilles_(1986-2010).svg", 
     "geonamesURI": "http://sws.geonames.org/8505032/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Nevis", 
+    "id": "http://dbpedia.org/resource/Nevis", 
     "label": "Nevis", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/33/Flag_of_Nevis.svg", 
     "geonamesURI": "http://sws.geonames.org/3575263/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/New_Caledonia", 
+    "id": "http://dbpedia.org/resource/New_Caledonia", 
     "label": "New Caledonia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_New_Caledonia.svg", 
     "geonamesURI": "http://sws.geonames.org/2139685/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/New_Swabia", 
+    "id": "http://dbpedia.org/resource/New_Swabia", 
     "label": "New Swabia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg", 
     "geonamesURI": "http://sws.geonames.org/6622194/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/New_Zealand", 
+    "id": "http://dbpedia.org/resource/New_Zealand", 
     "label": "New Zealand", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/3e/Flag_of_New_Zealand.svg", 
     "geonamesURI": "http://sws.geonames.org/2186224/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Nicaragua", 
+    "id": "http://dbpedia.org/resource/Nicaragua", 
     "label": "Nicaragua", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_Nicaragua.svg", 
     "geonamesURI": "http://sws.geonames.org/3617476/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Niger", 
+    "id": "http://dbpedia.org/resource/Niger", 
     "label": "Niger", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f4/Flag_of_Niger.svg", 
     "geonamesURI": "http://sws.geonames.org/2440476/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Nigeria", 
+    "id": "http://dbpedia.org/resource/Nigeria", 
     "label": "Nigeria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/79/Flag_of_Nigeria.svg", 
     "geonamesURI": "http://sws.geonames.org/2328926/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Niue", 
+    "id": "http://dbpedia.org/resource/Niue", 
     "label": "Niue", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Niue.svg", 
     "geonamesURI": "http://sws.geonames.org/4036232/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Norfolk_Island", 
+    "id": "http://dbpedia.org/resource/Norfolk_Island", 
     "label": "Norfolk Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Norfolk_Island.svg", 
     "geonamesURI": "http://sws.geonames.org/2155115/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/North_Korea", 
+    "id": "http://dbpedia.org/resource/North_Korea", 
     "label": "North Korea", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/51/Flag_of_North_Korea.svg", 
     "geonamesURI": "http://sws.geonames.org/1873107/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Northern_Ireland", 
+    "id": "http://dbpedia.org/resource/Northern_Ireland", 
     "label": "Northern Ireland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fb/Northern_Ireland_in_the_UK_and_Europe.svg", 
     "geonamesURI": "http://sws.geonames.org/2641364/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Northern_Mariana_Islands", 
+    "id": "http://dbpedia.org/resource/Northern_Mariana_Islands", 
     "label": "Northern Mariana Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e0/Flag_of_the_Northern_Mariana_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/4041468/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Northumberland", 
+    "id": "http://dbpedia.org/resource/Northumberland", 
     "label": "Northumberland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/61/Flag_of_Northumberland.svg", 
     "geonamesURI": "http://sws.geonames.org/2641235/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Norway", 
+    "id": "http://dbpedia.org/resource/Norway", 
     "label": "Norway", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg", 
     "geonamesURI": "http://sws.geonames.org/3144096/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Nuguria", 
+    "id": "http://dbpedia.org/resource/Nuguria", 
     "label": "Nuguria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4a/Cercle_rouge_100%25.svg", 
     "geonamesURI": "http://sws.geonames.org/8260878/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Okapa_District", 
+    "id": "http://dbpedia.org/resource/Okapa_District", 
     "label": "Okapa District", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/24/Ehpdistricts.svg", 
     "geonamesURI": "http://sws.geonames.org/2089207/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Oman", 
+    "id": "http://dbpedia.org/resource/Oman", 
     "label": "Oman", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Oman.svg", 
     "geonamesURI": "http://sws.geonames.org/286963/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Orange_Free_State", 
+    "id": "http://dbpedia.org/resource/Orange_Free_State", 
     "label": "Orange Free State", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/ae/Flag_of_the_United_Kingdom.svg", 
     "geonamesURI": "http://sws.geonames.org/967573/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Osroene", 
+    "id": "http://dbpedia.org/resource/Osroene", 
     "label": "Osroene", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/83/Vexilloid_of_the_Roman_Empire.svg", 
     "geonamesURI": "http://sws.geonames.org/8378523/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ottobeuren_Abbey", 
+    "id": "http://dbpedia.org/resource/Ottobeuren_Abbey", 
     "label": "Ottobeuren Abbey", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_Bavaria_(lozengy).svg", 
     "geonamesURI": "http://sws.geonames.org/8030045/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Pakistan", 
+    "id": "http://dbpedia.org/resource/Pakistan", 
     "label": "Pakistan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Pakistan.svg", 
     "geonamesURI": "http://sws.geonames.org/1168579/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Palau", 
+    "id": "http://dbpedia.org/resource/Palau", 
     "label": "Palau", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Palau.svg", 
     "geonamesURI": "http://sws.geonames.org/1559582/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Palestine", 
+    "id": "http://dbpedia.org/resource/Palestine", 
     "label": "Palestine", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/64/Historical_boundaries_of_Palestine_(plain).svg", 
     "geonamesURI": "http://sws.geonames.org/6254930/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Palmyrene_Empire", 
+    "id": "http://dbpedia.org/resource/Palmyrene_Empire", 
     "label": "Palmyrene Empire", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/83/Vexilloid_of_the_Roman_Empire.svg", 
     "geonamesURI": "http://sws.geonames.org/8378566/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Panama", 
+    "id": "http://dbpedia.org/resource/Panama", 
     "label": "Panama", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/ab/Flag_of_Panama.svg", 
     "geonamesURI": "http://sws.geonames.org/3703430/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Papua_New_Guinea", 
+    "id": "http://dbpedia.org/resource/Papua_New_Guinea", 
     "label": "Papua New Guinea", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e3/Flag_of_Papua_New_Guinea.svg", 
     "geonamesURI": "http://sws.geonames.org/2088628/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Paraguay", 
+    "id": "http://dbpedia.org/resource/Paraguay", 
     "label": "Paraguay", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/27/Flag_of_Paraguay.svg", 
     "geonamesURI": "http://sws.geonames.org/3437598/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Peru", 
+    "id": "http://dbpedia.org/resource/Peru", 
     "label": "Peru", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/cc/Escudo_nacional_del_Per\u00fa.svg", 
     "geonamesURI": "http://sws.geonames.org/3932488/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Peter_I_Island", 
+    "id": "http://dbpedia.org/resource/Peter_I_Island", 
     "label": "Peter I Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg", 
     "geonamesURI": "http://sws.geonames.org/6620309/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Philippines", 
+    "id": "http://dbpedia.org/resource/Philippines", 
     "label": "Philippines", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg", 
     "geonamesURI": "http://sws.geonames.org/1694008/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Pitcairn_Islands", 
+    "id": "http://dbpedia.org/resource/Pitcairn_Islands", 
     "label": "Pitcairn Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/88/Flag_of_the_Pitcairn_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/4030699/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Poland", 
+    "id": "http://dbpedia.org/resource/Poland", 
     "label": "Poland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e9/Flag_of_Poland_(normative).svg", 
     "geonamesURI": "http://sws.geonames.org/798544/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Poltava_Oblast", 
+    "id": "http://dbpedia.org/resource/Poltava_Oblast", 
     "label": "Poltava Oblast", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Poltava_Oblast.svg", 
     "geonamesURI": "http://sws.geonames.org/696634/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Portugal", 
+    "id": "http://dbpedia.org/resource/Portugal", 
     "label": "Portugal", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg", 
     "geonamesURI": "http://sws.geonames.org/2264397/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Principality_of_Jersika", 
+    "id": "http://dbpedia.org/resource/Principality_of_Jersika", 
     "label": "Principality of Jersika", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bd/Archbishopric_of_Riga.svg", 
     "geonamesURI": "http://sws.geonames.org/459266/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Puerto_Rico", 
+    "id": "http://dbpedia.org/resource/Puerto_Rico", 
     "label": "Puerto Rico", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/28/Flag_of_Puerto_Rico.svg", 
     "geonamesURI": "http://sws.geonames.org/4566966/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Qatar", 
+    "id": "http://dbpedia.org/resource/Qatar", 
     "label": "Qatar", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Qatar.svg", 
     "geonamesURI": "http://sws.geonames.org/289688/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Queen_Maud_Land", 
+    "id": "http://dbpedia.org/resource/Queen_Maud_Land", 
     "label": "Queen Maud Land", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg", 
     "geonamesURI": "http://sws.geonames.org/6623778/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ramree_Island", 
+    "id": "http://dbpedia.org/resource/Ramree_Island", 
     "label": "Ramree Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4a/Cercle_rouge_100%25.svg", 
     "geonamesURI": "http://sws.geonames.org/1298838/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ravenstein,_Netherlands", 
+    "id": "http://dbpedia.org/resource/Ravenstein,_Netherlands", 
     "label": "Ravenstein, Netherlands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Coat_of_arms_of_Brabant.svg", 
     "geonamesURI": "http://sws.geonames.org/2748308/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Republic_of_Ireland", 
+    "id": "http://dbpedia.org/resource/Republic_of_Ireland", 
     "label": "Republic of Ireland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/45/Flag_of_Ireland.svg", 
     "geonamesURI": "http://sws.geonames.org/2963597/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Republic_of_Macedonia", 
+    "id": "http://dbpedia.org/resource/Republic_of_Macedonia", 
     "label": "Republic of Macedonia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f8/Flag_of_Macedonia.svg", 
     "geonamesURI": "http://sws.geonames.org/718075/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Republic_of_Ragusa", 
+    "id": "http://dbpedia.org/resource/Republic_of_Ragusa", 
     "label": "Republic of Ragusa", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f2/Byzantine_imperial_flag,_14th_century.svg", 
     "geonamesURI": "http://sws.geonames.org/3201047/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Republic_of_the_Congo", 
+    "id": "http://dbpedia.org/resource/Republic_of_the_Congo", 
     "label": "Republic of the Congo", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_the_Republic_of_the_Congo.svg", 
     "geonamesURI": "http://sws.geonames.org/2260494/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Republika_Srpska", 
+    "id": "http://dbpedia.org/resource/Republika_Srpska", 
     "label": "Republika Srpska", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/39/Flag_of_Republika_Srpska.svg", 
     "geonamesURI": "http://sws.geonames.org/3230000/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Rodrigues", 
+    "id": "http://dbpedia.org/resource/Rodrigues", 
     "label": "Rodrigues", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Mauritius.svg", 
     "geonamesURI": "http://sws.geonames.org/1547449/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Romania", 
+    "id": "http://dbpedia.org/resource/Romania", 
     "label": "Romania", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/73/Flag_of_Romania.svg", 
     "geonamesURI": "http://sws.geonames.org/798549/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Russia", 
+    "id": "http://dbpedia.org/resource/Russia", 
     "label": "Russia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg", 
     "geonamesURI": "http://sws.geonames.org/2017370/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Rwanda", 
+    "id": "http://dbpedia.org/resource/Rwanda", 
     "label": "Rwanda", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/17/Flag_of_Rwanda.svg", 
     "geonamesURI": "http://sws.geonames.org/49518/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saint_Barth%C3%A9lemy", 
+    "id": "http://dbpedia.org/resource/Saint_Barth%C3%A9lemy", 
     "label": "Saint Barth\u00e9lemy", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/df/Flag_of_Saint_Barthelemy_(local).svg", 
     "geonamesURI": "http://sws.geonames.org/3578476/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saint_Helena", 
+    "id": "http://dbpedia.org/resource/Saint_Helena", 
     "label": "Saint Helena", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_Saint_Helena.svg", 
     "geonamesURI": "http://sws.geonames.org/6930057/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saint_Kitts_and_Nevis", 
+    "id": "http://dbpedia.org/resource/Saint_Kitts_and_Nevis", 
     "label": "Saint Kitts and Nevis", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fe/Flag_of_Saint_Kitts_and_Nevis.svg", 
     "geonamesURI": "http://sws.geonames.org/3575174/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saint_Lucia", 
+    "id": "http://dbpedia.org/resource/Saint_Lucia", 
     "label": "Saint Lucia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Saint_Lucia.svg", 
     "geonamesURI": "http://sws.geonames.org/3576466/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saint_Pierre_and_Miquelon", 
+    "id": "http://dbpedia.org/resource/Saint_Pierre_and_Miquelon", 
     "label": "Saint Pierre and Miquelon", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/74/Flag_of_Saint-Pierre_and_Miquelon.svg", 
     "geonamesURI": "http://sws.geonames.org/3424932/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saint_Vincent_and_the_Grenadines", 
+    "id": "http://dbpedia.org/resource/Saint_Vincent_and_the_Grenadines", 
     "label": "Saint Vincent and the Grenadines", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/6d/Flag_of_Saint_Vincent_and_the_Grenadines.svg", 
     "geonamesURI": "http://sws.geonames.org/3577815/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/San_Marino", 
+    "id": "http://dbpedia.org/resource/San_Marino", 
     "label": "San Marino", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b1/Flag_of_San_Marino.svg", 
     "geonamesURI": "http://sws.geonames.org/3168068/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sark", 
+    "id": "http://dbpedia.org/resource/Sark", 
     "label": "Sark", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Sark.svg", 
     "geonamesURI": "http://sws.geonames.org/3042282/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Saudi_Arabia", 
+    "id": "http://dbpedia.org/resource/Saudi_Arabia", 
     "label": "Saudi Arabia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg", 
     "geonamesURI": "http://sws.geonames.org/102358/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sayn", 
+    "id": "http://dbpedia.org/resource/Sayn", 
     "label": "Sayn", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9e/Blason_Sayn.svg", 
     "geonamesURI": "http://sws.geonames.org/2951108/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sch%C3%B6ntal_Abbey", 
+    "id": "http://dbpedia.org/resource/Sch%C3%B6ntal_Abbey", 
     "label": "Sch\u00f6ntal Abbey", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/de/Wappen_Kloster_Sch\u00f6ntal.svg", 
     "geonamesURI": "http://sws.geonames.org/6698568/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Scotland", 
+    "id": "http://dbpedia.org/resource/Scotland", 
     "label": "Scotland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_Scotland.svg", 
     "geonamesURI": "http://sws.geonames.org/2638360/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Senegal", 
+    "id": "http://dbpedia.org/resource/Senegal", 
     "label": "Senegal", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg", 
     "geonamesURI": "http://sws.geonames.org/2245662/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Serbia", 
+    "id": "http://dbpedia.org/resource/Serbia", 
     "label": "Serbia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/ff/Flag_of_Serbia.svg", 
     "geonamesURI": "http://sws.geonames.org/6290252/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Seychelles", 
+    "id": "http://dbpedia.org/resource/Seychelles", 
     "label": "Seychelles", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_the_Seychelles.svg", 
     "geonamesURI": "http://sws.geonames.org/241170/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Shropshire", 
+    "id": "http://dbpedia.org/resource/Shropshire", 
     "label": "Shropshire", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bb/Flag_of_Shropshire.svg", 
     "geonamesURI": "http://sws.geonames.org/2638655/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sierra_Leone", 
+    "id": "http://dbpedia.org/resource/Sierra_Leone", 
     "label": "Sierra Leone", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/17/Flag_of_Sierra_Leone.svg", 
     "geonamesURI": "http://sws.geonames.org/2403846/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Singapore", 
+    "id": "http://dbpedia.org/resource/Singapore", 
     "label": "Singapore", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Singapore.svg", 
     "geonamesURI": "http://sws.geonames.org/1880252/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sint_Maarten", 
+    "id": "http://dbpedia.org/resource/Sint_Maarten", 
     "label": "Sint Maarten", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Sint_Maarten.svg", 
     "geonamesURI": "http://sws.geonames.org/7609695/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Slovakia", 
+    "id": "http://dbpedia.org/resource/Slovakia", 
     "label": "Slovakia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/e6/Flag_of_Slovakia.svg", 
     "geonamesURI": "http://sws.geonames.org/3057568/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Slovenia", 
+    "id": "http://dbpedia.org/resource/Slovenia", 
     "label": "Slovenia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f0/Flag_of_Slovenia.svg", 
     "geonamesURI": "http://sws.geonames.org/3190538/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Solomon_Islands", 
+    "id": "http://dbpedia.org/resource/Solomon_Islands", 
     "label": "Solomon Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/74/Flag_of_the_Solomon_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/2103350/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Somalia", 
+    "id": "http://dbpedia.org/resource/Somalia", 
     "label": "Somalia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Somalia.svg", 
     "geonamesURI": "http://sws.geonames.org/51537/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sonsorol", 
+    "id": "http://dbpedia.org/resource/Sonsorol", 
     "label": "Sonsorol", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Sonsorol.svg", 
     "geonamesURI": "http://sws.geonames.org/1559630/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/South_Africa", 
+    "id": "http://dbpedia.org/resource/South_Africa", 
     "label": "South Africa", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/af/Flag_of_South_Africa.svg", 
     "geonamesURI": "http://sws.geonames.org/953987/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/South_Georgia_and_the_South_Sandwich_Islands", 
+    "id": "http://dbpedia.org/resource/South_Georgia_and_the_South_Sandwich_Islands", 
     "label": "South Georgia and the South Sandwich Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/e/ed/Flag_of_South_Georgia_and_the_South_Sandwich_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/3474415/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/South_Sudan", 
+    "id": "http://dbpedia.org/resource/South_Sudan", 
     "label": "South Sudan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/7a/Flag_of_South_Sudan.svg", 
     "geonamesURI": "http://sws.geonames.org/7909807/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Spain", 
+    "id": "http://dbpedia.org/resource/Spain", 
     "label": "Spain", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg", 
     "geonamesURI": "http://sws.geonames.org/2510769/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sri_Lanka", 
+    "id": "http://dbpedia.org/resource/Sri_Lanka", 
     "label": "Sri Lanka", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_Sri_Lanka.svg", 
     "geonamesURI": "http://sws.geonames.org/1227603/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Stadion-Thannhausen", 
+    "id": "http://dbpedia.org/resource/Stadion-Thannhausen", 
     "label": "Stadion-Thannhausen", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_Bavaria_(lozengy).svg", 
     "geonamesURI": "http://sws.geonames.org/2822958/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sudan", 
+    "id": "http://dbpedia.org/resource/Sudan", 
     "label": "Sudan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Sudan.svg", 
     "geonamesURI": "http://sws.geonames.org/366755/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sultanate_of_Egypt", 
+    "id": "http://dbpedia.org/resource/Sultanate_of_Egypt", 
     "label": "Sultanate of Egypt", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/2d/Flag_of_Muhammad_Ali.svg", 
     "geonamesURI": "http://sws.geonames.org/7929207/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Suriname", 
+    "id": "http://dbpedia.org/resource/Suriname", 
     "label": "Suriname", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/60/Flag_of_Suriname.svg", 
     "geonamesURI": "http://sws.geonames.org/3382998/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Svalbard", 
+    "id": "http://dbpedia.org/resource/Svalbard", 
     "label": "Svalbard", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg", 
     "geonamesURI": "http://sws.geonames.org/7521757/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Swaziland", 
+    "id": "http://dbpedia.org/resource/Swaziland", 
     "label": "Swaziland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/1e/Flag_of_Swaziland.svg", 
     "geonamesURI": "http://sws.geonames.org/934841/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Sweden", 
+    "id": "http://dbpedia.org/resource/Sweden", 
     "label": "Sweden", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4c/Flag_of_Sweden.svg", 
     "geonamesURI": "http://sws.geonames.org/2661886/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Switzerland", 
+    "id": "http://dbpedia.org/resource/Switzerland", 
     "label": "Switzerland", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/08/Flag_of_Switzerland_(Pantone).svg", 
     "geonamesURI": "http://sws.geonames.org/2658434/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Syria", 
+    "id": "http://dbpedia.org/resource/Syria", 
     "label": "Syria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/53/Flag_of_Syria.svg", 
     "geonamesURI": "http://sws.geonames.org/163843/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/S%C3%A3o_Tom%C3%A9_and_Pr%C3%ADncipe", 
+    "id": "http://dbpedia.org/resource/S%C3%A3o_Tom%C3%A9_and_Pr%C3%ADncipe", 
     "label": "S\u00e3o Tom\u00e9 and Pr\u00edncipe", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/4f/Flag_of_Sao_Tome_and_Principe.svg", 
     "geonamesURI": "http://sws.geonames.org/2410758/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Taiwan", 
+    "id": "http://dbpedia.org/resource/Taiwan", 
     "label": "Taiwan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/72/Flag_of_the_Republic_of_China.svg", 
     "geonamesURI": "http://sws.geonames.org/1668284/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tajikistan", 
+    "id": "http://dbpedia.org/resource/Tajikistan", 
     "label": "Tajikistan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d0/Flag_of_Tajikistan.svg", 
     "geonamesURI": "http://sws.geonames.org/1220409/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tanzania", 
+    "id": "http://dbpedia.org/resource/Tanzania", 
     "label": "Tanzania", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/38/Flag_of_Tanzania.svg", 
     "geonamesURI": "http://sws.geonames.org/149590/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tenochtitlan", 
+    "id": "http://dbpedia.org/resource/Tenochtitlan", 
     "label": "Tenochtitlan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f9/Tenochtitlan_Glyph_ZP.svg", 
     "geonamesURI": "http://sws.geonames.org/3522598/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Thailand", 
+    "id": "http://dbpedia.org/resource/Thailand", 
     "label": "Thailand", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a9/Flag_of_Thailand.svg", 
     "geonamesURI": "http://sws.geonames.org/1605651/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/The_Bahamas", 
+    "id": "http://dbpedia.org/resource/The_Bahamas", 
     "label": "The Bahamas", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/93/Flag_of_the_Bahamas.svg", 
     "geonamesURI": "http://sws.geonames.org/3572887/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/The_Gambia", 
+    "id": "http://dbpedia.org/resource/The_Gambia", 
     "label": "The Gambia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_The_Gambia.svg", 
     "geonamesURI": "http://sws.geonames.org/2413451/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tobago", 
+    "id": "http://dbpedia.org/resource/Tobago", 
     "label": "Tobago", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Trinidad_and_Tobago.svg", 
     "geonamesURI": "http://sws.geonames.org/3573606/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Togo", 
+    "id": "http://dbpedia.org/resource/Togo", 
     "label": "Togo", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/68/Flag_of_Togo.svg", 
     "geonamesURI": "http://sws.geonames.org/2363686/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tokelau", 
+    "id": "http://dbpedia.org/resource/Tokelau", 
     "label": "Tokelau", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/8e/Flag_of_Tokelau.svg", 
     "geonamesURI": "http://sws.geonames.org/4031074/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tonga", 
+    "id": "http://dbpedia.org/resource/Tonga", 
     "label": "Tonga", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Tonga.svg", 
     "geonamesURI": "http://sws.geonames.org/4032283/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Transnistria", 
+    "id": "http://dbpedia.org/resource/Transnistria", 
     "label": "Transnistria", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Transnistria_(state).svg", 
     "geonamesURI": "http://sws.geonames.org/858889/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Trinidad_and_Tobago", 
+    "id": "http://dbpedia.org/resource/Trinidad_and_Tobago", 
     "label": "Trinidad and Tobago", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Trinidad_and_Tobago.svg", 
     "geonamesURI": "http://sws.geonames.org/3573591/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tristan_da_Cunha", 
+    "id": "http://dbpedia.org/resource/Tristan_da_Cunha", 
     "label": "Tristan da Cunha", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg", 
     "geonamesURI": "http://sws.geonames.org/3370684/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tromelin_Island", 
+    "id": "http://dbpedia.org/resource/Tromelin_Island", 
     "label": "Tromelin Island", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/933908/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tunisia", 
+    "id": "http://dbpedia.org/resource/Tunisia", 
     "label": "Tunisia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Tunisia.svg", 
     "geonamesURI": "http://sws.geonames.org/2464461/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Turkey", 
+    "id": "http://dbpedia.org/resource/Turkey", 
     "label": "Turkey", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg", 
     "geonamesURI": "http://sws.geonames.org/298795/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Turkmenistan", 
+    "id": "http://dbpedia.org/resource/Turkmenistan", 
     "label": "Turkmenistan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg", 
     "geonamesURI": "http://sws.geonames.org/1218197/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Turks_and_Caicos_Islands", 
+    "id": "http://dbpedia.org/resource/Turks_and_Caicos_Islands", 
     "label": "Turks and Caicos Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_the_Turks_and_Caicos_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/3576916/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Tuvalu", 
+    "id": "http://dbpedia.org/resource/Tuvalu", 
     "label": "Tuvalu", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/3/38/Flag_of_Tuvalu.svg", 
     "geonamesURI": "http://sws.geonames.org/2110297/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Twente", 
+    "id": "http://dbpedia.org/resource/Twente", 
     "label": "Twente", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/aa/Flag_of_Twente.svg", 
     "geonamesURI": "http://sws.geonames.org/2746058/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ukraine", 
+    "id": "http://dbpedia.org/resource/Ukraine", 
     "label": "Ukraine", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/49/Flag_of_Ukraine.svg", 
     "geonamesURI": "http://sws.geonames.org/690791/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Ukrainian_Soviet_Socialist_Republic", 
+    "id": "http://dbpedia.org/resource/Ukrainian_Soviet_Socialist_Republic", 
     "label": "Ukrainian Soviet Socialist Republic", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/1/12/Flag_of_Poland.svg", 
     "geonamesURI": "http://sws.geonames.org/690791/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/United_Arab_Emirates", 
+    "id": "http://dbpedia.org/resource/United_Arab_Emirates", 
     "label": "United Arab Emirates", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/c/cb/Flag_of_the_United_Arab_Emirates.svg", 
     "geonamesURI": "http://sws.geonames.org/290557/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/United_Kingdom", 
+    "id": "http://dbpedia.org/resource/United_Kingdom", 
     "label": "United Kingdom", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/ae/Flag_of_the_United_Kingdom.svg", 
     "geonamesURI": "http://sws.geonames.org/2635167/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/United_States", 
+    "id": "http://dbpedia.org/resource/United_States", 
     "label": "United States", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg", 
     "geonamesURI": "http://sws.geonames.org/6252001/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/United_States_Minor_Outlying_Islands", 
+    "id": "http://dbpedia.org/resource/United_States_Minor_Outlying_Islands", 
     "label": "United States Minor Outlying Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg", 
     "geonamesURI": "http://sws.geonames.org/5854968/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/United_States_Virgin_Islands", 
+    "id": "http://dbpedia.org/resource/United_States_Virgin_Islands", 
     "label": "United States Virgin Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/f8/Flag_of_the_United_States_Virgin_Islands.svg", 
     "geonamesURI": "http://sws.geonames.org/4796775/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Upper_Franconia", 
+    "id": "http://dbpedia.org/resource/Upper_Franconia", 
     "label": "Upper Franconia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a9/Locator_map_RB_Oberfranken_in_Bavaria.svg", 
     "geonamesURI": "http://sws.geonames.org/2860681/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Uruguay", 
+    "id": "http://dbpedia.org/resource/Uruguay", 
     "label": "Uruguay", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/f/fe/Flag_of_Uruguay.svg", 
     "geonamesURI": "http://sws.geonames.org/3439705/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Uzbekistan", 
+    "id": "http://dbpedia.org/resource/Uzbekistan", 
     "label": "Uzbekistan", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg", 
     "geonamesURI": "http://sws.geonames.org/1512440/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Vanuatu", 
+    "id": "http://dbpedia.org/resource/Vanuatu", 
     "label": "Vanuatu", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Vanuatu.svg", 
     "geonamesURI": "http://sws.geonames.org/2134431/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Vatican_City", 
+    "id": "http://dbpedia.org/resource/Vatican_City", 
     "label": "Vatican City", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_the_Vatican_City.svg", 
     "geonamesURI": "http://sws.geonames.org/3164670/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Venezuela", 
+    "id": "http://dbpedia.org/resource/Venezuela", 
     "label": "Venezuela", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/06/Flag_of_Venezuela.svg", 
     "geonamesURI": "http://sws.geonames.org/3625428/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Vietnam", 
+    "id": "http://dbpedia.org/resource/Vietnam", 
     "label": "Vietnam", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg", 
     "geonamesURI": "http://sws.geonames.org/1562822/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Villapinz%C3%B3n,_Cundinamarca", 
+    "id": "http://dbpedia.org/resource/Villapinz%C3%B3n,_Cundinamarca", 
     "label": "Villapinz\u00f3n, Cundinamarca", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/4/46/Colombia_-_Cundinamarca_-_Villapinzon.svg", 
     "geonamesURI": "http://sws.geonames.org/3665924/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Wales", 
+    "id": "http://dbpedia.org/resource/Wales", 
     "label": "Wales", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/59/Flag_of_Wales_2.svg", 
     "geonamesURI": "http://sws.geonames.org/2634895/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Wallis_and_Futuna", 
+    "id": "http://dbpedia.org/resource/Wallis_and_Futuna", 
     "label": "Wallis and Futuna", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/d/d2/Flag_of_Wallis_and_Futuna.svg", 
     "geonamesURI": "http://sws.geonames.org/4034749/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Western_Sahara", 
+    "id": "http://dbpedia.org/resource/Western_Sahara", 
     "label": "Western Sahara", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/72/LocationWesternSahara.svg", 
     "geonamesURI": "http://sws.geonames.org/2461445/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Wiltshire", 
+    "id": "http://dbpedia.org/resource/Wiltshire", 
     "label": "Wiltshire", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/81/County_Flag_of_Wiltshire.svg", 
     "geonamesURI": "http://sws.geonames.org/2633868/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Yemen", 
+    "id": "http://dbpedia.org/resource/Yemen", 
     "label": "Yemen", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Yemen.svg", 
     "geonamesURI": "http://sws.geonames.org/69543/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Zambia", 
+    "id": "http://dbpedia.org/resource/Zambia", 
     "label": "Zambia", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/0/06/Flag_of_Zambia.svg", 
     "geonamesURI": "http://sws.geonames.org/895949/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Zhedna", 
+    "id": "http://dbpedia.org/resource/Zhedna", 
     "label": "Zhedna", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/ae/Bulgaria_location_map.svg", 
     "geonamesURI": "http://sws.geonames.org/725387/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/Zimbabwe", 
+    "id": "http://dbpedia.org/resource/Zimbabwe", 
     "label": "Zimbabwe", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/6/6a/Flag_of_Zimbabwe.svg", 
     "geonamesURI": "http://sws.geonames.org/878675/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/%C3%85land_Islands", 
+    "id": "http://dbpedia.org/resource/%C3%85land_Islands", 
     "label": "\u00c5land Islands", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/5/52/Flag_of_\u00c5land.svg", 
     "geonamesURI": "http://sws.geonames.org/661882/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/%C3%8Ele_Amsterdam", 
+    "id": "http://dbpedia.org/resource/%C3%8Ele_Amsterdam", 
     "label": "\u00cele Amsterdam", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/1547220/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/%C3%8Ele_Saint-Paul", 
+    "id": "http://dbpedia.org/resource/%C3%8Ele_Saint-Paul", 
     "label": "\u00cele Saint-Paul", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg", 
     "geonamesURI": "http://sws.geonames.org/1545990/"
   }, 
   {
-    "@id": "http://dbpedia.org/resource/%C3%8Eles_des_Saintes", 
+    "id": "http://dbpedia.org/resource/%C3%8Eles_des_Saintes", 
     "label": "\u00celes des Saintes", 
     "depiction": "http://upload.wikimedia.org/wikipedia/commons/7/77/Guadeloupe_in_France.svg", 
     "geonamesURI": "http://sws.geonames.org/3578934/"

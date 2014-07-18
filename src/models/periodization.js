@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
   , Period = require('../models/period')
   , PeriodCollection = require('../collections/period')
   , Source = require('../models/source')
@@ -12,15 +13,17 @@ module.exports = Backbone.RelationalModel.extend({
       key: 'definitions',
       relatedModel: Period,
       collectionType: PeriodCollection,
-      //reverseRelation: { key: 'periodization' },
-      parse: true
     },
     {
       type: Backbone.HasOne,
       key: 'source',
       relatedModel: Source,
-      //reverseRelation: { key: 'periodization' },
-      parse: true
     }
-  ]
+  ],
+  parse: function (data) {
+    if (_.isObject(data.definitions)) {
+      data.definitions = _.values(data.definitions);
+    }
+    return data;
+  }
 });
