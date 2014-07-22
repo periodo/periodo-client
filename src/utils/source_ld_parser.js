@@ -30,8 +30,10 @@ function parseTurtle(turtle) {
   parser.parse(turtle, function (error, triple, prefixes) {
     if (triple) {
       store.addTriple(triple);
-    }
-    else {
+    } else if (error) {
+      // TODO: error handling
+      console.error(error);
+    } else {
       store.addPrefixes(prefixes);
       dfd.resolve(store);
     }
@@ -60,7 +62,7 @@ function getFirstLiteralObject(store, subject, predicates) {
 
 function formatContrib(store, entity) {
   return {
-    '@id': entity,
+    'id': entity,
     'name': getFirstLiteralObject(store, entity, DEFAULT_PREDICATES.name)
   }
 }
