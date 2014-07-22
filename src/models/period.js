@@ -13,6 +13,7 @@ var Backbone = require('../backbone')
  */
 
 module.exports = Backbone.RelationalModel.extend({
+  skolemID: true,
   relations: [
     {
       type: Backbone.HasOne,

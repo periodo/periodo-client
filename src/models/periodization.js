@@ -7,6 +7,7 @@ var _ = require('underscore')
   , Source = require('../models/source')
 
 module.exports = Backbone.RelationalModel.extend({
+  skolemID: true,
   relations: [
     {
       type: Backbone.HasMany,
