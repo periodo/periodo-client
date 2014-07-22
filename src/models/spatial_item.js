@@ -2,4 +2,6 @@
 
 var Backbone = require('../backbone')
 
-module.exports = Backbone.RelationalModel.extend({});
+module.exports = Backbone.RelationalModel.extend({
+  storeName: 'spatialItems'
+});

@@ -5,14 +5,8 @@ var Backbone = require('../backbone')
   , SpatialCoverageCollection = require('../collections/spatial_coverage')
   , PeriodTerminus = require('./period_terminus')
 
-/*
- *  Period
- * ========
- * The core PeriodO period data type.
- *
- */
-
 module.exports = Backbone.RelationalModel.extend({
+  storeName: 'periods',
   skolemID: true,
   relations: [
     {

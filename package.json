@@ -5,6 +5,7 @@
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
   "dependencies": {
+    "Dexie": "git://github.com/ptgolden/Dexie.js#package.json",
     "backbone": "^1.1.2",
     "backbone-relational": "^0.8.8",
     "backbone-validation": "thedersen/backbone.validation#v0.9.1",
@@ -14,6 +15,7 @@
     "json-stable-stringify": "^1.0.0",
     "less": "^1.7.3",
     "pegjs": "^0.8.0",
+    "traverse": "^0.6.6",
     "underscore": "^1.6.0",
     "watch-lessc": "0.0.2"
   },
