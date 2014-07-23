@@ -33,6 +33,7 @@ function BackboneRelationalAddon(db) {
 
   db.WriteableTable.prototype.putModel = function (object) {
     var toSave = getStoresWithData(object, this.schema.mappedModel);
+    var promises = [];
     _(toSave).forEach(function (values, storeName) {
       values = _.isArray(values) ? values : [values];
       values.forEach(function (val) {
@@ -44,9 +45,10 @@ function BackboneRelationalAddon(db) {
           val[idAttribute] = genid();
         }
 
-        db.table(storeName).put(val);
+        promises.push(db.table(storeName).put(val));
       });
     });
+    return Dexie.Promise.all(promises);
   }
 
   function getStoredRelation(model, path) {
