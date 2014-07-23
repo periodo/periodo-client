@@ -84,6 +84,28 @@ function BackboneRelationalAddon(db) {
     });
   }
 
+  db.Table.prototype.getAllModels = function (options) {
+    var _db = Dexie.currentTransaction.db || db;
+    var model = this.schema.mappedModel;
+    var table = _db[model.prototype.storeName];
+    var promises = [];
+
+    options = options || {};
+    options.limit = options.limit || 50;
+    options.offset = options.offset || 0;
+
+
+    return _db[model.prototype.storeName]
+      .toCollection()
+      .offset(options.offset)
+      .limit(options.limit)
+      .keys()
+      .then(function (keys) {
+        var promises = keys.map(function (key) { return table.getModel(key) });
+        return Dexie.Promise.all(promises)
+      });
+  }
+
   // Put JSON into the given table.
   db.WriteableTable.prototype.putModel = function (object) {
     // TODO: if json object doesn't have needed keypath, throw error

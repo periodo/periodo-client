@@ -19,7 +19,7 @@ Backbone.ajaxSync = Backbone.sync;
 Backbone.sync = function (method, object, options) {
   var db = require('./db');
   var dbWrapper = new DatabaseWrapper(db);
-  var storeName = object.storeName;
+  var storeName = object.storeName || object.model.prototype.storeName;
 
   if (!storeName) throw 'Define object store name to save.'
 
@@ -40,37 +40,46 @@ DatabaseWrapper.prototype = {
     data = object.toJSON();
 
     return this.db.transaction('rw', table.getAllRelatedTables(), function () {
-      table(object.storeName).putModel(data);
+      table.putModel(data);
     }).then(
       function () {
         if (options.success) options.success(data);
         return data;
       },
       function (err) {
+        console.log(err);
         if (options.error) options.error(err);
         return err;
       }
     );
   },
   read: function (object, options) {
-    if (object instanceof Backbone.Model) {
-      var table = this.db.table(object.storeName);
+    var table
+      , promise
 
-      return this.db.transaction('r', table.getAllRelatedTables(), function () {
+    if (object instanceof Backbone.Model) {
+      table = this.db.table(object.storeName);
+      promise = this.db.transaction('r', table.getAllRelatedTables(), function () {
         return table.getModel(object.id);
-      }).then(
-        function (data) {
-          if (options.success) options.success(data);
-          return data;
-        },
-        function (err) {
-          if (options.error) options.error(err);
-          return err;
-        }
-      );
+      })
     } else {
-      return this.db[object.storeName].getCollection(object.model.prototype.storeName);
+      table = this.db.table(object.model.prototype.storeName);
+      promise = this.db.transaction('r', table.getAllRelatedTables(), function () {
+        return table.getAllModels();
+      });
     }
+
+    return promise.then(
+      function (data) {
+        if (options.success) options.success(data);
+        return data;
+      },
+      function (err) {
+        console.error(err);
+        if (options.error) options.error(err);
+        return err;
+      }
+    );
   },
   update: function () {
   },
