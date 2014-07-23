@@ -26,19 +26,38 @@ function BackboneRelationalAddon(db) {
 
   // Retrieves an instance of the model registered with the given table.
   db.Table.prototype.getModel = function (id) {
+    var that = this;
     var model = this.schema.mappedModel;
     // TODO: if (!model) .......
+    
     return this.get(id).then(function (data) {
-      return traverse(data).map(function (val) {
-        if (this.isRoot) return;
-        var relatedModel = findStoredRelationAtPath(model, this.path);
+      var promises = []
+        , updatedData
 
-        // If this path is a stored relation, make a dummy object that we can
-        // retrieve using backbone-relational's fetchRelated method.
+      updatedData = traverse(data).map(function (val) {
+        var relatedModel, path;
+
+        if (this.isRoot) return;
+
+        relatedModel = findStoredRelationAtPath(model, this.path);
+        path = this.path;
+
+        // If there is a relationship here, stop traversal, fetch the related
+        // models from the database, and then update the parent with the result
         if (relatedModel) {
-          this.update(val.map(function (id) { return { id: id } }), true);
+          this.update(val, val, true);
+          promises.push(
+            Dexie.Promise.all(val.map(function (pk) {
+              return db[relatedModel.prototype.storeName].getModel(pk);
+            })).then(function (vals) {
+              traverse(updatedData).set(path, vals);
+            })
+          );
         }
       });
+
+      // Once all related fields are resolved, return the updated value
+      return Dexie.Promise.all(promises).then(function () { return updatedData });
     });
   }
 

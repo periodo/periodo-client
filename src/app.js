@@ -54,10 +54,6 @@ ApplicationRouter = Backbone.Router.extend({
     var PeriodizationView = require('./views/periodization_show')
 
     periodization.fetch().then(function () {
-      var creators = periodization.get('source').fetchRelated('creators', {}, true);
-      var contributors = periodization.get('source').fetchRelated('contributors', {}, true);
-      return Dexie.Promise.all([].concat(creators, contributors));
-    }).then(function () {
       that.changeView(PeriodizationView, { model: periodization });
     });
   }
