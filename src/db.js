@@ -126,7 +126,9 @@ function BackboneRelationalAddon(db) {
         promises.push(db.table(storeName).put(val));
       });
     });
-    return Dexie.Promise.all(promises);
+    return Dexie.Promise.all(promises).then(function () {
+      return Dexie.Promise.resolve(object);
+    });
   }
 
   /*

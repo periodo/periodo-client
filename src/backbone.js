@@ -23,7 +23,19 @@ Backbone.sync = function (method, object, options) {
 
   if (!storeName) throw 'Define object store name to save.'
 
-  return dbWrapper[method].call(dbWrapper, object, options);
+  return dbWrapper[method]
+    .call(dbWrapper, object, options)
+    .then(
+      function (resp) {
+        if (options.success) options.success(resp);
+        return resp;
+      },
+      function (err) {
+        console.error(err);
+        if (options.error) options.error(err);
+        return err;
+      }
+    )
 }
 
 function DatabaseWrapper(db) {
@@ -33,25 +45,12 @@ function DatabaseWrapper(db) {
 DatabaseWrapper.prototype = {
   create: function (object, options) {
     var table = this.db.table(object.storeName)
-      , data
 
     if (object.isNew()) object.set(object.idAttribute, genid());
 
-    data = object.toJSON();
-
     return this.db.transaction('rw', table.getAllRelatedTables(), function () {
-      table.putModel(data);
-    }).then(
-      function () {
-        if (options.success) options.success(data);
-        return data;
-      },
-      function (err) {
-        console.log(err);
-        if (options.error) options.error(err);
-        return err;
-      }
-    );
+      return table.putModel(object.toJSON());
+    });
   },
   read: function (object, options) {
     var table
@@ -69,17 +68,7 @@ DatabaseWrapper.prototype = {
       });
     }
 
-    return promise.then(
-      function (data) {
-        if (options.success) options.success(data);
-        return data;
-      },
-      function (err) {
-        console.error(err);
-        if (options.error) options.error(err);
-        return err;
-      }
-    );
+    return promise;
   },
   update: function () {
   },
