@@ -28,7 +28,8 @@ module.exports = Backbone.View.extend({
   handleAcceptSource: function () {
     var periodization = new Periodization({ source: this.model });
     periodization.save().then(function () {
-      Backbone.history.navigate('periodizations/' + periodization.id + '/', { trigger: true });
+      var encodedURI = encodeURIComponent(periodization.id);
+      Backbone.history.navigate('periodizations/' + encodedURI + '/', { trigger: true });
     });
   },
   handleRejectSource: function () {

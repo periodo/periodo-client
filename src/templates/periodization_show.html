@@ -1,0 +1,17 @@
+<h1><%= periodization.source.title %></h1>
+
+<h2><%= periodization.source.yearPublished %></h2>
+
+<h2>Creators</h2>
+<ul>
+  <% periodization.source.creators.forEach(function (creator) { %>
+  <li><%= creator.name %></li>
+  <% }) %>
+</ul>
+
+<h2>Contributors</h2>
+<ul>
+  <% periodization.source.contributors.forEach(function (contributor) { %>
+  <li><%= contributor.name %></li>
+  <% }) %>
+</ul>

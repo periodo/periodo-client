@@ -1,7 +1,9 @@
 "use strict";
 
-var Backbone = require('./backbone')
+var $ = require('jquery')
+  , Backbone = require('./backbone')
   , $ = require('jquery')
+  , Dexie = require('Dexie')
   , root = location.protocol + '//' + location.host
   , ApplicationRouter
 
@@ -37,22 +39,24 @@ ApplicationRouter = Backbone.Router.extend({
     this.changeView(IndexView);
   },
 
-  periodizationList: function () {
-    var PeriodizationListView = require('./views/periodization_list');
-    this.changeView(PeriodizationListView);
-  },
   periodizationAdd: function () {
     var PeriodizationAddView = require('./views/periodization_add');
     this.changeView(PeriodizationAddView);
   },
-  periodizationShow: function (periodization) {
-    var PeriodizationShowView = require('./views/periodization_show')
-      , Periodization = require('./models/periodization')
 
-    this.changeView(PeriodizationShowView);
-  },
-  periodizationEdit: function (periodization) {
-    var PeriodizationEditView = require('./views/periodization_edit');
-    this.changeView(PeriodizationEditView);
+  periodizationShow: function (periodizationID) {
+    var that = this;
+
+    var Periodization = require('./models/periodization');
+    var periodization = Periodization.findOrCreate({ id: decodeURIComponent(periodizationID) });
+    var PeriodizationView = require('./views/periodization_show')
+
+    periodization.fetch().then(function () {
+      var creators = periodization.get('source').fetchRelated('creators', {}, true);
+      var contributors = periodization.get('source').fetchRelated('contributors', {}, true);
+      return Dexie.Promise.all([].concat(creators, contributors));
+    }).then(function () {
+      that.changeView(PeriodizationView, { model: periodization });
+    });
   }
 });
