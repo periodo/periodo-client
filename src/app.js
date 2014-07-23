@@ -29,6 +29,8 @@ ApplicationRouter = Backbone.Router.extend({
   },
   _view: null,
   changeView: function (ViewConstructor, options) {
+    Backbone.Relational.store.reset();
+    Backbone.Relational.store.addModelScope({});
     if (this._view) this._view.remove();
     this._view = new ViewConstructor(options || {});
     this._view.$el.appendTo('#main');
