@@ -6,7 +6,6 @@ var Backbone = require('../backbone')
   , PeriodTerminus = require('./period_terminus')
 
 module.exports = Backbone.RelationalModel.extend({
-  storeName: 'periods',
   skolemID: true,
   relations: [
     {

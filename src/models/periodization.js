@@ -7,7 +7,6 @@ var _ = require('underscore')
   , Source = require('../models/source')
 
 module.exports = Backbone.RelationalModel.extend({
-  storeName: 'periodizations',
   skolemID: true,
   relations: [
     {

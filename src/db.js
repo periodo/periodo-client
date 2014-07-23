@@ -5,14 +5,11 @@ var _ = require('underscore')
   , genid = require('./utils/generate_skolem_id')
   , db
 
-function BackboneModelAddon(db) {
-  db.Table.prototype.mapToModel = function (backboneModel) {
+function BackboneRelationalAddon(db) {
+  db.Table.prototype.mapToModel = function (backboneModel, storeName) {
     this.schema.mappedModel = backboneModel;
+    backboneModel.prototype.storeName = storeName;
   }
-}
-Dexie.addons.push(BackboneModelAddon);
-
-function BackboneActionsAddon(db) {
 
   db.getTablesForModel = function (model) {
     var toSave = getStoresWithData(model.toJSON(), model.constructor);
@@ -91,7 +88,7 @@ function BackboneActionsAddon(db) {
     return toSave;
   }
 }
-Dexie.addons.push(BackboneActionsAddon);
+Dexie.addons.push(BackboneRelationalAddon);
 
 module.exports = db = new Dexie('PeriodO')
 
@@ -104,15 +101,15 @@ db.version(1).stores({
 });
 
 var Periodization = require('./models/periodization');
-db.periodizations.mapToModel(Periodization);
+db.periodizations.mapToModel(Periodization, 'periodizations');
 
 var Period = require('./models/period');
-db.periods.mapToModel(Period);
+db.periods.mapToModel(Period, 'periods');
 
 var Creator = require('./models/creator');
-db.creators.mapToModel(Creator);
+db.creators.mapToModel(Creator, 'creators');
 
 var SpatialItem = require('./models/spatial_item');
-db.spatialItems.mapToModel(SpatialItem);
+db.spatialItems.mapToModel(SpatialItem, 'spatialItems');
 
 db.open();
