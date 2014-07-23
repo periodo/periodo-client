@@ -1,29 +1,40 @@
 "use strict";
 var _ = require('underscore')
+  , Backbone = require('backbone')
   , Dexie = require('Dexie')
   , traverse = require('traverse')
   , genid = require('./utils/generate_skolem_id')
   , db
 
 function BackboneRelationalAddon(db) {
-  db.Table.prototype.mapToModel = function (backboneModel, storeName) {
-    this.schema.mappedModel = backboneModel;
-    backboneModel.prototype.storeName = storeName;
+
+  // Registers a model constructor to an objectStore
+  db.Table.prototype.mapToModel = function (Model, storeName) {
+    this.schema.mappedModel = Model;
+    Model.prototype.storeName = storeName;
+    // TODO: throw error if store doesn't exist
   }
 
+  // Gets all tables that must be opened in a transaction to edit the given
+  // model instance.
   db.getTablesForModel = function (model) {
-    var toSave = getStoresWithData(model.toJSON(), model.constructor);
+    var toSave = partitionDataByStore(model.toJSON(), model.constructor);
     return _(toSave).map(function (val, storeName) {
       return db.table(storeName);
     });
   }
 
+  // Retrieves an instance of the model registered with the given table.
   db.Table.prototype.getModel = function (id) {
     var model = this.schema.mappedModel;
+    // TODO: if (!model) .......
     return this.get(id).then(function (data) {
       return traverse(data).map(function (val) {
         if (this.isRoot) return;
-        var relatedModel = getStoredRelation(model, this.path);
+        var relatedModel = findStoredRelationAtPath(model, this.path);
+
+        // If this path is a stored relation, make a dummy object that we can
+        // retrieve using backbone-relational's fetchRelated method.
         if (relatedModel) {
           this.update(val.map(function (id) { return { id: id } }), true);
         }
@@ -31,8 +42,11 @@ function BackboneRelationalAddon(db) {
     });
   }
 
+  // Put JSON into the given table.
   db.WriteableTable.prototype.putModel = function (object) {
-    var toSave = getStoresWithData(object, this.schema.mappedModel);
+    // TODO: if json object doesn't have needed keypath, throw error
+    
+    var toSave = partitionDataByStore(object, this.schema.mappedModel);
     var promises = [];
     _(toSave).forEach(function (values, storeName) {
       values = _.isArray(values) ? values : [values];
@@ -51,38 +65,67 @@ function BackboneRelationalAddon(db) {
     return Dexie.Promise.all(promises);
   }
 
-  function getStoredRelation(model, path) {
-    var relatedModel = path.reduce(function (curModel, attr) {
-      if (!curModel) return null;
-      return _.chain(curModel.prototype.relations || [])
+  /*
+   * Given a model constructor and a path through the JSON serialization
+   * of a model instance, traverse the backbone-relational relations on the
+   * model and return a model constructor found at that path if one exists and
+   * it is stored using indexedDB.
+   *
+   * returns either a model constructor or null.
+   */
+  function findStoredRelationAtPath(Model, path) {
+    var relatedModel = path.reduce(function (CurModel, attr) {
+      if (!CurModel) return null;
+      return _.chain(CurModel.prototype.relations || [])
         .where({ key: attr })
         .pluck('relatedModel')
         .first()
         .value()
-    }, model);
+    }, Model);
 
     if (relatedModel && !relatedModel.prototype.hasOwnProperty('storeName')) relatedModel = null;
 
     return relatedModel || null;
   }
 
-  function getStoresWithData(object, modelConstructor) {
+
+  /*
+   * Partitions data by the objectStores that it must be saved in.
+   *
+   * Arguments (either):
+   *   - dict and model constructor
+   *   - model instance
+   *
+   * Returns a dict in the form { objectStoreName: data }
+   */
+  function partitionDataByStore(data, ModelConstructor) {
     var toCheck = []
       , toSave = {}
       , curObj
       , curStore
 
-    toCheck.push({ model: modelConstructor, object: object });
+    if (!ModelConstructor && data instanceof Backbone.Model) {
+      ModelConstructor = data.constructor;
+      data = data.toJSON();
+    }
+
+    toCheck.push({ Model: ModelConstructor, data: data });
     while (toCheck.length) {
       curObj = toCheck.pop();
-      curStore = curObj.model.prototype.storeName;
+      curStore = curObj.Model.prototype.storeName;
+
+      // More than one attribute might be part of the same store, like a
+      // source's contributors and creators 
       if (!toSave.hasOwnProperty(curStore)) toSave[curStore] = [];
-      toSave[curStore] = toSave[curStore].concat(traverse(curObj.object).map(function (val) {
+
+      // Traverse the object, and if any of the values are models stored in
+      // indexedDB, replace that value with an array of IDs.
+      toSave[curStore] = toSave[curStore].concat(traverse(curObj.data).map(function (val) {
         if (this.isRoot) return;
-        var storedModel = getStoredRelation(curObj.model, this.path);
-        if (storedModel) {
-          toCheck.push({ model: storedModel, object: val });
-          this.update(_.pluck(val, storedModel.prototype.idAttribute), true);
+        var StoredModel = findStoredRelationAtPath(curObj.Model, this.path);
+        if (StoredModel) {
+          toCheck.push({ Model: StoredModel, data: val });
+          this.update(_.pluck(val, StoredModel.prototype.idAttribute), true);
         }
       }));
     }
