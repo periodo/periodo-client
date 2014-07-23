@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var $ = require('jquery')
+  , Backbone = require('../backbone')
   , Creator = require('./creator')
   , CreatorCollection = require('../collections/creator')
   , parseSourceLD = require('../utils/source_ld_parser')
@@ -23,24 +24,22 @@ module.exports = Backbone.RelationalModel.extend({
       collectionType: CreatorCollection
     }
   ],
-  url: function () {
+  ldUrl: function () {
     var uri = this.id || ''
 
     if (uri.match(WORLDCAT_REGEX)) {
       return 'http://ptgolden.org/oclc/' + uri.match(WORLDCAT_REGEX)[1];
       //return 'http://experiment.worldcat.org/oclc/' + uri.match(WORLDCAT_REGEX)[1] + '.ttl';
     } else if (uri.match(DXDOI_REGEX)) {
-      return 'http://data.crossref.org/' + global.encodeURIComponent(uri.match(DXDOI_REGEX)[1]);
+      return 'http://data.crossref.org/' + encodeURIComponent(uri.match(DXDOI_REGEX)[1]);
     }
   },
   fetchLD: function () {
-    var that = this;
+    var that = this
+      , url = this.ldUrl()
 
-    return this.sync('read', this, {
-      dataType: 'text',
-      accepts: { text: 'text/turtle' }
-    }).then(parseSourceLD.bind(null, that.id)).done(function (data) {
-      that.set(data);
-    });
+    return $.ajax(url, {dataType: 'text', accepts: {text: 'text/turtle'}})
+      .then(parseSourceLD.bind(null, that.id))
+      .done(that.set.bind(that));
   },
 })
