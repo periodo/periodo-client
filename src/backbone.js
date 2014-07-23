@@ -32,16 +32,15 @@ function DatabaseWrapper(db) {
 
 DatabaseWrapper.prototype = {
   create: function (object, options) {
-    var db = this.db // not sure about scope of transactions..
-      , tables = db.getTablesForModel(object)
+    var table = this.db.table(object.storeName)
       , data
 
     if (object.isNew()) object.set(object.idAttribute, genid());
 
     data = object.toJSON();
 
-    return db.transaction('rw', tables, function () {
-      db.table(object.storeName).putModel(data);
+    return this.db.transaction('rw', table.getAllRelatedTables(), function () {
+      table(object.storeName).putModel(data);
     }).then(
       function () {
         if (options.success) options.success(data);
@@ -55,7 +54,11 @@ DatabaseWrapper.prototype = {
   },
   read: function (object, options) {
     if (object instanceof Backbone.Model) {
-      return this.db[object.storeName].getModel(object.id).then(
+      var table = this.db.table(object.storeName);
+
+      return this.db.transaction('r', table.getAllRelatedTables(), function () {
+        return table.getModel(object.id);
+      }).then(
         function (data) {
           if (options.success) options.success(data);
           return data;

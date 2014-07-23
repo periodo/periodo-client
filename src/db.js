@@ -24,13 +24,36 @@ function BackboneRelationalAddon(db) {
     });
   }
 
+  db.Table.prototype.getAllRelatedTables = function () {
+    var toCheck = [this.schema.mappedModel]
+      , tables = []
+      , CurModel
+      , storeName
+
+    while (toCheck.length) {
+      CurModel = toCheck.pop();
+      storeName = CurModel.prototype.storeName;
+      if (storeName) {
+        if (tables.indexOf(storeName) !== -1) break;
+        tables.push(storeName);
+      }
+      (CurModel.prototype.relations || []).forEach(function (rel) {
+        toCheck.push(rel.relatedModel);
+      });
+    }
+
+    return tables.map(function (name) { return db.table(name) });
+  }
+
+
   // Retrieves an instance of the model registered with the given table.
   db.Table.prototype.getModel = function (id) {
-    var that = this;
     var model = this.schema.mappedModel;
     // TODO: if (!model) .......
     
-    return this.get(id).then(function (data) {
+    var _db = Dexie.currentTransaction.db || db;
+    
+    return _db[model.prototype.storeName].get(id).then(function (data) {
       var promises = []
         , updatedData
 
@@ -48,7 +71,7 @@ function BackboneRelationalAddon(db) {
           this.update(val, val, true);
           promises.push(
             Dexie.Promise.all(val.map(function (pk) {
-              return db[relatedModel.prototype.storeName].getModel(pk);
+              return _db[relatedModel.prototype.storeName].getModel(pk);
             })).then(function (vals) {
               traverse(updatedData).set(path, vals);
             })
