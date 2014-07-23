@@ -9,7 +9,11 @@
   <tbody>
   <% periodizations.forEach(function (periodization) { %>
     <tr>
-      <td><%= periodization.get('source').get('title') %></td>
+      <td>
+        <a href="#periodizations/<%= encodeURIComponent(periodization.id) %>/">
+          <%= periodization.get('source').get('title') %>
+        </a>
+      </td>
       <td><%= periodization.get('definitions').length %></td>
       <td>xxx</td>
     </tr>

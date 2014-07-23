@@ -37,8 +37,14 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   index: function () {
+    var that = this;
     var IndexView = require('./views/index');
-    this.changeView(IndexView);
+
+    var PeriodizationCollection = require('./collections/periodization');
+    var periodizations = new PeriodizationCollection();
+    periodizations.fetch().then(function (data) {
+      that.changeView(IndexView, { collection: periodizations });
+    });
   },
 
   periodizationAdd: function () {

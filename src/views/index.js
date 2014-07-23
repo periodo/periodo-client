@@ -7,7 +7,10 @@ module.exports = Backbone.View.extend({
     this.render();
   },
   render: function () {
-    var template = require('../templates/index.html');
+    var template = require('../templates/index.html')
+      , listTemplate = require('../templates/periodization_list.html')
+
     this.$el.html(template());
+    this.$('#periodization-list').html(listTemplate({ periodizations: this.collection }));
   }
 });
