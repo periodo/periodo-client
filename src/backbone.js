@@ -22,8 +22,7 @@ Backbone.sync = function (method, object, options) {
   var storeName = object.storeName;
 
   if (!storeName) throw 'Define object store name to save.'
-  //if (!db.hasOwnProperty(storeName)) throw '' + storeName + ' is not an object store in IndexedDB.';
-  
+
   return dbWrapper[method].call(dbWrapper, object, options);
 }
 
@@ -33,25 +32,47 @@ function DatabaseWrapper(db) {
 
 DatabaseWrapper.prototype = {
   create: function (object, options) {
-    var db = this.db;
-    var tables = db.getTablesForModel(object);
+    var db = this.db // not sure about scope of transactions..
+      , tables = db.getTablesForModel(object)
+      , data
 
-    if (object.isNew()) {
-      object.set(object.idAttribute, genid());
-    }
+    if (object.isNew()) object.set(object.idAttribute, genid());
+
+    data = object.toJSON();
 
     return db.transaction('rw', tables, function () {
-      var table = _(tables).findWhere({ name: object.storeName });
-      table.putModel(object.toJSON());
-    });
+      db.table(object.storeName).putModel(data);
+    }).then(
+      function () {
+        if (options.success) options.success(data);
+        return data;
+      },
+      function (err) {
+        if (options.error) options.error(err);
+        return err;
+      }
+    );
   },
   read: function (object, options) {
-    return this.db[object.storeName].getModel(object.id).then(object.set.bind(object));
+    if (object instanceof Backbone.Model) {
+      return this.db[object.storeName].getModel(object.id).then(
+        function (data) {
+          if (options.success) options.success(data);
+          return data;
+        },
+        function (err) {
+          if (options.error) options.error(err);
+          return err;
+        }
+      );
+    } else {
+      return this.db[object.storeName].getCollection(object.model.prototype.storeName);
+    }
   },
-  update: function (object, options) {
+  update: function () {
   },
-  'delete': function (object, options) {
+  'delete': function () {
   },
-  clear: function (object, options) {
+  clear: function () {
   }
 }
