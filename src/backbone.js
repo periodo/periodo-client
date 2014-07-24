@@ -20,22 +20,30 @@ Backbone.sync = function (method, object, options) {
   var db = require('./db');
   var dbWrapper = new DatabaseWrapper(db);
   var storeName = object.storeName || object.model.prototype.storeName;
+  var promise;
 
   if (!storeName) throw 'Define object store name to save.'
 
-  return dbWrapper[method]
+  promise = dbWrapper[method]
     .call(dbWrapper, object, options)
     .then(
       function (resp) {
+        if (Backbone._app) Backbone._app.trigger('sync', object, resp);
         if (options.success) options.success(resp);
         return resp;
       },
       function (err) {
         console.error(err);
+        if (Backbone._app) Backbone._app.trigger('error', object, err);
         if (options.error) options.error(err);
         return err;
       }
-    )
+    );
+
+  if (Backbone._app) Backbone._app.trigger('request', object, promise, options);
+  object.trigger('request', object, promise, options);
+
+  return promise;
 }
 
 function DatabaseWrapper(db) {

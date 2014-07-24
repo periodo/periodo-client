@@ -2,8 +2,8 @@
 
 var $ = require('jquery')
   , Backbone = require('./backbone')
-  , $ = require('jquery')
   , Dexie = require('Dexie')
+  , Spinner = require('spin.js')
   , root = location.protocol + '//' + location.host
   , ApplicationRouter
 
@@ -11,6 +11,21 @@ var LEFT_CLICK = 1;
 
 $(document).ready(function () {
   var router = new ApplicationRouter();
+  var spinner = new Spinner({
+    lines: 12,
+    length: 5,
+    width: 2,
+    radius: 6,
+    trail: 40 
+  });
+  var spinnerEl = document.getElementById('spinner')
+
+  router.on('request', spinner.spin.bind(spinner, spinnerEl));
+  router.on('sync error', function () {
+    setTimeout(spinner.stop.bind(spinner), 100);
+  })
+
+  Backbone._app = router;
   Backbone.history.start();
 }).on('click a', function (e) {
   if (e.target.href && e.target.href.indexOf(root) === 0 && e.which === LEFT_CLICK) {
