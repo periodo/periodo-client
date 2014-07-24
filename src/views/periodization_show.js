@@ -7,7 +7,12 @@ module.exports = Backbone.View.extend({
     this.render();
   },
   render: function () {
-    var template = require('../templates/periodization_show.html');
-    this.$el.html(template({ periodization: this.model.toJSON() }));
+    var template = require('../templates/periodization_show.html')
+      , sourceTemplate = require('../templates/source.html')
+
+    this.$el.html(template());
+    this.$('#source-information').html(sourceTemplate({ source: this.model.toJSON().source }));
+    this.$periodsList = this.$('#periods-list');
+
   }
 });

@@ -1,35 +1,29 @@
-<dl>
-  <dt>Title</dt>
-  <dd><%= source.title %></dd>
+<dl class="dl-horizontal source">
+  <div>
+    <dt>Title</dt>
+    <dd><%= source.title %></dd>
+  </div>
 
-  <dt>Year published</dt>
-  <dd><%= source.yearPublished || 'unknown' %></dd>
+  <div>
+    <dt>Year published</dt>
+    <dd><%= source.yearPublished || 'unknown' %></dd>
+  </div>
 
   <% if (source.creators && source.creators.length) { %>
-  <dt>Creators</dt>
-  <dd>
-    <ul>
-      <% source.creators.forEach(function (creator) { %>
-      <li><%= creator.name %></li>
-      <% }); %>
-    </ul>
-  </dd>
+  <div>
+    <dt>Creators</dt>
+    <% source.creators.forEach(function (creator) { %>
+    <dd><%= creator.name %></dd>
+    <% }); %>
+  </div>
   <% } %>
 
   <% if (source.contributors && source.contributors.length) { %>
-  <dt>Contributors</dt>
-  <dd>
-    <ul>
-      <% source.contributors.forEach(function (contributor) { %>
-      <li><%= contributor.name %></li>
-      <% }); %>
-    </ul>
-  </dd>
+  <div>
+    <dt>Contributors</dt>
+    <% source.contributors.forEach(function (contributor) { %>
+    <dd><%= contributor.name %></dd>
+    <% }); %>
+  </div>
   <% } %>
 </dl>
-
-<p>Is this the correct source?</p>
-<div>
-  <button id="js-accept-source" class="btn btn-primary">Yes</button>
-  <button id="js-reject-source" class="btn btn-default">No</button>
-</div>

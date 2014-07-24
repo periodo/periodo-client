@@ -23,6 +23,7 @@ module.exports = Backbone.View.extend({
   handleSourceSelection: function (source) {
     var template = require('../templates/source.html');
     this.$('#source-information').html(template({ source: source.toJSON() }));
+    this.$('#source-confirm').removeClass('hide');
     this.model = source;
   },
   handleAcceptSource: function () {
@@ -35,6 +36,7 @@ module.exports = Backbone.View.extend({
   handleRejectSource: function () {
     this.$('textarea').val('');
     this.$('#source-information').html('');
+    this.$('#source-confirm').addClass('hide');
     this.model = null;
   }
 });
