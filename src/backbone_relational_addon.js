@@ -1,30 +1,112 @@
 "use strict";
 
 var _ = require('underscore')
-  , Backbone = require('backbone')
   , Dexie = require('Dexie')
   , traverse = require('traverse')
   , equal = require('deep-equal')
   , genid = require('./utils/generate_skolem_id')
 
+/*
+ * Given a model constructor and a path through the JSON serialization
+ * of a model instance, traverse the backbone-relational relations on the
+ * model and return a model constructor found at that path if one exists and
+ * it is stored using indexedDB.
+ *
+ * returns either a model constructor or null.
+ */
+function findStoredRelationAtPath(Model, path) {
+  var relatedModel = path.reduce(function (CurModel, attr) {
+    if (!CurModel) return null;
+    return _.chain(CurModel.prototype.relations || [])
+      .where({ key: attr })
+      .pluck('relatedModel')
+      .first()
+      .value()
+  }, Model);
+
+  if (relatedModel && !relatedModel.prototype.hasOwnProperty('storeName')) relatedModel = null;
+
+  return relatedModel || null;
+}
+
+
 module.exports = function (db) {
+
+  /*
+   * Partitions data by the objectStores that it must be saved in.
+   *
+   * Returns a dict in the form { objectStoreName: data }
+   */
+  db.Table.prototype.partitionDataByStore = function (data) {
+    var toCheck = []
+      , toSave = {}
+      , curObj
+      , curStore
+
+    toCheck.push({ Model: this.schema.mappedModel, data: data });
+    while (toCheck.length) {
+      curObj = toCheck.pop();
+      curStore = curObj.Model.prototype.storeName;
+
+      // More than one attribute might be part of the same store, like a
+      // source's contributors and creators 
+      if (!toSave.hasOwnProperty(curStore)) toSave[curStore] = [];
+
+      // Traverse the object, and if any of the values are models stored in
+      // indexedDB, replace that value with an array of IDs.
+      toSave[curStore] = toSave[curStore].concat(traverse(curObj.data).map(function (val) {
+        if (this.isRoot) return;
+        var StoredModel = findStoredRelationAtPath(curObj.Model, this.path);
+        if (StoredModel) {
+          toCheck.push({ Model: StoredModel, data: val });
+          this.update(_.pluck(val, StoredModel.prototype.idAttribute), true);
+        }
+      }));
+    }
+
+    return toSave;
+  }
+
+  /*
+   * Saves the partioned data created by the previous function.
+   */
+  db.savePartionedData = function (data) {
+    var that = this
+      , promises = []
+
+    _(data).forEach(function (values, storeName) {
+      values = _.isArray(values) ? values : [values];
+      values.forEach(function (val) {
+        var table = that.table(storeName)
+          , model = table.schema.mappedModel
+          , idAttribute = model.prototype.idAttribute
+
+        if (!val.hasOwnProperty(idAttribute) && model.prototype.skolemID) {
+          val[idAttribute] = genid();
+        }
+        promises.push(that.table(storeName).put(val));
+      });
+    });
+
+    return promises;
+  }
+
 
   // Registers a model constructor to an objectStore
   db.Table.prototype.mapToModel = function (Model, storeName) {
+    /*
+    var existingObjectStores = _(db.tables).pluck('name');
+    if (existingObjectStores.indexOf(storeName) === -1) {
+      throw 'Object store ' + storeName + ' does not exist.';
+    }
+    */
+
     this.schema.mappedModel = Model;
     Model.prototype.storeName = storeName;
-    // TODO: throw error if store doesn't exist
   }
 
-  // Gets all tables that must be opened in a transaction to edit the given
-  // model instance.
-  db.getTablesForModel = function (model) {
-    var toSave = partitionDataByStore(model.toJSON(), model.constructor);
-    return _(toSave).map(function (val, storeName) {
-      return db.table(storeName);
-    });
-  }
-
+  // Returns an array of all tables that must be opened in a transaction to edit
+  // the table.
   db.Table.prototype.getAllRelatedTables = function () {
     var toCheck = [this.schema.mappedModel]
       , tables = []
@@ -109,8 +191,8 @@ module.exports = function (db) {
   db.WriteableTable.prototype.putModel = function (object) {
     // TODO: if json object doesn't have needed keypath, throw error
     
-    var toSave = partitionDataByStore(object, this.schema.mappedModel);
-    var promises = savePartionedData(db, toSave);
+    var toSave = this.partitionDataByStore(object);
+    var promises = db.savePartionedData(toSave);
 
     return Dexie.Promise.all(promises).then(function () {
       return Dexie.Promise.resolve(object);
@@ -126,8 +208,8 @@ module.exports = function (db) {
       return Dexie.Promise.resolve(newData);
     }
 
-    var toSave = partitionDataByStore(newData, this.schema.mappedModel);
-    var existingDataByTable = partitionDataByStore(existingData, this.schema.mappedModel);
+    var toSave = this.partitionDataByStore(newData);
+    var existingDataByTable = this.partitionDataByStore(existingData);
     var toDelete = {};
 
     _(existingDataByTable).forEach(function (existingItems, tableName) {
@@ -160,97 +242,11 @@ module.exports = function (db) {
     }));
 
     // This needs to be putModel, not just put
-    promises = promises.concat(savePartionedData(_db, toSave));
+    promises = promises.concat(_db.savePartionedData(toSave));
 
     return Dexie.Promise.all(promises).then(function () {
       return Dexie.Promise.resolve(newData);
     });
-  }
-
-  /*
-   * Given a model constructor and a path through the JSON serialization
-   * of a model instance, traverse the backbone-relational relations on the
-   * model and return a model constructor found at that path if one exists and
-   * it is stored using indexedDB.
-   *
-   * returns either a model constructor or null.
-   */
-  function findStoredRelationAtPath(Model, path) {
-    var relatedModel = path.reduce(function (CurModel, attr) {
-      if (!CurModel) return null;
-      return _.chain(CurModel.prototype.relations || [])
-        .where({ key: attr })
-        .pluck('relatedModel')
-        .first()
-        .value()
-    }, Model);
-
-    if (relatedModel && !relatedModel.prototype.hasOwnProperty('storeName')) relatedModel = null;
-
-    return relatedModel || null;
-  }
-
-
-  /*
-   * Partitions data by the objectStores that it must be saved in.
-   *
-   * Arguments (either):
-   *   - dict and model constructor
-   *   - model instance
-   *
-   * Returns a dict in the form { objectStoreName: data }
-   */
-  function partitionDataByStore(data, ModelConstructor) {
-    var toCheck = []
-      , toSave = {}
-      , curObj
-      , curStore
-
-    if (!ModelConstructor && data instanceof Backbone.Model) {
-      ModelConstructor = data.constructor;
-      data = data.toJSON();
-    }
-
-    toCheck.push({ Model: ModelConstructor, data: data });
-    while (toCheck.length) {
-      curObj = toCheck.pop();
-      curStore = curObj.Model.prototype.storeName;
-
-      // More than one attribute might be part of the same store, like a
-      // source's contributors and creators 
-      if (!toSave.hasOwnProperty(curStore)) toSave[curStore] = [];
-
-      // Traverse the object, and if any of the values are models stored in
-      // indexedDB, replace that value with an array of IDs.
-      toSave[curStore] = toSave[curStore].concat(traverse(curObj.data).map(function (val) {
-        if (this.isRoot) return;
-        var StoredModel = findStoredRelationAtPath(curObj.Model, this.path);
-        if (StoredModel) {
-          toCheck.push({ Model: StoredModel, data: val });
-          this.update(_.pluck(val, StoredModel.prototype.idAttribute), true);
-        }
-      }));
-    }
-
-    return toSave;
-  }
-
-  function savePartionedData(_db, data) {
-    var promises = [];
-    _(data).forEach(function (values, storeName) {
-      values = _.isArray(values) ? values : [values];
-      values.forEach(function (val) {
-        var table = _db.table(storeName)
-          , model = table.schema.mappedModel
-          , idAttribute = model.prototype.idAttribute
-
-        if (!val.hasOwnProperty(idAttribute) && model.prototype.skolemID) {
-          val[idAttribute] = genid();
-        }
-        promises.push(_db.table(storeName).put(val));
-      });
-    });
-    return promises;
   }
 
 }
