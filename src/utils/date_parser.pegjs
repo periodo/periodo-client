@@ -13,8 +13,8 @@
     return sign + numberStr;
   }
 
-  function formatReturn(type, value, isoValue) {
-    return { type: type, value: value, isoValue: zeroPadded(isoValue) }
+  function formatReturn(type, label, isoValue) {
+    return { type: type, label: label, isoValue: zeroPadded(isoValue) }
   }
 }
 

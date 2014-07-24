@@ -26,5 +26,8 @@ module.exports = Backbone.RelationalModel.extend({
       relatedModel: SpatialCoverage,
       collectionType: SpatialCoverageCollection
     }
+  ],
+  dateTypes: [
+    'bp2000', 'bp1950', 'gregorian', 'iso8601'
   ]
 });

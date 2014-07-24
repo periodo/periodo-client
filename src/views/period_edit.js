@@ -46,68 +46,68 @@ function setDateMessage($el, parsed, view) {
 }
 
 bindings = {
-  '#js-label': {
-    observe: 'label',
-    //setOptions: { validate: true }
-  },
-  '#js-note': {
-    observe: 'note'
-  },
-  '#js-dateType': {
-    observe: 'dateType',
-    //setOptions: { validate: true },
-    selectOptions: {
-      collection: function () { return this.model.dateTypes; },
-      defaultOption: ' '
+  period: {
+    '#js-label': 'label',
+    '#js-note': 'note',
+    '#js-dateType': {
+      observe: 'dateType',
+      selectOptions: {
+        collection: function () { return this.model.dateTypes; },
+        defaultOption: ' '
+      }
     }
   },
+
+  start: {
   '#js-startDate': {
-    observe: 'startDateLabel',
-    getVal: function ($el) {
-      var val = $el.val()
-        , dateType
-        , parsed
+      observe: ['label', 'year'],
+      onGet: function (value) { return value[0] },
+      getVal: function ($el) {
+        var val = $el.val()
+          , parsed
 
-      if (this.autodetectDate) {
-        parsed = parseDate(val)
-      } else {
-        parsed = this.model.has('dateType') ? parseDate(val, this.model.get('dateType')) : null;
+        if (this.autodetectDate) {
+          parsed = parseDate(val)
+        } else {
+          parsed = this.model.has('dateType') ?
+            parseDate(val, this.model.get('dateType'))
+            : null;
+        }
+
+        if (parsed) {
+          if (this.autodetectDate) this.model.set('dateType', parsed.type);
+        } else {
+          if (this.autodetectDate) this.model.unset('dateType');
+        }
+
+        setDateMessage($el, parsed, this);
+        this.$('#js-endDate').trigger('input');
+
+        return parsed ? [ parsed.label, parsed.isoValue ] : [ null, null ];
       }
-
-      if (parsed) {
-        if (this.autodetectDate) this.model.set('dateType', parsed.type);
-        this.model.set('startDate', parsed.isoValue);
-      } else {
-        if (this.autodetectDate) this.model.unset('dateType');
-        this.model.unset('startDate');
-      }
-
-      setDateMessage($el, parsed, this);
-      this.$('#js-endDate').trigger('input');
-
-      return parsed && parsed.value;
     }
   },
-  '#js-endDate': {
-    observe: 'endDateLabel',
-    getVal: function ($el) {
-      var parsed = this.model.has('dateType') ? parseDate($el.val(), this.model.get('dateType')) : null;
-      if (parsed) {
-        this.model.set('endDate', parsed.isoValue);
-      } else {
-        this.model.unset('endDate');
+
+  stop: {
+    '#js-endDate': {
+      observe: ['label', 'year'],
+      onGet: function (value) { return value[0] },
+      getVal: function ($el) {
+        var parsed = this.model.has('dateType') ?
+          parseDate($el.val(), this.model.get('dateType'))
+          : null;
+
+        setDateMessage($el, parsed, this);
+
+        return parsed ? [ parsed.label, parsed.isoValue ] : [ null, null ];
       }
-
-      setDateMessage($el, parsed, this);
-
-      return parsed && parsed.value;
     }
   }
 }
 
 module.exports = Backbone.View.extend({
   model: Period,
-  bindings: _.extend({}, bindings),
+  bindings: _.extend({}, bindings.period),
   events: {
     'click #js-save-period': 'save',
     'change #js-detect-dateType': 'updateDetectDateType',
@@ -139,9 +139,11 @@ module.exports = Backbone.View.extend({
     this.render();
     this.updateDetectDateType();
     this.stickit();
+    this.stickit(this.model.get('start'), bindings.start);
+    this.stickit(this.model.get('stop'), bindings.stop)
 
-    spatialCoverageView = new SpatialCoverageView({
-      collection: this.model.spatialCoverages,
+        spatialCoverageView = new SpatialCoverageView({
+      collection: this.model.get('spatialCoverage'),
       el: this.$('#js-spatial-coverage-container')
     });
 
@@ -164,26 +166,14 @@ module.exports = Backbone.View.extend({
       }
       this.stickit();
     });
-
-
-    this.listenTo(this.model, 'change', this.updateMonitor);
-    this.listenTo(this.model.spatialCoverages, 'add remove', this.updateMonitor);
   },
-  updateDetectDateType: function (e) {
+  updateDetectDateType: function () {
     this.autodetectDate = this.$('#js-detect-dateType').prop('checked');
     this.$('#js-dateType').prop('disabled', this.autodetectDate);
-  },
-  updateMonitor: function () {
-    if (!this.$monitor) this.$monitor = this.$('pre');
-    this.$monitor.html(this.model.toJSONLD());
   },
   render: function () {
     var template = require('../templates/period_form.html');
     this.$el.html(template());
-
-    Backbone.$('<pre>')
-      .appendTo(this.$el)
-      .before('<h2>Output preview</h2>');
   },
   save: function () {
     this.model.validate();

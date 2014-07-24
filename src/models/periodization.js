@@ -13,12 +13,12 @@ module.exports = Backbone.RelationalModel.extend({
       type: Backbone.HasMany,
       key: 'definitions',
       relatedModel: Period,
-      collectionType: PeriodCollection,
+      collectionType: PeriodCollection
     },
     {
       type: Backbone.HasOne,
       key: 'source',
-      relatedModel: Source,
+      relatedModel: Source
     }
   ],
   parse: function (data) {
