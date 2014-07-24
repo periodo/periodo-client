@@ -3,6 +3,9 @@
 var Backbone = require('../backbone')
 
 module.exports = Backbone.View.extend({
+  events: {
+    'click #js-delete-database': 'deleteDatabase'
+  },
   initialize: function () {
     this.render();
   },
@@ -12,5 +15,12 @@ module.exports = Backbone.View.extend({
 
     this.$el.html(template());
     this.$('#periodization-list').html(listTemplate({ periodizations: this.collection }));
+  },
+  deleteDatabase: function () {
+    var db = require('../db');
+    db.delete().then(function () {
+      console.log('deleted');
+      window.location.reload(true);
+    });
   }
 });
