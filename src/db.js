@@ -3,6 +3,7 @@ var _ = require('underscore')
   , Backbone = require('backbone')
   , Dexie = require('Dexie')
   , traverse = require('traverse')
+  , equal = require('deep-equal')
   , genid = require('./utils/generate_skolem_id')
   , db
 
@@ -111,23 +112,60 @@ function BackboneRelationalAddon(db) {
     // TODO: if json object doesn't have needed keypath, throw error
     
     var toSave = partitionDataByStore(object, this.schema.mappedModel);
-    var promises = [];
-    _(toSave).forEach(function (values, storeName) {
-      values = _.isArray(values) ? values : [values];
-      values.forEach(function (val) {
-        var table = db.table(storeName)
-          , model = table.schema.mappedModel
-          , idAttribute = model.prototype.idAttribute
+    var promises = savePartionedData(db, toSave);
 
-        if (!val.hasOwnProperty(idAttribute) && model.prototype.skolemID) {
-          val[idAttribute] = genid();
-        }
-
-        promises.push(db.table(storeName).put(val));
-      });
-    });
     return Dexie.Promise.all(promises).then(function () {
       return Dexie.Promise.resolve(object);
+    });
+  }
+
+  db.WriteableTable.prototype.updateModel = function (newData, existingData) {
+    var that = this;
+    var promises = [];
+    var _db = Dexie.currentTransaction.db || db;
+
+    if (equal(newData, existingData)) {
+      return Dexie.Promise.resolve(newData);
+    }
+
+    var toSave = partitionDataByStore(newData, this.schema.mappedModel);
+    var existingDataByTable = partitionDataByStore(existingData, this.schema.mappedModel);
+    var toDelete = {};
+
+    _(existingDataByTable).forEach(function (existingItems, tableName) {
+      var idAttribute = db.table(tableName).schema.mappedModel.prototype.idAttribute;
+
+      if (tableName === that.name) return;
+
+      existingItems.forEach(function (item) {
+        var newItems = toSave[tableName];
+        var exists = false;
+
+        for (var i = 0; i < newItems.length; i++) {
+          if (newItems[i][idAttribute] !== item[idAttribute]) continue;
+
+          exists = true;
+          if (equal(newItems[i], item)) newItems.splice(i, 1);
+          break;
+        }
+
+        if (!exists) {
+          if (!tableName in toDelete) toDelete[tableName] = [];
+          toDelete[tableName].push(item[idAttribute]);
+        }
+      });
+    });
+
+    promises = promises.concat(_(toDelete).map(function (ids, storeName) {
+      var table = _db.table(storeName);
+      return ids.map(table.delete.bind(table));
+    }));
+
+    // This needs to be putModel, not just put
+    promises = promises.concat(savePartionedData(_db, toSave));
+
+    return Dexie.Promise.all(promises).then(function () {
+      return Dexie.Promise.resolve(newData);
     });
   }
 
@@ -194,6 +232,24 @@ function BackboneRelationalAddon(db) {
           this.update(_.pluck(val, StoredModel.prototype.idAttribute), true);
         }
       }));
+    }
+
+    function savePartionedData(_db, data) {
+      var promises = [];
+      _(data).forEach(function (values, storeName) {
+        values = _.isArray(values) ? values : [values];
+        values.forEach(function (val) {
+          var table = _db.table(storeName)
+            , model = table.schema.mappedModel
+            , idAttribute = model.prototype.idAttribute
+
+          if (!val.hasOwnProperty(idAttribute) && model.prototype.skolemID) {
+            val[idAttribute] = genid();
+          }
+          promises.push(_db.table(storeName).put(val));
+        });
+      });
+      return promises;
     }
 
     return toSave;

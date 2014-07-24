@@ -11,6 +11,7 @@
     "backbone-validation": "thedersen/backbone.validation#v0.9.1",
     "backbone.stickit": "^0.8.0",
     "d3": "^3.4.8",
+    "deep-equal": "^0.2.1",
     "jquery": "^1.11.0",
     "json-stable-stringify": "^1.0.0",
     "less": "^1.7.3",
