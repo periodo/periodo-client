@@ -144,4 +144,28 @@ describe('Backbone-relational Dexie addon', function () {
         ]
       });
     });
+
+    it('should store data from models', function (done) {
+      var table = db.m1Store;
+
+      return db.transaction('rw', table.getAllRelatedTables(), function () {
+        return table.putModel(testData);
+      }).then(function (returned) {
+        assert.deepEqual(returned, testData);
+        return table.getModel(testData.id);
+      }).then(function (returned) {
+        assert.deepEqual(returned, testData);
+        return db.m2Store.getModel(21);
+      }).then(function (returned) {
+        assert.deepEqual(returned, {
+          id: 21,
+          title: 'I am the second m2',
+          m3: [
+            { id: 30, title: 'I am m3' }
+          ]
+        });
+        done();
+      });
+
+    });
 });
