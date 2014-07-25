@@ -2,9 +2,12 @@
 
 var _ = require('underscore')
   , Dexie = require('Dexie')
+  , Backbone = require('backbone')
   , traverse = require('traverse')
   , equal = require('deep-equal')
   , genid = require('./utils/generate_skolem_id')
+
+require('backbone-relational');
 
 /*
  * Given a model constructor and a path through the JSON serialization
@@ -17,11 +20,18 @@ var _ = require('underscore')
 function findStoredRelationAtPath(Model, path) {
   var relatedModel = path.reduce(function (CurModel, attr) {
     if (!CurModel) return null;
-    return _.chain(CurModel.prototype.relations || [])
+
+    var RelModel = _.chain(CurModel.prototype.relations || [])
       .where({ key: attr })
       .pluck('relatedModel')
       .first()
-      .value()
+      .value();
+
+    if (RelModel && _.isString(RelModel)) {
+      RelModel = Backbone.Relational.store.getObjectByName(RelModel);
+    }
+
+    return RelModel;
   }, Model);
 
   if (relatedModel && !relatedModel.prototype.hasOwnProperty('storeName')) relatedModel = null;
@@ -121,7 +131,11 @@ module.exports = function (db) {
         tables.push(storeName);
       }
       (CurModel.prototype.relations || []).forEach(function (rel) {
-        toCheck.push(rel.relatedModel);
+        var RelModel = _.isString(rel.relatedModel) ?
+          Backbone.Relational.store.getObjectByName(rel.relatedModel)
+          : rel.relatedModel;
+
+        toCheck.push(RelModel);
       });
     }
 
