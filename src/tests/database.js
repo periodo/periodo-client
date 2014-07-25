@@ -1,17 +1,60 @@
 "use strict";
 
 var assert = require('assert')
+  , BackboneRelationalAddon = require('../backbone_relational_addon')
+  , Backbone = require('backbone')
+  , models = {}
+
+require('backbone-relational');
+
+// Sets up the following model hierarchy:
+// - M1 (top-level; persisted in indexeddb)
+//   - M2 (one-to-many; persisted in indexeddb)
+//     - M3 (one-to-many; persisted in indexeddb)
+//   - M4 (one-to-one; NOT persisted in indexeddb)
+//     - M5 (one-to-many; persisted in indexeddb)
+
+models.M1 = Backbone.RelationalModel.extend({
+  relations: [
+    {
+      type: 'hasMany',
+      key: 'm2',
+      relatedModel: 'M2'
+    },
+    {
+      type: 'hasOne',
+      key: 'm4',
+      relatedModel: 'M4'
+    }
+  ],
+});
+models.M2 = Backbone.RelationalModel.extend({
+  relations: [
+    {
+      type: 'hasMany',
+      key: 'm3',
+      relatedModel: 'M3'
+    }
+  ]
+});
+models.M3 = Backbone.RelationalModel.extend({})
+models.M4 = Backbone.RelationalModel.extend({
+  relations: [
+    {
+      type: 'hasMany',
+      key: 'm5',
+      relatedModel: 'M5'
+    }
+  ]
+});
+models.M5 = Backbone.RelationalModel.extend({});
+
 
 describe('Backbone-relational Dexie addon', function () {
   var Dexie = require('Dexie')
-    , BackboneRelationalAddon = require('../backbone_relational_addon')
-    , Backbone = require('backbone')
-    , models = {}
+    , testData
     , db
 
-    require('backbone-relational');
-
-    Backbone.Relational.store.addModelScope(models);
     Dexie.addons.push(BackboneRelationalAddon);
 
     before(function (done) {
@@ -24,47 +67,7 @@ describe('Backbone-relational Dexie addon', function () {
         m5Store: 'id++'
       });
 
-      // Sets up the following model hierarchy:
-      // - M1 (top-level; persisted in indexeddb)
-      //   - M2 (one-to-many; persisted in indexeddb)
-      //     - M3 (one-to-many; persisted in indexeddb)
-      //   - M4 (one-to-one; NOT persisted in indexeddb)
-      //     - M5 (one-to-many; persisted in indexeddb)
-
-      models.M1 = Backbone.RelationalModel.extend({
-        relations: [
-          {
-            type: 'hasMany',
-            key: 'm2',
-            relatedModel: 'M2'
-          },
-          {
-            type: 'hasOne',
-            key: 'm4',
-            relatedModel: 'M4'
-          }
-        ],
-      });
-      models.M2 = Backbone.RelationalModel.extend({
-        relations: [
-          {
-            type: 'hasMany',
-            key: 'm3',
-            relatedModel: 'M3'
-          }
-        ]
-      });
-      models.M3 = Backbone.RelationalModel.extend({})
-      models.M4 = Backbone.RelationalModel.extend({
-        relations: [
-          {
-            type: 'hasMany',
-            key: 'm5',
-            relatedModel: 'M5'
-          }
-        ]
-      });
-      models.M5 = Backbone.RelationalModel.extend({});
+      Backbone.Relational.store.addModelScope(models);
 
       db.m1Store.mapToModel(models.M1);
       db.m2Store.mapToModel(models.M2);
@@ -75,8 +78,25 @@ describe('Backbone-relational Dexie addon', function () {
     });
 
     after(function (done) {
+      Backbone.Relational.store.reset();
       db.delete().then(done);
     });
+
+    testData = {
+      id: 10,
+      title: 'I am m1',
+      m2: [
+        { id: 20, title: 'I am the first m2' },
+        { id: 21, title: 'I am the second m2', m3: [ { id: 30, title: 'I am m3' } ] }
+      ],
+      m4: {
+        id: 40,
+        title: 'I am m4',
+        m5: [
+          { id: 50, title: 'I am m5', nested: { foo: 'bar' } }
+        ]
+      }
+    }
 
     it('should have mapped models to tables', function () {
       assert.equal(db.table('m1Store').schema.mappedModel, models.M1);
@@ -97,23 +117,7 @@ describe('Backbone-relational Dexie addon', function () {
     });
 
     it('should partition data by store', function () {
-      var data = {
-        id: 10,
-        title: 'I am m1',
-        m2: [
-          { id: 20, title: 'I am the first m2' },
-          { id: 21, title: 'I am the second m2', m3: [ { id: 30, title: 'I am m3' } ] }
-        ],
-        m4: {
-          id: 40,
-          title: 'I am m4',
-          m5: [
-            { id: 50, title: 'I am m5', nested: { foo: 'bar' } }
-          ]
-        }
-      }
-
-      var partitioned = db.table('m1Store').partitionDataByStore(data);
+      var partitioned = db.table('m1Store').partitionDataByStore(testData);
 
       assert.deepEqual(partitioned, {
         m1Store: [
