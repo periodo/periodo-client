@@ -103,7 +103,7 @@ module.exports = function (db) {
 
 
   // Registers a model constructor to an objectStore
-  db.Table.prototype.mapToModel = function (Model, storeName) {
+  db.Table.prototype.mapToModel = function (Model) {
     /*
     var existingObjectStores = _(db.tables).pluck('name');
     if (existingObjectStores.indexOf(storeName) === -1) {
@@ -112,7 +112,7 @@ module.exports = function (db) {
     */
 
     this.schema.mappedModel = Model;
-    Model.prototype.storeName = storeName;
+    Model.prototype.storeName = this.name;
   }
 
   // Returns an array of all tables that must be opened in a transaction to edit

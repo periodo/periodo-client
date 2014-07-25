@@ -16,15 +16,15 @@ db.version(1).stores({
 });
 
 var Periodization = require('./models/periodization');
-db.periodizations.mapToModel(Periodization, 'periodizations');
+db.periodizations.mapToModel(Periodization);
 
 var Period = require('./models/period');
-db.periods.mapToModel(Period, 'periods');
+db.periods.mapToModel(Period);
 
 var Creator = require('./models/creator');
-db.creators.mapToModel(Creator, 'creators');
+db.creators.mapToModel(Creator);
 
 var SpatialItem = require('./models/spatial_item');
-db.spatialItems.mapToModel(SpatialItem, 'spatialItems');
+db.spatialItems.mapToModel(SpatialItem);
 
 db.open();
