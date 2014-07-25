@@ -68,11 +68,20 @@ module.exports = function (db) {
         if (this.isRoot) return;
         var StoredModel = findStoredRelationAtPath(curObj.Model, this.path);
         if (StoredModel) {
-          toCheck.push({ Model: StoredModel, data: val });
+          (_.isArray(val) ? val : [val]).forEach(function (data) {
+            toCheck.push({ Model: StoredModel, data: data });
+          });
           this.update(_.pluck(val, StoredModel.prototype.idAttribute), true);
         }
       }));
     }
+
+    _.forEach(toSave, function (val, storeName) {
+      var idAttribute = db.table(storeName).schema.mappedModel.prototype.idAttribute;
+      toSave[storeName] = val.sort(function (a, b) {
+        return a[idAttribute] > b[idAttribute];
+      });
+    });
 
     return toSave;
   }
