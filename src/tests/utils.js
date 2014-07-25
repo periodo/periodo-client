@@ -16,13 +16,13 @@ describe('Date parser', function () {
 
     assert.deepEqual(parser.parse('1994'), {
       type: 'iso8601',
-      value: '1994',
+      label: '1994',
       isoValue: '+1994'
     });
 
     assert.deepEqual(parser.parse('-50000'), {
       type: 'iso8601',
-      value: '-50000',
+      label: '-50000',
       isoValue: '-50000'
     });
 
@@ -36,13 +36,13 @@ describe('Date parser', function () {
 
     assert.deepEqual(parser.parse('12 a.d.'), {
       type: 'gregorian',
-      value: '12 AD',
+      label: '12 AD',
       isoValue: '+0012'
     });
 
     assert.deepEqual(parser.parse('12 b.c.'), {
       type: 'gregorian',
-      value: '12 BC',
+      label: '12 BC',
       isoValue: '-0011'
     });
 
@@ -62,13 +62,13 @@ describe('Date parser', function () {
     }
     assert.deepEqual(parser.parse('5 b.p.'), {
       type: 'bp2000',
-      value: '5 BP',
+      label: '5 BP',
       isoValue: '+1995'
     });
 
     assert.deepEqual(makeBPParser('2000 BP', 1950)(), {
       type: 'bp1950',
-      value: '2000 BP',
+      label: '2000 BP',
       isoValue: '-0050'
     });
   });
