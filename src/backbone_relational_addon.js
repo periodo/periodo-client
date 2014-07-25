@@ -157,7 +157,7 @@ module.exports = function (db) {
     var model = this.schema.mappedModel;
     // TODO: if (!model) .......
     
-    var _db = Dexie.currentTransaction.db || db;
+    var _db = Dexie.currentTransaction ? Dexie.currentTransaction.db : db;
     
     return _db[model.prototype.storeName].get(id).then(function (data) {
       var promises = []
