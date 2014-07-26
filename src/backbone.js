@@ -33,7 +33,7 @@ Backbone.sync = function (method, object, options) {
         return resp;
       },
       function (err) {
-        console.error(err);
+        console.error(err.stack || err);
         if (Backbone._app) Backbone._app.trigger('error', object, err);
         if (options.error) options.error(err);
         return err;
