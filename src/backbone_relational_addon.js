@@ -131,21 +131,28 @@ module.exports = function (db) {
       , tables = []
       , CurModel
       , storeName
+      , skip
 
     while (toCheck.length) {
       CurModel = toCheck.pop();
       storeName = CurModel.prototype.storeName;
+      skip = false;
       if (storeName) {
-        if (tables.indexOf(storeName) !== -1) break;
-        tables.push(storeName);
+        if (tables.indexOf(storeName) === -1) {
+          tables.push(storeName);
+        } else {
+          skip = true;
+        }
       }
-      (CurModel.prototype.relations || []).forEach(function (rel) {
-        var RelModel = _.isString(rel.relatedModel) ?
-          Backbone.Relational.store.getObjectByName(rel.relatedModel)
-          : rel.relatedModel;
+      if (!skip) {
+        (CurModel.prototype.relations || []).forEach(function (rel) {
+          var RelModel = _.isString(rel.relatedModel) ?
+            Backbone.Relational.store.getObjectByName(rel.relatedModel)
+            : rel.relatedModel;
 
-        toCheck.push(RelModel);
-      });
+          toCheck.push(RelModel);
+        });
+      }
     }
 
     return tables.map(function (name) { return db.table(name) });
