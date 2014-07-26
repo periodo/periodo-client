@@ -83,7 +83,7 @@ DatabaseWrapper.prototype = {
       , table = this.db.table(object.storeName)
 
     return this.read(object).then(function (existingData) {
-      that.db.transaction('rw', table.getAllRelatedTables(), function () {
+      return that.db.transaction('rw', table.getAllRelatedTables(), function () {
         return table.updateModel(object.toJSON(), existingData);
       });
     });
