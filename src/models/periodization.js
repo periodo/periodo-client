@@ -26,5 +26,13 @@ module.exports = Backbone.RelationalModel.extend({
       data.definitions = _.values(data.definitions);
     }
     return data;
+  },
+  getTimespan: function () {
+    var starts = this.get('definitions').map(function (period) { return period.get('start') });
+    var stops = this.get('definitions').map(function (period) { return period.get('stop') });
+    return {
+      lower: _(starts).min(function (t) { return parseInt(t.get('year'), 10) }),
+      upper: _(stops).max(function (t) { return parseInt(t.get('year'), 10) })
+    }
   }
 });

@@ -2,7 +2,7 @@
   <thead>
     <tr>
       <th>Source title</th>
-      <th># of definitions</th>
+      <th>No. of definitions</th>
       <th>Time span</th>
     </tr>
   </thead>
@@ -15,7 +15,8 @@
         </a>
       </td>
       <td><%= periodization.get('definitions').length %></td>
-      <td>xxx</td>
+      <% var timeSpan = periodization.getTimespan() %>
+      <td><%= timeSpan.lower.get('label') %> – <%= timeSpan.upper.get('label') %></td>
     </tr>
   <% }); %>
   </tbody>
