@@ -5,7 +5,6 @@ var _ = require('underscore')
   , Backbone = require('backbone')
   , traverse = require('traverse')
   , equal = require('deep-equal')
-  , genid = require('./utils/generate_skolem_id')
 
 require('backbone-relational');
 
@@ -96,13 +95,6 @@ module.exports = function (db) {
     _(data).forEach(function (values, storeName) {
       values = _.isArray(values) ? values : [values];
       values.forEach(function (val) {
-        var table = that.table(storeName)
-          , model = table.schema.mappedModel
-          , idAttribute = model.prototype.idAttribute
-
-        if (!val.hasOwnProperty(idAttribute) && model.prototype.skolemID) {
-          val[idAttribute] = genid();
-        }
         promises.push(that.table(storeName).put(val));
       });
     });
