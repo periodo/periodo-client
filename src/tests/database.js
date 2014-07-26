@@ -1,6 +1,7 @@
 "use strict";
 
 var assert = require('assert')
+  , _ = require('underscore')
   , BackboneRelationalAddon = require('../backbone_relational_addon')
   , Backbone = require('backbone')
   , models = {}
@@ -49,10 +50,28 @@ models.M4 = Backbone.RelationalModel.extend({
 });
 models.M5 = Backbone.RelationalModel.extend({});
 
+function makeTestData() {
+  return {
+    id: 10,
+    title: 'I am m1',
+    m2: [
+      { id: 20, title: 'I am the first m2' },
+      { id: 21, title: 'I am the second m2', m3: [ { id: 30, title: 'I am m3' } ] }
+    ],
+    m4: {
+      id: 40,
+      title: 'I am m4',
+      m5: [
+        { id: 50, title: 'I am m5', nested: { foo: 'bar' } }
+      ]
+    }
+  }
+}
+
 
 describe('Backbone-relational Dexie addon', function () {
   var Dexie = require('Dexie')
-    , testData
+    , testData = makeTestData()
     , db
 
     Dexie.addons.push(BackboneRelationalAddon);
@@ -82,21 +101,6 @@ describe('Backbone-relational Dexie addon', function () {
       db.delete().then(done);
     });
 
-    testData = {
-      id: 10,
-      title: 'I am m1',
-      m2: [
-        { id: 20, title: 'I am the first m2' },
-        { id: 21, title: 'I am the second m2', m3: [ { id: 30, title: 'I am m3' } ] }
-      ],
-      m4: {
-        id: 40,
-        title: 'I am m4',
-        m5: [
-          { id: 50, title: 'I am m5', nested: { foo: 'bar' } }
-        ]
-      }
-    }
 
     it('should have mapped models to tables', function () {
       assert.equal(db.table('m1Store').schema.mappedModel, models.M1);
@@ -117,7 +121,8 @@ describe('Backbone-relational Dexie addon', function () {
     });
 
     it('should partition data by store', function () {
-      var partitioned = db.table('m1Store').partitionDataByStore(testData);
+      var testData = makeTestData()
+        , partitioned = db.table('m1Store').partitionDataByStore(testData);
 
       assert.deepEqual(partitioned, {
         m1Store: [
@@ -145,8 +150,21 @@ describe('Backbone-relational Dexie addon', function () {
       });
     });
 
+    it('should know what data to update', function () {
+      var newData = makeTestData()
+        , editedObj = newData.m2[1].m3[0]
+
+      editedObj.whatever = 'something';
+
+      assert(
+        db.m1Store.getDataToUpdate(testData, newData),
+        { 'save': { m3Store: editedObj }, 'delete': {} }
+      );
+    });
+
     it('should store data from models', function (done) {
-      var table = db.m1Store;
+      var testData = makeTestData()
+        , table = db.m1Store;
 
       return db.transaction('rw', table.getAllRelatedTables(), function () {
         return table.putModel(testData);
@@ -166,6 +184,6 @@ describe('Backbone-relational Dexie addon', function () {
         });
         done();
       });
-
     });
+
 });

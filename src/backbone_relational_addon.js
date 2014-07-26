@@ -222,26 +222,27 @@ module.exports = function (db) {
     });
   }
 
-  db.WriteableTable.prototype.updateModel = function (newData, existingData) {
-    var that = this;
-    var promises = [];
-    var _db = Dexie.currentTransaction.db || db;
+  db.WriteableTable.prototype.getDataToUpdate = function (existingData, newData) {
+    var that = this
+      , newByTable
+      , existingByTable
+      , toDelete
 
     if (equal(newData, existingData)) {
-      return Dexie.Promise.resolve(newData);
+      return { 'save': {}, 'delete': {} }
     }
 
-    var toSave = this.partitionDataByStore(newData);
-    var existingDataByTable = this.partitionDataByStore(existingData);
-    var toDelete = {};
+    newByTable = this.partitionDataByStore(newData);
+    existingByTable = this.partitionDataByStore(existingData);
+    toDelete = {};
 
-    _(existingDataByTable).forEach(function (existingItems, tableName) {
+    _(existingByTable).forEach(function (existingItems, tableName) {
       var idAttribute = db.table(tableName).schema.mappedModel.prototype.idAttribute;
 
       if (tableName === that.name) return;
 
       existingItems.forEach(function (item) {
-        var newItems = toSave[tableName];
+        var newItems = newByTable[tableName];
         var exists = false;
 
         for (var i = 0; i < newItems.length; i++) {
@@ -259,13 +260,21 @@ module.exports = function (db) {
       });
     });
 
-    promises = promises.concat(_(toDelete).map(function (ids, storeName) {
+    return { 'save': newByTable, 'delete': toDelete }
+  }
+
+  db.WriteableTable.prototype.updateModel = function (newData, existingData) {
+    var _db = Dexie.currentTransaction.db || db
+      , updates = this.getDataToUpdate(existingData, newData)
+      , promises = []
+
+    promises = promises.concat(_(updates['delete']).map(function (ids, storeName) {
       var table = _db.table(storeName);
       return ids.map(table.delete.bind(table));
     }));
 
     // This needs to be putModel, not just put
-    promises = promises.concat(_db.savePartionedData(toSave));
+    promises = promises.concat(_db.savePartionedData(updates.save));
 
     return Dexie.Promise.all(promises).then(function () {
       return Dexie.Promise.resolve(newData);
