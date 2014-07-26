@@ -19,7 +19,6 @@ module.exports = Backbone.View.extend({
   deleteDatabase: function () {
     var db = require('../db');
     db.delete().then(function () {
-      console.log('deleted');
       window.location.reload(true);
     });
   }
