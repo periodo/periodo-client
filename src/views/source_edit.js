@@ -2,6 +2,7 @@
 
 var Backbone = require('../backbone')
   , Source = require('../models/source')
+  , Spinner = require('spin.js')
 
 var URL_PATTERNS = [
   {
@@ -24,7 +25,16 @@ module.exports = Backbone.View.extend({
   render: function () {
     var template = require('../templates/source_form.html');
     this.$el.html(template());
-    this.$srcMsg = this.$('.message');
+    this.$srcMsg = this.$('#message-text');
+    this.spinner = new Spinner({
+      lines: 11,
+      length: 0,
+      width: 2,
+      radius: 4,
+      left: '-10px',
+      top: '50%'
+    });
+    this.$spinner = this.$('#source-loading');
   },
   handleSourceTextChange: function (e) {
     var that = this
@@ -51,7 +61,9 @@ module.exports = Backbone.View.extend({
     } else {
       source = Source.findOrCreate({ 'id': url });
       this.$srcMsg.text('Fetching source information...');
+      this.$spinner.append(this.spinner.spin().el);
       source.fetchLD().then(function () {
+        that.spinner.stop();
         that.$srcMsg.text('');
         that.trigger('sourceSelected', source);
       });
