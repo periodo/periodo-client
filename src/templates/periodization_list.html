@@ -16,7 +16,11 @@
       </td>
       <td><%= periodization.get('definitions').length %></td>
       <% var timeSpan = periodization.getTimespan() %>
-      <td><%= timeSpan.lower.get('label') %> – <%= timeSpan.upper.get('label') %></td>
+      <td>
+        <% if (timeSpan.lower && timeSpan.upper) { %>
+        <%= timeSpan.lower.get('label') %> – <%= timeSpan.upper.get('label') %>
+        <% } %>
+      </td>
     </tr>
   <% }); %>
   </tbody>
