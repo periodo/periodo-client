@@ -29,13 +29,13 @@ Backbone.sync = function (method, object, options) {
     .then(
       function (resp) {
         if (Backbone._app) Backbone._app.trigger('sync', object, resp);
-        if (options.success) options.success(resp);
+        if (options && options.success) options.success(resp);
         return resp;
       },
       function (err) {
         console.error(err.stack || err);
         if (Backbone._app) Backbone._app.trigger('error', object, err);
-        if (options.error) options.error(err);
+        if (options && options.error) options.error(err);
         return err;
       }
     );
@@ -60,6 +60,19 @@ DatabaseWrapper.prototype = {
       return table.putModel(object.toJSON());
     });
   },
+
+  // Save objects in a collection
+  put: function (object, options) {
+    var table = this.db.table(object.model.prototype.storeName)
+      , promise
+
+    promise = this.db.transaction('rw', table.getAllRelatedTables(), function () {
+      return table.putModels.apply(table, object.map(function (model) { return model.toJSON() }));
+    });
+
+    return promise;
+  },
+
   read: function (object, options) {
     var table
       , promise

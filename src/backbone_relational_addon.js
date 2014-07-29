@@ -5,6 +5,7 @@ var _ = require('underscore')
   , Backbone = require('backbone')
   , traverse = require('traverse')
   , equal = require('deep-equal')
+  , stableStringify = require('json-stable-stringify')
 
 require('backbone-relational');
 
@@ -218,6 +219,29 @@ module.exports = function (db) {
 
     return Dexie.Promise.all(promises).then(function () {
       return Dexie.Promise.resolve(object);
+    });
+  }
+
+  db.WriteableTable.prototype.putModels = function () {
+    var that = this;
+    var objects = Array.prototype.slice.call(arguments);
+    var toSave = objects.reduce(function (acc, object) {
+      var partitioned = that.partitionDataByStore(object);
+      for (var store in partitioned) {
+        if (!acc.hasOwnProperty(store)) acc[store] = [];
+        acc[store] = acc[store].concat(
+          _.isArray(partitioned[store]) ? partitioned[store] : [partitioned[store]]
+        );
+      }
+      return acc
+    }, {});
+
+    for (var store in toSave) {
+      toSave[store] = _.unique(toSave[store], false, stableStringify);
+    }
+
+    return Dexie.Promise.all(db.savePartionedData(toSave)).then(function () {
+      return Dexie.Promise.resolve(objects);
     });
   }
 
