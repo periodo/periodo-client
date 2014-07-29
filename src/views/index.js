@@ -13,6 +13,8 @@ module.exports = Backbone.View.extend({
     var template = require('../templates/index.html')
       , listTemplate = require('../templates/periodization_list.html')
 
+    this.collection.sort();
+
     this.$el.html(template());
     this.$('#periodization-list').html(listTemplate({ periodizations: this.collection }));
   },

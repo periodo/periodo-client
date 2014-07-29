@@ -11,5 +11,9 @@ module.exports = Backbone.Collection.extend({
       data = _.values(data.periodizations);
     }
     return data;
+  },
+  comparator: function (periodization) {
+    var timespan = periodization.getTimespan();
+    return timespan && timespan.lower && parseInt(timespan.lower.get('year'), 10);
   }
 });
