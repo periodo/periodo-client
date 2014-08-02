@@ -41,11 +41,12 @@ module.exports = Backbone.View.extend({
     this.$acceptDialog.hide();
     this.$fetchSpinner.append(this.spinner.spin().el);
 
-    db.dumps.orderBy('modified').last()
+    db.dumps.orderBy('synced').last()
       .then(function (lastDump) {
         var headers = {};
 
-        headers['If-None-Match'] = lastDump ? lastDump.etag : 0;
+
+        headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
         return Backbone.$.ajax({
           url: url + 'dataset/',
@@ -60,8 +61,7 @@ module.exports = Backbone.View.extend({
           } else {
 
             data.dump = {
-              etag: xhr.getResponseHeader('ETag'),
-              modified: new Date(xhr.getResponseHeader('Last-Modified')).getTime(),
+              modified: xhr.getResponseHeader('Last-Modified'),
               synced: new Date().getTime(),
               data: dump
             }

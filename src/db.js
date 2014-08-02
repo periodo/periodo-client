@@ -8,7 +8,7 @@ Dexie.addons.push(BackboneRelationalAddon);
 module.exports = db = new Dexie('PeriodO')
 
 db.version(1).stores({
-  dumps: 'etag,modified,synced',
+  dumps: 'id++,modified,synced',
   periodizations: 'id,source.id,source.title,source.yearPublished', // Will include sources also
   periods: 'id,label',
   creators: 'id,name',
