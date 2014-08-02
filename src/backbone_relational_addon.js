@@ -196,7 +196,7 @@ module.exports = function (db) {
     var table = _db[model.prototype.storeName];
 
     options = options || {};
-    options.limit = options.limit || 50;
+    options.limit = options.limit || 25;
     options.offset = options.offset || 0;
 
     return _db[model.prototype.storeName]
