@@ -109,7 +109,6 @@ module.exports = Backbone.View.extend({
   model: Period,
   bindings: _.extend({}, bindings.period),
   events: {
-    'click #js-save-period': 'save',
     'change #js-detect-dateType': 'updateDetectDateType',
     'change #js-dateType': function () {
       if (!this.autodetectDate) {
@@ -117,10 +116,14 @@ module.exports = Backbone.View.extend({
       }
     }
   },
-  appendError: function (label, message) {
+  appendErrors: function (label, messages) {
     var $container = this.$('[data-error-container=' + label + ']')
-      , html = '<div class="error-message alert alert-danger">' + message + '</div>'
+      , html
       , $label
+
+    html = '<div class="error-message alert alert-danger"><ul class="list-unstyled">'
+    html += messages.map(function (message) { return '<li>' + message + '</li>' });
+    html += '</ul></li>'
 
     if (!$container.length) {
       this.$el.prepend(html);
@@ -142,29 +145,16 @@ module.exports = Backbone.View.extend({
     this.stickit(this.model.get('start'), bindings.start);
     this.stickit(this.model.get('stop'), bindings.stop)
 
-        spatialCoverageView = new SpatialCoverageView({
+    spatialCoverageView = new SpatialCoverageView({
       collection: this.model.get('spatialCoverage'),
       el: this.$('#js-spatial-coverage-container')
     });
 
-    this.listenTo(this.model, 'validated:invalid', function (model, errors) {
+    this.listenTo(this.model, 'invalid', function (model, errors) {
       this.$('.error-message').remove();
       for (var field in errors) {
-        this.appendError(field, errors[field]);
+        this.appendErrors(field, errors[field]);
       }
-    });
-
-    this.listenTo(this.model, 'validated:valid', function () {
-      this.$('.error-message').remove();
-    });
-
-    this.listenToOnce(this.model, 'validated:invalid', function () {
-      this.unstickit();
-      for (var binding in this.bindings) {
-        if (!this.bindings[binding].setOptions) this.bindings[binding].setOptions = {};
-        this.bindings[binding].setOptions.validate = true;
-      }
-      this.stickit();
     });
   },
   updateDetectDateType: function () {

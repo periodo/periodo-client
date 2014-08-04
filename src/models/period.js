@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
   , SpatialCoverage = require('./spatial_item')
   , SpatialCoverageCollection = require('../collections/spatial_coverage')
   , PeriodTerminus = require('./period_terminus')
@@ -29,5 +30,26 @@ module.exports = Backbone.RelationalModel.extend({
   ],
   dateTypes: [
     'bp2000', 'bp1950', 'gregorian', 'iso8601'
-  ]
+  ],
+  validate: function (attrs, options) {
+    var errors = {}
+      , hasStart = attrs.start && attrs.start.get('label') && attrs.start.get('year')
+      , hasStop = attrs.stop && attrs.stop.get('label') && attrs.stop.get('label')
+
+    function addError(label, err) { errors[label] = (errors[label] || []).concat(err) }
+
+    if (hasStart && hasStop) {
+      if ( parseInt(attrs.start.get('year'), 10) > parseInt(attrs.stop.get('year'), 10) ) {
+        addError('dates', 'A period\'s end must come after its start.')
+      }
+    } else {
+      addError('dates', 'A period must have a stop and start date.')
+    }
+
+    if (! (attrs.label && attrs.label.length) ) {
+      addError('label', 'This field is required.');
+    }
+
+    return _.isEmpty(errors) ? null : errors;
+  }
 });

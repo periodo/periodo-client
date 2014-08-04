@@ -9,11 +9,8 @@ module.exports = Backbone;
 
 Backbone.$ = $;
 require('backbone.stickit');
-require('backbone-validation');
 require('backbone-relational');
 
-
-_.extend(Backbone.Model.prototype, Backbone.Validation.mixin);
 Backbone.ajaxSync = Backbone.sync;
 
 Backbone.sync = function (method, object, options) {
