@@ -42,14 +42,15 @@ module.exports = Backbone.View.extend({
     periodEditView.$el.appendTo(this.$periodAdd);
 
     periodEditView.$el.on('click', '#js-save-period', function (e) {
-      if (period.isNew()) period.set('id', genid());
       if (period.isValid()) {
+        if (period.isNew()) period.set('id', genid());
         that.model.save(null, { validate: false }).then(function (data) {
           periodEditView.remove();
           that.render();
         });
       }
     });
+
     periodEditView.$el.on('click', '#js-cancel-period', function (e) {
       e.preventDefault();
       if (period.isNew()) {
