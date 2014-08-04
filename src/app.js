@@ -9,6 +9,13 @@ var $ = require('jquery')
 
 var LEFT_CLICK = 1;
 
+function wasLeftClick(e) {
+  return e.which === LEFT_CLICK &&
+    !e.shiftKey &&
+    !e.ctrlKey &&
+    !e.altKey
+}
+
 $(document).ready(function () {
   var router = new ApplicationRouter();
   var spinner = new Spinner({
@@ -28,7 +35,7 @@ $(document).ready(function () {
   Backbone._app = router;
   Backbone.history.start();
 }).on('click a', function (e) {
-  if (e.target.href && e.target.href.indexOf(root) === 0 && e.which === LEFT_CLICK) {
+  if (e.target.href && e.target.href.indexOf(root) === 0 && wasLeftClick(e)) {
     e.preventDefault();
     Backbone.history.navigate(e.target.getAttribute('href'), { trigger: true });
   }
