@@ -15,6 +15,7 @@
     "jquery": "^1.11.0",
     "json-stable-stringify": "^1.0.0",
     "less": "^1.7.3",
+    "n3": "^0.2.7",
     "pegjs": "^0.8.0",
     "spin.js": "^2.0.1",
     "traverse": "^0.6.6",
