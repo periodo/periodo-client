@@ -5,6 +5,12 @@
   </div>
 
   <div>
+    <dt>URL</dt>
+    <% var url = source.id || (source.partOf && source.partOf.id) || (source.url && [].concat(source.url)[0]) %>
+    <dd><a href="<%= url %>"><%= url %></a></dd>
+  </div>
+
+  <div>
     <dt>Year published</dt>
     <dd><%= source.yearPublished || 'unknown' %></dd>
   </div>
