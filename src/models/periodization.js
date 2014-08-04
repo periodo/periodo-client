@@ -31,7 +31,7 @@ module.exports = Backbone.RelationalModel.extend({
     var starts = this.get('definitions').map(function (period) { return period.get('start') });
     var stops = this.get('definitions').map(function (period) { return period.get('stop') });
 
-    function intYear(terminus) { return parseInt(terminus.get('year'), 10) };
+    function intYear(terminus) { return parseInt(terminus.get('year'), 10) }
 
     return {
       lower: starts.length ? _(starts).min(intYear) : undefined,

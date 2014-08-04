@@ -1,3 +1,5 @@
+"use strict";
+
 var url = require('url')
 
 module.exports = function (length) {
@@ -9,8 +11,8 @@ module.exports = function (length) {
   }
 
   return url.format({
-    protocol: global.location.protocol,
-    host: global.location.host,
+    protocol: location.protocol,
+    host: location.host,
     pathname: '/.well-known/genid/' + hexstr
   });
 }

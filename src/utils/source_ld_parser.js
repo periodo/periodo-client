@@ -52,7 +52,7 @@ function getFirstMatchingPredicate(store, subject, predicates) {
   return matchingObjects;
 }
 
-function getFirstLiteralObject(store, subject, predicates) {
+function getFirstLiteralObject() {
   return _.chain(getFirstMatchingPredicate.apply(null, arguments))
     .pluck('object')
     .map(N3.Util.getLiteralValue)

@@ -2,7 +2,6 @@
 
 var $ = require('jquery')
   , Backbone = require('./backbone')
-  , Dexie = require('Dexie')
   , Spinner = require('spin.js')
   , root = location.protocol + '//' + location.host
   , ApplicationRouter
@@ -63,7 +62,7 @@ ApplicationRouter = Backbone.Router.extend({
 
     var PeriodizationCollection = require('./collections/periodization');
     var periodizations = new PeriodizationCollection();
-    periodizations.fetch().then(function (data) {
+    periodizations.fetch().then(function () {
       that.changeView(IndexView, { collection: periodizations });
     });
   },

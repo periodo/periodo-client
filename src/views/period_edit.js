@@ -61,7 +61,7 @@ bindings = {
   start: {
   '#js-startDate': {
       observe: ['label', 'year'],
-      initialize: function ($el, model, options) {
+      initialize: function ($el) {
         if ($el.val()) $el.trigger('input');
       },
       onGet: function (value) { return value[0] },
@@ -94,7 +94,7 @@ bindings = {
   stop: {
     '#js-endDate': {
       observe: ['label', 'year'],
-      initialize: function ($el, model, options) {
+      initialize: function ($el) {
         if ($el.val()) $el.trigger('input');
       },
       onGet: function (value) { return value[0] },

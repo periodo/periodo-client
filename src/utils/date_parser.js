@@ -1,3 +1,5 @@
+"use strict";
+
 var fs = require('fs')
   , peg = require('pegjs')
   , grammar = fs.readFileSync(__dirname + '/date_parser.pegjs', 'utf8')

@@ -1,7 +1,6 @@
 "use strict";
 
 var assert = require('assert')
-  , _ = require('underscore')
   , BackboneRelationalAddon = require('../backbone_relational_addon')
   , Backbone = require('backbone')
   , models = {}

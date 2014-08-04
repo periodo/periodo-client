@@ -2,7 +2,6 @@
 
 var Backbone = require('backbone')
   , $ = require('jquery')
-  , _ = require('underscore')
   , genid = require('./utils/generate_skolem_id')
 
 module.exports = Backbone;

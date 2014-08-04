@@ -41,18 +41,17 @@ module.exports = Backbone.View.extend({
     var periodEditView = new PeriodEditView({ model: period });
     periodEditView.$el.appendTo(this.$periodAdd);
 
-    periodEditView.$el.on('click', '#js-save-period', function (e) {
+    periodEditView.$el.on('click', '#js-save-period', function () {
       if (period.isValid()) {
         if (period.isNew()) period.set('id', genid());
-        that.model.save(null, { validate: false }).then(function (data) {
+        that.model.save(null, { validate: false }).then(function () {
           periodEditView.remove();
           that.render();
         });
       }
     });
 
-    periodEditView.$el.on('click', '#js-cancel-period', function (e) {
-      e.preventDefault();
+    periodEditView.$el.on('click', '#js-cancel-period', function () {
       if (period.isNew()) {
         period.destroy();
       } else {
@@ -62,7 +61,7 @@ module.exports = Backbone.View.extend({
       that.render();
     });
 
-    periodEditView.$el.on('click', '#js-delete-period', function (e) {
+    periodEditView.$el.on('click', '#js-delete-period', function () {
       that.model.get('definitions').remove(period);
       that.model.save(null, { validate: false }).then(function () {
         periodEditView.remove();

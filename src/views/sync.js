@@ -34,8 +34,7 @@ module.exports = Backbone.View.extend({
     });
   },
   fetchData: function () {
-    var that = this
-      , url = this.$('#js-sync-root').val()
+    var url = this.$('#js-sync-root').val()
 
     this.$periodList.hide();
     this.$acceptDialog.hide();
