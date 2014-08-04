@@ -86,3 +86,12 @@ ul.actions-list {
     }
   }
 }
+
+.period-list > tbody {
+  > tr.period {
+    > td { vertical-align: middle; }
+    .edit { width: 70px; height: 50px; }
+    .btn { display: none; }
+    &:focus .btn, &:hover .btn { display: inline-block; }
+  }
+}

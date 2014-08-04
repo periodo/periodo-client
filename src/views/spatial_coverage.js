@@ -7,30 +7,33 @@ require('jquery-typeahead');
 
 module.exports = Backbone.View.extend({
   initialize: function () {
-    var $ul;
 
     this.render();
     this.initTypeahead();
 
-    $ul = this.$('ul');
+    this.$ul = this.$('ul');
 
     this.views = {};
-    this.listenTo(this.collection, 'add', function (item) {
-      var $el = $('<li>' + item.get('label') + '</li>').appendTo($ul);
-      $('<button type="button" class="close">&times;</button>')
-        .prependTo($el)
-        .css('float', 'none')
-        .css('margin-right', '6px')
-        .on('click', function () {
-          item.collection.remove(item);
-        });
-      this.views[item.cid] = $el;
-    });
 
+    this.listenTo(this.collection, 'add', this._addItem);
     this.listenTo(this.collection, 'remove', function (item) {
       this.views[item.cid].remove();
       delete this.views[item.cid];
     });
+    this.collection.forEach(this._addItem, this);
+  },
+  _addItem: function (item) {
+    var that = this
+      , $el = $('<li>' + item.get('label') + '</li>').appendTo(this.$ul)
+
+    $('<button type="button" class="close">&times;</button>')
+      .prependTo($el)
+      .css('float', 'none')
+      .css('margin-right', '6px')
+      .on('click', function () {
+        that.collection.remove(item);
+      });
+    this.views[item.cid] = $el;
   },
   initTypeahead: function () {
     var that = this

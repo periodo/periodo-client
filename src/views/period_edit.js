@@ -61,6 +61,9 @@ bindings = {
   start: {
   '#js-startDate': {
       observe: ['label', 'year'],
+      initialize: function ($el, model, options) {
+        if ($el.val()) $el.trigger('input');
+      },
       onGet: function (value) { return value[0] },
       getVal: function ($el) {
         var val = $el.val()
@@ -91,6 +94,9 @@ bindings = {
   stop: {
     '#js-endDate': {
       observe: ['label', 'year'],
+      initialize: function ($el, model, options) {
+        if ($el.val()) $el.trigger('input');
+      },
       onGet: function (value) { return value[0] },
       getVal: function ($el) {
         var parsed = this.model.has('dateType') ?
@@ -143,7 +149,7 @@ module.exports = Backbone.View.extend({
     this.updateDetectDateType();
     this.stickit();
     this.stickit(this.model.get('start'), bindings.start);
-    this.stickit(this.model.get('stop'), bindings.stop)
+    this.stickit(this.model.get('stop'), bindings.stop);
 
     spatialCoverageView = new SpatialCoverageView({
       collection: this.model.get('spatialCoverage'),

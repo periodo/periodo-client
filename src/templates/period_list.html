@@ -1,6 +1,7 @@
-<table class="table table-hover">
+<table class="table table-hover period-list">
   <thead>
     <tr>
+      <th></th>
       <th>Name</th>
       <th>Start</th>
       <th>Stop</th>
@@ -14,7 +15,8 @@
     <tr><td><p>No periods defined yet.</p></td></tr>
   <% } else {%>
     <% periods.forEach(function (period) { %>
-    <tr>
+    <tr class="period" tabindex="0" data-period-id="<%= period.id %>">
+      <td class="edit"><button class="edit-period btn btn-primary btn-sm">Edit</button></td>
       <td><%= period.label %></td>
       <td><%= period.start.label %></td>
       <td><%= period.stop.label %></td>

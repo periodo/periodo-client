@@ -5,7 +5,8 @@ var Backbone = require('../backbone')
 
 module.exports = Backbone.View.extend({
   events: {
-    'click #js-add-period': 'handleAddPeriod'
+    'click #js-add-period': 'handleAddPeriod',
+    'click .edit-period': 'handleEditPeriod'
   },
   initialize: function () {
     this.render();
@@ -29,19 +30,19 @@ module.exports = Backbone.View.extend({
     this.$('#source-information').html(sourceTemplate({ source: json.source }));
     this.$periodList.html(periodListTemplate({ periods: json.definitions }));
   },
-  handleAddPeriod: function () {
+  editPeriod: function (period) {
+    var that = this
+      , prevData = period.toJSON()
 
     this.$periodList.hide();
     this.$addPeriodContainer.hide();
 
-    var that = this;
     var PeriodEditView = require('./period_edit');
-    var period = this.model.get('definitions').add({ start: {}, stop: {} });
     var periodEditView = new PeriodEditView({ model: period });
     periodEditView.$el.appendTo(this.$periodAdd);
 
     periodEditView.$el.on('click', '#js-save-period', function (e) {
-      period.set('id', genid());
+      if (period.isNew()) period.set('id', genid());
       if (period.isValid()) {
         that.model.save(null, { validate: false }).then(function (data) {
           periodEditView.remove();
@@ -51,10 +52,24 @@ module.exports = Backbone.View.extend({
     });
     periodEditView.$el.on('click', '#js-cancel-period', function (e) {
       e.preventDefault();
-      period.destroy();
+      if (period.isNew()) {
+        period.destroy();
+      } else {
+        period.set(prevData);
+      }
       periodEditView.remove();
-      that.$periodList.show();
-      that.$addPeriodContainer.show();
+      that.render();
     });
+
+  },
+  handleAddPeriod: function () {
+    var period = this.model.get('definitions').add({ start: {}, stop: {} });
+    this.editPeriod(period);
+  },
+  handleEditPeriod: function (e) {
+    var periodID = this.$(e.currentTarget).closest('tr').data('period-id')
+      , period = this.model.get('definitions').get(periodID)
+
+    this.editPeriod(period);
   }
 });
