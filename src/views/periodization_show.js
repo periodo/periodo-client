@@ -62,6 +62,14 @@ module.exports = Backbone.View.extend({
       that.render();
     });
 
+    periodEditView.$el.on('click', '#js-delete-period', function (e) {
+      that.model.get('definitions').remove(period);
+      that.model.save(null, { validate: false }).then(function () {
+        periodEditView.remove();
+        that.render();
+      });
+    });
+
   },
   handleAddPeriod: function () {
     var period = this.model.get('definitions').add({ start: {}, stop: {} });
