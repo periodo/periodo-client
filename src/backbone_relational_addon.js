@@ -9,6 +9,8 @@ var _ = require('underscore')
 
 require('backbone-relational');
 
+var TRANSACTION_REQUIRED_ERROR = 'This method must be called from within a transaction.'
+
 /*
  * Given a model constructor and a path through the JSON serialization
  * of a model instance, traverse the backbone-relational relations on the
@@ -18,25 +20,34 @@ require('backbone-relational');
  * returns either a model constructor or null.
  */
 function findStoredRelationAtPath(Model, path) {
-  var relatedModel = path.reduce(function (CurModel, attr) {
-    if (!CurModel) return null;
+  if (!findStoredRelationAtPath.hasOwnProperty('cache')) findStoredRelationAtPath.cache = {};
 
-    var RelModel = _.chain(CurModel.prototype.relations || [])
-      .where({ key: attr })
-      .pluck('relatedModel')
-      .first()
-      .value();
+  var cache = findStoredRelationAtPath.cache
+    , key = Model.prototype.storeName + ' ' + path.join('|')
 
-    if (RelModel && _.isString(RelModel)) {
-      RelModel = Backbone.Relational.store.getObjectByName(RelModel);
-    }
+  if (!cache.hasOwnProperty(key)) {
+    var relatedModel = path.reduce(function (CurModel, attr) {
+      if (!CurModel) return null;
 
-    return RelModel;
-  }, Model);
+      var RelModel = _.chain(CurModel.prototype.relations || [])
+        .where({ key: attr })
+        .pluck('relatedModel')
+        .first()
+        .value();
 
-  if (relatedModel && !relatedModel.prototype.hasOwnProperty('storeName')) relatedModel = null;
+      if (RelModel && _.isString(RelModel)) {
+        RelModel = Backbone.Relational.store.getObjectByName(RelModel);
+      }
 
-  return relatedModel || null;
+      return RelModel;
+    }, Model);
+
+    if (relatedModel && !relatedModel.prototype.hasOwnProperty('storeName')) relatedModel = null;
+
+    cache[key] = relatedModel || null;
+  }
+  
+  return cache[key];
 }
 
 
@@ -48,10 +59,25 @@ module.exports = function (db) {
    * Returns a dict in the form { objectStoreName: data }
    */
   db.Table.prototype.partitionDataByStore = function (data) {
-    var toCheck = []
+    var that = this
+      , toCheck = []
       , toSave = {}
       , curObj
       , curStore
+      , cache
+
+    if (Dexie.currentTransaction) {
+      if (!Dexie.currentTransaction.hasOwnProperty('_partitionCache')) {
+        Dexie.currentTransaction._partitionCache = {};
+      }
+      cache = Dexie.currentTransaction._partitionCache;
+    } else {
+      cache = {};
+    }
+
+    if (!this.name in cache) {
+      cache[this.name] = [];
+    }
 
     toCheck.push({ Model: this.schema.mappedModel, data: data });
     while (toCheck.length) {
@@ -66,12 +92,19 @@ module.exports = function (db) {
       // indexedDB, replace that value with an array of IDs.
       toSave[curStore] = toSave[curStore].concat(traverse(curObj.data).map(function (val) {
         if (this.isRoot) return;
+
+        var pathKey = this.path.join();
+
+        if (pathKey in cache[that.name]) return;
+
         var StoredModel = findStoredRelationAtPath(curObj.Model, this.path);
         if (StoredModel) {
           (_.isArray(val) ? val : [val]).forEach(function (data) {
             toCheck.push({ Model: StoredModel, data: data });
           });
           this.update(_.pluck(val, StoredModel.prototype.idAttribute), true);
+        } else {
+          cache[that.name].push(pathKey);
         }
       }));
     }
@@ -93,10 +126,13 @@ module.exports = function (db) {
     var that = this
       , promises = []
 
+    if (!Dexie.currentTransaction) throw TRANSACTION_REQUIRED_ERROR;
+    var _db = Dexie.currentTransaction.db;
+
     _(data).forEach(function (values, storeName) {
       values = _.isArray(values) ? values : [values];
       values.forEach(function (val) {
-        promises.push(that.table(storeName).put(val));
+        promises.push(_db.table(storeName).put(val));
       });
     });
 
@@ -156,8 +192,9 @@ module.exports = function (db) {
   db.Table.prototype.getModel = function (id) {
     var model = this.schema.mappedModel;
     // TODO: if (!model) .......
-    
-    var _db = Dexie.currentTransaction ? Dexie.currentTransaction.db : db;
+
+    if (!Dexie.currentTransaction) throw TRANSACTION_REQUIRED_ERROR;
+    var _db = Dexie.currentTransaction.db;
     
     return _db[model.prototype.storeName].get(id).then(function (data) {
       var promises = []
@@ -191,8 +228,11 @@ module.exports = function (db) {
   }
 
   db.Table.prototype.getAllModels = function (options) {
-    var _db = Dexie.currentTransaction.db || db;
     var model = this.schema.mappedModel;
+
+    if (!Dexie.currentTransaction) throw TRANSACTION_REQUIRED_ERROR;
+    var _db = Dexie.currentTransaction.db;
+
     var table = _db[model.prototype.storeName];
 
     options = options || {};
@@ -213,9 +253,12 @@ module.exports = function (db) {
   // Put JSON into the given table.
   db.WriteableTable.prototype.putModel = function (object) {
     // TODO: if json object doesn't have needed keypath, throw error
+    //
+    if (!Dexie.currentTransaction) throw TRANSACTION_REQUIRED_ERROR;
+    var _db = Dexie.currentTransaction.db;
     
     var toSave = this.partitionDataByStore(object);
-    var promises = db.savePartionedData(toSave);
+    var promises = _db.savePartionedData(toSave);
 
     return Dexie.Promise.all(promises).then(function () {
       return Dexie.Promise.resolve(object);
@@ -224,6 +267,10 @@ module.exports = function (db) {
 
   db.WriteableTable.prototype.putModels = function () {
     var that = this;
+
+    if (!Dexie.currentTransaction) throw TRANSACTION_REQUIRED_ERROR;
+    var _db = Dexie.currentTransaction.db;
+
     var objects = Array.prototype.slice.call(arguments);
     var toSave = objects.reduce(function (acc, object) {
       var partitioned = that.partitionDataByStore(object);
@@ -240,7 +287,7 @@ module.exports = function (db) {
       toSave[store] = _.unique(toSave[store], false, stableStringify);
     }
 
-    return Dexie.Promise.all(db.savePartionedData(toSave)).then(function () {
+    return Dexie.Promise.all(_db.savePartionedData(toSave)).then(function () {
       return Dexie.Promise.resolve(objects);
     });
   }

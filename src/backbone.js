@@ -15,10 +15,10 @@ Backbone.ajaxSync = Backbone.sync;
 Backbone.sync = function (method, object, options) {
   var db = require('./db');
   var dbWrapper = new DatabaseWrapper(db);
-  var storeName = object.storeName || object.model.prototype.storeName;
+  var storeName = object && (object.storeName || object.model.prototype.storeName);
   var promise;
 
-  if (!storeName) throw 'Define object store name to save.'
+  if (object && !storeName) throw 'Define object store name to save.'
 
   promise = dbWrapper[method]
     .call(dbWrapper, object, options)
@@ -37,7 +37,7 @@ Backbone.sync = function (method, object, options) {
     );
 
   if (Backbone._app) Backbone._app.trigger('request', object, promise, options);
-  object.trigger('request', object, promise, options);
+  object && object.trigger('request', object, promise, options);
 
   return promise;
 }
