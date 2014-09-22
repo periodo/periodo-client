@@ -170,6 +170,7 @@ module.exports = Backbone.View.extend({
   render: function () {
     var template = require('../templates/period_form.html');
     this.$el.html(template());
+    this.$el.prepend('<h3>' + (this.model.isNew() ? 'Add' : 'Edit') + ' period</h3>');
   },
   save: function () {
     this.model.validate();

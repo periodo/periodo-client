@@ -34,7 +34,7 @@ module.exports = Backbone.View.extend({
     var that = this
       , prevData = period.toJSON()
 
-    this.$periodList.hide();
+    //this.$periodList.hide();
     this.$addPeriodContainer.hide();
 
     var PeriodEditView = require('./period_edit');
