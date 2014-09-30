@@ -1,0 +1,6 @@
+<% patches.forEach(function (patch) { %>
+<div class="patch" data-patch-url="<%= patch.url %>">
+  Created <%= patch.created_at %> by <%= patch.created_by %>.
+  <br/>Last updated <%= patch.updated_at %> by <%= patch.updated_by %>.
+</div>
+<% }); %>

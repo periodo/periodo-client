@@ -47,7 +47,8 @@ ApplicationRouter = Backbone.Router.extend({
     'periodizations/add/': 'periodizationAdd',
     'periodizations/:periodization/': 'periodizationShow',
     'periodizations/:periodization/edit/': 'periodizationEdit',
-    'sync/': 'sync'
+    'sync/': 'sync',
+    'admin/': 'admin'
   },
   _view: null,
   changeView: function (ViewConstructor, options) {
@@ -87,5 +88,10 @@ ApplicationRouter = Backbone.Router.extend({
   sync: function () {
     var SyncView = require('./views/sync');
     this.changeView(SyncView);
+  },
+
+  admin: function () {
+    var AdminView = require('./views/admin');
+    this.changeView(AdminView);
   }
 });
