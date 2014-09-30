@@ -48,7 +48,9 @@ ApplicationRouter = Backbone.Router.extend({
     'periodizations/:periodization/': 'periodizationShow',
     'periodizations/:periodization/edit/': 'periodizationEdit',
     'sync/': 'sync',
-    'admin/': 'admin'
+    'admin/': 'admin',
+    'admin/submit/': 'submitPatch',
+    'admin/apply/': 'applyPatch'
   },
   _view: null,
   changeView: function (ViewConstructor, options) {
@@ -93,5 +95,15 @@ ApplicationRouter = Backbone.Router.extend({
   admin: function () {
     var AdminView = require('./views/admin');
     this.changeView(AdminView);
+  },
+
+  submitPatch: function () {
+    var SubmitPatchView = require('./views/submit_patch');
+    this.changeView(SubmitPatchView);
+  },
+
+  applyPatch: function () {
+    var ApplyPatchView = require('./views/apply_patch');
+    this.changeView(ApplyPatchView);
   }
 });
