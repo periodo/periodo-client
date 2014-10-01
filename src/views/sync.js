@@ -64,7 +64,7 @@ module.exports = Backbone.View.extend({
               synced: new Date().getTime(),
               data: dump
             }
-            promise = db.dumps.put(data.dump).then(function () {
+            promise = db.dumps.put(data).then(function () {
               return Dexie.Promise.resolve(data)
             });
           }
