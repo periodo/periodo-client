@@ -12,7 +12,8 @@ module.exports = Backbone.View.extend({
     'click #js-accept-new-periods': 'handleAcceptPeriodizations'
   },
   initialize: function () {
-    this.render()
+    this.render();
+    this.url = null;
   },
   render: function () {
     var template = require('../templates/sync.html');
@@ -34,7 +35,7 @@ module.exports = Backbone.View.extend({
     });
   },
   fetchData: function () {
-    var url = this.$('#js-sync-root').val()
+    var url = this.url = this.$('#js-sync-root').val();
 
     this.$periodList.hide();
     this.$acceptDialog.hide();
@@ -43,7 +44,6 @@ module.exports = Backbone.View.extend({
     db.dumps.orderBy('synced').last()
       .then(function (lastDump) {
         var headers = {};
-
 
         headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
@@ -64,7 +64,7 @@ module.exports = Backbone.View.extend({
               synced: new Date().getTime(),
               data: dump
             }
-            promise = db.dumps.put(data.dump).then(function () {
+            return db.updateDumpData(data.dump).then(function () {
               return Dexie.Promise.resolve(data)
             });
           }
@@ -88,8 +88,10 @@ module.exports = Backbone.View.extend({
   },
   handleAcceptPeriodizations: function () {
     var that = this;
+    var options = { message: 'Synced data from ' + this.url }
+
     this.$syncSpinner.append(this.spinner.spin().el);
-    this.collection.sync('put', this.collection).then(function () {
+    this.collection.sync('put', this.collection, options).then(function () {
       that.$acceptDialog.hide();
       that.$success
         .html('<div class="alert alert-success">Data synced.</div>')

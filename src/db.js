@@ -1,30 +1,80 @@
 "use strict";
+
 var Dexie = require('Dexie')
-  , BackboneRelationalAddon = require('./backbone_relational_addon')
+  , patchUtils = require('./utils/patch')
   , db
 
-Dexie.addons.push(BackboneRelationalAddon);
+var DUMPID = 1;
 
-module.exports = db = new Dexie('PeriodO')
+module.exports = db = new Dexie('PeriodO');
 
 db.version(1).stores({
-  dumps: 'id++,modified,synced',
-  periodizations: 'id,source.id,source.title,source.yearPublished', // Will include sources also
-  periods: 'id,label',
-  creators: 'id,name',
-  spatialItems: 'id,label'
+  dumps: 'id&,modified,synced',
+  localData: 'id&,modified',
+  patches: 'id++,created,*affected'
 });
 
-var Periodization = require('./models/periodization');
-db.periodizations.mapToModel(Periodization);
+db.on('populate', function () {
+  // Create an initial, empty dataset.
+  db.localData.put({
+    id: DUMPID,
+    data: { periodizations: {} },
+    modified: new Date().getTime()
+  });
+});
 
-var Period = require('./models/period');
-db.periods.mapToModel(Period);
+db.getLocalData = function () { return db.localData.get(DUMPID) }
 
-var Creator = require('./models/creator');
-db.creators.mapToModel(Creator);
+/* Generates a patch that will transform the stored local data to `newData` */
+db.makeLocalPatch = function (newData) {
+  return db.getLocalData().then(function (oldData) {
+    var forward = patchUtils.makePatch(oldData.data, newData)
+      , backward = patchUtils.makePatch(newData, oldData.data)
 
-var SpatialItem = require('./models/spatial_item');
-db.spatialItems.mapToModel(SpatialItem);
+    return {
+      forward: forward,
+      backward: backward,
+      affected: patchUtils.getAffectedPeriodizations(forward, backward)
+    }
+  });
+}
+
+db.updateLocalData = function (newData, message) {
+  return db.transaction('rw', db.localData, db.patches, function () {
+    return db.makeLocalPatch(newData).then(function (patches) {
+      var promises = []
+        , localData
+        , patchData
+
+      localData = {
+        id: DUMPID,
+        data: newData,
+        modified: new Date().getTime()
+      }
+
+      patchData = {
+        forward: patches.forward,
+        backward: patches.backward,
+        created: new Date().getTime(),
+        message: message,
+        affected: patches.affected
+      }
+
+      promises.push(db.localData.put(localData));
+      promises.push(db.patches.put(patchData));
+
+      return Dexie.Promise.all(promises).then(Dexie.Promise.resolve({
+        localData: localData,
+        patches: patchData
+      }));
+    });
+  });
+}
+
+
+db.updateDumpData = function (newValue) {
+  newValue.id = DUMPID;
+  return db.dumps.put(newValue);
+}
 
 db.open();

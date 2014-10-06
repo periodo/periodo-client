@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
   , genid = require('../utils/generate_skolem_id')
 
 module.exports = Backbone.View.extend({
@@ -28,7 +29,7 @@ module.exports = Backbone.View.extend({
     this.$addPeriodContainer = this.$('#add-period-container');
 
     this.$('#source-information').html(sourceTemplate({ source: json.source }));
-    this.$periodList.html(periodListTemplate({ periods: json.definitions }));
+    this.$periodList.html(periodListTemplate({ periods: json.definitions, _: _ }));
   },
   editPeriod: function (period) {
     var that = this
@@ -42,9 +43,15 @@ module.exports = Backbone.View.extend({
     periodEditView.$el.appendTo(this.$periodAdd);
 
     periodEditView.$el.on('click', '#js-save-period', function () {
+      var message;
       if (period.isValid()) {
-        if (period.isNew()) period.set('id', genid());
-        that.model.save(null, { validate: false }).then(function () {
+        if (period.isNew()) {
+          message = 'Created period ' + period.get('label');
+          period.set('id', genid());
+        } else {
+          message = 'Edited period ' + period.get('label');
+        }
+        that.model.save(null, { validate: false, message: message }).then(function () {
           periodEditView.remove();
           that.render();
         });
@@ -62,8 +69,9 @@ module.exports = Backbone.View.extend({
     });
 
     periodEditView.$el.on('click', '#js-delete-period', function () {
+      var message = 'Deleted period ' + period.get('label');
       that.model.get('definitions').remove(period);
-      that.model.save(null, { validate: false }).then(function () {
+      that.model.save(null, { validate: false, message: message }).then(function () {
         periodEditView.remove();
         that.render();
       });

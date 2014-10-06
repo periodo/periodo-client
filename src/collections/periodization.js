@@ -15,5 +15,11 @@ module.exports = Backbone.Collection.extend({
   comparator: function (periodization) {
     var timespan = periodization.getTimespan();
     return timespan && timespan.lower && parseInt(timespan.lower.get('year'), 10);
+  },
+  toJSON: function () {
+    return Backbone.Collection.prototype.toJSON.call(this).reduce(function (acc, period) {
+      acc.periodizations[period.id] = period;
+      return acc;
+    }, { periodizations: {} })
   }
 });

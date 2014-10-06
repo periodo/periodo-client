@@ -37,5 +37,14 @@ module.exports = Backbone.RelationalModel.extend({
       lower: starts.length ? _(starts).min(intYear) : undefined,
       upper: stops.length ? _(stops).max(intYear) : undefined
     }
+  },
+  toJSON: function () {
+    // change to structure of dataset
+    var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
+    ret.definitions = ret.definitions.reduce(function (acc, period) {
+      acc[period.id] = period;
+      return acc;
+    }, {});
+    return ret;
   }
 });

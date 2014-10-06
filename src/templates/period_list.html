@@ -11,10 +11,10 @@
   </thead>
 
   <tbody>
-  <% if (!periods.length) { %>
+  <% if (_.isEmpty(periods)) { %>
     <tr><td><p>No periods defined yet.</p></td></tr>
   <% } else {%>
-    <% periods.forEach(function (period) { %>
+    <% _.forEach(periods, function (period) { %>
     <tr class="period" tabindex="0" data-period-id="<%= period.id %>">
       <td class="edit"><button class="edit-period btn btn-primary btn-sm">Edit</button></td>
       <td><%= period.label %></td>

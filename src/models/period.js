@@ -51,5 +51,10 @@ module.exports = Backbone.RelationalModel.extend({
     }
 
     return _.isEmpty(errors) ? null : errors;
+  },
+  toJSON: function () {
+    var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
+    delete ret.dateType;
+    return ret;
   }
 });
