@@ -34,11 +34,10 @@ iso8601year =
   }
 
 gregorianyear =
-  val:(y:digitsorcomma ' '* suffix:(bc / ad) { return y + ' ' + suffix })
+  val:(y:digitsorcomma ' '* suffix:(bc / ad) { return { label: y + ' ' + suffix.label, neg: suffix.neg }})
   {
-    var neg = val.search('BC') !== -1;
-    var yearInt = parseInt(val) * (neg ? -1 : 1) + (neg ? 1 : 0);
-    return formatReturn('gregorian', val, yearInt);
+    var yearInt = parseInt(val.label) * (val.neg ? -1 : 1) + (val.neg ? 1 : 0);
+    return formatReturn('gregorian', val.label, yearInt);
   }
 
 bpyear =
@@ -61,6 +60,6 @@ threedigits = a:digit b:digit c:digit { return a + b + c }
 fourdigits = a:digit b:digit c:digit d:digit { return a + b + c + d }
 manydigits = digits:digit+ { return digits.join('') }
 
-bp = 'b'i '.'? 'p'i '.'? { return 'BP' }
-bc = b:'b'i '.'? c:'c'i '.'? e:('e'i '.'?)? { return 'BC' }
-ad = 'a'i '.'? 'd'i '.'? { return 'AD' }
+bp = 'b'i '.'? 'p'i '.'?
+bc = label:(b:'b'i '.'? c:'c'i '.'? e:('e'i '.'?)?) { return {label: label.join(''), neg: true} }
+ad = label:('a'i '.'? 'd'i '.'?) { return {label: label.join(''), neg: false} }
