@@ -42,4 +42,14 @@ module.exports = Backbone.RelationalModel.extend({
       .then(parseSourceLD.bind(null, that.id))
       .done(that.set.bind(that));
   },
+  toJSON: function () {
+    var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
+    if (ret.creators && !ret.creators.length) {
+      delete ret.creators;
+    }
+    if (ret.contributors && !ret.contributors.length) {
+      delete ret.contributors;
+    }
+    return ret;
+  }
 })

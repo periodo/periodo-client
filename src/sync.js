@@ -34,15 +34,19 @@ module.exports = function sync(method, object, options) {
   promise = getMasterCollection().then(function () {
     if (method === 'read') {
       if (object instanceof Backbone.Model) {
-        return Dexie.Promise.resolve(object.constructor.find(object.id).toJSON());
+        // Use backbone-relational to find this object
+        // TODO: Fix if it doesn't exist
+        return object.constructor.find(object.id).toJSON();
       } else {
         if (object instanceof PeriodizationCollection) {
-          return Dexie.Promise.resolve(masterCollection.toJSON());
+          // Return full collection.
+          // TODO: allow filtering, limiting, etc.
+          return masterCollection.toJSON();
         }
         var collection = _.findWhere(Backbone.Relational.store._collections, {
           model: object.model
         })
-        return Dexie.Promise.resolve(collection && collection.toJSON());
+        return collection && collection.toJSON();
       }
     } else if (method === 'put' && object instanceof PeriodizationCollection) {
       // Merging a collection of periodizations, as in a merge during sync

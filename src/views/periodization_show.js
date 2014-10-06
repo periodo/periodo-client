@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
   , genid = require('../utils/generate_skolem_id')
 
 module.exports = Backbone.View.extend({
@@ -28,7 +29,7 @@ module.exports = Backbone.View.extend({
     this.$addPeriodContainer = this.$('#add-period-container');
 
     this.$('#source-information').html(sourceTemplate({ source: json.source }));
-    this.$periodList.html(periodListTemplate({ periods: json.definitions }));
+    this.$periodList.html(periodListTemplate({ periods: json.definitions, _: _ }));
   },
   editPeriod: function (period) {
     var that = this
