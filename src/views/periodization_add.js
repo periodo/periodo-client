@@ -28,7 +28,8 @@ module.exports = Backbone.View.extend({
   },
   handleAcceptSource: function () {
     var periodization = new Periodization({ source: this.model });
-    periodization.save().then(function () {
+    var options = { message: 'Created period collection based on ' + this.model.get('title') };
+    periodization.save(null, options).then(function () {
       var encodedURI = encodeURIComponent(periodization.id);
       Backbone.history.navigate('periodizations/' + encodedURI + '/', { trigger: true });
     });

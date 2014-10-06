@@ -14,8 +14,9 @@ function getMasterCollection() {
     , promise
 
   if (!masterCollection) {
-    promise = db.localData.orderBy('modified').last().then(function (data) {
-      masterCollection = new PeriodizationCollection(data ? data.data : null, { parse: true });
+    promise = db.getLocalData().then(function (localData) {
+      var periodizations = _.isEmpty(localData.data.periodizations) ? null : localData.data;
+      masterCollection = new PeriodizationCollection(periodizations, { parse: true });
       return masterCollection;
     }, global.console.error)
   } else {
@@ -27,6 +28,7 @@ function getMasterCollection() {
 module.exports = function sync(method, object, options) {
   var db = require('./db')
     , PeriodizationCollection = require('./collections/periodization')
+    , message = options && options.message
     , promise
 
   promise = getMasterCollection().then(function () {
@@ -43,18 +45,14 @@ module.exports = function sync(method, object, options) {
         return Dexie.Promise.resolve(collection && collection.toJSON());
       }
     } else if (method === 'put' && object instanceof PeriodizationCollection) {
+      // Merging a collection of periodizations, as in a merge during sync
       var localData = masterCollection.toJSON()
         , newData = _.extend(localData, object.toJSON())
 
-      db.localData.put({
-        data: newData,
-        modified: new Date().getTime()
+      return db.updateLocalData(newData, message).then(function () {
+        Backbone.Relational.store.reset();
+        masterCollection.set(newData, { parse: true });
       });
-
-      Backbone.Relational.store.reset();
-      masterCollection = masterCollection.set(newData, { parse: true });
-
-      return Dexie.Promise.resolve(newData);
     } else {
       if (method === 'create' && object.isNew()) object.set('id', genid());
 
@@ -62,11 +60,9 @@ module.exports = function sync(method, object, options) {
         masterCollection.add(object);
       }
 
-      db.localData.put({
-        data: masterCollection.toJSON(),
-        modified: new Date().getTime()
-      })
-      return Dexie.Promise.resolve(object.toJSON());
+      return db.updateLocalData(masterCollection.toJSON(), message).then(function () {
+        return object.toJSON();
+      });
     }
   }).then(
     function (resp) {
