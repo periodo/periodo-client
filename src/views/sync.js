@@ -55,8 +55,9 @@ module.exports = Backbone.View.extend({
             , data = { lastSync: lastDump ? new Date(lastDump.synced) : null }
 
           if (xhr.status === 304) {
+            data.updated = false;
             data.dump = lastDump;
-            promise = Dexie.Promise.resolve(data);
+            return data;
           } else {
 
             data.dump = {
@@ -65,7 +66,8 @@ module.exports = Backbone.View.extend({
               data: dump
             }
             return db.updateDumpData(data.dump).then(function () {
-              return Dexie.Promise.resolve(data)
+              data.updated = true;
+              return data;
             });
           }
 
