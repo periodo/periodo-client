@@ -27,27 +27,42 @@ describe('Date parser', function () {
     });
 
     // ISO8601 years without a +/- must be 4 digits.
+    /*
     assert.throws(isoParser('4'), parser.SyntaxError);
     assert.throws(isoParser('500000000'), parser.SyntaxError);
+    */
+
+    // People didn't like the above constraint, so those are actually OK.
+    assert.deepEqual(parser.parse('43'), {
+      type: 'iso8601',
+      label: '43',
+      isoValue: '+0043'
+    });
   });
 
   it('should parse valid Gregorian years', function () {
     var gregorianParser = typeParser.bind(null, 'gregorian');
 
-    assert.deepEqual(parser.parse('12 a.d.'), {
+    assert.deepEqual(parser.parse('12 A.D.'), {
       type: 'gregorian',
-      label: '12 AD',
+      label: '12 A.D.',
       isoValue: '+0012'
     });
 
-    assert.deepEqual(parser.parse('12 b.c.'), {
+    assert.deepEqual(parser.parse('12 bc'), {
       type: 'gregorian',
-      label: '12 BC',
+      label: '12 bc',
       isoValue: '-0011'
     });
 
-    assert.deepEqual(parser.parse('12 bc'), parser.parse('12 B.C.'));
-    assert.deepEqual(parser.parse('12 bc'), parser.parse('12 b.c.e.'));
+    assert.deepEqual(parser.parse('12 BCE'), {
+      type: 'gregorian',
+      label: '12 BCE',
+      isoValue: '-0011'
+    });
+
+    assert.deepEqual(parser.parse('12 bc').value, parser.parse('12 B.C.').value);
+    assert.deepEqual(parser.parse('12 bc').value, parser.parse('12 b.c.e.').value);
 
     // Gregorian years must have BC or AD
     assert.throws(gregorianParser('2014'), parser.SyntaxError);
@@ -62,7 +77,7 @@ describe('Date parser', function () {
     }
     assert.deepEqual(parser.parse('5 b.p.'), {
       type: 'bp2000',
-      label: '5 BP',
+      label: '5 b.p.',
       isoValue: '+1995'
     });
 
@@ -72,6 +87,43 @@ describe('Date parser', function () {
       isoValue: '-0050'
     });
   });
+  
+  it('should handle approximate dates', function () {
+    assert.deepEqual(parser.parse('c. 5000 BCE'), {
+      type: 'gregorian',
+      label: 'c. 5000 BCE',
+      isoValue: '-4999',
+      approximate: true
+    });
+
+    assert.deepEqual(parser.parse('~800'), {
+      type: 'iso8601',
+      label: '~800',
+      isoValue: '+0800',
+      approximate: true
+    });
+
+    assert.deepEqual(parser.parse('Ca. 12 AD'), {
+      type: 'gregorian',
+      label: 'Ca. 12 AD',
+      isoValue: '+0012',
+      approximate: true
+    });
+
+    assert.deepEqual(parser.parse('3200? BC'), {
+      type: 'gregorian',
+      label: '3200? BC',
+      isoValue: '-3199',
+      approximate: true
+    });
+  });
+
+  it('should handle descriptions of centuries or millenia', function () {
+  });
+
+  it('should handle date ranges', function () {
+  });
+
 
   it('should throw errors for invalid dates', function () {
     function parse(val) { return parser.parse.bind(parser, val) }
@@ -80,7 +132,7 @@ describe('Date parser', function () {
     assert.throws(parse('December 1945'), parser.SyntaxError);
 
     // No support for uncertainity (yet)
-    assert.throws(parse('c. 134 AD'), parser.SyntaxError);
+    //assert.throws(parse('c. 134 AD'), parser.SyntaxError);
     assert.throws(parse('1364?'), parser.SyntaxError);
 
     // No support for gibberish (yet)
