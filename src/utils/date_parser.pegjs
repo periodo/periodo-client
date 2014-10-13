@@ -43,18 +43,26 @@ iso8601year =
   }
 
 fakeiso8601year =
-  val:(sign:sign? digits:digit+ { return (sign || '') + digits.join('') }) {
-    return formatReturn('iso8601', val, val);
-  }
+  sign:sign? digits:digitsorquestionmark
+    {
+      var value = (sign || '') + digits.value;
+      var ret = formatReturn('iso8601', value, value);
+      if (digits.approximate) ret.approximate = true;
+      return ret;
+    }
 
 gregorianyear =
   val:(
-      y:digitsorcomma ' '* suffix:(bc / ad) { return { label: y + ' ' + suffix.label, neg: suffix.neg }}
-      / prefix:(bc / ad) ' '* y:digitsorcomma { return { label: y + ' ' + prefix.label, neg: prefix.neg }}
+      y:digitsorquestionmark ' '* suffix:(bc / ad) 
+        { return { label: y.value + ' ' + suffix.label, neg: suffix.neg, approximate: y.approximate } }
+      / prefix:(bc / ad) ' '* y:digitsorquestionmark
+        { return { label: y.value + ' ' + prefix.label, neg: prefix.neg, approximate: y.approximate } }
   )
   {
     var yearInt = parseInt(val.label) * (val.neg ? -1 : 1) + (val.neg ? 1 : 0);
-    return formatReturn('gregorian', val.label, yearInt);
+    var ret = formatReturn('gregorian', val.label, yearInt);
+    if (val.approximate) ret.approximate = true;
+    return ret;
   }
 
 bpyear =
@@ -67,6 +75,9 @@ bpyear =
 digitsorcomma = 
   head:(onetothreedigits) tail:(',' ds:threedigits { return ds })+ { return head + tail.join('') }
   / manydigits
+
+digitsorquestionmark =
+  head:digitsorcomma tail:('?')? { return { value: head + (tail || ''), approximate: !!tail } }
 
 // Constants
 sign = '+' / '-'

@@ -131,10 +131,6 @@ describe('Date parser', function () {
     // No support for months (yet)
     assert.throws(parse('December 1945'), parser.SyntaxError);
 
-    // No support for uncertainity (yet)
-    //assert.throws(parse('c. 134 AD'), parser.SyntaxError);
-    assert.throws(parse('1364?'), parser.SyntaxError);
-
     // No support for gibberish (yet)
     assert.throws(parse('afeopoij'), parser.SyntaxError);
   });
