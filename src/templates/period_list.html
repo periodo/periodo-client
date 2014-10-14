@@ -11,10 +11,11 @@
   </thead>
 
   <tbody>
-  <% if (_.isEmpty(periods)) { %>
+  <% if (periods.length === 0 || Object.getOwnPropertyNames(periods).length === 0) { %>
     <tr><td><p>No periods defined yet.</p></td></tr>
   <% } else {%>
-    <% _.forEach(periods, function (period) { %>
+    <% Object.keys(periods).forEach(function (key) { %>
+    <% var period = periods[key] %>
     <tr class="period" tabindex="0" data-period-id="<%= period.id %>">
       <td class="edit"><button class="edit-period btn btn-primary btn-sm">Edit</button></td>
       <td><%= period.label %></td>

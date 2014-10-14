@@ -96,14 +96,19 @@ ul.actions-list {
   }
 }
 
-.period-list > tbody {
-  > tr.period {
+.period-list {
+  tr.period {
     > td { vertical-align: middle; }
-    .edit { width: 70px; height: 50px; }
     .btn { display: none; }
+    .edit { width: 70px; height: 50px; }
+  }
+}
+.period-list:not(.editing) > tbody {
+  > tr.period {
     &:focus .btn, &:hover .btn { display: inline-block; }
   }
 }
+
 
 #patch-list {
   .patch {

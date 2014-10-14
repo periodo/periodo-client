@@ -1,7 +1,6 @@
 "use strict";
 
-var _ = require('underscore')
-  , Backbone = require('../backbone')
+var Backbone = require('../backbone')
   , genid = require('../utils/generate_skolem_id')
 
 module.exports = Backbone.View.extend({
@@ -11,36 +10,41 @@ module.exports = Backbone.View.extend({
   },
   initialize: function () {
     this.render();
-
-    this.$periodAdd = this.$('#period-add');
-    this.$periodList = this.$('#period-list');
-    this.$addPeriodContainer = this.$('#add-period-container');
   },
   render: function () {
-    var template = require('../templates/periodization_show.html')
-      , sourceTemplate = require('../templates/source.html')
-      , periodListTemplate = require('../templates/period_list.html')
-      , json = this.model.toJSON()
-
-    this.$el.html(template());
+    var template = require('../templates/periodization_show.html');
+    this.$el.html(template({ periodization: this.model.toJSON() }));
 
     this.$periodAdd = this.$('#period-add');
     this.$periodList = this.$('#period-list');
     this.$addPeriodContainer = this.$('#add-period-container');
-
-    this.$('#source-information').html(sourceTemplate({ source: json.source }));
-    this.$periodList.html(periodListTemplate({ periods: json.definitions, _: _ }));
   },
-  editPeriod: function (period) {
+  editPeriod: function (period, $row) {
     var that = this
       , prevData = period.toJSON()
+      , $container
 
-    //this.$periodList.hide();
     this.$addPeriodContainer.hide();
+
+    this.$periodList.find('table').addClass('editing').removeClass('table-hover');
 
     var PeriodEditView = require('./period_edit');
     var periodEditView = new PeriodEditView({ model: period });
-    periodEditView.$el.appendTo(this.$periodAdd);
+
+    if ($row) {
+      $row.hide();
+      $container = Backbone.$('<tr>')
+        .css('margin', 'auto')
+        .hide()
+      $container
+        .append('<td colspan=6></td>').find('td')
+        .append(periodEditView.$el)
+      $container
+        .insertBefore($row)
+        .show(500)
+    } else {
+      periodEditView.$el.appendTo($container || this.$periodAdd);
+    }
 
     periodEditView.$el.on('click', '#js-save-period', function () {
       var message;
@@ -83,9 +87,10 @@ module.exports = Backbone.View.extend({
     this.editPeriod(period);
   },
   handleEditPeriod: function (e) {
-    var periodID = this.$(e.currentTarget).closest('tr').data('period-id')
+    var $row = this.$(e.currentTarget).closest('tr')
+      , periodID = $row.data('period-id')
       , period = this.model.get('definitions').get(periodID)
 
-    this.editPeriod(period);
+    this.editPeriod(period, $row);
   }
 });
