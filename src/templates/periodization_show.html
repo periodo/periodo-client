@@ -12,6 +12,24 @@ var sourceInformation = require('./source.html');
 
 <h2>Periods</h2>
 <div>
+  <div id="period-list-options">
+    <style type="text/css">
+    #period-list-options .nav-pills {
+      display: inline-block;
+      background: #fafafa;
+      padding: .75em 2em;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-bottom: 1em;
+    }
+    </style>
+    <ul class="nav nav-pills">
+      <h4 style="display: inline-block; float: left; margin-right: 1em;">View as: </h4>
+      <li class="active"><a href="#" data-type="list">List</a></li>
+      <li><a href="#" data-type="jsonld">JSON-LD</a></li>
+      <li><a href="#" data-type="ttl">RDF/Turtle</a></li>
+    </ul>
+  </div>
   <div id="period-list">
     <%= periodList({ periods: periodization.definitions }) %>
   </div>

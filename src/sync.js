@@ -2,36 +2,16 @@
 
 var _ = require('underscore')
   , Backbone = require('backbone')
-  , Dexie = require('Dexie')
   , genid = require('./utils/generate_skolem_id')
-  , masterCollection
-
-// Get master Periodization collection
-// Returns a promise.
-function getMasterCollection() {
-  var db = require('./db')
-    , PeriodizationCollection = require('./collections/periodization')
-    , promise
-
-  if (!masterCollection) {
-    promise = db.getLocalData().then(function (localData) {
-      var periodizations = _.isEmpty(localData.data.periodizations) ? null : localData.data;
-      masterCollection = new PeriodizationCollection(periodizations, { parse: true });
-      return masterCollection;
-    }, global.console.error)
-  } else {
-    promise = Dexie.Promise.resolve(masterCollection);
-  }
-  return promise;
-}
+  , getMasterCollection = require('./master_collection')
 
 module.exports = function sync(method, object, options) {
-  var db = require('./db')
-    , PeriodizationCollection = require('./collections/periodization')
+   var PeriodizationCollection = require('./collections/periodization')
     , message = options && options.message
     , promise
+    , db
 
-  promise = getMasterCollection().then(function () {
+  promise = getMasterCollection().then(function (masterCollection) {
     if (method === 'read') {
       if (object instanceof Backbone.Model) {
         // Use backbone-relational to find this object
@@ -49,6 +29,7 @@ module.exports = function sync(method, object, options) {
         return collection && collection.toJSON();
       }
     } else if (method === 'put' && object instanceof PeriodizationCollection) {
+      db = require('./db');
       // Merging a collection of periodizations, as in a merge during sync
       var localData = masterCollection.toJSON()
         , newData = _.extend(localData, object.toJSON())
@@ -58,6 +39,8 @@ module.exports = function sync(method, object, options) {
         masterCollection.set(newData, { parse: true });
       });
     } else {
+      db = require('./db');
+
       if (method === 'create' && object.isNew()) object.set('id', genid());
 
       if (object instanceof PeriodizationCollection.prototype.model && method === 'create') {
