@@ -1,7 +1,11 @@
 "use strict";
 
-var SVG_HEIGHT = 500
+var SVG_HEIGHT = 800
   , SVG_WIDTH = 800
+  , SVG_PADDING = 30
+  , SLIDER_HEIGHT = 125
+  , SLIDER_PADDING = 12
+
 
 var _ = require('underscore')
   , Backbone = require('../backbone')
@@ -27,7 +31,9 @@ function assignLevels(seq, focused) {
     })
   }
 
-  seq.forEach(function (period) {
+  seq = seq.map(function (_period) {
+    var period = _.extend(_period, {});
+
     for (var i = 0; i < levels.length; i++) {
       if (period.start >= levels[i]) break;
     }
@@ -41,6 +47,8 @@ function assignLevels(seq, focused) {
     if (levels[i + 1] !== undefined && period.start >= levels[i + 1]) {
       levels.splice(i + 1);
     }
+
+    return period;
   });
 
   if (focused) {
@@ -52,6 +60,8 @@ function assignLevels(seq, focused) {
       }
     });
   }
+
+  return seq;
 }
 
 function formatData(model) {
@@ -95,39 +105,49 @@ function filterData(data, filters, focused) {
     }
   }
 
-  filters.fns.forEach(function (filter) {
+  (filters ? filters.fns : []).forEach(function (filter) {
     ret = ret.filter(wrapped(filter));
   });
   return ret;
 }
 
 module.exports = Backbone.View.extend({
-  initialize: function () {
-    this.first = true;
-    this.initPlot();
-    this.render(true)
-    this.first = false;
-  },
   events: {
     'change': function () { this.render() }
   },
-  initPlot: function () {
+  initialize: function () {
     this.$el.html('');
 
     this.svg = d3.select(this.el).append('svg')
       .attr('height', SVG_HEIGHT)
       .attr('width', SVG_WIDTH)
 
-    this.timeline = this.svg.append('g').attr('class', 'timeline');
+    this.first = true;
+    this.initSlider();
+    this.initPlot();
+    this.render(true)
+    this.first = false;
+  },
+  render: function (narrow) {
+    var filters = this.getFilters()
+      , data = this.getPlotData(filters)
+
+    this.drawPlot(data, narrow);
+    this.drawFilters(data, filters);
+  },
+  initPlot: function () {
+    this.timeline = this.svg.append('g')
+      .attr('class', 'timeline')
+      .attr('transform', 'translate(0,' + (SLIDER_HEIGHT + SLIDER_PADDING) + ')')
 
     this.timeline.append('rect')
-      .attr('height', SVG_HEIGHT)
+      .attr('height', SVG_HEIGHT - SLIDER_HEIGHT - SLIDER_PADDING)
       .attr('width', SVG_WIDTH)
       .attr('fill', '#f0f0f0')
 
     this.timeline.append('g')
       .attr('class', 'timeline-axis')
-      .attr('transform', 'translate(0,20)')
+      .attr('transform', 'translate(0, ' + SVG_PADDING + ')')
 
     this.timeline.append('g')
       .attr('class', 'timeline-periods')
@@ -160,30 +180,90 @@ module.exports = Backbone.View.extend({
       .attr('intercept', '0.1')
       .attr('slope', '1')
   },
-  getPlotData: function () {
-    var data = formatData(this.model);
+  initSlider: function () {
+    var that = this
+      , data = this.getPlotData()
+      , x = this.getTimeScale(data)
+      , xAxis = d3.svg.axis().scale(x).orient('bottom')
+      , maxLevel = d3.max(data, function(d) { return d.level })
+      , rectHeight = (SLIDER_HEIGHT - 25 - 12) / (maxLevel + 1)
 
-    data = filterData(data, this.getFilters());
-    assignLevels(data);
+    this.slider = this.svg.append('g')
+      .attr('class', 'timeline-slider')
+
+
+    this.slider.append('rect')
+      .attr('height', SLIDER_HEIGHT)
+      .attr('width', SVG_WIDTH)
+      .attr('fill', '#f0f0f0')
+
+    this.slider.append('g')
+      .call(xAxis.ticks(5))
+      .attr('transform', 'translate(0,' + (SLIDER_HEIGHT - 25) + ')');
+
+    var brush = d3.svg.brush()
+      .x(x)
+      .on('brushend', function () {
+        that.brushExtent = brush.empty() ? null : brush.extent();
+        that.render(true);
+      });
+
+
+    this.slider.append('g').selectAll('rect').data(data)
+        .enter()
+      .append('rect')
+      .attr('x', function (d) { return x(d.start) })
+      .attr('width', function (d) { return x(d.stop) - x(d.start) })
+      .attr('height', rectHeight)
+      .attr('fill', 'red')
+      .attr('transform', function (d) {
+        return 'translate(0,' + (((maxLevel - d.level) * rectHeight) + 12) + ')';
+      });
+
+    this.slider.append('g').call(brush)
+      .selectAll('rect')
+      .attr('height', SLIDER_HEIGHT - 25 - 12)
+      .attr('y', 12)
+      .attr('fill', 'blue')
+      .attr('fill-opacity', 0.1)
+      .attr('stroke', '#aaa')
+      .attr('stroke-width', 1)
+
+  },
+  getPlotData: function (filters) {
+    var data = formatData(this.model)
+      , focused = this.focusedEl && d3.select(this.focusedEl).datum()
+
+    data = filterData(data, filters, focused);
+    data = assignLevels(data, focused);
 
     return data;
   },
   getFilters: function () {
-    var that = this
-      , filters = { fns: [], regions: [] }
+    var filters = { fns: [], regions: [] }
 
     if (this.focusedEl) {
       var data = d3.select(this.focusedEl).datum()
-        , start = data.start - (data.duration * .1)
-        , stop = data.stop + (data.duration * .1)
+        , start = data.start - (data.duration * 0.1)
+        , stop = data.stop + (data.duration * 0.1)
 
       filters.fns.push(function (period) {
         return (
-          (period.start >= start && period.stop <= stop)
-          || (period.start < stop && period.start > start)
-          || (period.stop < stop && period.stop > start)
+          (period.start >= start && period.stop <= stop) ||
+          (period.start < stop && period.start > start) ||
+          (period.stop < stop && period.stop > start)
         );
       });
+    }
+
+    if (this.brushExtent) {
+      var brush = this.brushExtent;
+      filters.fns.push(function (period) {
+        return (
+          !(period.start > brush[1]) &&
+          !(period.end < brush[0])
+        )
+      })
     }
 
     this.$('.region-filter:checked').each(function (i, el) {
@@ -196,22 +276,26 @@ module.exports = Backbone.View.extend({
 
     return filters;
   },
+  getTimeScale: function (data, range, domain) {
+    range = range || [SVG_PADDING, SVG_WIDTH - SVG_PADDING];
+    domain = domain || data.reduce(function (acc, period) {
+      if (period.start < acc[0]) acc[0] = period.start;
+      if (period.stop > acc[1]) acc[1] = period.stop;
+      return acc;
+    }, [Infinity, -Infinity])
+
+    return d3.scale.linear()
+      .range(range)
+      .domain(domain)
+  },
   drawPlot: function (data, narrow) {
     var that = this;
 
     var rectHeight = 20
       , rectPadding = 20
 
-
     if (narrow) {
-      this.x = d3.scale.linear()
-        .range([50, SVG_WIDTH - 50])
-        .domain(data.reduce(function (acc, period) {
-          if (period.start < acc[0]) acc[0] = period.start;
-          if (period.stop > acc[1]) acc[1] = period.stop;
-          return acc;
-        }, [Infinity, -Infinity]))
-        .nice()
+      this.x = this.getTimeScale(data, null, this.brushExtent);
 
       var xAxis = d3.svg.axis().scale(this.x).orient('top')
       this.timeline.select('.timeline-axis')
@@ -230,7 +314,7 @@ module.exports = Backbone.View.extend({
       .attr('class', 'period')
       .style('opacity', 0)
       .attr('transform', function (d) {
-        var y = 30 + (d.level * (rectHeight + rectPadding));
+        var y = SVG_PADDING + 10 + (d.level * (rectHeight + rectPadding));
         return 'translate(0,' + y + ')';
       })
 
@@ -241,12 +325,10 @@ module.exports = Backbone.View.extend({
 
     periodsEnter
       .append('text')
-      .attr('x', function (d) { return that.x(d3.mean([d.start, d.stop])) })
       .attr('y', rectHeight)
       .attr('dy', '1em')
       .attr('text-anchor', 'middle')
-      .style('user-select', 'none')
-      .style('-webkit-user-select', 'none')
+      .classed('no-select', true)
       .text(function (d) { return d.data.label })
 
     periodsEnter.on('mouseover', function () {
@@ -259,8 +341,9 @@ module.exports = Backbone.View.extend({
       this.classList.remove('hovering');
     });
 
-    periodsEnter.on('dblclick', function () {
-      that.focusedEl = that.focusedEl === this ? null : this;
+    periodsEnter.select('rect').on('dblclick', function () {
+      var focusedEl = this.parentNode;
+      that.focusedEl = that.focusedEl === focusedEl ? null : focusedEl;
       that.render(true);
       return false;
     });
@@ -271,6 +354,9 @@ module.exports = Backbone.View.extend({
       .style('opacity', 0)
       .remove();
 
+    periods.select('text')
+      .attr('x', function (d) { return that.x(d3.mean([d.start, d.stop])) })
+
     periods.select('rect')
       .attr('fill', color)
       .transition()
@@ -280,24 +366,13 @@ module.exports = Backbone.View.extend({
     periods
       .transition().delay(50).duration(50)
       .attr('transform', function (d) {
-        var y = 30 + (d.level * (rectHeight + rectPadding));
+        var y = SVG_PADDING + 10 + (d.level * (rectHeight + rectPadding));
         return 'translate(0,' + y + ')';
       });
 
     periodsEnter
       .transition().delay(this.first ? 0 : 100).duration(50)
       .style('opacity', 1)
-  },
-  render: function (narrow) {
-    var filters = this.getFilters()
-      , data = formatData(this.model)
-      , focused = this.focusedEl && d3.select(this.focusedEl).datum()
-
-    data = filterData(data, filters, focused);
-    assignLevels(data, focused);
-
-    this.drawPlot(data, narrow);
-    this.drawFilters(data, filters);
   },
   drawFilters: function (data, filters) {
     var countryData = countriesFromData(data);
@@ -316,6 +391,7 @@ module.exports = Backbone.View.extend({
 
     countryEnter
       .append('input')
+      .attr('id', function (d, i) { return 'countryfilter-' + i })
       .attr('class', 'region-filter')
       .attr('value', function (d) { return d.label })
       .attr('type', 'checkbox')
@@ -324,7 +400,8 @@ module.exports = Backbone.View.extend({
       .style('vertical-align', 'middle')
 
     countryEnter
-      .append('span')
+      .append('label')
+      .attr('for', function (d, i) { return 'countryfilter-' + i })
       .style('display', 'inline-block')
       .style('width', '150px')
       .text(function (d) { return d.label })

@@ -136,3 +136,9 @@ svg .period.hovering {
   rect { filter: url('#hover-filter'); }
   text { opacity: 1 }
 }
+
+.no-select, svg .tick text {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
