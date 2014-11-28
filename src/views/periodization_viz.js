@@ -203,7 +203,7 @@ module.exports = Backbone.View.extend({
 
     var brush = d3.svg.brush()
       .x(x)
-      .on('brushend', function () {
+      .on('brush', function () {
         that.brushExtent = brush.empty() ? null : brush.extent();
         that.render(true);
       });
@@ -256,6 +256,7 @@ module.exports = Backbone.View.extend({
       });
     }
 
+    /*
     if (this.brushExtent) {
       var brush = this.brushExtent;
       filters.fns.push(function (period) {
@@ -265,6 +266,7 @@ module.exports = Backbone.View.extend({
         )
       })
     }
+    */
 
     this.$('.region-filter:checked').each(function (i, el) {
       filters.regions.push(el.value);
@@ -299,7 +301,7 @@ module.exports = Backbone.View.extend({
 
       var xAxis = d3.svg.axis().scale(this.x).orient('top')
       this.timeline.select('.timeline-axis')
-        .transition()
+        .transition().duration(25)
         .call(xAxis);
     }
 
@@ -359,7 +361,7 @@ module.exports = Backbone.View.extend({
 
     periods.select('rect')
       .attr('fill', color)
-      .transition()
+      .transition().duration(25)
       .attr('width', function (d) { return that.x(d.stop) - that.x(d.start) })
       .attr('x', function (d) { return that.x(d.start) })
 
