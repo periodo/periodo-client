@@ -125,6 +125,9 @@ module.exports = Backbone.View.extend({
         var $pre = Backbone.$('<pre>').text(stringify(result, { space: '  ' }));
         that.$periodList.html('').append($pre);
       });
+    } else if (format === 'viz') {
+      var View = require('./periodization_viz')
+        , view = new View({ model: this.model, el: this.$periodList })
     }
 
   },
