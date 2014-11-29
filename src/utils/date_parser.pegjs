@@ -74,7 +74,13 @@ range =
   / slashSeparatedRange
 
 // Unclear prefixes
-unclear = label:('~' / 'around' / 'ca.'i / 'ca'i / 'c.'i / 'c'i) space:' '? { return label + (space || '') }
+unclear =
+  '~'
+  / 'around'
+  / 'ca.'i
+  / 'ca'i
+  / 'c.'i !'e'i
+  / 'c'i !('.e'i / 'e'i)
 
 slashSeparatedRange = 
   year1:digitsorquestionmark '/' year2:digitsorquestionmark SPACE* suffix:(bc / ad)
