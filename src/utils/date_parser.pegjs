@@ -7,7 +7,7 @@
   function zeroPadded(number) {
     var numberInt = parseInt(number)
       , numberStr = '' + Math.abs(numberInt)
-      , sign = numberInt < 0 ? '-' : '+'
+      , sign = numberInt < 0 ? '-' : ''
 
     if (numberStr.length < 4) numberStr = ('0000' + numberStr).substr(-4, 4);
 
@@ -17,7 +17,7 @@
   function formatYear(type, value, label) {
     var ret = {
       _type: type,
-      'in': { year: '' + parseInt(value, 10) }
+      'in': { year: zeroPadded(value) }
     }
     if (label) ret.label = label;
     return ret;
@@ -28,8 +28,8 @@
 
   function formatRange(beginning, end) {
     var ret = { 'in': {} };
-    if (beginning) ret['in'].earliestYear = '' + beginning;
-    if (end) ret['in'].latestYear = '' + end;
+    if (beginning) ret['in'].earliestYear = zeroPadded(beginning);
+    if (end) ret['in'].latestYear = zeroPadded(end);
     return ret;
   }
 
