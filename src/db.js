@@ -6,7 +6,7 @@ var Dexie = require('Dexie')
 
 var DUMPID = 1;
 
-module.exports = db = new Dexie('PeriodO');
+module.exports = db = new Dexie('periodo-client');
 
 db.version(1).stores({
   dumps: 'id&,modified,synced',
