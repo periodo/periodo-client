@@ -28,19 +28,26 @@ module.exports = Backbone.RelationalModel.extend({
     return data;
   },
   getTimespan: function () {
+    function hasYear(terminus) {
+      return terminus.has('year') || terminus.has('earliestYear') || terminus.has('latestYear');
+    }
+
     var starts = this.get('definitions')
       .map(function (period) { return period.get('start') })
-      .filter(function (terminus) { return terminus.get('year') })
+      .filter(hasYear)
 
     var stops = this.get('definitions')
       .map(function (period) { return period.get('stop') })
-      .filter(function (terminus) { return terminus.get('year') })
+      .filter(hasYear)
 
-    function intYear(terminus) { return parseInt(terminus.get('year'), 10) }
+    function intYear(min, terminus) {
+      var year = terminus.get('year') || terminus.get(min ? 'earliestYear' : 'latestYear');
+      return parseInt(year, 10)
+    }
 
     return {
-      lower: starts.length ? _.min(starts, intYear) : undefined,
-      upper: stops.length ? _.max(stops, intYear) : undefined
+      lower: starts.length ? _.min(starts, intYear.bind(null, true)) : undefined,
+      upper: stops.length ? _.max(stops, intYear.bind(null, false)) : undefined
     }
   },
   toJSON: function () {

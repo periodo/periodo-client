@@ -10,12 +10,23 @@ module.exports = Backbone.RelationalModel.extend({
     ret = _.extend(ret, data.in || {});
     return ret;
   },
+  isRange: function () {
+    return this.has('earliestYear') || this.has('latestYear');
+  },
   toJSON: function () {
-    return {
-      label: this.get('label'),
-      'in': {
-        year: this.get('year')
-      }
+    var ret = { label: this.get('label'), 'in': {} }
+      , earliest
+      , latest
+
+    if (this.has('year')) {
+      ret.in.year = this.get('year');
+    } else {
+      earliest = this.get('earliestYear');
+      latest = this.get('latestYear');
+      if (earliest) ret.in.earliestYear = earliest;
+      if (latest) ret.in.latestYear = latest;
     }
+
+    return ret;
   }
 });
