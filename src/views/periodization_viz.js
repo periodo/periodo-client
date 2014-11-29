@@ -179,6 +179,8 @@ module.exports = Backbone.View.extend({
       .attr('type', 'linear')
       .attr('intercept', '0.1')
       .attr('slope', '1')
+
+    Backbone.$('<style>svg .period:hover rect { filter: url(#hover-filter) }</style>').appendTo(this.$el);
   },
   initSlider: function () {
     var that = this
@@ -332,16 +334,6 @@ module.exports = Backbone.View.extend({
       .attr('text-anchor', 'middle')
       .classed('no-select', true)
       .text(function (d) { return d.data.label })
-
-    periodsEnter.on('mouseover', function () {
-      if (d3.event.srcElement.nodeName === 'rect') {
-        this.classList.add('hovering');
-      }
-    });
-
-    periodsEnter.on('mouseout', function () {
-      this.classList.remove('hovering');
-    });
 
     periodsEnter.select('rect').on('dblclick', function () {
       var focusedEl = this.parentNode;
