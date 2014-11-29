@@ -55,7 +55,7 @@
   }
 }
 
-start = unclear? ret:formats {
+start = unclear? SPACE* ret:formats SPACE* {
   ret.label = text();
   return ret
 }
