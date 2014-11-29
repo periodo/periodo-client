@@ -34,7 +34,7 @@
   }
 
 
-  // Create a range based on a century/millenium designation
+  // Create a range based on a century/millennium designation
   function makeEpoch(base, val, neg, modifier) {
     var adjust = Math.floor(base / 3)
       , earlyAdjust = adjust * (modifier ? modifier - 1 : 0)
@@ -70,7 +70,7 @@ singleyear =
 
 range =
   century
-  / millenium
+  / millennium
   / slashSeparatedRange
 
 // Unclear prefixes
@@ -113,8 +113,8 @@ bpyear =
     return formatYear('bp' + bpBase, year, text());
   }
 
-// Century / millenium stuff
-early = ('early'i / 'beginning of the'i / 'start of the'i) { return 1 }
+// Century / millennium stuff
+early = ('early'i / 'beginning of the'i / 'beginning of'i / 'start of the'i) { return 1 }
 middle = ('middle of the'i / 'mid'i) { return 2 }
 late = ('late'i / 'end of the'i) { return 3 }
 
@@ -124,7 +124,7 @@ century = modifier:modifier? SPACE* value:ordinal SPACE+ ('century'i / 'cent.' /
   { return makeEpoch(100, value, suffix ? suffix.neg : false, modifier) }
 
 
-millenium = modifier:modifier? SPACE* value:ordinal SPACE+ 'millenium'i SPACE* suffix:(bc /ad)?
+millennium = modifier:modifier? SPACE* value:ordinal SPACE+ 'millennium'i SPACE* suffix:(bc /ad)?
   { return makeEpoch(1000, value, suffix ? suffix.neg : false, modifier) }
 
 
