@@ -152,7 +152,7 @@ threedigits = a:digit b:digit c:digit { return a + b + c }
 fourdigits = a:digit b:digit c:digit d:digit { return a + b + c + d }
 manydigits = digits:digit+ { return digits.join('') }
 
-bp = 'b'i '.'? 'p'i '.'?
+bp = 'c14 'i? 'b'i '.'? 'p'i '.'?
 bc = label:('b'i '.'? 'c'i '.'? e:(E:'e'i D:'.'? { return E + (D||'') })?) { return {label: label.join(''), neg: true} }
 ad = label:('a'i '.'? 'd'i '.'? / 'c'i '.'? 'e'i '.'?) { return {label: label.join(''), neg: false} }
 
