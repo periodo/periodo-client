@@ -33,10 +33,10 @@ describe('Date parser', function () {
     */
 
     // People didn't like the above constraint, so those are actually OK.
-    assert.deepEqual(parser.parse('43'), {
+    assert.deepEqual(parser.parse('0043'), {
       _type: 'iso8601',
-      label: '43',
-      'in': { year: '43' }
+      label: '0043',
+      'in': { year: '0043' }
     });
   });
 
@@ -46,19 +46,19 @@ describe('Date parser', function () {
     assert.deepEqual(parser.parse('12 A.D.'), {
       _type: 'gregorian',
       label: '12 A.D.',
-      'in': { year: '12' }
+      'in': { year: '0012' }
     });
 
     assert.deepEqual(parser.parse('12 bc'), {
       _type: 'gregorian',
       label: '12 bc',
-      'in': { year: '-11' }
+      'in': { year: '-0011' }
     });
 
     assert.deepEqual(parser.parse('12 BCE'), {
       _type: 'gregorian',
       label: '12 BCE',
-      'in': { year: '-11' }
+      'in': { year: '-0011' }
     });
 
     assert.deepEqual(parser.parse('12 bc').value, parser.parse('12 B.C.').value);
@@ -84,7 +84,7 @@ describe('Date parser', function () {
     assert.deepEqual(makeBPParser('2000 BP', 1950)(), {
       _type: 'bp1950',
       label: '2000 BP',
-      'in': { year: '-50' }
+      'in': { year: '-0050' }
     });
   });
   
@@ -98,13 +98,13 @@ describe('Date parser', function () {
     assert.deepEqual(parser.parse('~800'), {
       _type: 'iso8601',
       label: '~800',
-      'in': { year: '800' },
+      'in': { year: '0800' },
     });
 
     assert.deepEqual(parser.parse('Ca. 12 AD'), {
       _type: 'gregorian',
       label: 'Ca. 12 AD',
-      'in': { year: '12' },
+      'in': { year: '0012' },
     });
 
     assert.deepEqual(parser.parse('3200? BC'), {
@@ -136,7 +136,7 @@ describe('Date parser', function () {
     assert.deepEqual(parser.parse('middle of the third century'), {
       _type: 'gregorian',
       label: 'middle of the third century',
-      'in': { earliestYear: '234', latestYear: '267' }
+      'in': { earliestYear: '0234', latestYear: '0267' }
     });
   });
 
@@ -144,7 +144,7 @@ describe('Date parser', function () {
     assert.deepEqual(parser.parse('410/314 BCE'), {
       _type: 'gregorian',
       label: '410/314 BCE',
-      'in': { earliestYear: '-409', latestYear: '-313' }
+      'in': { earliestYear: '-0409', latestYear: '-0313' }
     });
 
     assert.deepEqual(parser.parse('1200/1400'), {
