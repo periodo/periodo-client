@@ -60,7 +60,9 @@ start = unclear? SPACE* ret:formats SPACE* {
   return ret
 }
 
-formats = range / singleyear
+formats = present / range / singleyear
+
+present = 'present'i { return {label: 'present', _type: 'present'} };
 
 // The formats that we accept
 singleyear = 

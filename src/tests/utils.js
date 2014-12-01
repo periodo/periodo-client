@@ -154,6 +154,13 @@ describe('Date parser', function () {
     });
   });
 
+  it('should accept \'present\'', function () {
+    assert.deepEqual(parser.parse('present'), {
+      _type: 'present',
+      label: 'present'
+    });
+  });
+
 
   it('should throw errors for invalid dates', function () {
     function parse(val) { return parser.parse.bind(parser, val) }
