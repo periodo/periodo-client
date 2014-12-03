@@ -6,7 +6,7 @@ var _ = require('underscore')
   , getMasterCollection = require('./master_collection')
 
 module.exports = function sync(method, object, options) {
-   var PeriodizationCollection = require('./collections/periodization')
+   var PeriodizationCollection = require('./collections/period_collection')
     , message = options && options.message
     , promise
     , db
@@ -30,7 +30,7 @@ module.exports = function sync(method, object, options) {
       }
     } else if (method === 'put' && object instanceof PeriodizationCollection) {
       db = require('./db');
-      // Merging a collection of periodizations, as in a merge during sync
+      // Merging a collection of periodCollections, as in a merge during sync
       var localData = masterCollection.toJSON()
         , newData = _.extend(localData, object.toJSON())
 

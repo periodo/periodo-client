@@ -7,7 +7,7 @@ var sourceInformation = require('./source.html');
 
 <h2>Source</h2>
 <div id="source-information">
-  <%= sourceInformation({ source: periodization.source }) %>
+  <%= sourceInformation({ source: periodCollection.source }) %>
 </div>
 
 <h2>Periods</h2>
@@ -32,7 +32,7 @@ var sourceInformation = require('./source.html');
     </ul>
   </div>
   <div id="period-list">
-    <%= periodList({ periods: periodization.definitions }) %>
+    <%= periodList({ periods: periodCollection.definitions }) %>
   </div>
   <div id="add-period-container">
     <button id="js-add-period" class="btn btn-primary">Add period</button>

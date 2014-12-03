@@ -17,8 +17,8 @@ module.exports = Backbone.View.extend({
     this.render();
   },
   render: function () {
-    var template = require('../templates/periodization_show.html');
-    this.$el.html(template({ periodization: this.model.toJSON() }));
+    var template = require('../templates/period_collection_show.html');
+    this.$el.html(template({ periodCollection: this.model.toJSON() }));
 
     this.$periodAdd = this.$('#period-add');
     this.$periodList = this.$('#period-list');
@@ -126,7 +126,7 @@ module.exports = Backbone.View.extend({
         that.$periodList.html('').append($pre);
       });
     } else if (format === 'viz') {
-      var View = require('./periodization_viz')
+      var View = require('./period_collection_viz')
         , view = new View({ model: this.model, el: this.$periodList })
     }
 

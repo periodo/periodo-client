@@ -9,9 +9,9 @@ module.exports = {
     return jsonpatch.compare(JSON.parse(JSON.stringify(before)), after);
   },
 
-  // Returns the IDs of each periodization edited in each patch array passed
+  // Returns the IDs of each periodCollection edited in each patch array passed
   getAffectedPeriodizations: function () {
-    var regex = /^\/periodizations\/([^\/]+)/;
+    var regex = /^\/periodCollections\/([^\/]+)/;
     return Array.prototype.slice.call(arguments)
       .reduce(function (acc, arr) { return acc.concat(arr) }, [])
       .map(function (patch) {
