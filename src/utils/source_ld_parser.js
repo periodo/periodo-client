@@ -3,13 +3,14 @@
 var $ = require('jquery')
   , _ = require('underscore')
   , N3 = require('n3')
+  , jsonld = require('jsonld')
 
 var DEFAULT_PREDICATES = {
-  title: ['http://purl.org/dc/terms/title', 'schema:name'],
-  yearPublished: ['http://purl.org/dc/terms/date', 'schema:datePublished'],
-  creators: ['http://purl.org/dc/terms/creator', 'schema:creator'],
-  contributors: ['http://purl.org/dc/terms/contributor', 'schema:contributor'],
-  name: ['http://xmlns.com/foaf/0.1/name', 'schema:name']
+  title: ['http://purl.org/dc/terms/title', 'http://schema.org/name'],
+  yearPublished: ['http://purl.org/dc/terms/date', 'http://schema.org/datePublished'],
+  creators: ['http://purl.org/dc/terms/creator', 'http://schema.org/creator'],
+  contributors: ['http://purl.org/dc/terms/contributor', 'http://schema.org/contributor'],
+  name: ['http://xmlns.com/foaf/0.1/name', 'http://schema.org/name']
 }
 
 /*
@@ -37,6 +38,34 @@ function parseTurtle(turtle) {
       store.addPrefixes(prefixes);
       dfd.resolve(store);
     }
+  });
+
+  return dfd.promise();
+}
+
+function parseJsonLD(doc) {
+  var parser = N3.Parser()
+    , store = N3.Store()
+    , dfd = $.Deferred()
+
+  doc = JSON.parse(doc);
+
+  jsonld.toRDF(doc, {format: 'application/nquads'}, function (err, nquads) {
+    if (err) {
+      console.error(error);
+      dfd.error(err);
+    }
+    parser.parse(nquads, function (error, triple, prefixes) {
+      if (triple) {
+        store.addTriple(triple);
+      } else if (error) {
+        // TODO: error handling
+        console.error(error);
+      } else {
+        store.addPrefixes(prefixes);
+        dfd.resolve(store);
+      }
+    });
   });
 
   return dfd.promise();
@@ -87,6 +116,10 @@ function makeSourceRepr(entity, store) {
   return data;
 }
 
-module.exports = function (entity, ttl) {
-  return parseTurtle(ttl).then(makeSourceRepr.bind(null, entity));
+module.exports = function (entity, ttl, jsonld) {
+  var promise;
+
+  if (!(ttl || jsonld)) console.error('no linked data to parse.');
+
+  return (ttl ? parseTurtle(ttl) : parseJsonLD(jsonld)).then(makeSourceRepr.bind(null, entity));
 }
