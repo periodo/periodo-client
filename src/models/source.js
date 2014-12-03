@@ -24,23 +24,23 @@ module.exports = Backbone.RelationalModel.extend({
       collectionType: CreatorCollection
     }
   ],
-  ldUrl: function () {
-    var uri = this.id || ''
-
-    if (uri.match(WORLDCAT_REGEX)) {
-      return 'http://ptgolden.org/oclc/' + uri.match(WORLDCAT_REGEX)[1];
-      //return 'http://experiment.worldcat.org/oclc/' + uri.match(WORLDCAT_REGEX)[1] + '.ttl';
-    } else if (uri.match(DXDOI_REGEX)) {
-      return 'http://data.crossref.org/' + encodeURIComponent(uri.match(DXDOI_REGEX)[1]);
-    }
-  },
   fetchLD: function () {
     var that = this
-      , url = this.ldUrl()
+      , uri = this.id || ''
+      , ldUri
+      , promise
 
-    return $.ajax(url, {dataType: 'text', accepts: {text: 'text/turtle'}})
-      .then(parseSourceLD.bind(null, that.id))
-      .done(that.set.bind(that));
+    if (uri.match(WORLDCAT_REGEX)) {
+      ldUri = 'http://experiment.worldcat.org/oclc/' + uri.match(WORLDCAT_REGEX)[1] + '.jsonld';
+      promise = $.ajax(ldUri, {dataType: 'text', accepts: {text: 'application/ld+json'}})
+        .then(parseSourceLD.bind(null, that.id, null))
+    } else if (uri.match(DXDOI_REGEX)) {
+      ldUri = 'http://data.crossref.org/' + encodeURIComponent(uri.match(DXDOI_REGEX)[1]);
+      promise = $.ajax(ldUri, {dataType: 'text', accepts: {text: 'text/turtle'}})
+        .then(parseSourceLD.bind(null, that.id))
+    }
+
+    if (promise) return promise.done(that.set.bind(that));
   },
   toJSON: function () {
     var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
