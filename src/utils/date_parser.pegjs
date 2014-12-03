@@ -1,7 +1,7 @@
 // vim: set filetype=javascript
 
 {
-  var bpBase = parseInt(options.bpBase || 2000);
+  var bpBase = parseInt(options.bpBase || 1950);
 
   // Format a number to be ISO8601 compatible
   function zeroPadded(number) {
@@ -115,10 +115,10 @@ gregorianyear =
   }
 
 bpyear =
-  val:(y:digitsorcomma ' '* suffix:(bp) { return y + ' ' + suffix.join('') })
+  year:digitsorcomma SPACE* suffix:(bp)
   {
-    var year = bpBase - parseInt(val);
-    return formatYear('bp' + bpBase, year, text());
+    var year = suffix.base - parseInt(year, 10);
+    return formatYear('bp' + suffix.base, year, text());
   }
 
 // Century / millennium stuff
@@ -154,7 +154,12 @@ threedigits = a:digit b:digit c:digit { return a + b + c }
 fourdigits = a:digit b:digit c:digit d:digit { return a + b + c + d }
 manydigits = digits:digit+ { return digits.join('') }
 
-bp = 'c14 'i? 'b'i '.'? 'p'i '.'?
+bp = 'c14 'i? 'b'i '.'? 'p'i '.'? base:(SPACE* digit+)? {
+  return {
+    label: text(),
+    base: base ? parseInt(base[1].join('').trim(), 10) : bpBase
+  }
+}
 bc = label:('b'i '.'? 'c'i '.'? e:(E:'e'i D:'.'? { return E + (D||'') })?) { return {label: label.join(''), neg: true} }
 ad = label:('a'i '.'? 'd'i '.'? / 'c'i '.'? 'e'i '.'?) { return {label: label.join(''), neg: false} }
 
