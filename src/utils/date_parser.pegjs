@@ -189,44 +189,44 @@ englishOrdinal =
   / head:englishOrdinalHead? mid:'-'? tail:englishOrdinalTail { return parseInt((head || 0) + tail, 10) }
 
 englishOrdinalHead =
-  'twenty' { return 20 }
-  / 'thirty' { return 30 }
-  / 'forty' { return  40 }
-  / 'fifty' { return  50 }
-  / 'sixty' { return  60 }
-  / 'seventy' { return  70 }
-  / 'eighty' { return  80 }
-  / 'ninety' { return  90 }
+  'twenty'i { return 20 }
+  / 'thirty'i { return 30 }
+  / 'forty'i { return  40 }
+  / 'fifty'i { return  50 }
+  / 'sixty'i { return  60 }
+  / 'seventy'i { return  70 }
+  / 'eighty'i { return  80 }
+  / 'ninety'i { return  90 }
 
 englishOrdinalTail =
-  'first' { return  1 }
-  / 'second' { return  2 }
-  / 'third' { return  3 }
-  / 'fourth' { return  4 }
-  / 'fifth' { return  5 }
-  / 'sixth' { return  6 }
-  / 'seventh' { return  7 }
-  / 'eighth' { return  8 }
-  / 'ninth' { return  9 }
+  'first'i { return  1 }
+  / 'second'i { return  2 }
+  / 'third'i { return  3 }
+  / 'fourth'i { return  4 }
+  / 'fifth'i { return  5 }
+  / 'sixth'i { return  6 }
+  / 'seventh'i { return  7 }
+  / 'eighth'i { return  8 }
+  / 'ninth'i { return  9 }
 
 englishOrdinalAlone =
-  'tenth' { return  10 }
-  / 'eleventh' { return  11 }
-  / 'twelfth' { return  12 }
-  / 'thirteenth' { return  13 }
-  / 'fourteenth' { return  14 }
-  / 'fifteenth' { return  15 }
-  / 'sixteenth' { return  16 }
-  / 'seventeenth' { return  17 }
-  / 'eighteenth' { return  18 }
-  / 'nineteenth' { return  19 }
-  / 'twentieth' { return  20 }
-  / 'thirtieth' { return  30 }
-  / 'fortieth' { return  40 }
-  / 'fiftieth' { return  50 }
-  / 'sixtieth' { return  60 }
-  / 'seventieth' { return  70 }
-  / 'eightieth' { return  80 }
-  / 'ninetieth' { return  90 }
+  'tenth'i { return  10 }
+  / 'eleventh'i { return  11 }
+  / 'twelfth'i { return  12 }
+  / 'thirteenth'i { return  13 }
+  / 'fourteenth'i { return  14 }
+  / 'fifteenth'i { return  15 }
+  / 'sixteenth'i { return  16 }
+  / 'seventeenth'i { return  17 }
+  / 'eighteenth'i { return  18 }
+  / 'nineteenth'i { return  19 }
+  / 'twentieth'i { return  20 }
+  / 'thirtieth'i { return  30 }
+  / 'fortieth'i { return  40 }
+  / 'fiftieth'i { return  50 }
+  / 'sixtieth'i { return  60 }
+  / 'seventieth'i { return  70 }
+  / 'eightieth'i { return  80 }
+  / 'ninetieth'i { return  90 }
 
 ordinal = englishOrdinal / numericOrdinal
