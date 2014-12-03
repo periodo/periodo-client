@@ -43,10 +43,10 @@ $(document).ready(function () {
 ApplicationRouter = Backbone.Router.extend({
   routes: {
     '': 'index',
-    'periodizations/': 'periodizationList',
-    'periodizations/add/': 'periodizationAdd',
-    'periodizations/:periodization/': 'periodizationShow',
-    'periodizations/:periodization/edit/': 'periodizationEdit',
+    'periodCollections/': 'periodCollectionList',
+    'periodCollections/add/': 'periodCollectionAdd',
+    'periodCollections/:periodCollection/': 'periodCollectionShow',
+    'periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'sync/': 'sync',
     'admin/': 'admin',
     'admin/submit/': 'submitPatch',
@@ -63,27 +63,27 @@ ApplicationRouter = Backbone.Router.extend({
     var that = this;
     var IndexView = require('./views/index');
 
-    var PeriodizationCollection = require('./collections/periodization');
-    var periodizations = new PeriodizationCollection();
-    periodizations.fetch().then(function () {
-      that.changeView(IndexView, { collection: periodizations });
+    var PeriodizationCollection = require('./collections/period_collection');
+    var periodCollections = new PeriodizationCollection();
+    periodCollections.fetch().then(function () {
+      that.changeView(IndexView, { collection: periodCollections });
     });
   },
 
-  periodizationAdd: function () {
-    var PeriodizationAddView = require('./views/periodization_add');
+  periodCollectionAdd: function () {
+    var PeriodizationAddView = require('./views/period_collection_add');
     this.changeView(PeriodizationAddView);
   },
 
-  periodizationShow: function (periodizationID) {
+  periodCollectionShow: function (periodCollectionID) {
     var that = this;
 
-    var Periodization = require('./models/periodization');
-    var periodization = Periodization.findOrCreate({ id: decodeURIComponent(periodizationID) });
-    var PeriodizationView = require('./views/periodization_show')
+    var Periodization = require('./models/period_collection');
+    var periodCollection = Periodization.findOrCreate({ id: decodeURIComponent(periodCollectionID) });
+    var PeriodizationView = require('./views/period_collection_show')
 
-    periodization.fetch().then(function () {
-      that.changeView(PeriodizationView, { model: periodization });
+    periodCollection.fetch().then(function () {
+      that.changeView(PeriodizationView, { model: periodCollection });
     });
   },
 

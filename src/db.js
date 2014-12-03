@@ -18,7 +18,7 @@ db.on('populate', function () {
   // Create an initial, empty dataset.
   db.localData.put({
     id: DUMPID,
-    data: { periodizations: {} },
+    data: { periodCollections: {} },
     modified: new Date().getTime()
   });
 });

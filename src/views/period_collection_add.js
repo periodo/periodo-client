@@ -2,7 +2,7 @@
 
 var Backbone = require('../backbone')
   , SourceSelectView = require('./source_edit')
-  , Periodization = require('../models/periodization')
+  , Periodization = require('../models/period_collection')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -17,7 +17,7 @@ module.exports = Backbone.View.extend({
     this.listenTo(sourceSelectionView, 'sourceSelected', this.handleSourceSelection);
   },
   render: function () {
-    var template = require('../templates/periodization_add.html');
+    var template = require('../templates/period_collection_add.html');
     this.$el.html(template());
   },
   handleSourceSelection: function (source) {
@@ -27,11 +27,11 @@ module.exports = Backbone.View.extend({
     this.model = source;
   },
   handleAcceptSource: function () {
-    var periodization = new Periodization({ source: this.model });
+    var periodCollection = new Periodization({ source: this.model });
     var options = { message: 'Created period collection based on ' + this.model.get('title') };
-    periodization.save(null, options).then(function () {
-      var encodedURI = encodeURIComponent(periodization.id);
-      Backbone.history.navigate('periodizations/' + encodedURI + '/', { trigger: true });
+    periodCollection.save(null, options).then(function () {
+      var encodedURI = encodeURIComponent(periodCollection.id);
+      Backbone.history.navigate('periodCollections/' + encodedURI + '/', { trigger: true });
     });
   },
   handleRejectSource: function () {

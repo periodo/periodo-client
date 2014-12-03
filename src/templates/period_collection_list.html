@@ -7,15 +7,15 @@
     </tr>
   </thead>
   <tbody>
-  <% periodizations.forEach(function (periodization) { %>
+  <% periodCollections.forEach(function (periodCollection) { %>
     <tr>
       <td>
-        <a href="#periodizations/<%= encodeURIComponent(periodization.id) %>/">
-          <%= periodization.get('source').get('title') %>
+        <a href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
+          <%= periodCollection.get('source').get('title') %>
         </a>
       </td>
-      <td><%= periodization.get('definitions').length %></td>
-      <% var timeSpan = periodization.getTimespan() %>
+      <td><%= periodCollection.get('definitions').length %></td>
+      <% var timeSpan = periodCollection.getTimespan() %>
       <td>
         <% if (timeSpan.lower && timeSpan.upper) { %>
         <%= timeSpan.lower.get('label') %> – <%= timeSpan.upper.get('label') %>

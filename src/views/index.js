@@ -11,12 +11,12 @@ module.exports = Backbone.View.extend({
   },
   render: function () {
     var template = require('../templates/index.html')
-      , listTemplate = require('../templates/periodization_list.html')
+      , listTemplate = require('../templates/period_collection_list.html')
 
     this.collection.sort();
 
     this.$el.html(template());
-    this.$('#periodization-list').html(listTemplate({ periodizations: this.collection }));
+    this.$('#periodization-list').html(listTemplate({ periodCollections: this.collection }));
   },
   deleteDatabase: function () {
     var db = require('../db');
