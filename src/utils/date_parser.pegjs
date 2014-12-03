@@ -28,8 +28,8 @@
 
   function formatRange(beginning, end) {
     var ret = { 'in': {} };
-    if (beginning) ret['in'].earliestYear = zeroPadded(beginning);
-    if (end) ret['in'].latestYear = zeroPadded(end);
+    if (beginning !== null) ret['in'].earliestYear = zeroPadded(beginning);
+    if (end !== null) ret['in'].latestYear = zeroPadded(end);
     return ret;
   }
 
