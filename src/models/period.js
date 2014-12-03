@@ -28,9 +28,6 @@ module.exports = Backbone.RelationalModel.extend({
       collectionType: SpatialCoverageCollection
     }
   ],
-  dateTypes: [
-    'bp2000', 'bp1950', 'gregorian', 'iso8601'
-  ],
   validate: function (attrs) {
     var errors = {}
       , hasStart = attrs.start && attrs.start.get('label') && attrs.start.get('year')
