@@ -76,15 +76,21 @@ describe('Date parser', function () {
       });
     }
     assert.deepEqual(parser.parse('5 b.p.'), {
-      _type: 'bp2000',
+      _type: 'bp1950',
       label: '5 b.p.',
-      'in': { year: '1995' }
+      'in': { year: '1945' }
     });
 
-    assert.deepEqual(makeBPParser('2000 BP', 1950)(), {
-      _type: 'bp1950',
+    assert.deepEqual(makeBPParser('2000 BP', 2000)(), {
+      _type: 'bp2000',
       label: '2000 BP',
-      'in': { year: '-0050' }
+      'in': { year: '0000' }
+    });
+
+    assert.deepEqual(parser.parse('5 BP2000'), {
+      _type: 'bp2000',
+      label: '5 BP2000',
+      'in': { year: '1995' }
     });
   });
   
@@ -137,6 +143,12 @@ describe('Date parser', function () {
       _type: 'gregorian',
       label: 'middle of the third century',
       'in': { earliestYear: '0234', latestYear: '0267' }
+    });
+
+    assert.deepEqual(parser.parse('First century BC'), {
+      _type: 'gregorian',
+      label: 'First century BC',
+      'in': { earliestYear: '-0099', latestYear: '0000'}
     });
   });
 
