@@ -30,13 +30,13 @@ module.exports = Backbone.RelationalModel.extend({
   ],
   validate: function (attrs) {
     var errors = {}
-      , hasStart = attrs.start && attrs.start.get('label') && attrs.start.get('year')
-      , hasStop = attrs.stop && attrs.stop.get('label') && attrs.stop.get('label')
+      , hasStart = attrs.start && attrs.start.get('label') && attrs.start.hasYearData()
+      , hasStop = attrs.stop && attrs.stop.get('label') && attrs.stop.hasYearData()
 
     function addError(label, err) { errors[label] = (errors[label] || []).concat(err) }
 
     if (hasStart && hasStop) {
-      if ( parseInt(attrs.start.get('year'), 10) > parseInt(attrs.stop.get('year'), 10) ) {
+      if (attrs.stop.getLatestYear() < attrs.start.getEarliestYear()) {
         addError('dates', 'A period\'s end must come after its start.')
       }
     } else {
