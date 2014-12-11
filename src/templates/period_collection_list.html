@@ -11,7 +11,10 @@
     <tr>
       <td>
         <a href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
-          <%= periodCollection.get('source').get('title') %>
+          <%
+          var source = periodCollection.get('source');
+          print(source.get('title') || source.get('partOf').title);
+          %>
         </a>
       </td>
       <td><%= periodCollection.get('definitions').length %></td>

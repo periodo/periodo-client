@@ -1,7 +1,10 @@
+<%
+var partOf = !!source.partOf;
+%>
 <dl class="dl-horizontal source">
   <div>
     <dt>Title</dt>
-    <dd><%= source.title %></dd>
+    <dd><%= source.title || partOf && source.partOf.title %></dd>
   </div>
 
     <% var url = source.id || (source.partOf && source.partOf.id) || (source.url && [].concat(source.url)[0]) %>
@@ -14,7 +17,7 @@
 
   <div>
     <dt>Year published</dt>
-    <dd><%= source.yearPublished || 'unknown' %></dd>
+    <dd><%= source.yearPublished || (partOf && source.partOf.yearPublished) || 'unknown' %></dd>
   </div>
 
   <% if (source.creators && source.creators.length) { %>
