@@ -12,22 +12,36 @@ module.exports = Backbone.RelationalModel.extend({
     return ret;
   },
   getEarliestYear: function () {
-    if (this.has('year')) return this.get('year');
-    else if (this.has('earliestYear')) return this.get('earliestYear');
-    else if (this.get('label').toLowerCase() === 'present') return '' + (new Date().getFullYear());
-    else return null;
+    var year;
+
+    if (this.has('year')) {
+      year = this.get('year');
+    } else if (this.has('earliestYear')) {
+      year = this.get('earliestYear');
+    } else if (this.get('label').toLowerCase() === 'present') {
+      year = '' + (new Date().getFullYear());
+    }
+
+    return year ? parseInt(year, 10) : null;
   },
   getLatestYear: function () {
-    if (this.has('year')) return this.get('year');
-    else if (this.has('latestYear')) return this.get('latestYear');
-    else if (this.get('label').toLowerCase() === 'present') return '' + (new Date().getFullYear());
-    else return null;
+    var year;
+
+    if (this.has('year')) {
+      year = this.get('year');
+    } else if (this.has('latestYear')) {
+      year = this.get('latestYear');
+    } else if (this.get('label').toLowerCase() === 'present') {
+      year = '' + (new Date().getFullYear());
+    }
+
+    return year ? parseInt(year, 10) : null;
   },
   isRange: function () {
     return this.has('earliestYear') || this.has('latestYear');
   },
   hasYearData: function () {
-    return this.has('year') || this.isRange();
+    return this.has('year') || this.isRange() || this.get('label').toLowerCase() === 'present';
   },
   isGeneratedFromParser: function () {
     var label = this.get('label'), parsed;
