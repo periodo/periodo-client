@@ -3,7 +3,8 @@
     <tr>
       <th>Source title</th>
       <th>No. of definitions</th>
-      <th>Time span</th>
+      <th>Time span start</th>
+      <th>Time span stop</th>
     </tr>
   </thead>
   <tbody>
@@ -19,10 +20,11 @@
       </td>
       <td><%= periodCollection.get('definitions').length %></td>
       <% var timeSpan = periodCollection.getTimespan() %>
-      <td>
-        <% if (timeSpan.lower && timeSpan.upper) { %>
-        <%= timeSpan.lower.get('label') %> – <%= timeSpan.upper.get('label') %>
-        <% } %>
+      <td data-sort="<%= timeSpan.lower ? timeSpan.lower.getEarliestYear() : undefined %>">
+        <%= timeSpan.lower && timeSpan.lower.get('label') %>
+      </td>
+      <td data-sort="<%= timeSpan.upper ? timeSpan.upper.getLatestYear() : undefined %>">
+        <%= timeSpan.upper && timeSpan.upper.get('label') %>
       </td>
     </tr>
   <% }); %>

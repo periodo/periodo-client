@@ -1,6 +1,7 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , Tablesort = require('tablesort')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -17,6 +18,10 @@ module.exports = Backbone.View.extend({
 
     this.$el.html(template());
     this.$('#periodization-list').html(listTemplate({ periodCollections: this.collection }));
+
+
+    var table = this.$('#periodization-list table')[0];
+    new Tablesort(table);
   },
   deleteDatabase: function () {
     var db = require('../db');
