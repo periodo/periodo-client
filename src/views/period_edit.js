@@ -57,7 +57,7 @@ bindings = {
     '#js-startDate': {
       observe: 'start',
       initialize: function ($el, model, options) {
-        this.parseStart = this.model.get('start').isGeneratedFromParser();
+        this.parseStart = this.model.isNew() || this.model.get('start').isGeneratedFromParser();
         if ($el.val()) $el.trigger('input');
       },
       onGet: function (value) { return value.get('label') },
@@ -78,7 +78,7 @@ bindings = {
     '#js-endDate': {
       observe: 'stop',
       initialize: function ($el) {
-        this.parseStop = this.model.get('stop').isGeneratedFromParser();
+        this.parseStop = this.model.isNew() || this.model.get('stop').isGeneratedFromParser();
         if ($el.val()) $el.trigger('input');
       },
       onGet: function (value) { return value.get('label') },
@@ -131,8 +131,9 @@ module.exports = Backbone.View.extend({
     var spatialCoverageView
 
     this.render();
-    this.updateDetectDateType();
     this.stickit();
+
+    //this.updateDetectDateType();
 
     spatialCoverageView = new SpatialCoverageView({
       collection: this.model.get('spatialCoverage'),
