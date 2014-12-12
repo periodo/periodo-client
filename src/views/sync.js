@@ -1,7 +1,7 @@
 "use strict";
 
 var Backbone = require('../backbone')
-  , PeriodizationCollection = require('../collections/periodization')
+  , PeriodizationCollection = require('../collections/period_collection')
   , Dexie = require('Dexie')
   , Spinner = require('spin.js')
   , db = require('../db')
@@ -78,14 +78,14 @@ module.exports = Backbone.View.extend({
       .finally(this.spinner.stop.bind(this.spinner))
   },
   handleDump: function (data) {
-    var template = require('../templates/periodization_list.html')
+    var template = require('../templates/period_collection_list.html')
       , newPeriodizations = new PeriodizationCollection(data.dump.data, { parse: true })
 
     this.collection = newPeriodizations;
 
     newPeriodizations.sort();
 
-    this.$periodList.show().html(template({ periodizations: newPeriodizations }));
+    this.$periodList.show().html(template({ periodCollections: newPeriodizations }));
     this.$acceptDialog.show();
   },
   handleAcceptPeriodizations: function () {

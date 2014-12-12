@@ -1,0 +1,32 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Source title</th>
+      <th>No. of definitions</th>
+      <th>Time span start</th>
+      <th>Time span stop</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% periodCollections.forEach(function (periodCollection) { %>
+    <tr>
+      <td>
+        <a href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
+          <%
+          var source = periodCollection.get('source');
+          print(source.get('title') || source.get('partOf').title);
+          %>
+        </a>
+      </td>
+      <td><%= periodCollection.get('definitions').length %></td>
+      <% var timeSpan = periodCollection.getTimespan() %>
+      <td data-sort="<%= timeSpan.lower ? timeSpan.lower.getEarliestYear() : undefined %>">
+        <%= timeSpan.lower && timeSpan.lower.get('label') %>
+      </td>
+      <td data-sort="<%= timeSpan.upper ? timeSpan.upper.getLatestYear() : undefined %>">
+        <%= timeSpan.upper && timeSpan.upper.get('label') %>
+      </td>
+    </tr>
+  <% }); %>
+  </tbody>
+</table>

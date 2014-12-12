@@ -8,23 +8,28 @@ var _ = require('underscore')
   , bindings
 
 function parseDate(input, type) {
-  var options = {};
-
-  if (type) {
-    if (type.match(/^bp/i)) {
-      options.startRule = 'bpyear';
-      options.bpBase = type.slice(2) || 2000;
-    } else {
-      options.startRule = type + 'year';
-    }
-  }
-
   try {
-    return dateParser.parse(input, options);
+    return dateParser.parse(input);
   } catch (e) {
     return null;
   }
 
+}
+
+function formatMessage(json) {
+  if (json._type === 'present') {
+    return 'present';
+  }
+
+  if (!json.hasOwnProperty('in')) {
+    return '??????';
+  }
+
+  if (json.in.hasOwnProperty('year')) {
+    return 'year ' + parseInt(json.in.year, 10);
+  }
+
+  return 'range from ' + parseInt(json.in.earliestYear) + ' to ' + parseInt(json.in.latestYear);
 }
 
 function setDateMessage($el, parsed, view) {
@@ -33,7 +38,7 @@ function setDateMessage($el, parsed, view) {
   if (!$el.val()) {
     $msgEl.text('')
   } else if (parsed) {
-    $msgEl.text('Parsed as ISO year: ' + parsed.isoValue);
+    $msgEl.text('Parsed as ' + formatMessage(parsed));
   } else {
     if (view.model.get('dateType')) {
       $msgEl.text('Could not detect date in ' + view.model.get('dateType') + ' format.');
@@ -49,63 +54,43 @@ bindings = {
   period: {
     '#js-label': 'label',
     '#js-note': 'note',
-    '#js-dateType': {
-      observe: 'dateType',
-      selectOptions: {
-        collection: function () { return this.model.dateTypes; },
-        defaultOption: ' '
-      }
-    }
-  },
-
-  start: {
-  '#js-startDate': {
-      observe: ['label', 'year'],
-      initialize: function ($el) {
+    '#js-startDate': {
+      observe: 'start',
+      initialize: function ($el, model, options) {
+        this.parseStart = this.model.isNew() || this.model.get('start').isGeneratedFromParser();
         if ($el.val()) $el.trigger('input');
       },
-      onGet: function (value) { return value[0] },
+      onGet: function (value) { return value.get('label') },
       getVal: function ($el) {
-        var val = $el.val()
-          , parsed
+        var label = $el.val(), parsed;
 
-        if (this.autodetectDate) {
-          parsed = parseDate(val)
+        if (this.parseStart) {
+          parsed = parseDate(label)
+          setDateMessage($el, parsed, this);
         } else {
-          parsed = this.model.has('dateType') ?
-            parseDate(val, this.model.get('dateType'))
-            : null;
+          // Handle dates not parsed automatically
         }
 
-        if (parsed) {
-          if (this.autodetectDate) this.model.set('dateType', parsed.type);
-        } else {
-          if (this.autodetectDate) this.model.unset('dateType');
-        }
-
-        setDateMessage($el, parsed, this);
         this.$('#js-endDate').trigger('input');
-
-        return parsed ? [ parsed.label, parsed.isoValue ] : [ null, null ];
+        return parsed;
       }
-    }
-  },
-
-  stop: {
+    },
     '#js-endDate': {
-      observe: ['label', 'year'],
+      observe: 'stop',
       initialize: function ($el) {
+        this.parseStop = this.model.isNew() || this.model.get('stop').isGeneratedFromParser();
         if ($el.val()) $el.trigger('input');
       },
-      onGet: function (value) { return value[0] },
-      getVal: function ($el) {
-        var parsed = this.model.has('dateType') ?
-          parseDate($el.val(), this.model.get('dateType'))
-          : null;
+      onGet: function (value) { return value.get('label') },
+      getVal: function ($el, event, options) {
+        var label = $el.val(), parsed;
 
-        setDateMessage($el, parsed, this);
+        if (this.parseStop) {
+          parsed = parseDate(label)
+          setDateMessage($el, parsed, this);
+        }
 
-        return parsed ? [ parsed.label, parsed.isoValue ] : [ null, null ];
+        return parsed;
       }
     }
   }
@@ -146,10 +131,9 @@ module.exports = Backbone.View.extend({
     var spatialCoverageView
 
     this.render();
-    this.updateDetectDateType();
     this.stickit();
-    this.stickit(this.model.get('start'), bindings.start);
-    this.stickit(this.model.get('stop'), bindings.stop);
+
+    //this.updateDetectDateType();
 
     spatialCoverageView = new SpatialCoverageView({
       collection: this.model.get('spatialCoverage'),

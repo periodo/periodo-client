@@ -15,15 +15,15 @@ describe('Date parser', function () {
     var isoParser = typeParser.bind(null, 'iso8601');
 
     assert.deepEqual(parser.parse('1994'), {
-      type: 'iso8601',
+      _type: 'iso8601',
       label: '1994',
-      isoValue: '+1994'
+      'in': { year: '1994' }
     });
 
     assert.deepEqual(parser.parse('-50000'), {
-      type: 'iso8601',
+      _type: 'iso8601',
       label: '-50000',
-      isoValue: '-50000'
+      'in': { year: '-50000' }
     });
 
     // ISO8601 years without a +/- must be 4 digits.
@@ -33,10 +33,10 @@ describe('Date parser', function () {
     */
 
     // People didn't like the above constraint, so those are actually OK.
-    assert.deepEqual(parser.parse('43'), {
-      type: 'iso8601',
-      label: '43',
-      isoValue: '+0043'
+    assert.deepEqual(parser.parse('0043'), {
+      _type: 'iso8601',
+      label: '0043',
+      'in': { year: '0043' }
     });
   });
 
@@ -44,21 +44,21 @@ describe('Date parser', function () {
     var gregorianParser = typeParser.bind(null, 'gregorian');
 
     assert.deepEqual(parser.parse('12 A.D.'), {
-      type: 'gregorian',
+      _type: 'gregorian',
       label: '12 A.D.',
-      isoValue: '+0012'
+      'in': { year: '0012' }
     });
 
     assert.deepEqual(parser.parse('12 bc'), {
-      type: 'gregorian',
+      _type: 'gregorian',
       label: '12 bc',
-      isoValue: '-0011'
+      'in': { year: '-0011' }
     });
 
     assert.deepEqual(parser.parse('12 BCE'), {
-      type: 'gregorian',
+      _type: 'gregorian',
       label: '12 BCE',
-      isoValue: '-0011'
+      'in': { year: '-0011' }
     });
 
     assert.deepEqual(parser.parse('12 bc').value, parser.parse('12 B.C.').value);
@@ -76,52 +76,101 @@ describe('Date parser', function () {
       });
     }
     assert.deepEqual(parser.parse('5 b.p.'), {
-      type: 'bp2000',
+      _type: 'bp1950',
       label: '5 b.p.',
-      isoValue: '+1995'
+      'in': { year: '1945' }
     });
 
-    assert.deepEqual(makeBPParser('2000 BP', 1950)(), {
-      type: 'bp1950',
+    assert.deepEqual(makeBPParser('2000 BP', 2000)(), {
+      _type: 'bp2000',
       label: '2000 BP',
-      isoValue: '-0050'
+      'in': { year: '0000' }
+    });
+
+    assert.deepEqual(parser.parse('5 BP2000'), {
+      _type: 'bp2000',
+      label: '5 BP2000',
+      'in': { year: '1995' }
     });
   });
   
   it('should handle approximate dates', function () {
     assert.deepEqual(parser.parse('c. 5000 BCE'), {
-      type: 'gregorian',
+      _type: 'gregorian',
       label: 'c. 5000 BCE',
-      isoValue: '-4999',
-      approximate: true
+      'in': { year: '-4999' },
     });
 
     assert.deepEqual(parser.parse('~800'), {
-      type: 'iso8601',
+      _type: 'iso8601',
       label: '~800',
-      isoValue: '+0800',
-      approximate: true
+      'in': { year: '0800' },
     });
 
     assert.deepEqual(parser.parse('Ca. 12 AD'), {
-      type: 'gregorian',
+      _type: 'gregorian',
       label: 'Ca. 12 AD',
-      isoValue: '+0012',
-      approximate: true
+      'in': { year: '0012' },
     });
 
     assert.deepEqual(parser.parse('3200? BC'), {
-      type: 'gregorian',
+      _type: 'gregorian',
       label: '3200? BC',
-      isoValue: '-3199',
-      approximate: true
+      'in': { year: '-3199' },
     });
   });
 
   it('should handle descriptions of centuries or millenia', function () {
+    assert.deepEqual(parser.parse('21st century'), {
+      _type: 'gregorian',
+      label: '21st century',
+      'in': { earliestYear: '2001', latestYear: '2100' }
+    });
+
+    assert.deepEqual(parser.parse('21st century BC'), {
+      _type: 'gregorian',
+      label: '21st century BC',
+      'in': { earliestYear: '-2099', latestYear: '-2000' }
+    });
+
+    assert.deepEqual(parser.parse('early 21st century'), {
+      _type: 'gregorian',
+      label: 'early 21st century',
+      'in': { earliestYear: '2001', latestYear: '2034' }
+    });
+
+    assert.deepEqual(parser.parse('middle of the third century'), {
+      _type: 'gregorian',
+      label: 'middle of the third century',
+      'in': { earliestYear: '0234', latestYear: '0267' }
+    });
+
+    assert.deepEqual(parser.parse('First century BC'), {
+      _type: 'gregorian',
+      label: 'First century BC',
+      'in': { earliestYear: '-0099', latestYear: '0000'}
+    });
   });
 
   it('should handle date ranges', function () {
+    assert.deepEqual(parser.parse('410/314 BCE'), {
+      _type: 'gregorian',
+      label: '410/314 BCE',
+      'in': { earliestYear: '-0409', latestYear: '-0313' }
+    });
+
+    assert.deepEqual(parser.parse('1200/1400'), {
+      _type: 'iso8601',
+      label: '1200/1400',
+      'in': { earliestYear: '1200', latestYear: '1400' }
+    });
+  });
+
+  it('should accept \'present\'', function () {
+    assert.deepEqual(parser.parse('present'), {
+      _type: 'present',
+      label: 'present'
+    });
   });
 
 
