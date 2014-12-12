@@ -30,6 +30,7 @@
     "browserify-shim": "^3.5.0",
     "mocha": "^1.18.0",
     "node-underscorify": "0.0.9",
+    "serve": "^1.4.0",
     "testling": "^1.6.1",
     "watchify": "^0.9.0"
   },
@@ -69,6 +70,10 @@
     ]
   },
   "scripts": {
-    "test": "mocha -R spec src/tests/*.js"
+    "test": "mocha -R spec src/tests/*.js",
+    "start": "serve -p 8000",
+    "bundle": "mkdir -p dist && browserify -o dist/periodo.js src/app.js && lessc style.less dist/periodo.css",
+    "watch": "mkdir -p dist && watchify -v -d -o dist/periodo.js src/app.js & watch-lessc -i style.less -o dist/periodo.css"
+
   }
 }
