@@ -32,6 +32,7 @@
     "node-underscorify": "0.0.9",
     "serve": "^1.4.0",
     "testling": "^1.6.1",
+    "uglify-js": "^2.4.16",
     "watchify": "^0.9.0"
   },
   "browserify": {
@@ -71,9 +72,6 @@
   },
   "scripts": {
     "test": "mocha -R spec src/tests/*.js",
-    "start": "serve -p 8000",
-    "bundle": "mkdir -p dist && browserify -o dist/periodo.js src/app.js && lessc style.less dist/periodo.css",
-    "watch": "mkdir -p dist && watchify -v -d -o dist/periodo.js src/app.js & watch-lessc -i style.less -o dist/periodo.css"
-
+    "start": "serve -p 8000"
   }
 }
