@@ -83,12 +83,12 @@ ApplicationRouter = Backbone.Router.extend({
   index: function () {
     var that = this;
     var IndexView = require('./views/index');
+    var getMasterCollection = require('./master_collection');
 
-    var PeriodizationCollection = require('./collections/period_collection');
-    var periodCollections = new PeriodizationCollection();
-    periodCollections.fetch().then(function () {
-      that.changeView(IndexView, { collection: periodCollections });
+    getMasterCollection().then(function (masterCollection) {
+      that.changeView(IndexView, { collection: masterCollection });
     });
+
   },
 
   periodCollectionAdd: function () {
