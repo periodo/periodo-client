@@ -15,6 +15,23 @@ function wasLeftClick(e) {
     !e.altKey
 }
 
+function checkAuth() {
+  var auth
+    , $signin = $('#auth-signin-link')
+    , $signout = $('#auth-signout-link')
+
+  if ('auth' in localStorage) {
+    $signin.addClass('hide');
+
+    $signout
+      .removeClass('hide')
+      .find('span').text(JSON.parse(localStorage.auth).name);
+  } else {
+    $signin.removeClass('hide');
+    $signout.addClass('hide');
+  }
+}
+
 $(document).ready(function () {
   var router = new ApplicationRouter();
   var spinner = new Spinner({
@@ -30,6 +47,8 @@ $(document).ready(function () {
   router.on('sync error', function () {
     setTimeout(spinner.stop.bind(spinner), 100);
   })
+
+  checkAuth();
 
   Backbone._app = router;
   Backbone.history.start();
@@ -48,6 +67,8 @@ ApplicationRouter = Backbone.Router.extend({
     'periodCollections/:periodCollection/': 'periodCollectionShow',
     'periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'sync/': 'sync',
+    'signin/': 'signin',
+    'signout/': 'signout',
     'admin/': 'admin',
     'admin/submit/': 'submitPatch',
     'admin/apply/': 'applyPatch'
@@ -90,6 +111,16 @@ ApplicationRouter = Backbone.Router.extend({
   sync: function () {
     var SyncView = require('./views/sync');
     this.changeView(SyncView);
+  },
+
+  signin: function () {
+    var SignInView = require('./views/signin');
+    this.changeView(SignInView, { authCallback: checkAuth });
+  },
+
+  signout: function () {
+    var SignOutView = require('./views/signout');
+    this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
   admin: function () {
