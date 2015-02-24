@@ -1,3 +1,4 @@
+.hide { display: none; }
 .period-form {
   width: 540px;
   padding: 20px;
@@ -77,11 +78,11 @@ dl.source {
   border-bottom: 1px solid #ccc;
   border-radius: 0;
 
-  .container { position: relative; }
+  //.container { position: relative; }
   #spinner {
-    position: absolute;
-    right: 20px;
-    top: 50%;
+    //position: absolute;
+    //right: 20px;
+    //top: 50%;
   }
 }
 
@@ -143,4 +144,22 @@ svg .period:hover {
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
+}
+
+// ORCID
+#auth-menu li a { display: inline-block }
+#connect-orcid-link {
+  cursor: pointer;
+  color: #999;
+}
+
+a#connect-orcid-link:hover {
+  color: #338caf;
+}
+
+#orcid-id-logo {
+  display: block;
+  margin: 0 .5em 0 0;
+  padding: 0;
+  float: left;
 }
