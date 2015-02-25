@@ -48,7 +48,7 @@ module.exports = Backbone.View.extend({
         headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
         return Backbone.$.ajax({
-          url: url + 'dataset/',
+          url: url + 'd/',
           headers: headers
         }).then(function (dump, textStatus, xhr) {
           var promise

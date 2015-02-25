@@ -11,7 +11,7 @@ var Patch = Backbone.Model.extend({
   fetchAll: function () {
     var that = this;
 
-    var datasetP = $.get(TEMP_URL + 'dataset/').then(this.set.bind(this, 'target_dataset'));
+    var datasetP = $.get(TEMP_URL + 'd/').then(this.set.bind(this, 'target_dataset'));
     var patchP = this.fetch().then(function (data) {
       return $.get(data.text).then(that.set.bind(that, 'patch_text'));
     });

@@ -14,7 +14,7 @@ module.exports = Backbone.View.extend({
     var template = require('../templates/submit_patch.html');
     this.$el.html(template());
 
-    var dataset = $.get(TEMP_URL + 'dataset/').then(function (dataset) {
+    var dataset = $.get(TEMP_URL + 'd/').then(function (dataset) {
       console.log(dataset);
     });
   }
