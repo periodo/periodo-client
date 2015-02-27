@@ -53,6 +53,7 @@ function setDateMessage($el, parsed, view) {
 bindings = {
   period: {
     '#js-label': 'label',
+    '#js-spatialCoverageLabel': 'spatialCoverageDescription',
     '#js-note': 'note',
     '#js-startDate': {
       observe: 'start',

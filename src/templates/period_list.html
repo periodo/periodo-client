@@ -21,7 +21,16 @@
       <td><%= period.label %></td>
       <td><%= period.start.label %></td>
       <td><%= period.stop.label %></td>
-      <td><%= period.spatialCoverage.map(function (s) { return s.label }).join(', ') %></td>
+      <td>
+        <%
+        var countries = period.spatialCoverage.map(function (s) { return s.label }).join(', ')
+        if (period.spatialCoverageDescription) {
+        print(period.spatialCoverageDescription + ': (<span class="spatial-list">' + countries + '</span>)');
+        } else {
+          print(countries);
+        }
+        %>
+      </td>
       <td><%= period.note %></td>
     </tr>
     <% }); %>
