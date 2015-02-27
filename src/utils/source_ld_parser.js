@@ -9,7 +9,7 @@ var DEFAULT_PREDICATES = {
   title: ['http://purl.org/dc/terms/title', 'http://schema.org/name'],
   yearPublished: ['http://purl.org/dc/terms/date', 'http://schema.org/datePublished'],
   creators: ['http://purl.org/dc/terms/creator', 'http://schema.org/creator'],
-  contributors: ['http://purl.org/dc/terms/contributor', 'http://schema.org/contributor'],
+  contributors: ['http://purl.org/dc/terms/contributor', 'http://schema.org/contributor', 'http://schema.org/editor'],
   name: ['http://xmlns.com/foaf/0.1/name', 'http://schema.org/name']
 }
 
