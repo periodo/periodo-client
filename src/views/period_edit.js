@@ -55,6 +55,7 @@ bindings = {
     '#js-label': 'label',
     '#js-spatialCoverageLabel': 'spatialCoverageDescription',
     '#js-note': 'note',
+    '#js-source-note': 'sourceNote',
     '#js-startDate': {
       observe: 'start',
       initialize: function ($el, model, options) {
