@@ -1,6 +1,7 @@
 "use strict";
 
 var $ = require('jquery')
+  , _ = require('underscore')
   , Backbone = require('../backbone')
   , Creator = require('./creator')
   , CreatorCollection = require('../collections/creator')
@@ -24,6 +25,19 @@ module.exports = Backbone.RelationalModel.extend({
       collectionType: CreatorCollection
     }
   ],
+  validate: function (attrs) {
+    var errors = []
+      , hasCitation = attrs.citation
+
+    if (!this.ld && !hasCitation) {
+      errors.push({
+        field: 'citation',
+        message: 'This field is required for non-linked data sources.'
+      });
+    }
+
+    return errors.length ? errors : null;
+  },
   fetchLD: function () {
     var that = this
       , uri = this.id || ''
@@ -40,16 +54,25 @@ module.exports = Backbone.RelationalModel.extend({
         .then(parseSourceLD.bind(null, that.id))
     }
 
-    if (promise) return promise.done(that.set.bind(that));
+    if (promise) {
+      promise = promise
+        .then(that.set.bind(that))
+        .then(function () { that.ld = true })
+      return promise;
+    }
   },
   toJSON: function () {
     var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
-    if (ret.creators && !ret.creators.length) {
-      delete ret.creators;
+
+    for (var key in ret) {
+      if (_.isArray(ret[key])) {
+        ret[key] = ret[key].filter(function (item) { return !_.isEmpty(item) });
+      }
+      if (!ret[key] || !(ret[key]).length) {
+        delete ret[key];
+      }
     }
-    if (ret.contributors && !ret.contributors.length) {
-      delete ret.contributors;
-    }
+
     return ret;
   }
 })

@@ -1,16 +1,42 @@
-<div>
-  <p>
-  Period collections are based on source material. Paste text in the block below that contains a URL from a site supported by PeriodO.
-  </p>
-  <textarea></textarea>
-  <div class="message" style="position: relative;">
-    <span id="source-loading"></span>
-    <span id="message-text"></span>
+<h3>Non-linked data source</h3>
+<p>
+
+</p>
+<div class="col-md-6">
+<form>
+  <div class="form-group" data-field="citation">
+    <label for="source-citation">Citation (required)</label>
+    <p class="small">
+    Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.
+    </p>
+    <textarea class="form-control" rows=4 name="source-citation" id="source-citation" />
   </div>
-  <p>Currently supported formats:</p>
-  <ul>
-    <li>URLs from the <a href="http://worldcat.org">WorldCat</a> catalog.</li>
-    <li>URLs from <a href="http://dx.doi.org">DOI lookup service</a>, searchable with <a href="http://crossref.org">CrossRef</a></li>
-    <li>A DOI in the format doi:xxx.yyy (as included in many citation styles)</li>
-  </ul>
+
+  <div class="form-group">
+    <label for="source-url">URL</label>
+    <input class="form-control" name="source-url" id="source-url" type="text" />
+  </div>
+
+  <div class="form-group">
+    <label for="source-year-published">Year published</label>
+    <input class="form-control" name="source-year-published" id="source-year-published" type="text"/>
+  </div>
+
+  <div class="form-group" data-type="creators">
+    <label for="source-creators">Creators</label>
+    <div class="names"></div>
+  </div>
+  <div class="form-group" data-type="contributors">
+    <label for="source-contributors">Contributors</label>
+    <div class="names"></div>
+  </div>
+</form>
+<div class="text-center well clearfix">
+  <div class="pull-left">
+    <button id="js-cancel" class="btn btn-danger toggle-form-type">Cancel</button>
+  </div>
+  <div class="pull-right">
+    <button id="js-save" class="btn btn-primary">Save</button>
+  </div>
+</div>
 </div>

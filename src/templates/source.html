@@ -2,10 +2,21 @@
 var partOf = !!source.partOf;
 %>
 <dl class="dl-horizontal source">
+  <% var title = source.title || (source.partOf && source.partOf.title) %>
+  <% if (title) { %>
   <div>
     <dt>Title</dt>
     <dd><%= source.title || partOf && source.partOf.title %></dd>
   </div>
+  <% } %>
+
+  <% var citation = source.citation || (source.partOf && source.partOf.citation) %>
+  <% if (citation) { %>
+  <div>
+    <dt>Citation</dt>
+    <dd><%= source.citation || partOf && source.partOf.citation %></dd>
+  </div>
+  <% } %>
 
     <% var url = source.id || (source.partOf && source.partOf.id) || (source.url && [].concat(source.url)[0]) %>
     <% if (url) { %>

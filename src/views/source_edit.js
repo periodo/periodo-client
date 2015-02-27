@@ -2,71 +2,111 @@
 
 var Backbone = require('../backbone')
   , Source = require('../models/source')
-  , Spinner = require('spin.js')
+  , NameView
 
-var URL_PATTERNS = [
-  {
-    pattern: /worldcat.org\/.*?oclc\/(\d+).*/i,
-    replaceFn: function (match, oclcID) { return 'http://www.worldcat.org/oclc/' + oclcID }
-  },
-  {
-    pattern: /(?:dx.doi.org\/|doi:)([^\/]+\/[^\/\s]+)/i,
-    replaceFn: function (match, doi) { return 'http://dx.doi.org/' + doi }
-  }
-]
-
-module.exports = Backbone.View.extend({
-  initialize: function () {
-    this.render();
+NameView = Backbone.View.extend({
+  bindings: {
+    'input': 'name'
   },
   events: {
-    'input textarea': 'handleSourceTextChange'
+    'click .js-name-add': 'handleNameAdd',
+    'click .js-name-remove': 'handleNameRemove'
+  },
+  initialize: function () {
+    this.render();
+    this.stickit();
+  },
+  render: function () {
+    var template = require('../templates/source_name_form.html');
+    this.$el.html(template());
+  },
+  handleNameAdd: function (e) {
+    e.preventDefault();
+    if (this.model.get('name')) {
+      this.model.collection.add({ name: null });
+    }
+  },
+  handleNameRemove: function (e) {
+    e.preventDefault();
+    this.unstickit();
+    this.remove();
+    this.model.collection.remove(this.model);
+  }
+});
+
+module.exports = Backbone.View.extend({
+  events: {
+    'click #js-save': 'handleSave',
+    'click #js-cancel': 'handleCancel'
+  },
+  bindings: {
+    '#source-citation': 'citation',
+    '#source-url': 'url',
+    '#source-year-published': 'yearPublished'
+  },
+  initialize: function () {
+    this.model = new Source({
+      citation: null,
+      url: null,
+      datePublished: null,
+      creators: [{ name: null }],
+      contributors: [{ name: null }]
+    });
+
+    this.render();
+    this.stickit();
+
+    this.listenTo(this.model.get('creators'), 'add', this.addName.bind(this, 'creators'));
+    this.listenTo(this.model.get('creators'), 'remove', this.removeName.bind(this, 'creators'));
+    this.addName('creators', this.model.get('creators').at(0));
+
+    this.listenTo(this.model.get('contributors'), 'add', this.addName.bind(this, 'contributors'));
+    this.listenTo(this.model.get('contributors'), 'remove', this.removeName.bind(this, 'contributors'));
+    this.addName('contributors', this.model.get('contributors').at(0));
   },
   render: function () {
     var template = require('../templates/source_form.html');
     this.$el.html(template());
-    this.$srcMsg = this.$('#message-text');
-    this.spinner = new Spinner({
-      lines: 11,
-      length: 0,
-      width: 2,
-      radius: 4,
-      left: '-10px',
-      top: '50%'
-    });
-    this.$spinner = this.$('#source-loading');
   },
-  handleSourceTextChange: function (e) {
-    var that = this
-      , text = e.currentTarget.value
-      , match
-      , url
-      , source
+  addName: function (type, model) {
+    var $container = this.$('.form-group[data-type="' + type + '"] .names')
+      , nameView = new NameView({ model: model })
 
-    if (!text) {
-      this.$srcMsg.text('');
-      return;
+    $container.append(nameView.$el);
+    nameView.$('input').focus();
+
+  },
+  removeName: function (type, model) {
+    var $container = this.$('.form-group[data-type="' + type + '"] .names');
+    if (!$container.find('.input-group').length) {
+      this.model.get(type).add({ name: null });
     }
+  },
+  renderValidationErrors: function (errors) {
+    errors.forEach(function (error) {
+      var $container = null
+        , msg = '<div class="error-message alert alert-danger">' + error.message + '</div>';
 
-    for (var i = 0; i < URL_PATTERNS.length; i++) {
-      match = text.match(URL_PATTERNS[i].pattern);
-      if (match) {
-        url = match[0].replace(URL_PATTERNS[i].pattern, URL_PATTERNS[i].replaceFn);
-        break;
+      if (error.field) $container = this.$('[data-field="' + error.field + '"]');
+
+      if ($container && $container.length) {
+        $container.find('label').after(msg);
+      } else {
+        this.$('form').prepend(msg);
       }
-    }
-
-    if (!url) {
-      this.$srcMsg.text('Could not detect source');
+    }, this);
+  },
+  handleSave: function (e) {
+    var that = this;
+    e.preventDefault();
+    this.$('.error-message').hide();
+    if (this.model.isValid()) {
+      this.trigger('sourceSelected', this.model);
     } else {
-      source = Source.findOrCreate({ 'id': url });
-      this.$srcMsg.text('Fetching source information...');
-      this.$spinner.append(this.spinner.spin().el);
-      source.fetchLD().then(function () {
-        that.spinner.stop();
-        that.$srcMsg.text('');
-        that.trigger('sourceSelected', source);
-      });
+      this.renderValidationErrors(this.model.validationError);
     }
+  },
+  handleCancel: function (e) {
+    e.preventDefault();
   }
 });
