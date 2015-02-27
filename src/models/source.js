@@ -68,7 +68,7 @@ module.exports = Backbone.RelationalModel.extend({
       if (_.isArray(ret[key])) {
         ret[key] = ret[key].filter(function (item) { return !_.isEmpty(item) });
       }
-      if (!ret[key] || !(ret[key]).length) {
+      if (!ret[key]) {
         delete ret[key];
       }
     }
