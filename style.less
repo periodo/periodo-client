@@ -1,4 +1,34 @@
 .hide { display: none; }
+
+@footerHeight: 60px;
+@navBackground: #eee;
+
+html, body {
+  height: 100%;
+}
+
+#wrapper {
+  min-height: 100%;
+  height: auto !important;
+  margin: 0 auto -@footerHeight ;
+  padding-bottom: 1.25em;
+}
+
+#footer, .push {
+  height: @footerHeight;
+}
+
+#footer {
+  background: @navBackground;
+  border-top: 1px solid #ccc;
+}
+
+#version-number {
+  float: right;
+  line-height: @footerHeight;
+}
+
+
 .period-form {
   width: 540px;
   padding: 20px;
@@ -74,7 +104,7 @@ dl.source {
 }
 
 #nav {
-  background: #eee;
+  background: @navBackground;
   border-bottom: 1px solid #ccc;
   border-radius: 0;
 

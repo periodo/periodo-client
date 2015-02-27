@@ -9,23 +9,37 @@
     <link rel="stylesheet" type="text/css" href="/dist/periodo.css" />
   </head>
   <body>
-    <div id="nav" class="navbar">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">PeriodO</a>
-          <div id="spinner"></div>
-          <ul class="nav navbar-nav">
-            <!-- <li><a href="#admin/">Admin</a></li> -->
-          </ul>
+    <div id="wrapper">
+      <div id="nav" class="navbar">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">PeriodO</a>
+            <div id="spinner"></div>
+            <ul class="nav navbar-nav">
+              <!-- <li><a href="#admin/">Admin</a></li> -->
+            </ul>
+          </div>
+          <div class="navbar-header pull-right">
+            <ul id="auth-menu" class="nav navbar-nav">
+              <li id="auth-signin-link"><a href="#signin/">Sign in</a></li>
+              <li id="auth-signout-link" class="hide">Signed in as <span></span><a href="#signout/">Sign out</a></li>
+            </ul>
+          </div>
         </div>
-        <div class="navbar-header pull-right">
-          <ul id="auth-menu" class="nav navbar-nav">
-            <li id="auth-signin-link"><a href="#signin/">Sign in</a></li>
-            <li id="auth-signout-link" class="hide">Signed in as <span></span><a href="#signout/">Sign out</a></li>
-          </ul>
+      </div>
+      <div id="main" class="container"></div>
+      <div class="push"></div>
+    </div>
+    <div id="footer">
+      <div class="container">
+        <div id="version-number">
+          PeriodO client
+          <a href="https://github.com/periodo/periodo-client/tree/v0.0.3">
+            v0.1.0
+          </a>
+          &ndash; 27 February 2015
         </div>
       </div>
     </div>
-    <div id="main" class="container"></div>
   </body>
 </html>
