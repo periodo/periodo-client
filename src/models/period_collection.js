@@ -22,6 +22,7 @@ module.exports = Backbone.RelationalModel.extend({
     }
   ],
   parse: function (data, options) {
+    options = options || {};
     if (_.isObject(data.definitions)) {
       if (options.noMutate) data = JSON.parse(JSON.stringify(data));
       data.definitions = _.values(data.definitions);
