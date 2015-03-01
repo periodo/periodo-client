@@ -29,6 +29,8 @@ module.exports = Backbone.RelationalModel.extend({
     var errors = []
       , hasCitation = attrs.citation
 
+    // FIXME: "this.ld" will only be set when explicitly fetching ld, not
+    // when sources have just been loaded from text.
     if (!this.ld && !hasCitation) {
       errors.push({
         field: 'citation',
@@ -67,8 +69,10 @@ module.exports = Backbone.RelationalModel.extend({
     for (var key in ret) {
       if (_.isArray(ret[key])) {
         ret[key] = ret[key].filter(function (item) { return !_.isEmpty(item) });
-      }
-      if (!ret[key]) {
+        if (!ret[key].length) {
+          delete ret[key];
+        }
+      } else if (!ret[key]) {
         delete ret[key];
       }
     }
