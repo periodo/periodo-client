@@ -4,11 +4,23 @@
     <input class="form-control" id="js-label" type="text" />
   </div>
 
+  <div class="form-group" data-error-container="locator">
+    <label class="control-label" for="js-locator">Locator</label>
+    <input class="form-control" id="js-locator" placeholder="e.g. page 75" type="text" />
+  </div>
+
+  <div class="form-group" data-error-container="same-as">
+    <label class="control-label" for="js-same-as">Same As</label>
+    <input class="form-control long" id="js-same-as" placeholder="URL for this period in an external linked dataset" type="text" />
+  </div>
+
   <hr />
 
   <div class="form-group">
     <label>Spatial coverage description</label>
-    <input class="form-control" id="js-spatialCoverageLabel" type="text" />
+    <input class="form-control long" id="js-spatialCoverageLabel"
+    placeholder="A textual description for the list of regions chosen below."
+    type="text" />
   </div>
 
   <div class="form-group">
