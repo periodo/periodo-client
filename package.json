@@ -26,14 +26,14 @@
   },
   "devDependencies": {
     "brfs": "1.0.0",
-    "browserify": "^4.1.2",
+    "browserify": "^9.0.3",
     "browserify-shim": "^3.5.0",
     "mocha": "^1.18.0",
     "node-underscorify": "0.0.9",
     "serve": "^1.4.0",
     "testling": "^1.6.1",
     "uglify-js": "^2.4.16",
-    "watchify": "^0.9.0"
+    "watchify": "^2.4.0"
   },
   "browserify": {
     "transform": [
