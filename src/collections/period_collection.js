@@ -5,7 +5,9 @@ var _ = require('underscore')
   , Periodization = require('../models/period_collection')
 
 module.exports = Backbone.Collection.extend({
-  model: Periodization,
+  model: function (attrs, options) {
+    return Periodization.create(attrs, options)
+  },
   parse: function (data) {
     var periodCollections;
 

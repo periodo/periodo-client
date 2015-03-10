@@ -16,17 +16,20 @@ module.exports = function sync(method, object, options) {
       if (object instanceof Backbone.Model) {
         // Use backbone-relational to find this object
         // TODO: Fix if it doesn't exist
-        return object.constructor.find(object.id).toJSON();
+        return object.constructor.all().get({ id: object.id }).toJSON();
       } else {
         if (object instanceof PeriodizationCollection) {
           // Return full collection.
           // TODO: allow filtering, limiting, etc.
           return masterCollection.toJSON();
         }
+        // TODO THIS IS BROKEN
+        /*
         var collection = _.findWhere(Backbone.Relational.store._collections, {
           model: object.model
         })
         return collection && collection.toJSON();
+        */
       }
     } else if (method === 'put' && object instanceof PeriodizationCollection) {
       db = require('./db');
@@ -35,7 +38,8 @@ module.exports = function sync(method, object, options) {
         , newData = _.extend(localData, object.toJSON())
 
       return db.updateLocalData(newData, message).then(function () {
-        Backbone.Relational.store.reset();
+        // TODO Fix reset logic for Supermodel
+        // Backbone.Relational.store.reset();
         masterCollection.set(newData, { parse: true });
       });
     } else {

@@ -6,25 +6,13 @@ var $ = require('jquery')
   , Creator = require('./creator')
   , CreatorCollection = require('../collections/creator')
   , parseSourceLD = require('../utils/source_ld_parser')
+  , Supermodel = require('supermodel')
+  , Source
 
 var WORLDCAT_REGEX = /www.worldcat.org\/oclc\/(\d+)/
   , DXDOI_REGEX = /dx.doi.org\/(.*)/
 
-module.exports = Backbone.RelationalModel.extend({
-  relations: [
-    {
-      type: Backbone.HasMany,
-      key: 'creators',
-      relatedModel: Creator,
-      collectionType: CreatorCollection
-    },
-    {
-      type: Backbone.HasMany,
-      key: 'contributors',
-      relatedModel: Creator,
-      collectionType: CreatorCollection
-    }
-  ],
+Source = Supermodel.Model.extend({
   validate: function (attrs) {
     var errors = []
       , hasCitation = attrs.citation
@@ -64,7 +52,10 @@ module.exports = Backbone.RelationalModel.extend({
     }
   },
   toJSON: function () {
-    var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
+    var ret = Supermodel.Model.prototype.toJSON.call(this);
+
+    ret.creators = this.creators().map(function (creator) { return creator.toJSON() });
+    ret.contributors = this.contributors().map(function (contributor) { return contributor.toJSON() });
 
     for (var key in ret) {
       if (_.isArray(ret[key])) {
@@ -79,4 +70,18 @@ module.exports = Backbone.RelationalModel.extend({
 
     return ret;
   }
-})
+});
+
+Source.has().many('creators', {
+  collection: CreatorCollection,
+  inverse: 'source',
+  source: 'creators'
+});
+
+Source.has().many('contributors', {
+  collection: CreatorCollection,
+  inverse: 'source',
+  source: 'contributors'
+});
+
+module.exports = Source;

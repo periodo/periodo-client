@@ -7,7 +7,6 @@
   "dependencies": {
     "Dexie": "git://github.com/ptgolden/Dexie.js#package.json",
     "backbone": "^1.1.2",
-    "backbone-relational": "^0.8.8",
     "backbone.stickit": "^0.8.0",
     "d3": "^3.4.8",
     "deep-equal": "^0.2.1",
@@ -19,6 +18,7 @@
     "n3": "^0.2.7",
     "pegjs": "^0.8.0",
     "spin.js": "^2.0.1",
+    "supermodel": "git+https://github.com/pathable/supermodel.git",
     "tablesort": "^2.0.1",
     "traverse": "^0.6.6",
     "underscore": "^1.6.0",

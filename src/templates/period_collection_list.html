@@ -13,7 +13,7 @@
       <td>
         <a href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
           <%
-          var source = periodCollection.get('source');
+          var source = periodCollection.source();
           print(source.get('title')
              || source.get('citation')
              || source.get('partOf').title
@@ -21,7 +21,7 @@
           %>
         </a>
       </td>
-      <td><%= periodCollection.get('definitions').length %></td>
+      <td><%= periodCollection.definitions().length %></td>
       <% var timeSpan = periodCollection.getTimespan() %>
       <td data-sort="<%= timeSpan.lower ? timeSpan.lower.getEarliestYear() : undefined %>">
         <%= timeSpan.lower && timeSpan.lower.get('label') %>

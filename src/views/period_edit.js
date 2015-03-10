@@ -59,12 +59,12 @@ bindings = {
     '#js-note': 'note',
     '#js-editorial-note': 'editorialNote',
     '#js-startDate': {
-      observe: 'start',
+      observe: 'null',
       initialize: function ($el, model, options) {
-        this.parseStart = this.model.isNew() || this.model.get('start').isGeneratedFromParser();
+        this.parseStart = this.model.isNew() || this.model.start().isGeneratedFromParser();
         if ($el.val()) $el.trigger('input');
       },
-      onGet: function (value) { return value.get('label') },
+      onGet: function () { return this.model.start().get('label') },
       getVal: function ($el) {
         var label = $el.val(), parsed;
 
@@ -77,16 +77,17 @@ bindings = {
 
         this.$('#js-endDate').trigger('input');
         return parsed;
-      }
+      },
+      set: function (binding, value) { this.model.start().set(value) }
     },
     '#js-endDate': {
-      observe: 'stop',
+      observe: 'null',
       initialize: function ($el) {
-        this.parseStop = this.model.isNew() || this.model.get('stop').isGeneratedFromParser();
+        this.parseStop = this.model.isNew() || this.model.stop().isGeneratedFromParser();
         if ($el.val()) $el.trigger('input');
       },
-      onGet: function (value) { return value.get('label') },
-      getVal: function ($el, event, options) {
+      onGet: function () { return this.model.stop().get('label') },
+      getVal: function ($el) {
         var label = $el.val(), parsed;
 
         if (this.parseStop) {
@@ -95,7 +96,8 @@ bindings = {
         }
 
         return parsed;
-      }
+      },
+      set: function (binding, value) { this.model.stop().set(value) }
     }
   }
 }
@@ -140,7 +142,7 @@ module.exports = Backbone.View.extend({
     //this.updateDetectDateType();
 
     spatialCoverageView = new SpatialCoverageView({
-      collection: this.model.get('spatialCoverage'),
+      collection: this.model.spatialCoverage(),
       el: this.$('#js-spatial-coverage-container')
     });
 

@@ -3,13 +3,14 @@
 var _ = require('underscore')
   , Backbone = require('../backbone')
   , dateParser = require('../utils/date_parser')
+  , Supermodel = require('supermodel')
 
-module.exports = Backbone.RelationalModel.extend({
+module.exports = Supermodel.Model.extend({
   parse: function (data) {
     var ret = {};
     ret.label = data.label;
     ret = _.extend(ret, data.in || {});
-    return ret;
+    return Supermodel.Model.prototype.parse(ret);
   },
   getEarliestYear: function () {
     var year;

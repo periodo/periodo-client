@@ -48,21 +48,21 @@ module.exports = Backbone.View.extend({
     this.model = new Source({
       citation: null,
       url: null,
-      datePublished: null,
-      creators: [{ name: null }],
-      contributors: [{ name: null }]
+      datePublished: null
     });
+    this.model.creators().add({ name: null });
+    this.model.contributors().add({ name: null });
 
     this.render();
     this.stickit();
 
-    this.listenTo(this.model.get('creators'), 'add', this.addName.bind(this, 'creators'));
-    this.listenTo(this.model.get('creators'), 'remove', this.removeName.bind(this, 'creators'));
-    this.addName('creators', this.model.get('creators').at(0));
+    this.listenTo(this.model.creators(), 'add', this.addName.bind(this, 'creators'));
+    this.listenTo(this.model.creators(), 'remove', this.removeName.bind(this, 'creators'));
+    this.addName('creators', this.model.creators().at(0));
 
-    this.listenTo(this.model.get('contributors'), 'add', this.addName.bind(this, 'contributors'));
-    this.listenTo(this.model.get('contributors'), 'remove', this.removeName.bind(this, 'contributors'));
-    this.addName('contributors', this.model.get('contributors').at(0));
+    this.listenTo(this.model.contributors(), 'add', this.addName.bind(this, 'contributors'));
+    this.listenTo(this.model.contributors(), 'remove', this.removeName.bind(this, 'contributors'));
+    this.addName('contributors', this.model.contributors().at(0));
   },
   render: function () {
     var template = require('../templates/source_form.html');

@@ -79,7 +79,7 @@ module.exports = Backbone.View.extend({
 
     periodEditView.$el.on('click', '#js-delete-period', function () {
       var message = 'Deleted period ' + period.get('label');
-      that.model.get('definitions').remove(period);
+      that.model.definitions().remove(period);
       that.model.save(null, { validate: false, message: message }).then(function () {
         periodEditView.remove();
         that.render();
@@ -88,13 +88,13 @@ module.exports = Backbone.View.extend({
 
   },
   handleAddPeriod: function () {
-    var period = this.model.get('definitions').add({ start: {}, stop: {} });
+    var period = this.model.definitions().add({ start: {}, stop: {} });
     this.editPeriod(period);
   },
   handleEditPeriod: function (e) {
     var $row = this.$(e.currentTarget).closest('tr')
       , periodID = $row.data('period-id')
-      , period = this.model.get('definitions').get(periodID)
+      , period = this.model.definitions().get(periodID)
 
     this.editPeriod(period, $row);
   },

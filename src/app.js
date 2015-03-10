@@ -98,12 +98,16 @@ ApplicationRouter = Backbone.Router.extend({
 
   periodCollectionShow: function (periodCollectionID) {
     var that = this;
+    var getMasterCollection = require('./master_collection');
 
     var Periodization = require('./models/period_collection');
-    var periodCollection = Periodization.findOrCreate({ id: decodeURIComponent(periodCollectionID) });
+    //var periodCollection = Periodization.create({ id: decodeURIComponent(periodCollectionID) });
     var PeriodizationView = require('./views/period_collection_show')
 
-    periodCollection.fetch().then(function () {
+    getMasterCollection().then(function () {
+      var periodCollection = Periodization.all().get({
+        id: decodeURIComponent(periodCollectionID)
+      });
       that.changeView(PeriodizationView, { model: periodCollection });
     });
   },

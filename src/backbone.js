@@ -8,6 +8,5 @@ module.exports = Backbone;
 
 Backbone.$ = $;
 require('backbone.stickit');
-require('backbone-relational');
 Backbone.ajaxSync = Backbone.sync;
 Backbone.sync = sync;

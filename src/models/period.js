@@ -5,29 +5,11 @@ var _ = require('underscore')
   , SpatialCoverage = require('./spatial_item')
   , SpatialCoverageCollection = require('../collections/spatial_coverage')
   , PeriodTerminus = require('./period_terminus')
+  , Supermodel = require('supermodel')
+  , Period
 
-module.exports = Backbone.RelationalModel.extend({
+Period = Supermodel.Model.extend({
   skolemID: true,
-  relations: [
-    {
-      type: Backbone.HasOne,
-      key: 'start',
-      relatedModel: PeriodTerminus,
-      parse: true
-    },
-    {
-      type: Backbone.HasOne,
-      key: 'stop',
-      relatedModel: PeriodTerminus,
-      parse: true
-    },
-    {
-      type: Backbone.HasMany,
-      key: 'spatialCoverage',
-      relatedModel: SpatialCoverage,
-      collectionType: SpatialCoverageCollection
-    }
-  ],
   validate: function (attrs) {
     var errors = {}
       , hasStart = attrs.start && attrs.start.get('label') && attrs.start.hasYearData()
@@ -50,8 +32,38 @@ module.exports = Backbone.RelationalModel.extend({
     return _.isEmpty(errors) ? null : errors;
   },
   toJSON: function () {
-    var ret = Backbone.RelationalModel.prototype.toJSON.call(this);
+    var ret = Supermodel.Model.prototype.toJSON.call(this);
+
     delete ret.dateType;
+    delete ret.start_id;
+    delete ret.stop_id;
+
+    ret.start = this.start().toJSON();
+    ret.stop = this.stop().toJSON();
+    ret.spatialCoverage = this.spatialCoverage().map(function (coverage) {
+      return coverage.toJSON();
+    });
+
     return ret;
   }
 });
+
+Period.has().one('start', {
+  model: PeriodTerminus,
+  inverse: 'period',
+  source: 'start'
+});
+
+Period.has().one('stop', {
+  model: PeriodTerminus,
+  inverse: 'period',
+  source: 'stop'
+});
+
+Period.has().many('spatialCoverage', {
+  collection: SpatialCoverageCollection,
+  inverse: 'period',
+  source: 'spatialCoverage'
+});
+
+module.exports = Period;

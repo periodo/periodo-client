@@ -1,7 +1,6 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , Supermodel = require('supermodel')
 
-module.exports = Backbone.RelationalModel.extend({
-  fake: true
-});
+module.exports = Supermodel.Model.extend({});
