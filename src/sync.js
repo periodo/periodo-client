@@ -67,7 +67,9 @@ module.exports = function sync(method, object, options) {
       if (options && options.error) options.error(err);
       return err;
     }
-  );
+  ).catch(function (err) {
+    global.console.error(err.stack);
+  });
 
   if (Backbone._app) Backbone._app.trigger('request', object, promise, options);
   if (object) object.trigger('request', object, promise, options);
