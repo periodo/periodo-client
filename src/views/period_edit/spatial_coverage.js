@@ -44,7 +44,7 @@ module.exports = Backbone.View.extend({
       , $input
       , countries;
 
-    $input = this.$('input');
+    $input = this.$('input.country-autocomplete');
 
     countries = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
