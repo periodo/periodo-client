@@ -9,20 +9,26 @@ var _ = require('underscore')
   , Period
 
 Period = Supermodel.Model.extend({
+  defaults: {
+    start: {},
+    stop: {}
+  },
   skolemID: true,
   validate: function (attrs) {
     var errors = {}
-      , hasStart = attrs.start && attrs.start.get('label') && attrs.start.hasYearData()
-      , hasStop = attrs.stop && attrs.stop.get('label') && attrs.stop.hasYearData()
+      , start = this.start()
+      , stop = this.stop()
+      , hasStart = start.get('label') && start.hasYearData()
+      , hasStop = stop.get('label') && stop.hasYearData()
 
     function addError(label, err) { errors[label] = (errors[label] || []).concat(err) }
 
     if (hasStart && hasStop) {
-      if (attrs.stop.getLatestYear() < attrs.start.getEarliestYear()) {
-        addError('dates', 'A period\'s end must come after its start.')
+      if (stop.getLatestYear() < start.getEarliestYear()) {
+        addError('dates', 'A period\'s stop must come after its start.')
       }
     } else {
-      addError('dates', 'A period must have a stop and start date.')
+      addError('dates', 'A period must have start and stop dates.')
     }
 
     if (! (attrs.label && attrs.label.length) ) {
@@ -40,9 +46,11 @@ Period = Supermodel.Model.extend({
 
     ret.start = this.start().toJSON();
     ret.stop = this.stop().toJSON();
-    ret.spatialCoverage = this.spatialCoverage().map(function (coverage) {
-      return coverage.toJSON();
-    });
+    if (this.spatialCoverage().length) {
+      ret.spatialCoverage = this.spatialCoverage().map(function (coverage) {
+        return coverage.toJSON();
+      });
+    }
 
     return ret;
   }

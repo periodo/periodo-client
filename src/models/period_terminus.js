@@ -1,24 +1,18 @@
 "use strict";
 
 var _ = require('underscore')
-  , Backbone = require('../backbone')
   , dateParser = require('../utils/date_parser')
   , Supermodel = require('supermodel')
 
 module.exports = Supermodel.Model.extend({
-  parse: function (data) {
-    var ret = {};
-    ret.label = data.label;
-    ret = _.extend(ret, data.in || {});
-    return Supermodel.Model.prototype.parse(ret);
-  },
   getEarliestYear: function () {
-    var year;
+    var inRange = this.attributes.in || {}
+      , year
 
-    if (this.has('year')) {
-      year = this.get('year');
-    } else if (this.has('earliestYear')) {
-      year = this.get('earliestYear');
+    if (inRange.hasOwnProperty('year')) {
+      year = inRange.year;
+    } else if (inRange.hasOwnProperty('earliestYear')) {
+      year = inRange.earliestYear;
     } else if (this.get('label').toLowerCase() === 'present') {
       year = '' + (new Date().getFullYear());
     }
@@ -26,12 +20,13 @@ module.exports = Supermodel.Model.extend({
     return year ? parseInt(year, 10) : null;
   },
   getLatestYear: function () {
-    var year;
+    var inRange = this.attributes.in || {}
+      , year
 
-    if (this.has('year')) {
-      year = this.get('year');
-    } else if (this.has('latestYear')) {
-      year = this.get('latestYear');
+    if (inRange.hasOwnProperty('year')) {
+      year = inRange.year;
+    } else if (inRange.hasOwnProperty('latestYear')) {
+      year = inRange.latestYear;
     } else if (this.get('label').toLowerCase() === 'present') {
       year = '' + (new Date().getFullYear());
     }
@@ -39,10 +34,14 @@ module.exports = Supermodel.Model.extend({
     return year ? parseInt(year, 10) : null;
   },
   isRange: function () {
-    return this.has('earliestYear') || this.has('latestYear');
+    var inRange = this.attributes.in || {};
+    return inRange.hasOwnProperty('earliestYear') || inRange.hasOwnProperty('latestYear');
   },
   hasYearData: function () {
-    return this.has('year') || this.isRange() || this.get('label').toLowerCase() === 'present';
+    var inRange = this.attributes.in || {};
+    return inRange.hasOwnProperty('year') ||
+      this.isRange ||
+      this.get('label').toLowerCase() === 'present';
   },
   isGeneratedFromParser: function () {
     var label = this.get('label'), parsed;
@@ -60,12 +59,13 @@ module.exports = Supermodel.Model.extend({
   },
   toJSON: function () {
     var ret = { label: this.get('label'), 'in': {} }
+      , inRange = this.attributes.in || {}
 
-    if (this.has('year')) {
-      ret.in.year = this.get('year');
+    if (inRange.hasOwnProperty('year')) {
+      ret.in.year = inRange.year;
     } else {
-      if (this.has('earliestYear')) ret.in.earliestYear = this.get('earliestYear');
-      if (this.has('latestYear')) ret.in.latestYear = this.get('latestYear');
+      if (inRange.hasOwnProperty('earliestYear')) ret.in.earliestYear = inRange.earliestYear;
+      if (inRange.hasOwnProperty('latestYear')) ret.in.latestYear = inRange.latestYear;
     }
 
     return ret;
