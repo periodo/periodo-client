@@ -1,14 +1,20 @@
-  <div class="form-group" data-error-container="label">
-    <label class="control-label" for="js-label">Label</label>
-    <input class="form-control" id="js-label" type="text" />
+<div class="row">
+  <div class="col-md-6 period-form-panel">
+    <div class="form-group" data-error-container="label">
+      <label class="control-label field-required-label" for="js-label">Label</label>
+      <input class="form-control" id="js-label" type="text" />
+    </div>
   </div>
 
-  <div class="form-group" data-error-container="locator">
-    <label class="control-label" for="js-locator">Locator</label>
-    <input class="form-control" id="js-locator" placeholder="e.g. page 75" type="text" />
-  </div>
+  <div class="col-md-6 period-form-panel">
+    <div class="form-group" data-error-container="locator">
+      <label class="control-label" for="js-locator">Locator</label>
+      <input class="form-control" id="js-locator" placeholder="Position within the source (e.g. page 75)" type="text" />
+    </div>
 
-  <div class="form-group" data-error-container="same-as">
-    <label class="control-label" for="js-same-as">Same As</label>
-    <input class="form-control long" id="js-same-as" placeholder="URL for this period in an external linked dataset" type="text" />
+    <div class="form-group" data-error-container="same-as">
+      <label class="control-label" for="js-same-as">Same As</label>
+      <input class="form-control long" id="js-same-as" placeholder="URL for this period in an external linked dataset" type="text" />
+    </div>
   </div>
+</div>

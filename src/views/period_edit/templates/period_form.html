@@ -1,32 +1,43 @@
 <div class="period-form">
-  <div id="js-period-general"></div>
-
-  <hr />
-
-  <div id="js-spatial-coverage"></div>
-
-  <hr />
-
-  <div id="js-temporal-coverage"></div>
-
-  <hr />
-
-  <div class="form-group">
-    <label class="control-label" for="js-note">Note</label>
-    <p class="small">Notes derived from the source</p>
-    <textarea class="form-control" id="js-note"></textarea>
+  <div class="period-form-header">
+    <h2><% print(isNew ? 'Add' : 'Edit') %> period</h2>
   </div>
 
-  <div class="form-group">
-    <label class="control-label" for="js-editorial-note">Editorial note</label>
-    <p class="small">Notes about the import process</p>
-    <textarea class="form-control" id="js-editorial-note"></textarea>
+  <div class="period-form-body">
+
+    <div id="js-period-general-container"></div>
+
+    <hr />
+
+    <div class="row">
+      <div id="js-spatial-coverage-container" class="period-form-panel col-md-6"></div>
+      <div id="js-temporal-coverage-container" class="period-form-panel col-md-6"></div>
+    </div>
+
+    <hr />
+
+    <div>
+      <h3>Notes</h3>
+      <div class="row">
+        <div class="form-group col-md-6 period-form-panel">
+          <label class="control-label" for="js-note">Note</label>
+          <p class="small">Notes derived from the source</p>
+          <textarea class="form-control long" id="js-note" rows=5></textarea>
+        </div>
+
+        <div class="form-group col-md-6 period-form-panel">
+          <label class="control-label" for="js-editorial-note">Editorial note</label>
+          <p class="small">Notes about the import process</p>
+          <textarea class="form-control long" id="js-editorial-note" rows=5></textarea>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div>
+  <div class="period-form-footer">
     <button type="button" id="js-save-period" class="btn btn-primary">Save</button>
     <button type="button" id="js-cancel-period" class="btn btn-default">Cancel</button>
     <button type="button" id="js-delete-period" class="btn btn-danger pull-right">Delete</button>
   </div>
-
 </div>

@@ -29,17 +29,53 @@ html, body {
 }
 
 
+// PERIOD FORM
+
 .period-form {
-  width: 540px;
-  padding: 20px;
   border: 1px solid #ccc;
   border-radius: 6px;
   margin-bottom: 2em;
+}
+
+.period-form-header, .period-form-footer {
+  background: #fafafa;
+  padding: 14px 20px;
+}
+
+.period-form-header {
+  h2 { margin: 0; }
+  border-bottom: 1px solid #ccc;
+  border-radius: 6px 6px 0 0;
+}
+
+.period-form-footer {
+  border-top: 1px solid #ccc;
+  border-radius: 0 0 6px 6px;
+  padding-top: 24px;
+  padding-bottom:24px;
+}
+
+.period-form-body {
+  padding: 20px;
+
+  .field-required-label:after {
+    content: "*";
+    color: red;
+    margin-left: 2px;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  .period-form-panel {
+    padding-right: 48px;
+  }
 
   input, select {
     width: 310px;
   }
-  input.long { width: 100% };
+  input.long, textarea.long { width: 100% };
 
   #js-dateType { display: inline-block !important; }
   #js-detect-dateType {
@@ -47,17 +83,8 @@ html, body {
     width: auto;
   }
 
-  #js-note {
-    width: 420px;
-  }
-
   #js-save-period, #js-cancel-period, #js-delete-period {
     margin-top: 1.5em;
-  }
-
-  #js-note {
-    width: 100%;
-    height: 6em;
   }
 
   .spatial-coverage-list {

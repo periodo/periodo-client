@@ -32,17 +32,17 @@ module.exports = Backbone.View.extend({
     this.subviews.spatialCoverage = new SpatialCoverageEditView({
       model: this.model,
       collection: this.model.spatialCoverage(),
-      el: this.$('#js-spatial-coverage')
+      el: this.$('#js-spatial-coverage-container')
     });
 
     this.subviews.general = new GeneralEditView({
       model: this.model,
-      el: this.$('#js-period-general')
+      el: this.$('#js-period-general-container')
     });
 
     this.subviews.temporalCoverage = new TemporalCoverageEditView({
       model: this.model,
-      el: this.$('#js-temporal-coverage')
+      el: this.$('#js-temporal-coverage-container')
     });
 
     this.listenTo(this.model, 'invalid', function (model, errors) {
@@ -54,8 +54,7 @@ module.exports = Backbone.View.extend({
   },
   render: function () {
     var template = require('./templates/period_form.html');
-    this.$el.html(template());
-    this.$el.prepend('<h3>' + (this.model.isNew() ? 'Add' : 'Edit') + ' period</h3>');
+    this.$el.html(template({ isNew: this.model.isNew() }));
   },
   appendErrors: function (label, messages) {
     var $container = this.$('[data-error-container=' + label + ']')

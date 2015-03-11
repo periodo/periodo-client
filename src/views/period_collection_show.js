@@ -42,7 +42,7 @@ module.exports = Backbone.View.extend({
         .css('margin', 'auto')
         .hide()
       $container
-        .append('<td colspan=6></td>').find('td')
+        .append('<td colspan=7></td>').find('td')
         .append(periodEditView.$el)
       $container
         .insertBefore($row)
