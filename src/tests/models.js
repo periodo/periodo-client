@@ -13,6 +13,33 @@ describe('Source model', function () {
   });
 });
 
+describe('Period terminus model', function () {
+  var PeriodTerminus = require('../models/period_terminus');
+
+  it('should be aware of its endpoints', function () {
+    var pt = new PeriodTerminus({ in: { year: '1900' }});
+    assert.equal(pt.hasYearData(), true);
+    assert.equal(pt.getEarliestYear(), 1900);
+    assert.equal(pt.getLatestYear(), 1900);
+  });
+});
+
+describe('Period model', function () {
+  var Period = require('../models/period');
+
+  it('should have starts and stops', function () {
+    var period = new Period();
+    assert.deepEqual(period.start().toJSON(), { in: {}, label: undefined });
+    assert.deepEqual(period.stop().toJSON(), { in: {}, label: undefined });
+  });
+
+  it('should let me set starts and stops', function () {
+    var period = new Period();
+    period.start().set({ in: { year: '1890' }, label: '1890' });
+    assert.deepEqual(period.start().toJSON(), { in: { year: '1890' }, label: '1890' });
+  });
+});
+
 describe('Period collection model', function () {
   var PeriodCollection = require('../models/period_collection')
     , sampleData = require('./data/period-collection.json')
