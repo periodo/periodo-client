@@ -1,14 +1,18 @@
 "use strict";
 
 var $ = require('jquery')
-  , Backbone = require('../backbone')
+  , Backbone = require('../../backbone')
 
 require('jquery-typeahead');
 
 module.exports = Backbone.View.extend({
+  bindings: {
+    '#js-spatialCoverageLabel': 'spatialCoverageDescription',
+  },
   initialize: function () {
 
     this.render();
+    this.stickit();
     this.initTypeahead();
 
     this.$ul = this.$('ul');
@@ -45,7 +49,7 @@ module.exports = Backbone.View.extend({
     countries = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
-      local: require('../data/dbpedia_countries.json')
+      local: require('../../data/dbpedia_countries.json')
     });
     countries.initialize();
 
@@ -60,7 +64,7 @@ module.exports = Backbone.View.extend({
         displayKey: 'label',
         source: countries.ttAdapter(),
         templates: {
-          suggestion: require('../templates/spatial_suggestion.html')
+          suggestion: require('./templates/spatial_suggestion.html')
         }
       })
       .on('typeahead:selected', function (e, suggestion) {
@@ -72,7 +76,7 @@ module.exports = Backbone.View.extend({
       })
   },
   render: function () {
-    var template = require('../templates/spatial_coverage.html');
+    var template = require('./templates/spatial_coverage_form.html');
     this.$el.html(template());
   }
 });
