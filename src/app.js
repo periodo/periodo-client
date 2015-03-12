@@ -8,6 +8,10 @@ var $ = require('jquery')
 
 var LEFT_CLICK = 1;
 
+function handleError(err) {
+  console.error(err.stack || err);
+}
+
 function wasLeftClick(e) {
   return e.which === LEFT_CLICK &&
     !e.shiftKey &&
@@ -87,7 +91,7 @@ ApplicationRouter = Backbone.Router.extend({
 
     getMasterCollection().then(function (masterCollection) {
       that.changeView(IndexView, { collection: masterCollection });
-    });
+    }).catch(handleError);
 
   },
 
@@ -109,7 +113,7 @@ ApplicationRouter = Backbone.Router.extend({
         id: decodeURIComponent(periodCollectionID)
       });
       that.changeView(PeriodizationView, { model: periodCollection });
-    });
+    }).catch(handleError);
   },
 
   sync: function () {
