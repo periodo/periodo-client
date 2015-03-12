@@ -69,6 +69,55 @@ Source = Supermodel.Model.extend({
     }
 
     return ret;
+  },
+  displayTitle: function () {
+    var creators = this.getCreators()
+      , year = this.getYearPublished() || 'unknown'
+      , title = this.getTitle()
+      , ret = ''
+
+    if (creators.length) {
+      if (creators.length > 2) {
+        ret += creators[0].name + ', et al.';
+      } else if (creators.length > 1) {
+        ret += creators[0].name + ' and ' + creators[1].name;
+      } else {
+        ret += creators[0].name;
+      }
+    }
+
+    if (ret) ret += ' ';
+    ret += '(' + year + ')';
+
+    if (ret) ret += ', ';
+
+    ret += title;
+
+    return ret;
+  },
+  getCreators: function () {
+    if (this.creators().length) {
+      return this.creators().toJSON();
+    } else if (this.has('partOf') && this.get('partOf').creators) {
+      return this.get('partOf').creators;
+    } else {
+      return [];
+    }
+  },
+  getYearPublished: function () {
+    if (this.has('yearPublished')) {
+      return this.get('yearPublished');
+    } else if (this.has('partOf') && this.get('partOf').yearPublished) {
+      return this.get('partOf').yearPublished;
+    } else {
+      return null;
+    }
+  },
+  getTitle: function () {
+    return this.get('title') ||
+      this.get('citation') ||
+      this.get('partOf').title ||
+      this.get('partOf').citation
   }
 });
 
