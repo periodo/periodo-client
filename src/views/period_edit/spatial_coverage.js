@@ -5,6 +5,41 @@ var $ = require('jquery')
 
 require('jquery-typeahead');
 
+function getSpatialCoverages() {
+  var Period = require('../../models/period');
+  var objects = Period.all().toJSON().reduce(function (acc, period) {
+    var desc = period.spatialCoverageDescription
+      , countries
+      , key
+
+    if (desc) {
+      countries = JSON.stringify(period.spatialCoverage);
+      key = desc + countries;
+      if (!(desc in acc)) {
+        acc[desc] = {
+          label: desc,
+          uses: {}
+        }
+      }
+      if (key in acc[desc].uses) {
+        acc[desc].uses[key].count += 1
+      } else {
+        acc[desc].uses[key] = {
+          count: 1,
+          countries: JSON.parse(countries)
+        }
+      }
+    }
+    return acc;
+  }, {});
+
+  return Object.keys(objects).map(function (key) {
+    var ret = objects[key];
+    ret.uses = Object.keys(ret.uses).map(function (k) { return ret.uses[k] });
+    return objects[key]
+  });
+}
+
 module.exports = Backbone.View.extend({
   bindings: {
     '#js-spatialCoverageLabel': 'spatialCoverageDescription',
@@ -14,6 +49,7 @@ module.exports = Backbone.View.extend({
     this.render();
     this.stickit();
     this.initTypeahead();
+    this.initCoverageType();
 
     this.$ul = this.$('ul');
 
@@ -39,10 +75,62 @@ module.exports = Backbone.View.extend({
       });
     this.views[item.cid] = $el;
   },
+  initCoverageType: function () {
+    var that = this
+      , $input = this.$('#js-spatialCoverageLabel')
+      , coverages
+
+
+    coverages = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      local: getSpatialCoverages()
+    })
+    coverages.initialize();
+
+    $input
+      .typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'coverages',
+        displayKey: 'label',
+        source: coverages.ttAdapter(),
+        templates: {
+          suggestion: require('./templates/spatial_description_suggestion.html')
+        }
+      })
+      .on('typeahead:selected', function (e, suggestion) {
+        var input = this;
+
+        if (suggestion.uses.length === 1) {
+          input.value = suggestion.label;
+          that.collection.remove(that.collection.models);
+          that.collection.add(suggestion.uses[0].countries);
+          input.blur();
+        } else {
+          input.blur();
+          var ModalView = require('./select_coverage_modal')
+            , view = new ModalView({ suggestion: suggestion });
+
+          view.$el.one('hide.bs.modal', function () {
+            var selectedCountries = view.selectedCountries;
+            if (selectedCountries) {
+              that.collection.remove(that.collection.models);
+              that.collection.add(selectedCountries);
+            }
+          });
+        }
+      });
+
+    $input.closest('.twitter-typeahead').css('width', '100%');
+  },
   initTypeahead: function () {
     var that = this
       , $input
-      , countries;
+      , countries
 
     $input = this.$('input.country-autocomplete');
 

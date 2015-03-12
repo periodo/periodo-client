@@ -1,0 +1,27 @@
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4>Choose spatial coverage description</h4>
+    </div>
+
+    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+      <p>Choose a specific use of the description <strong><%= suggestion.label %></strong>.</p>
+      <% suggestion.uses.forEach(function (use) { %>
+      <p>
+        <div><strong>Uses: <%= use.count %></strong></div>
+        <ul class="three-column-list">
+          <% use.countries.forEach(function (c) { %>
+          <li><%= c.label %></li>
+          <% }); %>
+        </ul>
+        <button class="btn select-countries btn-primary" data-countries='<%= JSON.stringify(use.countries) %>'>Select</button>
+      </p>
+      <% }) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    </div>
+  </div>
+</div>
