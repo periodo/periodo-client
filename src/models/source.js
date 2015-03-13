@@ -13,13 +13,16 @@ var WORLDCAT_REGEX = /www.worldcat.org\/oclc\/(\d+)/
   , DXDOI_REGEX = /dx.doi.org\/(.*)/
 
 Source = Supermodel.Model.extend({
+  isLinkedData: function () {
+    var id = this.get('id') || '';
+    return !!(id.match(WORLDCAT_REGEX) || id.match(DXDOI_REGEX));
+
+  },
   validate: function (attrs) {
     var errors = []
-      , hasCitation = attrs.citation
+      , hasCitation = attrs.citation || attrs.title
 
-    // FIXME: "this.ld" will only be set when explicitly fetching ld, not
-    // when sources have just been loaded from text.
-    if (!this.ld && !hasCitation) {
+    if (!this.isLinkedData() && !hasCitation) {
       errors.push({
         field: 'citation',
         message: 'This field is required for non-linked data sources.'
@@ -28,26 +31,33 @@ Source = Supermodel.Model.extend({
 
     return errors.length ? errors : null;
   },
-  fetchLD: function () {
+  clear: function (options) {
+    var ret = Supermodel.Model.prototype.clear.call(this, options);
+    this.contributors().reset([], options);
+    this.creators().reset([], options);
+    return ret;
+  },
+  fetchLD: function (url) {
     var that = this
-      , uri = this.id || ''
+      , uri = url || this.id || ''
       , ldUri
       , promise
 
     if (uri.match(WORLDCAT_REGEX)) {
       ldUri = 'http://experiment.worldcat.org/oclc/' + uri.match(WORLDCAT_REGEX)[1] + '.jsonld';
       promise = $.ajax(ldUri, {dataType: 'text', accepts: {text: 'application/ld+json'}})
-        .then(parseSourceLD.bind(null, that.id, null))
+        .then(parseSourceLD.bind(null, uri, null))
     } else if (uri.match(DXDOI_REGEX)) {
       ldUri = 'http://data.crossref.org/' + encodeURIComponent(uri.match(DXDOI_REGEX)[1]);
       promise = $.ajax(ldUri, {dataType: 'text', accepts: {text: 'text/turtle'}})
-        .then(parseSourceLD.bind(null, that.id))
+        .then(parseSourceLD.bind(null, uri))
     }
 
     if (promise) {
-      promise = promise
-        .then(that.set.bind(that))
-        .then(function () { that.ld = true })
+      promise = promise.then(function (data) {
+        var parsed = that.parse(data)
+        return that.set(parsed);
+      });
       return promise;
     }
   },

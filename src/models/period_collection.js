@@ -10,13 +10,40 @@ var _ = require('underscore')
 
 Periodization = Supermodel.Model.extend({
   skolemID: true,
+  defaults: {
+    source: {}
+  },
   parse: function (data, options) {
     options = options || {};
     if (_.isObject(data.definitions)) {
       if (options.noMutate) data = JSON.parse(JSON.stringify(data));
       data.definitions = _.values(data.definitions);
     }
-    return Supermodel.Model.prototype.parse(data, options);
+    return Supermodel.Model.prototype.parse.call(this, data, options);
+  },
+  clear: function (options) {
+    var ret = Supermodel.Model.prototype.clear.call(this, options);
+    this.definitions().reset([], options);
+    this.source().clear();
+    return ret;
+  },
+  validate: function (attrs) {
+    var errors = []
+      , source = this.source()
+      , sourceValid
+
+    if (!source || _.isEmpty(source.toJSON())) {
+      errors.push({
+        field: 'source',
+        message: 'A source is required for a period collection.'
+      });
+    } else {
+      if (!source.isValid()) {
+        errors = errors.concat(source.validationError);
+      }
+    }
+
+    return errors.length ? errors : null;
   },
   getTimespan: function () {
     var starts = this.definitions()
