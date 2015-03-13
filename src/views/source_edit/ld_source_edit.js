@@ -1,7 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
-  , Source = require('../models/source')
+var Backbone = require('../../backbone')
+  , Source = require('../../models/source')
   , Spinner = require('spin.js')
 
 var URL_PATTERNS = [
@@ -11,7 +11,12 @@ var URL_PATTERNS = [
   },
   {
     pattern: /(?:dx.doi.org\/|doi:)([^\/]+\/[^\/\s]+)/i,
-    replaceFn: function (match, doi) { return 'http://dx.doi.org/' + doi }
+    replaceFn: function (match, doi) {
+      if (doi[doi.length - 1] === '.') {
+        doi = doi.slice(0, -1);
+      }
+      return 'http://dx.doi.org/' + doi
+    }
   }
 ]
 
@@ -23,11 +28,10 @@ module.exports = Backbone.View.extend({
   id: 'ld-source',
   events: {
     'input textarea': 'handleSourceTextChange',
-    'click #js-accept-source': 'handleAcceptSource',
     'click #js-reject-source': 'handleRejectSource'
   },
   render: function () {
-    var template = require('../templates/ld_source_form.html');
+    var template = require('./templates/ld_source_form.html');
     this.$el.html(template());
     this.$srcMsg = this.$('#message-text');
     this.spinner = new Spinner({
@@ -63,31 +67,27 @@ module.exports = Backbone.View.extend({
     if (!url) {
       this.$srcMsg.html('<strong>Could not detect source</strong>');
     } else {
-      source = Source.findOrCreate({ 'id': url });
       this.$srcMsg.text('Fetching source information...');
       this.$spinner.append(this.spinner.spin().el);
-      source.fetchLD().then(function () {
+      this.model.fetchLD(url).then(function () {
+        that.model.set('id', url);
         that.spinner.stop();
         that.$srcMsg.text('');
-        that.handleSourceSelection.call(that, source);
+        that.handleSourceSelection.call(that);
       });
     }
   },
   handleSourceSelection: function (source) {
-    var template = require('../templates/source.html');
-    this.$('#source-information').html(template({ source: source.toJSON() }));
+    var template = require('../../templates/source.html');
+    this.$('#source-information').html(template({ source: this.model.toJSON() }));
     this.$('#source-accept-dialog').removeClass('hide');
-    this.$('#non-ld-source-toggle').addClass('hide');
-    this.model = source;
-  },
-  handleAcceptSource: function (e) {
-    this.trigger('sourceSelected', this.model);
+    this.$('#source-select').addClass('hide');
   },
   handleRejectSource: function (e) {
     this.$('textarea').val('');
     this.$('#source-information').html('');
     this.$('#source-accept-dialog').addClass('hide');
-    this.$('#non-ld-source-toggle').removeClass('hide');
-    this.model = null;
+    this.$('#source-select').removeClass('hide');
+    this.model.clear();
   }
 });

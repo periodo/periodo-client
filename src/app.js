@@ -116,6 +116,19 @@ ApplicationRouter = Backbone.Router.extend({
     }).catch(handleError);
   },
 
+  periodCollectionEdit: function (periodCollectionID) {
+    var that = this;
+    var Periodization = require('./models/period_collection');
+    var PeriodizationEditView = require('./views/period_collection_add');
+    var getMasterCollection = require('./master_collection');
+    getMasterCollection().then(function () {
+      var periodCollection = Periodization.all().get({
+        id: decodeURIComponent(periodCollectionID)
+      });
+      that.changeView(PeriodizationEditView, { model: periodCollection });
+    }).catch(handleError);
+  },
+
   sync: function () {
     var SyncView = require('./views/sync');
     this.changeView(SyncView);

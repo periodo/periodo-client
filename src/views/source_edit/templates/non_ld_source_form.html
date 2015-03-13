@@ -1,15 +1,16 @@
 <h3>Non-linked data source</h3>
-<p>
-
-</p>
-<div class="col-md-6">
-<form>
+<div>
   <div class="form-group" data-field="citation">
     <label for="source-citation">Citation (required)</label>
     <p class="small">
     Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.
     </p>
     <textarea class="form-control" rows=4 name="source-citation" id="source-citation" />
+  </div>
+
+  <div class="form-group">
+    <label for="source-title">Title</label>
+    <input class="form-control" name="source-title" id="source-title" type="text" />
   </div>
 
   <div class="form-group">
@@ -30,13 +31,5 @@
     <label for="source-contributors">Contributors</label>
     <div class="names"></div>
   </div>
-</form>
-<div class="text-center well clearfix">
-  <div class="pull-left">
-    <button id="js-cancel" class="btn btn-danger toggle-form-type">Cancel</button>
-  </div>
-  <div class="pull-right">
-    <button id="js-save" class="btn btn-primary">Save</button>
-  </div>
 </div>
-</div>
+

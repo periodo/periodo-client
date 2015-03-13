@@ -10,6 +10,19 @@ var sourceInformation = require('./source.html');
   <%= sourceInformation({ source: periodCollection.source }) %>
 </div>
 
+<% if (periodCollection.editorialNote) { %>
+<h2>Editorial note</h2>
+<p>
+<%= periodCollection.editorialNote %>
+</p>
+<% } %>
+
+<div>
+  <a class="btn btn-primary" href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/edit/">Edit period collection</a>
+</div>
+
+<hr />
+
 <h2>Periods</h2>
 <div>
   <div id="period-list-options">

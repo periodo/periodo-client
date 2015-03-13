@@ -8,7 +8,7 @@
 </style>
 
 <h3>Linked data source</h3>
-<div class="col-md-6" id="source-select">
+<div id="source-select">
   <p>
   Paste text in the block below that contains a URL from a site supported by PeriodO.
   </p>
@@ -25,19 +25,12 @@
   </div>
 </div>
 
-<div id="non-ld-source-toggle" class="col-md-6">
-  <div>
-    <button class="btn btn-default btn-lg toggle-form-type">My source is not linked data &rsaquo;</button>
-  </div>
-</div>
-
-<div id="source-accept-dialog" class="hide col-md-6">
+<div id="source-accept-dialog" class="hide">
   <div id="source-information"></div>
   <div id="source-confirm">
-    <p>Is this the correct source?</p>
+    <p>Incorrect source?</p>
     <div>
-      <button id="js-accept-source" class="btn btn-primary">Yes</button>
-      <button id="js-reject-source" class="btn btn-default">No</button>
+      <button id="js-reject-source" class="btn btn-danger">&lsaquo; Reset</button>
     </div>
   </div>
 </div>
