@@ -52,6 +52,8 @@ Period = Supermodel.Model.extend({
       });
     }
 
+    ret.type = 'PeriodDefinition';
+
     return ret;
   }
 });

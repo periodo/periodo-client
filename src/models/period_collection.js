@@ -46,6 +46,7 @@ Periodization = Supermodel.Model.extend({
       return acc;
     }, {});
     ret.source = this.source().toJSON();
+    ret.type = 'PeriodCollection';
     return ret;
   }
 });
