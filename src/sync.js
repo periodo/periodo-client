@@ -7,9 +7,10 @@ var _ = require('underscore')
 
 module.exports = function sync(method, object, options) {
    var PeriodizationCollection = require('./collections/period_collection')
-    , message = options && options.message
-    , promise
-    , db
+     , Periodization = require('./models/period_collection')
+     , message = options && options.message
+     , promise
+     , db
 
   promise = getMasterCollection().then(function (masterCollection) {
     if (method === 'read') {
@@ -42,17 +43,21 @@ module.exports = function sync(method, object, options) {
         // Backbone.Relational.store.reset();
         masterCollection.set(newData, { parse: true });
       });
-    } else {
+    } else if (object instanceof Periodization) {
       db = require('./db');
 
       if (method === 'create' && object.isNew()) object.set('id', genid());
 
-      if (object instanceof PeriodizationCollection.prototype.model && method === 'create') {
+      if (method === 'create') {
         masterCollection.add(object);
       }
 
+      if (method === 'delete') {
+        masterCollection.remove(object);
+      }
+
       return db.updateLocalData(masterCollection.toJSON(), message).then(function () {
-        return object.toJSON();
+        return (method === 'create' || method === 'update') ? object.toJSON() : null;
       });
     }
   }).then(
