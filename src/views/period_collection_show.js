@@ -1,17 +1,15 @@
 "use strict";
 
 var Backbone = require('../backbone')
-  , Dexie = require('Dexie')
   , genid = require('../utils/generate_skolem_id')
-  , getMasterCollection = require('../master_collection')
-  , N3 = require('n3')
   , stringify = require('json-stable-stringify')
 
 module.exports = Backbone.View.extend({
   events: {
     'click #js-add-period': 'handleAddPeriod',
     'click .edit-period': 'handleEditPeriod',
-    'click #period-list-options .nav-pills a': 'handleChangeFormat'
+    'click #period-list-options .nav-pills a': 'handleChangeFormat',
+    'click .download-file': 'handleSaveAs'
   },
   initialize: function () {
     this.render();
@@ -90,6 +88,22 @@ module.exports = Backbone.View.extend({
     });
 
   },
+  handleSaveAs: function (e) {
+    var saveAs = require('filesaver.js')
+      , filetype = e.currentTarget.dataset.filetype
+      , filename = encodeURIComponent(this.model.id) + '.' + filetype
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (filetype === 'csv') {
+      this.model.asCSV().then(function (data) {
+        var blob = new Blob([data], { type: 'text/csv' });
+        saveAs(blob, filename);
+      });
+    }
+
+  },
   handleAddPeriod: function () {
     var period = this.model.definitions().add({ start: {}, stop: {} });
     this.editPeriod(period);
@@ -116,91 +130,22 @@ module.exports = Backbone.View.extend({
 
     if (format === 'list') {
       var template = require('../templates/period_list.html');
-      this.$periodList.html(template({ periods: that.model.toJSON().definitions, editable: Backbone._app.currentBackend.editable }));
+      this.$periodList.html(template({
+        periods: that.model.toJSON().definitions,
+        editable: Backbone._app.currentBackend.editable
+      }));
     } else if (format === 'ttl') {
       var $pre = Backbone.$('<pre>');
-      this.toTurtle().then(function (result) {
+      this.model.asTurtle().then(function (result) {
         $pre.text(result);
         that.$periodList.html('').append($pre);
       });
     } else if (format === 'jsonld') {
-      this.toJSONLD().then(function (result) {
-        var $pre = Backbone.$('<pre>').text(stringify(result, { space: '  ' }));
-        that.$periodList.html('').append($pre);
-      });
+      var $pre = Backbone.$('<pre>').text(stringify(this.model.asJSONLD(), { space: '  ' }));
+      that.$periodList.html('').append($pre);
     } else if (format === 'viz') {
       var View = require('./period_collection_viz')
         , view = new View({ model: this.model, el: this.$periodList })
     }
-
-  },
-  toJSONLD: function () {
-    var that = this;
-
-    return new Dexie.Promise(function (resolve, reject) {
-      var json = that.model.toJSON();
-      json['@context'] = that.model.collection.context;
-      resolve(json);
-    });
-  },
-  toTurtle: function () {
-    var that = this;
-
-    return new Dexie.Promise(function (resolve, reject) {
-        var jsonld = require('jsonld');
-        var json = that.model.toJSON();
-
-        json['@context'] = that.model.collection.context;
-        jsonld.toRDF(json, function (err, dataset) {
-          if (err) { reject(err) }
-          var writer = N3.Writer({
-            skos: 'http://www.w3.org/2004/02/skos/core#',
-            dcterms: 'http://purl.org/dc/terms/',
-            foaf: 'http://xmlns.com/foaf/0.1/',
-            time: 'http://www.w3.org/2006/time#',
-            xsd: 'http://www.w3.org/2001/XMLSchema#',
-            periodo: 'http://perio.do/temporary/'
-          });
-
-          function processPart(part) {
-            var val;
-
-            if (part.type !== 'literal') return part.value;
-
-            val = '"' + part.value.replace(/"/g, '\\"') + '"';
-            if (part.datatype === 'http://www.w3.org/2001/XMLSchema#string') {
-              // Good!
-            } else if (part.datatype === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString') {
-              val += '@' + part.language;
-            } else {
-              val += '^^' + part.datatype;
-            }
-
-            return val;
-          }
-
-          function processTriple(triple) {
-            return {
-              subject: processPart(triple.subject),
-              predicate: processPart(triple.predicate),
-              object: processPart(triple.object)
-            }
-          }
-
-          dataset['@default'].forEach(function (triple) {
-            writer.addTriple(processTriple(triple));
-          });
-
-          writer.end(function (err, result) {
-            if (err) { reject(err) }
-            result = result
-              .replace(/\n</g, '\n\n<')
-              .replace(/(\n<.*?>) /g, "$1\n    ")
-
-            resolve(result);
-          });
-
-        });
-    });
   }
 });

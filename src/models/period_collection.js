@@ -1,8 +1,7 @@
 "use strict";
 
 var _ = require('underscore')
-  , Backbone = require('../backbone')
-  , Period = require('../models/period')
+  , Dexie = require('Dexie')
   , PeriodCollection = require('../collections/period')
   , Source = require('../models/source')
   , Supermodel = require('supermodel')
@@ -30,7 +29,6 @@ Periodization = Supermodel.Model.extend({
   validate: function (attrs) {
     var errors = []
       , source = this.source()
-      , sourceValid
 
     if (!source || _.isEmpty(source.toJSON())) {
       errors.push({
@@ -75,6 +73,109 @@ Periodization = Supermodel.Model.extend({
     ret.source = this.source().toJSON();
     ret.type = 'PeriodCollection';
     return ret;
+  },
+  asCSV: function () {
+    var that = this;
+    return new Dexie.Promise(function (resolve, reject) {
+      var csv = require('csv-write-stream')
+        , concat = require('concat-stream')
+
+      var headers = [
+        'label',
+        'start_label',
+        'earliest_start',
+        'latest_start',
+        'stop_label',
+        'earliest_stop',
+        'latest_stop',
+        'spatialCoverages',
+        'note',
+        'editorial_note',
+      /*'alternateLabels', */
+      ]
+      var writer = csv({ headers: headers });
+
+      writer.pipe(concat(function(data) {
+        resolve(data);
+      }));
+      that.definitions().forEach(function (period) {
+        writer.write([
+          period.get('label'),
+          period.start().get('label'),
+          period.start().getEarliestYear(),
+          period.start().getLatestYear(),
+          period.stop().get('label'),
+          period.stop().getEarliestYear(),
+          period.stop().getLatestYear(),
+          period.spatialCoverage().map(function (sc) { return sc.get('@id') }).join('|'),
+          period.get('note'),
+          period.get('editorialNote'),
+        ]);
+      });
+      writer.end();
+    });
+  },
+  asJSONLD: function () {
+    var json = this.toJSON();
+    json['@context'] = this.collection.context;
+    return json;
+  },
+  asTurtle: function () {
+    var that = this
+      , jsonld = require('jsonld')
+      , N3 = require('n3')
+
+    return new Dexie.Promise(function (resolve, reject) {
+      jsonld.toRDF(that.asJSONLD(), function (err, dataset) {
+        if (err) { reject(err) }
+        var writer = N3.Writer({
+          skos: 'http://www.w3.org/2004/02/skos/core#',
+          dcterms: 'http://purl.org/dc/terms/',
+          foaf: 'http://xmlns.com/foaf/0.1/',
+          time: 'http://www.w3.org/2006/time#',
+          xsd: 'http://www.w3.org/2001/XMLSchema#',
+          periodo: 'http://perio.do/temporary/'
+        });
+
+        function processPart(part) {
+          var val;
+
+          if (part.type !== 'literal') return part.value;
+
+          val = '"' + part.value.replace(/"/g, '\\"') + '"';
+          if (part.datatype === 'http://www.w3.org/2001/XMLSchema#string') {
+            // Good!
+          } else if (part.datatype === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString') {
+            val += '@' + part.language;
+          } else {
+            val += '^^' + part.datatype;
+          }
+
+          return val;
+        }
+
+        function processTriple(triple) {
+          return {
+            subject: processPart(triple.subject),
+            predicate: processPart(triple.predicate),
+            object: processPart(triple.object)
+          }
+        }
+
+        dataset['@default'].forEach(function (triple) {
+          writer.addTriple(processTriple(triple));
+        });
+
+        writer.end(function (err, result) {
+          if (err) { reject(err) }
+          result = result
+            .replace(/\n</g, '\n\n<')
+            .replace(/(\n<.*?>) /g, "$1\n    ")
+
+          resolve(result);
+        });
+      });
+    });
   }
 });
 
