@@ -1,0 +1,7 @@
+Select a db
+<ul>
+  <li><a href="#p/web/">Web</a></li>
+  <% localDBNames.forEach(function (dbName) { %>
+  <li><a href="#p/<%= dbName %>/"><%= dbName %></a></li>
+  <% }) %>
+</ul>

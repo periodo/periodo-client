@@ -8,10 +8,11 @@
     </tr>
   </thead>
   <tbody>
+  <% var p = localStorage.currentBackend %>
   <% periodCollections.forEach(function (periodCollection) { %>
     <tr>
       <td>
-        <a href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
+        <a href="#p/<%= p %>/periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
           <%= periodCollection.source().displayTitle() %>
         </a>
       </td>
