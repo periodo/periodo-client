@@ -17,9 +17,11 @@ var sourceInformation = require('./source.html');
 </p>
 <% } %>
 
+<% if (editable) { %>
 <div>
   <a class="btn btn-primary" href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/edit/">Edit period collection</a>
 </div>
+<% } %>
 
 <hr />
 
@@ -45,10 +47,12 @@ var sourceInformation = require('./source.html');
     </ul>
   </div>
   <div id="period-list">
-    <%= periodList({ periods: periodCollection.definitions }) %>
+    <%= periodList({ periods: periodCollection.definitions, editable: editable }) %>
   </div>
+<% if (editable) { %>
   <div id="add-period-container">
     <button id="js-add-period" class="btn btn-primary">Add period</button>
   </div>
   <div id="period-add"></div>
+<% } %>
 </div>

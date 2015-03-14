@@ -18,7 +18,10 @@ module.exports = Backbone.View.extend({
   },
   render: function () {
     var template = require('../templates/period_collection_show.html');
-    this.$el.html(template({ periodCollection: this.model.toJSON() }));
+    this.$el.html(template({
+      editable: Backbone._app.currentBackend.editable,
+      periodCollection: this.model.toJSON()
+    }));
 
     this.$periodAdd = this.$('#period-add');
     this.$periodList = this.$('#period-list');
@@ -113,7 +116,7 @@ module.exports = Backbone.View.extend({
 
     if (format === 'list') {
       var template = require('../templates/period_list.html');
-      this.$periodList.html(template({ periods: that.model.toJSON().definitions }));
+      this.$periodList.html(template({ periods: that.model.toJSON().definitions, editable: Backbone._app.currentBackend.editable }));
     } else if (format === 'ttl') {
       var $pre = Backbone.$('<pre>');
       this.toTurtle().then(function (result) {
@@ -135,22 +138,19 @@ module.exports = Backbone.View.extend({
     var that = this;
 
     return new Dexie.Promise(function (resolve, reject) {
-      getMasterCollection().then(function (masterCollection) {
-        var json = that.model.toJSON();
-        json['@context'] = masterCollection.context;
-        resolve(json);
-      });
+      var json = that.model.toJSON();
+      json['@context'] = that.model.collection.context;
+      resolve(json);
     });
   },
   toTurtle: function () {
     var that = this;
 
     return new Dexie.Promise(function (resolve, reject) {
-      getMasterCollection().then(function (masterCollection) {
         var jsonld = require('jsonld');
         var json = that.model.toJSON();
 
-        json['@context'] = masterCollection.context;
+        json['@context'] = that.model.collection.context;
         jsonld.toRDF(json, function (err, dataset) {
           if (err) { reject(err) }
           var writer = N3.Writer({
@@ -201,7 +201,6 @@ module.exports = Backbone.View.extend({
           });
 
         });
-      });
     });
   }
 });
