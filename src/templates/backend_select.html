@@ -1,0 +1,49 @@
+  <div>
+    <h2>Select backend</h2>
+    <p>Select a backend to use.</p>
+    <ul>
+
+      <% Object.keys(backends).forEach(function (k) { %>
+      <% var backend = backends[k]; %>
+      <li><a href="#p/<%= backend.name %>/"><%= backend.name %> (<%= backend.type %>)</a></li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <hr />
+
+  <div class="row">
+    <div id="js-backend-select" class="col-md-4">
+      <h2>Add backend</h2>
+      <div class="form-group">
+        <label for="js-backend-type">Type</label>
+        <select class="form-control" id="js-backend-type">
+          <option value="idb">IndexedDB (editable, stored locally)</option>
+          <option value="web">Web (read-only, accessed remotely)</option>
+        </select>
+      </div>
+
+      <div class="backend-form-controls" id="js-idb-form-controls">
+        <div class="form-group">
+          <label for="js-idb-name">Name</label>
+          <input class="form-control name-input" type="text" id="js-idb-name" />
+        </div>
+      </div>
+
+      <div class="backend-form-controls" id="js-web-form-controls">
+        <div class="form-group">
+          <label for="js-web-name">Name</label>
+          <input class="form-control name-input" type="text" id="js-web-name" />
+        </div>
+        <div class="form-group">
+          <label for="js-web-source">Source</label>
+          <input class="form-control" type="text" id="js-web-source" placeholder="URL of a PeriodO server." />
+        </div>
+      </div>
+
+      <div>
+        <button type="button" disabled="disabled" class="btn btn-primary" id="js-add-backend">Add</button>
+      </div>
+
+    </div>
+  </div>

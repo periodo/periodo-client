@@ -70,7 +70,7 @@ function getMasterCollection(backendName) {
     reset();
 
     if (backend.type === 'web') {
-      promise = getWebData(backend.httpLocation);
+      promise = getWebData(backend.url);
     } else if (backend.type === 'idb') {
       promise = getIDBData(backend.name);
     } else {

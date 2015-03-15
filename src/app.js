@@ -98,7 +98,7 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   backendSelect: function () {
-    var BackendSelectView = require('./views/db_select');
+    var BackendSelectView = require('./views/backend_select');
     this.changeView(BackendSelectView);
   },
 
