@@ -35,12 +35,12 @@ module.exports = function sync(method, object, options) {
     } else {
       // Not reading, so these are methods with side effects. Raise an error if
       // not using an editable data source.
-      if (!masterCollection.periodo.editable) {
+      if (!masterCollection.periodo.backend.editable) {
         throw new Error('Current data source is not editable. ' +
                         'Could not perform sync action "' + method + '".');
       }
 
-      db = require('./db')(masterCollection.periodo.name);
+      db = require('./db')(masterCollection.periodo.backend.name);
 
       if (object instanceof PeriodizationCollection) {
         // This is a sync operation

@@ -95,6 +95,12 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   welcome: function () {
+    var backend;
+
+    if (localStorage.currentBackend) {
+      backend = localStorage.currentBackend;
+      Backbone.history.navigate('p/' + backend + '/', { trigger: true, replace: true });
+    }
   },
 
   backendSelect: function () {
@@ -115,7 +121,11 @@ ApplicationRouter = Backbone.Router.extend({
 
   periodCollectionAdd: function (backend) {
     var PeriodizationAddView = require('./views/period_collection_add');
-    this.changeView(PeriodizationAddView);
+    var getMasterCollection = require('./master_collection');
+    var that = this;
+    getMasterCollection(backend).then(function (masterCollection) {
+      that.changeView(PeriodizationAddView);
+    }).catch(handleError);
   },
 
   periodCollectionShow: function (backend, periodCollectionID) {
@@ -148,8 +158,12 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   sync: function (backend) {
-    var SyncView = require('./views/sync');
-    this.changeView(SyncView);
+    var that = this;
+    var getMasterCollection = require('./master_collection');
+    getMasterCollection(backend).then(function () {
+      var SyncView = require('./views/sync');
+      that.changeView(SyncView);
+    }).catch(handleError);
   },
 
   signin: function () {

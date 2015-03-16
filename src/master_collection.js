@@ -51,6 +51,7 @@ function getMasterCollection(backendName) {
     , backend
     , backends
 
+  if (!backendName) backendName = currentBackend;
 
   // If switching backends, or if there's no collection at all, get master collection
   if (backendName !== currentBackend || !masterCollection) {

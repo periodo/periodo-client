@@ -62,7 +62,7 @@ module.exports = Backbone.View.extend({
       this.model.save(null, { message: message }).then(function (savedObj) {
         that.saved = true;
         var encodedURI = encodeURIComponent(savedObj.id);
-        Backbone.history.navigate('periodCollections/' + encodedURI + '/', { trigger: true });
+        Backbone.history.navigate('p/' + Backbone._app.currentBackend.name + '/periodCollections/' + encodedURI + '/', { trigger: true });
       }).catch(function (err) {
         console.error(err.stack || err);
       });
@@ -80,7 +80,7 @@ module.exports = Backbone.View.extend({
     if (confirmed) {
       this.model.destroy({ message: message }).then(function () {
         that.saved = true;
-        Backbone.history.navigate('/', { trigger: true });
+        Backbone.history.navigate('p/' + Backbone._app.currentBackend.name + '/', { trigger: true });
       }).catch(function (err) {
         console.error(err.stack || err);
       });
