@@ -11,7 +11,8 @@ var _ = require('underscore')
 Period = Supermodel.Model.extend({
   defaults: {
     start: {},
-    stop: {}
+    stop: {},
+    localizedLabel: { 'eng-latn': null }
   },
   skolemID: true,
   validate: function (attrs) {
