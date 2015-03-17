@@ -14,31 +14,6 @@ function parseDate(input) {
 
 }
 
-function formatMessage(json) {
-  if (json._type === 'present') return 'present';
-  if (!json.hasOwnProperty('in')) return '??????';
-  if (json.in.hasOwnProperty('year')) return 'year ' + parseInt(json.in.year, 10);
-  return 'range from ' + parseInt(json.in.earliestYear) + ' to ' + parseInt(json.in.latestYear);
-}
-
-function setDateMessage($el, parsed, view) {
-  var $msgEl = $el.next('div');
-
-  if (!$el.val()) {
-    $msgEl.text('')
-  } else if (parsed) {
-    $msgEl.text('Parsed as ' + formatMessage(parsed));
-  } else {
-    if (view.model.get('dateType')) {
-      $msgEl.text('Could not detect date in ' + view.model.get('dateType') + ' format.');
-    } else if (view.autodetectDate) {
-      $msgEl.text('Could not detect date.');
-    } else {
-      $msgEl.text('Date type must be set');
-    }
-  }
-}
-
 function makeBinding(model, terminusLabel, $autoparse) {
   var terminus = model[terminusLabel]()
     , autoparse = $autoparse.prop('checked')
@@ -76,9 +51,11 @@ function makeBinding(model, terminusLabel, $autoparse) {
   function refreshAutoparse($el) {
     if (autoparse) {
       $el.find('[class*="year-input"]').prop('disabled', 'disabled');
+      $el.find('.toggle-year-parts').addClass('hide');
       $el.trigger('input');
     } else {
       $el.find('[class*="year-input"]').prop('disabled', null);
+      $el.find('.toggle-year-parts').removeClass('hide');
     }
   }
 
@@ -87,12 +64,16 @@ function makeBinding(model, terminusLabel, $autoparse) {
     events: ['input'],
     initialize: function ($el) {
       refreshAutoparse($el);
+      $el.find('.toggle-year-parts').on('click', function () {
+        $el.find('.date-multi-year, .date-single-year').toggleClass('hide');
+      });
       $autoparse.on('change', function (e) {
         autoparse = $autoparse.prop('checked');
         refreshAutoparse($el);
       });
     },
-    destroy: function () {
+    destroy: function ($el) {
+      $el.find('.toggle-year-parts').off('click');
       $autoparse.off('change');
     },
     set: function (binding, value) {
