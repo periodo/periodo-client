@@ -100,6 +100,8 @@ ApplicationRouter = Backbone.Router.extend({
     if (localStorage.currentBackend) {
       backend = localStorage.currentBackend;
       Backbone.history.navigate('p/' + backend + '/', { trigger: true, replace: true });
+    } else {
+      Backbone.history.navigate('p/', { trigger: true, replace: true });
     }
   },
 
@@ -196,6 +198,8 @@ ApplicationRouter = Backbone.Router.extend({
       , Periodization = require('./models/period_collection')
       , Period = require('./models/period')
       , PeriodizationView = require('./views/period_collection_show')
+
+    key = 'p0' + key;
 
     getMasterCollection('web').then(function(masterCollection) {
       var match = Periodization.all().get({ id: key })
