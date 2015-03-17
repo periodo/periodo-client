@@ -1,6 +1,8 @@
 "use strict";
 
-var Backbone = require('../../backbone')
+var $ = require('jquery')
+  , _ = require('underscore')
+  , Backbone = require('../../backbone')
   , dateParser = require('../../utils/date_parser')
 
 function parseDate(input) {
@@ -37,38 +39,114 @@ function setDateMessage($el, parsed, view) {
   }
 }
 
-function makeBinding(model, terminusLabel) {
+function makeBinding(model, terminusLabel, $autoparse) {
   var terminus = model[terminusLabel]()
-    , autoparse = model.isNew() || terminus.isGeneratedFromParser();
+    , autoparse = $autoparse.prop('checked')
+
+  function refresh($el, val, opts) {
+    var label = val && val.label
+      , date = val && val.in
+      , $container
+
+    opts = opts || {};
+
+    if (opts.updateLabel) {
+      $el.find('.label-input').val(label);
+    }
+
+    if (!val || !date || _.isEmpty(date)) {
+      $el.find('[class*="year-input"]').val('');
+      return;
+    }
+
+    if (date.hasOwnProperty('year')) {
+      $el.find('.date-single-year')
+        .removeClass('hide')
+        .find('.year-input')
+        .val(date.year);
+      $el.find('.date-multi-year').addClass('hide');
+    } else {
+      $container = $el.find('.date-multi-year').removeClass('hide');
+      $container.find('.earliest-year-input').val(date.earliestYear);
+      $container.find('.latest-year-input').val(date.latestYear);
+      $el.find('.date-single-year').addClass('hide');
+    }
+  }
+
+  function refreshAutoparse($el) {
+    if (autoparse) {
+      $el.find('[class*="year-input"]').prop('disabled', 'disabled');
+      $el.trigger('input');
+    } else {
+      $el.find('[class*="year-input"]').prop('disabled', null);
+    }
+  }
 
   return {
     observe: 'null',
-    initialize: function ($el) { if ($el.val()) $el.trigger('input') },
-    set: function (binding, value) { terminus.set(value); },
-    onGet: function () { return terminus.get('label') },
+    events: ['input'],
+    initialize: function ($el) {
+      refreshAutoparse($el);
+      $autoparse.on('change', function (e) {
+        autoparse = $autoparse.prop('checked');
+        refreshAutoparse($el);
+      });
+    },
+    destroy: function () {
+      $autoparse.off('change');
+    },
+    set: function (binding, value) {
+      terminus.set(value);
+    },
+    onGet: function () {
+      return terminus.toJSON();
+    },
+    update: function($el, val, model, options) {
+      refresh($el, val, { updateLabel: true });
+    },
+    updateModel: true,
     getVal: function ($el) {
-      var label = $el.val()
-        , parsed
+      var label = $el.find('.label-input').val()
+        , data
 
       if (autoparse) {
-        parsed = parseDate(label);
-        setDateMessage($el, parsed, this);
+        data = parseDate(label);
+        refresh($el, data);
       } else {
-        // Handle dates not parsed automatically
+        data = { label: label, in: {}}
+        if ($el.find('.date-single-year').is(':visible')) {
+          data.in.year = $el.find('.year-input');
+        } else {
+          data.in.earliestYear = $el.find('.earlist-year-input');
+          data.in.latestYear = $el.find('.latest-year-input');
+        }
       }
 
-      if (terminusLabel === 'start') this.$('#js-endDate').trigger('input');
-
-      return parsed;
+      return data;
     }
   }
 }
 
+function autoparseTerminus(terminus) {
+  return !terminus.has('in') || _.isEmpty(terminus.get('in')) || terminus.isGeneratedFromParser();
+}
+
 module.exports = Backbone.View.extend({
   initialize: function () {
+    var autoparseStart = autoparseTerminus(this.model.start())
+      , autoparseStop = autoparseTerminus(this.model.stop())
+      , $autoparse
+
     this.render();
-    this.addBinding(null, '#js-startDate', makeBinding(this.model, 'start'));
-    this.addBinding(null, '#js-endDate', makeBinding(this.model, 'stop'));
+
+    $autoparse = this.$('#js-autoparse-dates')
+
+    if (autoparseStart && autoparseStop) {
+      $autoparse.prop('checked', 'checked')
+    }
+
+    this.addBinding(null, '.date-input-start', makeBinding(this.model, 'start', $autoparse));
+    this.addBinding(null, '.date-input-stop', makeBinding(this.model, 'stop', $autoparse));
     this.stickit();
   },
   render: function () {
