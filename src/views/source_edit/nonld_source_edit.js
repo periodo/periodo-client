@@ -1,7 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
-  , Source = require('../models/source')
+var Backbone = require('../../backbone')
+  , Source = require('../../models/source')
   , NameView
 
 NameView = Backbone.View.extend({
@@ -17,7 +17,7 @@ NameView = Backbone.View.extend({
     this.stickit();
   },
   render: function () {
-    var template = require('../templates/source_name_form.html');
+    var template = require('./templates/source_name_form.html');
     this.$el.html(template());
   },
   handleNameAdd: function (e) {
@@ -36,36 +36,45 @@ NameView = Backbone.View.extend({
 
 module.exports = Backbone.View.extend({
   events: {
+    /*
     'click #js-save': 'handleSave',
+    */
     'click #js-cancel': 'handleCancel'
   },
   bindings: {
     '#source-citation': 'citation',
+    '#source-title': 'title',
     '#source-url': 'url',
     '#source-year-published': 'yearPublished'
   },
   initialize: function () {
-    this.model = new Source({
-      citation: null,
-      url: null,
-      datePublished: null
-    });
-    this.model.creators().add({ name: null });
-    this.model.contributors().add({ name: null });
+    if (!this.model) {
+      this.model = new Source({
+        citation: null,
+        url: null,
+        datePublished: null
+      });
+    }
 
     this.render();
     this.stickit();
 
+    if (!this.model.creators().length) {
+      this.model.creators().add({ name: null });
+    }
     this.listenTo(this.model.creators(), 'add', this.addName.bind(this, 'creators'));
     this.listenTo(this.model.creators(), 'remove', this.removeName.bind(this, 'creators'));
-    this.addName('creators', this.model.creators().at(0));
+    this.model.creators().forEach(this.addName.bind(this, 'creators'));
 
+    if (!this.model.contributors().length) {
+      this.model.contributors().add({ name: null });
+    }
     this.listenTo(this.model.contributors(), 'add', this.addName.bind(this, 'contributors'));
     this.listenTo(this.model.contributors(), 'remove', this.removeName.bind(this, 'contributors'));
-    this.addName('contributors', this.model.contributors().at(0));
+    this.model.contributors().forEach(this.addName.bind(this, 'contributors'));
   },
   render: function () {
-    var template = require('../templates/source_form.html');
+    var template = require('./templates/non_ld_source_form.html');
     this.$el.html(template());
   },
   addName: function (type, model) {
@@ -79,7 +88,7 @@ module.exports = Backbone.View.extend({
   removeName: function (type, model) {
     var $container = this.$('.form-group[data-type="' + type + '"] .names');
     if (!$container.find('.input-group').length) {
-      this.model.get(type).add({ name: null });
+      this.model[type]().add({ name: null });
     }
   },
   renderValidationErrors: function (errors) {
@@ -96,6 +105,7 @@ module.exports = Backbone.View.extend({
       }
     }, this);
   },
+  /*
   handleSave: function (e) {
     var that = this;
     e.preventDefault();
@@ -106,6 +116,7 @@ module.exports = Backbone.View.extend({
       this.renderValidationErrors(this.model.validationError);
     }
   },
+  */
   handleCancel: function (e) {
     e.preventDefault();
   }

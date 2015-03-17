@@ -1,7 +1,9 @@
 <table class="table table-hover period-list">
   <thead>
     <tr>
+      <% if (editable) { %>
       <th></th>
+      <% } %>
       <th>Name</th>
       <th>Start</th>
       <th>Stop</th>
@@ -18,13 +20,15 @@
     <% Object.keys(periods).forEach(function (key) { %>
     <% var period = periods[key] %>
     <tr class="period" tabindex="0" data-period-id="<%= period.id %>">
+      <% if (editable) { %>
       <td class="edit"><button class="edit-period btn btn-primary btn-sm">Edit</button></td>
+      <% } %>
       <td><%= period.label %></td>
       <td><%= period.start.label %></td>
       <td><%= period.stop.label %></td>
       <td>
         <%
-        var countries = period.spatialCoverage.map(function (s) { return s.label }).join(', ')
+        var countries = (period.spatialCoverage || []).map(function (s) { return s.label }).join(', ')
         if (period.spatialCoverageDescription) {
         print(period.spatialCoverageDescription + ': (<span class="spatial-list">' + countries + '</span>)');
         } else {

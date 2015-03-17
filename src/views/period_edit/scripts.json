@@ -1,0 +1,877 @@
+[
+  {
+    "code": "Adlm",
+    "name": "Adlam",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Afak",
+    "name": "Afaka",
+    "date": "2010-12-21"
+  },
+  {
+    "code": "Aghb",
+    "name": "Caucasian Albanian",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Ahom",
+    "name": "Ahom, Tai Ahom",
+    "date": "2012-11-01"
+  },
+  {
+    "code": "Arab",
+    "name": "Arabic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Aran",
+    "name": "Arabic (Nastaliq variant)",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Armi",
+    "name": "Imperial Aramaic",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Armn",
+    "name": "Armenian",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Avst",
+    "name": "Avestan",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Bali",
+    "name": "Balinese",
+    "date": "2006-10-10"
+  },
+  {
+    "code": "Bamu",
+    "name": "Bamum",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Bass",
+    "name": "Bassa Vah",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Batk",
+    "name": "Batak",
+    "date": "2010-07-23"
+  },
+  {
+    "code": "Beng",
+    "name": "Bengali",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Blis",
+    "name": "Blissymbols",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Bopo",
+    "name": "Bopomofo",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Brah",
+    "name": "Brahmi",
+    "date": "2010-07-23"
+  },
+  {
+    "code": "Brai",
+    "name": "Braille",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Bugi",
+    "name": "Buginese",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Buhd",
+    "name": "Buhid",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Cakm",
+    "name": "Chakma",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Cans",
+    "name": "Unified Canadian Aboriginal Syllabics",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Cari",
+    "name": "Carian",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Cham",
+    "name": "Cham",
+    "date": "2009-11-11"
+  },
+  {
+    "code": "Cher",
+    "name": "Cherokee",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Cirt",
+    "name": "Cirth",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Copt",
+    "name": "Coptic",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Cprt",
+    "name": "Cypriot",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Cyrl",
+    "name": "Cyrillic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Cyrs",
+    "name": "Cyrillic (Old Church Slavonic variant)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Deva",
+    "name": "Devanagari (Nagari)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Dsrt",
+    "name": "Deseret (Mormon)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Dupl",
+    "name": "Duployan shorthand, Duployan stenography",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Egyd",
+    "name": "Egyptian demotic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Egyh",
+    "name": "Egyptian hieratic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Egyp",
+    "name": "Egyptian hieroglyphs",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Elba",
+    "name": "Elbasan",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Ethi",
+    "name": "Ethiopic (Geʻez)",
+    "date": "2004-10-25"
+  },
+  {
+    "code": "Geok",
+    "name": "Khutsuri (Asomtavruli and Nuskhuri)",
+    "date": "2012-10-16"
+  },
+  {
+    "code": "Geor",
+    "name": "Georgian (Mkhedruli)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Glag",
+    "name": "Glagolitic",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Goth",
+    "name": "Gothic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Gran",
+    "name": "Grantha",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Grek",
+    "name": "Greek",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Gujr",
+    "name": "Gujarati",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Guru",
+    "name": "Gurmukhi",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Hang",
+    "name": "Hangul (Hangŭl, Hangeul)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Hani",
+    "name": "Han (Hanzi, Kanji, Hanja)",
+    "date": "2009-02-23"
+  },
+  {
+    "code": "Hano",
+    "name": "Hanunoo (Hanunóo)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Hans",
+    "name": "Han (Simplified variant)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Hant",
+    "name": "Han (Traditional variant)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Hatr",
+    "name": "Hatran",
+    "date": "2012-11-01"
+  },
+  {
+    "code": "Hebr",
+    "name": "Hebrew",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Hira",
+    "name": "Hiragana",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Hluw",
+    "name": "Anatolian Hieroglyphs (Luwian Hieroglyphs, Hittite Hieroglyphs)",
+    "date": "2011-12-09"
+  },
+  {
+    "code": "Hmng",
+    "name": "Pahawh Hmong",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Hrkt",
+    "name": "Japanese syllabaries (alias for Hiragana + Katakana)",
+    "date": "2011-06-21"
+  },
+  {
+    "code": "Hung",
+    "name": "Old Hungarian (Hungarian Runic)",
+    "date": "2012-10-16"
+  },
+  {
+    "code": "Inds",
+    "name": "Indus (Harappan)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Ital",
+    "name": "Old Italic (Etruscan, Oscan, etc.)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Java",
+    "name": "Javanese",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Jpan",
+    "name": "Japanese (alias for Han + Hiragana + Katakana)",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Jurc",
+    "name": "Jurchen",
+    "date": "2010-12-21"
+  },
+  {
+    "code": "Kali",
+    "name": "Kayah Li",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Kana",
+    "name": "Katakana",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Khar",
+    "name": "Kharoshthi",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Khmr",
+    "name": "Khmer",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Khoj",
+    "name": "Khojki",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Kitl",
+    "name": "Khitan large script",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Kits",
+    "name": "Khitan small script",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Knda",
+    "name": "Kannada",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Kore",
+    "name": "Korean (alias for Hangul + Han)",
+    "date": "2007-06-13"
+  },
+  {
+    "code": "Kpel",
+    "name": "Kpelle",
+    "date": "2010-03-26"
+  },
+  {
+    "code": "Kthi",
+    "name": "Kaithi",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Lana",
+    "name": "Tai Tham (Lanna)",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Laoo",
+    "name": "Lao",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Latf",
+    "name": "Latin (Fraktur variant)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Latg",
+    "name": "Latin (Gaelic variant)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Latn",
+    "name": "Latin",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Lepc",
+    "name": "Lepcha (Róng)",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Limb",
+    "name": "Limbu",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Lina",
+    "name": "Linear A",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Linb",
+    "name": "Linear B",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Lisu",
+    "name": "Lisu (Fraser)",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Loma",
+    "name": "Loma",
+    "date": "2010-03-26"
+  },
+  {
+    "code": "Lyci",
+    "name": "Lycian",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Lydi",
+    "name": "Lydian",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Mahj",
+    "name": "Mahajani",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Mand",
+    "name": "Mandaic, Mandaean",
+    "date": "2010-07-23"
+  },
+  {
+    "code": "Mani",
+    "name": "Manichaean",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Marc",
+    "name": "Marchen",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Maya",
+    "name": "Mayan hieroglyphs",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Mend",
+    "name": "Mende Kikakui",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Merc",
+    "name": "Meroitic Cursive",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Mero",
+    "name": "Meroitic Hieroglyphs",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Mlym",
+    "name": "Malayalam",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Modi",
+    "name": "Modi, Moḍī",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Mong",
+    "name": "Mongolian",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Moon",
+    "name": "Moon (Moon code, Moon script, Moon type)",
+    "date": "2006-12-11"
+  },
+  {
+    "code": "Mroo",
+    "name": "Mro, Mru",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Mtei",
+    "name": "Meitei Mayek (Meithei, Meetei)",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Mult",
+    "name": "Multani",
+    "date": "2012-11-01"
+  },
+  {
+    "code": "Mymr",
+    "name": "Myanmar (Burmese)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Narb",
+    "name": "Old North Arabian (Ancient North Arabian)",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Nbat",
+    "name": "Nabataean",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Nkgb",
+    "name": "Nakhi Geba ('Na-'Khi ²Ggŏ-¹baw, Naxi Geba)",
+    "date": "2009-02-23"
+  },
+  {
+    "code": "Nkoo",
+    "name": "N’Ko",
+    "date": "2006-10-10"
+  },
+  {
+    "code": "Nshu",
+    "name": "Nüshu",
+    "date": "2010-12-21"
+  },
+  {
+    "code": "Ogam",
+    "name": "Ogham",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Olck",
+    "name": "Ol Chiki (Ol Cemet’, Ol, Santali)",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Orkh",
+    "name": "Old Turkic, Orkhon Runic",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Orya",
+    "name": "Oriya",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Osge",
+    "name": "Osage",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Osma",
+    "name": "Osmanya",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Palm",
+    "name": "Palmyrene",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Pauc",
+    "name": "Pau Cin Hau",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Perm",
+    "name": "Old Permic",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Phag",
+    "name": "Phags-pa",
+    "date": "2006-10-10"
+  },
+  {
+    "code": "Phli",
+    "name": "Inscriptional Pahlavi",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Phlp",
+    "name": "Psalter Pahlavi",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Phlv",
+    "name": "Book Pahlavi",
+    "date": "2007-07-15"
+  },
+  {
+    "code": "Phnx",
+    "name": "Phoenician",
+    "date": "2006-10-10"
+  },
+  {
+    "code": "Plrd",
+    "name": "Miao (Pollard)",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Prti",
+    "name": "Inscriptional Parthian",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Qaaa",
+    "name": "Reserved for private use (start)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Qabx",
+    "name": "Reserved for private use (end)",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Rjng",
+    "name": "Rejang (Redjang, Kaganga)",
+    "date": "2009-02-23"
+  },
+  {
+    "code": "Roro",
+    "name": "Rongorongo",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Runr",
+    "name": "Runic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Samr",
+    "name": "Samaritan",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Sara",
+    "name": "Sarati",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Sarb",
+    "name": "Old South Arabian",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Saur",
+    "name": "Saurashtra",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Sgnw",
+    "name": "SignWriting",
+    "date": "2006-10-10"
+  },
+  {
+    "code": "Shaw",
+    "name": "Shavian (Shaw)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Shrd",
+    "name": "Sharada, Śāradā",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Sidd",
+    "name": "Siddham, Siddhaṃ, Siddhamātṛkā",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Sind",
+    "name": "Khudawadi, Sindhi",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Sinh",
+    "name": "Sinhala",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Sora",
+    "name": "Sora Sompeng",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Sund",
+    "name": "Sundanese",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Sylo",
+    "name": "Syloti Nagri",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Syrc",
+    "name": "Syriac",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Syre",
+    "name": "Syriac (Estrangelo variant)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Syrj",
+    "name": "Syriac (Western variant)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Syrn",
+    "name": "Syriac (Eastern variant)",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Tagb",
+    "name": "Tagbanwa",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Takr",
+    "name": "Takri, Ṭākrī, Ṭāṅkrī",
+    "date": "2012-02-06"
+  },
+  {
+    "code": "Tale",
+    "name": "Tai Le",
+    "date": "2004-10-25"
+  },
+  {
+    "code": "Talu",
+    "name": "New Tai Lue",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Taml",
+    "name": "Tamil",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Tang",
+    "name": "Tangut",
+    "date": "2010-12-21"
+  },
+  {
+    "code": "Tavt",
+    "name": "Tai Viet",
+    "date": "2009-06-01"
+  },
+  {
+    "code": "Telu",
+    "name": "Telugu",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Teng",
+    "name": "Tengwar",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Tfng",
+    "name": "Tifinagh (Berber)",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Tglg",
+    "name": "Tagalog (Baybayin, Alibata)",
+    "date": "2009-02-23"
+  },
+  {
+    "code": "Thaa",
+    "name": "Thaana",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Thai",
+    "name": "Thai",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Tibt",
+    "name": "Tibetan",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Tirh",
+    "name": "Tirhuta",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Ugar",
+    "name": "Ugaritic",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Vaii",
+    "name": "Vai",
+    "date": "2007-07-02"
+  },
+  {
+    "code": "Visp",
+    "name": "Visible Speech",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Wara",
+    "name": "Warang Citi (Varang Kshiti)",
+    "date": "2014-11-15"
+  },
+  {
+    "code": "Wole",
+    "name": "Woleai",
+    "date": "2010-12-21"
+  },
+  {
+    "code": "Xpeo",
+    "name": "Old Persian",
+    "date": "2006-06-21"
+  },
+  {
+    "code": "Xsux",
+    "name": "Cuneiform, Sumero-Akkadian",
+    "date": "2006-10-10"
+  },
+  {
+    "code": "Yiii",
+    "name": "Yi",
+    "date": "2004-05-01"
+  },
+  {
+    "code": "Zinh",
+    "name": "Code for inherited script",
+    "date": "2009-02-23"
+  },
+  {
+    "code": "Zmth",
+    "name": "Mathematical notation",
+    "date": "2007-11-26"
+  },
+  {
+    "code": "Zsym",
+    "name": "Symbols",
+    "date": "2007-11-26"
+  },
+  {
+    "code": "Zxxx",
+    "name": "Code for unwritten documents",
+    "date": "2011-06-21"
+  },
+  {
+    "code": "Zyyy",
+    "name": "Code for undetermined script",
+    "date": "2004-05-29"
+  },
+  {
+    "code": "Zzzz",
+    "name": "Code for uncoded script",
+    "date": "2006-10-10"
+  }
+]

@@ -1,14 +1,17 @@
 <h1>Home</h1>
 <div class="row">
+  <% var editable = backend.editable; %>
+  <% if (editable) { %>
   <div class="col-md-2">
     <h2>Actions</h2>
     <ul class="actions-list">
-      <li><a href="#periodCollections/add/" class="btn btn-primary">Add period collection</a></li>
-      <li><a href="#sync/" class="btn btn-primary">Sync with server</a></li>
+      <li><a href="#p/<%= backend.name %>/periodCollections/add/" class="btn btn-primary">Add period collection</a></li>
+      <li><a href="#p/<%= backend.name %>/sync/" class="btn btn-primary">Sync with server</a></li>
       <li><button id="js-delete-database" class="btn btn-danger">Delete database</button></li>
     </ul>
   </div>
-  <div class="col-md-10">
+  <% } %>
+  <div class="col-md-<%= editable ? 10 : 12 %>">
     <h2>Period collections</h2>
     <div id="periodization-list">
     </div>

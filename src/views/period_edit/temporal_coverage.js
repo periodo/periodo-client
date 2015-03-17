@@ -1,6 +1,8 @@
 "use strict";
 
-var Backbone = require('../../backbone')
+var $ = require('jquery')
+  , _ = require('underscore')
+  , Backbone = require('../../backbone')
   , dateParser = require('../../utils/date_parser')
 
 function parseDate(input) {
@@ -12,63 +14,120 @@ function parseDate(input) {
 
 }
 
-function formatMessage(json) {
-  if (json._type === 'present') return 'present';
-  if (!json.hasOwnProperty('in')) return '??????';
-  if (json.in.hasOwnProperty('year')) return 'year ' + parseInt(json.in.year, 10);
-  return 'range from ' + parseInt(json.in.earliestYear) + ' to ' + parseInt(json.in.latestYear);
-}
+function makeBinding(model, terminusLabel, $autoparse) {
+  var terminus = model[terminusLabel]()
+    , autoparse = $autoparse.prop('checked')
 
-function setDateMessage($el, parsed, view) {
-  var $msgEl = $el.next('div');
+  function refresh($el, val, opts) {
+    var label = val && val.label
+      , date = val && val.in
+      , $container
 
-  if (!$el.val()) {
-    $msgEl.text('')
-  } else if (parsed) {
-    $msgEl.text('Parsed as ' + formatMessage(parsed));
-  } else {
-    if (view.model.get('dateType')) {
-      $msgEl.text('Could not detect date in ' + view.model.get('dateType') + ' format.');
-    } else if (view.autodetectDate) {
-      $msgEl.text('Could not detect date.');
+    opts = opts || {};
+
+    if (opts.updateLabel) {
+      $el.find('.label-input').val(label);
+    }
+
+    if (!val || !date || _.isEmpty(date)) {
+      $el.find('[class*="year-input"]').val('');
+      return;
+    }
+
+    if (date.hasOwnProperty('year')) {
+      $el.find('.date-single-year')
+        .removeClass('hide')
+        .find('.year-input')
+        .val(date.year);
+      $el.find('.date-multi-year').addClass('hide');
     } else {
-      $msgEl.text('Date type must be set');
+      $container = $el.find('.date-multi-year').removeClass('hide');
+      $container.find('.earliest-year-input').val(date.earliestYear);
+      $container.find('.latest-year-input').val(date.latestYear);
+      $el.find('.date-single-year').addClass('hide');
     }
   }
-}
 
-function makeBinding(model, terminusLabel) {
-  var terminus = model[terminusLabel]()
-    , autoparse = model.isNew() || terminus.isGeneratedFromParser();
+  function refreshAutoparse($el) {
+    if (autoparse) {
+      $el.find('[class*="year-input"]').prop('disabled', 'disabled');
+      $el.find('.toggle-year-parts').addClass('hide');
+      $el.trigger('input');
+    } else {
+      $el.find('[class*="year-input"]').prop('disabled', null);
+      $el.find('.toggle-year-parts').removeClass('hide');
+    }
+  }
 
   return {
     observe: 'null',
-    initialize: function ($el) { if ($el.val()) $el.trigger('input') },
-    set: function (binding, value) { terminus.set(value); },
-    onGet: function () { return terminus.get('label') },
+    events: ['input'],
+    initialize: function ($el) {
+      refreshAutoparse($el);
+      $el.find('.toggle-year-parts').on('click', function () {
+        $el.find('.date-multi-year, .date-single-year').toggleClass('hide');
+      });
+      $autoparse.on('change', function (e) {
+        autoparse = $autoparse.prop('checked');
+        refreshAutoparse($el);
+      });
+    },
+    destroy: function ($el) {
+      $el.find('.toggle-year-parts').off('click');
+      $autoparse.off('change');
+    },
+    set: function (binding, value) {
+      terminus.set(value);
+    },
+    onGet: function () {
+      return terminus.toJSON();
+    },
+    update: function($el, val, model, options) {
+      refresh($el, val, { updateLabel: true });
+    },
+    updateModel: true,
     getVal: function ($el) {
-      var label = $el.val()
-        , parsed
+      var label = $el.find('.label-input').val()
+        , data
 
       if (autoparse) {
-        parsed = parseDate(label);
-        setDateMessage($el, parsed, this);
+        data = parseDate(label);
+        refresh($el, data);
       } else {
-        // Handle dates not parsed automatically
+        data = { label: label, in: {}}
+        if ($el.find('.date-single-year').is(':visible')) {
+          data.in.year = $el.find('.year-input');
+        } else {
+          data.in.earliestYear = $el.find('.earlist-year-input');
+          data.in.latestYear = $el.find('.latest-year-input');
+        }
       }
 
-      if (terminusLabel === 'start') this.$('#js-endDate').trigger('input');
-
-      return parsed;
+      return data;
     }
   }
+}
+
+function autoparseTerminus(terminus) {
+  return !terminus.has('in') || _.isEmpty(terminus.get('in')) || terminus.isGeneratedFromParser();
 }
 
 module.exports = Backbone.View.extend({
   initialize: function () {
+    var autoparseStart = autoparseTerminus(this.model.start())
+      , autoparseStop = autoparseTerminus(this.model.stop())
+      , $autoparse
+
     this.render();
-    this.addBinding(null, '#js-startDate', makeBinding(this.model, 'start'));
-    this.addBinding(null, '#js-endDate', makeBinding(this.model, 'stop'));
+
+    $autoparse = this.$('#js-autoparse-dates')
+
+    if (autoparseStart && autoparseStop) {
+      $autoparse.prop('checked', 'checked')
+    }
+
+    this.addBinding(null, '.date-input-start', makeBinding(this.model, 'start', $autoparse));
+    this.addBinding(null, '.date-input-stop', makeBinding(this.model, 'stop', $autoparse));
     this.stickit();
   },
   render: function () {

@@ -7,14 +7,15 @@ var _ = require('underscore')
 
 module.exports = function sync(method, object, options) {
    var PeriodizationCollection = require('./collections/period_collection')
-    , message = options && options.message
-    , promise
-    , db
+     , Periodization = require('./models/period_collection')
+     , message = options && options.message
+     , promise
+     , db
 
   promise = getMasterCollection().then(function (masterCollection) {
+
     if (method === 'read') {
       if (object instanceof Backbone.Model) {
-        // Use backbone-relational to find this object
         // TODO: Fix if it doesn't exist
         return object.constructor.all().get({ id: object.id }).toJSON();
       } else {
@@ -31,30 +32,60 @@ module.exports = function sync(method, object, options) {
         return collection && collection.toJSON();
         */
       }
-    } else if (method === 'put' && object instanceof PeriodizationCollection) {
-      db = require('./db');
-      // Merging a collection of periodCollections, as in a merge during sync
-      var localData = masterCollection.toJSON()
-        , newData = _.extend(localData, object.toJSON())
-
-      return db.updateLocalData(newData, message).then(function () {
-        // TODO Fix reset logic for Supermodel
-        // Backbone.Relational.store.reset();
-        masterCollection.set(newData, { parse: true });
-      });
     } else {
-      db = require('./db');
-
-      if (method === 'create' && object.isNew()) object.set('id', genid());
-
-      if (object instanceof PeriodizationCollection.prototype.model && method === 'create') {
-        masterCollection.add(object);
+      // Not reading, so these are methods with side effects. Raise an error if
+      // not using an editable data source.
+      if (!masterCollection.periodo.backend.editable) {
+        throw new Error('Current data source is not editable. ' +
+                        'Could not perform sync action "' + method + '".');
       }
 
-      return db.updateLocalData(masterCollection.toJSON(), message).then(function () {
-        return object.toJSON();
-      });
+      db = require('./db')(masterCollection.periodo.backend.name);
+
+      if (object instanceof PeriodizationCollection) {
+        // This is a sync operation
+        if (method === 'put') {
+          // Merging a collection of periodCollections, as in a merge during sync
+          var localData = masterCollection.toJSON()
+            , newData = _.extend(localData, object.toJSON())
+
+          return db.updateLocalData(newData, message).then(function () {
+            // TODO Fix reset logic for Supermodel
+            // Backbone.Relational.store.reset();
+            masterCollection.set(newData, { parse: true });
+          });
+        }
+
+        throw new Error('Method "' + method + '" is not valid for PeriodizationCollection objects.');
+      } 
+
+      if (object instanceof Periodization) {
+        // Saving a PeriodCollection
+
+        if (['create', 'update', 'delete'].indexOf(method) === -1) {
+          throw new Error('Method "' + method + '" is not valid for PeriodCollection objects.');
+        }
+
+        // Set a skolem ID for new PeriodCollection objects
+        if (method === 'create' && object.isNew()) {
+          object.set('id', genid());
+        }
+
+        if (method === 'create') {
+          masterCollection.add(object);
+        }
+
+        if (method === 'delete') {
+          masterCollection.remove(object);
+        }
+
+        return db.updateLocalData(masterCollection.toJSON(), message).then(function () {
+          return (method === 'create' || method === 'update') ? object.toJSON() : null;
+        });
+      }
     }
+
+    throw new Error('Could not perform sync action "' + method + '" with given object.');
   }).then(
     function (resp) {
       if (Backbone._app) Backbone._app.trigger('sync', object, resp);

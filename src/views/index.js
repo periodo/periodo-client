@@ -16,7 +16,7 @@ module.exports = Backbone.View.extend({
 
     this.collection.sort();
 
-    this.$el.html(template());
+    this.$el.html(template({ backend: this.collection.periodo.backend }));
     this.$('#periodization-list').html(listTemplate({ periodCollections: this.collection }));
 
 

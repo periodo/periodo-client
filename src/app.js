@@ -36,8 +36,14 @@ function checkAuth() {
   }
 }
 
+function refreshBackend(backend) {
+  Backbone._app.currentBackend = backend;
+  $('#current-backend').html('Current backend: ' + backend.name + ' [<a href="#p/">switch</a>]');
+  $('#periodo-logo').attr('href', '#p/' + backend.name + '/');
+}
+
 $(document).ready(function () {
-  var router = new ApplicationRouter();
+  var router = Backbone._app = new ApplicationRouter();
   var spinner = new Spinner({
     lines: 12,
     length: 5,
@@ -52,9 +58,10 @@ $(document).ready(function () {
     setTimeout(spinner.stop.bind(spinner), 100);
   })
 
+  router.on('backendSwitch', refreshBackend);
+
   checkAuth();
 
-  Backbone._app = router;
   Backbone.history.start();
 }).on('click a', function (e) {
   if (e.target.href && e.target.href.indexOf(root) === 0 && wasLeftClick(e)) {
@@ -65,17 +72,20 @@ $(document).ready(function () {
 
 ApplicationRouter = Backbone.Router.extend({
   routes: {
-    '': 'index',
-    'periodCollections/': 'periodCollectionList',
-    'periodCollections/add/': 'periodCollectionAdd',
-    'periodCollections/:periodCollection/': 'periodCollectionShow',
-    'periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
-    'sync/': 'sync',
-    'signin/': 'signin',
-    'signout/': 'signout',
-    'admin/': 'admin',
-    'admin/submit/': 'submitPatch',
-    'admin/apply/': 'applyPatch'
+    '': 'welcome',
+    'p/': 'backendSelect',
+    'p/:backend/': 'backendHome',
+    'p/:backend/periodCollections/': 'periodCollectionList',
+    'p/:backend/periodCollections/add/': 'periodCollectionAdd',
+    'p/:backend/periodCollections/:periodCollection/': 'periodCollectionShow',
+    'p/:backend/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
+    'p/:backend/sync/': 'sync',
+    'p/:backend/admin/': 'admin',
+    'p/:backend/admin/submit/': 'submitPatch',
+    'p/:backend/admin/apply/': 'applyPatch',
+    'p/signin/': 'signin',
+    'p/signout/': 'signout',
+    '*anything': 'attemptRedirect'
   },
   _view: null,
   changeView: function (ViewConstructor, options) {
@@ -84,23 +94,41 @@ ApplicationRouter = Backbone.Router.extend({
     this._view.$el.appendTo('#main');
   },
 
-  index: function () {
+  welcome: function () {
+    var backend;
+
+    if (localStorage.currentBackend) {
+      backend = localStorage.currentBackend;
+      Backbone.history.navigate('p/' + backend + '/', { trigger: true, replace: true });
+    }
+  },
+
+  backendSelect: function () {
+    var BackendSelectView = require('./views/backend_select');
+    this.changeView(BackendSelectView);
+  },
+
+  backendHome: function (backend) {
     var that = this;
     var IndexView = require('./views/index');
     var getMasterCollection = require('./master_collection');
 
-    getMasterCollection().then(function (masterCollection) {
+    getMasterCollection(backend).then(function (masterCollection) {
       that.changeView(IndexView, { collection: masterCollection });
     }).catch(handleError);
 
   },
 
-  periodCollectionAdd: function () {
+  periodCollectionAdd: function (backend) {
     var PeriodizationAddView = require('./views/period_collection_add');
-    this.changeView(PeriodizationAddView);
+    var getMasterCollection = require('./master_collection');
+    var that = this;
+    getMasterCollection(backend).then(function (masterCollection) {
+      that.changeView(PeriodizationAddView);
+    }).catch(handleError);
   },
 
-  periodCollectionShow: function (periodCollectionID) {
+  periodCollectionShow: function (backend, periodCollectionID) {
     var that = this;
     var getMasterCollection = require('./master_collection');
 
@@ -108,7 +136,7 @@ ApplicationRouter = Backbone.Router.extend({
     //var periodCollection = Periodization.create({ id: decodeURIComponent(periodCollectionID) });
     var PeriodizationView = require('./views/period_collection_show')
 
-    getMasterCollection().then(function () {
+    getMasterCollection(backend).then(function () {
       var periodCollection = Periodization.all().get({
         id: decodeURIComponent(periodCollectionID)
       });
@@ -116,9 +144,26 @@ ApplicationRouter = Backbone.Router.extend({
     }).catch(handleError);
   },
 
-  sync: function () {
-    var SyncView = require('./views/sync');
-    this.changeView(SyncView);
+  periodCollectionEdit: function (backend, periodCollectionID) {
+    var that = this;
+    var Periodization = require('./models/period_collection');
+    var PeriodizationEditView = require('./views/period_collection_add');
+    var getMasterCollection = require('./master_collection');
+    getMasterCollection(backend).then(function () {
+      var periodCollection = Periodization.all().get({
+        id: decodeURIComponent(periodCollectionID)
+      });
+      that.changeView(PeriodizationEditView, { model: periodCollection });
+    }).catch(handleError);
+  },
+
+  sync: function (backend) {
+    var that = this;
+    var getMasterCollection = require('./master_collection');
+    getMasterCollection(backend).then(function () {
+      var SyncView = require('./views/sync');
+      that.changeView(SyncView);
+    }).catch(handleError);
   },
 
   signin: function () {
@@ -131,18 +176,45 @@ ApplicationRouter = Backbone.Router.extend({
     this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
-  admin: function () {
+  admin: function (backend) {
     var AdminView = require('./views/admin');
     this.changeView(AdminView);
   },
 
-  submitPatch: function () {
+  submitPatch: function (backend) {
     var SubmitPatchView = require('./views/submit_patch');
     this.changeView(SubmitPatchView);
   },
 
-  applyPatch: function () {
+  applyPatch: function (backend) {
     var ApplyPatchView = require('./views/apply_patch');
     this.changeView(ApplyPatchView);
+  },
+
+  attemptRedirect: function (key) {
+    var getMasterCollection = require('./master_collection')
+      , Periodization = require('./models/period_collection')
+      , Period = require('./models/period')
+      , PeriodizationView = require('./views/period_collection_show')
+
+    getMasterCollection('web').then(function(masterCollection) {
+      var match = Periodization.all().get({ id: key })
+        , periodMatch
+        , redirect
+
+      if (!match) {
+        periodMatch = Period.all().get({ id: key });
+        if (periodMatch) {
+          match = periodMatch.collection.owner;
+        }
+      }
+
+      if (match) {
+        redirect = 'p/web/' + 'periodCollections/' + encodeURIComponent(match.get('id')) + '/';
+        Backbone.history.navigate(redirect, { trigger: true, replace: true });
+      } else {
+        // Render an error
+      }
+    });
   }
 });

@@ -1,8 +1,30 @@
-<h1>Add period collection</h1>
-<p>
-Period collections are based on source material.
-</p>
+<h1><%= action %> period collection</h1>
+<div class="misc-error-container"></div>
+<div class="row">
+  <h2>About</h2>
+  <div class="col-md-4">
+    <div class="form-group">
+      <label class="control-label" for="js-editorial-note">Editorial notes</label>
+      <p class="small">Notes about importing this source</p>
+      <textarea class="form-control" id="js-editorial-note" rows=5></textarea>
+    </div>
+  </div>
+</div>
+
 <div>
-  <div class="row" id="ld-source-select"></div>
-  <div class="row hide" id="no-ld-source-select"></div>
+  <h2>Source</h2>
+  <div data-field="source" id="js-edit-source-container"></div>
+</div>
+
+<div style="margin-top: 3em;" class="text-center well col-md-12">
+  <div class="pull-left">
+    <% var cancelHref = (action === 'Add') ? '#' : '#periodCollections/' + periodCollection.get('id') + '/' %>
+    <a class="btn btn-default" href="<%= cancelHref %>">Cancel</a>
+    <% if (!periodCollection.isNew()) { %>
+    <button class="btn btn-danger" id="js-delete-periodCollection">Delete collection</button>
+    <% } %>
+  </div>
+  <div class="pull-right">
+    <button id="js-save" class="btn btn-primary">Save</button>
+  </div>
 </div>

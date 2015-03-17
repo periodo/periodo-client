@@ -4,7 +4,6 @@ var Backbone = require('../backbone')
   , PeriodizationCollection = require('../collections/period_collection')
   , Dexie = require('Dexie')
   , Spinner = require('spin.js')
-  , db = require('../db')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -36,6 +35,7 @@ module.exports = Backbone.View.extend({
   },
   fetchData: function () {
     var url = this.url = this.$('#js-sync-root').val();
+    var db = require('../db')(Backbone._app.currentBackend.name);
 
     this.$periodList.hide();
     this.$acceptDialog.hide();

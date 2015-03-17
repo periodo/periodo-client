@@ -31,6 +31,7 @@ describe('Period form', function () {
     view.$('#js-endDate').val('1920').trigger('input');
     assert.deepEqual(view.model.toJSON(), {
       label: 'Progressive era',
+      type: 'PeriodDefinition',
       start: { in: { year: '1890' }, label: '1890' },
       stop: { in: { year: '1920' }, label: '1920' }
     });
