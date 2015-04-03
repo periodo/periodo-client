@@ -29,7 +29,7 @@ var sourceInformation = require('./source.html');
 
 <% if (editable) { %>
 <div>
-  <a class="btn btn-primary" href="#periodCollections/<%= encodeURIComponent(periodCollection.id) %>/edit/">Edit period collection</a>
+  <a class="btn btn-primary" href="#p/<%= localStorage.currentBackend %>/periodCollections/<%= encodeURIComponent(periodCollection.id) %>/edit/">Edit period collection</a>
 </div>
 <% } %>
 

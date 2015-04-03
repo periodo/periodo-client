@@ -18,7 +18,7 @@
 
 <div style="margin-top: 3em;" class="text-center well col-md-12">
   <div class="pull-left">
-    <% var cancelHref = (action === 'Add') ? '#' : '#periodCollections/' + periodCollection.get('id') + '/' %>
+    <% var cancelHref = '#p/' + localStorage.currentBackend + (action === 'Add') ? '' : '/periodCollections/' + periodCollection.get('id') + '/' %>
     <a class="btn btn-default" href="<%= cancelHref %>">Cancel</a>
     <% if (!periodCollection.isNew()) { %>
     <button class="btn btn-danger" id="js-delete-periodCollection">Delete collection</button>
