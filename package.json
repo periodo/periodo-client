@@ -5,7 +5,7 @@
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
   "dependencies": {
-    "Dexie": "git://github.com/ptgolden/Dexie.js#package.json",
+    "dexie": "^1.0.4",
     "backbone": "^1.1.2",
     "backbone.stickit": "^0.8.0",
     "concat-stream": "^1.4.7",

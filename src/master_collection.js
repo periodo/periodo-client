@@ -2,7 +2,7 @@
 
 var _ = require('underscore')
   , $ = require('jquery')
-  , Dexie = require('Dexie')
+  , Dexie = require('dexie')
   , Backbone = require('backbone')
   , masterCollection
   , currentBackend

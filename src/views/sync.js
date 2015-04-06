@@ -2,7 +2,7 @@
 
 var Backbone = require('../backbone')
   , PeriodizationCollection = require('../collections/period_collection')
-  , Dexie = require('Dexie')
+  , Dexie = require('dexie')
   , Spinner = require('spin.js')
 
 module.exports = Backbone.View.extend({

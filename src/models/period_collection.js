@@ -1,7 +1,7 @@
 "use strict";
 
 var _ = require('underscore')
-  , Dexie = require('Dexie')
+  , Dexie = require('dexie')
   , PeriodCollection = require('../collections/period')
   , Source = require('../models/source')
   , Supermodel = require('supermodel')

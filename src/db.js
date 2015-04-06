@@ -1,6 +1,6 @@
 "use strict";
 
-var Dexie = require('Dexie')
+var Dexie = require('dexie')
   , patchUtils = require('./utils/patch')
   , db
 
