@@ -68,6 +68,10 @@ module.exports = Supermodel.Model.extend({
       if (inRange.hasOwnProperty('latestYear')) ret.in.latestYear = inRange.latestYear;
     }
 
+    if (_.isEmpty(ret.in)) {
+      delete ret.in;
+    }
+
     return ret;
   }
 });

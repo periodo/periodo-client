@@ -35,6 +35,8 @@ module.exports = Backbone.Collection.extend({
       ret['@context'] = this.context;
     }
 
+    ret.type = 'rdf:Bag';
+
     return ret;
   }
 });

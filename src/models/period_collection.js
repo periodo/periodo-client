@@ -21,9 +21,9 @@ Periodization = Supermodel.Model.extend({
     return Supermodel.Model.prototype.parse.call(this, data, options);
   },
   clear: function (options) {
-    var ret = Supermodel.Model.prototype.clear.call(this, options);
     this.definitions().reset([], options);
     this.source().clear();
+    var ret = Supermodel.Model.prototype.clear.call(this, options);
     return ret;
   },
   validate: function (attrs) {

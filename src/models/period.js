@@ -8,11 +8,13 @@ var _ = require('underscore')
   , Supermodel = require('supermodel')
   , Period
 
+function isTrue(arg) { return !!arg }
+
 Period = Supermodel.Model.extend({
   defaults: {
     start: {},
     stop: {},
-    localizedLabel: { 'eng-latn': null }
+    alternateLabel: { 'eng-latn': [] }
   },
   skolemID: true,
   validate: function (attrs) {
@@ -51,6 +53,15 @@ Period = Supermodel.Model.extend({
       ret.spatialCoverage = this.spatialCoverage().map(function (coverage) {
         return coverage.toJSON();
       });
+    }
+
+    var alternateLabels = Object.keys(ret.alternateLabel).map(function (key) {
+      return ret.alternateLabel[key].length > 0
+    });
+
+
+    if (!alternateLabels.some(isTrue)) {
+      delete ret.alternateLabel;
     }
 
     ret.type = 'PeriodDefinition';
