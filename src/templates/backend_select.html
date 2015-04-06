@@ -2,10 +2,18 @@
     <h2>Select backend</h2>
     <p>Select a backend to use.</p>
     <ul>
-
-      <% Object.keys(backends).forEach(function (k) { %>
+      <% Object.keys(backends)
+        .sort(function (a, b) { return b === 'web' ? 1 : 0 })
+        .forEach(function (k) { %>
       <% var backend = backends[k]; %>
-      <li><a href="#p/<%= backend.name %>/"><%= backend.name %> (<%= backend.type %>)</a></li>
+      <li class="backend-option">
+        <% if (backend.name !== 'web') {%>
+        <a href="#" class="remove-backend js-remove-backend">
+          <img src="/lib/noun_304_cc.svg">
+        </a>
+        <% } %>
+        <a href="#p/<%= backend.name %>/"><%= backend.name %> (<%= backend.type %>)</a>
+      </li>
       <% }) %>
     </ul>
   </div>

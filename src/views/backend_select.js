@@ -7,6 +7,7 @@ module.exports = Backbone.View.extend({
   events: {
     'change select': 'handleSelect',
     'click #js-add-backend': 'handleAdd',
+    'click .js-remove-backend': 'handleRemove',
     'input': 'validateForm'
   },
   initialize: function () {
@@ -36,7 +37,7 @@ module.exports = Backbone.View.extend({
     if (type === 'idb') {
       var db = require('../db');
       name = form.find('#js-idb-name').val();
-      db(name);
+      db(name).on('ready', function () { window.location.reload() });
     } else if (type === 'web') {
       name = form.find('#js-web-name').val();
       url = form.find('#js-web-source').val();
@@ -51,7 +52,12 @@ module.exports = Backbone.View.extend({
       }
 
       localStorage.WebDatabaseNames = JSON.stringify(webBackends);
+      window.location.reload();
     }
+  },
+  handleRemove: function (e) {
+    e.preventDefault();
+    e.stopPropagation();
   },
   validateForm: function () {
     var form = $('.backend-form-controls:visible')
