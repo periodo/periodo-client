@@ -32,7 +32,7 @@ module.exports = Backbone.View.extend({
     '#js-label-language': {
       observe: 'localizedLabel',
       onGet: function (value) {
-        return Object.keys(value)[0];
+        return Object.keys(value || { 'eng-latn': ''})[0];
       }
     }
   },
