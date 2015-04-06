@@ -23,6 +23,8 @@ type = 'type' { return {
 periodcollection = 'periodCollections/' pcid:pcid ret:pctype {
   if (ret.type === 'periodCollection') {
     ret.id = pcid.join('');
+  } else {
+    ret.collection_id = pcid.join('');
   }
   return ret
 }

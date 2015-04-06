@@ -21,6 +21,7 @@
     "less": "^1.7.3",
     "n3": "^0.2.7",
     "pegjs": "^0.8.0",
+    "spark-md5": "0.0.5",
     "spin.js": "^2.0.1",
     "supermodel": "git+https://github.com/pathable/supermodel.git",
     "tablesort": "^2.0.1",
