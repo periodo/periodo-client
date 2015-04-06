@@ -1,6 +1,10 @@
 "use strict";
 
-var jsonpatch = require('fast-json-patch')
+var fs = require('fs')
+  , peg = require('pegjs')
+  , jsonpatch = require('fast-json-patch')
+  , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
+  , parser = peg.buildParser(grammar)
 
 module.exports = {
 
@@ -24,5 +28,22 @@ module.exports = {
         }
         return acc;
       }, []);
+  },
+
+  classifyDiff: function (diff) {
+    var path = typeof diff === 'object' ? diff.path : diff
+      , changedAttr
+
+    if (path === '/id' || path === '/primaryTopicOf') {
+      return null;
+    }
+
+    try {
+      changedAttr = parser.parse(path);
+    } catch (e) {
+      throw new Error('could not parse ' + path);
+    }
+
+    return changedAttr;
   }
 }
