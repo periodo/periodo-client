@@ -8,7 +8,7 @@
     "dexie": "^1.0.4",
     "backbone": "^1.1.2",
     "backbone.stickit": "^0.8.0",
-    "concat-stream": "^1.4.7",
+    "concat-stream": "^1.4.8",
     "csv-write-stream": "^0.3.0",
     "d3": "^3.4.8",
     "deep-equal": "^0.2.1",
@@ -26,20 +26,20 @@
     "supermodel": "git+https://github.com/pathable/supermodel.git",
     "tablesort": "^2.0.1",
     "traverse": "^0.6.6",
-    "underscore": "^1.6.0",
+    "underscore": "^1.8.3",
     "watch-lessc": "0.0.2"
   },
   "devDependencies": {
     "brfs": "1.0.0",
-    "browserify": "^9.0.3",
+    "browserify": "^9.0.7",
     "browserify-shim": "^3.5.0",
     "dom-sandbox": "0.0.1",
     "mocha": "^1.18.0",
     "node-underscorify": "0.0.9",
     "serve": "^1.4.0",
     "testling": "^1.6.1",
-    "uglify-js": "^2.4.16",
-    "watchify": "^2.4.0"
+    "uglify-js": "^2.4.19",
+    "watchify": "^3.1.0"
   },
   "browserify": {
     "transform": [
