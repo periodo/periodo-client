@@ -117,7 +117,7 @@ module.exports = function (dbName) {
     // Create an initial, empty dataset.
     db.localData.put({
       id: DUMPID,
-      data: { periodCollections: {} },
+      data: { periodCollections: {}, type: 'rdf:Bag' },
       modified: new Date().getTime()
     });
   });
