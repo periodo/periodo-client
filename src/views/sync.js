@@ -10,7 +10,8 @@ module.exports = Backbone.View.extend({
     'click #js-fetch-data': 'fetchData',
     'click #js-accept-new-periods': 'handleAcceptPeriodizations'
   },
-  initialize: function () {
+  initialize: function (opts) {
+    this.localData = opts.localData;
     this.render();
     this.url = null;
   },
@@ -21,7 +22,7 @@ module.exports = Backbone.View.extend({
     this.$fetchSpinner = this.$('#js-sync-loading');
     this.$syncSpinner = this.$('#js-sync-saving');
     this.$acceptDialog = this.$('#js-sync-dialog').hide();
-    this.$periodList = this.$('#js-list-periods').hide();
+    this.$changesList = this.$('#js-list-changes').hide();
     this.$success = this.$('#js-sync-success').hide();
 
     this.spinner = new Spinner({
@@ -37,7 +38,7 @@ module.exports = Backbone.View.extend({
     var url = this.url = this.$('#js-sync-root').val();
     var db = require('../db')(Backbone._app.currentBackend.name);
 
-    this.$periodList.hide();
+    this.$changesList.hide();
     this.$acceptDialog.hide();
     this.$fetchSpinner.append(this.spinner.spin().el);
 
@@ -78,15 +79,18 @@ module.exports = Backbone.View.extend({
       .finally(this.spinner.stop.bind(this.spinner))
   },
   handleDump: function (data) {
-    var template = require('../templates/period_collection_list.html')
-      , newPeriodizations = new PeriodizationCollection(data.dump.data, { parse: true })
+    var PatchDiffCollection = require('../collections/patch_diff')
+      , diffs = PatchDiffCollection.fromDatasets(this.localData.data, data.dump.data)
+      , template = require('../templates/changes_list.html')
 
-    this.collection = newPeriodizations;
+    // Get the difference between the local data and the dump
 
-    newPeriodizations.sort();
+    //this.collection = diffs;
 
-    this.$periodList.show().html(template({ periodCollections: newPeriodizations }));
-    this.$acceptDialog.show();
+    // newPeriodizations.sort();
+
+    this.$changesList.show().html(template({ diffs: diffs }));
+    //this.$acceptDialog.show();
   },
   handleAcceptPeriodizations: function () {
     var that = this;

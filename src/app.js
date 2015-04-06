@@ -160,11 +160,16 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   sync: function (backend) {
+    var db = require('./db');
     var that = this;
     var getMasterCollection = require('./master_collection');
+
+
     getMasterCollection(backend).then(function () {
-      var SyncView = require('./views/sync');
-      that.changeView(SyncView);
+      db(backend).getLocalData().then(function (localData) {
+        var SyncView = require('./views/sync');
+        that.changeView(SyncView, { localData: localData });
+      });
     }).catch(handleError);
   },
 

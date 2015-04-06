@@ -1,0 +1,62 @@
+<% if (!diffs.length) { %>
+<p>No changes from dataset.</p>
+<% } else { %>
+<%
+var description = diffs.asDescription();
+console.log(description);
+var PeriodCollection = require('../models/period_collection');
+var _ = require('underscore');
+%>
+<h3>Total changes: <%= diffs.length %></h3>
+
+<hr />
+
+<% if (description.periodCollection.add.length) { %>
+<h4>New period collections</h4>
+<div>
+  <input type="checkbox" />
+  <label>Select all</label>
+</div>
+<table class="table">
+  <tbody>
+  <% description.periodCollection.add.forEach(function (cid) { %>
+  <%
+    var patch = diffs.get(cid);
+    var json = patch.toJSON();
+    var periodCollection = new PeriodCollection(_.omit(json.value, 'id'), { parse: true });
+    var timeSpan = periodCollection.getTimespan();
+  %>
+  <tr class="select-patch">
+    <td class="toggle-patch-select"><input type="checkbox" /></td>
+    <td>
+      <div><%= periodCollection.source().displayTitle() %></div>
+      <div>Definitions: <%= periodCollection.definitions().length %></div>
+      <div>Time span: <%= timeSpan.lower.getEarliestYear() || 'unknown' %> to <%= timeSpan.upper.getLatestYear() || 'unknown' %></div>
+    </td>
+  </tr>
+  <% }); %>
+  </tbody>
+</table>
+<% } %>
+
+<% if (description.periodCollection.remove.length) { %>
+<h4>Deleted period collections</h4>
+<% } %>
+
+<% if (!_.isEmpty(description.periodCollection.edit)) { %>
+<h4>Edited period collections</h4>
+<% } %>
+
+<% if (description.period.add.length) { %>
+<h4>New periods</h4>
+<% } %>
+
+<% if (description.period.remove.length) { %>
+<h4>Deleted periods</h4>
+<% } %>
+
+<% if (!_.isEmpty(description.period.edit)) { %>
+<h4>Edited periods</h4>
+<% } %>
+
+<% } %>
