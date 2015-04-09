@@ -55,49 +55,52 @@ function getMasterCollection(backendName) {
 
   // If switching backends, or if there's no collection at all, get master collection
   if (backendName !== currentBackend || !masterCollection) {
-    backends = getBackends();
-    backend = backends[backendName];
+    promise = getBackends().then(function (backends) {
+      var masterCollectionPromise;
+
+      backend = backends[backendName];
 
 
-    if (!backend) throw new Error('No backend with name: ' + backendName);
+      if (!backend) throw new Error('No backend with name: ' + backendName);
 
-    /*
-    if (currentBackend) {
-      Backbone._app.trigger('backendReset');
+      /*
+      if (currentBackend) {
+        Backbone._app.trigger('backendReset');
+        reset();
+      }
+      */
+
       reset();
-    }
-    */
 
-    reset();
-
-    if (backend.type === 'web') {
-      promise = getWebData(backend.url);
-    } else if (backend.type === 'idb') {
-      promise = getIDBData(backend.name);
-    } else {
-      // TODO add "scratch" type
-      throw new Error('Invalid backend type: "' + backend.type + '"');
-    }
-
-    promise = promise.then(function (ret) {
-      ret.backend = backend;
-      return ret;
-    });
-
-    promise = promise.then(function (obj) {
-      var periodCollections = _.isEmpty(obj.data.periodCollections || {}) ? null : obj.data;
-      masterCollection = new PeriodizationCollection(periodCollections, { parse: true });
-
-      masterCollection.periodo = {};
-      for (var key in obj) {
-        if (key === 'data' || !obj.hasOwnProperty(key)) continue;
-        masterCollection.periodo[key] = obj[key];
+      if (backend.type === 'web') {
+        masterCollectionPromise = getWebData(backend.url);
+      } else if (backend.type === 'idb') {
+        masterCollectionPromise = getIDBData(backend.name);
+      } else {
+        // TODO add "scratch" type
+        throw new Error('Invalid backend type: "' + backend.type + '"');
       }
 
-      localStorage.currentBackend = currentBackend = obj.backend.name;
-      Backbone._app.trigger('backendSwitch', obj.backend);
+      masterCollectionPromise = masterCollectionPromise.then(function (ret) {
+        ret.backend = backend;
+        return ret;
+      });
 
-      return masterCollection;
+      return masterCollectionPromise.then(function (obj) {
+        var periodCollections = _.isEmpty(obj.data.periodCollections || {}) ? null : obj.data;
+        masterCollection = new PeriodizationCollection(periodCollections, { parse: true });
+
+        masterCollection.periodo = {};
+        for (var key in obj) {
+          if (key === 'data' || !obj.hasOwnProperty(key)) continue;
+          masterCollection.periodo[key] = obj[key];
+        }
+
+        localStorage.currentBackend = currentBackend = obj.backend.name;
+        Backbone._app.trigger('backendSwitch', obj.backend);
+
+        return masterCollection;
+      });
     });
   } else {
     promise = Dexie.Promise.resolve(masterCollection);

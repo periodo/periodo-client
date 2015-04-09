@@ -13,11 +13,14 @@ module.exports = Backbone.View.extend({
   initialize: function () {
     var that = this;
     this.render();
-    this.handleSelect();
   },
   render: function () {
+    var that = this;
     var template = require('../templates/backend_select.html');
-    this.$el.html(template({ backends: getBackends() }));
+    getBackends().then(function (backends) {
+      that.$el.html(template({ backends: backends }));
+      that.handleSelect();
+    });
   },
   handleSelect: function () {
     var selected = this.$('select').val()

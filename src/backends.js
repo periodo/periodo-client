@@ -1,30 +1,32 @@
 "use strict";
 
 var _ = require('underscore')
+  , Dexie = require('dexie')
 
 module.exports =  function() {
   var backends = {}
-    , dexieDBs = JSON.parse(localStorage['Dexie.DatabaseNames'] || '[]')
     , webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
-
-  dexieDBs.forEach(function (db) {
-    backends[db] = {
-      type: 'idb',
-      name: db,
-      editable: true
-    }
-  });
 
   backends = _.extend(backends, webDBs);
 
-  delete backends.web;
-  if (window.location.protocol.indexOf('http') !== -1) {
-    backends.web = {
-      type: 'web',
-      name: 'web',
-      url: window.location.origin + window.location.pathname,
-      editable: false
+  return Dexie.getDatabaseNames().then(function (dexieDBs) {
+    dexieDBs.forEach(function (db) {
+      backends[db] = {
+        type: 'idb',
+        name: db,
+        editable: true
+      }
+    });
+
+    delete backends.web;
+    if (window.location.protocol.indexOf('http') !== -1) {
+      backends.web = {
+        type: 'web',
+        name: 'web',
+        url: window.location.origin + window.location.pathname,
+        editable: false
+      }
     }
-  }
-  return backends;
+    return backends;
+  });
 }
