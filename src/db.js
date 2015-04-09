@@ -5,67 +5,13 @@ var Dexie = require('dexie')
   , md5 = require('spark-md5')
   , patchUtils = require('./utils/patch')
 
-var SYNC = 10
-  , MULTIPLE = 11
-  , CREATE_PERIOD_COLLECTION = 20
-  , DELETE_PERIOD_COLLECTION = 30
-  , EDIT_PERIOD_COLLECTION = 40
-  , CREATE_PERIOD = 50
-  , DELETE_PERIOD = 60
-  , EDIT_PERIOD = 70
-
 var DUMPID = 1;
 
-function classifyPatch(patch) {
-  var patchUtils = require('./utils/patch')
-    , classified = patchUtils.classifyDiff(patch.path)
 
-  if (classified.type === 'periodCollection' || classified.type === 'period') {
-    if (!classified.label) {
-      if (patch.op === 'add') {
-        classified._type = classified.type === 'periodCollection' ?
-          CREATE_PERIOD_COLLECTION : CREATE_PERIOD;
-      } else {
-        classified._type = classified.type === 'periodCollection' ?
-          DELETE_PERIOD_COLLECTION : DELETE_PERIOD;
-      }
-    } else {
-      classified._type = classified.type === 'periodCollection' ?
-        EDIT_PERIOD_COLLECTION : EDIT_PERIOD;
-    }
   }
 
-  return classified;
 }
 
-function getType(patchObj) {
-  var type
-    , classified
-
-  if (!!patch.message.match('synced data')) {
-    type = SYNC;
-  } else if (patch.forward.length > 1) {
-    type = MULTIPLE;
-  } else {
-    classified = classifyPatch(patch.forward[0]);
-    type = classified._type;
-  }
-
-  return type;
-}
-
-function getAffected(patches) {
-  return patches.reduce(function (acc, p) {
-    var classified = classifyPatch(p);
-    if (classified.type === 'period') {
-      acc.periods.push(classified.id);
-      acc.collections.push(classified.collection_id);
-    } else if (classified.type === 'periodCollection') {
-      acc.collections.push(classified.id);
-    }
-    return acc;
-  }, { periods: [], collections: [] });
-}
 
 module.exports = function (dbName) {
   var db = new Dexie(dbName);
@@ -93,7 +39,7 @@ module.exports = function (dbName) {
     patches: 'id++,created,*affected,forwardHash,backwardHash,type'
   }).upgrade(function (tx) {
     tx.table('patches').toCollection().modify(function (patch) {
-      patch.type = getType(patch);
+      patch.type = patchUtils.classifyPatchSet(patch);
     });
   });
 
@@ -142,7 +88,7 @@ module.exports = function (dbName) {
     return db.transaction('rw', db.localData, db.patches, function () {
       return db.makeLocalPatch(newData).then(function (patches) {
         var promises = []
-          , affected = getAffected(patches.forward)
+          , affected = patchUtils.getAffected(patches.forward)
           , localData
           , patchData
 
@@ -163,7 +109,7 @@ module.exports = function (dbName) {
           affectedPeriods: affected.periods
         }
 
-        patchData.type = getType(patchData);
+        patchData.type = patchUtils.classifyPatchSet(patchData);
 
         promises.push(db.localData.put(localData));
         promises.push(db.patches.put(patchData));

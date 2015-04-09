@@ -1,49 +1,100 @@
 "use strict";
 
 var fs = require('fs')
+  , _ = require('underscore')
   , peg = require('pegjs')
   , jsonpatch = require('fast-json-patch')
   , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
   , parser = peg.buildParser(grammar)
 
-module.exports = {
+var patchTypes = {
+    SYNC: 10
+  , MULTIPLE: 11
+  , CREATE_PERIOD_COLLECTION: 20
+  , DELETE_PERIOD_COLLECTION: 30
+  , EDIT_PERIOD_COLLECTION: 40
+  , CREATE_PERIOD: 50
+  , DELETE_PERIOD: 60
+  , EDIT_PERIOD: 70
+}
 
-  // Necessary because jsonpatch.compare has side effects :(
-  makePatch: function (before, after) {
-    return jsonpatch.compare(JSON.parse(JSON.stringify(before)), after);
-  },
+function makePatch(before, after) {
+  return jsonpatch.compare(JSON.parse(JSON.stringify(before)), after);
+}
 
-  // Returns the IDs of each periodCollection edited in each patch array passed
-  getAffectedPeriodizations: function () {
-    var regex = /^\/periodCollections\/([^\/]+)/;
-    return Array.prototype.slice.call(arguments)
-      .reduce(function (acc, arr) { return acc.concat(arr) }, [])
-      .map(function (patch) {
-        var match = patch.path.match(regex);
-        return match && match[1].replace(/~1/g, '/').replace(/~0/g, '~');
-      })
-      .reduce(function (acc, uri) {
-        if (uri && acc.indexOf(uri) === -1) {
-          acc.push(uri);
-        }
-        return acc;
-      }, []);
-  },
+function parsePatchPath(diff) {
+  var path = typeof diff === 'object' ? diff.path : diff
+    , changedAttr
 
-  classifyDiff: function (diff) {
-    var path = typeof diff === 'object' ? diff.path : diff
-      , changedAttr
+  if (path === '/id' || path === '/primaryTopicOf') return null;
 
-    if (path === '/id' || path === '/primaryTopicOf') {
-      return null;
-    }
-
-    try {
-      changedAttr = parser.parse(path);
-    } catch (e) {
-      throw new Error('could not parse ' + path);
-    }
-
-    return changedAttr;
+  try {
+    changedAttr = parser.parse(path);
+  } catch (e) {
+    throw new Error('could not parse ' + path);
   }
+
+  return changedAttr;
+}
+
+function classifyPatch(patch) {
+  var parsed = parsePatchPath(patch.path)
+    , type
+
+  if (!parsed) {
+    return null;
+  }
+
+  if (parsed.type === 'periodCollection' || parsed.type === 'period') {
+    if (!parsed.label) {
+      if (patch.op === 'add') {
+        type = parsed.type === 'periodCollection' ?
+          patchTypes.CREATE_PERIOD_COLLECTION : patchTypes.CREATE_PERIOD;
+      } else {
+        type = parsed.type === 'periodCollection' ?
+          patchTypes.DELETE_PERIOD_COLLECTION : patchTypes.DELETE_PERIOD;
+      }
+    } else {
+      type = parsed.type === 'periodCollection' ?
+        patchTypes.EDIT_PERIOD_COLLECTION : patchTypes.EDIT_PERIOD;
+    }
+  }
+  return type;
+}
+
+function classifyPatchSet(patchSet) {
+  var type
+
+  if (!!patchSet.message.match('synced data')) {
+    type = patchTypes.SYNC;
+  } else if (patchSet.forward.length > 1) {
+    type = patchTypes.MULTIPLE;
+  } else {
+    type = classifyPatch(patchSet.forward[0]);
+  }
+
+  return type;
+}
+
+function getAffected(patches) {
+  if (!Array.isArray(patches)) patches = [patches];
+  return patches.reduce(function (acc, p) {
+    var parsed = parsePatchPath(p.path);
+    if (parsed && parsed.type === 'period') {
+      acc.periods.push(parsed.id);
+      acc.collections.push(parsed.collection_id);
+    } else if (parsed && parsed.type === 'periodCollection') {
+      acc.collections.push(parsed.id);
+    }
+    return acc;
+  }, { periods: [], collections: [] });
+}
+
+module.exports = {
+  makePatch: makePatch,
+  parsePatchPath: parsePatchPath,
+  classifyPatch: classifyPatch,
+  classifyPatchSet: classifyPatchSet,
+  getAffected: getAffected,
+  patchTypes: patchTypes
 }
