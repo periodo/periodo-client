@@ -22,7 +22,8 @@ function reset() {
 }
 
 function getIDBData(dbName) {
-  return require('./db')(dbName).getLocalData().then(function (localData) {
+  var db = require('./db')(dbName);
+  return db.getLocalData().then(function (localData) {
     return {
       data: localData.data,
       modified: localData.modified,
