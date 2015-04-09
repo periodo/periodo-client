@@ -1,6 +1,7 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , patch = require('fast-json-patch')
   , PeriodizationCollection = require('../collections/period_collection')
   , Dexie = require('dexie')
   , Spinner = require('spin.js')
@@ -8,7 +9,9 @@ var Backbone = require('../backbone')
 module.exports = Backbone.View.extend({
   events: {
     'click #js-fetch-data': 'fetchData',
-    'click #js-accept-new-periods': 'handleAcceptPeriodizations'
+    'click #js-accept-new-periods': 'handleAcceptPeriodizations',
+    'click #js-accept-patches': 'handleAcceptPatches',
+    'change .select-all-patches': 'handleSelectAllPatches'
   },
   initialize: function (opts) {
     this.localData = opts.localData;
@@ -46,7 +49,7 @@ module.exports = Backbone.View.extend({
       .then(function (lastDump) {
         var headers = {};
 
-        headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
+        //headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
         return Backbone.$.ajax({
           url: url + 'd/',
@@ -79,7 +82,8 @@ module.exports = Backbone.View.extend({
       .finally(this.spinner.stop.bind(this.spinner))
   },
   handleDump: function (data) {
-    var PatchDiffCollection = require('../collections/patch_diff')
+    var that = this
+      , PatchDiffCollection = require('../collections/patch_diff')
       , diffs = PatchDiffCollection.fromDatasets(this.localData.data, data.dump.data)
       , template = require('../templates/changes_list.html')
 
@@ -89,7 +93,12 @@ module.exports = Backbone.View.extend({
 
     // newPeriodizations.sort();
 
-    this.$changesList.show().html(template({ diffs: diffs }));
+    diffs.withoutLocalChanges().then(function (partitionedChanges) {
+      that.remoteDiffs = new PatchDiffCollection(partitionedChanges.remote);
+      that.$changesList.show().html(template({
+        diffs: that.remoteDiffs
+      }));
+    });
     //this.$acceptDialog.show();
   },
   handleAcceptPeriodizations: function () {
@@ -99,6 +108,43 @@ module.exports = Backbone.View.extend({
     this.$syncSpinner.append(this.spinner.spin().el);
     this.collection.sync('put', this.collection, options).then(function () {
       that.$acceptDialog.hide();
+      that.$success
+        .html('<div class="alert alert-success">Data synced.</div>')
+        .show()
+    })
+    .finally(this.spinner.stop.bind(this.spinner));
+  },
+  handleSelectAllPatches: function (e) {
+    var $checkbox = this.$(e.currentTarget)
+      , $toToggle = $checkbox.closest('div').next('table').find('input[type="checkbox"]')
+
+    if ($checkbox.is(':checked')) {
+      $toToggle.prop('checked', true);
+    } else {
+      $toToggle.prop('checked', false);
+    }
+  },
+  handleAcceptPatches: function () {
+    var db= require('../db')
+      , $selected = this.$('.toggle-patch-select input:checked')
+      , patches
+      , newData
+      , newCollection
+
+    patches = $selected.toArray().map(function (el) {
+      var cid = el.dataset.patchId;
+      return this.remoteDiffs.get(cid).toJSON();
+    }, this);
+
+    newData = JSON.parse(JSON.stringify(this.localData.data));
+    patch.apply(newData, patches);
+    newCollection = new PeriodizationCollection(newData, { parse: true });
+
+    var that = this;
+    var options = { message: 'Synced data from ' + this.url }
+
+    this.$syncSpinner.append(this.spinner.spin().el);
+    newCollection.sync('put', newCollection, options).then(function () {
       that.$success
         .html('<div class="alert alert-success">Data synced.</div>')
         .show()

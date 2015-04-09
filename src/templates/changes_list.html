@@ -3,8 +3,6 @@
 <% } else { %>
 <%
 var description = diffs.asDescription();
-console.log(description);
-var PeriodCollection = require('../models/period_collection');
 var _ = require('underscore');
 %>
 <h3>Total changes: <%= diffs.length %></h3>
@@ -14,7 +12,7 @@ var _ = require('underscore');
 <% if (description.periodCollection.add.length) { %>
 <h4>New period collections</h4>
 <div>
-  <input type="checkbox" />
+  <input type="checkbox" class="select-all-patches" />
   <label>Select all</label>
 </div>
 <table class="table">
@@ -22,18 +20,10 @@ var _ = require('underscore');
   <% description.periodCollection.add.forEach(function (cid) { %>
   <%
     var patch = diffs.get(cid);
-    var json = patch.toJSON();
-    var periodCollection = new PeriodCollection(_.omit(json.value, 'id'), { parse: true });
-    var timeSpan = periodCollection.getTimespan();
+    var template = require('./changes/period_collection_add.html');
   %>
-  <tr class="select-patch">
-    <td class="toggle-patch-select"><input type="checkbox" /></td>
-    <td>
-      <div><%= periodCollection.source().displayTitle() %></div>
-      <div>Definitions: <%= periodCollection.definitions().length %></div>
-      <div>Time span: <%= timeSpan.lower.getEarliestYear() || 'unknown' %> to <%= timeSpan.upper.getLatestYear() || 'unknown' %></div>
-    </td>
-  </tr>
+
+  <%= template({ patch: patch }) %>
   <% }); %>
   </tbody>
 </table>
@@ -41,6 +31,11 @@ var _ = require('underscore');
 
 <% if (description.periodCollection.remove.length) { %>
 <h4>Deleted period collections</h4>
+<% description.periodCollection.remove.forEach(function (cid) { %>
+<%
+  var patch = diffs.get(cid);
+%>
+<% }); %>
 <% } %>
 
 <% if (!_.isEmpty(description.periodCollection.edit)) { %>
@@ -60,3 +55,6 @@ var _ = require('underscore');
 <% } %>
 
 <% } %>
+
+<hr/>
+<button id="js-accept-patches" class="btn btn-primary">Apply selected changes</button>

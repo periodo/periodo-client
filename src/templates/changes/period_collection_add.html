@@ -1,0 +1,16 @@
+<%
+  var _ = require('underscore');
+  var json = patch.toJSON();
+  var PeriodCollection = require('../../models/period_collection');
+  var periodCollection = new PeriodCollection(_.omit(json.value, 'id'), { parse: true });
+  var timeSpan = periodCollection.getTimespan();
+%>
+
+<tr class="select-patch">
+  <td class="toggle-patch-select"><input type="checkbox" data-patch-id="<%= patch.cid %>" /></td>
+  <td>
+    <div><%= periodCollection.source().displayTitle() %></div>
+    <div>Definitions: <%= periodCollection.definitions().length %></div>
+    <div>Time span: <%= timeSpan.lower.getEarliestYear() || 'unknown' %> to <%= timeSpan.upper.getLatestYear() || 'unknown' %></div>
+  </td>
+</tr>
