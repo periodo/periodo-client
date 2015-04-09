@@ -3,6 +3,7 @@
 var Dexie = require('dexie')
   , _ = require('underscore')
   , md5 = require('spark-md5')
+  , stringify = require('json-stable-stringify')
   , patchUtils = require('./utils/patch')
 
 var DUMPID = 1;
@@ -17,6 +18,7 @@ module.exports = function (dbName) {
   return d[dbName];
 }
 
+function hashPatch(p) { return md5.hash(stringify(p)) }
 
 function openDB(dbName) {
   var db = new Dexie(dbName);
@@ -33,8 +35,8 @@ function openDB(dbName) {
     patches: 'id++,created,*affected,forwardHash,backwardHash'
   }).upgrade(function (tx) {
     tx.table('patches').toCollection().modify(function (patch) {
-      patch.forwardHash = md5.hash(JSON.stringify(patch.forward));
-      patch.backwardHash = md5.hash(JSON.stringify(patch.backward));
+      patch.forwardHash = md5.hash(stringify(patch.forward));
+      patch.backwardHash = md5.hash(stringify(patch.backward));
     });
   });
 
@@ -58,9 +60,23 @@ function openDB(dbName) {
 
       delete patch.affected;
 
-      affected = getAffected(patch.forward);
+      affected = patchUtils.getAffected(patch.forward);
       patch.affectedCollections = _.unique(affected.collections);
       patch.affectedPeriods = _.unique(affected.periods);
+    });
+  });
+
+  db.version(5).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type'
+  }).upgrade(function (tx) {
+    tx.table('patches').toCollection().modify(function (patch) {
+      delete patch.fowardHash;
+      delete patch.backwardHash;
+
+      patch.forwardHashes = patch.forward.map(hashPatch);
+      patch.backwardHashes = patch.backward.map(hashPatch);
     });
   });
 
@@ -105,9 +121,9 @@ function openDB(dbName) {
 
         patchData = {
           forward: patches.forward,
-          forwardHash: md5.hash(JSON.stringify(patches.forward)),
+          forwardHashes: patches.forward.map(hashPatch),
           backward: patches.backward,
-          backwardHash: md5.hash(JSON.stringify(patches.backward)),
+          backwardHashes: patches.backward.map(hashPatch),
           created: new Date().getTime(),
           message: message,
           affectedCollections: affected.collections,
