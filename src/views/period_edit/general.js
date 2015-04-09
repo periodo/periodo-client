@@ -22,15 +22,15 @@ module.exports = Backbone.View.extend({
     '#js-label': {
       observe: 'label',
       set: function (binding, value) {
-        var localized = this.model.get('localizedLabel');
+        var localized = this.model.get('originalLabel');
         this.model.set(binding, value);
 
         localized[Object.keys(localized)[0]] = value;
-        this.model.set('localizedLabel', localized);
+        this.model.set('originalLabel', localized);
       }
     },
     '#js-label-language': {
-      observe: 'localizedLabel',
+      observe: 'originalLabel',
       onGet: function (value) {
         return Object.keys(value || { 'eng-latn': ''})[0];
       }
@@ -76,7 +76,7 @@ module.exports = Backbone.View.extend({
       if (code) {
         data = {}
         data[code] = that.model.get('label');
-        that.model.set('localizedLabel', data);
+        that.model.set('originalLabel', data);
       }
     });
   },
