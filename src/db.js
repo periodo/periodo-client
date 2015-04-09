@@ -7,13 +7,18 @@ var Dexie = require('dexie')
 
 var DUMPID = 1;
 
+var d = {};
 
+module.exports = function (dbName) {
+  if (!d.hasOwnProperty(dbName)) {
+    d[dbName] = openDB(dbName);
   }
 
+  return d[dbName];
 }
 
 
-module.exports = function (dbName) {
+function openDB(dbName) {
   var db = new Dexie(dbName);
 
   db.version(1).stores({

@@ -24,9 +24,10 @@ module.exports = Backbone.View.extend({
     new Tablesort(table);
   },
   deleteDatabase: function () {
-    var db = require('../db');
+    var db = require('../db')(localStorage.currentBackend);
+
     db.delete().then(function () {
-      window.location.reload(true);
+      Backbone.history.navigate('#p/', { trigger: true });
     });
   }
 });
