@@ -80,9 +80,7 @@ ApplicationRouter = Backbone.Router.extend({
     'p/:backend/periodCollections/:periodCollection/': 'periodCollectionShow',
     'p/:backend/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'p/:backend/sync/': 'sync',
-    'p/:backend/admin/': 'admin',
-    'p/:backend/admin/submit/': 'submitPatch',
-    'p/:backend/admin/apply/': 'applyPatch',
+    'p/:backend/patches/submit/': 'submitPatch',
     'p/signin/': 'signin',
     'p/signout/': 'signout',
     '*anything': 'attemptRedirect'
@@ -183,19 +181,16 @@ ApplicationRouter = Backbone.Router.extend({
     this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
-  admin: function (backend) {
-    var AdminView = require('./views/admin');
-    this.changeView(AdminView);
-  },
+  submitPatch: function () {
+    var db = require('./db')
+      , backend = localStorage.currentBackend
+      , getMasterCollection = require('./master_collection')
 
-  submitPatch: function (backend) {
-    var SubmitPatchView = require('./views/submit_patch');
-    this.changeView(SubmitPatchView);
-  },
-
-  applyPatch: function (backend) {
-    var ApplyPatchView = require('./views/apply_patch');
-    this.changeView(ApplyPatchView);
+    getMasterCollection(backend)
+      .then(() => db(backend).getLocalData())
+      .then(localData => this.changeView(
+        require('./views/submit_patch'), { localData }
+      ));
   },
 
   attemptRedirect: function (key) {
