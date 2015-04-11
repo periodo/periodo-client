@@ -23,7 +23,7 @@ module.exports = Backbone.View.extend({
 
     ajax.getJSON(url + '/d/')
       .then(remoteData =>
-        this.collection = PatchDiffCollection.fromDatasets(this.localData, remoteData))
+        this.collection = PatchDiffCollection.fromDatasets(this.localData.data, remoteData))
       .then(diffs => diffs.filterByHash('local'))
       .then(localDiffs => new PatchDiffCollection(localDiffs))
       .then(this.renderLocalDiffs.bind(this))
