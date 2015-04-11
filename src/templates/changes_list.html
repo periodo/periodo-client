@@ -9,6 +9,12 @@ var _ = require('underscore');
 
 <hr />
 
+<%
+  function makeRow(patch, template) {
+    return template({ patch: patch });
+  }
+%>
+
 <% if (description.periodCollection.add.length) { %>
 <h4>New period collections</h4>
 <div>
@@ -17,25 +23,11 @@ var _ = require('underscore');
 </div>
 <table class="table">
   <tbody>
-  <% description.periodCollection.add.forEach(function (cid) { %>
-  <%
-    var patch = diffs.get(cid);
-    var template = require('./changes/period_collection_add.html');
-  %>
-
-  <%= template({ patch: patch }) %>
-  <% }); %>
+  <% description.periodCollection.add.forEach(function (cid) {
+    print(makeRow(diffs.get(cid), require('./changes/period_collection_add.html')));
+  }); %>
   </tbody>
 </table>
-<% } %>
-
-<% if (description.periodCollection.remove.length) { %>
-<h4>Deleted period collections</h4>
-<% description.periodCollection.remove.forEach(function (cid) { %>
-<%
-  var patch = diffs.get(cid);
-%>
-<% }); %>
 <% } %>
 
 <% if (!_.isEmpty(description.periodCollection.edit)) { %>
@@ -46,12 +38,25 @@ var _ = require('underscore');
 <h4>New periods</h4>
 <% } %>
 
-<% if (description.period.remove.length) { %>
-<h4>Deleted periods</h4>
-<% } %>
-
 <% if (!_.isEmpty(description.period.edit)) { %>
 <h4>Edited periods</h4>
+<div>
+  <input type="checkbox" class="select-all-patches" />
+  <label>Select all</label>
+</div>
+<table class="table">
+  <tbody>
+  <% Object.keys(description.period.edit).forEach(function (label) {
+    var template = require('./changes/period_edit.html');
+    print(template({
+      label: label,
+      patches: description.period.edit,
+      diffs: diffs,
+      remoteData: remoteData
+    }));
+  }); %>
+  </tbody>
+</table>
 <% } %>
 
 <% } %>
