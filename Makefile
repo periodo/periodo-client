@@ -14,7 +14,10 @@ LIB_FILES = $(shell find ./lib -type f)
 
 ###########
 
-bundle: $(JS_BUNDLE) $(CSS_BUNDLE)
+bundle: node_modules $(JS_BUNDLE) $(CSS_BUNDLE)
+
+node_modules: package.json
+	npm install
 
 zip: $(ZIP_FILE)
 
