@@ -5,12 +5,12 @@
     <dd><%= period.label %></dd>
   </div>
 
-  <% if (period.alternateLabels) { %>
+  <% if (period.alternateLabel) { %>
   <div class="field">
-    <dt>Alternate labels<dt>
+    <dt>Alternate labels</dt>
     <dd>
       <ul style="margin: 0" class="list-unstyled">
-      <% _.forEach(period.alternateLabels, function (val, lang) { %>
+      <% _.forEach(period.alternateLabel, function (val, lang) { %>
       <li><%= lang %>: <%= val %></li>
       <% }); %>
       </ul>
