@@ -93,8 +93,8 @@ module.exports = Backbone.View.extend({
 
     // newPeriodizations.sort();
 
-    diffs.withoutLocalChanges().then(function (partitionedChanges) {
-      that.remoteDiffs = new PatchDiffCollection(partitionedChanges.remote);
+    diffs.filterByHash('remote').then(function (remoteChanges) {
+      that.remoteDiffs = new PatchDiffCollection(remoteChanges);
       that.$changesList.show().html(template({
         diffs: that.remoteDiffs
       }));
@@ -125,7 +125,7 @@ module.exports = Backbone.View.extend({
     }
   },
   handleAcceptPatches: function () {
-    var db= require('../db')
+    var db = require('../db')
       , $selected = this.$('.toggle-patch-select input:checked')
       , patches
       , newData

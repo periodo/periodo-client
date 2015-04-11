@@ -17,75 +17,69 @@ PatchDiffCollection = Backbone.Collection.extend({
 
     return this.reduce(function (acc, diff) {
       var changeDescription = diff.classify()
-        , action
-        , key
 
       if (!changeDescription) return acc;
 
       if (changeDescription.type === 'period' || changeDescription.type === 'periodCollection') {
         if (!changeDescription.label) {
-          key = diff.get('op') === 'add' ? 'add' : 'remove';
+          let key = diff.get('op') === 'add' ? 'add' : 'remove';
           acc[changeDescription.type][key].push(diff.cid);
         } else {
-          action = acc[changeDescription.type].edit;
-          if (!action.hasOwnProperty(changeDescription.label)) {
-            action[changeDescription.label] = [];
-          }
+          let action = acc[changeDescription.type].edit
+            , collectionId = changeDescription.collection_id
+            , id = changeDescription.id
+            , label = changeDescription.label
 
-          action[changeDescription.label].push(diff.cid);
+          if (collectionId) {
+            // This is a period
+            if (!action.hasOwnProperty(collectionId)) action[collectionId] = {};
+            if (!action[collectionId].hasOwnProperty(id)) action[collectionId][id] = [];
+            action[collectionId][id].push(diff.cid);
+          } else {
+            if (!action.hasOwnProperty(id)) action[id] = {};
+            action[id][diff.cid] = changeDescription.label;
+          }
         }
       }
 
       return acc;
     }, ret);
   },
-  withoutLocalChanges: function () {
+  asHashes: function () {
     var md5 = require('spark-md5')
       , stringify = require('json-stable-stringify')
-      , db = require('../db')
-      , that = this
-      , currentBackend = localStorage.currentBackend
-      , remoteHashes
-      , localEditsPromise
 
-    remoteHashes = this.reduce(function (acc, patch) {
+    return this.reduce(function (acc, patch) {
       var hash = md5.hash(stringify(patch));
       acc[hash] = patch.cid;
       return acc;
     }, {});
+  },
+  filterByHash: function (keep='local') {
+    var db = require('../db')
+      , remoteHashes = this.asHashes()
+      , promise
 
-    // Edits that were only made locally and should not be included in the
-    // patch set
-
-    if (_.isEmpty(remoteHashes)) {
-      localEditsPromise = Dexie.Promise.resolve([]);
-    } else {
-      localEditsPromise = db(currentBackend)
-        .patches
-        .where('backwardHashes')
-        .anyOf(Object.keys(remoteHashes).sort())
-        .uniqueKeys()
-        .then(function (hashes) {
-          return hashes.map(function (hash) {
-            return remoteHashes[hash];
-          });
-        });
+    if (keep !== 'local' && keep !== 'remote') {
+      throw new Error('Must specify keeping either local or remote hashes.')
     }
 
-    return localEditsPromise.then(function (localEdits) {
-      var changes = { localReverse: [], remote: [] }
+    if (_.isEmpty(remoteHashes)) {
+      promise = Dexie.Promise.resolve([]);
+    } else {
+      promise = db(localStorage.currentBackend)
+        .patches
+        .where(keep === 'local' ? 'forwardHashes' : 'backwardHashes')
+        .anyOf(Object.keys(remoteHashes).sort())
+        .uniqueKeys()
+        .then(hashes => hashes.map(hash => remoteHashes[hash]))
+    }
 
-      for (var i = 0; i < that.models.length; i++) {
-        if (localEdits.indexOf(that.models[i].cid) === -1) {
-          changes.remote.push(that.models[i]);
-        } else {
-          changes.localReverse.push(that.models[i]);
-        }
-      }
-
-      return changes;
-    });
-  }
+    return promise.then(cids => keep === 'local ' ?
+      this.filter(model => cids.indexOf(model.cid) !== -1) :
+      this.filter(model => cids.indexOf(model.cid) === -1)
+    );
+  },
 });
 
 PatchDiffCollection.fromDatasets = function (from, to) {
@@ -94,12 +88,10 @@ PatchDiffCollection.fromDatasets = function (from, to) {
 
   // Only worry about patches to period collections (this ignores @context,
   // various other things...)
-  patch = patchUtils.makePatch(from, to).filter(function (p) {
-    return p.path.match(/^\/periodCollection/);
-  });
+  patch = patchUtils.makePatch(from, to).filter(p => p.path.match(/^\/periodCollection/));
   collection = new PatchDiffCollection(patch)
 
-  collection.datasets = { from: from, to: to };
+  collection.datasets = { from, to };
 
   return collection;
 }
