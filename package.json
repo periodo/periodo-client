@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "dexie": "^1.0.4",
+    "babelify": "^6.0.2",
     "backbone": "^1.1.2",
     "backbone.stickit": "^0.8.0",
     "concat-stream": "^1.4.8",
@@ -43,6 +44,7 @@
   },
   "browserify": {
     "transform": [
+      ["babelify", {"sourceMapRelative": ".", "only": "src/**"}],
       "browserify-shim",
       "node-underscorify",
       "brfs"

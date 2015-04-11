@@ -4,6 +4,7 @@
     "strict": true,
     "maxlen": 100,
 
+    "esnext": true,
     "asi": true,
     "laxcomma": true,
     "browser": true,
