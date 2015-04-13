@@ -1,35 +1,4 @@
-<%
-  var _ = require('underscore');
-  var Period = require('../../models/period');
-  var PeriodCollection = require('../../models/period_collection');
-%>
-
-<% _.forEach(patches, function (periods, periodCollectionID) { %>
-
-  <% var periodCollection = PeriodCollection.all().get(periodCollectionID); %>
-  <h5><%= periodCollection.source().displayTitle() %></h5>
-  <% _.forEach(periods, function (cids, periodID) { %>
-  <%
-    var patches = patches;
-    var period = Period.all().get(periodID).toJSON();
-    var oldPeriod = remoteData.periodCollections[periodCollectionID].definitions[periodID];
-    var patches = cids.map(function (cid) {
-      var p = diffs.get(cid).toJSON();
-      var regex = new RegExp('/.*/definitions/' + periodID);
-      p.path = p.path.replace(regex, '');
-      return p;
-    });
-    var jsonpatch = require('fast-json-patch');
-    var newPeriod = JSON.parse(JSON.stringify(period));
-    jsonpatch.apply(newPeriod, patches);
-    var periodDiff = require('../../utils/period_diff');
-  %>
-    <h6><%= period.label %></h6>
-    <tr class="select-patch">
-      <td class="toggle-patch-select"><input type="checkbox" data-patch-id="<%= 1 %>" /></td>
-      <td>
-        <%= periodDiff(oldPeriod, period) %>
-      </td>
-    </tr>
-  <% }); %>
-<% }); %>
+<div>
+  <h5>In source: <%= source.displayTitle() %></h5>
+  <div><%= diffs %></div>
+</div>

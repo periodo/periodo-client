@@ -7,7 +7,14 @@ var _ = require('underscore')
   , template = require('../templates/period.html')
 
 function periodToNodesObj(period) {
-  var nodes = $(template({ period: period })).find('.field').toArray();
+  var nodes;
+
+  if (!period || _.isEmpty(period)) {
+    nodes = [];
+  } else {
+    nodes = $(template({ period: period })).find('.field').toArray();
+  }
+
   return Array.prototype.reduce.call(nodes, function (acc, el) {
     var key = el.children[0].textContent.trim();
     var val = el.children[1];

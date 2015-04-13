@@ -44,19 +44,7 @@ var _ = require('underscore');
   <input type="checkbox" class="select-all-patches" />
   <label>Select all</label>
 </div>
-<table class="table">
-  <tbody>
-  <% Object.keys(description.period.edit).forEach(function (label) {
-    var template = require('./changes/period_edit.html');
-    print(template({
-      label: label,
-      patches: description.period.edit,
-      diffs: diffs,
-      remoteData: remoteData
-    }));
-  }); %>
-  </tbody>
-</table>
+<%= periodEdits %>
 <% } %>
 
 <% } %>
