@@ -55,43 +55,67 @@ PatchDiffCollection = Backbone.Collection.extend({
       return acc;
     }, {});
   },
-  filterByHash: function (keep='local') {
+  filterByHash: function () {
     var db = require('../db')
-      , remoteHashes = this.asHashes()
-      , promise
+      , to = this.datasets.to
+      , diffHashes = this.asHashes()
+      , diffDescription = this.asDescription()
+      , promises = []
 
-    if (keep !== 'local' && keep !== 'remote') {
-      throw new Error('Must specify keeping either local or remote hashes.')
-    }
-
-    if (_.isEmpty(remoteHashes)) {
-      promise = Dexie.Promise.resolve([]);
-    } else {
-      promise = db(localStorage.currentBackend)
+    if (!_.isEmpty(diffHashes)) {
+      promises.push(db(localStorage.currentBackend)
         .patches
-        .where(keep === 'local' ? 'forwardHashes' : 'backwardHashes')
-        .anyOf(Object.keys(remoteHashes).sort())
+        .where(to === 'remote' ? 'forwardHashes' : 'backwardHashes')
+        .anyOf(Object.keys(diffHashes).sort())
         .uniqueKeys()
-        .then(hashes => hashes.map(hash => remoteHashes[hash]))
+        .then(hashes => {
+          // For patch generation option, include *only* those edits that have
+          // matching forward hashes in the patch history.
+          // 
+          // For sync operations, remove all edits that have matching backwards
+          // hashes in the patch history.
+          return to === 'remote' ?
+            hashes.map(hash => diffHashes[hash]) :
+            _.values(_.omit(diffHashes, hashes))
+        }))
+
+      promises.push(Dexie.Promise.resolve(diffDescription.period.add));
+      promises.push(Dexie.Promise.resolve(diffDescription.periodCollection.add));
     }
 
+    return Dexie.Promise.all(promises)
+      .then(([edits, periodAdditions, periodCollectionAdditions]) => {
+        var cids = edits ?  edits.concat(periodAdditions, periodCollectionAdditions) : [];
+        return this.filter(model => cids.indexOf(model.cid) !== -1);
+      });
+
+    /*
     return promise.then(cids => keep === 'local ' ?
       this.filter(model => cids.indexOf(model.cid) !== -1) :
       this.filter(model => cids.indexOf(model.cid) === -1)
     );
+    */
   },
 });
 
-PatchDiffCollection.fromDatasets = function (from, to) {
+PatchDiffCollection.fromDatasets = function ({ local, remote, to }) {
   var patch
     , collection
 
+  if (!local || !remote || (to !== 'local' && to !== 'remote')) {
+    throw new Error('Must specify local, remote and to parameters.')
+  }
+
   // Only worry about patches to period collections (this ignores @context,
   // various other things...)
-  patch = patchUtils.makePatch(from, to).filter(p => p.path.match(/^\/periodCollection/));
-  collection = new PatchDiffCollection(patch)
+  patch = to === 'local' ?
+    patchUtils.makePatch(local, remote) : // Syncing from server
+    patchUtils.makePatch(remote, local)   // Submitting patch ("How can we make 
 
-  collection.datasets = { from, to };
+  patch = patch.filter(p => p.path.match(/^\/periodCollection/));
+  collection = new PatchDiffCollection(patch);
+
+  collection.datasets = { local, remote, to };
 
   return collection;
 }

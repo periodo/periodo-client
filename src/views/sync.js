@@ -84,7 +84,7 @@ module.exports = Backbone.View.extend({
   handleDump: function (data) {
     var that = this
       , PatchDiffCollection = require('../collections/patch_diff')
-      , diffs = PatchDiffCollection.fromDatasets(this.localData.data, data.dump.data)
+      , diffs = PatchDiffCollection.fromDatasets({ local: this.localData.data, remote: data.dump.data, to: 'local' })
       , template = require('../templates/changes_list.html')
 
     // Get the difference between the local data and the dump
@@ -93,7 +93,7 @@ module.exports = Backbone.View.extend({
 
     // newPeriodizations.sort();
 
-    diffs.filterByHash('remote').then(function (remoteChanges) {
+    diffs.filterByHash().then(function (remoteChanges) {
       that.remoteDiffs = new PatchDiffCollection(remoteChanges);
       that.$changesList.show().html(template({
         diffs: that.remoteDiffs

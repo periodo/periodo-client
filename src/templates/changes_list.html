@@ -36,6 +36,11 @@ var _ = require('underscore');
 
 <% if (description.period.add.length) { %>
 <h4>New periods</h4>
+<div>
+  <input type="checkbox" class="select-all-patches" />
+  <label>Select all</label>
+</div>
+<%= periodAdditions %>
 <% } %>
 
 <% if (!_.isEmpty(description.period.edit)) { %>

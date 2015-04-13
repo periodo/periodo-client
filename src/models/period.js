@@ -14,6 +14,7 @@ Period = Supermodel.Model.extend({
   defaults: {
     start: {},
     stop: {},
+    originalLabel: { 'eng-latn': [] },
     alternateLabel: { 'eng-latn': [] }
   },
   skolemID: true,

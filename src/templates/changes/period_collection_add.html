@@ -11,6 +11,6 @@
   <td>
     <div><%= periodCollection.source().displayTitle() %></div>
     <div>Definitions: <%= periodCollection.definitions().length %></div>
-    <div>Time span: <%= timeSpan.lower.getEarliestYear() || 'unknown' %> to <%= timeSpan.upper.getLatestYear() || 'unknown' %></div>
+    <div>Time span: <%= timeSpan.lower ? timeSpan.lower.getEarliestYear() : 'unknown' %> to <%= timeSpan.upper ? timeSpan.upper.getLatestYear() : 'unknown' %></div>
   </td>
 </tr>
