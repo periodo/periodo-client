@@ -81,8 +81,8 @@ ApplicationRouter = Backbone.Router.extend({
     'p/:backend/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'p/:backend/sync/': 'sync',
     'p/:backend/patches/submit/': 'submitPatch',
-    'p/signin/': 'signin',
-    'p/signout/': 'signout',
+    'signin/': 'signin',
+    'signout/': 'signout',
     '*anything': 'attemptRedirect'
   },
   _view: null,
