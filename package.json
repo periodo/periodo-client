@@ -14,7 +14,7 @@
     "deep-equal": "^0.2.1",
     "dexie": "^1.0.4",
     "diff-match-patch": "^1.0.0",
-    "fast-json-patch": "^0.4.0",
+    "fast-json-patch": "^0.5.2",
     "filesaver.js": "^0.1.1",
     "iso-639-3": "^0.2.0",
     "jquery": "^1.11.0",

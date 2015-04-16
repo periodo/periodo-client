@@ -1,9 +1,9 @@
 "use strict";
 
 var fs = require('fs')
-  , _ = require('underscore')
   , peg = require('pegjs')
   , jsonpatch = require('fast-json-patch')
+  , pointer = require('json-pointer')
   , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
   , parser = peg.buildParser(grammar)
 
@@ -19,7 +19,43 @@ var patchTypes = {
 }
 
 function makePatch(before, after) {
-  return jsonpatch.compare(JSON.parse(JSON.stringify(before)), after);
+  var cmp = jsonpatch.compare(before, after)
+    , replaced = []
+
+  return cmp.reduce(function (acc, patch) {
+    var parsed = parsePatchPath(patch.path)
+      , valuePath
+      , isSimpleAddOrRemove
+
+    if (!parsed) return acc;
+
+    if (parsed.type === 'context' || !parsed.label) {
+      acc.push(patch);
+      return acc;
+    }
+
+    valuePath = '/periodCollections/';
+    valuePath += parsed.type === 'period' ?
+      (parsed.collection_id + '/definitions/' + parsed.id)
+      : parsed.id;
+    valuePath += '/' + parsed.label.split('/')[0];
+
+    isSimpleAddOrRemove = (
+        (patch.op === 'add' || patch.op === 'remove')
+        && valuePath.split('/').unshift() === parsed.label)
+
+    if (isSimpleAddOrRemove) {
+      acc.push(patch);
+    } else {
+      if (replaced.indexOf(valuePath) === -1) {
+        replaced.push(valuePath);
+        acc.push({ op: 'remove', path: valuePath, fake: true });
+        acc.push({ op: 'add', path: valuePath, value: pointer.get(after, valuePath) });
+      }
+    }
+
+    return acc;
+  }, []);
 }
 
 function parsePatchPath(diff) {

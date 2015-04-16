@@ -84,12 +84,12 @@ spatialcoverage = '/spatialCoverage' (.+)? { return {
 
 startdate = '/start' (.+)? { return {
   type: 'period',
-  label: 'startDate'
+  label: 'start'
 }}
 
 stopdate = '/stop' (.+)? { return {
   type: 'period',
-  label: 'stopDate'
+  label: 'stop'
 }}
 
 pattribute = '/' label:labelpathchars+ { return {

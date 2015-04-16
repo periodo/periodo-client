@@ -3,9 +3,13 @@
 var _ = require('underscore')
   , Backbone = require('backbone')
   , Dexie = require('dexie')
+  , md5 = require('spark-md5')
+  , stringify = require('json-stable-stringify')
   , patchUtils = require('../utils/patch')
   , PatchDiff = require('../models/patch_diff')
   , PatchDiffCollection
+
+function hashPatch(patch) { return md5.hash(stringify(patch)) }
 
 PatchDiffCollection = Backbone.Collection.extend({
   model: PatchDiff,
@@ -28,7 +32,6 @@ PatchDiffCollection = Backbone.Collection.extend({
           let action = acc[changeDescription.type].edit
             , collectionId = changeDescription.collection_id
             , id = changeDescription.id
-            , label = changeDescription.label
 
           if (collectionId) {
             // This is a period
@@ -45,28 +48,53 @@ PatchDiffCollection = Backbone.Collection.extend({
       return acc;
     }, ret);
   },
-  asHashes: function () {
-    var md5 = require('spark-md5')
-      , stringify = require('json-stable-stringify')
+  groupFakeReplacements: function () {
+    return this.reduce((arr, patch, idx) => {
+      var lastThing = arr.slice(-1)[0]
+        , isFakeDelete
 
-    return this.reduce(function (acc, patch) {
-      var hash = md5.hash(stringify(patch));
-      acc[hash] = patch.cid;
-      return acc;
-    }, {});
+      if (lastThing && lastThing[1] === patch) return arr;
+
+      isFakeDelete = (
+        patch.get('op') === 'remove' && 
+        this.at(idx + 1).get('path') === patch.get('path')
+      );
+
+      if (isFakeDelete) {
+        let patchCouple = [patch];
+        patchCouple.push(this.at(idx + 1));
+        arr.push(patchCouple);
+      } else {
+        arr.push(patch);
+      }
+
+      return arr;
+    }, []);
   },
   filterByHash: function () {
     var db = require('../db')
       , to = this.datasets.to
-      , diffHashes = this.asHashes()
-      , diffDescription = this.asDescription()
+      , patches = this.groupFakeReplacements()
       , promises = []
+      , hashesToCheck
 
-    if (!_.isEmpty(diffHashes)) {
+    hashesToCheck = patches.filter(Array.isArray).reduce((acc, patchSet) => {
+      var hash = hashPatch(patchSet[1]);
+      acc[hash] = patchSet;
+      return acc;
+    }, {});
+
+    patches.filter(patch => patch.op === 'remove').forEach(patch => {
+      var hash = hashPatch(patch);
+      hashesToCheck[hash] = patch;
+    });
+
+    if (patches.length) {
+      promises.push(patches.filter(patch => patch.op === 'add'))
       promises.push(db(localStorage.currentBackend)
         .patches
         .where(to === 'remote' ? 'forwardHashes' : 'backwardHashes')
-        .anyOf(Object.keys(diffHashes).sort())
+        .anyOf(Object.keys(hashesToCheck).sort())
         .uniqueKeys()
         .then(hashes => {
           // For patch generation option, include *only* those edits that have
@@ -74,27 +102,16 @@ PatchDiffCollection = Backbone.Collection.extend({
           // 
           // For sync operations, remove all edits that have matching backwards
           // hashes in the patch history.
-          return to === 'remote' ?
-            hashes.map(hash => diffHashes[hash]) :
-            _.values(_.omit(diffHashes, hashes))
+          return _.flatten(to === 'remote' ?
+            hashes.map(hash => hashesToCheck[hash]) :
+            _.values(_.omit(hashesToCheck, hashes)))
         }))
-
-      promises.push(Dexie.Promise.resolve(diffDescription.period.add));
-      promises.push(Dexie.Promise.resolve(diffDescription.periodCollection.add));
+    } else {
+      promises.push([], []);
     }
 
     return Dexie.Promise.all(promises)
-      .then(([edits, periodAdditions, periodCollectionAdditions]) => {
-        var cids = edits ?  edits.concat(periodAdditions, periodCollectionAdditions) : [];
-        return this.filter(model => cids.indexOf(model.cid) !== -1);
-      });
-
-    /*
-    return promise.then(cids => keep === 'local ' ?
-      this.filter(model => cids.indexOf(model.cid) !== -1) :
-      this.filter(model => cids.indexOf(model.cid) === -1)
-    );
-    */
+      .then(([edits, additions]) => additions.concat(edits));
   },
 });
 
