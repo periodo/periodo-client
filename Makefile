@@ -10,7 +10,7 @@ CSS_BUNDLE_VERSIONED = $(subst .css,-$(VERSION_STR).css,$(CSS_BUNDLE))
 
 JS_BUNDLE = $(DIST_DIR)/periodo.js
 JS_BUNDLE_VERSIONED = $(subst .js,-$(VERSION_STR).js,$(JS_BUNDLE))
-JS_VERSIONED_SOURCE_MAP = $(DIST_DIR)/periodo.map
+JS_VERSIONED_SOURCE_MAP = $(subst .js,.map,$(JS_BUNDLE_VERSIONED))
 JS_MINIFIED_BUNDLE = $(DIST_DIR)/periodo.min.js
 JS_MINIFIED_SOURCE_MAP = $(DIST_DIR)/periodo.min.map
 JS_MINIFIED_BUNDLE_VERSIONED = $(subst .min.js,-$(VERSION_STR).min.js,$(JS_MINIFIED_BUNDLE))
@@ -49,7 +49,7 @@ release: $(ZIP_FILE)
 $(DIST_DIR):
 	@mkdir -p $(DIST_DIR)
 
-$(ZIP_FILE): $(JS_BUNDLE_VERSIONED) $(JS_MINIFIED_BUNDLE_VERSIONED) $(JS_MINIFIED_VERSIONED_SOURCE_MAP) $(CSS_BUNDLE_VERSIONED) $(LIB_FILES) LICENSE COPYING favicon.ico
+$(ZIP_FILE): $(JS_MINIFIED_BUNDLE_VERSIONED) $(JS_MINIFIED_VERSIONED_SOURCE_MAP) $(CSS_BUNDLE_VERSIONED) $(LIB_FILES) LICENSE COPYING favicon.ico
 	@rm -f $@
 	cp index.html dist/index.html
 	sed -i \
@@ -67,10 +67,10 @@ $(JS_BUNDLE_VERSIONED): $(DIST_DIR) $(SRC_FILES)
 	$(NPM_BIN)/browserify -d src/app.js | $(NPM_BIN)/exorcist $(JS_VERSIONED_SOURCE_MAP) --url $(subst dist/,,$(JS_VERSIONED_SOURCE_MAP)) > $@
 
 $(JS_MINIFIED_BUNDLE): $(JS_BUNDLE)
-	$(NPM_BIN)/uglifyjs $< --source-map $(JS_MINIFIED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_SOURCE_MAP)) -c warnings=false -m -o $@
+	$(NPM_BIN)/uglifyjs $< --source-map $(JS_MINIFIED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_SOURCE_MAP)) -c warnings=false -o $@
 
 $(JS_MINIFIED_BUNDLE_VERSIONED): $(JS_BUNDLE_VERSIONED)
-	$(NPM_BIN)/uglifyjs $< --in-source-map $(JS_VERSIONED_SOURCE_MAP) --source-map $(JS_MINIFIED_VERSIONED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_VERSIONED_SOURCE_MAP)) -c warnings=false -m -o $@
+	$(NPM_BIN)/uglifyjs $< --in-source-map $(JS_VERSIONED_SOURCE_MAP) --source-map $(JS_MINIFIED_VERSIONED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_VERSIONED_SOURCE_MAP)) -c warnings=false -o $@
 
 $(CSS_BUNDLE): $(DIST_DIR) style.less
 	$(NPM_BIN)/lessc style.less $@
