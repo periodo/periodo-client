@@ -4,6 +4,7 @@ var Dexie = require('dexie')
   , _ = require('underscore')
   , md5 = require('spark-md5')
   , stringify = require('json-stable-stringify')
+  , jsonpatch = require('fast-json-patch')
   , patchUtils = require('./utils/patch')
 
 var DUMPID = 1;
@@ -93,15 +94,27 @@ function openDB(dbName) {
     patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
     localPatches: 'id&,resolved'
   }).upgrade(function (tx) {
-    tx.table('patches').toCollection().modify(function (patch) {
-      var newForward = patchUtils.transformSimplePatch(patch.forward)
-        , newBackward = patchUtils.transformSimplePatch(patch.backward)
+    tx.table('localData').get(DUMPID).then(function (d) {
+      var data = d.data;
+      tx.table('patches').orderBy('id').reverse().modify(function (patch) {
+        var after = JSON.parse(JSON.stringify(data))
+          , before
+          , newForward
+          , newBackward
 
-      patch.forward = newForward;
-      patch.backward = newBackward;
+        jsonpatch.apply(data, patch.backward);
 
-      patch.forwardHashes = patch.forward.map(hashPatch);
-      patch.backwardHashes = patch.backward.map(hashPatch);
+        before = data;
+
+        newForward = patchUtils.transformSimplePatch(patch.forward, { before: before, after: after });
+        newBackward = patchUtils.transformSimplePatch(patch.backward, { before: after, after: before });
+
+        patch.forward = newForward;
+        patch.backward = newBackward;
+
+        patch.forwardHashes = patch.forward.map(hashPatch);
+        patch.backwardHashes = patch.backward.map(hashPatch);
+      });
     });
   });
 

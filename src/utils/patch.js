@@ -18,9 +18,18 @@ var patchTypes = {
   , EDIT_PERIOD: 70
 }
 
-function transformSimplePatch(patch) {
-  var replaced = [];
-  return cmp.reduce(function (acc, patch) {
+function transformSimplePatch(patch, opts) {
+  var replaced = []
+    , { before, after } = opts
+
+  if (!after) {
+    after = JSON.parse(JSON.stringify(before));
+    after = jsonpatch.apply(after, patch);
+  }
+
+  after = after || JSON.parse(JSON.stringify(before));
+
+  return patch.reduce(function (acc, patch) {
     var parsed = parsePatchPath(patch.path)
       , valuePath
       , isSimpleAddOrRemove
@@ -58,7 +67,7 @@ function transformSimplePatch(patch) {
 
 function makePatch(before, after) {
   var cmp = jsonpatch.compare(before, after);
-  return transformSimplePatch(cmp);
+  return transformSimplePatch(cmp, { before, after });
 }
 
 function parsePatchPath(diff) {
