@@ -87,6 +87,24 @@ function openDB(dbName) {
     localPatches: 'id&,resolved'
   })
 
+  db.version(6).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
+    localPatches: 'id&,resolved'
+  }).upgrade(function (tx) {
+    tx.table('patches').toCollection().modify(function (patch) {
+      var newForward = patchUtils.transformSimplePatch(patch.forward)
+        , newBackward = patchUtils.transformSimplePatch(patch.backward)
+
+      patch.forward = newForward;
+      patch.backward = newBackward;
+
+      patch.forwardHashes = patch.forward.map(hashPatch);
+      patch.backwardHashes = patch.backward.map(hashPatch);
+    });
+  });
+
   db.on('populate', function () {
     // Create an initial, empty dataset.
     db.localData.put({

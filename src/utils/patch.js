@@ -18,10 +18,8 @@ var patchTypes = {
   , EDIT_PERIOD: 70
 }
 
-function makePatch(before, after) {
-  var cmp = jsonpatch.compare(before, after)
-    , replaced = []
-
+function transformSimplePatch(patch) {
+  var replaced = [];
   return cmp.reduce(function (acc, patch) {
     var parsed = parsePatchPath(patch.path)
       , valuePath
@@ -56,6 +54,11 @@ function makePatch(before, after) {
 
     return acc;
   }, []);
+}
+
+function makePatch(before, after) {
+  var cmp = jsonpatch.compare(before, after);
+  return transformSimplePatch(cmp);
 }
 
 function parsePatchPath(diff) {
@@ -128,6 +131,7 @@ function getAffected(patches) {
 
 module.exports = {
   makePatch: makePatch,
+  transformSimplePatch: transformSimplePatch,
   parsePatchPath: parsePatchPath,
   classifyPatch: classifyPatch,
   classifyPatchSet: classifyPatchSet,
