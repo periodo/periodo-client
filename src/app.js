@@ -193,6 +193,8 @@ ApplicationRouter = Backbone.Router.extend({
       ));
   },
 
+  // FIXME: This should not actually switch the backend, but rather check if
+  // the thing being linked to actually exists before redirection
   attemptRedirect: function (key) {
     var getMasterCollection = require('./master_collection')
       , Periodization = require('./models/period_collection')
