@@ -1,13 +1,19 @@
 "use strict";
 
 var _ = require('underscore')
-  , $ = require('jquery')
+  , url = require('url')
   , Backbone = require('../backbone')
-  , patch = require('fast-json-patch')
   , patchUtils = require('../utils/patch')
   , pointer = require('json-pointer')
   , periodDiff = require('../utils/period_diff')
   , Source = require('../models/source')
+
+function addLocalPatch(id) {
+  var db = require('../db');
+  return db.localPatches
+    .put({ id: id, resolved: false })
+    .then(() => id);
+}
 
 module.exports = Backbone.View.extend({
   events: {
@@ -21,7 +27,34 @@ module.exports = Backbone.View.extend({
     var template = require('../templates/submit_patch.html');
     this.$el.html(template());
   },
-  findChanges: function (e) {
+  submitPatch: function (cids, patches) {
+    var ajax = require('../ajax')
+      , ajaxOpts
+
+    ajaxOpts = {
+      url: url.resolve(window.location.href, '/d.jsonld'),
+      method: 'PATCH',
+      contentType: 'application/json',
+      data: patches
+    }
+
+    return ajax.ajax(ajaxOpts).catch(this.handlePatchSubmitError)
+      .then((data, textStatus, xhr) => addLocalPatch(xhr.getResponse('Location')))
+      .then(() => this.collection.remove(cids))
+      .then(this.renderLocalDiffs) // TODO: Add "patch added" or "patch rejected method"
+  },
+  handlePatchSubmitError: function (xhr, textStatus, errorThrown) {
+    var msg = errorThrown;
+
+    this.addError(msg);
+
+    // TODO: If authentication error...
+ 
+    // TODO: If bad patch error...
+ 
+    // TODO: If another error...
+  },
+  findChanges: function () {
     var ajax = require('../ajax')
       , url = this.$('input').val()
       , PatchDiffCollection = require('../collections/patch_diff')
@@ -33,13 +66,13 @@ module.exports = Backbone.View.extend({
         to: 'remote'
       }))
       .then(diffs => diffs.filterByHash())
-      .then(localDiffs => new PatchDiffCollection(localDiffs))
+      .then(models => this.collection.reset(models))
       .then(this.renderLocalDiffs.bind(this))
       .catch(err => console.error(err.stack || err));
   },
-  renderLocalDiffs: function (localDiffs) {
+  renderLocalDiffs: function () {
     var template = require('../templates/changes_list.html')
-      , diffTypes = localDiffs.asDescription()
+      , diffTypes = this.collection.asDescription()
       , localData = this.collection.datasets.local
       , remoteData = this.collection.datasets.remote
 
@@ -49,10 +82,10 @@ module.exports = Backbone.View.extend({
     var periodEdits = _.map(diffTypes.period.edit, function (periods, periodCollectionID) {
       var path = '/periodCollections/' + periodCollectionID
         , source = pointer.get(localData, path + '/source')
-        , source = new Source(_.omit(source, 'id'), { parse: true })
         , template = require('../templates/changes/period_edit.html')
         , html
 
+      source = new Source(_.omit(source, 'id'), { parse: true })
       html = _.map(periods, function (patchIDs, periodID) {
         var template = require('../templates/changes/change_row.html')
           , periodPath = path + '/definitions/' + periodID
@@ -64,7 +97,7 @@ module.exports = Backbone.View.extend({
           pointer.get(remoteData, periodPath),
           pointer.get(localData, periodPath))
 
-        return template({ diffHTML, patchIDs })
+        return template({ diffHTML: diffHTML, patchIDs: patchIDs })
       }, this);
 
       return template({ diffs: html.join('\n'), source: source })
@@ -75,11 +108,11 @@ module.exports = Backbone.View.extend({
         , parsed = patchUtils.parsePatchPath(thisPatch.path) 
         , path = '/periodCollections/' + parsed.collection_id
         , source = pointer.get(localData, path + '/source')
-        , source = new Source(_.omit(source, 'id'), { parse: true })
         , template = require('../templates/changes/period_edit.html')
         , html
 
 
+      source = new Source(_.omit(source, 'id'), { parse: true })
       html = (function () {
         var template = require('../templates/changes/change_row.html')
           , periodPath = path + '/definitions/' + parsed.id
@@ -89,14 +122,14 @@ module.exports = Backbone.View.extend({
         // will be applied.
         diffHTML = periodDiff({}, pointer.get(localData, periodPath));
 
-        return template({ diffHTML, patchIDs: [cid] })
+        return template({ diffHTML: diffHTML, patchIDs: [cid] })
       })()
 
       return template({ diffs: html, source: source })
     }, this);
 
     this.$el.append(template({
-      diffs: localDiffs,
+      diffs: this.collection,
       remoteData: this.collection.datasets.to,
       periodEdits: periodEdits,
       periodAdditions: periodAdditions

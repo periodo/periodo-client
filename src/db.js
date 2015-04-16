@@ -80,6 +80,13 @@ function openDB(dbName) {
     });
   });
 
+  db.version(5).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
+    localPatches: 'id&,resolved'
+  })
+
   db.on('populate', function () {
     // Create an initial, empty dataset.
     db.localData.put({
