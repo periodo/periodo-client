@@ -89,8 +89,8 @@ PatchDiffCollection = Backbone.Collection.extend({
       hashesToCheck[hash] = patch;
     });
 
-    if (patches.length) {
-      promises.push(patches.filter(patch => patch.op === 'add'))
+    promises.push(patches.filter(patch => patch.get('op') === 'add'));
+    if (!_.isEmpty(hashesToCheck)) {
       promises.push(db(localStorage.currentBackend)
         .patches
         .where(to === 'remote' ? 'forwardHashes' : 'backwardHashes')
@@ -107,7 +107,7 @@ PatchDiffCollection = Backbone.Collection.extend({
             _.values(_.omit(hashesToCheck, hashes)))
         }))
     } else {
-      promises.push([], []);
+      promises.push([]);
     }
 
     return Dexie.Promise.all(promises)
