@@ -42,7 +42,19 @@ function refreshBackend(backend) {
   $('#periodo-logo').attr('href', '#p/' + backend.name + '/');
 }
 
+function initVersion() {
+  var version = require('../package.json').version;
+  version = 'v' + version;
+  $('#version-number').html(`
+      PeriodO client
+      <a href="https://github.com/periodo/periodo-client/tree/${version}">
+      ${version}
+      </a>
+  `);
+}
+
 $(document).ready(function () {
+  initVersion();
   var router = Backbone._app = new ApplicationRouter();
   var spinner = new Spinner({
     lines: 12,
