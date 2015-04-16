@@ -37,6 +37,7 @@
     "browserify": "^9.0.7",
     "browserify-shim": "^3.8.2",
     "dom-sandbox": "0.0.1",
+    "exorcist": "^0.1.6",
     "mocha": "^1.18.0",
     "node-underscorify": "0.0.9",
     "serve": "^1.4.0",
