@@ -66,7 +66,7 @@ $(document).ready(function () {
   var spinnerEl = document.getElementById('spinner')
 
   router.on('request', spinner.spin.bind(spinner, spinnerEl));
-  router.on('sync error', function () {
+  router.on('sync error requestEnd', function () {
     setTimeout(spinner.stop.bind(spinner), 100);
   })
 

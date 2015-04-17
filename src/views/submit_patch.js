@@ -127,10 +127,13 @@ module.exports = Backbone.View.extend({
       ajaxOpts.headers.Authorization = 'Bearer ' + JSON.parse(localStorage.auth).token;
     }
 
+    Backbone._app.trigger('request');
+
     return ajax.ajax(ajaxOpts).catch(this.handlePatchSubmitError)
       .then(([data, textStatus, xhr]) => addLocalPatch(xhr.getResponseHeader('Location')))
       .then(() => this.collection.remove(cids))
-      .then(this.renderLocalDiffs.bind(this)) // TODO: Add "patch added" or "patch rejected method"
+      .then(this.render.bind(this)) // TODO: Add "patch added" or "patch rejected" message
+      .finally(() => Backbone._app.trigger('requestEnd'));
   },
   handlePatchSubmitError: function ([xhr, textStatus, errorThrown]) {
     var errorMessages
@@ -159,6 +162,7 @@ module.exports = Backbone.View.extend({
       , url = this.$('input').val()
       , PatchDiffCollection = require('../collections/patch_diff')
 
+    Backbone._app.trigger('request');
     ajax.getJSON(url + '/d/')
       .then(([remoteData]) => this.collection = PatchDiffCollection.fromDatasets({
         local: this.localData.data,
@@ -168,7 +172,8 @@ module.exports = Backbone.View.extend({
       .then(diffs => diffs.filterByHash())
       .then(models => this.collection.reset(models))
       .then(this.renderLocalDiffs.bind(this))
-      .catch(err => console.error(err.stack || err));
+      .catch(err => console.error(err.stack || err))
+      .finally(() => Backbone._app.trigger('requestEnd'))
   },
   makePeriodDiffHTML: function(oldPeriod, patchIDs) {
     var template = require('../templates/changes/change_row.html')

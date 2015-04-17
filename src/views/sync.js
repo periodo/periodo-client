@@ -4,8 +4,6 @@ var _ = require('underscore')
   , Backbone = require('../backbone')
   , patch = require('fast-json-patch')
   , PeriodizationCollection = require('../collections/period_collection')
-  , Dexie = require('dexie')
-  , Spinner = require('spin.js')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -23,20 +21,9 @@ module.exports = Backbone.View.extend({
     var template = require('../templates/sync.html');
     this.$el.html(template());
 
-    this.$fetchSpinner = this.$('#js-sync-loading');
-    this.$syncSpinner = this.$('#js-sync-saving');
     this.$acceptDialog = this.$('#js-sync-dialog').hide();
     this.$changesList = this.$('#js-list-changes').hide();
     this.$success = this.$('#js-sync-success').hide();
-
-    this.spinner = new Spinner({
-      lines: 11,
-      length: 3,
-      width: 3,
-      radius: 6,
-      left: '18px',
-      top: '50%'
-    });
   },
   fetchData: function () {
     var url = this.url = this.$('#js-sync-root').val();
@@ -44,7 +31,8 @@ module.exports = Backbone.View.extend({
 
     this.$changesList.hide();
     this.$acceptDialog.hide();
-    this.$fetchSpinner.append(this.spinner.spin().el);
+
+    Backbone._app.trigger('request');
 
     db.dumps.orderBy('synced').last()
       .then(function (lastDump) {
@@ -80,40 +68,38 @@ module.exports = Backbone.View.extend({
         })
       })
       .then(this.handleDump.bind(this))
-      .finally(this.spinner.stop.bind(this.spinner))
+      .finally(() => { Backbone._app.trigger('requestEnd') });
   },
   handleDump: function (data) {
-    var that = this
-      , PatchDiffCollection = require('../collections/patch_diff')
-      , diffs = PatchDiffCollection.fromDatasets({ local: this.localData.data, remote: data.dump.data, to: 'local' })
+    var PatchDiffCollection = require('../collections/patch_diff')
       , template = require('../templates/changes_list.html')
+      , diffs
 
-    // Get the difference between the local data and the dump
+    diffs = PatchDiffCollection.fromDatasets({
+      local: this.localData.data,
+      remote: data.dump.data,
+      to: 'local'
+    })
 
-    //this.collection = diffs;
-
-    // newPeriodizations.sort();
-
-    diffs.filterByHash().then(function (remoteChanges) {
-      that.remoteDiffs = new PatchDiffCollection(remoteChanges);
-      that.$changesList.show().html(template({
-        diffs: that.remoteDiffs
+    diffs.filterByHash().then(remoteChanges => {
+      this.remoteDiffs = new PatchDiffCollection(remoteChanges);
+      this.$changesList.show().html(template({
+        diffs: this.remoteDiffs
       }));
     });
-    //this.$acceptDialog.show();
   },
   handleAcceptPeriodizations: function () {
     var that = this;
     var options = { message: 'Synced data from ' + this.url }
 
-    this.$syncSpinner.append(this.spinner.spin().el);
+    Backbone._app.trigger('request');
     this.collection.sync('put', this.collection, options).then(function () {
       that.$acceptDialog.hide();
       that.$success
         .html('<div class="alert alert-success">Data synced.</div>')
         .show()
     })
-    .finally(this.spinner.stop.bind(this.spinner));
+    .finally(() => Backbone._app.trigger('requestEnd'))
   },
   handleSelectAllPatches: function (e) {
     var $checkbox = this.$(e.currentTarget)
@@ -126,8 +112,7 @@ module.exports = Backbone.View.extend({
     }
   },
   handleAcceptPatches: function () {
-    var db = require('../db')
-      , $selected = this.$('.toggle-patch-select input:checked')
+    var $selected = this.$('.toggle-patch-select input:checked')
       , patches
       , newData
       , newCollection
@@ -147,12 +132,12 @@ module.exports = Backbone.View.extend({
     var that = this;
     var options = { message: 'Synced data from ' + this.url }
 
-    this.$syncSpinner.append(this.spinner.spin().el);
+    Backbone._app.trigger('request');
     newCollection.sync('put', newCollection, options).then(function () {
       that.$success
         .html('<div class="alert alert-success">Data synced.</div>')
         .show()
     })
-    .finally(this.spinner.stop.bind(this.spinner));
+    .finally(() => Backbone._app.trigger('requestEnd'));
   }
 });
