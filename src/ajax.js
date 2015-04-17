@@ -6,8 +6,8 @@ module.exports = {
     var args = arguments;
     return new Promise(function (resolve, reject) {
       $.ajax.apply($, args).then(
-        ([...retArgs]) => resolve(retArgs),
-        ([...retArgs]) => reject(retArgs)
+        (...retArgs) => resolve(retArgs),
+        (...retArgs) => reject(retArgs)
       );
     });
   },
@@ -15,8 +15,8 @@ module.exports = {
     var args = arguments;
     return new Promise(function (resolve, reject) {
       $.getJSON.apply($, args).then(
-        ([...retArgs]) => resolve(retArgs),
-        ([...retArgs]) => reject(retArgs)
+        (...retArgs) => resolve(retArgs),
+        (...retArgs) => reject(retArgs)
       );
     });
   }
