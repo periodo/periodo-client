@@ -89,7 +89,8 @@ PatchDiffCollection = Backbone.Collection.extend({
       hashesToCheck[hash] = patch;
     });
 
-    promises.push(patches.filter(patch => patch.get('op') === 'add'));
+    promises.push(patches.filter(patch => (
+      patch instanceof Backbone.Model && patch.get('op') === 'add')));
     if (!_.isEmpty(hashesToCheck)) {
       promises.push(db(localStorage.currentBackend)
         .patches

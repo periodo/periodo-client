@@ -49,7 +49,7 @@ function transformSimplePatch(patch, opts) {
 
     isSimpleAddOrRemove = (
         (patch.op === 'add' || patch.op === 'remove')
-        && valuePath.split('/').unshift() === parsed.label)
+        && valuePath.split('/').slice(-1)[0] === parsed.label)
 
     if (isSimpleAddOrRemove) {
       acc.push(patch);
