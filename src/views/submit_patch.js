@@ -8,6 +8,7 @@ var _ = require('underscore')
   , jsonpatch = require('fast-json-patch')
   , periodDiff = require('../utils/period_diff')
   , Source = require('../models/source')
+  , PatchDiffCollection = require('../collections/patch_diff')
 
 function addLocalPatch(id) {
   var db = require('../db');
@@ -19,7 +20,9 @@ function addLocalPatch(id) {
 module.exports = Backbone.View.extend({
   events: {
     'click #js-find-changes': 'findChanges',
-    'click #js-accept-patches': 'handleAcceptPatches',
+    'click #js-accept-patches': 'handleContinue',
+    'click #js-submit-patches': 'handleSubmit',
+    'click #js-download-patch': 'handleDownloadPatch',
     'change .select-all-patches': 'handleSelectAll',
     'change .select-patch input': 'handleSelectPatch'
   },
@@ -47,18 +50,51 @@ module.exports = Backbone.View.extend({
 
     if ($checkbox.is(':checked')) {
       $td.addClass('patch-selected');
+      this.$continueButton.prop('disabled', null);
     } else {
       $td.removeClass('patch-selected');
+      if (!document.querySelector('.patch-selected')) {
+        this.$continueButton.prop('disabled', 'disabled');
+      }
     }
   },
-  handleAcceptPatches: function () {
+  handleContinue: function () {
     var [patches, cids] = this.getSelectedPatches();
 
+
+    this.renderConfirmPatches(cids, patches);
+  },
+  renderConfirmPatches: function (cids, patches) {
+    var patchHTML = this.makeDiffHTML(patches)
+      , template = require('../templates/confirm_patch.html')
+
+    this.$el.html(template());
+    this.$('#js-patch-list').html(patchHTML);
+    this.$('#js-patch-list').find('td:first-child, .select-patch-header').remove();
+    this.$('#js-accept-patches').remove();
+
+    patches = patches.toJSON();
     patches.forEach(p => {
       if (p.hasOwnProperty('fake')) delete p.fake;
     });
 
-    this.submitPatch(cids, patches);
+    this.selectedPatch = { cids: cids, patches: patches }
+  },
+  handleDownloadPatch: function () {
+    var saveAs = require('filesaver.js')
+      , filename = 'periodo-' + (new Date().toISOString().split('T')[0]) + '.jsonpatch'
+      , blob
+
+    blob = new Blob(
+      [JSON.stringify(this.selectedPatch.patches, false, '  ')],
+      { type: 'application/json-patch+json' }
+    )
+
+    saveAs(blob, filename);
+  },
+
+  handleSubmit: function () {
+    this.submitPatch(this.selectedPatch.cids, this.selectedPatch.patches);
   },
   getSelectedPatches: function () {
     var reduced = this.$('.select-patch input:checked').toArray().reduce((acc, el) => {
@@ -69,7 +105,7 @@ module.exports = Backbone.View.extend({
     }, [[], []]);
 
     var patches = _.flatten(reduced[0]);
-    patches = patches.map(p => p.toJSON());
+    patches = new PatchDiffCollection(patches);
 
     var cids = _.flatten(reduced[1]);
 
@@ -123,7 +159,6 @@ module.exports = Backbone.View.extend({
   },
   makePeriodDiffHTML: function(oldPeriod, patchIDs) {
     var template = require('../templates/changes/change_row.html')
-      , regex = /.*?\/definitions\//
       , newPeriod
       , patches
 
@@ -143,13 +178,16 @@ module.exports = Backbone.View.extend({
       patchIDs: patchIDs
     });
   },
-  renderLocalDiffs: function () {
+  makeDiffHTML: function (patchCollection) {
     var template = require('../templates/changes_list.html')
-      , diffTypes = this.collection.asDescription()
       , localData = this.collection.datasets.local
       , remoteData = this.collection.datasets.remote
+      , diffTypes
 
+    if (!patchCollection) patchCollection = this.collection;
+    diffTypes = patchCollection.asDescription()
 
+    this.$('#js-patch-list').html('');
 
     diffTypes.periodCollection.add.forEach(function (cid) {
     });
@@ -180,7 +218,7 @@ module.exports = Backbone.View.extend({
       html += this.makePeriodDiffHTML({}, [cid]);
 
       if (idx + 1 === arr.length) {
-        var thisPatch = this.collection.get(cid).toJSON()
+        var thisPatch = patchCollection.get(cid).toJSON()
           , parsed = patchUtils.parsePatchPath(thisPatch.path)
           , path = '/periodCollections/' + parsed.collection_id
           , source = pointer.get(localData, path + '/source')
@@ -191,12 +229,18 @@ module.exports = Backbone.View.extend({
       return html;
     }, '');
 
-
-    this.$el.append(template({
-      diffs: this.collection,
-      remoteData: this.collection.datasets.to,
+    return template({
+      diffs: patchCollection,
       periodEdits: periodEditHTML,
       periodAdditions: periodAdditionHTML
-    }));
+    });
+  },
+  renderLocalDiffs: function () {
+    this.$('#js-patch-list').html(this.makeDiffHTML());
+    this.$continueButton = this.$('#js-accept-patches')
+      .text('Continue')
+      .removeClass('btn-primary')
+      .addClass('btn-default')
+      .prop('disabled', 'disabled');
   }
 });
