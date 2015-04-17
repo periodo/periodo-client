@@ -96,10 +96,10 @@ function makeBinding(model, terminusLabel, $autoparse) {
       } else {
         data = { label: label, in: {}}
         if ($el.find('.date-single-year').is(':visible')) {
-          data.in.year = $el.find('.year-input');
+          data.in.year = $el.find('.year-input').val();
         } else {
-          data.in.earliestYear = $el.find('.earlist-year-input');
-          data.in.latestYear = $el.find('.latest-year-input');
+          data.in.earliestYear = $el.find('.earlist-year-input').val();
+          data.in.latestYear = $el.find('.latest-year-input').val();
         }
       }
 
@@ -109,7 +109,12 @@ function makeBinding(model, terminusLabel, $autoparse) {
 }
 
 function autoparseTerminus(terminus) {
-  return !terminus.has('in') || _.isEmpty(terminus.get('in')) || terminus.isGeneratedFromParser();
+  var empty = !terminus.has('in') || _.isEmpty(terminus.get('in'));
+  if (empty) {
+    return !!parseDate(terminus.get('label'));
+  } else {
+    return terminus.isGeneratedFromParser();
+  }
 }
 
 module.exports = Backbone.View.extend({
