@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
   , patch = require('fast-json-patch')
   , PeriodizationCollection = require('../collections/period_collection')
   , Dexie = require('dexie')
@@ -131,10 +132,13 @@ module.exports = Backbone.View.extend({
       , newData
       , newCollection
 
-    patches = $selected.toArray().map(function (el) {
-      var cid = el.dataset.patchId;
-      return this.remoteDiffs.get(cid).toJSON();
-    }, this);
+    patches = $selected.toArray().map(el => {
+      var cids = el.dataset.patchIds.split(',');
+      return this.remoteDiffs
+        .filter(patch => cids.indexOf(patch.cid) !== -1)
+        .map(patch => patch.toJSON())
+    });
+    patches = _.flatten(patches);
 
     newData = JSON.parse(JSON.stringify(this.localData.data));
     patch.apply(newData, patches);
