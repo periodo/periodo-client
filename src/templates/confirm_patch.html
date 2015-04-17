@@ -1,10 +1,13 @@
 <h1>Confirm</h1>
 
 <div id="js-submit-patch-container">
-  <p>About to submit the following patches to <%= window.location.origin %></p>
-
-  <div>
-    <button id="js-download-patch" class="btn btn-primary">Download patch</button>
+  <div class="row">
+    <div class="col-md-10">
+      <p>The following changes will be submitted to <%= window.location.origin %></p>
+    </div>
+    <div style="text-align: center;" class="col-md-2">
+      <button id="js-download-patch" class="btn btn-default">Download patch file</button>
+    </div>
   </div>
 
   <div id="js-patch-list"></div>

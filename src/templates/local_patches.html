@@ -1,0 +1,9 @@
+<h1>Submitted patches</h1>
+
+<% localPatches.forEach(function (patch) { %>
+<div>
+  <%= patch.id %>
+  <p>Resolved? <%= patch.resolved %></p>
+</div>
+<% }); %>
+

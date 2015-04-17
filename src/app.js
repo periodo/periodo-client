@@ -93,6 +93,7 @@ ApplicationRouter = Backbone.Router.extend({
     'p/:backend/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'p/:backend/sync/': 'sync',
     'p/:backend/patches/submit/': 'submitPatch',
+    'p/:backend/patches/': 'submittedPatches',
     'signin/': 'signin',
     'signout/': 'signout',
     '*anything': 'attemptRedirect'
@@ -193,9 +194,8 @@ ApplicationRouter = Backbone.Router.extend({
     this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
-  submitPatch: function () {
+  submitPatch: function (backend) {
     var db = require('./db')
-      , backend = localStorage.currentBackend
       , getMasterCollection = require('./master_collection')
 
     getMasterCollection(backend)
@@ -203,6 +203,14 @@ ApplicationRouter = Backbone.Router.extend({
       .then(localData => this.changeView(
         require('./views/submit_patch'), { localData }
       ));
+  },
+
+  submittedPatches: function (backend) {
+    var db = require('./db')
+
+    db(backend).localPatches.toArray(localPatches => {
+      this.changeView(require('./views/local_patches'), { localPatches });
+    });
   },
 
   // FIXME: This should not actually switch the backend, but rather check if

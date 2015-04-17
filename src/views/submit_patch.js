@@ -10,10 +10,10 @@ var _ = require('underscore')
   , Source = require('../models/source')
   , PatchDiffCollection = require('../collections/patch_diff')
 
-function addLocalPatch(id) {
+function addLocalPatch(id, patches) {
   var db = require('../db');
   return db(localStorage.currentBackend).localPatches
-    .put({ id: id, resolved: false })
+    .put({ id: id, resolved: false, data: patches, submitted: new Date() })
     .then(() => id);
 }
 
@@ -130,7 +130,7 @@ module.exports = Backbone.View.extend({
     Backbone._app.trigger('request');
 
     return ajax.ajax(ajaxOpts).catch(this.handlePatchSubmitError)
-      .then(([data, textStatus, xhr]) => addLocalPatch(xhr.getResponseHeader('Location')))
+      .then(([data, textStatus, xhr]) => addLocalPatch(xhr.getResponseHeader('Location'), patches))
       .then(() => this.collection.remove(cids))
       .then(this.render.bind(this)) // TODO: Add "patch added" or "patch rejected" message
       .finally(() => Backbone._app.trigger('requestEnd'));
