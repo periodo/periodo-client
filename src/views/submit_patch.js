@@ -93,9 +93,6 @@ module.exports = Backbone.View.extend({
     saveAs(blob, filename);
   },
 
-  handleSubmit: function () {
-    this.submitPatch(this.selectedPatch.cids, this.selectedPatch.patches);
-  },
   getSelectedPatches: function () {
     var reduced = this.$('.select-patch input:checked').toArray().reduce((acc, el) => {
       var cids = el.dataset.patchIds.split(',');
@@ -111,8 +108,10 @@ module.exports = Backbone.View.extend({
 
     return [patches, cids];
   },
-  submitPatch: function (cids, patches) {
+  handleSubmit: function () {
     var ajax = require('../ajax')
+      , cids = this.selectedPatch.cids
+      , patches = this.selectedPatch.patches
       , ajaxOpts
 
     ajaxOpts = {
@@ -121,8 +120,11 @@ module.exports = Backbone.View.extend({
       contentType: 'application/json',
       data: JSON.stringify(patches),
       headers: {
-        Authorization: 'Bearer ' + JSON.parse(localStorage.auth).token
       }
+    }
+
+    if (localStorage.auth) {
+      ajaxOpts.headers.Authorization = 'Bearer ' + JSON.parse(localStorage.auth).token;
     }
 
     return ajax.ajax(ajaxOpts).catch(this.handlePatchSubmitError)
@@ -130,8 +132,19 @@ module.exports = Backbone.View.extend({
       .then(() => this.collection.remove(cids))
       .then(this.renderLocalDiffs.bind(this)) // TODO: Add "patch added" or "patch rejected method"
   },
-  handlePatchSubmitError: function (xhr, textStatus, errorThrown) {
-    var msg = errorThrown;
+  handlePatchSubmitError: function ([xhr, textStatus, errorThrown]) {
+    var errorMessages
+      , msg
+
+    errorMessages = {
+      0: 'Connection error- could not connect to server.',
+      400: 'Bad patch format.',
+      401: 'Unauthorized to send patch. Login and try again.'
+    }
+
+    msg = errorMessages[xhr.status];
+
+    alert(msg);
 
     this.addError(msg);
 
