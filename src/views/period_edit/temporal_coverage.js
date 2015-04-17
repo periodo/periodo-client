@@ -111,7 +111,11 @@ function makeBinding(model, terminusLabel, $autoparse) {
 function autoparseTerminus(terminus) {
   var empty = !terminus.has('in') || _.isEmpty(terminus.get('in'));
   if (empty) {
-    return !!parseDate(terminus.get('label'));
+    if (!terminus.get('label')) {
+      return true;
+    } else {
+      return !!parseDate(terminus.get('label'));
+    }
   } else {
     return terminus.isGeneratedFromParser();
   }
