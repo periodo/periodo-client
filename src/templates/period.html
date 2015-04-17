@@ -1,7 +1,12 @@
 <% var _ = require('underscore') %>
 <dl class="dl-horizontal">
   <div class="field">
-    <dt>Original label (<%= Object.keys(period.originalLabel)[0] %>)</dt>
+    <dt>
+      Original label
+      <% if (!_.isEmpty(period.originalLabel)) { %>
+      (<%= Object.keys(period.originalLabel)[0] %>)
+      <% } %>
+    </dt>
     <dd><%= period.label %></dd>
   </div>
 
