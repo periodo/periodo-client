@@ -11,7 +11,7 @@ var _ = require('underscore')
 
 function addLocalPatch(id) {
   var db = require('../db');
-  return db.localPatches
+  return db(localStorage.currentBackend).localPatches
     .put({ id: id, resolved: false })
     .then(() => id);
 }
@@ -19,6 +19,7 @@ function addLocalPatch(id) {
 module.exports = Backbone.View.extend({
   events: {
     'click #js-find-changes': 'findChanges',
+    'click #js-accept-patches': 'handleAcceptPatches',
     'change .select-all-patches': 'handleSelectAll',
     'change .select-patch input': 'handleSelectPatch'
   },
@@ -50,6 +51,30 @@ module.exports = Backbone.View.extend({
       $td.removeClass('patch-selected');
     }
   },
+  handleAcceptPatches: function () {
+    var [patches, cids] = this.getSelectedPatches();
+
+    patches.forEach(p => {
+      if (p.hasOwnProperty('fake')) delete p.fake;
+    });
+
+    this.submitPatch(cids, patches);
+  },
+  getSelectedPatches: function () {
+    var reduced = this.$('.select-patch input:checked').toArray().reduce((acc, el) => {
+      var cids = el.dataset.patchIds.split(',');
+      acc[0].push(this.collection.filter(patch => cids.indexOf(patch.cid) !== -1));
+      acc[1].push(cids);
+      return acc;
+    }, [[], []]);
+
+    var patches = _.flatten(reduced[0]);
+    patches = patches.map(p => p.toJSON());
+
+    var cids = _.flatten(reduced[1]);
+
+    return [patches, cids];
+  },
   submitPatch: function (cids, patches) {
     var ajax = require('../ajax')
       , ajaxOpts
@@ -58,13 +83,16 @@ module.exports = Backbone.View.extend({
       url: url.resolve(window.location.href, '/d.jsonld'),
       method: 'PATCH',
       contentType: 'application/json',
-      data: patches
+      data: JSON.stringify(patches),
+      headers: {
+        Authorization: 'Bearer ' + JSON.parse(localStorage.auth).token
+      }
     }
 
     return ajax.ajax(ajaxOpts).catch(this.handlePatchSubmitError)
-      .then((data, textStatus, xhr) => addLocalPatch(xhr.getResponse('Location')))
+      .then(([data, textStatus, xhr]) => addLocalPatch(xhr.getResponseHeader('Location')))
       .then(() => this.collection.remove(cids))
-      .then(this.renderLocalDiffs) // TODO: Add "patch added" or "patch rejected method"
+      .then(this.renderLocalDiffs.bind(this)) // TODO: Add "patch added" or "patch rejected method"
   },
   handlePatchSubmitError: function (xhr, textStatus, errorThrown) {
     var msg = errorThrown;
@@ -83,7 +111,7 @@ module.exports = Backbone.View.extend({
       , PatchDiffCollection = require('../collections/patch_diff')
 
     ajax.getJSON(url + '/d/')
-      .then(remoteData => this.collection = PatchDiffCollection.fromDatasets({
+      .then(([remoteData]) => this.collection = PatchDiffCollection.fromDatasets({
         local: this.localData.data,
         remote: remoteData,
         to: 'remote'
