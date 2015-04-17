@@ -7,7 +7,9 @@
 %>
 
 <tr class="select-patch">
-  <td class="toggle-patch-select"><input type="checkbox" data-patch-id="<%= patch.cid %>" /></td>
+  <td class="toggle-patch-select">
+    <label><input type="checkbox" data-patch-ids="<%= patch.cid %>" /></label>
+  </td>
   <td>
     <div><%= periodCollection.source().displayTitle() %></div>
     <div>Definitions: <%= periodCollection.definitions().length %></div>

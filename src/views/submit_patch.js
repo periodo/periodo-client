@@ -5,6 +5,7 @@ var _ = require('underscore')
   , Backbone = require('../backbone')
   , patchUtils = require('../utils/patch')
   , pointer = require('json-pointer')
+  , jsonpatch = require('fast-json-patch')
   , periodDiff = require('../utils/period_diff')
   , Source = require('../models/source')
 
@@ -17,7 +18,9 @@ function addLocalPatch(id) {
 
 module.exports = Backbone.View.extend({
   events: {
-    'click #js-find-changes': 'findChanges'
+    'click #js-find-changes': 'findChanges',
+    'change .select-all-patches': 'handleSelectAll',
+    'change .select-patch input': 'handleSelectPatch'
   },
   initialize: function ({ localData }) {
     this.localData = localData;
@@ -26,6 +29,26 @@ module.exports = Backbone.View.extend({
   render: function () {
     var template = require('../templates/submit_patch.html');
     this.$el.html(template());
+  },
+  handleSelectAll: function (e) {
+    var $checkbox = this.$(e.currentTarget)
+      , $toToggle = $checkbox.closest('.patch-collection').find('.select-patch input')
+
+    if ($checkbox.is(':checked')) {
+      $toToggle.prop('checked', true).trigger('change');
+    } else {
+      $toToggle.prop('checked', false).trigger('change');
+    }
+  },
+  handleSelectPatch: function (e) {
+    var $checkbox = this.$(e.currentTarget)
+      , $td = $checkbox.closest('td')
+
+    if ($checkbox.is(':checked')) {
+      $td.addClass('patch-selected');
+    } else {
+      $td.removeClass('patch-selected');
+    }
   },
   submitPatch: function (cids, patches) {
     var ajax = require('../ajax')
@@ -70,69 +93,82 @@ module.exports = Backbone.View.extend({
       .then(this.renderLocalDiffs.bind(this))
       .catch(err => console.error(err.stack || err));
   },
+  makePeriodDiffHTML: function(oldPeriod, patchIDs) {
+    var template = require('../templates/changes/change_row.html')
+      , regex = /.*?\/definitions\//
+      , newPeriod
+      , patches
+
+    patches = this.collection
+      .filter(patch => patchIDs.indexOf(patch.cid) !== -1)
+      .map(patch => {
+        var p = patch.toJSON();
+        p.path = pointer.compile(pointer.parse(p.path).slice(4));
+        return p;
+      });
+
+    newPeriod = JSON.parse(JSON.stringify(oldPeriod));
+    jsonpatch.apply(newPeriod, patches);
+
+    return template({
+      diffHTML: periodDiff(oldPeriod, newPeriod),
+      patchIDs: patchIDs
+    });
+  },
   renderLocalDiffs: function () {
     var template = require('../templates/changes_list.html')
       , diffTypes = this.collection.asDescription()
       , localData = this.collection.datasets.local
       , remoteData = this.collection.datasets.remote
 
+
+
     diffTypes.periodCollection.add.forEach(function (cid) {
     });
 
-    var periodEdits = _.map(diffTypes.period.edit, function (periods, periodCollectionID) {
+    function formatPeriodRow(source, periodHTML) {
+      var template = require('../templates/changes/period_edit.html');
+      source = new Source(_.omit(source, 'id'), { parse: true })
+      return template({ diffs: periodHTML, source: source });
+    }
+
+    var periodEditHTML = _.map(diffTypes.period.edit, (periods, periodCollectionID) => {
       var path = '/periodCollections/' + periodCollectionID
         , source = pointer.get(localData, path + '/source')
-        , template = require('../templates/changes/period_edit.html')
         , html
 
-      source = new Source(_.omit(source, 'id'), { parse: true })
-      html = _.map(periods, function (patchIDs, periodID) {
-        var template = require('../templates/changes/change_row.html')
-          , periodPath = path + '/definitions/' + periodID
-          , diffHTML
+      html = _.map(periods, (patchIDs, periodID) => {
+        var periodPath = path + '/definitions/' + periodID
+          , oldPeriod = pointer.get(remoteData, periodPath)
 
-        // Can't just compare to the remote -- need to apply the patches that
-        // will be applied.
-        diffHTML = periodDiff(
-          pointer.get(remoteData, periodPath),
-          pointer.get(localData, periodPath))
+        return this.makePeriodDiffHTML(oldPeriod, patchIDs);
+      }).join('\n');
 
-        return template({ diffHTML: diffHTML, patchIDs: patchIDs })
-      }, this);
-
-      return template({ diffs: html.join('\n'), source: source })
-    }, this);
-
-    var periodAdditions = diffTypes.period.add.map(function (cid) {
-      var thisPatch = this.collection.get(cid).toJSON()
-        , parsed = patchUtils.parsePatchPath(thisPatch.path) 
-        , path = '/periodCollections/' + parsed.collection_id
-        , source = pointer.get(localData, path + '/source')
-        , template = require('../templates/changes/period_edit.html')
-        , html
+      return formatPeriodRow(source, html);
+    }).join('\n');
 
 
-      source = new Source(_.omit(source, 'id'), { parse: true })
-      html = (function () {
-        var template = require('../templates/changes/change_row.html')
-          , periodPath = path + '/definitions/' + parsed.id
-          , diffHTML
+    var periodAdditionHTML = diffTypes.period.add.reduce((html, cid, idx, arr) => {
+      html += this.makePeriodDiffHTML({}, [cid]);
 
-        // Can't just compare to the remote -- need to apply the patches that
-        // will be applied.
-        diffHTML = periodDiff({}, pointer.get(localData, periodPath));
+      if (idx + 1 === arr.length) {
+        var thisPatch = this.collection.get(cid).toJSON()
+          , parsed = patchUtils.parsePatchPath(thisPatch.path)
+          , path = '/periodCollections/' + parsed.collection_id
+          , source = pointer.get(localData, path + '/source')
 
-        return template({ diffHTML: diffHTML, patchIDs: [cid] })
-      })()
+        return formatPeriodRow(source, html);
+      }
 
-      return template({ diffs: html, source: source })
-    }, this);
+      return html;
+    }, '');
+
 
     this.$el.append(template({
       diffs: this.collection,
       remoteData: this.collection.datasets.to,
-      periodEdits: periodEdits,
-      periodAdditions: periodAdditions
+      periodEdits: periodEditHTML,
+      periodAdditions: periodAdditionHTML
     }));
   }
 });

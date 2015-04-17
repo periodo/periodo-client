@@ -5,9 +5,6 @@
 var description = diffs.asDescription();
 var _ = require('underscore');
 %>
-<h3>Total changes: <%= diffs.length %></h3>
-
-<hr />
 
 <%
   function makeRow(patch, template) {
@@ -16,40 +13,53 @@ var _ = require('underscore');
 %>
 
 <% if (description.periodCollection.add.length) { %>
-<h4>New period collections</h4>
-<div>
-  <input type="checkbox" class="select-all-patches" />
-  <label>Select all</label>
+<div class="patch-collection">
+  <h3>New period collections</h3>
+  <div class="select-patch-header">
+    <label>
+      <input type="checkbox" class="select-all-patches" />
+      Select all
+    </label>
+  </div>
+  <br/>
+  <table class="table table-bordered">
+    <tbody>
+    <% description.periodCollection.add.forEach(function (cid) {
+      print(makeRow(diffs.get(cid), require('./changes/period_collection_add.html')));
+    }); %>
+    </tbody>
+  </table>
 </div>
-<table class="table">
-  <tbody>
-  <% description.periodCollection.add.forEach(function (cid) {
-    print(makeRow(diffs.get(cid), require('./changes/period_collection_add.html')));
-  }); %>
-  </tbody>
-</table>
 <% } %>
 
 <% if (!_.isEmpty(description.periodCollection.edit)) { %>
-<h4>Edited period collections</h4>
+<h3>Edited period collections</h3>
 <% } %>
 
 <% if (description.period.add.length) { %>
-<h4>New periods</h4>
-<div>
-  <input type="checkbox" class="select-all-patches" />
-  <label>Select all</label>
+<div class="patch-collection new-periods-patch-collection">
+  <h3>New periods</h3>
+  <div class="select-patch-header">
+    <label>
+      <input type="checkbox" class="select-all-patches" />
+      Select all
+    </label>
+  </div>
+  <%= periodAdditions %>
 </div>
-<%= periodAdditions %>
 <% } %>
 
 <% if (!_.isEmpty(description.period.edit)) { %>
-<h4>Edited periods</h4>
-<div>
-  <input type="checkbox" class="select-all-patches" />
-  <label>Select all</label>
+<div class="patch-collection">
+  <h3>Edited periods</h3>
+  <div class="select-patch-header">
+    <label>
+      <input type="checkbox" class="select-all-patches" />
+      Select all
+    </label>
+  </div>
+  <%= periodEdits %>
 </div>
-<%= periodEdits %>
 <% } %>
 
 <% } %>
