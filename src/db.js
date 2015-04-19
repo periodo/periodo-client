@@ -102,7 +102,7 @@ function openDB(dbName) {
     localData: 'id&,modified',
     patches: 'id++,created,*affected,forwardHash,backwardHash'
   }).upgrade(function (tx) {
-    tx.table('patches').toCollection().collection.modify(function (patch) {
+    tx.table('patches').toCollection().modify(function (patch) {
       patch.forwardHash = md5.hash(stringify(patch.forward));
       patch.backwardHash = md5.hash(stringify(patch.backward));
     });
