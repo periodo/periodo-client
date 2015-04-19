@@ -24,70 +24,6 @@ function hashPatch(p) { return md5.hash(stringify(p)) }
 function openDB(dbName) {
   var db = new Dexie(dbName);
 
-  db.version(1).stores({
-    dumps: 'id&,modified,synced',
-    localData: 'id&,modified',
-    patches: 'id++,created,*affected'
-  });
-
-  db.version(2).stores({
-    dumps: 'id&,modified,synced',
-    localData: 'id&,modified',
-    patches: 'id++,created,*affected,forwardHash,backwardHash'
-  }).upgrade(function (tx) {
-    tx.table('patches').toCollection().modify(function (patch) {
-      patch.forwardHash = md5.hash(stringify(patch.forward));
-      patch.backwardHash = md5.hash(stringify(patch.backward));
-    });
-  });
-
-  db.version(3).stores({
-    dumps: 'id&,modified,synced',
-    localData: 'id&,modified',
-    patches: 'id++,created,*affected,forwardHash,backwardHash,type'
-  }).upgrade(function (tx) {
-    tx.table('patches').toCollection().modify(function (patch) {
-      patch.type = patchUtils.classifyPatchSet(patch);
-    });
-  });
-
-  db.version(4).stores({
-    dumps: 'id&,modified,synced',
-    localData: 'id&,modified',
-    patches: 'id++,created,*affectedCollections,*affectedPeriods,forwardHash,backwardHash,type'
-  }).upgrade(function (tx) {
-    tx.table('patches').toCollection().modify(function (patch) {
-      var affected;
-
-      delete patch.affected;
-
-      affected = patchUtils.getAffected(patch.forward);
-      patch.affectedCollections = _.unique(affected.collections);
-      patch.affectedPeriods = _.unique(affected.periods);
-    });
-  });
-
-  db.version(5).stores({
-    dumps: 'id&,modified,synced',
-    localData: 'id&,modified',
-    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type'
-  }).upgrade(function (tx) {
-    tx.table('patches').toCollection().modify(function (patch) {
-      delete patch.fowardHash;
-      delete patch.backwardHash;
-
-      patch.forwardHashes = patch.forward.map(hashPatch);
-      patch.backwardHashes = patch.backward.map(hashPatch);
-    });
-  });
-
-  db.version(5).stores({
-    dumps: 'id&,modified,synced',
-    localData: 'id&,modified',
-    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
-    localPatches: 'id&,resolved'
-  })
-
   db.version(6).stores({
     dumps: 'id&,modified,synced',
     localData: 'id&,modified',
@@ -96,6 +32,7 @@ function openDB(dbName) {
   }).upgrade(function (tx) {
     tx.table('localData').get(DUMPID).then(function (d) {
       var data = d.data;
+      console.log(data);
       tx.table('patches').orderBy('id').reverse().modify(function (patch) {
         var after = JSON.parse(JSON.stringify(data))
           , before
@@ -116,6 +53,65 @@ function openDB(dbName) {
         patch.backwardHashes = patch.backward.map(hashPatch);
       });
     });
+  });
+
+  db.version(5).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type'
+  }).upgrade(function (tx) {
+    tx.table('patches').toCollection().modify(function (patch) {
+      delete patch.fowardHash;
+      delete patch.backwardHash;
+
+      patch.forwardHashes = patch.forward.map(hashPatch);
+      patch.backwardHashes = patch.backward.map(hashPatch);
+    });
+  });
+
+  db.version(4).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,forwardHash,backwardHash,type'
+  }).upgrade(function (tx) {
+    tx.table('patches').toCollection().modify(function (patch) {
+      var affected;
+
+      delete patch.affected;
+
+      affected = patchUtils.getAffected(patch.forward);
+      patch.affectedCollections = _.unique(affected.collections);
+      patch.affectedPeriods = _.unique(affected.periods);
+    });
+  });
+
+
+  db.version(3).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affected,forwardHash,backwardHash,type'
+  }).upgrade(function (tx) {
+    tx.table('patches').toCollection().modify(function (patch) {
+      patch.type = patchUtils.classifyPatchSet(patch);
+    });
+  });
+
+
+  db.version(2).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affected,forwardHash,backwardHash'
+  }).upgrade(function (tx) {
+    tx.table('patches').toCollection().collection.modify(function (patch) {
+      patch.forwardHash = md5.hash(stringify(patch.forward));
+      patch.backwardHash = md5.hash(stringify(patch.backward));
+    });
+  });
+
+  db.version(1).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affected'
   });
 
   db.on('populate', function () {
