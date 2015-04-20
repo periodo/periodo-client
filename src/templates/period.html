@@ -60,9 +60,10 @@
   <div class="field">
   <dt>Start</dt>
     <%
-    if (period.start.in.hasOwnProperty('earliestYear')) {
+    var startIn = period.start.in || {};
+    if (startIn.hasOwnProperty('earliestYear')) {
     var startParsed = 'Earliest: ' + period.start.in.earliestYear + ', Latest: ' + period.start.in.latestYear;
-    } else if (period.start.in.hasOwnProperty('year')) {
+    } else if (startIn.hasOwnProperty('year')) {
     var startParsed = period.start.in.year;
     } else {
     var startParsed = 'unknown';
@@ -74,9 +75,10 @@
   <div class="field">
   <dt>Stop</dt>
     <%
-    if (period.stop.in.hasOwnProperty('earliestYear')) {
+    var stopIn = period.stop.in || {};
+    if (stopIn.hasOwnProperty('earliestYear')) {
     var stopParsed = 'Earliest: ' + period.stop.in.earliestYear + ', Latest: ' + period.stop.in.latestYear;
-    } else if (period.stop.in.hasOwnProperty('year')) {
+    } else if (stopIn.hasOwnProperty('year')) {
     var stopParsed = period.stop.in.year;
     } else {
     var stopParsed = 'unknown';
