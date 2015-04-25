@@ -5,6 +5,7 @@ var $ = require('jquery')
   , Spinner = require('spin.js')
   , root = location.protocol + '//' + location.host
   , ApplicationRouter
+  , app
 
 var LEFT_CLICK = 1;
 
@@ -20,8 +21,7 @@ function wasLeftClick(e) {
 }
 
 function checkAuth() {
-  var auth
-    , $signin = $('#auth-signin-link')
+  var $signin = $('#auth-signin-link')
     , $signout = $('#auth-signout-link')
 
   if ('auth' in localStorage) {
@@ -55,7 +55,6 @@ function initVersion() {
 
 $(document).ready(function () {
   initVersion();
-  var router = Backbone._app = new ApplicationRouter();
   var spinner = new Spinner({
     lines: 12,
     length: 5,
@@ -65,18 +64,33 @@ $(document).ready(function () {
   });
   var spinnerEl = document.getElementById('spinner')
 
-  router.on('request', spinner.spin.bind(spinner, spinnerEl));
-  router.on('sync error requestEnd', function () {
+  app.on('request', spinner.spin.bind(spinner, spinnerEl));
+  app.on('sync error requestEnd', function () {
     setTimeout(spinner.stop.bind(spinner), 100);
   })
 
-  router.on('backendSwitch', refreshBackend);
+  app.on('backendSwitch', refreshBackend);
+
+  app.initErrorList();
 
   checkAuth();
 
   Backbone.history.start();
 }).on('click a', function (e) {
-  if (e.target.href && e.target.href.indexOf(root) === 0 && wasLeftClick(e)) {
+  var goodClick
+    , skip
+
+  goodClick = (
+    e.target.href &&
+    e.target.href.indexOf(root) === 0 &&
+    wasLeftClick(e)
+  )
+
+  skip = e.target.dataset.noRedirect;
+
+  if (skip) {
+    e.preventDefault();
+  } else if (goodClick) {
     e.preventDefault();
     Backbone.history.navigate(e.target.getAttribute('href'), { trigger: true });
   }
@@ -103,6 +117,26 @@ ApplicationRouter = Backbone.Router.extend({
     if (this._view) this._view.remove();
     this._view = new ViewConstructor(options || {});
     this._view.$el.appendTo('#main');
+  },
+  initErrorList: function () {
+    var Dexie = require('dexie')
+      , Error = Backbone.Model.extend({})
+      , ErrorCollection = Backbone.Collection.extend({ model: Error })
+      , ErrorView = require('./views/errors')
+
+    this.errorCollection = new ErrorCollection();
+    this.errorView = new ErrorView({
+      collection: this.errorCollection,
+      el: $('#error-list')
+    });
+
+    Dexie.Promise.on('error', err => this.addError(err));
+  },
+  addError: function (err) {
+    this.errorCollection.add({
+      error: err,
+      time: new Date()
+    });
   },
 
   welcome: function () {
@@ -219,7 +253,6 @@ ApplicationRouter = Backbone.Router.extend({
     var getMasterCollection = require('./master_collection')
       , Periodization = require('./models/period_collection')
       , Period = require('./models/period')
-      , PeriodizationView = require('./views/period_collection_show')
 
     key = 'p0' + key;
 
@@ -244,3 +277,5 @@ ApplicationRouter = Backbone.Router.extend({
     });
   }
 });
+
+module.exports = app = Backbone._app = new ApplicationRouter();
