@@ -56,7 +56,8 @@ PatchDiffCollection = Backbone.Collection.extend({
       if (lastThing && lastThing[1] === patch) return arr;
 
       isFakeDelete = (
-        patch.get('op') === 'remove' && 
+        patch.get('op') === 'remove' &&
+        this.at(idx + 1) &&
         this.at(idx + 1).get('path') === patch.get('path')
       );
 
@@ -100,7 +101,7 @@ PatchDiffCollection = Backbone.Collection.extend({
         .then(hashes => {
           // For patch generation option, include *only* those edits that have
           // matching forward hashes in the patch history.
-          // 
+          //
           // For sync operations, remove all edits that have matching backwards
           // hashes in the patch history.
           return _.flatten(to === 'remote' ?
@@ -112,7 +113,7 @@ PatchDiffCollection = Backbone.Collection.extend({
     }
 
     return Dexie.Promise.all(promises)
-      .then(([edits, additions]) => additions.concat(edits));
+      .then(([additions, edits]) => additions.concat(edits));
   },
 });
 
@@ -128,7 +129,7 @@ PatchDiffCollection.fromDatasets = function ({ local, remote, to }) {
   // various other things...)
   patch = to === 'local' ?
     patchUtils.makePatch(local, remote) : // Syncing from server
-    patchUtils.makePatch(remote, local)   // Submitting patch ("How can we make 
+    patchUtils.makePatch(remote, local)   // Submitting patch ("How can we make
 
   patch = patch.filter(p => p.path.match(/^\/periodCollection/));
   collection = new PatchDiffCollection(patch);
