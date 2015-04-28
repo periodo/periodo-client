@@ -101,6 +101,16 @@ module.exports = Backbone.View.extend({
         var blob = new Blob([data], { type: 'text/csv' });
         saveAs(blob, filename);
       });
+    } else if (filetype === 'ttl') {
+      this.model.asTurtle().then(data => {
+        var blob = new Blob([data], { type: 'text/turtle' });
+        saveAs(blob, filename);
+      });
+    } else if (filetype === 'jsonld') {
+      var stringify = require('json-stable-stringify');
+      var json = stringify(this.model.asJSONLD(), { space: '  ' });
+      var blob = new Blob([json], { type: 'application/json+ld' });
+      saveAs(blob, filename);
     }
 
   },
