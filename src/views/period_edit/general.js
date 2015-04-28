@@ -61,6 +61,7 @@ module.exports = Backbone.View.extend({
     });
 
     this.stickit();
+    this.$('#js-label').trigger('input');
   },
   render: function () {
     var template = require('./templates/general_form.html');
