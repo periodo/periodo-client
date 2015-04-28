@@ -2,7 +2,7 @@
   var _ = require('underscore');
   var json = patch.toJSON();
   var PeriodCollection = require('../../models/period_collection');
-  var periodCollection = new PeriodCollection(_.omit(json.value, 'id'), { parse: true });
+  var periodCollection = new PeriodCollection(_.omit(json.value, 'id'), { parse: true, noMutate: true });
   var timeSpan = periodCollection.getTimespan();
 %>
 
