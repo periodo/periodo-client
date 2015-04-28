@@ -103,7 +103,7 @@ module.exports = Backbone.View.extend({
   },
   handleSelectAllPatches: function (e) {
     var $checkbox = this.$(e.currentTarget)
-      , $toToggle = $checkbox.closest('div').next('table').find('input[type="checkbox"]')
+      , $toToggle = $checkbox.closest('.patch-collection').find('table input[type="checkbox"]')
 
     if ($checkbox.is(':checked')) {
       $toToggle.prop('checked', true);
