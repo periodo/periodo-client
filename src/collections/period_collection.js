@@ -15,9 +15,7 @@ module.exports = Backbone.Collection.extend({
       periodCollections = _.values(data.periodCollections);
     }
 
-    if (data['@context']) {
-      this.context = data['@context']
-    }
+    this.context = data['@context'] || require('../context.json');
 
     return periodCollections;
   },
