@@ -3,7 +3,7 @@
     "p03377fkhrv": {
       "id": "p03377fkhrv",
       "label": "Iron Age",
-      "localizedLabel": {
+      "originalLabel": {
         "eng-latn": "Iron Age"
       },
       "spatialCoverage": [
@@ -29,7 +29,7 @@
     "p03377ft59d": {
       "id": "p03377ft59d",
       "label": "Late Iron Age",
-      "localizedLabel": {
+      "originalLabel": {
         "eng-latn": "Late Iron Age"
       },
       "spatialCoverage": [

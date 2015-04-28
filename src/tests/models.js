@@ -29,8 +29,8 @@ describe('Period model', function () {
 
   it('should have starts and stops', function () {
     var period = new Period();
-    assert.deepEqual(period.start().toJSON(), { in: {}, label: undefined });
-    assert.deepEqual(period.stop().toJSON(), { in: {}, label: undefined });
+    assert.deepEqual(period.start().toJSON(), { label: undefined });
+    assert.deepEqual(period.stop().toJSON(), { label: undefined });
   });
 
   it('should let me set starts and stops', function () {

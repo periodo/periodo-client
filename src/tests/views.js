@@ -27,10 +27,13 @@ describe('Period form', function () {
 
   it('Should parse dates for me', function () {
     var view = makeView();
-    view.$('#js-startDate').val('1890').trigger('input');
-    view.$('#js-endDate').val('1920').trigger('input');
+    view.$('#js-startLabel').val('1890').trigger('input');
+    view.$('#js-endLabel').val('1920').trigger('input');
     assert.deepEqual(view.model.toJSON(), {
       label: 'Progressive era',
+      originalLabel: {
+        'eng-latn': 'Progressive era'
+      },
       type: 'PeriodDefinition',
       start: { in: { year: '1890' }, label: '1890' },
       stop: { in: { year: '1920' }, label: '1920' }
@@ -44,15 +47,15 @@ describe('Period form', function () {
     assert.equal(view.$('.error-message').length, 1);
     assert.equal(view.$('.error-message').text(), 'A period must have start and stop dates.');
 
-    view.$('#js-startDate').val('1920').trigger('input');
-    view.$('#js-endDate').val('1890').trigger('input');
+    view.$('#js-startLabel').val('1920').trigger('input');
+    view.$('#js-endLabel').val('1890').trigger('input');
     view.model.isValid();
     assert.equal(view.$('.error-message').length, 1);
     assert.equal(view.$('.error-message').text(), 'A period\'s stop must come after its start.');
 
     view.$('.error-message').remove();
-    view.$('#js-startDate').val('1890').trigger('input');
-    view.$('#js-endDate').val('1920').trigger('input');
+    view.$('#js-startLabel').val('1890').trigger('input');
+    view.$('#js-endLabel').val('1920').trigger('input');
     view.model.isValid();
     assert.equal(view.$('.error-message').length, 0);
   });
