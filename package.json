@@ -43,7 +43,7 @@
     "serve": "^1.4.0",
     "testling": "^1.6.1",
     "uglify-js": "^2.4.19",
-    "watchify": "^3.1.0"
+    "watchify": "^3.1.2"
   },
   "browserify": {
     "transform": [
