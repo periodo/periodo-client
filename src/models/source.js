@@ -12,6 +12,9 @@ var $ = require('jquery')
 var WORLDCAT_REGEX = /www.worldcat.org\/oclc\/(\d+)/
   , DXDOI_REGEX = /dx.doi.org\/(.*)/
 
+var CORS_PROXY_URL = 'https://cors-anywhere.herokuapp.com/'
+  , CORS_PROXY_ENABLED = true
+
 Source = Supermodel.Model.extend({
   isLinkedData: function () {
     var id = this.get('id') || '';
@@ -45,10 +48,16 @@ Source = Supermodel.Model.extend({
 
     if (uri.match(WORLDCAT_REGEX)) {
       ldUri = 'http://experiment.worldcat.org/oclc/' + uri.match(WORLDCAT_REGEX)[1] + '.jsonld';
+      if (CORS_PROXY_ENABLED) {
+        ldUri = CORS_PROXY_URL + ldUri;
+      }
       promise = $.ajax(ldUri, {dataType: 'text', accepts: {text: 'application/ld+json'}})
         .then(parseSourceLD.bind(null, uri, null))
     } else if (uri.match(DXDOI_REGEX)) {
       ldUri = 'http://data.crossref.org/' + encodeURIComponent(uri.match(DXDOI_REGEX)[1]);
+      if (CORS_PROXY_ENABLED) {
+        ldUri = CORS_PROXY_URL + ldUri;
+      }
       promise = $.ajax(ldUri, {dataType: 'text', accepts: {text: 'text/turtle'}})
         .then(parseSourceLD.bind(null, uri))
     }
