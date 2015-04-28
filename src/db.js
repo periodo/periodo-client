@@ -139,32 +139,11 @@ function openDB(dbName) {
   }
 
   db.updateLocalData = function (newData, message) {
-
     return db.transaction('rw', db.localData, db.patches, function () {
-      return db.makeLocalPatch(newData).then(function (patches) {
-        var promises = []
-          , affected = patchUtils.getAffected(patches.forward)
-          , localData
-          , patchData
-
-        localData = {
-          id: DUMPID,
-          data: newData,
-          modified: new Date().getTime()
-        }
-
-        patchData = {
-          forward: patches.forward,
-          forwardHashes: patches.forward.map(hashPatch),
-          backward: patches.backward,
-          backwardHashes: patches.backward.map(hashPatch),
-          created: new Date().getTime(),
-          message: message,
-          affectedCollections: affected.collections,
-          affectedPeriods: affected.periods
-        }
-
-        patchData.type = patchUtils.classifyPatchSet(patchData);
+      return db.getLocalData().then(oldData => {
+        var patchData = patchUtils.formatPatch(oldData.data, newData, message)
+          , localData = { id: DUMPID, data: newData, modified: new Date().getTime() }
+          , promises = []
 
         promises.push(db.localData.put(localData));
         promises.push(db.patches.put(patchData));

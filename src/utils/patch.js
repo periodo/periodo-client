@@ -4,6 +4,8 @@ var fs = require('fs')
   , peg = require('pegjs')
   , jsonpatch = require('fast-json-patch')
   , pointer = require('json-pointer')
+  , md5 = require('spark-md5')
+  , stringify = require('json-stable-stringify')
   , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
   , parser = peg.buildParser(grammar)
 
@@ -48,8 +50,8 @@ function transformSimplePatch(patch, opts) {
     valuePath += '/' + parsed.label.split('/')[0];
 
     isSimpleAddOrRemove = (
-        (patch.op === 'add' || patch.op === 'remove')
-        && valuePath.split('/').slice(-1)[0] === parsed.label)
+        (patch.op === 'add' || patch.op === 'remove') &&
+        valuePath.split('/').slice(-1)[0] === parsed.label)
 
     if (isSimpleAddOrRemove) {
       acc.push(patch);
@@ -138,8 +140,33 @@ function getAffected(patches) {
   }, { periods: [], collections: [] });
 }
 
+function hashPatch(p) { return md5.hash(stringify(p)) }
+
+function formatPatch(oldData, newData, message) {
+  var forward = makePatch(oldData, newData)
+    , backward = makePatch(newData, oldData)
+    , affected = getAffected(forward)
+    , patch
+
+  patch = {
+    forward: forward,
+    forwardHashes: forward.map(hashPatch),
+    backward: backward,
+    backwardHashes: backward.map(hashPatch),
+    created: new Date().getTime(),
+    message: message,
+    affectedCollections: affected.collections,
+    affectedPeriods: affected.periods
+  }
+
+  patch.type = classifyPatchSet(patch);
+
+  return patch;
+}
+
 module.exports = {
   makePatch: makePatch,
+  formatPatch: formatPatch,
   transformSimplePatch: transformSimplePatch,
   parsePatchPath: parsePatchPath,
   classifyPatch: classifyPatch,
