@@ -4,6 +4,7 @@ var _ = require('underscore')
   , Backbone = require('backbone')
   , md5 = require('spark-md5')
   , stringify = require('json-stable-stringify')
+  , backends = require('../backends')
   , patchUtils = require('../utils/patch')
   , PatchDiff = require('../models/patch_diff')
   , PatchDiffCollection
@@ -92,7 +93,7 @@ PatchDiffCollection = Backbone.Collection.extend({
     promises.push(patches.filter(patch => (
       patch instanceof Backbone.Model && patch.get('op') === 'add')));
     if (!_.isEmpty(hashesToCheck)) {
-      promises.push(db(localStorage.currentBackend)
+      promises.push(db(backends.current().name)
         .patches
         .where(to === 'remote' ? 'forwardHashes' : 'backwardHashes')
         .anyOf(Object.keys(hashesToCheck).sort())

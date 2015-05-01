@@ -2,65 +2,44 @@
 
 var _ = require('underscore')
   , Backbone = require('backbone')
+  , db = require('./db')
   , genid = require('./utils/generate_skolem_id')
-  , getMasterCollection = require('./master_collection')
+
+function copy(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 module.exports = function sync(method, object, options) {
-   var PeriodizationCollection = require('./collections/period_collection')
-     , Periodization = require('./models/period_collection')
-     , message = options && options.message
-     , promise
-     , db
+  var PeriodizationCollection = require('./collections/period_collection')
+    , Periodization = require('./models/period_collection')
+    , backend = require('./backends').current()
+    , message = options && options.message
 
-  promise = getMasterCollection().then(function (masterCollection) {
+  if (method === 'read') {
+    throw new Error('Don\'t do this.');
+  }
 
-    if (method === 'read') {
-      if (object instanceof Backbone.Model) {
-        // TODO: Fix if it doesn't exist
-        return object.constructor.all().get({ id: object.id }).toJSON();
-      } else {
-        if (object instanceof PeriodizationCollection) {
-          // Return full collection.
-          // TODO: allow filtering, limiting, etc.
-          return masterCollection.toJSON();
-        }
-        // TODO THIS IS BROKEN
-        /*
-        var collection = _.findWhere(Backbone.Relational.store._collections, {
-          model: object.model
-        })
-        return collection && collection.toJSON();
-        */
-      }
-    } else {
-      // Not reading, so these are methods with side effects. Raise an error if
-      // not using an editable data source.
-      if (!masterCollection.periodo.backend.editable) {
-        throw new Error('Current data source is not editable. ' +
-                        'Could not perform sync action "' + method + '".');
-      }
+  if (!backend.editable) {
+    throw new Error('Current data source is not editable. ' +
+                    'Could not perform sync action "' + method + '".');
+  }
 
-      db = require('./db')(masterCollection.periodo.backend.name);
+  return backend.getMasterCollection()
+    .then(masterCollection => {
 
+      // Merging a collection of periodCollections, as in a merge during sync
       if (object instanceof PeriodizationCollection) {
-        // This is a sync operation
         if (method === 'put') {
-          // Merging a collection of periodCollections, as in a merge during sync
-          var localData = masterCollection.toJSON()
-            , newData = _.extend(localData, object.toJSON())
+          let localData = masterCollection.toJSON()
+            , newData = _.extend(copy(localData), object.toJSON())
 
-          return db.updateLocalData(newData, message).then(function () {
-            // TODO Fix reset logic for Supermodel
-            // Backbone.Relational.store.reset();
-            masterCollection.set(newData, { parse: true });
-          });
+          return db(backend.name).updateLocalData(newData, message)
+            .then(() => masterCollection.set(newData, { parse: true }));
         }
+      }
 
-        throw new Error('Method "' + method + '" is not valid for PeriodizationCollection objects.');
-      } 
-
+      // Saving a PeriodCollection
       if (object instanceof Periodization) {
-        // Saving a PeriodCollection
 
         if (['create', 'update', 'delete'].indexOf(method) === -1) {
           throw new Error('Method "' + method + '" is not valid for PeriodCollection objects.');
@@ -79,31 +58,23 @@ module.exports = function sync(method, object, options) {
           masterCollection.remove(object);
         }
 
-        return db.updateLocalData(masterCollection.toJSON(), message).then(function () {
-          return (method === 'create' || method === 'update') ? object.toJSON() : null;
-        });
+        return db.updateLocalData(masterCollection.toJSON(), message)
+          .then(function () {
+            return (method === 'create' || method === 'update') ? object.toJSON() : null;
+          });
       }
-    }
 
-    throw new Error('Could not perform sync action "' + method + '" with given object.');
-  }).then(
-    function (resp) {
+      throw new Error('Could not perform sync action "' + method + '" with given object.');
+    })
+    .then(function (resp)  {
       if (Backbone._app) Backbone._app.trigger('sync', object, resp);
       if (options && options.success) options.success(resp);
       return resp;
-    },
-    function (err) {
+    })
+    .catch(function (err) {
       global.console.error(err.stack || err);
       if (Backbone._app) Backbone._app.trigger('error', object, err);
       if (options && options.error) options.error(err);
       return err;
-    }
-  ).catch(function (err) {
-    global.console.error(err.stack);
-  });
-
-  if (Backbone._app) Backbone._app.trigger('request', object, promise, options);
-  if (object) object.trigger('request', object, promise, options);
-
-  return promise;
+    });
 }

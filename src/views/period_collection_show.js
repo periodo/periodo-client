@@ -11,13 +11,15 @@ module.exports = Backbone.View.extend({
     'click #period-list-options .nav-pills a': 'handleChangeFormat',
     'click .download-file': 'handleSaveAs'
   },
-  initialize: function () {
-    this.render();
+  initialize: function (opts) {
+    opts = opts || {};
+    this.backend = opts.backend || require('../backends').current()
+    this.render(opts.editable);
   },
   render: function () {
     var template = require('../templates/period_collection_show.html');
     this.$el.html(template({
-      editable: Backbone._app.currentBackend.editable,
+      backend: this.backend,
       periodCollection: this.model.toJSON()
     }));
 
@@ -26,8 +28,7 @@ module.exports = Backbone.View.extend({
     this.$addPeriodContainer = this.$('#add-period-container');
   },
   editPeriod: function (period, $row) {
-    var that = this
-      , prevData = period.toJSON()
+    var prevData = period.toJSON()
       , $container
 
     this.$addPeriodContainer.hide();
@@ -52,7 +53,7 @@ module.exports = Backbone.View.extend({
       periodEditView.$el.appendTo($container || this.$periodAdd);
     }
 
-    periodEditView.$el.on('click', '#js-save-period', function () {
+    periodEditView.$el.on('click', '#js-save-period', () => {
       var message;
       if (period.isValid()) {
         if (period.isNew()) {
@@ -61,32 +62,31 @@ module.exports = Backbone.View.extend({
         } else {
           message = 'Edited period ' + period.get('label');
         }
-        that.model.save(null, { validate: false, message: message }).then(function () {
+        this.model.save(null, { validate: false, message: message }).then(function () {
           periodEditView.remove();
-          that.render();
+          this.render();
         });
       }
     });
 
-    periodEditView.$el.on('click', '#js-cancel-period', function () {
+    periodEditView.$el.on('click', '#js-cancel-period', () => {
       if (period.isNew()) {
         period.destroy();
       } else {
         period.set(prevData);
       }
       periodEditView.remove();
-      that.render();
+      this.render();
     });
 
-    periodEditView.$el.on('click', '#js-delete-period', function () {
+    periodEditView.$el.on('click', '#js-delete-period', () => {
       var message = 'Deleted period ' + period.get('label');
-      that.model.definitions().remove(period);
-      that.model.save(null, { validate: false, message: message }).then(function () {
+      this.model.definitions().remove(period);
+      this.model.save(null, { validate: false, message: message }).then(() => {
         periodEditView.remove();
-        that.render();
+        this.render();
       });
     });
-
   },
   handleSaveAs: function (e) {
     var saveAs = require('filesaver.js')
@@ -126,8 +126,7 @@ module.exports = Backbone.View.extend({
     this.editPeriod(period, $row);
   },
   handleChangeFormat: function (e) {
-    var that = this
-      , $target
+    var $target
       , format
 
     e.preventDefault();
@@ -141,18 +140,18 @@ module.exports = Backbone.View.extend({
     if (format === 'list') {
       var template = require('../templates/period_list.html');
       this.$periodList.html(template({
-        periods: that.model.toJSON().definitions,
-        editable: Backbone._app.currentBackend.editable
+        periods: this.model.toJSON().definitions,
+        editable: this._editable
       }));
     } else if (format === 'ttl') {
       var $pre = Backbone.$('<pre>');
-      this.model.asTurtle().then(function (result) {
+      this.model.asTurtle().then(result => {
         $pre.text(result);
-        that.$periodList.html('').append($pre);
+        this.$periodList.html('').append($pre);
       });
     } else if (format === 'jsonld') {
       var $pre = Backbone.$('<pre>').text(stringify(this.model.asJSONLD(), { space: '  ' }));
-      that.$periodList.html('').append($pre);
+      this.$periodList.html('').append($pre);
     } else if (format === 'viz') {
       var View = require('./period_collection_viz')
         , view = new View({ model: this.model, el: this.$periodList })

@@ -1,7 +1,6 @@
 <h1>Home</h1>
 <div class="row">
-  <% var editable = backend.editable; %>
-  <% if (editable) { %>
+  <% if (backend.editable) { %>
   <div class="col-md-2">
     <h2>Actions</h2>
     <ul class="actions-list">
@@ -15,9 +14,8 @@
     </ul>
   </div>
   <% } %>
-  <div class="col-md-<%= editable ? 10 : 12 %>">
+  <div class="col-md-<%= backend.editable ? 10 : 12 %>">
     <h2>Period collections</h2>
-    <div id="periodization-list">
-    </div>
+    <div id="periodization-list"></div>
   </div>
 </div>

@@ -26,15 +26,16 @@ module.exports = Backbone.View.extend({
     this.$success = this.$('#js-sync-success').hide();
   },
   fetchData: function () {
-    var url = this.url = this.$('#js-sync-root').val();
-    var db = require('../db')(Backbone._app.currentBackend.name);
+    var db = require('../db')
+      , backends = require('../backends')
+      , url = this.url = this.$('#js-sync-root').val()
 
     this.$changesList.hide();
     this.$acceptDialog.hide();
 
     Backbone._app.trigger('request');
 
-    db.dumps.orderBy('synced').last()
+    db(backends.current().name).dumps.orderBy('synced').last()
       .then(function (lastDump) {
         var headers = {};
 

@@ -27,9 +27,9 @@ var sourceInformation = require('./source.html');
 </p>
 <% } %>
 
-<% if (editable) { %>
+<% if (backend.editable) { %>
 <div>
-  <a class="btn btn-primary" href="#p/<%= localStorage.currentBackend %>/periodCollections/<%= encodeURIComponent(periodCollection.id) %>/edit/">Edit period collection</a>
+  <a class="btn btn-primary" href="#p/<%= backend.name %>/periodCollections/<%= encodeURIComponent(periodCollection.id) %>/edit/">Edit period collection</a>
 </div>
 <% } %>
 
@@ -57,9 +57,9 @@ var sourceInformation = require('./source.html');
     </ul>
   </div>
   <div id="period-list">
-    <%= periodList({ periods: periodCollection.definitions, editable: editable }) %>
+    <%= periodList({ periods: periodCollection.definitions, editable: backend.editable }) %>
   </div>
-<% if (editable) { %>
+<% if (backend.editable) { %>
   <div id="add-period-container">
     <button id="js-add-period" class="btn btn-primary">Add period</button>
   </div>

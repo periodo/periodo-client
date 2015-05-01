@@ -2,27 +2,20 @@
 
 var $ = require('jquery')
   , Backbone = require('./backbone')
+  , backends = require('./backends')
   , Spinner = require('spin.js')
   , root = location.protocol + '//' + location.host
   , ApplicationRouter
   , app
 
-var LEFT_CLICK = 1;
+const LEFT_CLICK = 1;
 
-if (!global.Promise) {
-  global.Promise = require('dexie').Promise;
-}
+if (!global.Promise) global.Promise = require('dexie').Promise;
 
 function handleError(err) {
-  console.error(err.stack || err);
+  global.console.error(err.stack || err);
 }
 
-function wasLeftClick(e) {
-  return e.which === LEFT_CLICK &&
-    !e.shiftKey &&
-    !e.ctrlKey &&
-    !e.altKey
-}
 
 function checkAuth() {
   var $signin = $('#auth-signin-link')
@@ -41,7 +34,6 @@ function checkAuth() {
 }
 
 function refreshBackend(backend) {
-  Backbone._app.currentBackend = backend;
   $('#current-backend').html('Current backend: ' + backend.name + ' [<a href="#p/">switch</a>]');
   $('#periodo-logo').attr('href', '#p/' + backend.name + '/');
 }
@@ -57,16 +49,30 @@ function initVersion() {
   `);
 }
 
-$(document).ready(function () {
+function handlePageClick(e) {
+  var url = require('url')
+    , href = e.target.href
+    , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
+    , interceptClick = isLeftClick && href && href.indexOf(root) === 0
+    , redirect = !e.target.dataset.noRedirect
+
+  if (interceptClick) e.preventDefault();
+  if (redirect) Backbone.history.navigate(url.parse(href).hash, { trigger: true });
+}
+
+function initApp() {
+  var spinnerEl = document.getElementById('spinner')
+    , spinner
+
   initVersion();
-  var spinner = new Spinner({
+
+  spinner = new Spinner({
     lines: 12,
     length: 5,
     width: 2,
     radius: 6,
     trail: 40 
   });
-  var spinnerEl = document.getElementById('spinner')
 
   app.on('request', spinner.spin.bind(spinner, spinnerEl));
   app.on('sync error requestEnd', function () {
@@ -80,38 +86,31 @@ $(document).ready(function () {
   checkAuth();
 
   Backbone.history.start();
-}).on('click a', function (e) {
-  var goodClick
-    , skip
+}
 
-  goodClick = (
-    e.target.href &&
-    e.target.href.indexOf(root) === 0 &&
-    wasLeftClick(e)
-  )
-
-  skip = e.target.dataset.noRedirect;
-
-  if (skip) {
-    e.preventDefault();
-  } else if (goodClick) {
-    e.preventDefault();
-    Backbone.history.navigate(e.target.getAttribute('href'), { trigger: true });
+function ensureIDB(backend) {
+  if (backend.type !== 'idb') {
+    throw new Error('This functionality is only possible for indexedDB backends.');
   }
-});
+  return backend;
+}
+
+$(document)
+  .ready(initApp)
+  .on('click a', handlePageClick)
 
 ApplicationRouter = Backbone.Router.extend({
   routes: {
     '': 'welcome',
     'p/': 'backendSelect',
-    'p/:backend/': 'backendHome',
-    'p/:backend/periodCollections/': 'periodCollectionList',
-    'p/:backend/periodCollections/add/': 'periodCollectionAdd',
-    'p/:backend/periodCollections/:periodCollection/': 'periodCollectionShow',
-    'p/:backend/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
-    'p/:backend/sync/': 'sync',
-    'p/:backend/patches/submit/': 'submitPatch',
-    'p/:backend/patches/': 'submittedPatches',
+    'p/:backendName/': 'backendHome',
+    'p/:backendName/periodCollections/': 'periodCollectionList',
+    'p/:backendName/periodCollections/add/': 'periodCollectionAdd',
+    'p/:backendName/periodCollections/:periodCollection/': 'periodCollectionShow',
+    'p/:backendName/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
+    'p/:backendName/sync/': 'sync',
+    'p/:backendName/patches/submit/': 'submitPatch',
+    'p/:backendName/patches/': 'submittedPatches',
     'signin/': 'signin',
     'signout/': 'signout',
     '*anything': 'attemptRedirect'
@@ -144,82 +143,80 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   welcome: function () {
-    var backend;
+    var redirectURI = 'p/';
 
     if (localStorage.currentBackend) {
-      backend = localStorage.currentBackend;
-      Backbone.history.navigate('p/' + backend + '/', { trigger: true, replace: true });
-    } else {
-      Backbone.history.navigate('p/', { trigger: true, replace: true });
+      redirectURI += localStorage.backend + '/'
     }
+
+    Backbone.history.navigate(redirectURI, { trigger: true, replace: true });
   },
 
   backendSelect: function () {
     var BackendSelectView = require('./views/backend_select');
-    this.changeView(BackendSelectView);
+    backends.list()
+      .then(backendsObj => this.changeView(BackendSelectView, { backends: backendsObj }))
+      .catch(handleError)
   },
 
-  backendHome: function (backend) {
-    var that = this;
-    var IndexView = require('./views/index');
-    var getMasterCollection = require('./master_collection');
+  backendHome: function (backendName) {
+    var IndexView = require('./views/index')
 
-    getMasterCollection(backend).then(function (masterCollection) {
-      that.changeView(IndexView, { collection: masterCollection });
-    }).catch(handleError);
-
+    backends.get(backendName)
+      .then(backend => backend.getMasterCollection())
+      .then(collection => this.changeView(IndexView, { collection }))
+      .catch(handleError);
   },
 
-  periodCollectionAdd: function (backend) {
-    var PeriodizationAddView = require('./views/period_collection_add');
-    var getMasterCollection = require('./master_collection');
-    var that = this;
-    getMasterCollection(backend).then(function (masterCollection) {
-      that.changeView(PeriodizationAddView);
-    }).catch(handleError);
+  periodCollectionAdd: function (backendName) {
+    var PeriodizationAddView = require('./views/period_collection_add')
+
+    backends.switchTo(backendName)
+      .then(() => this.changeView(PeriodizationAddView))
+      .catch(handleError);
   },
 
-  periodCollectionShow: function (backend, periodCollectionID) {
-    var that = this;
-    var getMasterCollection = require('./master_collection');
+  periodCollectionShow: function (backendName, periodCollectionID) {
+    var Periodization = require('./models/period_collection')
+      , PeriodizationView = require('./views/period_collection_show')
+      , periodID = decodeURIComponent(periodCollectionID)
+      , editable
 
-    var Periodization = require('./models/period_collection');
-    //var periodCollection = Periodization.create({ id: decodeURIComponent(periodCollectionID) });
-    var PeriodizationView = require('./views/period_collection_show')
-
-    getMasterCollection(backend).then(function () {
-      var periodCollection = Periodization.all().get({
-        id: decodeURIComponent(periodCollectionID)
-      });
-      that.changeView(PeriodizationView, { model: periodCollection });
-    }).catch(handleError);
+    backends.get(backendName)
+      .then(backend => {
+        editable = backend.editable;
+        return backend.getMasterCollection()
+      })
+      .then(() => {
+        var model = Periodization.all().get({ id: periodID });
+        this.changeView(PeriodizationView, { model, editable });
+      })
+      .catch(handleError);
   },
 
-  periodCollectionEdit: function (backend, periodCollectionID) {
-    var that = this;
-    var Periodization = require('./models/period_collection');
-    var PeriodizationEditView = require('./views/period_collection_add');
-    var getMasterCollection = require('./master_collection');
-    getMasterCollection(backend).then(function () {
-      var periodCollection = Periodization.all().get({
-        id: decodeURIComponent(periodCollectionID)
-      });
-      that.changeView(PeriodizationEditView, { model: periodCollection });
-    }).catch(handleError);
+  periodCollectionEdit: function (backendName, periodCollectionID) {
+    var PeriodizationEditView = require('./views/period_collection_add')
+      , Periodization = require('./models/period_collection')
+
+    periodCollectionID = decodeURIComponent(periodCollectionID)
+
+    backends.get(backendName)
+      .then(backend => backend.getMasterCollection())
+      .then(() => this.changeView(PeriodizationEditView, {
+        model: Periodization.all().get({ id: periodCollectionID })
+      }))
+      .catch(handleError);
   },
 
-  sync: function (backend) {
-    var db = require('./db');
-    var that = this;
-    var getMasterCollection = require('./master_collection');
+  sync: function (backendName) {
+    var SyncView = require('./views/sync')
+      , db = require('./db')
 
-
-    getMasterCollection(backend).then(function () {
-      db(backend).getLocalData().then(function (localData) {
-        var SyncView = require('./views/sync');
-        that.changeView(SyncView, { localData: localData });
-      });
-    }).catch(handleError);
+    backends.switchTo(backendName)
+      .then(ensureIDB)
+      .then(backend => db(backend).getLocalData())
+      .then(localData => this.changeView(SyncView, { localData }))
+      .catch(handleError);
   },
 
   signin: function () {
@@ -232,53 +229,67 @@ ApplicationRouter = Backbone.Router.extend({
     this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
-  submitPatch: function (backend) {
+  submitPatch: function (backendName) {
     var db = require('./db')
-      , getMasterCollection = require('./master_collection')
 
-    getMasterCollection(backend)
-      .then(() => db(backend).getLocalData())
+    backends.switchTo(backendName)
+      .then(ensureIDB)
+      .then(backend => db(backend.name).getLocalData())
       .then(localData => this.changeView(
         require('./views/submit_patch'), { localData }
-      ));
+      ))
+      .catch(handleError);
   },
 
-  submittedPatches: function (backend) {
+  submittedPatches: function (backendName) {
     var db = require('./db')
 
-    db(backend).localPatches.toArray(localPatches => {
-      this.changeView(require('./views/local_patches'), { localPatches });
-    });
+    backends.switchTo(backendName)
+      .then(ensureIDB)
+      .then(backend => db(backend.name).localPatches.toArray())
+      .then(localPatches => {
+        this.changeView(require('./views/local_patches'), { localPatches });
+      })
+      .catch(handleError);
   },
 
   // FIXME: This should not actually switch the backend, but rather check if
   // the thing being linked to actually exists before redirection
-  attemptRedirect: function (key) {
-    var getMasterCollection = require('./master_collection')
-      , Periodization = require('./models/period_collection')
-      , Period = require('./models/period')
+  attemptRedirect: function (matchKey) {
+    matchKey = 'p0' + matchKey;
 
-    key = 'p0' + key;
+    backends.get('web')
+      .then(backend => backend.fetchData())
+      .then(data => {
+        var periodCollectionIDs = []
+          , redirect = false
+          , key
 
-    getMasterCollection('web').then(function(masterCollection) {
-      var match = Periodization.all().get({ id: key })
-        , periodMatch
-        , redirect
-
-      if (!match) {
-        periodMatch = Period.all().get({ id: key });
-        if (periodMatch) {
-          match = periodMatch.collection.owner;
+        for (key in data.periodCollections) {
+          if (key === matchKey) {
+            redirect = true;
+            break;
+          }
         }
-      }
 
-      if (match) {
-        redirect = 'p/web/' + 'periodCollections/' + encodeURIComponent(match.get('id')) + '/';
-        Backbone.history.navigate(redirect, { trigger: true, replace: true });
-      } else {
-        // Render an error
-      }
-    });
+        if (!redirect) {
+          for (key in periodCollectionIDs) {
+            if ((data.periodCollections[key].definitions || {}).hasOwnProperty(key)) {
+              redirect = true;
+              break;
+            }
+          }
+        }
+
+        if (redirect) {
+          Backbone.history.navigate(
+            'p/web/periodCollections/' + key.slice(2) + '/',
+            { trigger: true, replace: true })
+        } else {
+          // FIXME: should be a 404 page or something
+          global.alert('Page not found');
+        }
+      });
   }
 });
 

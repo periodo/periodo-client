@@ -16,8 +16,11 @@ module.exports = Backbone.View.extend({
   bindings: {
     '#js-editorial-note': 'editorialNote',
   },
-  initialize: function () {
-    var sourceTemplate;
+  initialize: function (opts) {
+    var sourceTemplate
+
+    opts = opts || {};
+    this.backend = opts.backend || require('../backends').current()
 
     if (!this.model) {
       this.model = new Periodization();
@@ -49,41 +52,49 @@ module.exports = Backbone.View.extend({
     var template = require('../templates/period_collection_add.html')
       , action = (this.model && !(this.model.isNew())) ? 'Edit': 'Add'
 
-    this.$el.html(template({ action: action, periodCollection: this.model }));
+    this.$el.html(template({
+      action: action,
+      periodCollection: this.model,
+      backend: this.backend
+    }));
   },
   handleSave: function () {
-    var that = this;
-
     if (this.model.isValid()) {
-      var source = this.model.source();
-      var message = (source.isNew() ? 'Created ' : 'Edited ') +
-        'period collection based on ' + (source.get('title') || source.get('citation'));
+      let source = this.model.source()
+        , action = source.isNew() ? 'Created' : 'Edited'
+        , sourceDescription = source.get('title') || source.get('citation')
+        , message = `${action} period collection based on ${sourceDescription}`
 
-      this.model.save(null, { message: message }).then(function (savedObj) {
-        that.saved = true;
-        var encodedURI = encodeURIComponent(savedObj.id);
-        Backbone.history.navigate('p/' + Backbone._app.currentBackend.name + '/periodCollections/' + encodedURI + '/', { trigger: true });
-      }).catch(function (err) {
-        console.error(err.stack || err);
-      });
+      this.model.save(null, { message: message })
+        .then(savedObj => {
+          var encodedID = encodeURIComponent(savedObj.id)
+            , redirect = this.backend.path + 'periodCollections/' + encodedID
+
+          this.saved = true;
+          Backbone.history.navigate(redirect, { trigger: true });
+        })
+        .catch(function (err) {
+          console.error(err.stack || err);
+        });
     } else {
       this.renderValidationErrors(this.model.validationError);
     }
   },
   handleDelete: function () {
-    var that = this;
-    var confirmed = window.confirm('Really delete this period collection?');
-    var source = this.model.source();
-    var message = 'Deleted period collection based on ' +
-      (source.get('title') || source.get('citation'));
+    var confirmed = window.confirm('Really delete this period collection?')
+      , source = this.model.source()
+      , sourceDescription = source.get('title') || source.get('citation')
+      , message = `Deleted period collection based on ${sourceDescription}`
 
     if (confirmed) {
-      this.model.destroy({ message: message }).then(function () {
-        that.saved = true;
-        Backbone.history.navigate('p/' + Backbone._app.currentBackend.name + '/', { trigger: true });
-      }).catch(function (err) {
-        console.error(err.stack || err);
-      });
+      this.model.destroy({ message })
+        .then(() => {
+          this.saved = true;
+          Backbone.history.navigate(this.backend.path, { trigger: true });
+        })
+        .catch(function (err) {
+          console.error(err.stack || err);
+        })
     }
   },
   renderValidationErrors: function (errors) {

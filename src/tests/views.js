@@ -1,33 +1,40 @@
 "use strict";
 
 var assert = require('assert')
-  , dom = require('dom-sandbox')
+
+function appendDiv(container) {
+  var el = document.createElement('div');
+  container.appendChild(el);
+  return el;
+}
+
+function copy(data) {
+  return JSON.parse(JSON.stringify(data));
+}
 
 describe('Period form', function () {
   var PeriodFormView = require('../views/period_edit')
     , Period = require('../models/period')
-    , container = dom('<div></div>')
+    , container = document.createElement('div')
     , period
     , view
 
-  function makeView() {
-    var period = new Period({ label: 'Progressive era' });
-    var el = document.createElement('div');
-    container.appendChild(el);
-    var view = new PeriodFormView({ model: period, el: el });
-    return view;
+  function makePeriodFormView() {
+    var period = new Period({ label: 'Progressive era' })
+    return new PeriodFormView({ model: period, el: appendDiv(container) });
   }
 
-  after(function () { dom.destroy() });
+  before(function () { document.body.appendChild(container) });
+  after(function () { document.body.removeChild(container) });
 
   it ('Should have bound the label automatically', function () {
-    var view = makeView();
+    var view = makePeriodFormView();
     assert.equal(view.$('[data-field="label"]').val(), 'Progressive era');
     assert.equal(view.$('[data-field="label-language"]').text(), 'eng-latn');
   });
 
   it('Should parse dates for me', function () {
-    var view = makeView();
+    var view = makePeriodFormView();
     view.$('#js-startLabel').val('1890').trigger('input');
     view.$('#js-endLabel').val('1920').trigger('input');
     assert.deepEqual(view.model.toJSON(), {
@@ -42,7 +49,7 @@ describe('Period form', function () {
   });
 
   it ('Should render errors', function () {
-    var view = makeView();
+    var view = makePeriodFormView();
 
     view.model.isValid();
     assert.equal(view.$('.error-message').length, 1);

@@ -5,31 +5,38 @@ var $ = require('jquery')
 
 module.exports = Backbone.View.extend({
   events: {
-    'change select': 'handleSelect',
+    'change select': 'handleSelectChange',
     'click #js-add-backend': 'handleAdd',
     'click .js-remove-backend': 'handleRemove',
     'input': 'validateForm'
   },
-  initialize: function () {
-    var that = this;
-    this.render();
+  initialize: function (opts) {
+    var backends
+
+    opts = opts || {};
+    backends = opts.backends;
+
+    if (!backends) {
+      throw new Error('Must pass object with backends to select view.');
+    }
+
+    this.render({ backends });
   },
-  render: function () {
-    var that = this;
+  render: function (opts) {
     var template = require('../templates/backend_select.html');
-    getBackends().then(function (backends) {
-      that.$el.html(template({ backends: backends }));
-      that.handleSelect();
-    });
+    this.$el.html(template(opts));
+    this.handleSelectChange();
   },
-  handleSelect: function () {
-    var selected = this.$('select').val()
-      , showId = '#js-' + selected + '-form-controls'
+  handleSelectChange: function () {
+    var selectedBackendType = this.$('select').val()
+      , showId = '#js-' + selectedBackendType + '-form-controls'
 
     this.$('.backend-form-controls').hide();
     this.$('input').val('');
     this.$(showId).show();
   },
+
+  // FIXME: Change to new backend logic
   handleAdd: function () {
     var type = this.$('#js-backend-type').val()
       , form = this.$('#js-' + type + '-form-controls')

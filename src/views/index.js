@@ -2,12 +2,15 @@
 
 var Backbone = require('../backbone')
   , Tablesort = require('tablesort')
+  , backends = require('../backends')
 
 module.exports = Backbone.View.extend({
   events: {
     'click #js-delete-database': 'deleteDatabase'
   },
-  initialize: function () {
+  initialize: function (opts) {
+    opts = opts || {};
+    this.backend = opts.backend || backends.current();
     this.render();
   },
   render: function () {
@@ -16,18 +19,19 @@ module.exports = Backbone.View.extend({
 
     this.collection.sort();
 
-    this.$el.html(template({ backend: this.collection.periodo.backend }));
-    this.$('#periodization-list').html(listTemplate({ periodCollections: this.collection }));
+    this.$el.html(template({ backend: this.backend }));
+    this.$('#periodization-list').html(listTemplate({
+      periodCollections: this.collection,
+      backend: this.backend
+    }));
 
 
     var table = this.$('#periodization-list table')[0];
     new Tablesort(table);
   },
   deleteDatabase: function () {
-    var db = require('../db')(localStorage.currentBackend);
-
-    db.delete().then(function () {
-      Backbone.history.navigate('#p/', { trigger: true });
-    });
+    backends.destroy(this.backend.name)
+      .then(() =>  Backbone.history.navigate('#p/', { trigger: true }))
+      .catch(err => console.error(err));
   }
 });
