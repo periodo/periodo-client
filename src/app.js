@@ -9,6 +9,10 @@ var $ = require('jquery')
 
 var LEFT_CLICK = 1;
 
+if (!global.Promise) {
+  global.Promise = require('dexie').Promise;
+}
+
 function handleError(err) {
   console.error(err.stack || err);
 }

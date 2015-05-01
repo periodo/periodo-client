@@ -2,7 +2,6 @@
 
 var _ = require('underscore')
   , Backbone = require('backbone')
-  , Dexie = require('dexie')
   , md5 = require('spark-md5')
   , stringify = require('json-stable-stringify')
   , patchUtils = require('../utils/patch')
@@ -112,7 +111,7 @@ PatchDiffCollection = Backbone.Collection.extend({
       promises.push([]);
     }
 
-    return Dexie.Promise.all(promises)
+    return Promise.all(promises)
       .then(([additions, edits]) => additions.concat(edits));
   },
 });

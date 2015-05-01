@@ -1,5 +1,4 @@
 var $ = require('jquery')
-  , Promise = require('dexie').Promise
 
 module.exports = {
   ajax: function () {

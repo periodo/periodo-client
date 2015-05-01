@@ -2,7 +2,6 @@
 
 var _ = require('underscore')
   , $ = require('jquery')
-  , Dexie = require('dexie')
   , Backbone = require('backbone')
   , masterCollection
   , currentBackend
@@ -32,7 +31,7 @@ function getIDBData(dbName) {
 }
 
 function getWebData(siteURL) {
-  return new Dexie.Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     $.getJSON(siteURL + 'd/').then(function (data, status, xhr) {
       var modified = xhr.getResponseHeader('Last-Modified');
       resolve({
@@ -50,7 +49,6 @@ function getMasterCollection(backendName) {
     , getBackends = require('./backends')
     , promise
     , backend
-    , backends
 
   if (!backendName) backendName = currentBackend;
 
@@ -104,7 +102,7 @@ function getMasterCollection(backendName) {
       });
     });
   } else {
-    promise = Dexie.Promise.resolve(masterCollection);
+    promise = Promise.resolve(masterCollection);
   }
 
   return promise;

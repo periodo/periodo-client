@@ -1,7 +1,6 @@
 "use strict";
 
 var _ = require('underscore')
-  , Dexie = require('dexie')
   , PeriodCollection = require('../collections/period')
   , Source = require('../models/source')
   , Supermodel = require('supermodel')
@@ -76,7 +75,7 @@ Periodization = Supermodel.Model.extend({
   },
   asCSV: function () {
     var that = this;
-    return new Dexie.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       var csv = require('csv-write-stream')
         , concat = require('concat-stream')
 
@@ -125,7 +124,7 @@ Periodization = Supermodel.Model.extend({
       , jsonld = require('jsonld')
       , N3 = require('n3')
 
-    return new Dexie.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       jsonld.toRDF(that.asJSONLD(), function (err, dataset) {
         if (err) { reject(err) }
         var writer = N3.Writer({
