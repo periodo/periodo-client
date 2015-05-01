@@ -2,14 +2,19 @@
 
 var assert = require('assert');
 
+function copy(json) {
+  return JSON.parse(JSON.stringify(json));
+}
+
 describe('Source model', function () {
   var Source = require('../models/source')
 
   it('should parse a source that is part of another source accurately', function () {
-    var sampleData = require('./data/source-partof.json')
-      , source = new Source(sampleData)
+    var data = copy(require('./data/source-partof.json'))
+      , srcData = copy(data)
+      , source = new Source(srcData)
 
-    assert.deepEqual(source.toJSON(), sampleData);
+    assert.deepEqual(source.toJSON(), data);
   });
 });
 
@@ -42,11 +47,12 @@ describe('Period model', function () {
 
 describe('Period collection model', function () {
   var PeriodCollection = require('../models/period_collection')
-    , sampleData = require('./data/period-collection.json')
-    , periodCollection = new PeriodCollection(sampleData, { parse: true, noMutate: true })
+    , data = copy(require('./data/period-collection.json'))
+    , srcData = copy(data)
+    , periodCollection = new PeriodCollection(srcData, { parse: true, noMutate: true })
 
   it('should work', function () {
-    assert.deepEqual(periodCollection.toJSON(), require('./data/period-collection.json'))
+    assert.deepEqual(periodCollection.toJSON(), data);
   });
 
   it('should tell me upper and lower timespans', function () {

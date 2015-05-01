@@ -27,6 +27,15 @@
       "type": "PeriodDefinition"
     },
     "p03377ft59d": {
+      "alternateLabel": {
+        "eng-latn": [
+          "Iron Age VII",
+          "Really late Iron Age"
+        ],
+        "rus-cyrl": [
+          "Железный век"
+        ]
+      },
       "id": "p03377ft59d",
       "label": "Late Iron Age",
       "originalLabel": {
