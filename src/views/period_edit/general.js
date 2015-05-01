@@ -1,25 +1,23 @@
 "use strict";
 
-var Backbone = require('../../backbone')
-  , _ = require('underscore')
+var _ = require('underscore')
   , $ = require('jquery')
-  , LanguageSelectView = require('./select_language')
+  , Backbone = require('../../backbone')
 
 require('jquery-bootstrap');
 
 module.exports = Backbone.View.extend({
   events: {
-    'click .original-label-language': 'handleOriginalLabelLanguage',
-    'click .label-language': 'handleLabelLanguage',
-    'click .label-script': 'handleLabelScript',
-    'input .alternate-label-field': 'handleAlternateLabelInput',
+    'click [data-field="label-language"]': 'handleLabelLanguage',
+    'click [data-field="alternate-label-language"]': 'handleLabelLanguage',
+    'input [data-field="alternate-label"]': 'handleAlternateLabelInput',
     'click .js-altlabel-add': 'handleAddAltLabel',
     'click .js-altlabel-remove': 'handleRemoveAltLabel'
   },
   bindings: {
-    '#js-same-as': 'sameAs',
-    '#js-locator': 'locator',
-    '#js-label': {
+    '[data-field="same-as"]': 'sameAs',
+    '[data-field="locator"]': 'locator',
+    '[data-field="label"]': {
       observe: 'label',
       set: function (binding, value) {
         var localized = this.model.get('originalLabel');
@@ -29,70 +27,57 @@ module.exports = Backbone.View.extend({
         this.model.set('originalLabel', localized);
       }
     },
-    '#js-label-language': {
+    '[data-field="label-language"]': {
       observe: 'originalLabel',
       onGet: function (value) {
-        return Object.keys(value || { 'eng-latn': ''})[0];
+        return Object.keys(value)[0] || 'eng-latn'
       }
     }
   },
   initialize: function () {
-    var that = this;
-
     this.render();
-
-    var alternateLabels = this.model.get('alternateLabel') || {};
-
-    var labelFields = Object.keys(alternateLabels).reduce(function (arr, lang) {
-      arr = arr.concat(alternateLabels[lang].map(function (value) {
-        return {
-          value: value,
-          language: lang
-        }
-      }));
-      return arr;
-    }, []);
-
-    if (!labelFields.length) labelFields.push({ value: '', language: 'eng-latn' });
-
-    labelFields.forEach(function (field) {
-      var template = require('./templates/label_field.html');
-      that.$('#js-alternate-labels').append(template(field));
-    });
-
+    this.initAlternateLabelFields()
     this.stickit();
-    this.$('#js-label').trigger('input');
+    this.$('[data-field="label"]').trigger('input');
   },
   render: function () {
     var template = require('./templates/general_form.html');
     this.$el.html(template());
   },
-  handleOriginalLabelLanguage: function (e) {
-    var that = this;
-    this.originalLanguageSelectView = new LanguageSelectView();
-    this.originalLanguageSelectView.$el.on('hide.bs.modal', function () {
-      var code = that.originalLanguageSelectView.code
-        , data
+  initAlternateLabelFields: function () {
+    var fieldTemplate = require('./templates/label_field.html')
+      , alternateLabels = this.model.get('alternateLabel') || {}
+      , $alternateFields = this.$('[data-field="alternate-labels"]')
+      , labelFields
 
-      if (code) {
-        data = {}
-        data[code] = that.model.get('label');
-        that.model.set('originalLabel', data);
-      }
-    });
+    labelFields = Object.keys(alternateLabels).reduce((arr, language) => {
+      alternateLabels[language].forEach(value => arr.push({ value, language }));
+      return arr;
+    }, []);
+
+    if (!labelFields.length) labelFields.push({ value: '', language: 'eng-latn' });
+
+    labelFields.forEach(field => $alternateFields.append(fieldTemplate(field)));
   },
   handleLabelLanguage: function (e) {
-    var that = this;
-    this.alternateLanguageSelectView = new LanguageSelectView();
-    this.alternateLanguageSelectView.$el.on('hide.bs.modal', function () {
-      var code = that.alternateLanguageSelectView.code;
-      if (code) {
-        e.currentTarget.textContent = code;
-        $(e.currentTarget).next('input').trigger('input');
+    var LanguageSelectView = require('./select_language')
+      , languageView = new LanguageSelectView()
+      , $code = $(e.currentTarget)
+      , isAlternate = $code.data('field') === 'alternateLabel'
+
+    languageView.on('codeSelected', code => {
+      if (isAlternate) {
+        $code.text(code).next('input').trigger('input');
+      } else {
+        let data = {};
+        data[code] = this.model.get('label');
+        this.model.set('originalLabel', data);
       }
     });
+
+    languageView.$el.on('hidden.bs.modal', () => languageView.remove());
   },
-  handleAlternateLabelInput: function (e) {
+  handleAlternateLabelInput: function () {
     var alternateLabels = this.$('.alternate-label-field').toArray().reduce(function (acc, el) {
       var $el = $(el)
         , lang = $el.find('.label-language').text()

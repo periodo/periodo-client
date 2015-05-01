@@ -97,9 +97,10 @@ module.exports = Backbone.View.extend({
     var code;
     if (this.language && this.script) {
       code = (this.language + '-' + this.script).toLowerCase();
-      this.code = code;
+      //this.code = code;
     }
 
-    this.$el.modal('hide');
+    this.trigger('codeSelected', code);
+    this.$el.model('hide');
   }
 });

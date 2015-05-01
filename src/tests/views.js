@@ -22,7 +22,8 @@ describe('Period form', function () {
 
   it ('Should have bound the label automatically', function () {
     var view = makeView();
-    assert.equal(view.$('#js-label').val(), 'Progressive era');
+    assert.equal(view.$('[data-field="label"]').val(), 'Progressive era');
+    assert.equal(view.$('[data-field="label-language"]').text(), 'eng-latn');
   });
 
   it('Should parse dates for me', function () {
