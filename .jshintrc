@@ -8,6 +8,7 @@
     "asi": true,
     "laxcomma": true,
     "browser": true,
+    "devel": true,
     "globalstrict": true,
     "globals": {
         "module": false,
