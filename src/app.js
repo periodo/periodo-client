@@ -289,7 +289,8 @@ ApplicationRouter = Backbone.Router.extend({
           // FIXME: should be a 404 page or something
           global.alert('Page not found');
         }
-      });
+      })
+      .catch(handleError)
   }
 });
 
