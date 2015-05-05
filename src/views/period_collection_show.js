@@ -18,6 +18,7 @@ module.exports = Backbone.View.extend({
   },
   render: function () {
     var template = require('../templates/period_collection_show.html');
+
     this.$el.html(template({
       backend: this.backend,
       periodCollection: this.model.toJSON()

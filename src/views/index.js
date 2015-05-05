@@ -16,12 +16,20 @@ module.exports = Backbone.View.extend({
   render: function () {
     var template = require('../templates/index.html')
       , listTemplate = require('../templates/period_collection_list.html')
+      , sourceHelpers = require('../helpers/source')
 
-    this.collection.sort();
+    //this.collection.sort();
+
+    var periodCollections = this.collection
+      .get('data')
+      .get('periodCollections')
+      .valueSeq()
+      .map(require('../helpers/collection').describe)
+      .toJS()
 
     this.$el.html(template({ backend: this.backend }));
     this.$('#periodization-list').html(listTemplate({
-      periodCollections: this.collection,
+      periodCollections: periodCollections,
       backend: this.backend
     }));
 

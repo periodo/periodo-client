@@ -2,20 +2,9 @@
 
 var _ = require('underscore')
   , Dexie = require('dexie')
+  , Immutable = require('immutable')
   , current
 
-
-function reset() {
-  function resetModel(model) {
-    model.all().reset([]);
-  }
-  resetModel(require('./models/creator'));
-  resetModel(require('./models/source'));
-  resetModel(require('./models/spatial_item'));
-  resetModel(require('./models/period_terminus'));
-  resetModel(require('./models/period'));
-  resetModel(require('./models/period_collection'));
-}
 
 function fetchWebData(url) {
   var getJSON = require('./ajax').getJSON;
@@ -42,7 +31,7 @@ function Backend(opts) {
   this.name = opts.name;
   this.type = opts.type;
   this.path = 'p/' + this.name + '/';
-  this._collection = null;
+  this._data = null;
 
   if (this.type === 'web') {
     this.url = this.name === 'web' ?
@@ -62,22 +51,24 @@ Backend.prototype = {
     }
   },
   getMasterCollection: function () {
-    var PeriodizationCollection = require('./collections/period_collection')
+    var app = require('./app')
       , promise
 
-    if (!this._collection) {
-      reset();
+    app.trigger('request');
+    if (!this._data) {
       promise = this.fetchData()
         .then(data => {
-          var collection = new PeriodizationCollection(data.data, { parse: true });
-          collection._backend = this.name;
-          this._collection = collection;
-          return collection;
+          var immutableData = Immutable.fromJS(data);
+          this._data = immutableData;
+          return immutableData;
         })
     } else {
-      promise = Promise.resolve(this._collection);
+      promise = Promise.resolve(this._data);
     }
 
+    promise.then(
+        () => app.trigger('requestEnd'),
+        () => app.trigger('requestEnd'))
     promise.then(() => setCurrentBackend(this));
 
     return promise;

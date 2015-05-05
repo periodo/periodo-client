@@ -179,16 +179,17 @@ ApplicationRouter = Backbone.Router.extend({
   periodCollectionShow: function (backendName, periodCollectionID) {
     var Periodization = require('./models/period_collection')
       , PeriodizationView = require('./views/period_collection_show')
-      , periodID = decodeURIComponent(periodCollectionID)
       , editable
+
+    periodCollectionID = decodeURIComponent(periodCollectionID)
 
     backends.get(backendName)
       .then(backend => {
         editable = backend.editable;
         return backend.getMasterCollection()
       })
-      .then(() => {
-        var model = Periodization.all().get({ id: periodID });
+      .then(collection => {
+        var model = collection.getIn(['data', 'periodCollections', periodCollectionID])
         this.changeView(PeriodizationView, { model, editable });
       })
       .catch(handleError);

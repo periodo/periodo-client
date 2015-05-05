@@ -15,6 +15,7 @@
     "diff-match-patch": "^1.0.0",
     "fast-json-patch": "^0.5.2",
     "filesaver.js": "^0.1.1",
+    "immutable": "^3.7.2",
     "iso-639-3": "^0.2.0",
     "jquery": "^1.11.0",
     "json-pointer": "^0.3.0",
