@@ -3,6 +3,7 @@
 var _ = require('underscore')
   , Dexie = require('dexie')
   , Immutable = require('immutable')
+  , errors = require('./errors')
   , current
 
 
@@ -50,7 +51,7 @@ Backend.prototype = {
       return fetchIDBData(this.name);
     }
   },
-  getMasterCollection: function () {
+  getStore: function () {
     var app = require('./app')
       , promise
 
@@ -109,7 +110,7 @@ function getBackend(name) {
       var backend = backends[name];
 
       if (!backend) {
-        throw new Error(`Backend ${name} does not exist`);
+        throw new errors.NotFoundError(`Backend ${name} does not exist`);
       }
 
       return new Backend(backend);
