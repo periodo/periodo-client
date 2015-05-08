@@ -11,6 +11,7 @@ module.exports = Backbone.View.extend({
   initialize: function (opts) {
     opts = opts || {};
     this.backend = opts.backend || backends.current();
+    this.store = opts.store;
     this.render();
   },
   render: function () {
@@ -20,7 +21,7 @@ module.exports = Backbone.View.extend({
 
     //this.collection.sort();
 
-    var periodCollections = this.collection
+    var periodCollections = this.store
       .get('data')
       .get('periodCollections')
       .valueSeq()

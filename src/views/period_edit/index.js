@@ -2,59 +2,55 @@
 
 var _ = require('underscore')
   , Backbone = require('../../backbone')
-  , SpatialCoverageEditView = require('./spatial_coverage')
-  , TemporalCoverageEditView = require('./temporal_coverage')
-  , GeneralEditView = require('./general')
-  , bindings
+  , LanguageFormView = require('./language')
+  , SpatialCoverageView = require('./spatial_coverage')
+  , TemporalCoverageView = require('./temporal_coverage')
 
-bindings = {
-  period: {
-    '#js-note': 'note',
-    '#js-editorial-note': 'editorialNote',
-  }
-}
 
 module.exports = Backbone.View.extend({
-  bindings: _.extend({}, bindings.period),
-  events: {
-    'change #js-detect-dateType': 'updateDetectDateType',
-    'change #js-dateType': function () {
-      if (!this.autodetectDate) {
-        this.$('#js-startDate, #js-endDate').trigger('input');
-      }
-    }
-  },
-  initialize: function () {
+  initialize: function (opts) {
+    opts = opts || {};
+    this.store = opts.store;
+
     this.render();
-    this.stickit();
     this.subviews = {};
 
-    this.subviews.spatialCoverage = new SpatialCoverageEditView({
+    this.subviews.spatialCoverage = new SpatialCoverageView({
+      el: this.$('#js-spatial-coverage-container'),
       model: this.model,
-      collection: this.model.spatialCoverage(),
-      el: this.$('#js-spatial-coverage-container')
+      store: this.store
     });
 
-    this.subviews.general = new GeneralEditView({
-      model: this.model,
-      el: this.$('#js-period-general-container')
+    this.subviews.temporalCoverage = new TemporalCoverageView({
+      el: this.$('#js-temporal-coverage-container'),
+      model: this.model
     });
 
-    this.subviews.temporalCoverage = new TemporalCoverageEditView({
-      model: this.model,
-      el: this.$('#js-temporal-coverage-container')
-    });
-
-    this.listenTo(this.model, 'invalid', function (model, errors) {
-      this.$('.error-message').remove();
-      for (var field in errors) {
-        this.appendErrors(field, errors[field]);
-      }
+    this.subviews.language = new LanguageFormView({
+      el: this.$('#js-language-form'),
+      model: this.model
     });
   },
   render: function () {
-    var template = require('./templates/period_form.html');
-    this.$el.html(template({ isNew: this.model.isNew() }));
+    var template = require('./templates/form.html');
+    this.$el.html(template({ data: this.model.toJS() }));
+  },
+  remove: function () {
+    _.forEach(this.subviews, view => view.remove());
+  },
+  getData: function () {
+    var data = {}
+      , note = this.$('#js-note').val().trim()
+      , editorialNote = this.$('#js-editorial-note').val().trim()
+
+    if (note.length) data.note = note;
+    if (editorialNote.length) data.editorialNote = editorialNote;
+
+    return _.extend(
+      this.subviews.language.getData(),
+      this.subviews.spatialCoverage.getData(),
+      this.subviews.temporalCoverage.getData(),
+      data)
   },
   appendErrors: function (label, messages) {
     var $container = this.$('[data-error-container=' + label + ']')
@@ -75,10 +71,6 @@ module.exports = Backbone.View.extend({
         $container.prepend(html);
       }
     }
-  },
-  updateDetectDateType: function () {
-    this.autodetectDate = this.$('#js-detect-dateType').prop('checked');
-    this.$('#js-dateType').prop('disabled', this.autodetectDate);
   },
   save: function () {
     this.model.validate();

@@ -1,0 +1,51 @@
+
+<% var _ = require('underscore') %>
+
+<div class="form-group" data-error-container="label">
+  <label class="control-label field-required-label"
+         for="js-label">Original label</label>
+  <div class="input-group" data-field="originalLabel">
+    <span class="input-group-addon btn btn-default"
+          data-trigger="change-label-language"
+          data-field="label-language">
+      <%= Object.keys(data.originalLabel)[0] %>
+    </span>
+
+    <input class="form-control"
+           name="js-label"
+           data-field="label"
+           type="text"
+           value="<%= data.label %>" />
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="control-label">Alternate labels</label>
+  <div>
+    <% _.forEach(data.alternateLabel || { 'eng-latn': [''] }, function (vals, language) { %>
+      <% vals.forEach(function (value) { %>
+        <div class="form-group" data-field="alternateLabel">
+          <div class="input-group">
+            <span class="input-group-addon label-language btn btn-default"
+                 data-trigger="change-label-language"
+                 data-field="label-language">
+              <%= language %>
+            </span>
+            <input class="form-control"
+                   data-field="label"
+                   type="text"
+                   value="<%= value %>" />
+            <span class="input-group-addon btn"
+                  data-trigger="add-alt-label">
+              <strong>+</strong>
+            </span>
+            <span class="input-group-addon btn"
+                  data-trigger="remove-alt-label">
+              <strong>-</strong>
+            </span>
+          </div>
+        </div>
+      <% }); %>
+    <% }); %>
+  </div>
+</div>

@@ -14,6 +14,7 @@ module.exports = Backbone.View.extend({
   initialize: function (opts) {
     opts = opts || {};
     this.backend = opts.backend || require('../backends').current()
+    this.store = opts.store;
     this.render(opts.editable);
   },
   render: function () {
@@ -37,7 +38,7 @@ module.exports = Backbone.View.extend({
     this.$periodList.find('table').addClass('editing').removeClass('table-hover');
 
     var PeriodEditView = require('./period_edit');
-    var periodEditView = new PeriodEditView({ model: period });
+    var periodEditView = new PeriodEditView({ model: period, store: this.store });
 
     if ($row) {
       $row.hide();
@@ -122,7 +123,7 @@ module.exports = Backbone.View.extend({
   handleEditPeriod: function (e) {
     var $row = this.$(e.currentTarget).closest('tr')
       , periodID = $row.data('period-id')
-      , period = this.model.definitions().get(periodID)
+      , period = this.model.getIn(['definitions', periodID])
 
     this.editPeriod(period, $row);
   },
