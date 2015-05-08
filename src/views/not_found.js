@@ -8,7 +8,6 @@ module.exports = Backbone.View.extend({
     this.render();
   },
   render: function () {
-    debugger;
     var template = require('../templates/not_found.html');
     this.$el.html(template({ msg: this.msg }));
   }
