@@ -1,5 +1,8 @@
 "use strict";
 
+var Immutable = require('immutable')
+  , parseDate = require('../utils/date_parser')
+
 function maxYear(termini) {
   var latest = termini.maxBy(getLatestYear) || null;
   return latest && {
@@ -40,9 +43,29 @@ function getLatestYear(terminus) {
   return year ? parseInt(year) : null;
 }
 
+function hasISOValue(terminus) {
+  return !!(getEarliestYear(terminus) || getLatestYear(terminus))
+}
+
+function wasAutoparsed(terminus) {
+  var parsed
+
+  if (!terminus.get('label')) {
+    return !hasISOValue(terminus)
+  }
+
+  parsed = parseDate(terminus.get('label'));
+
+  return parsed ?
+    Immutable.is(terminus, Immutable.fromJS(parsed).delete('_type')) :
+    terminus.get('in') === null;
+}
+
 module.exports = {
   getEarliestYear: getEarliestYear,
   getLatestYear: getLatestYear,
+  hasISOValue: hasISOValue,
+  wasAutoparsed: wasAutoparsed,
   minYear,
   maxYear
 }
