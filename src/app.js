@@ -93,7 +93,7 @@ function ensureIDB(backend) {
 
 $(document)
   .ready(initApp)
-  .on('click a', handlePageClick)
+  .on('click', 'a', handlePageClick)
 
 ApplicationRouter = Backbone.Router.extend({
   routes: {
