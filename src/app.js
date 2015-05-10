@@ -205,7 +205,7 @@ ApplicationRouter = Backbone.Router.extend({
         return backend.getStore()
       })
       .then(store => {
-        var periodCollection = store.getIn(['data', 'periodCollections', periodCollectionID])
+        var periodCollection = store.getIn(['data', 'periodCollections', periodCollectionID]);
 
         if (!periodCollection) {
           let msg = `No period collection in ${backendName} with ID ${periodCollectionID}`;
