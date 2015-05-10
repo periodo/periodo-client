@@ -3,22 +3,6 @@
 var Immutable = require('immutable')
   , parseDate = require('../utils/date_parser')
 
-function maxYear(termini) {
-  var latest = termini.maxBy(getLatestYear) || null;
-  return latest && {
-    label: latest.get('label'),
-    iso: getLatestYear(latest)
-  }
-}
-
-function minYear(termini) {
-  var earliest = termini.minBy(getEarliestYear) || null;
-  return earliest && {
-    label: earliest.get('label'),
-    iso: getEarliestYear(earliest)
-  }
-}
-
 function getEarliestYear(terminus) {
   var year
 
@@ -61,11 +45,4 @@ function wasAutoparsed(terminus) {
     terminus.get('in') === null;
 }
 
-module.exports = {
-  getEarliestYear: getEarliestYear,
-  getLatestYear: getLatestYear,
-  hasISOValue: hasISOValue,
-  wasAutoparsed: wasAutoparsed,
-  minYear,
-  maxYear
-}
+module.exports = { getEarliestYear, getLatestYear, hasISOValue, wasAutoparsed }

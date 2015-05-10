@@ -17,7 +17,6 @@ module.exports = Backbone.View.extend({
   render: function () {
     var template = require('../templates/index.html')
       , listTemplate = require('../templates/period_collection_list.html')
-      , sourceHelpers = require('../helpers/source')
 
     //this.collection.sort();
 
@@ -25,7 +24,7 @@ module.exports = Backbone.View.extend({
       .get('data')
       .get('periodCollections')
       .valueSeq()
-      .map(require('../helpers/collection').describe)
+      .map(require('../helpers/periodization').describe)
       .toJS()
 
     this.$el.html(template({ backend: this.backend }));

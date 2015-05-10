@@ -13,7 +13,7 @@ module.exports = Backbone.View.extend({
     }
   },
   initialize: function () {
-    var isLinkedData = require('../../helpers/source').isLinkedData;
+    var { isLinkedData } = require('../../helpers/source')
 
     this.render();
 

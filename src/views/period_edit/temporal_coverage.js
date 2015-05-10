@@ -6,7 +6,7 @@ var _ = require('underscore')
 
 
 function shouldAutoparse(start, stop) {
-  var wasAutoparsed = require('../../helpers/terminus').wasAutoparsed
+  var { wasAutoparsed } = require('../../helpers/terminus');
   return (start && stop) && (wasAutoparsed(start) && wasAutoparsed(stop));
 }
 

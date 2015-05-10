@@ -9,7 +9,7 @@ function isLinkedData(source) {
 }
 
 function getDisplayTitle(source) {
-  var formatContributorList = require('./contributor').formatContributorList
+  var { formatContributorList } = require('./contributor_collection')
     , creators = formatContributorList(getCreators(source))
     , year = getYearPublished(source)
     , title = getTitle(source)
@@ -57,10 +57,5 @@ function getYearPublished(source) {
     null
   )
 }
-module.exports = {
-  isLinkedData: isLinkedData,
-  getDisplayTitle: getDisplayTitle,
-  getCreators: getCreators,
-  getTitle: getTitle,
-  getYearPublished: getYearPublished
-}
+
+module.exports = { isLinkedData, getDisplayTitle, getCreators, getTitle, getYearPublished }

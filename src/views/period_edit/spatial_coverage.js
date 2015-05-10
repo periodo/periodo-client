@@ -7,7 +7,7 @@ require('jquery-typeahead');
 
 function getAllSpatialCoverages(store) {
   var data = store.getIn(['data', 'periodCollections']);
-  return require('../../helpers/collection').getSpatialCoverages(data)
+  return require('../../helpers/periodization_collection').getSpatialCoverages(data)
 }
 
 module.exports = Backbone.View.extend({
