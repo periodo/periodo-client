@@ -74,10 +74,13 @@ function initApp() {
     trail: 40 
   });
 
-  app.on('request', spinner.spin.bind(spinner, spinnerEl));
-  app.on('sync error requestEnd', function () {
-    setTimeout(spinner.stop.bind(spinner), 100);
-  })
+  function startSpinner() { spinner.spin(spinnerEl) };
+  function stopSpinner() { setTimeout(() => spinner.stop(), 100) }
+
+  app.stopSpinner = stopSpinner;
+
+  app.on('request', startSpinner);
+  app.on('sync error requestEnd', stopSpinner);
 
   app.on('backendSwitch', refreshBackend);
 
@@ -125,6 +128,8 @@ ApplicationRouter = Backbone.Router.extend({
     if (err instanceof errors.NotFoundError) {
       this.changeView(require('./views/not_found'), { msg: err.message });
     } else {
+      this.stopSpinner();
+      this.addError(err);
       global.console.error(err.stack || err);
     }
   },
@@ -141,6 +146,9 @@ ApplicationRouter = Backbone.Router.extend({
     });
 
     Dexie.Promise.on('error', err => this.addError(err));
+    window.onerror = (message, filname, line, column, err) => {
+      this.addError(err || message);
+    }
   },
   addError: function (err) {
     this.errorCollection.add({

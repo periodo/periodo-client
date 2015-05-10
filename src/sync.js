@@ -67,13 +67,13 @@ module.exports = function sync(method, object, options) {
       throw new Error('Could not perform sync action "' + method + '" with given object.');
     })
     .then(function (resp)  {
-      if (Backbone._app) Backbone._app.trigger('sync', object, resp);
+      require('./app').trigger('sync', object, resp);
       if (options && options.success) options.success(resp);
       return resp;
     })
     .catch(function (err) {
       global.console.error(err.stack || err);
-      if (Backbone._app) Backbone._app.trigger('error', object, err);
+      require('./app').trigger('error', object, err);
       if (options && options.error) options.error(err);
       return err;
     });
