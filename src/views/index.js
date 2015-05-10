@@ -34,7 +34,6 @@ module.exports = Backbone.View.extend({
       backend: this.backend
     }));
 
-
     var table = this.$('#periodization-list table')[0];
     new Tablesort(table);
   },

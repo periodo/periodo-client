@@ -6,7 +6,6 @@
   "private": true,
   "dependencies": {
     "backbone": "^1.1.2",
-    "backbone.stickit": "^0.8.0",
     "concat-stream": "^1.4.8",
     "csv-write-stream": "^0.3.0",
     "d3": "^3.4.8",

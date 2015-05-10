@@ -7,6 +7,5 @@ var $ = require('jquery')
 module.exports = Backbone;
 
 Backbone.$ = $;
-require('backbone.stickit');
 Backbone.ajaxSync = Backbone.sync;
 Backbone.sync = sync;

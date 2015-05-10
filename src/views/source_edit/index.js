@@ -1,17 +1,19 @@
 "use strict";
 
-var _ = require('underscore')
-  , Backbone = require('../../backbone')
+var Backbone = require('../../backbone')
   , LDSourceSelectView = require('./ld_source_edit')
   , SourceSelectView = require('./nonld_source_edit')
 
 module.exports = Backbone.View.extend({
   events: {
-    'click .toggle-form-type': 'toggleView'
+    'click .toggle-form-type': 'toggleView',
+    'click .change-ld-source': function () {
+      this.model.source().clear();
+      this.initSourceEdit();
+    }
   },
   initialize: function () {
-    var ldSourceSelectionView
-      , sourceSelectionView
+    var isLinkedData = require('../../helpers/source').isLinkedData;
 
     this.render();
 
@@ -25,7 +27,13 @@ module.exports = Backbone.View.extend({
       model: this.model
     });
 
-    if (!_.isEmpty(this.model.toJSON()) && !this.model.isLinkedData()) this.toggleView({ clear: false });
+    if (this.model && isLinkedData(this.model)) {
+    }
+
+    // FIXME: toggle ld/nonld
+    //if (!_.isEmpty(this.model.toJSON()) && !this.model.isLinkedData()) {
+    //  this.toggleView({ clear: false });
+    //}
   },
   render: function () {
     var template = require('./templates/source_edit.html');
@@ -33,8 +41,9 @@ module.exports = Backbone.View.extend({
   },
   toggleView: function (opts) {
     var msg
-      , opts = opts || {}
       , $rejectLD = this.$('#js-reject-source')
+
+    opts = opts || {};
 
     if ($rejectLD.is(':visible')) {
       $rejectLD.trigger('click');

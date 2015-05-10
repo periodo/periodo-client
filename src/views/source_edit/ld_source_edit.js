@@ -1,89 +1,76 @@
 "use strict";
 
 var Backbone = require('../../backbone')
-  , Source = require('../../models/source')
   , Spinner = require('spin.js')
 
-var URL_PATTERNS = [
-  {
-    pattern: /worldcat.org\/.*?oclc\/(\d+).*/i,
-    replaceFn: function (match, oclcID) { return 'http://www.worldcat.org/oclc/' + oclcID }
-  },
-  {
-    pattern: /(?:dx.doi.org\/|doi:)([^\/]+\/[^\/\s]+)/i,
-    replaceFn: function (match, doi) {
-      if (doi[doi.length - 1] === '.') {
-        doi = doi.slice(0, -1);
-      }
-      return 'http://dx.doi.org/' + doi
-    }
-  }
-]
-
 module.exports = Backbone.View.extend({
-  initialize: function () {
-    this.render();
-  },
-  className: 'row',
-  id: 'ld-source',
   events: {
     'input textarea': 'handleSourceTextChange',
     'click #js-reject-source': 'handleRejectSource'
   },
-  render: function () {
-    var template = require('./templates/ld_source_form.html');
-    this.$el.html(template());
-    this.$srcMsg = this.$('#message-text');
-    this.spinner = new Spinner({
-      lines: 11,
-      length: 0,
-      width: 2,
-      radius: 4,
-      left: '-10px',
-      top: '50%'
-    });
-    this.$spinner = this.$('#source-loading');
+  className: 'row',
+  id: 'ld-source',
+  initialize: function () {
+    this.state = null;
+    this.render();
+  },
+  render: function ({ forceEdit }) {
+    var template
+
+    if (this.model && !forceEdit) {
+      template = require('./templates/ld_source_form.html');
+      this.$el.html(template());
+    } else {
+      template = require('./templates/ld_source_current.html');
+      this.$el.html(template({ source: this.model.toJS() }));
+      this.$srcMsg = this.$('#message-text');
+      this.spinner = new Spinner({
+        lines: 11,
+        length: 0,
+        width: 2,
+        radius: 4,
+        left: '-10px',
+        top: '50%'
+      });
+      this.$spinner = this.$('#source-loading');
+    }
+  },
+  getData: function () {
+    return this.state;
   },
   handleSourceTextChange: function (e) {
-    var that = this
+    var fetchLD = require('../../utils/source_ld_fetch')
       , text = e.currentTarget.value
-      , match
-      , url
-      , source
+      , url = fetchLD.match(text)
 
     if (!text) {
       this.$srcMsg.text('');
       return;
     }
 
-    for (var i = 0; i < URL_PATTERNS.length; i++) {
-      match = text.match(URL_PATTERNS[i].pattern);
-      if (match) {
-        url = match[0].replace(URL_PATTERNS[i].pattern, URL_PATTERNS[i].replaceFn);
-        break;
-      }
-    }
-
     if (!url) {
       this.$srcMsg.html('<strong>Could not detect source</strong>');
-    } else {
-      this.$srcMsg.text('Fetching source information...');
-      this.$spinner.append(this.spinner.spin().el);
-      this.model.fetchLD(url).then(function () {
-        that.model.set('id', url);
-        that.spinner.stop();
-        that.$srcMsg.text('');
-        that.handleSourceSelection.call(that);
-      });
+      return
     }
+
+    this.$srcMsg.text('Fetching source information...');
+    this.$spinner.append(this.spinner.spin().el);
+
+    fetchLD.fetch(url)
+      .then(data => {
+        this.spinner.stop();
+        this.$srcMsg.text('');
+        this.state = data;
+        this.handleSourceSelection(data);
+      })
   },
-  handleSourceSelection: function (source) {
+  handleSourceSelection: function (data) {
     var template = require('../../templates/source.html');
-    this.$('#source-information').html(template({ source: this.model.toJSON() }));
+    this.$('#source-information').html(template({ source: data }));
     this.$('#source-accept-dialog').removeClass('hide');
     this.$('#source-select').addClass('hide');
   },
-  handleRejectSource: function (e) {
+  handleRejectSource: function () {
     this.$('textarea').val('');
     this.$('#source-information').html('');
     this.$('#source-accept-dialog').addClass('hide');

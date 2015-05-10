@@ -1,16 +1,30 @@
 "use strict";
 
-var $ = require('jquery')
-  , _ = require('underscore')
+var _ = require('underscore')
   , N3 = require('n3')
-  , jsonld = require('jsonld')
 
-var DEFAULT_PREDICATES = {
-  title: ['http://purl.org/dc/terms/title', 'http://schema.org/name'],
-  yearPublished: ['http://purl.org/dc/terms/date', 'http://schema.org/datePublished'],
-  creators: ['http://purl.org/dc/terms/creator', 'http://schema.org/creator'],
-  contributors: ['http://purl.org/dc/terms/contributor', 'http://schema.org/contributor', 'http://schema.org/editor'],
-  name: ['http://xmlns.com/foaf/0.1/name', 'http://schema.org/name']
+const DEFAULT_PREDICATES = {
+  title: [
+    'http://purl.org/dc/terms/title',
+    'http://schema.org/name'
+  ],
+  yearPublished: [
+    'http://purl.org/dc/terms/date',
+    'http://schema.org/datePublished'
+  ],
+  creators: [
+    'http://purl.org/dc/terms/creator',
+    'http://schema.org/creator'
+  ],
+  contributors: [
+    'http://purl.org/dc/terms/contributor',
+    'http://schema.org/contributor',
+    'http://schema.org/editor'
+  ],
+  name: [
+    'http://xmlns.com/foaf/0.1/name',
+    'http://schema.org/name'
+  ]
 }
 
 /*
@@ -26,49 +40,44 @@ var DEFAULT_PREDICATES = {
 function parseTurtle(turtle) {
   var parser = N3.Parser()
     , store = N3.Store()
-    , dfd = $.Deferred()
 
-  parser.parse(turtle, function (error, triple, prefixes) {
-    if (triple) {
-      store.addTriple(triple);
-    } else if (error) {
-      // TODO: error handling
-      console.error(error);
-    } else {
-      store.addPrefixes(prefixes);
-      dfd.resolve(store);
-    }
-  });
-
-  return dfd.promise();
-}
-
-function parseJsonLD(doc) {
-  var parser = N3.Parser()
-    , store = N3.Store()
-    , dfd = $.Deferred()
-
-  doc = JSON.parse(doc);
-
-  jsonld.toRDF(doc, {format: 'application/nquads'}, function (err, nquads) {
-    if (err) {
-      console.error(error);
-      dfd.error(err);
-    }
-    parser.parse(nquads, function (error, triple, prefixes) {
-      if (triple) {
+  return new Promise((resolve, reject) => {
+    parser.parse(turtle, function (err, triple, prefixes) {
+      if (err) {
+        reject(err);
+      } else if (triple) {
         store.addTriple(triple);
-      } else if (error) {
-        // TODO: error handling
-        console.error(error);
       } else {
         store.addPrefixes(prefixes);
-        dfd.resolve(store);
+        resolve(store);
       }
     });
   });
+}
 
-  return dfd.promise();
+function parseJsonLD(doc) {
+  var jsonld = require('jsonld')
+    , parser = N3.Parser()
+    , store = N3.Store()
+
+  doc = JSON.parse(doc);
+
+  return new Promise((resolve, reject) => {
+    jsonld.toRDF(doc, {format: 'application/nquads'}, function (err, nquads) {
+      if (err) reject(err);
+
+      parser.parse(nquads, function (err, triple, prefixes) {
+        if (err) {
+          reject(err);
+        } else if (triple) {
+          store.addTriple(triple);
+        } else {
+          store.addPrefixes(prefixes);
+          resolve(store);
+        }
+      });
+    });
+  });
 }
 
 function getFirstMatchingPredicate(store, subject, predicates) {
@@ -97,29 +106,25 @@ function formatContrib(store, entity) {
 }
 
 function makeSourceRepr(entity, store) {
-  var data = {}
+  var data = { id: entity };
 
-  data.title = getFirstLiteralObject(store, entity, DEFAULT_PREDICATES.title);
+  // FIXME: Need to handle partOf dates too
 
-  data.yearPublished = getFirstLiteralObject(store, entity, DEFAULT_PREDICATES.yearPublished);
+  ['title', 'yearPublished'].forEach(key => {
+    var val = getFirstLiteralObject(store, entity, DEFAULT_PREDICATES[key]);
+    if (val) data[key] = val;
+  });
 
-  data.creators = _.chain(getFirstMatchingPredicate(store, entity, DEFAULT_PREDICATES.creators))
-    .pluck('object')
-    .map(formatContrib.bind(null, store))
-    .value();
-
-  data.contributors = _.chain(getFirstMatchingPredicate(store, entity, DEFAULT_PREDICATES.contributors))
-    .pluck('object')
-    .map(formatContrib.bind(null, store))
-    .value();
+  ['creators', 'contributors'].forEach(key => {
+    var val = getFirstMatchingPredicate(store, entity, DEFAULT_PREDICATES[key]);
+    if (val) data[key] = val.map(pred => formatContrib(store, pred.object));
+  });
 
   return data;
 }
 
-module.exports = function (entity, ttl, jsonld) {
-  var promise;
+module.exports = function (entity, ttl) {
+  if (!ttl) throw new Error('Must pass turtle string to parse.');
 
-  if (!(ttl || jsonld)) console.error('no linked data to parse.');
-
-  return (ttl ? parseTurtle(ttl) : parseJsonLD(jsonld)).then(makeSourceRepr.bind(null, entity));
+  return parseTurtle(ttl);
 }

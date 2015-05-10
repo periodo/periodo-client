@@ -222,16 +222,29 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   periodCollectionEdit: function (backendName, periodCollectionID) {
-    var PeriodizationEditView = require('./views/period_collection_add')
-      , Periodization = require('./models/period_collection')
+    var backend
 
     periodCollectionID = decodeURIComponent(periodCollectionID)
 
     backends.get(backendName)
-      .then(backend => backend.getMasterCollection())
-      .then(() => this.changeView(PeriodizationEditView, {
-        model: Periodization.all().get({ id: periodCollectionID })
-      }))
+      .then(_backend => {
+        backend = _backend;
+        return backend.getStore();
+      })
+      .then(store => {
+        var periodCollection = store.getIn(['data', 'periodCollections', periodCollectionID]);
+
+        // TODO: Show error page if backend not editable
+        if (!periodCollection) {
+          let msg = `No period collection in ${backendName} with ID ${periodCollectionID}`;
+          throw new errors.NotFoundError(msg);
+        }
+
+        this.changeView(require('./views/period_collection_add'), {
+          model: periodCollection,
+          backend
+        })
+      })
       .catch(err => this.handleError(err))
   },
 

@@ -1,35 +1,62 @@
 <h3>Non-linked data source</h3>
 <div>
-  <div class="form-group" data-field="citation">
+  <div class="form-group">
     <label for="source-citation">Citation (required)</label>
     <p class="small">
     Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.
     </p>
-    <textarea class="form-control" rows=4 name="source-citation" id="source-citation" />
+    <textarea class="form-control"
+              id="source-citation"
+              name="source-citation"
+              rows=4
+              data-field="citation"><%= data.citation %></textarea>
   </div>
 
   <div class="form-group">
     <label for="source-title">Title</label>
-    <input class="form-control" name="source-title" id="source-title" type="text" />
+    <input class="form-control"
+           name="source-title"
+           id="source-title"
+           type="text"
+           data-field="title"
+           value="<%= data.title %>" />
   </div>
 
   <div class="form-group">
     <label for="source-url">URL</label>
-    <input class="form-control" name="source-url" id="source-url" type="text" />
+    <input class="form-control"
+           name="source-url"
+           id="source-url"
+           type="text"
+           data-field="url"
+           value="<%= data.url %>" />
   </div>
 
   <div class="form-group">
     <label for="source-year-published">Year published</label>
-    <input class="form-control" name="source-year-published" id="source-year-published" type="text"/>
+    <input class="form-control"
+           name="source-year-published"
+           id="source-year-published"
+           type="text"
+           data-field="yearPublished"
+           value="<%= data.yearPublished %>" />
   </div>
 
-  <div class="form-group" data-type="creators">
+  <div class="form-group" data-field="creators">
     <label for="source-creators">Creators</label>
-    <div class="names"></div>
+    <div class="names">
+      <% (data.creators || [{}]).forEach(function (creator) { %>
+      <%= require('./source_name_form.html')({ name: creator.name }) %>
+      <% }); %>
+    </div>
   </div>
-  <div class="form-group" data-type="contributors">
+  <div class="form-group" data-field="contributors">
     <label for="source-contributors">Contributors</label>
-    <div class="names"></div>
+    <div class="names">
+      <% (data.creators || [{}]).forEach(function (creator) { %>
+      <%= require('./source_name_form.html')({ name: creator.name }) %>
+      <% }); %>
+    </div>
   </div>
 </div>
 

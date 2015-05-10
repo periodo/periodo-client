@@ -4,6 +4,8 @@ var Immutable = require('immutable')
 
 
 function isLinkedData(source) {
+  var match = require('../utils/source_ld_fetch').match;
+  return !!match(source.get('id'));
 }
 
 function getDisplayTitle(source) {

@@ -55,6 +55,7 @@ Backend.prototype = {
     var app = require('./app')
       , promise
 
+
     app.trigger('request');
     if (!this._data) {
       promise = this.fetchData()
