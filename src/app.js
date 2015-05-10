@@ -308,4 +308,4 @@ ApplicationRouter = Backbone.Router.extend({
   }
 });
 
-module.exports = app = Backbone._app = new ApplicationRouter();
+module.exports = app = new ApplicationRouter();
