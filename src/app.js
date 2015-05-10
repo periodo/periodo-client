@@ -52,8 +52,12 @@ function handlePageClick(e) {
     , interceptClick = isLeftClick && href && href.indexOf(root) === 0
     , redirect = !e.target.dataset.noRedirect
 
-  if (interceptClick) e.preventDefault();
-  if (redirect) Backbone.history.navigate(url.parse(href).hash, { trigger: true });
+  if (interceptClick) {
+    e.preventDefault();
+    if (redirect) {
+      Backbone.history.navigate(url.parse(href).hash, { trigger: true });
+    }
+  }
 }
 
 function initApp() {
