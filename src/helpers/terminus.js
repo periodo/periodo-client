@@ -34,9 +34,13 @@ function hasISOValue(terminus) {
 function wasAutoparsed(terminus) {
   var parsed
 
+  // This was checking if the terminus is blank. If it was, it would return
+  // that it's autoparsed- that's probably not the best thing to do.
+  /*
   if (!terminus.get('label')) {
     return !hasISOValue(terminus)
   }
+  */
 
   parsed = parseDate(terminus.get('label'));
 
