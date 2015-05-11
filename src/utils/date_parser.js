@@ -6,14 +6,18 @@ var fs = require('fs')
   , options = { allowedStartRules: ['start', 'gregorianyear', 'bpyear', 'iso8601year'] }
   , parser = peg.buildParser(grammar, options)
 
-module.exports = function (input, opts) {
+function parse(input, opts) {
   opts = opts || {};
 
-  if (opts.throw) return parser.parse(input);
+  if (opts.throw) return parser.parse(input, opts);
 
   try {
-    return parser.parse(input);
+    return parser.parse(input, opts);
   } catch (e) {
     return null;
   }
 }
+
+parse._parser = parser;
+
+module.exports = parse
