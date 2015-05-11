@@ -117,3 +117,41 @@ describe('', function () {
     });
   });
 });
+
+describe('Period helpers', function () {
+  it('should provide validation', function () {
+    var { validate } = require('../helpers/period')
+      , data = {}
+
+    data.nothing = Immutable.fromJS({});
+    data.noDates = Immutable.fromJS({
+      label: 'Progressive Era'
+    });
+    data.mixedEndpoints = Immutable.fromJS({
+      label: 'Progressive Era',
+      stop: { label: '1890', in: { year: '1890' }},
+      start: { label: '1917', in: { year: '1917' }}
+    });
+    data.fine = Immutable.fromJS({
+      label: 'Progressive Era',
+      start: { label: '1890', in: { year: '1890' }},
+      stop: { label: '1917', in: { year: '1917' }}
+    });
+
+
+    assert.deepEqual(validate(data.nothing), {
+      label: ['This field is required.'],
+      dates: ['A period must have start and stop dates.']
+    });
+
+    assert.deepEqual(validate(data.noDates), {
+      dates: ['A period must have start and stop dates.']
+    });
+
+    assert.deepEqual(validate(data.mixedEndpoints), {
+      dates: ["A period's stop must come after its start."]
+    });
+
+    assert.deepEqual(validate(data.fine), null);
+  });
+});
