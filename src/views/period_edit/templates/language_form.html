@@ -8,7 +8,7 @@
     <span class="input-group-addon btn btn-default"
           data-trigger="change-label-language"
           data-field="label-language">
-      <%= Object.keys(data.originalLabel)[0] %>
+      <%= Object.keys(data.originalLabel || { 'eng-latn': '' })[0] %>
     </span>
 
     <input class="form-control"

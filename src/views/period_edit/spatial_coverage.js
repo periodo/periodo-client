@@ -6,7 +6,7 @@ var Immutable = require('immutable')
 require('jquery-typeahead');
 
 function getAllSpatialCoverages(store) {
-  var data = store.getIn(['data', 'periodCollections']);
+  var data = store.getIn(['data', 'periodCollections'], Immutable.Map());
   return require('../../helpers/periodization_collection').getSpatialCoverages(data)
 }
 
@@ -15,7 +15,7 @@ module.exports = Backbone.View.extend({
     var store = options.store;
 
     this.state = {
-      countries: this.model.get('spatialCoverage').toSet()
+      countries: this.model.get('spatialCoverage', Immutable.List()).toSet()
     }
 
     this.render();
@@ -28,10 +28,14 @@ module.exports = Backbone.View.extend({
     this.renderList();
   },
   getData: function () {
-    return {
-      spatialCoverageDescription: this.$('#js-spatialCoverageLabel').val(),
-      spatialCoverage: this.state.countries.toJS()
-    }
+    var description = this.$('#js-spatialCoverageLabel').val()
+      , coverage = this.state.countries.toJS()
+      , data = {}
+
+    if (description.length) data.spatialCoverageDescription = description;
+    if (coverage.length) data.spatialCoverage = coverage;
+
+    return data;
   },
   renderList: function () {
     var template = require('./templates/spatial_coverage_item.html')

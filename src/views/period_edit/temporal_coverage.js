@@ -7,7 +7,7 @@ var _ = require('underscore')
 
 function shouldAutoparse(start, stop) {
   var { wasAutoparsed } = require('../../helpers/terminus');
-  return (start && stop) && (wasAutoparsed(start) && wasAutoparsed(stop));
+  return (!start && !stop) ? true : (wasAutoparsed(start) && wasAutoparsed(stop));
 }
 
 
@@ -29,12 +29,18 @@ module.exports = Backbone.View.extend({
       , data = this.model.toJS()
 
     function isRange(terminus) {
-      return terminus.hasOwnProperty('earliestYear') || terminus.hasOwnProperty('latestYear')
+      return (
+        terminus &&
+        (
+         terminus.hasOwnProperty('earliestYear') ||
+         terminus.hasOwnProperty('latestYear')
+        )
+      )
     }
 
     this.$el.html(template({
-      start: { data: data.start, range: isRange(data.start) },
-      stop: { data: data.stop, range: isRange(data.stop) }
+      start: { data: data.start || {}, range: isRange(data.start) },
+      stop: { data: data.stop || {}, range: isRange(data.stop) }
     }));
   },
   toggleAutoparse: function (on) {

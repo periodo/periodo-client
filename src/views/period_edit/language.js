@@ -24,14 +24,16 @@ module.exports = Backbone.View.extend({
   },
   getData: function () {
     var data = {}
-      , label
+      , alternateLabel
       , language
+      , label
 
     [language, label] = labelFromEl(this.$('[data-field="originalLabel"]')[0]);
 
     data.label = label;
     data.originalLabel = { [language]: label }
-    data.alternateLabel = this.$('[data-field="alternateLabel"]').toArray().reduce((acc, el) => {
+
+    alternateLabel = this.$('[data-field="alternateLabel"]').toArray().reduce((acc, el) => {
       var [language, label] = labelFromEl(el)
 
       if (label) {
@@ -41,6 +43,8 @@ module.exports = Backbone.View.extend({
 
       return acc;
     }, {});
+
+    if (alternateLabel.length) data.alternateLabel = alternateLabel;
 
     return data;
   },

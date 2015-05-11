@@ -50,6 +50,7 @@ module.exports = Backbone.View.extend({
       this.subviews.language.getData(),
       this.subviews.spatialCoverage.getData(),
       this.subviews.temporalCoverage.getData(),
+      { type: 'PeriodDefinition' },
       data)
   },
   appendErrors: function (label, messages) {
