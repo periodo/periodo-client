@@ -1,119 +1,29 @@
 "use strict";
 
-var _ = require('underscore')
+var Immutable = require('immutable')
   , Backbone = require('backbone')
-  , md5 = require('spark-md5')
-  , stringify = require('json-stable-stringify')
   , backends = require('../backends')
   , patchUtils = require('../utils/patch')
   , PatchDiff = require('../models/patch_diff')
   , PatchDiffCollection
 
-function hashPatch(patch) { return md5.hash(stringify(patch)) }
-
 PatchDiffCollection = Backbone.Collection.extend({
   model: PatchDiff,
-  asDescription: function () {
-    var ret = {
-      periodCollection: { add: [], remove: [], edit: {} },
-      period: { add: [], remove: [], edit: {} }
-    }
-
-    return this.reduce(function (acc, diff) {
-      var changeDescription = diff.classify()
-
-      if (!changeDescription) return acc;
-
-      if (changeDescription.type === 'period' || changeDescription.type === 'periodCollection') {
-        if (!changeDescription.label) {
-          let key = diff.get('op') === 'add' ? 'add' : 'remove';
-          acc[changeDescription.type][key].push(diff.cid);
-        } else {
-          let action = acc[changeDescription.type].edit
-            , collectionId = changeDescription.collection_id
-            , id = changeDescription.id
-
-          if (collectionId) {
-            // This is a period
-            if (!action.hasOwnProperty(collectionId)) action[collectionId] = {};
-            if (!action[collectionId].hasOwnProperty(id)) action[collectionId][id] = [];
-            action[collectionId][id].push(diff.cid);
-          } else {
-            if (!action.hasOwnProperty(id)) action[id] = {};
-            action[id][diff.cid] = changeDescription.label;
-          }
-        }
-      }
-
-      return acc;
-    }, ret);
-  },
-  groupFakeReplacements: function () {
-    return this.reduce((arr, patch, idx) => {
-      var lastThing = arr.slice(-1)[0]
-        , isFakeDelete
-
-      if (lastThing && lastThing[1] === patch) return arr;
-
-      isFakeDelete = (
-        patch.get('op') === 'remove' &&
-        this.at(idx + 1) &&
-        this.at(idx + 1).get('path') === patch.get('path')
-      );
-
-      if (isFakeDelete) {
-        let patchCouple = [patch];
-        patchCouple.push(this.at(idx + 1));
-        arr.push(patchCouple);
-      } else {
-        arr.push(patch);
-      }
-
-      return arr;
-    }, []);
-  },
   filterByHash: function () {
-    var db = require('../db')
+    var { filterByHash } = require('../helpers/patch_collection')
+      , db = require('../db')
       , to = this.datasets.to
-      , patches = this.groupFakeReplacements()
-      , promises = []
-      , hashesToCheck
+      , patches = Immutable.fromJS(this.toJSON())
 
-    hashesToCheck = patches.filter(Array.isArray).reduce((acc, patchSet) => {
-      var hash = hashPatch(patchSet[1]);
-      acc[hash] = patchSet;
-      return acc;
-    }, {});
-
-    patches.filter(patch => patch.op === 'remove').forEach(patch => {
-      var hash = hashPatch(patch);
-      hashesToCheck[hash] = patch;
-    });
-
-    promises.push(patches.filter(patch => (
-      patch instanceof Backbone.Model && patch.get('op') === 'add')));
-    if (!_.isEmpty(hashesToCheck)) {
-      promises.push(db(backends.current().name)
+    function matchHashes(hashes) {
+      return db(backends.current().name)
         .patches
         .where(to === 'remote' ? 'forwardHashes' : 'backwardHashes')
-        .anyOf(Object.keys(hashesToCheck).sort())
+        .anyOf(hashes.toArray())
         .uniqueKeys()
-        .then(hashes => {
-          // For patch generation option, include *only* those edits that have
-          // matching forward hashes in the patch history.
-          //
-          // For sync operations, remove all edits that have matching backwards
-          // hashes in the patch history.
-          return _.flatten(to === 'remote' ?
-            hashes.map(hash => hashesToCheck[hash]) :
-            _.values(_.omit(hashesToCheck, hashes)))
-        }))
-    } else {
-      promises.push([]);
     }
 
-    return Promise.all(promises)
-      .then(([additions, edits]) => additions.concat(edits));
+    return filterByHash(patches, to === 'remote', matchHashes);
   },
 });
 

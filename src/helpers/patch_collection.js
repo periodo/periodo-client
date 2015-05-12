@@ -1,7 +1,7 @@
 "use strict";
 
 var Immutable = require('immutable')
-  , { parsePatchPath } = require('../utils/patch')
+  , { parsePatchPath, hashPatch } = require('../utils/patch')
 
 // Return a tuple representing the type of change, which will be in the form:
 // [type, operation, (...identifiers)]. If this patch does not effect any
@@ -39,4 +39,65 @@ function groupByChangeType(patches) {
   });
 }
 
-module.exports = { groupByChangeType }
+function isChangePair(a, b) {
+  return (
+    a &&
+    b &&
+    a.get('op') === 'remove' &&
+    b.get('op') === 'add' &&
+    a.get('path') === b.get('path')
+  )
+}
+
+function combineChangePairs(patches) {
+  var isPair
+
+  return patches
+    .map((patch, idx) => {
+      var next
+
+      if (isPair) return (isPair = false);
+
+      next = patches.get(idx + 1)
+      isPair = isChangePair(patch, next)
+
+      return isPair ? Immutable.List([patch, next]) : patch;
+    })
+    .filter(patch => patch)
+}
+
+
+function filterByHash(patches, keepMatched, hashMatchFn) {
+  var patchSet = combineChangePairs(patches).toSet()
+    , additions
+    , hashesToCheck
+
+  additions = patchSet.filter(patch => (
+    patch instanceof Immutable.Map &&
+    patch.get('op') === 'add'
+  ));
+
+  hashesToCheck = patchSet
+    .subtract(additions)
+    .toMap()
+    .mapKeys((k, v) => hashPatch(
+      (v instanceof Immutable.List ? v.get(1) : v).toJS()
+    ));
+
+  return Promise.resolve(hashMatchFn(hashesToCheck.keySeq().sort()))
+    .then(matchingHashes => {
+      return hashesToCheck
+        .filter((val, hash) => (
+          keepMatched ?
+          matchingHashes.indexOf(hash) !== -1 :
+          matchingHashes.indexOf(hash) === -1
+        ))
+        .valueSeq()
+        .map(patch => patch instanceof Immutable.List ? patch : Immutable.List.of(patch))
+        .flatten(true)
+    })
+    .then(filteredPatches => filteredPatches.concat(additions));
+}
+
+
+module.exports = { groupByChangeType, combineChangePairs, filterByHash }

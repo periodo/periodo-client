@@ -167,6 +167,7 @@ function formatPatch(oldData, newData, message) {
 module.exports = {
   makePatch,
   formatPatch,
+  hashPatch,
   transformSimplePatch,
   parsePatchPath,
   classifyPatch,

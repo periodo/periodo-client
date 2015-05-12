@@ -3,6 +3,10 @@
 var assert = require('assert')
   , Immutable = require('immutable')
 
+if (!window.Promise) {
+  window.Promise = require('dexie').Promise;
+}
+
 describe('', function () {
   var termini = Immutable.fromJS([
     { label: '1200', in: { year: '1200' }},
@@ -153,5 +157,57 @@ describe('Period helpers', function () {
     });
 
     assert.deepEqual(validate(data.fine), null);
+  });
+});
+
+describe('Patch collection helpers', function () {
+  var patches = Immutable.fromJS([
+    { op: 'remove', path: '/an/edit' },
+    { op: 'add', path: '/an/edit' },
+    { op: 'remove', path: '/real/removal' },
+    { op: 'add', path: '/real/add' }
+  ]);
+
+  it('should be able to detect patch change pairs', function () {
+    var { combineChangePairs } = require('../helpers/patch_collection')
+
+    assert.deepEqual(combineChangePairs(patches).toJS(), [
+      [ { op: 'remove', path: '/an/edit' }, { op: 'add', path: '/an/edit' } ],
+      { op: 'remove', path: '/real/removal' },
+      { op: 'add', path: '/real/add' }
+    ]);
+  });
+
+  describe('', function () {
+    var { filterByHash } = require('../helpers/patch_collection')
+      , expectedHashes
+      , filtered
+
+    expectedHashes = [
+      // Hash of '{"op":"remove","path":"/real/removal"}'
+      '853d0d152a3988088d49e40eaf0a9ba0',
+
+      // Hash of '{"op":"add","path":"/an/edit"}'
+      'ce7bac76879ea3bc97b0ffdea4b0daf4',
+    ]
+
+    it('should enable patches to be filtered by hash', function () {
+      function allMatcher(hashes) {
+        assert(hashes.toSet().equals(Immutable.Set(expectedHashes)));
+        return [expectedHashes[1]]
+      }
+      return filterByHash(patches, true, allMatcher).then(function (filteredPatches) {
+        assert.deepEqual(
+          filteredPatches.toJS().sort(),
+          patches.splice(2, 1).toJS().sort());
+      });
+    });
+
+    it('should only return additions when no hashes match', function () {
+      function noneMatcher(hashes) { return [] }
+      return filterByHash(patches, true, noneMatcher).then(function (filteredPatches) {
+        assert.deepEqual(filteredPatches.toJS(), [patches.toJS()[3]]);
+      });
+    });
   });
 });
