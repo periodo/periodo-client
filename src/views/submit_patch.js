@@ -7,7 +7,6 @@ var _ = require('underscore')
   , pointer = require('json-pointer')
   , jsonpatch = require('fast-json-patch')
   , periodDiff = require('../utils/period_diff')
-  , Source = require('../models/source')
   , PatchDiffCollection = require('../collections/patch_diff')
 
 

@@ -4,7 +4,7 @@ var _ = require('underscore')
   , ajax = require('../ajax')
   , Backbone = require('../backbone')
   , patch = require('fast-json-patch')
-  , PeriodizationCollection = require('../collections/period_collection')
+  , PeriodizationCollection = function () { throw new Error() }
 
 module.exports = Backbone.View.extend({
   events: {
