@@ -12,7 +12,6 @@ var _ = require('underscore')
 
 module.exports = Backbone.View.extend({
   initialize: function (opts) {
-    this.store = opts.store;
     this.cursor = opts.cursor;
     this.subviews = {};
 
@@ -21,7 +20,7 @@ module.exports = Backbone.View.extend({
     this.subviews.spatialCoverage = new SpatialCoverageView({
       el: this.$('#js-spatial-coverage-container'),
       cursor: this.cursor,
-      store: this.store
+      spatialCoverages: opts.spatialCoverages
     });
 
     this.subviews.temporalCoverage = new TemporalCoverageView({

@@ -1,6 +1,7 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , Immutable = require('immutable')
   , Cursor = require('immutable/contrib/cursor')
   , genid = require('../utils/generate_skolem_id')
   , stringify = require('json-stable-stringify')
@@ -61,11 +62,18 @@ module.exports = Backbone.View.extend({
   },
   editPeriod: function (id, $row) {
     var PeriodEditView = require('./period_edit')
+      , { getSpatialCoverages } = require('../helpers/periodization_collection')
       , cursor = Cursor.from(this.state.cursor, [id], this.handlePeriodChange)
-      , editView = new PeriodEditView({ cursor, store: this.store })
+      , spatialCoverages
+      , editView
       , $container
 
-    this.periodEditView = editView;
+    spatialCoverages = getSpatialCoverages(
+      this.state.data.getIn(['data', 'periodCollections'], Immutable.Map())
+    )
+
+    editView = this.periodEditView = new PeriodEditView({ cursor, spatialCoverages });
+
     this.$addPeriodContainer.hide();
     this.$periodList.find('table').addClass('editing').removeClass('table-hover');
 
