@@ -1,6 +1,7 @@
 "use strict";
 
 var assert = require('assert')
+  , Immutable = require('immutable')
 
 describe('Date parser', function () {
   var parse = require('../utils/date_parser')
@@ -178,3 +179,112 @@ describe('Date parser', function () {
 
 });
 
+describe('Patch utils', function () {
+  var { makePatch } = require('../utils/patch')
+    , data
+    , samplePatches
+
+  data = Immutable.fromJS({
+    periodCollections: {
+      p03377f: require('./data/period-collection.json')
+    }
+  });
+
+  samplePatches = {
+    addPeriod: {
+      op: 'add',
+      path: '/periodCollections/a/definitions/b'
+    },
+    removePeriod: {
+      op: 'remove',
+      path: '/periodCollections/a/definitions/b'
+    },
+    changePeriod: {
+      op: 'add',
+      path: '/periodCollections/a/definitions/b/note'
+    }
+  }
+
+  it('should create an empty array between two identical datasets', function () {
+    assert.deepEqual(makePatch(data.toJS(), data.toJS()), []);
+  });
+
+  it('should add and remove simple values', function () {
+    var attrPath = ['periodCollections', 'p03377f', 'source']
+      , newData = data.setIn(attrPath.concat('yearPublished'), '1900')
+      , patch = makePatch(data.toJS(), newData.toJS())
+
+    assert.deepEqual(patch, [
+      {
+        fake: true,
+        op: 'remove',
+        path: '/' + attrPath.join('/')
+      },
+      {
+        op: 'add',
+        path: '/' + attrPath.join('/'),
+        value: newData.getIn(attrPath).toJS()
+      }
+    ]);
+  });
+
+  it('should add and remove complicated values', function () {
+    var attrPath = ['periodCollections', 'p03377f', 'definitions', 'p03377fkhrv', 'spatialCoverage']
+      , newData
+      , patch
+
+    newData = data.updateIn(attrPath, (function (sc) {
+      return sc.unshift(Immutable.Map({ id: 'http://example.com/', label: 'New country' }));
+    }));
+
+    patch = makePatch(data.toJS(), newData.toJS());
+
+    assert.deepEqual(patch, [
+      {
+        fake: true,
+        op: 'remove',
+        path: '/' + attrPath.join('/')
+      },
+      {
+        op: 'add',
+        path: '/' + attrPath.join('/'),
+        value: newData.getIn(attrPath).toJS()
+      }
+    ]);
+  });
+
+  it('should classify patch paths', function () {
+    var { classifyPatch, parsePatchPath, patchTypes } = require('../utils/patch')
+
+    assert.equal(classifyPatch(samplePatches.addPeriod), patchTypes.CREATE_PERIOD);
+    assert.equal(classifyPatch(samplePatches.removePeriod), patchTypes.DELETE_PERIOD);
+    assert.equal(classifyPatch(samplePatches.changePeriod), patchTypes.EDIT_PERIOD);
+
+    assert.deepEqual(parsePatchPath(samplePatches.addPeriod), {
+      label: null,
+      type: 'period',
+      collection_id: 'a',
+      id: 'b',
+    });
+
+    assert.deepEqual(parsePatchPath(samplePatches.removePeriod), {
+      label: null,
+      type: 'period',
+      collection_id: 'a',
+      id: 'b',
+    });
+
+    assert.deepEqual(parsePatchPath(samplePatches.changePeriod), {
+      label: 'note',
+      type: 'period',
+      collection_id: 'a',
+      id: 'b'
+    });
+
+    assert.throws(parsePatchPath.bind({
+      op: 'add',
+      path: '/periodCollections/a/definitions/b/madeUpField'
+    }))
+
+  });
+});

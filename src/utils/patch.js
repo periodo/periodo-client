@@ -51,7 +51,7 @@ function transformSimplePatch(patch, opts) {
 
     isSimpleAddOrRemove = (
         (patch.op === 'add' || patch.op === 'remove') &&
-        valuePath.split('/').slice(-1)[0] === parsed.label)
+        patch.path.split('/').slice(-1)[0] === parsed.label)
 
     if (isSimpleAddOrRemove) {
       acc.push(patch);
@@ -165,12 +165,12 @@ function formatPatch(oldData, newData, message) {
 }
 
 module.exports = {
-  makePatch: makePatch,
-  formatPatch: formatPatch,
-  transformSimplePatch: transformSimplePatch,
-  parsePatchPath: parsePatchPath,
-  classifyPatch: classifyPatch,
-  classifyPatchSet: classifyPatchSet,
-  getAffected: getAffected,
-  patchTypes: patchTypes
+  makePatch,
+  formatPatch,
+  transformSimplePatch,
+  parsePatchPath,
+  classifyPatch,
+  classifyPatchSet,
+  getAffected,
+  patchTypes
 }
