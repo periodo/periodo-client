@@ -2,6 +2,7 @@
 
 var assert = require('assert')
   , Immutable = require('immutable')
+  , Cursor = require('immutable/contrib/cursor')
 
 function appendDiv(container) {
   var el = document.createElement('div');
@@ -15,7 +16,7 @@ describe('Period form', function () {
 
   function makePeriodFormView() {
     return new PeriodFormView({
-      model: Immutable.fromJS({ label: 'Progressive era' }),
+      cursor: Cursor.from(Immutable.fromJS({ data: { label: 'Progressive era' }}), ['data']),
       store: Immutable.fromJS({}),
       el: appendDiv(container)
     });
@@ -45,23 +46,51 @@ describe('Period form', function () {
     });
   });
 
-  it ('Should render errors', function () {
+  it('Should render errors', function () {
     var view = makePeriodFormView();
 
-    view.model.isValid();
+    view.validate();
     assert.equal(view.$('.error-message').length, 1);
     assert.equal(view.$('.error-message').text(), 'A period must have start and stop dates.');
 
     view.$('#js-startLabel').val('1920').trigger('input');
     view.$('#js-endLabel').val('1890').trigger('input');
-    view.model.isValid();
+    view.validate();
     assert.equal(view.$('.error-message').length, 1);
     assert.equal(view.$('.error-message').text(), 'A period\'s stop must come after its start.');
 
-    view.$('.error-message').remove();
     view.$('#js-startLabel').val('1890').trigger('input');
     view.$('#js-endLabel').val('1920').trigger('input');
-    view.model.isValid();
+    view.validate();
     assert.equal(view.$('.error-message').length, 0);
+  });
+
+  /*
+  it('Should save its state only when asked', function () {
+    var view = makePeriodFormView();
+
+    view.$('#js-startLabel').val('1920').trigger('input');
+    view.$('#js-endLabel').val('1890').trigger('input');
+
+    assert.deepEqual(view.cursor.deref(), { label: 'Progressive era' });
+
+    view.savePeriod();
+
+    assert.deepEqual(view.cursor.deref(), {
+      label: 'Progressive era',
+      originalLabel: {
+        'eng-latn': 'Progressive era'
+      },
+      type: 'PeriodDefinition',
+      start: { in: { year: '1890' }, label: '1890' },
+      stop: { in: { year: '1920' }, label: '1920' }
+    });
+  });
+  */
+
+  it('Should empty its cursor when deleted', function () {
+    var view = makePeriodFormView();
+    view.deletePeriod();
+    assert.equal(view.cursor.deref(), undefined);
   });
 });

@@ -15,12 +15,13 @@ module.exports = Backbone.View.extend({
     'click [data-trigger="add-alt-label"]': 'handleAddAltLabel',
     'click [data-trigger="remove-alt-label"]': 'handleRemoveAltLabel'
   },
-  initialize: function () {
+  initialize: function (opts) {
+    this.cursor = opts.cursor;
     this.render();
   },
   render: function () {
     var template = require('./templates/language_form.html');
-    this.$el.html(template({ data: this.model.toJS() }));
+    this.$el.html(template({ data: this.cursor.toJS() }));
   },
   getData: function () {
     var data = {}

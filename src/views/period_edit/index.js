@@ -1,39 +1,42 @@
 "use strict";
 
 var _ = require('underscore')
+  , Immutable = require('immutable')
   , Backbone = require('../../backbone')
   , LanguageFormView = require('./language')
   , SpatialCoverageView = require('./spatial_coverage')
   , TemporalCoverageView = require('./temporal_coverage')
 
+// When the cursor is changed, any changes will be committed and the view
+// will be removed.
 
 module.exports = Backbone.View.extend({
   initialize: function (opts) {
-    opts = opts || {};
     this.store = opts.store;
+    this.cursor = opts.cursor;
+    this.subviews = {};
 
     this.render();
-    this.subviews = {};
 
     this.subviews.spatialCoverage = new SpatialCoverageView({
       el: this.$('#js-spatial-coverage-container'),
-      model: this.model,
+      cursor: this.cursor,
       store: this.store
     });
 
     this.subviews.temporalCoverage = new TemporalCoverageView({
       el: this.$('#js-temporal-coverage-container'),
-      model: this.model
+      cursor: this.cursor
     });
 
     this.subviews.language = new LanguageFormView({
       el: this.$('#js-language-form'),
-      model: this.model
+      cursor: this.cursor
     });
   },
   render: function () {
     var template = require('./templates/form.html');
-    this.$el.html(template({ data: this.model.toJS() }));
+    this.$el.html(template({ data: this.cursor.toJS() }));
   },
   remove: function () {
     _.forEach(this.subviews, view => view.remove());
@@ -52,6 +55,33 @@ module.exports = Backbone.View.extend({
       this.subviews.temporalCoverage.getData(),
       { type: 'PeriodDefinition' },
       data)
+  },
+  validate: function () {
+    var { validate } = require('../../helpers/period')
+      , data = Immutable.fromJS(this.getData())
+      , errors = validate(data)
+
+    this.$('.error-message').remove();
+    if (errors) {
+      _.forEach(errors, (messages, label) => this.appendErrors(label, messages));
+      return false;
+    } else {
+      return data;
+    }
+  },
+  savePeriod: function () {
+    var data = this.validate()
+
+    if (data) {
+      this.cursor = this.cursor.update(() => data);
+    }
+  },
+  cancelPeriod: function () {
+    // Trigger an update without doing anything
+    this.cursor = this.cursor.update(c => c);
+  },
+  deletePeriod: function () {
+    this.cursor = this.cursor.update(() => undefined);
   },
   appendErrors: function (label, messages) {
     var $container = this.$('[data-error-container=' + label + ']')
@@ -72,8 +102,5 @@ module.exports = Backbone.View.extend({
         $container.prepend(html);
       }
     }
-  },
-  save: function () {
-    this.model.validate();
   }
 });

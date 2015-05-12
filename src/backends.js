@@ -55,14 +55,12 @@ Backend.prototype = {
     var app = require('./app')
       , promise
 
-
     app.trigger('request');
     if (!this._data) {
       promise = this.fetchData()
         .then(data => {
           var immutableData = Immutable.fromJS(data);
-          this._data = immutableData;
-          return immutableData;
+          return this._data = immutableData;
         })
     } else {
       promise = Promise.resolve(this._data);
@@ -74,6 +72,27 @@ Backend.prototype = {
     promise.then(() => setCurrentBackend(this));
 
     return promise;
+  },
+  saveStore: function (newData) {
+    var app = require('./app')
+      , promise
+
+    if (!this.type === 'idb') {
+      throw new Error('Can only save to IndexedDB backends');
+    }
+    app.trigger('request');
+    return this._saveData(newData)
+      .then(resp => {
+        this._data = this._data.mergeDeepIn(['data'], resp.localData);
+      })
+      .then(
+        () => app.trigger('requestEnd'),
+        () => app.trigger('requestEnd')
+      )
+      .catch(require('./app').handleError)
+  },
+  _saveData: function (data) {
+    return require('./db')[this.name].updateLocalData(newData.toJS())
   }
 }
 

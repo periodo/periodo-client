@@ -14,8 +14,9 @@ module.exports = Backbone.View.extend({
   initialize: function (options) {
     var store = options.store;
 
+    this.cursor = options.cursor;
     this.state = {
-      countries: this.model.get('spatialCoverage', Immutable.List()).toSet()
+      countries: this.cursor.get('spatialCoverage', Immutable.List()).toSet()
     }
 
     this.render();
@@ -24,7 +25,7 @@ module.exports = Backbone.View.extend({
   },
   render: function () {
     var template = require('./templates/spatial_coverage_form.html');
-    this.$el.html(template({ data: this.model.toJS() }));
+    this.$el.html(template({ data: this.cursor.toJS() }));
     this.renderList();
   },
   getData: function () {

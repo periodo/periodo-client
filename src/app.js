@@ -1,6 +1,7 @@
 "use strict";
 
 var $ = require('jquery')
+  , Cursor = require('immutable/contrib/cursor')
   , Backbone = require('./backbone')
   , backends = require('./backends')
   , errors = require('./errors')
@@ -74,7 +75,7 @@ function initApp() {
     trail: 40 
   });
 
-  function startSpinner() { spinner.spin(spinnerEl) };
+  function startSpinner() { spinner.spin(spinnerEl) }
   function stopSpinner() { setTimeout(() => spinner.stop(), 100) }
 
   app.stopSpinner = stopSpinner;
@@ -186,37 +187,52 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   periodCollectionAdd: function (backendName) {
-    var PeriodizationAddView = require('./views/period_collection_add')
+    var backend
 
-    backends.switchTo(backendName)
-      .then(() => this.changeView(PeriodizationAddView))
+    backends.get(backendName)
+      .then(_backend => {
+        backend = _backend;
+        if (!backend.editable) {
+          throw new errors.NotFoundError('Cannot add a periodization to a read-only backend.');
+        }
+        return backend.getStore();
+      })
+      .then(store => {
+        var id = require('./utils/generate_skolem_id')()
+          , state = { data: store.get('data') };
+
+        state.cursor = Cursor.from(state.data, ['periodCollections', id], newData => {
+          state.data = newData;
+        });
+
+        this.changeView(require('./views/period_collection_add'), { state, backend });
+      })
       .catch(err => this.handleError(err))
   },
 
   periodCollectionShow: function (backendName, periodCollectionID) {
     var PeriodizationView = require('./views/period_collection_show')
-      , editable
+      , backend
 
     periodCollectionID = decodeURIComponent(periodCollectionID)
 
     backends.get(backendName)
-      .then(backend => {
-        editable = backend.editable;
-        return backend.getStore()
+      .then(_backend => {
+        backend = _backend;
+        return backend.getStore();
       })
       .then(store => {
-        var periodCollection = store.getIn(['data', 'periodCollections', periodCollectionID]);
+        var state = { data: store.get('data') }
+          , path = ['periodCollections', periodCollectionID]
 
-        if (!periodCollection) {
+        if (!state.data.getIn(path)) {
           let msg = `No period collection in ${backendName} with ID ${periodCollectionID}`;
           throw new errors.NotFoundError(msg);
         }
 
-        this.changeView(PeriodizationView, {
-          model: periodCollection,
-          store,
-          editable
-        });
+        state.cursor = Cursor.from(state.data, path, newData => state.data = newData);
+
+        this.changeView(PeriodizationView, { state, backend })
       })
       .catch(err => this.handleError(err))
   },

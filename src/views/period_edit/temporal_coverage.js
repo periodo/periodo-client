@@ -17,16 +17,17 @@ module.exports = Backbone.View.extend({
     'click .js-toggle-year-parts': 'handleToggleYearParts',
     'change #js-autoparse-dates': 'handleAutoparseChange'
   },
-  initialize: function () {
+  initialize: function (opts) {
+    this.cursor = opts.cursor;
     this.render();
     this.$autoparse = this.$('#js-autoparse-dates');
-    if (shouldAutoparse(this.model.get('start'), this.model.get('stop'))) {
+    if (shouldAutoparse(this.cursor.get('start'), this.cursor.get('stop'))) {
       this.toggleAutoparse(true);
     }
   },
   render: function () {
     var template = require('./templates/temporal_coverage_form.html')
-      , data = this.model.toJS()
+      , data = this.cursor.toJS()
 
     function isRange(terminus) {
       return (
