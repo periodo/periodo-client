@@ -17,7 +17,7 @@ describe('Period form', function () {
   function makePeriodFormView() {
     return new PeriodFormView({
       cursor: Cursor.from(Immutable.fromJS({ data: { label: 'Progressive era' }}), ['data']),
-      store: Immutable.fromJS({}),
+      spatialCoverages: Immutable.fromJS([]),
       el: appendDiv(container)
     });
   }
