@@ -209,6 +209,27 @@ describe('Patch utils', function () {
     assert.deepEqual(makePatch(data.toJS(), data.toJS()), []);
   });
 
+  it('should group patches together', function () {
+    var { groupByChangeType } = require('../helpers/patch_collection')
+      , patches = Immutable.fromJS(samplePatches).toList()
+
+    assert.deepEqual(groupByChangeType(patches).toJS(), {
+      period: {
+        add: {
+          a: [samplePatches.addPeriod]
+        },
+        remove: {
+          a: [samplePatches.removePeriod]
+        },
+        edit: {
+          a: {
+            b: [samplePatches.changePeriod]
+          }
+        }
+      }
+    });
+  });
+
   it('should add and remove simple values', function () {
     var attrPath = ['periodCollections', 'p03377f', 'source']
       , newData = data.setIn(attrPath.concat('yearPublished'), '1900')
