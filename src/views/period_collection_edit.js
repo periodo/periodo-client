@@ -41,7 +41,7 @@ PeriodCollectionEditView = Backbone.View.extend({
       .set('type', 'PeriodCollection')
       .set('definitions', definitions)
       .update('editorialNote', () => editorialNote || undefined)
-      .update('source', source || undefined)
+      .update('source', () => (source && source.size) ? source : undefined)
   },
   handleSave: function () {
     if (this.model.isValid()) {
@@ -85,7 +85,8 @@ PeriodCollectionEditView = Backbone.View.extend({
   remove: function () {
     if (this.sourceEditView) this.sourceEditView.remove();
     Backbone.View.prototype.remove.call(this);
-  }
+  },
+  validator: require('../helpers/periodization').validate
 });
 
 _.defaults(PeriodCollectionEditView.prototype, require('./mixins/validate'));

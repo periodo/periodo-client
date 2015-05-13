@@ -18,11 +18,16 @@ function describe(periodization) {
 }
 
 function validate(periodization) {
-  var errors = {}
+  var { isLinkedData } = require('./source')
     , source = periodization.get('source')
+    , errors = {}
 
   if (!source) {
     errors.source = ['A source is required for a period collection.'];
+  } else if (!isLinkedData(source)) {
+    if (!source.get('citation') && !source.get('title')) {
+      errors.source = ['Non linked data sources must have a citation or title.'];
+    }
   }
 
   return _.isEmpty(errors) ? null : errors;
@@ -137,4 +142,4 @@ function asTurtle(periodization) {
   });
 }
 
-module.exports = { describe, asCSV, asJSONLD, asTurtle }
+module.exports = { describe, validate, asCSV, asJSONLD, asTurtle }

@@ -58,4 +58,10 @@ function getYearPublished(source) {
   )
 }
 
-module.exports = { isLinkedData, getDisplayTitle, getCreators, getTitle, getYearPublished }
+module.exports = {
+  isLinkedData,
+  getDisplayTitle,
+  getCreators,
+  getTitle,
+  getYearPublished
+}

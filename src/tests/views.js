@@ -94,3 +94,73 @@ describe('Period form', function () {
     assert.equal(view.cursor.deref(), undefined);
   });
 });
+
+describe('Period collection edit view', function () {
+  var PeriodCollectionEditView = require('../views/period_collection_edit')
+    , container = document.createElement('div')
+    , fakeBackend = { name: '', path: '' }
+    , states = {}
+
+  states.empty = { data: Immutable.fromJS({ periodCollections: {} }) }
+  states.empty.cursor = Cursor.from(states.empty.data, ['periodCollections', 'newID']);
+
+
+  function makeFormView(state) {
+    return new PeriodCollectionEditView({
+      state,
+      backend: fakeBackend,
+      el: appendDiv(container)
+    });
+  }
+
+  before(function () { document.body.appendChild(container) });
+  after(function () { document.body.removeChild(container) });
+
+  it('should render a form for new collection', function () {
+    var view = makeFormView(states.empty)
+
+    assert.equal(view.$('h1').text(), 'Add period collection');
+
+    assert(!view.$('#ld-source-select').hasClass('hide'));
+    assert(view.$('#no-ld-source-select').hasClass('hide'));
+
+    view.$('.toggle-form-type').trigger('click');
+
+    assert(view.$('#ld-source-select').hasClass('hide'));
+    assert(!view.$('#no-ld-source-select').hasClass('hide'));
+
+    assert.deepEqual(view.getData().toJS(), {
+      type: 'PeriodCollection',
+      definitions: {}
+    });
+  });
+
+  it('Should render errors for a missing or empty source', function () {
+    var view = makeFormView(states.empty);
+
+    view.validate();
+    assert.equal(view.$('.error-message').length, 1);
+    assert.equal(view.$('.error-message').text(), 'A source is required for a period collection.');
+
+    view.$('.toggle-form-type').trigger('click');
+
+    view.$('[data-field="yearPublished"]').val('2015');
+    view.validate();
+    assert.equal(view.$('.error-message').length, 1);
+    assert.equal(view.$('.error-message').text(),
+      'Non linked data sources must have a citation or title.')
+
+    view.$('[data-field="citation"]').val('a citation');
+    view.validate();
+    assert.equal(view.$('.error-message').length, 0);
+
+    assert.deepEqual(view.getData().toJS(), {
+      type: 'PeriodCollection',
+      definitions: {},
+      source: {
+        citation: 'a citation',
+        yearPublished: '2015'
+      }
+    });
+  });
+});
