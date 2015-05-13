@@ -1,16 +1,16 @@
 "use strict";
 
 var _ = require('underscore')
-  , Immutable = require('immutable')
   , Backbone = require('../../backbone')
   , LanguageFormView = require('./language')
   , SpatialCoverageView = require('./spatial_coverage')
   , TemporalCoverageView = require('./temporal_coverage')
+  , PeriodEditView
 
 // When the cursor is changed, any changes will be committed and the view
 // will be removed.
 
-module.exports = Backbone.View.extend({
+PeriodEditView = Backbone.View.extend({
   initialize: function (opts) {
     this.cursor = opts.cursor;
     this.subviews = {};
@@ -55,21 +55,9 @@ module.exports = Backbone.View.extend({
       { type: 'PeriodDefinition' },
       data)
   },
-  validate: function () {
-    var { validate } = require('../../helpers/period')
-      , data = Immutable.fromJS(this.getData())
-      , errors = validate(data)
-
-    this.$('.error-message').remove();
-    if (errors) {
-      _.forEach(errors, (messages, label) => this.appendErrors(label, messages));
-      return false;
-    } else {
-      return data;
-    }
-  },
+  validator: require('../../helpers/period').validate,
   savePeriod: function () {
-    var data = this.validate()
+    var [errors, data] = this.validate()
 
     if (data) {
       this.cursor = this.cursor.update(() => data);
@@ -82,24 +70,8 @@ module.exports = Backbone.View.extend({
   deletePeriod: function () {
     this.cursor = this.cursor.update(() => undefined);
   },
-  appendErrors: function (label, messages) {
-    var $container = this.$('[data-error-container=' + label + ']')
-      , html
-      , $label
-
-    html = '<div class="error-message alert alert-danger"><ul class="list-unstyled">'
-    html += messages.map(function (message) { return '<li>' + message + '</li>' });
-    html += '</ul></li>'
-
-    if (!$container.length) {
-      this.$el.prepend(html);
-    } else {
-      $label = $container.find('label').first();
-      if ($label.length) {
-        $label.after(html);
-      } else {
-        $container.prepend(html);
-      }
-    }
-  }
 });
+
+_.defaults(PeriodEditView.prototype, require('../mixins/validate'));
+
+module.exports = PeriodEditView;

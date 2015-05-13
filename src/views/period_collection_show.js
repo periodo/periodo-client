@@ -15,7 +15,7 @@ module.exports = Backbone.View.extend({
   },
   initialize: function (opts) {
     this.state = opts.state;
-    this.backend = opts.backend || require('../backends').current()
+    this.backend = opts.backend;
     this.render();
   },
   render: function () {

@@ -67,28 +67,26 @@ describe('Period form', function () {
     assert.equal(view.$('.error-message').length, 0);
   });
 
-  /*
   it('Should save its state only when asked', function () {
     var view = makePeriodFormView();
 
-    view.$('#js-startLabel').val('1920').trigger('input');
-    view.$('#js-endLabel').val('1890').trigger('input');
+    view.$('#js-startLabel').val('1890').trigger('input');
+    view.$('#js-endLabel').val('1920').trigger('input');
 
-    assert.deepEqual(view.cursor.deref(), { label: 'Progressive era' });
+    assert.deepEqual(view.cursor.deref().toJS(), { label: 'Progressive era' });
 
     view.savePeriod();
 
-    assert.deepEqual(view.cursor.deref(), {
+    assert.deepEqual(view.cursor.deref().toJS(), {
       label: 'Progressive era',
       originalLabel: {
         'eng-latn': 'Progressive era'
       },
-      type: 'PeriodDefinition',
       start: { in: { year: '1890' }, label: '1890' },
-      stop: { in: { year: '1920' }, label: '1920' }
+      stop: { in: { year: '1920' }, label: '1920' },
+      type: 'PeriodDefinition'
     });
   });
-  */
 
   it('Should empty its cursor when deleted', function () {
     var view = makePeriodFormView();
