@@ -1,3 +1,5 @@
+/* global describe, it */
+
 "use strict";
 
 var assert = require('assert')
@@ -178,10 +180,9 @@ describe('Patch collection helpers', function () {
     ]);
   });
 
-  describe('', function () {
+  describe('Hash filter', function () {
     var { filterByHash } = require('../helpers/patch_collection')
       , expectedHashes
-      , filtered
 
     expectedHashes = [
       // Hash of '{"op":"remove","path":"/real/removal"}'
@@ -204,7 +205,7 @@ describe('Patch collection helpers', function () {
     });
 
     it('should only return additions when no hashes match', function () {
-      function noneMatcher(hashes) { return [] }
+      function noneMatcher() { return [] }
       return filterByHash(patches, true, noneMatcher).then(function (filteredPatches) {
         assert.deepEqual(filteredPatches.toJS(), [patches.toJS()[3]]);
       });
