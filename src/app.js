@@ -214,7 +214,7 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   periodCollectionEdit: function (backendName, periodCollectionID) {
-    var isNew = periodCollectionID === undefined
+    var isNew = !periodCollectionID
       , backend
 
     if (isNew) {

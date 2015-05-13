@@ -65,15 +65,16 @@ module.exports = Backbone.View.extend({
 
     if (!toLD) this.$('#js-reject-source').trigger('click');
 
-    debugger;
     this.ldSourceSelectionView.$el.toggleClass('hide', !toLD)
     this.sourceSelectionView.$el.toggleClass('hide', toLD)
 
     this.$('.toggle-form-type').html(msg).blur();
   },
   remove: function () {
-    this.ldSourceSelectionView.remove();
-    this.sourceSelectionView.remove();
+    if (this.formsRendered) {
+      this.ldSourceSelectionView.remove();
+      this.sourceSelectionView.remove();
+    }
     Backbone.View.prototype.remove.call(this);
   }
 });
