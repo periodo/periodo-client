@@ -124,6 +124,7 @@ ApplicationRouter = Backbone.Router.extend({
     if (this._view) this._view.remove();
     this._view = new ViewConstructor(options || {});
     this._view.$el.appendTo('#main');
+    window.scroll(0, 0);
   },
   handleError: function (err) {
     if (err instanceof errors.NotFoundError) {
