@@ -214,11 +214,11 @@ describe('Patch collection helpers', function () {
     ]
 
     it('should enable patches to be filtered by hash', function () {
-      function allMatcher(hashes) {
+      function matcher(hashes) {
         assert(hashes.toSet().equals(Immutable.Set(expectedHashes)));
         return [expectedHashes[1]]
       }
-      return filterByHash(patches, true, allMatcher).then(function (filteredPatches) {
+      return filterByHash(patches, true, matcher).then(function (filteredPatches) {
         assert.deepEqual(
           filteredPatches.toJS().sort(),
           patches.splice(2, 1).toJS().sort());
