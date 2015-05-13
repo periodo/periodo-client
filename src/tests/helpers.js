@@ -162,6 +162,27 @@ describe('Period helpers', function () {
   });
 });
 
+describe('Period collection helpers', function () {
+  it('should put period ranges into bins', function () {
+    var { makeRangeBins } = require('../helpers/period_collection')
+      , periods
+
+    periods = Immutable.fromJS([
+      { start: { in: { year: 100 }}, stop: { in: { year: 200 }}},
+      { start: { in: { year: 100 }}, stop: { in: { year: 200 }}},
+      { start: { in: { earliestYear: 150 }}, stop: { in: { year: 200 }}},
+    ]);
+
+    assert.deepEqual(makeRangeBins(periods, 4).toJS(), [
+      { earliest: 100, latest: 125, count: 2 },
+      { earliest: 125, latest: 150, count: 2 },
+      { earliest: 150, latest: 175, count: 3 },
+      { earliest: 175, latest: 200, count: 3 }
+    ]);
+
+  });
+});
+
 describe('Patch collection helpers', function () {
   var patches = Immutable.fromJS([
     { op: 'remove', path: '/an/edit' },
