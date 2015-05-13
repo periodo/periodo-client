@@ -9,7 +9,6 @@
     "concat-stream": "^1.4.8",
     "csv-write-stream": "^0.3.0",
     "d3": "^3.4.8",
-    "deep-equal": "^0.2.1",
     "dexie": "^1.0.4",
     "diff-match-patch": "^1.0.0",
     "fast-json-patch": "^0.5.2",
@@ -24,7 +23,6 @@
     "pegjs": "^0.8.0",
     "spark-md5": "0.0.5",
     "spin.js": "^2.0.1",
-    "supermodel": "git+https://github.com/pathable/supermodel.git",
     "tablesort": "^2.0.1",
     "underscore": "^1.8.3"
   },
