@@ -63,7 +63,7 @@ module.exports = Backbone.View.extend({
   editPeriod: function (id, $row) {
     var PeriodEditView = require('./period_edit')
       , { getSpatialCoverages } = require('../helpers/periodization_collection')
-      , cursor = Cursor.from(this.state.cursor, [id], this.handlePeriodChange)
+      , cursor = Cursor.from(this.state.cursor, ['definitions', id], this.handlePeriodChange)
       , spatialCoverages
       , editView
       , $container

@@ -11,6 +11,11 @@ var _ = require('underscore')
 // will be removed.
 
 PeriodEditView = Backbone.View.extend({
+  events: {
+    'click .js-save-period': 'savePeriod',
+    'click .js-cancel-period': 'cancelPeriod',
+    'click .js-delete-period': 'deletePeriod'
+  },
   initialize: function (opts) {
     this.cursor = opts.cursor;
     this.subviews = {};
