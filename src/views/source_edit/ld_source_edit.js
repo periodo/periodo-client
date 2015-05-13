@@ -1,39 +1,33 @@
 "use strict";
 
 var Backbone = require('../../backbone')
+  , Immutable = require('immutable')
   , Spinner = require('spin.js')
 
 module.exports = Backbone.View.extend({
   events: {
     'input textarea': 'handleSourceTextChange',
-    'click #js-reject-source': 'handleRejectSource'
+    'click #js-reject-source': 'handleRejectSource',
   },
   className: 'row',
   id: 'ld-source',
-  initialize: function () {
+  initialize: function (opts) {
     this.state = null;
     this.render();
   },
-  render: function ({ forceEdit }) {
-    var template
-
-    if (this.model && !forceEdit) {
-      template = require('./templates/ld_source_form.html');
-      this.$el.html(template());
-    } else {
-      template = require('./templates/ld_source_current.html');
-      this.$el.html(template({ source: this.model.toJS() }));
-      this.$srcMsg = this.$('#message-text');
-      this.spinner = new Spinner({
-        lines: 11,
-        length: 0,
-        width: 2,
-        radius: 4,
-        left: '-10px',
-        top: '50%'
-      });
-      this.$spinner = this.$('#source-loading');
-    }
+  render: function () {
+    var template = require('./templates/ld_source_form.html');
+    this.$el.html(template());
+    this.$srcMsg = this.$('#message-text');
+    this.spinner = new Spinner({
+      lines: 11,
+      length: 0,
+      width: 2,
+      radius: 4,
+      left: '-10px',
+      top: '50%'
+    });
+    this.$spinner = this.$('#source-loading');
   },
   getData: function () {
     return this.state;
@@ -60,7 +54,7 @@ module.exports = Backbone.View.extend({
       .then(data => {
         this.spinner.stop();
         this.$srcMsg.text('');
-        this.state = data;
+        this.state = Immutable.fromJS(data);
         this.handleSourceSelection(data);
       })
   },
@@ -75,6 +69,6 @@ module.exports = Backbone.View.extend({
     this.$('#source-information').html('');
     this.$('#source-accept-dialog').addClass('hide');
     this.$('#source-select').removeClass('hide');
-    this.model.clear();
+    //this.model.clear();
   }
 });

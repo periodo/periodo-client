@@ -1,10 +1,10 @@
 "use strict";
 
 var Backbone = require('backbone')
+  , Immutable = require('immutable')
 
 module.exports = Backbone.View.extend({
   events: {
-    'click #js-cancel': 'handleCancel',
     'click .js-name-add': 'handleAddName',
     'click .js-name-remove': 'handleRemoveName'
   },
@@ -32,7 +32,7 @@ module.exports = Backbone.View.extend({
       if (names.length) data[field] = names;
     });
 
-    return data;
+    return Immutable.fromJS(data);
   },
   handleAddName: function (e) {
     var $name = this.$(e.currentTarget).closest('.source-person');
@@ -48,33 +48,4 @@ module.exports = Backbone.View.extend({
       $name.find('input').val('');
     }
   },
-  renderValidationErrors: function (errors) {
-    errors.forEach(function (error) {
-      var $container = null
-        , msg = '<div class="error-message alert alert-danger">' + error.message + '</div>';
-
-      if (error.field) $container = this.$('[data-field="' + error.field + '"]');
-
-      if ($container && $container.length) {
-        $container.find('label').after(msg);
-      } else {
-        this.$('form').prepend(msg);
-      }
-    }, this);
-  },
-  /*
-  handleSave: function (e) {
-    var that = this;
-    e.preventDefault();
-    this.$('.error-message').hide();
-    if (this.model.isValid()) {
-      this.trigger('sourceSelected', this.model);
-    } else {
-      this.renderValidationErrors(this.model.validationError);
-    }
-  },
-  */
-  handleCancel: function (e) {
-    e.preventDefault();
-  }
 });

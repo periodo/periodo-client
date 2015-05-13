@@ -6,60 +6,70 @@ var Backbone = require('../../backbone')
 
 module.exports = Backbone.View.extend({
   events: {
-    'click .toggle-form-type': 'toggleView',
-    'click .change-ld-source': function () {
-      this.model.source().clear();
-      this.initSourceEdit();
+    'click .toggle-form-type': 'handleToggleForm',
+    'click .js-change-ld-source': 'showSourceForms'
+  },
+  initialize: function (opts) {
+    var { isLinkedData } = require('../../helpers/source')
+      , isNew
+
+    this.cursor = opts.cursor;
+
+    isNew = this.cursor.deref() === undefined;
+    this.isExistingLD = !isNew && isLinkedData(this.cursor);
+    this.formsRendered = false;
+
+    if (this.isExistingLD) {
+      this.showCurrentLD();
+    } else {
+      // Show linked data form if this is a new source
+      this.showSourceForms(isNew);
     }
   },
-  initialize: function () {
-    var { isLinkedData } = require('../../helpers/source')
+  getData: function () {
+    if (!this.formsRendered) {
+      return this.cursor.deref();
+    } else if (this.ldSourceSelectionView.$el.hasClass('hide')) {
+      return this.sourceSelectionView.getData();
+    } else {
+      return this.ldSourceSelectionView.getData();
+    }
+  },
+  showCurrentLD: function () {
+    var template = require('./templates/ld_source_current.html');
+    this.$el.html(template({ source: this.cursor.toJS() }));
+  },
+  showSourceForms: function (toLD) {
+    var template = require('./templates/source_edit.html')
 
-    this.render();
+    this.formsRendered = true;
+    this.$el.html(template());
 
     this.ldSourceSelectionView = new LDSourceSelectView({
       el: this.$('#ld-source-select'),
-      model: this.model
     });
 
     this.sourceSelectionView = new SourceSelectView({
       el: this.$('#no-ld-source-select'),
-      model: this.model
+      model: this.isExistingLD ? undefined : this.cursor
     });
 
-    if (this.model && isLinkedData(this.model)) {
-    }
-
-    // FIXME: toggle ld/nonld
-    //if (!_.isEmpty(this.model.toJSON()) && !this.model.isLinkedData()) {
-    //  this.toggleView({ clear: false });
-    //}
+    this.switchSource(!!toLD);
   },
-  render: function () {
-    var template = require('./templates/source_edit.html');
-    this.$el.html(template());
+  handleToggleForm: function () {
+    var toLD = this.ldSourceSelectionView.$el.hasClass('hide');
+    this.switchSource(toLD);
   },
-  toggleView: function (opts) {
-    var msg
-      , $rejectLD = this.$('#js-reject-source')
+  switchSource: function (toLD) {
+    var msg = `My source <strong>is ${toLD ? 'not ' : ''}</strong> linked data. &rsaquo;`
 
-    opts = opts || {};
+    if (!toLD) this.$('#js-reject-source').trigger('click');
 
-    if ($rejectLD.is(':visible')) {
-      $rejectLD.trigger('click');
-    }
+    debugger;
+    this.ldSourceSelectionView.$el.toggleClass('hide', !toLD)
+    this.sourceSelectionView.$el.toggleClass('hide', toLD)
 
-    if (!opts.hasOwnProperty('clear')) opts.clear = true;
-
-    if (opts.clear) {
-      this.model.clear();
-    }
-
-    this.ldSourceSelectionView.$el.toggleClass('hide');
-    this.sourceSelectionView.$el.toggleClass('hide');
-
-    msg = 'My source is ' + (this.sourceSelectionView.$el.hasClass('hide') ? 'not ' : '') + 'linked data';
-    this.$('.toggle-form-type').html(msg + ' &rsaquo;').blur();
+    this.$('.toggle-form-type').html(msg).blur();
   },
   remove: function () {
     this.ldSourceSelectionView.remove();

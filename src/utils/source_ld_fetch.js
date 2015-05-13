@@ -12,6 +12,8 @@ const WORLDCAT_REGEX = /worldcat.org\/.*?oclc\/(\d+).*/i
 function match(text) {
   var uri;
 
+  text = text || '';
+
   if (text.match(WORLDCAT_REGEX)) {
     uri = 'http://www.worldcat.org/oclc/' + text.match(WORLDCAT_REGEX)[1];
   } else if (text.match(DOI_REGEX)) {

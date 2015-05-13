@@ -1,5 +1,7 @@
 "use strict";
 
+var _ = require('underscore')
+
 function describe(periodization) {
   var { minYear, maxYear } = require('./terminus_collection')
     , definitions = periodization.get('definitions')
@@ -13,6 +15,17 @@ function describe(periodization) {
     earliest: minYear(starts),
     latest: maxYear(stops)
   }
+}
+
+function validate(periodization) {
+  var errors = {}
+    , source = periodization.get('source')
+
+  if (!source) {
+    errors.source = ['A source is required for a period collection.'];
+  }
+
+  return _.isEmpty(errors) ? null : errors;
 }
 
 function asCSV(periodization) {

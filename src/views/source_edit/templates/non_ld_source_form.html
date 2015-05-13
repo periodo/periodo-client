@@ -53,8 +53,8 @@
   <div class="form-group" data-field="contributors">
     <label for="source-contributors">Contributors</label>
     <div class="names">
-      <% (data.creators || [{}]).forEach(function (creator) { %>
-      <%= require('./source_name_form.html')({ name: creator.name }) %>
+      <% (data.contributors || [{}]).forEach(function (contributor) { %>
+      <%= require('./source_name_form.html')({ name: contributor.name }) %>
       <% }); %>
     </div>
   </div>

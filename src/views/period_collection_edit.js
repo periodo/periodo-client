@@ -1,9 +1,13 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var _ = require('underscore')
+  , Backbone = require('../backbone')
+  , Immutable = require('immutable')
+  , Cursor = require('immutable/contrib/cursor')
   , SourceEditView = require('./source_edit')
+  , PeriodCollectionEditView
 
-module.exports = Backbone.View.extend({
+PeriodCollectionEditView = Backbone.View.extend({
   events: {
     'click #js-save': 'handleSave',
     'click #js-delete-periodCollection': 'handleDelete',
@@ -11,21 +15,33 @@ module.exports = Backbone.View.extend({
   initialize: function (opts) {
     this.backend = opts.backend;
     this.state = opts.state;
+    this.action = this.state.cursor.deref() === undefined ? 'Add' : 'Edit';
 
     this.render();
 
     this.sourceEditView = new SourceEditView({
       el: this.$('#js-edit-source-container'),
-      model: this.model.get('source')
+      cursor: Cursor.from(this.state.cursor, ['source'])
     });
   },
   render: function () {
     var template = require('../templates/period_collection_add.html');
     this.$el.html(template({
-      action: this.model ? 'Edit' : 'Add',
-      periodCollection: this.model.toJS(),
+      action: this.action,
+      periodCollection: this.state.cursor.toJS(),
       backend: this.backend
     }));
+  },
+  getData: function () {
+    var definitions = this.state.cursor.get('definitions', Immutable.Map())
+      , editorialNote = this.$('#js-editorial-note').val().trim()
+      , source = this.sourceEditView.getData()
+
+    return Immutable.Map()
+      .set('type', 'PeriodCollection')
+      .set('definitions', definitions)
+      .update('editorialNote', () => editorialNote || undefined)
+      .update('source', source || undefined)
   },
   handleSave: function () {
     if (this.model.isValid()) {
@@ -66,28 +82,12 @@ module.exports = Backbone.View.extend({
         })
     }
   },
-  renderValidationErrors: function (errors) {
-    this.$('.error-message').remove();
-    errors.forEach(function (error) {
-      var $container = null
-        , msg = '<div class="error-message alert alert-danger">' + error.message + '</div>';
-
-      if (error.field) $container = this.$('[data-field="' + error.field + '"]');
-
-      if ($container && $container.length && $container.is(':visible')) {
-        $container.prepend(msg);
-      } else {
-        this.$('.misc-error-container').prepend(msg);
-      }
-    }, this);
-  },
   remove: function () {
     if (this.sourceEditView) this.sourceEditView.remove();
-    if (!this.saved && !this.model.isNew()) {
-      this.model.clear();
-      var toset = this.model.parse(this.originalJSON);
-      this.model.set(toset);
-    }
     Backbone.View.prototype.remove.call(this);
   }
 });
+
+_.defaults(PeriodCollectionEditView.prototype, require('./mixins/validate'));
+
+module.exports = PeriodCollectionEditView;

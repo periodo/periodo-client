@@ -109,7 +109,7 @@ ApplicationRouter = Backbone.Router.extend({
     'p/': 'backendSelect',
     'p/:backendName/': 'backendHome',
     'p/:backendName/periodCollections/': 'periodCollectionList',
-    'p/:backendName/periodCollections/add/': 'periodCollectionAdd',
+    'p/:backendName/periodCollections/add/': 'periodCollectionEdit',
     'p/:backendName/periodCollections/:periodCollection/': 'periodCollectionShow',
     'p/:backendName/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'p/:backendName/sync/': 'sync',
@@ -186,33 +186,8 @@ ApplicationRouter = Backbone.Router.extend({
       .catch(err => this.handleError(err))
   },
 
-  periodCollectionAdd: function (backendName) {
-    var backend
-
-    backends.get(backendName)
-      .then(_backend => {
-        backend = _backend;
-        if (!backend.editable) {
-          throw new errors.NotFoundError('Cannot add a periodization to a read-only backend.');
-        }
-        return backend.getStore();
-      })
-      .then(store => {
-        var id = require('./utils/generate_skolem_id')()
-          , state = { data: store.get('data') };
-
-        state.cursor = Cursor.from(state.data, ['periodCollections', id], newData => {
-          state.data = newData;
-        });
-
-        this.changeView(require('./views/period_collection_add'), { state, backend });
-      })
-      .catch(err => this.handleError(err))
-  },
-
   periodCollectionShow: function (backendName, periodCollectionID) {
-    var PeriodizationView = require('./views/period_collection_show')
-      , backend
+    var backend
 
     periodCollectionID = decodeURIComponent(periodCollectionID)
 
@@ -232,34 +207,44 @@ ApplicationRouter = Backbone.Router.extend({
 
         state.cursor = Cursor.from(state.data, path, newData => state.data = newData);
 
-        this.changeView(PeriodizationView, { state, backend })
+        this.changeView(require('./views/period_collection_show'), { state, backend });
       })
       .catch(err => this.handleError(err))
   },
 
   periodCollectionEdit: function (backendName, periodCollectionID) {
-    var backend
+    var isNew = periodCollectionID === undefined
+      , backend
 
-    periodCollectionID = decodeURIComponent(periodCollectionID)
+    if (isNew) {
+      periodCollectionID = require('./utils/generate_skolem_id')();
+    } else {
+      periodCollectionID = decodeURIComponent(periodCollectionID);
+    }
 
     backends.get(backendName)
       .then(_backend => {
         backend = _backend;
+        if (!backend.editable) {
+          throw new errors.NotFoundError('Cannot perform edits on a read-only backend.')
+        }
         return backend.getStore();
       })
       .then(store => {
-        var periodCollection = store.getIn(['data', 'periodCollections', periodCollectionID]);
+        var state = { data: store.get('data') }
 
-        // TODO: Show error page if backend not editable
-        if (!periodCollection) {
+        state.cursor = Cursor.from(
+          state.data,
+          ['periodCollections', periodCollectionID],
+          newData => { state.data = newData; }
+        );
+
+        if (!isNew && state.cursor.deref() === undefined) {
           let msg = `No period collection in ${backendName} with ID ${periodCollectionID}`;
           throw new errors.NotFoundError(msg);
         }
 
-        this.changeView(require('./views/period_collection_add'), {
-          model: periodCollection,
-          backend
-        })
+        this.changeView(require('./views/period_collection_edit'), { state, backend });
       })
       .catch(err => this.handleError(err))
   },

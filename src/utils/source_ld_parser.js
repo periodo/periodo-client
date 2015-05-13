@@ -126,5 +126,7 @@ function makeSourceRepr(entity, store) {
 module.exports = function (entity, ttl) {
   if (!ttl) throw new Error('Must pass turtle string to parse.');
 
-  return parseTurtle(ttl);
+  return parseTurtle(ttl).then(function (store) {
+    return makeSourceRepr(entity, store);
+  });
 }
