@@ -162,7 +162,7 @@ ApplicationRouter = Backbone.Router.extend({
     var redirectURI = 'p/';
 
     if (localStorage.currentBackend) {
-      redirectURI += localStorage.backend + '/'
+      redirectURI += localStorage.currentBackend + '/'
     }
 
     Backbone.history.navigate(redirectURI, { trigger: true, replace: true });
