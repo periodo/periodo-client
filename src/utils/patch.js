@@ -124,7 +124,7 @@ function classifyPatch(patch) {
       if (parsed.type === 'periodCollection') {
         type = [
           patchTypes.EDIT_PERIOD_COLLECTION,
-          `Changed ${parsed.label} of period collection ${parsed.id} (${parsed.label}).`
+          `Changed ${parsed.label} of period collection ${parsed.id}.`
         ]
       } else {
         type = [
