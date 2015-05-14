@@ -20,6 +20,14 @@ module.exports = function (dbName) {
 function openDB(dbName) {
   var db = new Dexie(dbName);
 
+  /*
+   *
+   * FIXME: There shouldn't be anyone on old versions of the DB, so maybe we
+   * should bump the version to 10 and get rid of these migrations while we
+   * still can
+   *
+   */
+
   db.version(6).stores({
     dumps: 'id&,modified,synced',
     localData: 'id&,modified',
@@ -120,19 +128,9 @@ function openDB(dbName) {
 
   db.getLocalData = function () { return db.localData.get(DUMPID) }
 
-  /* Generates a patch that will transform the stored local data to `newData` */
-  db.makeLocalPatch = function (newData) {
-    return db.getLocalData().then(function (oldData) {
-      var forward = patchUtils.makePatch(oldData.data, newData)
-        , backward = patchUtils.makePatch(newData, oldData.data)
-
-      return {
-        forward: forward,
-        backward: backward,
-      }
-    });
-  }
-
+  // Update the local data to given state. This will generate forwards and
+  // backwards patches as well as their hashes (to be matched against later when
+  // detecting changes.)
   db.updateLocalData = function (newData, message) {
     return db.transaction('rw', db.localData, db.patches, function () {
       return db.getLocalData().then(oldData => {
