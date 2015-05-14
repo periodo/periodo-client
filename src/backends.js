@@ -93,7 +93,7 @@ Backend.prototype = {
     app.trigger('request');
     return this._saveData(newData)
       .then(resp => {
-        this._data = this._data.mergeDeepIn(['data'], resp.localData);
+        this._data = Immutable.fromJS(resp.localData);
       })
       .then(
         () => app.trigger('requestEnd'),
@@ -102,7 +102,10 @@ Backend.prototype = {
       .catch(require('./app').handleError)
   },
   _saveData: function (data) {
-    return require('./db')[this.name].updateLocalData(data.toJS())
+    if (!this.type === 'idb') {
+      throw new Error('Can only save to IndexedDB backends');
+    }
+    return require('./db')(this.name).updateLocalData(data.toJS())
   }
 }
 
