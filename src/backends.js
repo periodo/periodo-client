@@ -6,6 +6,7 @@ var _ = require('underscore')
   , errors = require('./errors')
   , current
 
+const MEMORY_BACKEND = '__memory__'
 
 function fetchWebData(url) {
   var getJSON = require('./ajax').getJSON;
@@ -40,7 +41,7 @@ function Backend(opts) {
       opts.url
   }
 
-  this.editable = this.type === 'idb';
+  this.editable = this.type === 'idb' || this.type === 'memory';
 }
 
 Backend.prototype = {
@@ -49,6 +50,11 @@ Backend.prototype = {
       return fetchWebData(this.url);
     } else if (this.type === 'idb') {
       return fetchIDBData(this.name);
+    } else if (this.type === 'memory') {
+      return Promise.resolve({
+        data: { periodCollections: {} },
+        modified: new Date().getTime()
+      })
     }
   },
   getStore: function () {
@@ -60,7 +66,7 @@ Backend.prototype = {
       promise = this.fetchData()
         .then(data => {
           var immutableData = Immutable.fromJS(data);
-          return this._data = immutableData;
+          return (this._data = immutableData);
         })
     } else {
       promise = Promise.resolve(this._data);
@@ -75,9 +81,8 @@ Backend.prototype = {
   },
   saveStore: function (newData) {
     var app = require('./app')
-      , promise
 
-    if (!this.type === 'idb') {
+    if (this.type !== 'idb') {
       throw new Error('Can only save to IndexedDB backends');
     }
     app.trigger('request');
@@ -92,7 +97,7 @@ Backend.prototype = {
       .catch(require('./app').handleError)
   },
   _saveData: function (data) {
-    return require('./db')[this.name].updateLocalData(newData.toJS())
+    return require('./db')[this.name].updateLocalData(data.toJS())
   }
 }
 
@@ -124,9 +129,12 @@ function listBackends() {
 }
 
 function getBackend(name) {
-  return (current && current.name === name) ?
-    Promise.resolve(current) :
-    listBackends().then(backends => {
+  if (current && current.name === name) {
+    return Promise.resolve(current);
+  } else if (name === MEMORY_BACKEND) {
+    return Promise.resolve(new Backend({ name: MEMORY_BACKEND, type: 'memory' }));
+  } else {
+    return listBackends().then(backends => {
       var backend = backends[name];
 
       if (!backend) {
@@ -135,6 +143,7 @@ function getBackend(name) {
 
       return new Backend(backend);
     });
+  }
 }
 
 function setCurrentBackend(backend) {
