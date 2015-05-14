@@ -2,8 +2,6 @@
 
 var Dexie = require('dexie')
   , _ = require('underscore')
-  , md5 = require('spark-md5')
-  , stringify = require('json-stable-stringify')
   , jsonpatch = require('fast-json-patch')
   , patchUtils = require('./utils/patch')
 
@@ -19,8 +17,6 @@ module.exports = function (dbName) {
   return d[dbName];
 }
 
-function hashPatch(p) { return md5.hash(stringify(p)) }
-
 function openDB(dbName) {
   var db = new Dexie(dbName);
 
@@ -32,7 +28,6 @@ function openDB(dbName) {
   }).upgrade(function (tx) {
     tx.table('localData').get(DUMPID).then(function (d) {
       var data = d.data;
-      console.log(data);
       tx.table('patches').orderBy('id').reverse().modify(function (patch) {
         var after = JSON.parse(JSON.stringify(data))
           , before
@@ -49,8 +44,8 @@ function openDB(dbName) {
         patch.forward = newForward;
         patch.backward = newBackward;
 
-        patch.forwardHashes = patch.forward.map(hashPatch);
-        patch.backwardHashes = patch.backward.map(hashPatch);
+        patch.forwardHashes = patch.forward.map(patchUtils.hashPatch);
+        patch.backwardHashes = patch.backward.map(patchUtils.hashPatch);
       });
     });
   });
@@ -64,8 +59,8 @@ function openDB(dbName) {
       delete patch.fowardHash;
       delete patch.backwardHash;
 
-      patch.forwardHashes = patch.forward.map(hashPatch);
-      patch.backwardHashes = patch.backward.map(hashPatch);
+      patch.forwardHashes = patch.forward.map(patchUtils.hashPatch);
+      patch.backwardHashes = patch.backward.map(patchUtils.hashPatch);
     });
   });
 
@@ -103,8 +98,8 @@ function openDB(dbName) {
     patches: 'id++,created,*affected,forwardHash,backwardHash'
   }).upgrade(function (tx) {
     tx.table('patches').toCollection().modify(function (patch) {
-      patch.forwardHash = md5.hash(stringify(patch.forward));
-      patch.backwardHash = md5.hash(stringify(patch.backward));
+      patch.forwardHash = patchUtils.hashPatch(patch.forward);
+      patch.backwardHash = patchUtils.hashPatch(patch.backward);
     });
   });
 
