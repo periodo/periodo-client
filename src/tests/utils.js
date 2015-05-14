@@ -273,9 +273,12 @@ describe('Patch utils', function () {
   it('should classify patch paths', function () {
     var { classifyPatch, parsePatchPath, patchTypes } = require('../utils/patch')
 
-    assert.equal(classifyPatch(samplePatches.addPeriod), patchTypes.CREATE_PERIOD);
-    assert.equal(classifyPatch(samplePatches.removePeriod), patchTypes.DELETE_PERIOD);
-    assert.equal(classifyPatch(samplePatches.changePeriod), patchTypes.EDIT_PERIOD);
+    assert.deepEqual(classifyPatch(samplePatches.addPeriod),
+      [patchTypes.CREATE_PERIOD, 'Created period b in collection a.']);
+    assert.deepEqual(classifyPatch(samplePatches.removePeriod),
+      [patchTypes.DELETE_PERIOD, 'Deleted period b in collection a.']);
+    assert.deepEqual(classifyPatch(samplePatches.changePeriod),
+      [patchTypes.EDIT_PERIOD, 'Changed note of period b in collection a.']);
 
     assert.deepEqual(parsePatchPath(samplePatches.addPeriod), {
       label: null,
