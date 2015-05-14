@@ -86,7 +86,7 @@
     ]
   },
   "scripts": {
-    "test": "mocha -R spec src/tests/*.js",
+    "test": "mochify -R spec ./src/tests/*.js",
     "test-watch": "mochify -w -R spec ./src/tests/*.js",
     "start": "serve -p 8000"
   }
