@@ -75,7 +75,7 @@ describe('', function () {
   describe('Periodization helpers', function () {
     it('should describe a periodization', function () {
       var { describe } = require('../helpers/periodization')
-        , data = Immutable.fromJS(require('./data/period-collection.json'))
+        , data = Immutable.fromJS(require('./data/period-collection.json').periodCollections.p03377f)
 
       assert.deepEqual(describe(data), {
         id: 'p03377f',

@@ -183,14 +183,8 @@ describe('Date parser', function () {
 
 describe('Patch utils', function () {
   var { makePatch } = require('../utils/patch')
-    , data
+    , data = Immutable.fromJS(require('./data/period-collection.json'))
     , samplePatches
-
-  data = Immutable.fromJS({
-    periodCollections: {
-      p03377f: require('./data/period-collection.json')
-    }
-  });
 
   samplePatches = {
     addPeriod: {
@@ -308,6 +302,5 @@ describe('Patch utils', function () {
       op: 'add',
       path: '/periodCollections/a/definitions/b/madeUpField'
     }))
-
   });
 });
