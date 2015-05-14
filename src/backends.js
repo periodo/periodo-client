@@ -90,11 +90,12 @@ Backend.prototype = {
     if (this.type !== 'idb') {
       throw new Error('Can only save to IndexedDB backends');
     }
+
+    if (newData.equals(this._data)) return Promise.resolve(null);
+
     app.trigger('request');
     return this._saveData(newData)
-      .then(resp => {
-        this._data = Immutable.fromJS(resp.localData);
-      })
+      .then(resp => this._data = Immutable.fromJS(resp.localData))
       .then(
         () => app.trigger('requestEnd'),
         () => app.trigger('requestEnd')
