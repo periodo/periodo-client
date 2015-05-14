@@ -198,6 +198,7 @@ describe('Period collection edit view', function () {
         }
       });
       done();
+      return Promise.resolve(null);
     }
 
     view.$('.toggle-form-type').trigger('click');

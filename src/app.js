@@ -125,10 +125,11 @@ ApplicationRouter = Backbone.Router.extend({
     this._view = new ViewConstructor(options || {});
     this._view.$el.appendTo('#main');
     window.scroll(0, 0);
+    return Promise.resolve(this._view);
   },
   handleError: function (err) {
     if (err instanceof errors.NotFoundError) {
-      this.changeView(require('./views/not_found'), { msg: err.message });
+      return this.changeView(require('./views/not_found'), { msg: err.message });
     } else {
       this.stopSpinner();
       this.addError(err);
@@ -171,7 +172,7 @@ ApplicationRouter = Backbone.Router.extend({
 
   backendSelect: function () {
     var BackendSelectView = require('./views/backend_select');
-    backends.list()
+    return backends.list()
       .then(backendsObj => this.changeView(BackendSelectView, { backends: backendsObj }))
       .catch(err => this.handleError(err))
   },
@@ -179,11 +180,9 @@ ApplicationRouter = Backbone.Router.extend({
   backendHome: function (backendName) {
     var IndexView = require('./views/index')
 
-    backends.get(backendName)
+    return backends.get(backendName)
       .then(backend => backend.getStore())
-      .then(store => {
-        this.changeView(IndexView, { store })
-      })
+      .then(store => this.changeView(IndexView, { store }))
       .catch(err => this.handleError(err))
   },
 
@@ -192,7 +191,7 @@ ApplicationRouter = Backbone.Router.extend({
 
     periodCollectionID = decodeURIComponent(periodCollectionID)
 
-    backends.get(backendName)
+    return backends.get(backendName)
       .then(_backend => {
         backend = _backend;
         return backend.getStore();
@@ -202,13 +201,13 @@ ApplicationRouter = Backbone.Router.extend({
           , path = ['periodCollections', periodCollectionID]
 
         if (!state.data.getIn(path)) {
-          let msg = `No period collection in ${backendName} with ID ${periodCollectionID}`;
+          let msg = `No period collection in ${backendName} with ID ${periodCollectionID}.`;
           throw new errors.NotFoundError(msg);
         }
 
         state.cursor = Cursor.from(state.data, path, newData => state.data = newData);
 
-        this.changeView(require('./views/period_collection_show'), { state, backend });
+        return this.changeView(require('./views/period_collection_show'), { state, backend });
       })
       .catch(err => this.handleError(err))
   },
@@ -223,7 +222,7 @@ ApplicationRouter = Backbone.Router.extend({
       periodCollectionID = decodeURIComponent(periodCollectionID);
     }
 
-    backends.get(backendName)
+    return backends.get(backendName)
       .then(_backend => {
         backend = _backend;
         if (!backend.editable) {
@@ -234,7 +233,10 @@ ApplicationRouter = Backbone.Router.extend({
       .then(store => {
         var state = { data: store.get('data') }
 
-        state.data.setIn(['periodCollections', periodCollectionID, 'id'], periodCollectionID);
+        state.data = state.data.setIn(
+          ['periodCollections', periodCollectionID, 'id'],
+          periodCollectionID);
+
         state.cursor = Cursor.from(
           state.data,
           ['periodCollections', periodCollectionID],
@@ -246,7 +248,7 @@ ApplicationRouter = Backbone.Router.extend({
           throw new errors.NotFoundError(msg);
         }
 
-        this.changeView(require('./views/period_collection_edit'), { state, backend });
+        return this.changeView(require('./views/period_collection_edit'), { state, backend });
       })
       .catch(err => this.handleError(err))
   },
@@ -255,7 +257,7 @@ ApplicationRouter = Backbone.Router.extend({
     var SyncView = require('./views/sync')
       , db = require('./db')
 
-    backends.switchTo(backendName)
+    return backends.switchTo(backendName)
       .then(ensureIDB)
       .then(backend => db(backend).getLocalData())
       .then(localData => this.changeView(SyncView, { localData }))
@@ -264,35 +266,31 @@ ApplicationRouter = Backbone.Router.extend({
 
   signin: function () {
     var SignInView = require('./views/signin');
-    this.changeView(SignInView, { authCallback: checkAuth });
+    return this.changeView(SignInView, { authCallback: checkAuth });
   },
 
   signout: function () {
     var SignOutView = require('./views/signout');
-    this.changeView(SignOutView, { authCallback: checkAuth });
+    return this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
   submitPatch: function (backendName) {
     var db = require('./db')
 
-    backends.switchTo(backendName)
+    return backends.switchTo(backendName)
       .then(ensureIDB)
       .then(backend => db(backend.name).getLocalData())
-      .then(localData => this.changeView(
-        require('./views/submit_patch'), { localData }
-      ))
+      .then(localData => this.changeView(require('./views/submit_patch'), { localData }))
       .catch(err => this.handleError(err))
   },
 
   submittedPatches: function (backendName) {
     var db = require('./db')
 
-    backends.switchTo(backendName)
+    return backends.switchTo(backendName)
       .then(ensureIDB)
       .then(backend => db(backend.name).localPatches.toArray())
-      .then(localPatches => {
-        this.changeView(require('./views/local_patches'), { localPatches });
-      })
+      .then(localPatches => this.changeView(require('./views/local_patches'), { localPatches }))
       .catch(err => this.handleError(err))
   },
 
@@ -301,7 +299,7 @@ ApplicationRouter = Backbone.Router.extend({
   attemptRedirect: function (matchKey) {
     matchKey = 'p0' + matchKey;
 
-    backends.get('web')
+    return backends.get('web')
       .then(backend => backend.fetchData())
       .then(data => {
         var periodCollectionIDs = []
