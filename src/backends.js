@@ -8,6 +8,11 @@ var _ = require('underscore')
 
 const MEMORY_BACKEND = '__memory__'
 
+function clientSupportsDexie() {
+  var dependencies = Dexie.dependencies;
+  return Object.keys(dependencies).every(k => dependencies[k]);
+}
+
 function fetchWebData(url) {
   var getJSON = require('./ajax').getJSON;
   return getJSON(url + 'd/')
@@ -103,27 +108,30 @@ Backend.prototype = {
 
 
 function listBackends() {
-  var backends = {}
-    , webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
+  var webDBs = JSON.parse((localStorage || {}).WebDatabaseNames || '{}')
+    , dbPromise
 
-  backends = _.extend(backends, webDBs);
-
-  return Dexie.getDatabaseNames().then(function (dexieDBs) {
-    dexieDBs.forEach(function (db) {
-      backends[db] = {
-        type: 'idb',
-        name: db,
-      }
+  if (clientSupportsDexie()) {
+    dbPromise = Dexie.getDatabaseNames().then(dexieDBs => {
+      return dexieDBs.map(db => ({ type: 'idb', name: db }))
     });
+  } else {
+    dbPromise = Promise.resolve([]);
+  }
 
-    delete backends.web;
-    if (window.location.protocol.indexOf('http') !== -1) {
+  return dbPromise.then(function (dbs) {
+    var backends = _.extend({}, webDBs)
+
+    dbs.forEach(db => backends[db.name] = db);
+
+    if (window && window.location.protocol.indexOf('http') !== -1) {
       backends.web = {
         type: 'web',
         name: 'web',
         url: window.location.origin + window.location.pathname,
       }
     }
+
     return backends;
   });
 }
