@@ -89,6 +89,8 @@ function initApp() {
 
   checkAuth();
 
+  $(document).on('click', 'a', handlePageClick);
+
   Backbone.history.start();
 }
 
@@ -99,11 +101,8 @@ function ensureIDB(backend) {
   return backend;
 }
 
-$(document)
-  .ready(initApp)
-  .on('click', 'a', handlePageClick)
-
 ApplicationRouter = Backbone.Router.extend({
+  start: initApp,
   routes: {
     '': 'welcome',
     'p/': 'backendSelect',

@@ -24,6 +24,7 @@ describe('Application', function () {
     document.body.appendChild(container);
 
     application = require('../app');
+    application.start();
   });
 
   after(function () { document.body.removeChild(container) });

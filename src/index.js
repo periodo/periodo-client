@@ -1,3 +1,5 @@
 "use strict";
 
-require('./app')
+var app = require('./app')
+
+$(document).ready(() => app.start());
