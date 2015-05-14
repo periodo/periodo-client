@@ -57,7 +57,7 @@ PeriodCollectionEditView = Backbone.View.extend({
     return this.backend.saveStore(this.state.data)
       .then(() => {
         var encodedID = encodeURIComponent(this.state.cursor.get('id'))
-          , redirect = this.backend.path + 'periodCollections/' + encodedID
+          , redirect = this.backend.path + 'periodCollections/' + encodedID + '/'
 
         Backbone.history.navigate(redirect, { trigger: true });
       });
