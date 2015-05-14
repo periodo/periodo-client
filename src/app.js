@@ -234,6 +234,7 @@ ApplicationRouter = Backbone.Router.extend({
       .then(store => {
         var state = { data: store.get('data') }
 
+        state.data.setIn(['periodCollections', periodCollectionID, 'id'], periodCollectionID);
         state.cursor = Cursor.from(
           state.data,
           ['periodCollections', periodCollectionID],

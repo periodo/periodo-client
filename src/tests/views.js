@@ -6,6 +6,10 @@ var assert = require('assert')
   , Immutable = require('immutable')
   , Cursor = require('immutable/contrib/cursor')
 
+if (!window.Promise) {
+  window.Promise = require('dexie').Promise;
+}
+
 function appendDiv(container) {
   var el = document.createElement('div');
   container.appendChild(el);
@@ -104,11 +108,10 @@ describe('Period collection edit view', function () {
   states.empty = { data: Immutable.fromJS({ periodCollections: {} }) }
   states.empty.cursor = Cursor.from(states.empty.data, ['periodCollections', 'newID']);
 
-
-  function makeFormView(state) {
+  function makeFormView(opts) {
     return new PeriodCollectionEditView({
-      state,
-      backend: fakeBackend,
+      state: opts.state,
+      backend: opts.backend,
       el: appendDiv(container)
     });
   }
@@ -117,7 +120,7 @@ describe('Period collection edit view', function () {
   after(function () { document.body.removeChild(container) });
 
   it('should render a form for new collection', function () {
-    var view = makeFormView(states.empty)
+    var view = makeFormView({ state: states.empty, backend: fakeBackend })
 
     assert.equal(view.$('h1').text(), 'Add period collection');
 
@@ -136,7 +139,7 @@ describe('Period collection edit view', function () {
   });
 
   it('Should render errors for a missing or empty source', function () {
-    var view = makeFormView(states.empty);
+    var view = makeFormView({ state: states.empty, backend: fakeBackend })
 
     view.validate();
     assert.equal(view.$('.error-message').length, 1);
@@ -162,5 +165,46 @@ describe('Period collection edit view', function () {
         yearPublished: '2015'
       }
     });
+  });
+
+  it('Should call save with an updated period collection', function (done) {
+    var backend = { name: '', path: '' }
+      , view
+      , state
+
+    state = { data: Immutable.fromJS({ periodCollections: { emma: { id: 'emma' }}}) };
+    state.cursor = Cursor.from(
+      state.data,
+      ['periodCollections', 'emma'],
+      updated => state.data = updated);
+
+    view = makeFormView({ state, backend })
+
+    backend.saveStore = function (data) {
+      assert.deepEqual(data.toJS(), {
+        periodCollections: {
+          emma: {
+            id: 'emma',
+            definitions: {},
+            type: 'PeriodCollection',
+            source: { 
+              yearPublished: '1934',
+              citation: 'Living My Life',
+              creators: [
+                { name: 'Emma Goldman' }
+              ]
+            }
+          }
+        }
+      });
+      done();
+    }
+
+    view.$('.toggle-form-type').trigger('click');
+    view.$('[data-field="yearPublished"]').val('1934');
+    view.$('[data-field="citation"]').val('Living My Life');
+    view.$('[data-field="creators"] input').val('Emma Goldman');
+
+    return view.handleSave();
   });
 });

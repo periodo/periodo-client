@@ -36,13 +36,33 @@ PeriodCollectionEditView = Backbone.View.extend({
     var definitions = this.state.cursor.get('definitions', Immutable.Map())
       , editorialNote = this.$('#js-editorial-note').val().trim()
       , source = this.sourceEditView.getData()
+      , id = this.state.cursor.get('id')
 
     return Immutable.Map()
       .set('type', 'PeriodCollection')
       .set('definitions', definitions)
+      .update('id', () => id)
       .update('editorialNote', () => editorialNote || undefined)
       .update('source', () => (source && source.size) ? source : undefined)
   },
+  handleSave: function () {
+    var [errors, data] = this.validate()
+
+    if (!data.equals(this.state.cursor.deref())) {
+      this.state.cursor.update(() => data);
+      this.saveData();
+    }
+  },
+  saveData: function () {
+    return this.backend.saveStore(this.state.data)
+      .then(() => {
+        var encodedID = encodeURIComponent(this.state.cursor.get('id'))
+          , redirect = this.backend.path + 'periodCollections/' + encodedID
+
+        Backbone.history.navigate(redirect, { trigger: true });
+      });
+  },
+    /*
   handleSave: function () {
     if (this.model.isValid()) {
       let source = this.model.source()
@@ -65,6 +85,7 @@ PeriodCollectionEditView = Backbone.View.extend({
       this.renderValidationErrors(this.model.validationError);
     }
   },
+  */
   handleDelete: function () {
     var confirmed = window.confirm('Really delete this period collection?')
       , source = this.model.source()
