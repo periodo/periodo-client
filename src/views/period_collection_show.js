@@ -17,6 +17,18 @@ module.exports = Backbone.View.extend({
     this.state = opts.state;
     this.backend = opts.backend;
     this.render();
+
+    var RangeSelectionWidget = require('./widgets/range_selection')
+
+      /*
+    try {
+      this.rangeSelector = new RangeSelectionWidget({
+        data: this.state.cursor.get('definitions'),
+        el: this.$('#period-collection-range')[0]
+      });
+    } catch(e) { }
+    */
+
   },
   render: function () {
     var template = require('../templates/period_collection_show.html');
@@ -168,5 +180,9 @@ module.exports = Backbone.View.extend({
       var View = require('./period_collection_viz')
         , view = new View({ model: this.state.cursor.toJS(), el: this.$periodList })
     }
+  },
+  remove: function () {
+    if (this.rangeSelector) this.rangeSelector.remove();
+    Backbone.View.prototype.remove.call(this);
   }
 });

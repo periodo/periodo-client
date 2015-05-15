@@ -5,19 +5,27 @@ var sourceInformation = require('./source.html');
 
 <h1>Periodization</h1>
 
-<div style="float: right">
-  <h2>Export</h2>
-  <ul class="unstyled">
-    <li><a href="#" class="download-file" data-no-redirect="true" data-filetype="csv">CSV</a></li>
-    <li><a href="#" class="download-file" data-no-redirect="true" data-filetype="ttl">Text/Turtle</a></li>
-    <li><a href="#" class="download-file" data-no-redirect="true" data-filetype="jsonld">JSON-LD</a></li>
-  </ul>
+<div class="row">
+  <div class="col-md-6">
+    <h2>Source</h2>
+    <div id="source-information">
+      <%= sourceInformation({ source: periodCollection.source }) %>
+    </div>
+  </div>
+
+  <div style="margin-top: 4.5em; padding-left: 5em;" id="period-collection-range" class="col-md-4"></div>
+
+  <div class="col-md-2">
+    <h2>Export</h2>
+    <ul class="unstyled">
+      <li><a href="#" class="download-file" data-no-redirect="true" data-filetype="csv">CSV</a></li>
+      <li><a href="#" class="download-file" data-no-redirect="true" data-filetype="ttl">Text/Turtle</a></li>
+      <li><a href="#" class="download-file" data-no-redirect="true" data-filetype="jsonld">JSON-LD</a></li>
+    </ul>
+  </div>
 </div>
 
-<h2>Source</h2>
-<div id="source-information">
-  <%= sourceInformation({ source: periodCollection.source }) %>
-</div>
+
 
 
 <% if (periodCollection.editorialNote) { %>
