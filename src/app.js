@@ -196,7 +196,7 @@ ApplicationRouter = Backbone.Router.extend({
         return backend.getStore();
       })
       .then(store => {
-        var state = { data: store.get('data') }
+        var state = { data: store }
           , path = ['periodCollections', periodCollectionID]
 
         if (!state.data.getIn(path)) {
@@ -230,7 +230,7 @@ ApplicationRouter = Backbone.Router.extend({
         return backend.getStore();
       })
       .then(store => {
-        var state = { data: store.get('data') }
+        var state = { data: store }
 
         state.data = state.data.setIn(
           ['periodCollections', periodCollectionID, 'id'],

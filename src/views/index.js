@@ -21,7 +21,6 @@ module.exports = Backbone.View.extend({
     //this.collection.sort();
 
     var periodCollections = this.store
-      .get('data')
       .get('periodCollections')
       .valueSeq()
       .map(require('../helpers/periodization').describe)

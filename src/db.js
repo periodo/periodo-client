@@ -141,10 +141,8 @@ function openDB(dbName) {
         promises.push(db.localData.put(localData));
         promises.push(db.patches.put(patchData));
 
-        return Dexie.Promise.all(promises).then(Dexie.Promise.resolve({
-          localData: localData,
-          patches: patchData
-        }));
+        return Dexie.Promise.all(promises)
+          .then(([localData]) => localData.data);
       });
     });
   }

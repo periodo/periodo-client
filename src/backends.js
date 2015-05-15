@@ -8,106 +8,172 @@ var _ = require('underscore')
 
 const MEMORY_BACKEND = '__memory__'
 
-function clientSupportsDexie() {
-  var dependencies = Dexie.dependencies;
-  return Object.keys(dependencies).every(k => dependencies[k]);
-}
 
-function fetchWebData(url) {
-  var getJSON = require('./ajax').getJSON;
-  return getJSON(url + 'd/')
-    .then(function ([data, status, xhr]) {
-      var modified = xhr.getResponseHeader('Last-Modified')
-      modified = modified && new Date(modified).getTime()
 
-      return { data, modified }
-    });
-}
+/************************************************************
+ * Main backend constructor
+ ***********************************************************/
 
-function fetchIDBData(dbName) {
-  return require('./db')(dbName).getLocalData()
-    .then(function (localData) {
-      return {
-        data: localData.data,
-        modified: localData.modified,
-      }
-    });
-}
+// Backends must implement a `fetchData` method which takes no arguments and
+// returns an object with two keys: `data` (the PeriodO dataset), and
+// `modified` (a Date object with the last modification date.
+//
+// If a backend is editable, it must also implement a `saveData` method that
+// takes an Immutable object representing a new dataset as an argument and
+// returns the saved immutable store.
 
 function Backend(opts) {
   this.name = opts.name;
   this.type = opts.type;
   this.path = 'p/' + this.name + '/';
   this._data = null;
-
-  if (this.type === 'web') {
-    this.url = this.name === 'web' ?
-      window.location.origin + window.location.pathname :
-      opts.url
-  }
-
-  this.editable = this.type === 'idb' || this.type === 'memory';
 }
 
 Backend.prototype = {
-  fetchData: function () {
-    if (this.type === 'web') {
-      return fetchWebData(this.url);
-    } else if (this.type === 'idb') {
-      return fetchIDBData(this.name);
-    } else if (this.type === 'memory') {
-      return Promise.resolve({
-        data: { periodCollections: {} },
-        modified: new Date().getTime()
-      })
+  get editable() { return !!this.saveData },
+  saveStore: function (newData) {
+    var app = require('./app')
+
+    if (!this.saveData) {
+      throw new Error(`Cannot save data for backend type ${this.type}`);
     }
+
+    if (newData.equals(this._data)) return Promise.resolve(this._data);
+
+    app.trigger('request');
+    return this.saveData(newData)
+      .then(saved => {
+        app.trigger('requestEnd');
+        this._data = saved instanceof Immutable.Iterable ?
+          saved : Immutable.fromJS(saved);
+        return this._data;
+      })
+      .catch(require('./app').handleError)
   },
   getStore: function () {
     var app = require('./app')
       , promise
 
+    if (!this.fetchData) {
+      throw new Error(`Cannot fetch data for backend type ${this.type}`);
+    }
+
     app.trigger('request');
+
     if (!this._data) {
-      promise = this.fetchData()
-        .then(data => {
-          var immutableData = Immutable.fromJS(data);
-          return (this._data = immutableData);
-        })
+      promise = this.fetchData().then(fetched => {
+        this._data = Immutable.fromJS(fetched.data);
+        this._modified = fetched.modified;
+        return this._data;
+      });
     } else {
       promise = Promise.resolve(this._data);
     }
 
-    promise.then(
-        () => app.trigger('requestEnd'),
-        () => app.trigger('requestEnd'))
+    promise.then(() => app.trigger('requestEnd'));
     promise.then(() => setCurrentBackend(this));
 
+    promise = promise.catch(app.handleError);
+
     return promise;
-  },
-  saveStore: function (newData) {
-    var app = require('./app')
+  }
+}
 
-    if (this.type !== 'idb') {
-      throw new Error('Can only save to IndexedDB backends');
-    }
 
-    if (newData.equals(this._data)) return Promise.resolve(null);
 
-    app.trigger('request');
-    return this._saveData(newData)
-      .then(resp => this._data = Immutable.fromJS(resp.localData))
-      .then(
-        () => app.trigger('requestEnd'),
-        () => app.trigger('requestEnd')
-      )
-      .catch(require('./app').handleError)
-  },
-  _saveData: function (data) {
-    if (!this.type === 'idb') {
-      throw new Error('Can only save to IndexedDB backends');
-    }
+/************************************************************
+ * IndexedDB backend
+ ***********************************************************/
+
+function IDBBackend(opts) {
+  Backend.call(this, opts);
+  this.type = 'idb';
+
+  this.fetchData = function () {
+    return require('./db')(this.name).getLocalData()
+      .then(function (localData) {
+        return {
+          data: localData.data,
+          modified: localData.modified,
+        }
+      });
+  }
+
+  this.saveData = function (data) {
     return require('./db')(this.name).updateLocalData(data.toJS())
   }
+}
+
+IDBBackend.constructor = IDBBackend;
+IDBBackend.prototype = Object.create(Backend.prototype);
+
+
+
+/************************************************************
+ * Web backend
+ ***********************************************************/
+
+function WebBackend(opts) {
+  Backend.call(this, opts);
+  this.type = 'web';
+
+  this.url = this.name === 'web' ?
+    window.location.origin + window.location.pathname :
+    opts.url;
+
+  this.fetchData = function () {
+    return require('./ajax').getJSON(this.url + 'd/')
+      .then(function ([data, status, xhr]) {
+        var modified = xhr.getResponseHeader('Last-Modified');
+        modified = modified && new Date(modified).getTime();
+        return { data, modified };
+      });
+  }
+}
+WebBackend.constructor = WebBackend;
+WebBackend.prototype = Object.create(Backend.prototype);
+
+
+
+/************************************************************
+ * In-memory backend
+ ***********************************************************/
+
+function MemoryBackend(opts) {
+  Backend.call(this, opts);
+  this.type = 'memory';
+  this._patches = [];
+
+  this.fetchData = function () {
+    return Promise.resolve({
+      data: {periodCollections: {}},
+      modified: new Date().getTime()
+    });
+  }
+
+  this.saveData =  function (newStore) {
+    var { formatPatch } = require('./utils/patch')
+
+    return this.getStore().then(oldStore => {
+      var patch = formatPatch(oldStore.toJS(), newStore.toJS());
+      this._patches.push(patch);
+      this._data = newStore;
+      return newStore;
+    });
+  }
+}
+MemoryBackend.constructor = MemoryBackend;
+MemoryBackend.prototype = Object.create(Backend.prototype);
+
+
+
+/************************************************************
+ * Helper functions
+ ***********************************************************/
+
+function clientSupportsDexie() {
+  var dependencies = Dexie.dependencies;
+  return Object.keys(dependencies).every(k => dependencies[k]);
 }
 
 
@@ -144,16 +210,26 @@ function getBackend(name) {
   if (current && current.name === name) {
     return Promise.resolve(current);
   } else if (name === MEMORY_BACKEND) {
-    return Promise.resolve(new Backend({ name: MEMORY_BACKEND, type: 'memory' }));
+    return Promise.resolve(new MemoryBackend({ name: MEMORY_BACKEND, type: 'memory' }));
   } else {
     return listBackends().then(backends => {
-      var backend = backends[name];
+      var backendOpts = backends[name]
+        , constructors
+        , BackendConstructor
 
-      if (!backend) {
+      constructors = {
+        idb: IDBBackend,
+        web: WebBackend,
+        memory: MemoryBackend
+      }
+
+      if (!backendOpts) {
         throw new errors.NotFoundError(`Backend ${name} does not exist`);
       }
 
-      return new Backend(backend);
+      BackendConstructor = constructors[backendOpts.type];
+
+      return new BackendConstructor(backendOpts);
     });
   }
 }
