@@ -99,6 +99,8 @@ module.exports = Backbone.View.extend({
   },
   handleSaveAs: function (e) {
     var saveAs = require('filesaver.js')
+      , stringify = require('json-stable-stringify')
+      , { asCSV, asJSONLD, asTurtle } = require('../helpers/periodization')
       , filetype = e.currentTarget.dataset.filetype
       , filename = encodeURIComponent(this.model.id) + '.' + filetype
 
@@ -106,20 +108,18 @@ module.exports = Backbone.View.extend({
     e.stopPropagation();
 
     if (filetype === 'csv') {
-      this.model.asCSV().then(function (data) {
-        var blob = new Blob([data], { type: 'text/csv' });
-        saveAs(blob, filename);
-      });
+      asCSV(this.state.cursor)
+        .then(data => new Blob([data], { type: 'text/csv' }))
+        .then(blob => saveAs(blob, filename));
     } else if (filetype === 'ttl') {
-      this.model.asTurtle().then(data => {
-        var blob = new Blob([data], { type: 'text/turtle' });
-        saveAs(blob, filename);
-      });
+      asTurtle(this.state.cursor)
+        .then(data => new Blob([data], { type: 'text/turtle' }))
+        .then(blob => saveAs(blob, filename));
     } else if (filetype === 'jsonld') {
-      var stringify = require('json-stable-stringify');
-      var json = stringify(this.model.asJSONLD(), { space: '  ' });
-      var blob = new Blob([json], { type: 'application/json+ld' });
-      saveAs(blob, filename);
+      Promise.resolve(asJSONLD(this.state.cursor))
+        .then(obj => stringify(obj, { space: '  ' }))
+        .then(data => new Blob([data], { type: 'appliaction/json+ld' }))
+        .then(blob => saveAs(blob, filename))
     }
 
   },
@@ -147,21 +147,26 @@ module.exports = Backbone.View.extend({
     if (format === 'list') {
       var template = require('../templates/period_list.html');
       this.$periodList.html(template({
-        periods: this.model.toJSON().definitions,
-        editable: this._editable
+        periods: this.state.cursor.get('definitions').toJS(),
+        editable: this.backend.editable
       }));
     } else if (format === 'ttl') {
-      var $pre = Backbone.$('<pre>');
-      this.model.asTurtle().then(result => {
-        $pre.text(result);
-        this.$periodList.html('').append($pre);
-      });
+      let { asTurtle } = require('../helpers/periodization');
+      asTurtle(this.state.cursor)
+        .then(ttl => {
+          var $pre = Backbone.$('<pre>');
+          $pre.text(ttl);
+          this.$periodList.html('').append($pre);
+        });
     } else if (format === 'jsonld') {
-      var $pre = Backbone.$('<pre>').text(stringify(this.model.asJSONLD(), { space: '  ' }));
+      let { asJSONLD } = require('../helpers/periodization')
+        , $pre = Backbone.$('<pre>')
+
+      $pre.text(stringify(asJSONLD(this.state.cursor), { space: '  ' }));
       this.$periodList.html('').append($pre);
     } else if (format === 'viz') {
       var View = require('./period_collection_viz')
-        , view = new View({ model: this.model, el: this.$periodList })
+        , view = new View({ model: this.state.cursor.toJS(), el: this.$periodList })
     }
   }
 });
