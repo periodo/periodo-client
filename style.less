@@ -284,6 +284,31 @@ svg .period:hover {
   text-decoration: line-through;
 }
 
+// SORTIES
+thead.nowrap th { white-space: nowrap; }
+
+th.sort-header {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+th.sort-header.sort-down,
+th.sort-header.sort-up {
+  position: relative;
+  background: #f9f9f9;
+}
+
+th.sort-header.sort-up::before {
+  position: absolute;
+  left: 6px;
+  content: "▲";
+}
+th.sort-header.sort-down::before {
+  position: absolute;
+  left: 6px;
+  content: "▼";
+}
+
 
 // ORCID
 #auth-menu li a { display: inline-block }

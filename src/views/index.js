@@ -1,8 +1,8 @@
 "use strict";
 
 var Backbone = require('../backbone')
-  , Tablesort = require('tablesort')
   , backends = require('../backends')
+  , sortTable = require('../utils/sort_table')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -32,8 +32,8 @@ module.exports = Backbone.View.extend({
       backend: this.backend
     }));
 
-    var table = this.$('#periodization-list table')[0];
-    new Tablesort(table);
+    sortTable(this.$('#periodization-list table')[0]);
+
   },
   deleteDatabase: function () {
     backends.destroy(this.backend.name)
