@@ -1,6 +1,7 @@
 "use strict";
 
 var _ = require('underscore')
+  , Immutable = require('immutable')
 
 function describe(periodization) {
   var { minYear, maxYear } = require('./terminus_collection')
@@ -72,7 +73,7 @@ function asCSV(periodization) {
         stop.get('label'),
         getEarliestYear(stop),
         getLatestYear(stop),
-        period.get('spatialCoverage' || []).map(sc => sc.get('id')).join('|'),
+        period.get('spatialCoverage', Immutable.List()).map(sc => sc.get('id')).join('|'),
         period.get('note'),
         period.get('editorialNote')
       ]);

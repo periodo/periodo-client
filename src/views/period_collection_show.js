@@ -102,7 +102,7 @@ module.exports = Backbone.View.extend({
       , stringify = require('json-stable-stringify')
       , { asCSV, asJSONLD, asTurtle } = require('../helpers/periodization')
       , filetype = e.currentTarget.dataset.filetype
-      , filename = encodeURIComponent(this.model.id) + '.' + filetype
+      , filename = encodeURIComponent(this.state.cursor.get('id')) + '.' + filetype
 
     e.preventDefault();
     e.stopPropagation();
