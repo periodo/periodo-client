@@ -2,85 +2,81 @@
 
 var _ = require('underscore')
   , Backbone = require('../../backbone')
-  , SpatialCoverageEditView = require('./spatial_coverage')
-  , TemporalCoverageEditView = require('./temporal_coverage')
-  , GeneralEditView = require('./general')
-  , bindings
+  , LanguageFormView = require('./language')
+  , SpatialCoverageView = require('./spatial_coverage')
+  , TemporalCoverageView = require('./temporal_coverage')
+  , PeriodEditView
 
-bindings = {
-  period: {
-    '#js-note': 'note',
-    '#js-editorial-note': 'editorialNote',
-  }
-}
+// When the cursor is changed, any changes will be committed and the view
+// will be removed.
 
-module.exports = Backbone.View.extend({
-  bindings: _.extend({}, bindings.period),
+PeriodEditView = Backbone.View.extend({
   events: {
-    'change #js-detect-dateType': 'updateDetectDateType',
-    'change #js-dateType': function () {
-      if (!this.autodetectDate) {
-        this.$('#js-startDate, #js-endDate').trigger('input');
-      }
-    }
+    'click .js-save-period': 'savePeriod',
+    'click .js-cancel-period': 'cancelPeriod',
+    'click .js-delete-period': 'deletePeriod'
   },
-  initialize: function () {
-    this.render();
-    this.stickit();
+  initialize: function (opts) {
+    this.cursor = opts.cursor;
     this.subviews = {};
 
-    this.subviews.spatialCoverage = new SpatialCoverageEditView({
-      model: this.model,
-      collection: this.model.spatialCoverage(),
-      el: this.$('#js-spatial-coverage-container')
+    this.render();
+
+    this.subviews.spatialCoverage = new SpatialCoverageView({
+      el: this.$('#js-spatial-coverage-container'),
+      cursor: this.cursor,
+      spatialCoverages: opts.spatialCoverages
     });
 
-    this.subviews.general = new GeneralEditView({
-      model: this.model,
-      el: this.$('#js-period-general-container')
+    this.subviews.temporalCoverage = new TemporalCoverageView({
+      el: this.$('#js-temporal-coverage-container'),
+      cursor: this.cursor
     });
 
-    this.subviews.temporalCoverage = new TemporalCoverageEditView({
-      model: this.model,
-      el: this.$('#js-temporal-coverage-container')
-    });
-
-    this.listenTo(this.model, 'invalid', function (model, errors) {
-      this.$('.error-message').remove();
-      for (var field in errors) {
-        this.appendErrors(field, errors[field]);
-      }
+    this.subviews.language = new LanguageFormView({
+      el: this.$('#js-language-form'),
+      cursor: this.cursor
     });
   },
   render: function () {
-    var template = require('./templates/period_form.html');
-    this.$el.html(template({ isNew: this.model.isNew() }));
+    var template = require('./templates/form.html');
+    this.$el.html(template({ data: this.cursor.toJS() }));
   },
-  appendErrors: function (label, messages) {
-    var $container = this.$('[data-error-container=' + label + ']')
-      , html
-      , $label
+  remove: function () {
+    _.forEach(this.subviews, view => view.remove());
+  },
+  getData: function () {
+    var data = {}
+      , note = this.$('#js-note').val().trim()
+      , editorialNote = this.$('#js-editorial-note').val().trim()
 
-    html = '<div class="error-message alert alert-danger"><ul class="list-unstyled">'
-    html += messages.map(function (message) { return '<li>' + message + '</li>' });
-    html += '</ul></li>'
+    if (note.length) data.note = note;
+    if (editorialNote.length) data.editorialNote = editorialNote;
 
-    if (!$container.length) {
-      this.$el.prepend(html);
-    } else {
-      $label = $container.find('label').first();
-      if ($label.length) {
-        $label.after(html);
-      } else {
-        $container.prepend(html);
-      }
+    return _.extend(
+      this.subviews.language.getData(),
+      this.subviews.spatialCoverage.getData(),
+      this.subviews.temporalCoverage.getData(),
+      { type: 'PeriodDefinition' },
+      data)
+  },
+  validator: require('../../helpers/period').validate,
+  savePeriod: function () {
+    var [errors, data] = this.validate()
+
+    if (data) {
+      this.cursor = this.cursor.update(() => data);
     }
   },
-  updateDetectDateType: function () {
-    this.autodetectDate = this.$('#js-detect-dateType').prop('checked');
-    this.$('#js-dateType').prop('disabled', this.autodetectDate);
+  cancelPeriod: function () {
+    // Trigger an update without doing anything
+    this.cursor = this.cursor.update(c => c);
   },
-  save: function () {
-    this.model.validate();
-  }
+  deletePeriod: function () {
+    this.cursor = this.cursor.update(() => undefined);
+  },
 });
+
+_.defaults(PeriodEditView.prototype, require('../mixins/validate'));
+
+module.exports = PeriodEditView;

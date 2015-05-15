@@ -11,17 +11,16 @@
   <% periodCollections.forEach(function (periodCollection) { %>
     <tr>
       <td>
-        <a href="<%= backend.path %>periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
-          <%= periodCollection.source().displayTitle() %>
+        <a href="#<%= backend.path %>periodCollections/<%= encodeURIComponent(periodCollection.id) %>/">
+          <%= periodCollection.source %>
         </a>
       </td>
-      <td><%= periodCollection.definitions().length %></td>
-      <% var timeSpan = periodCollection.getTimespan() %>
-      <td data-sort="<%= timeSpan.lower ? timeSpan.lower.getEarliestYear() : undefined %>">
-        <%= timeSpan.lower && timeSpan.lower.get('label') %>
+      <td><%= periodCollection.definitions %></td>
+      <td data-sort="<%= periodCollection.earliest && periodCollection.earliest.iso %>">
+        <%= periodCollection.earliest && periodCollection.earliest.label %>
       </td>
-      <td data-sort="<%= timeSpan.upper ? timeSpan.upper.getLatestYear() : undefined %>">
-        <%= timeSpan.upper && timeSpan.upper.get('label') %>
+      <td data-sort="<%= periodCollection.latest && periodCollection.latest.iso %>">
+        <%= periodCollection.earliest && periodCollection.latest.label %>
       </td>
     </tr>
   <% }); %>

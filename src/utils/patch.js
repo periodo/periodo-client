@@ -51,7 +51,7 @@ function transformSimplePatch(patch, opts) {
 
     isSimpleAddOrRemove = (
         (patch.op === 'add' || patch.op === 'remove') &&
-        valuePath.split('/').slice(-1)[0] === parsed.label)
+        patch.path.split('/').slice(-1)[0] === parsed.label)
 
     if (isSimpleAddOrRemove) {
       acc.push(patch);
@@ -91,39 +91,50 @@ function classifyPatch(patch) {
   var parsed = parsePatchPath(patch.path)
     , type
 
-  if (!parsed) {
-    return null;
-  }
+  if (!parsed) return [null, ''];
 
   if (parsed.type === 'periodCollection' || parsed.type === 'period') {
     if (!parsed.label) {
       if (patch.op === 'add') {
-        type = parsed.type === 'periodCollection' ?
-          patchTypes.CREATE_PERIOD_COLLECTION : patchTypes.CREATE_PERIOD;
+        if (parsed.type === 'periodCollection') {
+          type = [
+            patchTypes.CREATE_PERIOD_COLLECTION,
+            `Created period collection ${parsed.id}.`
+          ]
+        } else {
+          type = [
+            patchTypes.CREATE_PERIOD,
+            `Created period ${parsed.id} in collection ${parsed.collection_id}.`
+          ]
+        }
       } else {
-        type = parsed.type === 'periodCollection' ?
-          patchTypes.DELETE_PERIOD_COLLECTION : patchTypes.DELETE_PERIOD;
+        if (parsed.type === 'periodCollection') {
+          type = [
+            patchTypes.DELETE_PERIOD_COLLECTION,
+            `Deleted period collection ${parsed.id}.`
+          ]
+        } else {
+          type = [
+            patchTypes.DELETE_PERIOD,
+            `Deleted period ${parsed.id} in collection ${parsed.collection_id}.`
+          ]
+        }
       }
     } else {
-      type = parsed.type === 'periodCollection' ?
-        patchTypes.EDIT_PERIOD_COLLECTION : patchTypes.EDIT_PERIOD;
+      if (parsed.type === 'periodCollection') {
+        type = [
+          patchTypes.EDIT_PERIOD_COLLECTION,
+          `Changed ${parsed.label} of period collection ${parsed.id}.`
+        ]
+      } else {
+        type = [
+          patchTypes.EDIT_PERIOD,
+          `Changed ${parsed.label} of period ${parsed.id} in collection ${parsed.collection_id}.`
+        ]
+      }
     }
   }
-  return type;
-}
-
-function classifyPatchSet(patchSet) {
-  var type
-
-  if (!!patchSet.message.match('synced data')) {
-    type = patchTypes.SYNC;
-  } else if (patchSet.forward.length > 1) {
-    type = patchTypes.MULTIPLE;
-  } else {
-    type = classifyPatch(patchSet.forward[0]);
-  }
-
-  return type;
+  return type || [null, ''];
 }
 
 function getAffected(patches) {
@@ -146,7 +157,15 @@ function formatPatch(oldData, newData, message) {
   var forward = makePatch(oldData, newData)
     , backward = makePatch(newData, oldData)
     , affected = getAffected(forward)
+    , description
     , patch
+
+  description = forward
+    .filter(patch => !patch.fake)
+    .map(patch => classifyPatch(patch)[1])
+    .join('\n');
+
+  message = message ? (message + '\n' + description) : description;
 
   patch = {
     forward: forward,
@@ -159,18 +178,19 @@ function formatPatch(oldData, newData, message) {
     affectedPeriods: affected.periods
   }
 
-  patch.type = classifyPatchSet(patch);
+  // FIXME is patch.type really necessary?
+  // patch.type = classifyPatchSet(patch);
 
   return patch;
 }
 
 module.exports = {
-  makePatch: makePatch,
-  formatPatch: formatPatch,
-  transformSimplePatch: transformSimplePatch,
-  parsePatchPath: parsePatchPath,
-  classifyPatch: classifyPatch,
-  classifyPatchSet: classifyPatchSet,
-  getAffected: getAffected,
-  patchTypes: patchTypes
+  makePatch,
+  formatPatch,
+  hashPatch,
+  transformSimplePatch,
+  parsePatchPath,
+  classifyPatch,
+  getAffected,
+  patchTypes
 }

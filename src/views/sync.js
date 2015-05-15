@@ -1,9 +1,10 @@
 "use strict";
 
 var _ = require('underscore')
+  , ajax = require('../ajax')
   , Backbone = require('../backbone')
   , patch = require('fast-json-patch')
-  , PeriodizationCollection = require('../collections/period_collection')
+  , PeriodizationCollection = function () { throw new Error() }
 
 module.exports = Backbone.View.extend({
   events: {
@@ -33,7 +34,7 @@ module.exports = Backbone.View.extend({
     this.$changesList.hide();
     this.$acceptDialog.hide();
 
-    Backbone._app.trigger('request');
+    require('../app').trigger('request');
 
     db(backends.current().name).dumps.orderBy('synced').last()
       .then(function (lastDump) {
@@ -41,10 +42,10 @@ module.exports = Backbone.View.extend({
 
         //headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
-        return Backbone.$.ajax({
+        return ajax({
           url: url + 'd/',
           headers: headers
-        }).then(function (dump, textStatus, xhr) {
+        }).then(([dump, textStatus, xhr]) => {
           var promise
             , data = { lastSync: lastDump ? new Date(lastDump.synced) : null }
 
@@ -69,7 +70,7 @@ module.exports = Backbone.View.extend({
         })
       })
       .then(this.handleDump.bind(this))
-      .finally(() => { Backbone._app.trigger('requestEnd') });
+      .finally(() => { require('../app').trigger('requestEnd') });
   },
   handleDump: function (data) {
     var PatchDiffCollection = require('../collections/patch_diff')
@@ -93,14 +94,14 @@ module.exports = Backbone.View.extend({
     var that = this;
     var options = { message: 'Synced data from ' + this.url }
 
-    Backbone._app.trigger('request');
+    require('../app').trigger('request');
     this.collection.sync('put', this.collection, options).then(function () {
       that.$acceptDialog.hide();
       that.$success
         .html('<div class="alert alert-success">Data synced.</div>')
         .show()
     })
-    .finally(() => Backbone._app.trigger('requestEnd'))
+    .finally(() => require('../app').trigger('requestEnd'))
   },
   handleSelectAllPatches: function (e) {
     var $checkbox = this.$(e.currentTarget)
@@ -133,12 +134,12 @@ module.exports = Backbone.View.extend({
     var that = this;
     var options = { message: 'Synced data from ' + this.url }
 
-    Backbone._app.trigger('request');
+    require('../app').trigger('request');
     newCollection.sync('put', newCollection, options).then(function () {
       that.$success
         .html('<div class="alert alert-success">Data synced.</div>')
         .show()
     })
-    .finally(() => Backbone._app.trigger('requestEnd'));
+    .finally(() => require('../app').trigger('requestEnd'));
   }
 });

@@ -1,6 +1,8 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , Immutable = require('immutable')
+  , Cursor = require('immutable/contrib/cursor')
   , genid = require('../utils/generate_skolem_id')
   , stringify = require('json-stable-stringify')
 
@@ -12,31 +14,73 @@ module.exports = Backbone.View.extend({
     'click .download-file': 'handleSaveAs'
   },
   initialize: function (opts) {
-    opts = opts || {};
-    this.backend = opts.backend || require('../backends').current()
-    this.render(opts.editable);
+    this.state = opts.state;
+    this.backend = opts.backend;
+    this.render();
   },
   render: function () {
     var template = require('../templates/period_collection_show.html');
+
     this.$el.html(template({
       backend: this.backend,
-      periodCollection: this.model.toJSON()
+      periodCollection: this.state.cursor.toJSON()
     }));
 
     this.$periodAdd = this.$('#period-add');
     this.$periodList = this.$('#period-list');
     this.$addPeriodContainer = this.$('#add-period-container');
   },
-  editPeriod: function (period, $row) {
-    var prevData = period.toJSON()
+  handlePeriodChange: function (newData, oldData, path) {
+    var edited = newData.getIn(path)
+      , id = path.slice(-1)[0]
+      , promise
+
+    if (edited && edited.size === 0) {
+      newData = newData.deleteIn(path);
+    } else if (!newData.getIn(path.concat('id'))) {
+      newData = newData.setIn(path.concat('id'), id);
+    }
+
+    if (!newData.equals(oldData)) {
+      this.state.cursor = this.state.cursor.update(() => newData);
+      promise = this.saveData().then(null, () => {
+        this.state.cursor = this.state.cursor.setIn(() => oldData);
+      });
+    } else {
+      promise = Promise.resolve(null);
+    }
+
+    promise
+      .then(() => {
+        this.periodEditView.remove();
+        this.render();
+      })
+      .catch(require('../app').handleError)
+  },
+  saveData: function () {
+    return this.backend.saveStore(this.state.data);
+  },
+  editPeriod: function (id, $row) {
+    var PeriodEditView = require('./period_edit')
+      , { getSpatialCoverages } = require('../helpers/periodization_collection')
+      , cursor
+      , spatialCoverages
+      , editView
       , $container
 
+    cursor = Cursor.from(
+      this.state.cursor,
+      ['definitions', id],
+      this.handlePeriodChange.bind(this));
+
+    spatialCoverages = getSpatialCoverages(
+      this.state.data.getIn(['periodCollections'], Immutable.Map())
+    )
+
+    editView = this.periodEditView = new PeriodEditView({ cursor, spatialCoverages });
+
     this.$addPeriodContainer.hide();
-
     this.$periodList.find('table').addClass('editing').removeClass('table-hover');
-
-    var PeriodEditView = require('./period_edit');
-    var periodEditView = new PeriodEditView({ model: period });
 
     if ($row) {
       $row.hide();
@@ -45,85 +89,48 @@ module.exports = Backbone.View.extend({
         .hide()
       $container
         .append('<td colspan=7></td>').find('td')
-        .append(periodEditView.$el)
+        .append(editView.$el)
       $container
         .insertBefore($row)
         .show(500)
     } else {
-      periodEditView.$el.appendTo($container || this.$periodAdd);
+      editView.$el.appendTo(this.$periodAdd);
     }
-
-    periodEditView.$el.on('click', '#js-save-period', () => {
-      var message;
-      if (period.isValid()) {
-        if (period.isNew()) {
-          message = 'Created period ' + period.get('label');
-          period.set('id', genid());
-        } else {
-          message = 'Edited period ' + period.get('label');
-        }
-        this.model.save(null, { validate: false, message: message }).then(function () {
-          periodEditView.remove();
-          this.render();
-        });
-      }
-    });
-
-    periodEditView.$el.on('click', '#js-cancel-period', () => {
-      if (period.isNew()) {
-        period.destroy();
-      } else {
-        period.set(prevData);
-      }
-      periodEditView.remove();
-      this.render();
-    });
-
-    periodEditView.$el.on('click', '#js-delete-period', () => {
-      var message = 'Deleted period ' + period.get('label');
-      this.model.definitions().remove(period);
-      this.model.save(null, { validate: false, message: message }).then(() => {
-        periodEditView.remove();
-        this.render();
-      });
-    });
   },
   handleSaveAs: function (e) {
     var saveAs = require('filesaver.js')
+      , stringify = require('json-stable-stringify')
+      , { asCSV, asJSONLD, asTurtle } = require('../helpers/periodization')
       , filetype = e.currentTarget.dataset.filetype
-      , filename = encodeURIComponent(this.model.id) + '.' + filetype
+      , filename = encodeURIComponent(this.state.cursor.get('id')) + '.' + filetype
 
     e.preventDefault();
     e.stopPropagation();
 
     if (filetype === 'csv') {
-      this.model.asCSV().then(function (data) {
-        var blob = new Blob([data], { type: 'text/csv' });
-        saveAs(blob, filename);
-      });
+      asCSV(this.state.cursor)
+        .then(data => new Blob([data], { type: 'text/csv' }))
+        .then(blob => saveAs(blob, filename));
     } else if (filetype === 'ttl') {
-      this.model.asTurtle().then(data => {
-        var blob = new Blob([data], { type: 'text/turtle' });
-        saveAs(blob, filename);
-      });
+      asTurtle(this.state.cursor)
+        .then(data => new Blob([data], { type: 'text/turtle' }))
+        .then(blob => saveAs(blob, filename));
     } else if (filetype === 'jsonld') {
-      var stringify = require('json-stable-stringify');
-      var json = stringify(this.model.asJSONLD(), { space: '  ' });
-      var blob = new Blob([json], { type: 'application/json+ld' });
-      saveAs(blob, filename);
+      Promise.resolve(asJSONLD(this.state.cursor))
+        .then(obj => stringify(obj, { space: '  ' }))
+        .then(data => new Blob([data], { type: 'appliaction/json+ld' }))
+        .then(blob => saveAs(blob, filename))
     }
 
   },
   handleAddPeriod: function () {
-    var period = this.model.definitions().add({ start: {}, stop: {} });
-    this.editPeriod(period);
+    this.editPeriod(genid());
   },
   handleEditPeriod: function (e) {
     var $row = this.$(e.currentTarget).closest('tr')
       , periodID = $row.data('period-id')
-      , period = this.model.definitions().get(periodID)
 
-    this.editPeriod(period, $row);
+    this.editPeriod(periodID, $row);
   },
   handleChangeFormat: function (e) {
     var $target
@@ -140,21 +147,26 @@ module.exports = Backbone.View.extend({
     if (format === 'list') {
       var template = require('../templates/period_list.html');
       this.$periodList.html(template({
-        periods: this.model.toJSON().definitions,
-        editable: this._editable
+        periods: this.state.cursor.get('definitions').toJS(),
+        editable: this.backend.editable
       }));
     } else if (format === 'ttl') {
-      var $pre = Backbone.$('<pre>');
-      this.model.asTurtle().then(result => {
-        $pre.text(result);
-        this.$periodList.html('').append($pre);
-      });
+      let { asTurtle } = require('../helpers/periodization');
+      asTurtle(this.state.cursor)
+        .then(ttl => {
+          var $pre = Backbone.$('<pre>');
+          $pre.text(ttl);
+          this.$periodList.html('').append($pre);
+        });
     } else if (format === 'jsonld') {
-      var $pre = Backbone.$('<pre>').text(stringify(this.model.asJSONLD(), { space: '  ' }));
+      let { asJSONLD } = require('../helpers/periodization')
+        , $pre = Backbone.$('<pre>')
+
+      $pre.text(stringify(asJSONLD(this.state.cursor), { space: '  ' }));
       this.$periodList.html('').append($pre);
     } else if (format === 'viz') {
       var View = require('./period_collection_viz')
-        , view = new View({ model: this.model, el: this.$periodList })
+        , view = new View({ model: this.state.cursor.toJS(), el: this.$periodList })
     }
   }
 });

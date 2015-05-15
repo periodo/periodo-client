@@ -19,7 +19,7 @@ JS_MINIFIED_VERSIONED_SOURCE_MAP = $(subst .min.map,-$(VERSION_STR).min.map,$(JS
 ZIP_FILE = $(DIST_DIR)/periodo-$(VERSION_STR).zip
 
 
-JS_ENTRY = src/app.js
+JS_ENTRY = src/index.js
 SRC_FILES = $(shell find ./src -type f)
 LIB_FILES = $(shell find ./lib -type f)
 
@@ -35,8 +35,8 @@ zip: $(ZIP_FILE)
 clean:
 	@rm -rf dist
 
-watch: $(DIST_DIR) $(CSS_BUNDLE)
-	$(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) src/app.js &
+watch:
+	$(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) $(JS_ENTRY) &
 	$(NPM_BIN)/watch-lessc -i style.less -o $(CSS_BUNDLE)
 
 GITHUB_TOKEN = ~/.githubtoken
@@ -61,10 +61,10 @@ $(ZIP_FILE): $(JS_MINIFIED_BUNDLE_VERSIONED) $(JS_MINIFIED_VERSIONED_SOURCE_MAP)
 	rm dist/index.html
 
 $(JS_BUNDLE): $(DIST_DIR) $(SRC_FILES)
-	$(NPM_BIN)/browserify -d -o $@ src/app.js
+	$(NPM_BIN)/browserify -d -o $@ $(JS_ENTRY)
 
 $(JS_BUNDLE_VERSIONED): $(DIST_DIR) $(SRC_FILES)
-	$(NPM_BIN)/browserify -d src/app.js | $(NPM_BIN)/exorcist $(JS_VERSIONED_SOURCE_MAP) --url $(subst dist/,,$(JS_VERSIONED_SOURCE_MAP)) > $@
+	$(NPM_BIN)/browserify -d $(JS_ENTRY) | $(NPM_BIN)/exorcist $(JS_VERSIONED_SOURCE_MAP) --url $(subst dist/,,$(JS_VERSIONED_SOURCE_MAP)) > $@
 
 $(JS_MINIFIED_BUNDLE): $(JS_BUNDLE)
 	$(NPM_BIN)/uglifyjs $< --source-map $(JS_MINIFIED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_SOURCE_MAP)) -c warnings=false -o $@

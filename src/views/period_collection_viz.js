@@ -65,7 +65,7 @@ function assignLevels(seq, focused) {
 }
 
 function formatData(model) {
-  return _.map(model.toJSON().definitions, function (period) {
+  return _.map(model.definitions, function (period) {
     var start = parseInt(period.start.in.year)
       , stop = parseInt(period.stop.in.year)
 

@@ -18,9 +18,9 @@
 
 <div style="margin-top: 3em;" class="text-center well col-md-12">
   <div class="pull-left">
-    <% var cancelHref = backend.path + (action === 'Add' ? '' : 'periodCollections/' + periodCollection.get('id') + '/') %>
+    <% var cancelHref = '#' + backend.path + (action === 'Add' ? '' : 'periodCollections/' + periodCollection.id+ '/') %>
     <a class="btn btn-default" href="<%= cancelHref %>">Cancel</a>
-    <% if (!periodCollection.isNew()) { %>
+    <% if (action === 'Edit') { %>
     <button class="btn btn-danger" id="js-delete-periodCollection">Delete collection</button>
     <% } %>
   </div>

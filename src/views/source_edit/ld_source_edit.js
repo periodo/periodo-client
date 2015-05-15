@@ -1,34 +1,19 @@
 "use strict";
 
 var Backbone = require('../../backbone')
-  , Source = require('../../models/source')
+  , Immutable = require('immutable')
   , Spinner = require('spin.js')
 
-var URL_PATTERNS = [
-  {
-    pattern: /worldcat.org\/.*?oclc\/(\d+).*/i,
-    replaceFn: function (match, oclcID) { return 'http://www.worldcat.org/oclc/' + oclcID }
-  },
-  {
-    pattern: /(?:dx.doi.org\/|doi:)([^\/]+\/[^\/\s]+)/i,
-    replaceFn: function (match, doi) {
-      if (doi[doi.length - 1] === '.') {
-        doi = doi.slice(0, -1);
-      }
-      return 'http://dx.doi.org/' + doi
-    }
-  }
-]
-
 module.exports = Backbone.View.extend({
-  initialize: function () {
-    this.render();
+  events: {
+    'input textarea': 'handleSourceTextChange',
+    'click #js-reject-source': 'handleRejectSource',
   },
   className: 'row',
   id: 'ld-source',
-  events: {
-    'input textarea': 'handleSourceTextChange',
-    'click #js-reject-source': 'handleRejectSource'
+  initialize: function (opts) {
+    this.state = null;
+    this.render();
   },
   render: function () {
     var template = require('./templates/ld_source_form.html');
@@ -44,50 +29,46 @@ module.exports = Backbone.View.extend({
     });
     this.$spinner = this.$('#source-loading');
   },
+  getData: function () {
+    return this.state;
+  },
   handleSourceTextChange: function (e) {
-    var that = this
+    var fetchLD = require('../../utils/source_ld_fetch')
       , text = e.currentTarget.value
-      , match
-      , url
-      , source
+      , url = fetchLD.match(text)
 
     if (!text) {
       this.$srcMsg.text('');
       return;
     }
 
-    for (var i = 0; i < URL_PATTERNS.length; i++) {
-      match = text.match(URL_PATTERNS[i].pattern);
-      if (match) {
-        url = match[0].replace(URL_PATTERNS[i].pattern, URL_PATTERNS[i].replaceFn);
-        break;
-      }
-    }
-
     if (!url) {
       this.$srcMsg.html('<strong>Could not detect source</strong>');
-    } else {
-      this.$srcMsg.text('Fetching source information...');
-      this.$spinner.append(this.spinner.spin().el);
-      this.model.fetchLD(url).then(function () {
-        that.model.set('id', url);
-        that.spinner.stop();
-        that.$srcMsg.text('');
-        that.handleSourceSelection.call(that);
-      });
+      return
     }
+
+    this.$srcMsg.text('Fetching source information...');
+    this.$spinner.append(this.spinner.spin().el);
+
+    fetchLD.fetch(url)
+      .then(data => {
+        this.spinner.stop();
+        this.$srcMsg.text('');
+        this.state = Immutable.fromJS(data);
+        this.handleSourceSelection(data);
+      })
   },
-  handleSourceSelection: function (source) {
+  handleSourceSelection: function (data) {
     var template = require('../../templates/source.html');
-    this.$('#source-information').html(template({ source: this.model.toJSON() }));
+    this.$('#source-information').html(template({ source: data }));
     this.$('#source-accept-dialog').removeClass('hide');
     this.$('#source-select').addClass('hide');
   },
-  handleRejectSource: function (e) {
+  handleRejectSource: function () {
     this.$('textarea').val('');
     this.$('#source-information').html('');
     this.$('#source-accept-dialog').addClass('hide');
     this.$('#source-select').removeClass('hide');
-    this.model.clear();
+    //this.model.clear();
   }
 });

@@ -1,8 +1,10 @@
 "use strict";
 
 var $ = require('jquery')
+  , Cursor = require('immutable/contrib/cursor')
   , Backbone = require('./backbone')
   , backends = require('./backends')
+  , errors = require('./errors')
   , Spinner = require('spin.js')
   , root = location.protocol + '//' + location.host
   , ApplicationRouter
@@ -11,11 +13,6 @@ var $ = require('jquery')
 const LEFT_CLICK = 1;
 
 if (!global.Promise) global.Promise = require('dexie').Promise;
-
-function handleError(err) {
-  global.console.error(err.stack || err);
-}
-
 
 function checkAuth() {
   var $signin = $('#auth-signin-link')
@@ -56,8 +53,12 @@ function handlePageClick(e) {
     , interceptClick = isLeftClick && href && href.indexOf(root) === 0
     , redirect = !e.target.dataset.noRedirect
 
-  if (interceptClick) e.preventDefault();
-  if (redirect) Backbone.history.navigate(url.parse(href).hash, { trigger: true });
+  if (interceptClick) {
+    e.preventDefault();
+    if (redirect) {
+      Backbone.history.navigate(url.parse(href).hash, { trigger: true });
+    }
+  }
 }
 
 function initApp() {
@@ -74,16 +75,21 @@ function initApp() {
     trail: 40 
   });
 
-  app.on('request', spinner.spin.bind(spinner, spinnerEl));
-  app.on('sync error requestEnd', function () {
-    setTimeout(spinner.stop.bind(spinner), 100);
-  })
+  function startSpinner() { spinner.spin(spinnerEl) }
+  function stopSpinner() { setTimeout(() => spinner.stop(), 100) }
+
+  app.stopSpinner = stopSpinner;
+
+  app.on('request', startSpinner);
+  app.on('sync error requestEnd', stopSpinner);
 
   app.on('backendSwitch', refreshBackend);
 
   app.initErrorList();
 
   checkAuth();
+
+  $(document).on('click', 'a', handlePageClick);
 
   Backbone.history.start();
 }
@@ -95,17 +101,14 @@ function ensureIDB(backend) {
   return backend;
 }
 
-$(document)
-  .ready(initApp)
-  .on('click a', handlePageClick)
-
 ApplicationRouter = Backbone.Router.extend({
+  start: initApp,
   routes: {
     '': 'welcome',
     'p/': 'backendSelect',
     'p/:backendName/': 'backendHome',
     'p/:backendName/periodCollections/': 'periodCollectionList',
-    'p/:backendName/periodCollections/add/': 'periodCollectionAdd',
+    'p/:backendName/periodCollections/add/': 'periodCollectionEdit',
     'p/:backendName/periodCollections/:periodCollection/': 'periodCollectionShow',
     'p/:backendName/periodCollections/:periodCollection/edit/': 'periodCollectionEdit',
     'p/:backendName/sync/': 'sync',
@@ -120,6 +123,17 @@ ApplicationRouter = Backbone.Router.extend({
     if (this._view) this._view.remove();
     this._view = new ViewConstructor(options || {});
     this._view.$el.appendTo('#main');
+    window.scroll(0, 0);
+    return Promise.resolve(this._view);
+  },
+  handleError: function (err) {
+    if (err instanceof errors.NotFoundError) {
+      return this.changeView(require('./views/not_found'), { msg: err.message });
+    } else {
+      this.stopSpinner();
+      this.addError(err);
+      global.console.error(err.stack || err);
+    }
   },
   initErrorList: function () {
     var Dexie = require('dexie')
@@ -134,6 +148,9 @@ ApplicationRouter = Backbone.Router.extend({
     });
 
     Dexie.Promise.on('error', err => this.addError(err));
+    window.onerror = (message, filname, line, column, err) => {
+      this.addError(err || message);
+    }
   },
   addError: function (err) {
     this.errorCollection.add({
@@ -146,7 +163,7 @@ ApplicationRouter = Backbone.Router.extend({
     var redirectURI = 'p/';
 
     if (localStorage.currentBackend) {
-      redirectURI += localStorage.backend + '/'
+      redirectURI += localStorage.currentBackend + '/'
     }
 
     Backbone.history.navigate(redirectURI, { trigger: true, replace: true });
@@ -154,103 +171,126 @@ ApplicationRouter = Backbone.Router.extend({
 
   backendSelect: function () {
     var BackendSelectView = require('./views/backend_select');
-    backends.list()
+    return backends.list()
       .then(backendsObj => this.changeView(BackendSelectView, { backends: backendsObj }))
-      .catch(handleError)
+      .catch(err => this.handleError(err))
   },
 
   backendHome: function (backendName) {
     var IndexView = require('./views/index')
 
-    backends.get(backendName)
-      .then(backend => backend.getMasterCollection())
-      .then(collection => this.changeView(IndexView, { collection }))
-      .catch(handleError);
-  },
-
-  periodCollectionAdd: function (backendName) {
-    var PeriodizationAddView = require('./views/period_collection_add')
-
-    backends.switchTo(backendName)
-      .then(() => this.changeView(PeriodizationAddView))
-      .catch(handleError);
+    return backends.get(backendName)
+      .then(backend => backend.getStore())
+      .then(store => this.changeView(IndexView, { store }))
+      .catch(err => this.handleError(err))
   },
 
   periodCollectionShow: function (backendName, periodCollectionID) {
-    var Periodization = require('./models/period_collection')
-      , PeriodizationView = require('./views/period_collection_show')
-      , periodID = decodeURIComponent(periodCollectionID)
-      , editable
-
-    backends.get(backendName)
-      .then(backend => {
-        editable = backend.editable;
-        return backend.getMasterCollection()
-      })
-      .then(() => {
-        var model = Periodization.all().get({ id: periodID });
-        this.changeView(PeriodizationView, { model, editable });
-      })
-      .catch(handleError);
-  },
-
-  periodCollectionEdit: function (backendName, periodCollectionID) {
-    var PeriodizationEditView = require('./views/period_collection_add')
-      , Periodization = require('./models/period_collection')
+    var backend
 
     periodCollectionID = decodeURIComponent(periodCollectionID)
 
-    backends.get(backendName)
-      .then(backend => backend.getMasterCollection())
-      .then(() => this.changeView(PeriodizationEditView, {
-        model: Periodization.all().get({ id: periodCollectionID })
-      }))
-      .catch(handleError);
+    return backends.get(backendName)
+      .then(_backend => {
+        backend = _backend;
+        return backend.getStore();
+      })
+      .then(store => {
+        var state = { data: store }
+          , path = ['periodCollections', periodCollectionID]
+
+        if (!state.data.getIn(path)) {
+          let msg = `No period collection in ${backendName} with ID ${periodCollectionID}.`;
+          throw new errors.NotFoundError(msg);
+        }
+
+        state.cursor = Cursor.from(state.data, path, newData => state.data = newData);
+
+        return this.changeView(require('./views/period_collection_show'), { state, backend });
+      })
+      .catch(err => this.handleError(err))
+  },
+
+  periodCollectionEdit: function (backendName, periodCollectionID) {
+    var isNew = !periodCollectionID
+      , backend
+
+    if (isNew) {
+      periodCollectionID = require('./utils/generate_skolem_id')();
+    } else {
+      periodCollectionID = decodeURIComponent(periodCollectionID);
+    }
+
+    return backends.get(backendName)
+      .then(_backend => {
+        backend = _backend;
+        if (!backend.editable) {
+          throw new errors.NotFoundError('Cannot perform edits on a read-only backend.')
+        }
+        return backend.getStore();
+      })
+      .then(store => {
+        var state = { data: store }
+
+        state.data = state.data.setIn(
+          ['periodCollections', periodCollectionID, 'id'],
+          periodCollectionID);
+
+        state.cursor = Cursor.from(
+          state.data,
+          ['periodCollections', periodCollectionID],
+          newData => { state.data = newData; }
+        );
+
+        if (!isNew && state.cursor.deref() === undefined) {
+          let msg = `No period collection in ${backendName} with ID ${periodCollectionID}`;
+          throw new errors.NotFoundError(msg);
+        }
+
+        return this.changeView(require('./views/period_collection_edit'), { state, backend });
+      })
+      .catch(err => this.handleError(err))
   },
 
   sync: function (backendName) {
     var SyncView = require('./views/sync')
       , db = require('./db')
 
-    backends.switchTo(backendName)
+    return backends.switchTo(backendName)
       .then(ensureIDB)
       .then(backend => db(backend).getLocalData())
       .then(localData => this.changeView(SyncView, { localData }))
-      .catch(handleError);
+      .catch(err => this.handleError(err))
   },
 
   signin: function () {
     var SignInView = require('./views/signin');
-    this.changeView(SignInView, { authCallback: checkAuth });
+    return this.changeView(SignInView, { authCallback: checkAuth });
   },
 
   signout: function () {
     var SignOutView = require('./views/signout');
-    this.changeView(SignOutView, { authCallback: checkAuth });
+    return this.changeView(SignOutView, { authCallback: checkAuth });
   },
 
   submitPatch: function (backendName) {
     var db = require('./db')
 
-    backends.switchTo(backendName)
+    return backends.switchTo(backendName)
       .then(ensureIDB)
       .then(backend => db(backend.name).getLocalData())
-      .then(localData => this.changeView(
-        require('./views/submit_patch'), { localData }
-      ))
-      .catch(handleError);
+      .then(localData => this.changeView(require('./views/submit_patch'), { localData }))
+      .catch(err => this.handleError(err))
   },
 
   submittedPatches: function (backendName) {
     var db = require('./db')
 
-    backends.switchTo(backendName)
+    return backends.switchTo(backendName)
       .then(ensureIDB)
       .then(backend => db(backend.name).localPatches.toArray())
-      .then(localPatches => {
-        this.changeView(require('./views/local_patches'), { localPatches });
-      })
-      .catch(handleError);
+      .then(localPatches => this.changeView(require('./views/local_patches'), { localPatches }))
+      .catch(err => this.handleError(err))
   },
 
   // FIXME: This should not actually switch the backend, but rather check if
@@ -258,7 +298,7 @@ ApplicationRouter = Backbone.Router.extend({
   attemptRedirect: function (matchKey) {
     matchKey = 'p0' + matchKey;
 
-    backends.get('web')
+    return backends.get('web')
       .then(backend => backend.fetchData())
       .then(data => {
         var periodCollectionIDs = []
@@ -286,12 +326,11 @@ ApplicationRouter = Backbone.Router.extend({
             'p/web/periodCollections/' + key.slice(2) + '/',
             { trigger: true, replace: true })
         } else {
-          // FIXME: should be a 404 page or something
-          global.alert('Page not found');
+          throw new errors.NotFoundError('Page not found');
         }
       })
-      .catch(handleError)
+      .catch(err => this.handleError(err))
   }
 });
 
-module.exports = app = Backbone._app = new ApplicationRouter();
+module.exports = app = new ApplicationRouter();

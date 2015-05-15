@@ -2,8 +2,6 @@
 
 var Dexie = require('dexie')
   , _ = require('underscore')
-  , md5 = require('spark-md5')
-  , stringify = require('json-stable-stringify')
   , jsonpatch = require('fast-json-patch')
   , patchUtils = require('./utils/patch')
 
@@ -19,10 +17,16 @@ module.exports = function (dbName) {
   return d[dbName];
 }
 
-function hashPatch(p) { return md5.hash(stringify(p)) }
-
 function openDB(dbName) {
   var db = new Dexie(dbName);
+
+  /*
+   *
+   * FIXME: There shouldn't be anyone on old versions of the DB, so maybe we
+   * should bump the version to 10 and get rid of these migrations while we
+   * still can
+   *
+   */
 
   db.version(6).stores({
     dumps: 'id&,modified,synced',
@@ -32,7 +36,6 @@ function openDB(dbName) {
   }).upgrade(function (tx) {
     tx.table('localData').get(DUMPID).then(function (d) {
       var data = d.data;
-      console.log(data);
       tx.table('patches').orderBy('id').reverse().modify(function (patch) {
         var after = JSON.parse(JSON.stringify(data))
           , before
@@ -49,8 +52,8 @@ function openDB(dbName) {
         patch.forward = newForward;
         patch.backward = newBackward;
 
-        patch.forwardHashes = patch.forward.map(hashPatch);
-        patch.backwardHashes = patch.backward.map(hashPatch);
+        patch.forwardHashes = patch.forward.map(patchUtils.hashPatch);
+        patch.backwardHashes = patch.backward.map(patchUtils.hashPatch);
       });
     });
   });
@@ -64,8 +67,8 @@ function openDB(dbName) {
       delete patch.fowardHash;
       delete patch.backwardHash;
 
-      patch.forwardHashes = patch.forward.map(hashPatch);
-      patch.backwardHashes = patch.backward.map(hashPatch);
+      patch.forwardHashes = patch.forward.map(patchUtils.hashPatch);
+      patch.backwardHashes = patch.backward.map(patchUtils.hashPatch);
     });
   });
 
@@ -103,8 +106,8 @@ function openDB(dbName) {
     patches: 'id++,created,*affected,forwardHash,backwardHash'
   }).upgrade(function (tx) {
     tx.table('patches').toCollection().modify(function (patch) {
-      patch.forwardHash = md5.hash(stringify(patch.forward));
-      patch.backwardHash = md5.hash(stringify(patch.backward));
+      patch.forwardHash = patchUtils.hashPatch(patch.forward);
+      patch.backwardHash = patchUtils.hashPatch(patch.backward);
     });
   });
 
@@ -125,19 +128,9 @@ function openDB(dbName) {
 
   db.getLocalData = function () { return db.localData.get(DUMPID) }
 
-  /* Generates a patch that will transform the stored local data to `newData` */
-  db.makeLocalPatch = function (newData) {
-    return db.getLocalData().then(function (oldData) {
-      var forward = patchUtils.makePatch(oldData.data, newData)
-        , backward = patchUtils.makePatch(newData, oldData.data)
-
-      return {
-        forward: forward,
-        backward: backward,
-      }
-    });
-  }
-
+  // Update the local data to given state. This will generate forwards and
+  // backwards patches as well as their hashes (to be matched against later when
+  // detecting changes.)
   db.updateLocalData = function (newData, message) {
     return db.transaction('rw', db.localData, db.patches, function () {
       return db.getLocalData().then(oldData => {
@@ -148,10 +141,8 @@ function openDB(dbName) {
         promises.push(db.localData.put(localData));
         promises.push(db.patches.put(patchData));
 
-        return Dexie.Promise.all(promises).then(Dexie.Promise.resolve({
-          localData: localData,
-          patches: patchData
-        }));
+        return Dexie.Promise.all(promises)
+          .then(([localData]) => localData.data);
       });
     });
   }
