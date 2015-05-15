@@ -30,7 +30,7 @@ module.exports = Backbone.View.extend({
     this.$periodList = this.$('#period-list');
     this.$addPeriodContainer = this.$('#add-period-container');
   },
-  handlePeriodChange: function (view, newData, oldData, path) {
+  handlePeriodChange: function (newData, oldData, path) {
     var edited = newData.getIn(path)
       , id = path.slice(-1)[0]
       , promise
@@ -38,13 +38,13 @@ module.exports = Backbone.View.extend({
     if (edited && edited.size === 0) {
       newData = newData.deleteIn(path);
     } else if (!newData.getIn(path.concat('id'))) {
-      newData = newData.updateIn(path.concat('id'), id);
+      newData = newData.setIn(path.concat('id'), id);
     }
 
-    if (!newData.is(oldData)) {
-      this.state.cursor = this.state.cursor.setIn(path, newData);
+    if (!newData.equals(oldData)) {
+      this.state.cursor = this.state.cursor.update(() => newData);
       promise = this.saveData().then(null, () => {
-        this.state.cursor = this.state.cursor.setIn(path, oldData);
+        this.state.cursor = this.state.cursor.setIn(() => oldData);
       });
     } else {
       promise = Promise.resolve(null);
@@ -63,13 +63,18 @@ module.exports = Backbone.View.extend({
   editPeriod: function (id, $row) {
     var PeriodEditView = require('./period_edit')
       , { getSpatialCoverages } = require('../helpers/periodization_collection')
-      , cursor = Cursor.from(this.state.cursor, ['definitions', id], this.handlePeriodChange)
+      , cursor
       , spatialCoverages
       , editView
       , $container
 
+    cursor = Cursor.from(
+      this.state.cursor,
+      ['definitions', id],
+      this.handlePeriodChange.bind(this));
+
     spatialCoverages = getSpatialCoverages(
-      this.state.data.getIn(['data', 'periodCollections'], Immutable.Map())
+      this.state.data.getIn(['periodCollections'], Immutable.Map())
     )
 
     editView = this.periodEditView = new PeriodEditView({ cursor, spatialCoverages });
