@@ -1,8 +1,7 @@
-<% if (!diffs.length) { %>
+<% if (!Object.keys(diffs).length) { %>
 <p>No changes from dataset.</p>
 <% } else { %>
 <%
-var description = diffs.asDescription();
 var _ = require('underscore');
 %>
 
@@ -12,7 +11,7 @@ var _ = require('underscore');
   }
 %>
 
-<% if (description.periodCollection.add.length) { %>
+<% if (diffs.periodization.add.length) { %>
 <div class="patch-collection">
   <h3>New period collections</h3>
   <div class="select-patch-header">
@@ -24,19 +23,19 @@ var _ = require('underscore');
   <br/>
   <table class="table table-bordered">
     <tbody>
-    <% description.periodCollection.add.forEach(function (cid) {
-      print(makeRow(diffs.get(cid), require('./changes/period_collection_add.html')));
+    <% diffs.periodization.add.forEach(function (patch) {
+      print(makeRow(patch, require('./changes/period_collection_add.html')));
     }); %>
     </tbody>
   </table>
 </div>
 <% } %>
 
-<% if (!_.isEmpty(description.periodCollection.edit)) { %>
+<% if (false && !_.isEmpty(description.periodCollection.edit)) { %>
 <h3>Edited period collections</h3>
 <% } %>
 
-<% if (description.period.add.length) { %>
+<% if (false && description.period.add.length) { %>
 <div class="patch-collection new-periods-patch-collection">
   <h3>New periods</h3>
   <div class="select-patch-header">
@@ -49,7 +48,7 @@ var _ = require('underscore');
 </div>
 <% } %>
 
-<% if (!_.isEmpty(description.period.edit)) { %>
+<% if (!_.isEmpty(diffs.period.edit)) { %>
 <div class="patch-collection">
   <h3>Edited periods</h3>
   <div class="select-patch-header">

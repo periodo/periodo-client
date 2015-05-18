@@ -3,7 +3,7 @@
 var _ = require('underscore')
   , url = require('url')
   , Backbone = require('../backbone')
-  , patchUtils = require('../utils/patch')
+  , Immutable = require('immutable')
   , pointer = require('json-pointer')
   , jsonpatch = require('fast-json-patch')
   , periodDiff = require('../utils/period_diff')
@@ -55,8 +55,6 @@ module.exports = Backbone.View.extend({
   },
   handleContinue: function () {
     var [patches, cids] = this.getSelectedPatches();
-
-
     this.renderConfirmPatches(cids, patches);
   },
   renderConfirmPatches: function (cids, patches) {
@@ -131,7 +129,7 @@ module.exports = Backbone.View.extend({
       })
       .then(() => this.collection.remove(cids))
       .then(this.render.bind(this)) // TODO: Add "patch added" or "patch rejected" message
-      .finally(() => require('../app').trigger('requestEnd'));
+      .catch(err => require('../app').handleError(err))
   },
   addLocalPatch: function(id, patches) {
     var db = require('../db');
@@ -174,69 +172,74 @@ module.exports = Backbone.View.extend({
         remote: remoteData,
         to: 'remote'
       }))
-      .then(diffs => diffs.filterByHash())
-      .then(models => this.collection.reset(models))
-      .then(this.renderLocalDiffs.bind(this))
-      .catch(err => console.error(err.stack || err))
-      .finally(() => require('../app').trigger('requestEnd'))
+      .then(patches => patches.filterByHash())
+      .then(patches => {
+        this.renderLocalDiffs(patches);
+        this.patches = patches;
+      })
+      .then(() => require('../app').trigger('requestEnd'))
+      .catch(err => require('../app').handleError(err))
   },
-  makePeriodDiffHTML: function(oldPeriod, patchIDs) {
+  makePeriodDiffHTML: function(oldPeriod, patches) {
     var template = require('../templates/changes/change_row.html')
+      , truncatedPatches
       , newPeriod
-      , patches
 
-    patches = this.collection
-      .filter(patch => patchIDs.indexOf(patch.cid) !== -1)
-      .map(patch => {
-        var p = patch.toJSON();
-        p.path = pointer.compile(pointer.parse(p.path).slice(4));
-        return p;
-      });
-
+    function truncatePath(path) { return pointer.compile(pointer.parse(path).slice(4)) }
+    truncatedPatches = patches.map(patch => patch.update('path', truncatePath)).toJSON();
+    
     newPeriod = JSON.parse(JSON.stringify(oldPeriod));
-    jsonpatch.apply(newPeriod, patches);
+    jsonpatch.apply(newPeriod, truncatedPatches);
 
     return template({
-      diffHTML: periodDiff(oldPeriod, newPeriod),
-      patchIDs: patchIDs
-    });
+      patches: patches,
+      diffHTML: periodDiff(oldPeriod, newPeriod)
+    })
   },
-  makeDiffHTML: function (patchCollection) {
-    var template = require('../templates/changes_list.html')
+  makeDiffHTML: function (patches) {
+    var { groupByChangeType } = require('../helpers/patch_collection')
+      , template = require('../templates/changes_list.html')
       , localData = this.collection.datasets.local
       , remoteData = this.collection.datasets.remote
-      , diffTypes
+      , groupedPatches
 
-    if (!patchCollection) patchCollection = this.collection;
-    diffTypes = patchCollection.asDescription()
+    // if (!patchCollection) patchCollection = this.collection;
+    groupedPatches = groupByChangeType(patches)
 
     this.$('#js-patch-list').html('');
 
+    /*
     diffTypes.periodCollection.add.forEach(function (cid) {
     });
+    */
 
     function formatPeriodRow(source, periodHTML) {
-      var template = require('../templates/changes/period_edit.html');
-      source = new Source(_.omit(source, 'id'), { parse: true })
-      return template({ diffs: periodHTML, source: source });
+      var template = require('../templates/changes/period_edit.html')
+        , { getDisplayTitle } = require('../helpers/source')
+        , title = getDisplayTitle(Immutable.fromJS(source))
+
+      return template({ diffs: periodHTML, source: title });
     }
 
-    var periodEditHTML = _.map(diffTypes.period.edit, (periods, periodCollectionID) => {
-      var path = '/periodCollections/' + periodCollectionID
-        , source = pointer.get(localData, path + '/source')
-        , html
+    var periodEditHTML = groupedPatches
+      .getIn(['period', 'edit'] || [])
+      .map((periods, collectionID) => {
+        var path = '/periodCollections/' + collectionID
+          , source = pointer.get(localData, path + '/source')
+          , html
 
-      html = _.map(periods, (patchIDs, periodID) => {
-        var periodPath = path + '/definitions/' + periodID
-          , oldPeriod = pointer.get(remoteData, periodPath)
+        html = periods.map((patches, periodID) => {
+          var periodPath = path + '/definitions/' + periodID
+            , oldPeriod = pointer.get(remoteData, periodPath)
 
-        return this.makePeriodDiffHTML(oldPeriod, patchIDs);
+          return this.makePeriodDiffHTML(oldPeriod, patches);
+        }).join('\n');
+
+        return formatPeriodRow(source, html);
       }).join('\n');
 
-      return formatPeriodRow(source, html);
-    }).join('\n');
 
-
+    /*
     var periodAdditionHTML = diffTypes.period.add.reduce((html, cid, idx, arr) => {
       html += this.makePeriodDiffHTML({}, [cid]);
 
@@ -251,15 +254,16 @@ module.exports = Backbone.View.extend({
 
       return html;
     }, '');
+    */
 
     return template({
-      diffs: patchCollection,
+      diffs: groupedPatches.toJS(),
       periodEdits: periodEditHTML,
-      periodAdditions: periodAdditionHTML
+      //periodAdditions: periodAdditionHTML
     });
   },
-  renderLocalDiffs: function () {
-    this.$('#js-patch-list').html(this.makeDiffHTML());
+  renderLocalDiffs: function (diffs) {
+    this.$('#js-patch-list').html(this.makeDiffHTML(diffs));
     this.$continueButton = this.$('#js-accept-patches')
       .text('Continue')
       .removeClass('btn-primary')

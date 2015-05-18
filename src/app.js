@@ -258,7 +258,7 @@ ApplicationRouter = Backbone.Router.extend({
 
     return backends.switchTo(backendName)
       .then(ensureIDB)
-      .then(backend => db(backend).getLocalData())
+      .then(() => db(backendName).getLocalData())
       .then(localData => this.changeView(SyncView, { localData }))
       .catch(err => this.handleError(err))
   },

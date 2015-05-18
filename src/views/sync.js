@@ -42,10 +42,11 @@ module.exports = Backbone.View.extend({
 
         //headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
-        return ajax({
+        return ajax.ajax({
           url: url + 'd/',
           headers: headers
         }).then(([dump, textStatus, xhr]) => {
+          return Promise.resolve(dump);
           var promise
             , data = { lastSync: lastDump ? new Date(lastDump.synced) : null }
 
@@ -79,14 +80,14 @@ module.exports = Backbone.View.extend({
 
     diffs = PatchDiffCollection.fromDatasets({
       local: this.localData.data,
-      remote: data.dump.data,
+      remote: data,
       to: 'local'
     })
 
     diffs.filterByHash().then(remoteChanges => {
-      this.remoteDiffs = new PatchDiffCollection(remoteChanges);
+      var { groupByChangeType } = require('../helpers/patch_collection');
       this.$changesList.show().html(template({
-        diffs: this.remoteDiffs
+        diffs: groupByChangeType(remoteChanges).toJS()
       }));
     });
   },

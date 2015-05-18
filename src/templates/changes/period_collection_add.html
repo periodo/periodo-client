@@ -1,18 +1,18 @@
 <%
   var _ = require('underscore');
-  var json = patch.toJSON();
-  var PeriodCollection = function () { throw new Error() }
-  var periodCollection = new PeriodCollection(_.omit(json.value, 'id'), { parse: true, noMutate: true });
-  var timeSpan = periodCollection.getTimespan();
+  var json = patch;
+  var Immutable = require('immutable');
+  var describe = require('../../helpers/periodization').describe;
+  var collection = describe(Immutable.fromJS(patch.value));
 %>
 
 <tr class="select-patch">
   <td class="toggle-patch-select">
-    <label><input type="checkbox" data-patch-ids="<%= patch.cid %>" /></label>
+    <label><input type="checkbox" data-patches='<%= JSON.stringify(patch) %>' /></label>
   </td>
   <td>
-    <div><%= periodCollection.source().displayTitle() %></div>
-    <div>Definitions: <%= periodCollection.definitions().length %></div>
-    <div>Time span: <%= timeSpan.lower ? timeSpan.lower.getEarliestYear() : 'unknown' %> to <%= timeSpan.upper ? timeSpan.upper.getLatestYear() : 'unknown' %></div>
+    <div><%= collection.source %></div>
+    <div>Definitions: <%= collection.definitions %></div>
+    <div>Time span: <%= collection.earliest && collection.earliest.label %> to <%= collection.latest && collection.latest.label %></div>
   </td>
 </tr>

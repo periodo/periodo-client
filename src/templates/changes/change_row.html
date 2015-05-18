@@ -1,7 +1,7 @@
 <tr class="select-patch">
   <td class="toggle-patch-select">
     <label>
-      <input type="checkbox" data-patch-ids="<%= patchIDs.join(',') %>" />
+      <input type="checkbox" data-patches='<%= JSON.stringify(patches) %>' />
     </label>
   </td>
   <td> <%= diffHTML %> </td>
