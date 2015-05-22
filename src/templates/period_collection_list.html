@@ -16,10 +16,16 @@
         </a>
       </td>
       <td><%= periodCollection.definitions %></td>
-      <td data-sort="<%= periodCollection.earliest && periodCollection.earliest.iso %>">
+      <td data-sort="<%=
+        periodCollection.earliest && periodCollection.earliest.iso ?
+        periodCollection.earliest.iso : NaN
+      %>">
         <%= periodCollection.earliest && periodCollection.earliest.label %>
       </td>
-      <td data-sort="<%= periodCollection.latest && periodCollection.latest.iso %>">
+      <td data-sort="<%=
+        periodCollection.latest && periodCollection.latest.iso ?
+        periodCollection.latest.iso : NaN
+      %>">
         <%= periodCollection.earliest && periodCollection.latest.label %>
       </td>
     </tr>

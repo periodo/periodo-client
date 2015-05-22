@@ -7,8 +7,8 @@ var Tablesort = require('tablesort')
 Tablesort.extend('natural', () => true, (a, b) => naturalSort(b, a))
 
 Tablesort.extend('num',
-  item => (item || '').match(/-?\d+/),
-  (a, b) => parseInt(b) - parseInt(a)
+  item => (item || 'Infinity').match(/-?\d+/),
+  (a, b) => parseInt(a) - parseInt(b)
 )
 
 module.exports = function (table) {
