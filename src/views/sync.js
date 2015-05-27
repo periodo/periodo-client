@@ -1,6 +1,7 @@
 "use strict";
 
 var _ = require('underscore')
+  , Immutable = require('immutable')
   , ajax = require('../ajax')
   , Backbone = require('../backbone')
   , patch = require('fast-json-patch')
@@ -47,6 +48,7 @@ module.exports = Backbone.View.extend({
           headers: headers
         }).then(([dump, textStatus, xhr]) => {
           return Promise.resolve(dump);
+          /*
           var promise
             , data = { lastSync: lastDump ? new Date(lastDump.synced) : null }
 
@@ -68,28 +70,32 @@ module.exports = Backbone.View.extend({
           }
 
           return promise;
+          */
         })
       })
       .then(this.handleDump.bind(this))
       .finally(() => { require('../app').trigger('requestEnd') });
   },
+  initChangeList: function (patches) {
+    var ChangeListView = require('./change_list');
+    this.changeListView = new ChangeListView({
+      patches,
+      fromState: Immutable.fromJS(this.collection.datasets.local),
+      toState: Immutable.fromJS(this.collection.datasets.remote),
+      el: this.$changesList.show()
+    });
+  },
   handleDump: function (data) {
     var PatchDiffCollection = require('../collections/patch_diff')
-      , template = require('../templates/changes_list.html')
-      , diffs
 
-    diffs = PatchDiffCollection.fromDatasets({
+    this.collection = PatchDiffCollection.fromDatasets({
       local: this.localData.data,
       remote: data,
       to: 'local'
     })
 
-    diffs.filterByHash().then(remoteChanges => {
-      var { groupByChangeType } = require('../helpers/patch_collection');
-      this.$changesList.show().html(template({
-        diffs: groupByChangeType(remoteChanges).toJS()
-      }));
-    });
+    this.collection.filterByHash()
+      .then(patches => this.initChangeList(patches));
   },
   handleAcceptPeriodizations: function () {
     var that = this;
@@ -103,16 +109,6 @@ module.exports = Backbone.View.extend({
         .show()
     })
     .finally(() => require('../app').trigger('requestEnd'))
-  },
-  handleSelectAllPatches: function (e) {
-    var $checkbox = this.$(e.currentTarget)
-      , $toToggle = $checkbox.closest('.patch-collection').find('table input[type="checkbox"]')
-
-    if ($checkbox.is(':checked')) {
-      $toToggle.prop('checked', true);
-    } else {
-      $toToggle.prop('checked', false);
-    }
   },
   handleAcceptPatches: function () {
     var $selected = this.$('.toggle-patch-select input:checked')
