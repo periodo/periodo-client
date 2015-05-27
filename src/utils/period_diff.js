@@ -10,6 +10,8 @@ var _ = require('underscore')
 function periodToNodesObj(period) {
   var container
 
+  if (period instanceof Immutable.Map) period = period.toJS();
+
   if (!period || _.isEmpty(period)) return [];
 
   container = document.createElement('div');
