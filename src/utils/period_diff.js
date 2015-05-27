@@ -1,104 +1,115 @@
 "use strict";
 
 var _ = require('underscore')
-  , $ = require('jquery')
+  , Immutable = require('immutable')
   , DiffMatchPatch = require('diff-match-patch')
   , dmp = new DiffMatchPatch()
-  , template = require('../templates/period.html')
 
+
+// Takes a period and returns an object with key (field name), val (DOM Node)
 function periodToNodesObj(period) {
-  var nodes;
+  var container
 
-  if (!period || _.isEmpty(period)) {
-    nodes = [];
-  } else {
-    nodes = $(template({ period: period })).find('.field').toArray();
-  }
+  if (!period || _.isEmpty(period)) return [];
 
-  return Array.prototype.reduce.call(nodes, function (acc, el) {
-    var key = el.children[0].textContent.trim();
-    var val = el.children[1];
-    acc[key] = val;
-    return acc;
-  }, {});
+  container = document.createElement('div');
+  container.innerHTML = require('../templates/period.html')({ period });
+
+  return Immutable.List(container.querySelectorAll('.field'))
+    .toOrderedMap()
+    .mapEntries(([,el]) => [
+      el.children[0].textContent.trim(),
+      el.children[1]
+    ]);
 }
+
 
 // Compare two lists, and return which items were in the first; which were
 // in the second; and which were in both.
 function setDiff(fromarr, toarr) {
-  var ret = { both: [], from: [], to: [] }
-    , fromcmp = _.unique(fromarr).sort()
-    , tocmp = _.unique(toarr).sort()
-    , i = fromcmp.length - 1
-    , j = tocmp.length - 1
+  var fromSet = Immutable.OrderedSet(fromarr)
+    , toSet = Immutable.OrderedSet(toarr)
 
-  while (i >= 0) {
-    let item = fromcmp[i]
-      , found = false
-
-    for (; j >= 0; j--) {
-      if (tocmp[j] !== undefined && tocmp[j] === item) {
-        ret.both.push(tocmp.splice(j, 1)[0]);
-        found = true;
-        j--;
-        break;
-      }
-    }
-
-    if (!found) ret.from.push(item);
-    if (j === -1) j++;
-    i--;
+  return {
+    from: fromSet.subtract(toSet).toJS(),
+    to: toSet.subtract(fromSet).toJS(),
+    both: fromSet.intersect(toSet)
   }
-
-  ret.to = ret.to.concat(tocmp);
-
-  return ret;
 }
 
-module.exports = function (from, to) {
-  var fromNodes = periodToNodesObj(from)
-    , toNodes = periodToNodesObj(to)
-    , ret = '<dl class="dl-horizontal">'
 
-  _.forEach(fromNodes, function (fromEl, key) {
-    var toEl = toNodes[key];
+function getNestedText(el) {
+  return [...el.children[0].children].map(item => item.textContent.trim());
+}
+
+
+function makeNestedDiff(key, fromEl, toEl) {
+  var texts = [fromEl, toEl].map(getNestedText)
+    , diffs = setDiff(...texts)
+    , html = ''
+
+  html += `<dt>${key}</dt><dd><ul>`;
+
+  html += diffs.both
+    .map(text => `<li>${text}</li>`)
+    .join('');
+
+  html += diffs.from
+    .map(text => `<li><span class="diff-deletion">${text}</span></li>`)
+    .join('');
+
+  html += diffs.to
+    .map(text => `<li><span class="diff-addition">${text}</span></li>`)
+    .join('');
+
+  html += '</ul></dd>';
+
+  return html;
+}
+
+
+module.exports = function (from, to) {
+  var fromEls = periodToNodesObj(from)
+    , toEls = periodToNodesObj(to)
+    , html = '<dl class="dl-horizontal">'
+
+  fromEls.forEach((fromEl, key) => {
+    var toEl = toEls.get(key)
 
     if (!toEl) {
-      ret += '<div class="diff-deletion"><dt>' + key + '</dt><dd>' + toEl.innerHTML + '</dd></div>';
+      // This is a field that was only present in the "before" period, so it
+      // has been deleted in the "after" one.
+      html += `
+        <div class="diff-deletion">
+          <dt>${key}</dt>
+          <dd>${fromEl.innerHTML}</dd>
+        </div>
+      `
     } else if (fromEl.children.length) {
-      let fromListItems = fromEl.children[0].children
-        , toListItems = toEl.children[0].children
-        , fromListText = Array.prototype.map.call(fromListItems, el => el.textContent.trim())
-        , toListText = Array.prototype.map.call(toListItems, el => el.textContent.trim())
-        , diffs = setDiff(fromListText, toListText)
-
-      ret += '<dt>' + key + '</dt><dd><ul>';
-      ret += diffs.both.map(text => '<li>' + text + '</li>').join('');
-      if (diffs.from) {
-        ret += diffs.from
-          .map(text => '<li><span class="diff-deletion">' + text + '</span></li>')
-          .join('');
-      }
-      if (diffs.to) {
-        ret += diffs.to
-          .map(text => '<li><span class="diff-addition">' + text + '</span></li>')
-          .join('');
-      }
-      ret += '</ul></dd>';
+      // This is a nested field (i.e. spatialCoverage)
+      html += makeNestedDiff(key, fromEl, toEl);
     } else {
-      let diff = dmp.diff_main(fromEl.textContent.trim(), toEl.textContent.trim());
-      let html = dmp.diff_prettyHtml(diff);
-      ret += '<dt>' + key + '</dt><dd>' + html + '</dd>';
+      // This is a text field that differs from the "before" period to the
+      // "after" one, so we create an HTML representation of that difference.
+      let diff = dmp.diff_main(fromEl.textContent.trim(), toEl.textContent.trim())
+        , diffHTML = dmp.diff_prettyHtml(diff)
+
+      html += `<dt>${key}</dt><dd>${diffHTML}</dd>`
     }
 
-    delete toNodes[key];
+    toEls = toEls.delete(key);
   });
 
-  _.forEach(toNodes, function (toEl, key) {
-    ret += '<div class="diff-addition"><dt>' + key + '</dt><dd>' + toEl.innerHTML + '</dd></div>';
+  // All remaining fields are only in the "after" period, so they are additions.
+  toEls.forEach((toEl, key) => {
+    html += `
+      <div class="diff-addition">
+        <dt>${key}</dt>
+        <dd>${toEl.innerHTML}</dd>
+      </div>
+    `
   });
 
-  ret += '</dl>';
-
-  return ret;
+  html += '</dl>';
+  return html;
 }
