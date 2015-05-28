@@ -38,7 +38,7 @@ module.exports = Backbone.View.extend({
     this.$(showId).show();
   },
   handleAdd: function () {
-    var { addBackend } = require('./backends')
+    var { addBackend } = require('../backends')
       , type = this.$('#js-backend-type').val()
       , form = this.$('#js-' + type + '-form-controls')
       , opts = { type }
