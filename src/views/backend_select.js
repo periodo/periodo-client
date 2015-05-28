@@ -1,7 +1,6 @@
 var $ = require('jquery')
   , _ = require('underscore')
   , Backbone = require('../backbone')
-  , getBackends = require('../backends')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -20,6 +19,7 @@ module.exports = Backbone.View.extend({
       throw new Error('Must pass object with backends to select view.');
     }
 
+    this.existingBackends = backends;
     this.render({ backends });
   },
   render: function (opts) {
@@ -77,13 +77,10 @@ module.exports = Backbone.View.extend({
 
     if (!emptyInputs.length) valid = true;
 
-    reservedNames = _.pluck(getBackends(), 'name');
-    reservedNames.push('web');
-
+    reservedNames = _.pluck(this.existingBackends, 'name');
     if (reservedNames.indexOf(this.$('.name-input').val()) !== -1) {
       valid = false;
     }
-
 
     if (valid) {
       this.$('button').prop('disabled', null);
