@@ -1,3 +1,5 @@
+"use strict";
+
 var $ = require('jquery')
   , _ = require('underscore')
   , Backbone = require('../backbone')
@@ -35,35 +37,18 @@ module.exports = Backbone.View.extend({
     this.$('input').val('');
     this.$(showId).show();
   },
-
-  // FIXME: Change to new backend logic
   handleAdd: function () {
-    var type = this.$('#js-backend-type').val()
+    var { addBackend } = require('./backends')
+      , type = this.$('#js-backend-type').val()
       , form = this.$('#js-' + type + '-form-controls')
-      , name
-      , url
-      , webBackends
-    
-    if (type === 'idb') {
-      var db = require('../db');
-      name = form.find('#js-idb-name').val();
-      db(name).on('ready', function () { window.location.reload() });
-    } else if (type === 'web') {
-      name = form.find('#js-web-name').val();
-      url = form.find('#js-web-source').val();
+      , opts = { type }
 
-      webBackends = JSON.parse(localStorage.WebDatabaseNames || '{}');
-
-      webBackends[name] = {
-        type: 'web',
-        name: name,
-        editable: false,
-        url: url
-      }
-
-      localStorage.WebDatabaseNames = JSON.stringify(webBackends);
-      window.location.reload();
+    opts.name = form.find('#js-' + type + '-name').val();
+    if (type === 'web') {
+      opts.url = form.find('#js-web-source').val()
     }
+
+    addBackend(opts).then(window.location.reload);
   },
   handleRemove: function (e) {
     e.preventDefault();
