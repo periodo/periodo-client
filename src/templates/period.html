@@ -30,6 +30,13 @@
   </div>
   <% } %>
 
+  <% if (period.url) { %>
+  <div class="field">
+    <dt>URL</dt>
+    <dd><%= period.url %></dd>
+  </div>
+  <% } %>
+
   <% if (period.sameAs) { %>
   <div class="field">
     <dt>Same as</dt>

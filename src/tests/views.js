@@ -97,6 +97,30 @@ describe('Period form', function () {
     view.deletePeriod();
     assert.equal(view.cursor.deref(), undefined);
   });
+
+  it('Should allow adding alternate labels', function () {
+    var view = makePeriodFormView()
+
+    view.$('#js-startLabel').val('1890').trigger('input');
+    view.$('#js-endLabel').val('1920').trigger('input');
+
+    view.$('[data-field="alternateLabel"] input').val('the progressive time');
+    view.$('[data-field="alternateLabel"] [data-trigger="add-alt-label"]').trigger('click');
+    view.$('[data-field="alternateLabel"] input').last().val('the progressive time 2');
+
+    assert.deepEqual(view.getData(), {
+      label: 'Progressive era',
+      originalLabel: {
+        'eng-latn': 'Progressive era'
+      },
+      alternateLabel: {
+        'eng-latn': ['the progressive time', 'the progressive time 2']
+      },
+      start: { in: { year: '1890' }, label: '1890' },
+      stop: { in: { year: '1920' }, label: '1920' },
+      type: 'PeriodDefinition'
+    });
+  });
 });
 
 describe('Period collection edit view', function () {

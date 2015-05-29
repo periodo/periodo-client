@@ -1,6 +1,7 @@
 "use strict";
 
-var Backbone = require('backbone')
+var _ = require('underscore')
+  , Backbone = require('backbone')
 
 function labelFromEl(el) {
   var lang = el.querySelector('[data-field="label-language"]').textContent
@@ -45,7 +46,7 @@ module.exports = Backbone.View.extend({
       return acc;
     }, {});
 
-    if (alternateLabel.length) data.alternateLabel = alternateLabel;
+    if (!_.isEmpty(alternateLabel)) data.alternateLabel = alternateLabel;
 
     return data;
   },
