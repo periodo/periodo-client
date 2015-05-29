@@ -71,6 +71,7 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
   var patchSet = combineChangePairs(patches).toSet()
     , additions
     , hashesToCheck
+    , matched
 
   additions = patchSet.filter(patch => (
     patch instanceof Immutable.Map &&
@@ -84,7 +85,11 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
       (v instanceof Immutable.List ? v.get(1) : v).toJS()
     ));
 
-  return Promise.resolve(hashMatchFn(hashesToCheck.keySeq().sort()))
+  matched = hashesToCheck.size === 0 ?
+    [] :
+    hashMatchFn(hashesToCheck.keySeq().sort());
+
+  return Promise.resolve(matched)
     .then(matchingHashes => {
       return hashesToCheck
         .filter((val, hash) => (
