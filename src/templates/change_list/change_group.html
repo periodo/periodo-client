@@ -9,7 +9,10 @@
       <% changes.forEach(function (change) { %>
       <tr class="select-patch">
         <td class="toggle-patch-select">
-          <label><input type="checkbox" data-patches='<%= JSON.stringify(change.patches) %>' /></label>
+          <label>
+            <input type="checkbox"
+                   data-patches='<%= JSON.stringify(change.patches).replace(/'/g, "&#39;") %>' />
+          </label>
         </td>
         <td>
           <%= change.html %>

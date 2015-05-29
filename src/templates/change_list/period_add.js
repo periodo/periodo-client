@@ -1,7 +1,7 @@
 "use strict";
 
-var { getDisplayTitle } = require('../../../helpers/source')
-  , periodPatchedDiff = require('../../../utils/period_patched_diff')
+var { getDisplayTitle } = require('../../helpers/source')
+  , periodPatchedDiff = require('../../utils/period_patched_diff')
   , groupTemplate = require('./change_group.html')
   , categoryTemplate = require('./change_category.html')
 
@@ -14,17 +14,14 @@ module.exports = function (periods, fromState, toState) {
 
       source = getDisplayTitle(source);
 
-      changes = periods.map((patches, periodID) => {
-        // FIXME Should this be to or from?
-        var oldPeriod = toState.getIn(path.concat('definitions', periodID))
-          , html = periodPatchedDiff(oldPeriod, patches)
-
-        return { patches, html }
-      });
+      changes = periods.map(patches => ({
+        patches,
+        html: periodPatchedDiff({}, patches)
+      }));
 
       return groupTemplate({ changes, source })
     })
     .join('');
 
-  return categoryTemplate({ title: 'Edited periods', changeGroups })
+  return categoryTemplate({ title: 'New periods', changeGroups })
 }

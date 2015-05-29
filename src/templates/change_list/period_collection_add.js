@@ -1,7 +1,7 @@
 "use strict"
 
 var Immutable = require('immutable')
-  , { describe } = require('../../../helpers/periodization')
+  , { describe } = require('../../helpers/periodization')
   , groupTemplate = require('./change_group.html')
   , categoryTemplate = require('./change_category.html')
   , template = require('./period_collection_add.html')
