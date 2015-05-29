@@ -69,7 +69,7 @@ module.exports = Backbone.View.extend({
 
         if (suggestion.uses.length === 1) {
           input.value = suggestion.label;
-          that.state.collection = Immutable.Set.from(suggestion.uses[0].countries);
+          that.state.countries = Immutable.fromJS(suggestion.uses[0].countries).toSet();
           that.renderList();
           input.blur();
         } else {
@@ -80,7 +80,7 @@ module.exports = Backbone.View.extend({
           view.$el.one('hide.bs.modal', function () {
             var selectedCountries = view.selectedCountries;
             if (selectedCountries) {
-              that.collection.state = Immutable.Set.from(view.selectedCountries);
+              that.state.countries = Immutable.fromJS(view.selectedCountries).toSet();
               that.renderList();
             }
           });
@@ -119,7 +119,7 @@ module.exports = Backbone.View.extend({
       })
       .on('typeahead:selected', function (e, suggestion) {
         this.value = '';
-        that.state.countries.add(suggestion);
+        that.state.countries = that.state.countries.add(Immutable.fromJS(suggestion));
         that.renderList();
       })
       .on('blur', function () { this.value = '' })
