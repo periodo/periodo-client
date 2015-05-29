@@ -44,9 +44,7 @@ Backend.prototype = {
     return this.saveData(newData)
       .then(saved => {
         app.trigger('requestEnd');
-        this._data = saved instanceof Immutable.Iterable ?
-          saved : Immutable.fromJS(saved);
-        return this._data;
+        return (this._data = saved instanceof Immutable.Iterable ? saved : Immutable.fromJS(saved));
       })
       .catch(require('./app').handleError)
   },
@@ -252,8 +250,12 @@ function addBackend(opts) {
       }
     })
     .then(() => {
+      var db
+        , dbOpen
+
       if (opts.type === 'idb') {
-        require('./db')(opts.name);
+        db = require('./db')(opts.name);
+        dbOpen = new Promise(resolve => db.on('ready', resolve));
       } else if (opts.type === 'web') {
         let webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
         webDBs[opts.name] = opts;
@@ -262,7 +264,9 @@ function addBackend(opts) {
         throw new Error(`Invalid backend type: ${opts.type}`);
       }
 
-      return getBackend(opts.name);
+      return Promise
+        .resolve(dbOpen)
+        .then(() => getBackend(opts.name));
     })
 }
 

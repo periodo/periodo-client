@@ -38,7 +38,7 @@ module.exports = Backbone.View.extend({
     this.$(showId).show();
   },
   handleAdd: function () {
-    var { addBackend } = require('../backends')
+    var backends = require('../backends')
       , type = this.$('#js-backend-type').val()
       , form = this.$('#js-' + type + '-form-controls')
       , opts = { type }
@@ -48,7 +48,9 @@ module.exports = Backbone.View.extend({
       opts.url = form.find('#js-web-source').val()
     }
 
-    addBackend(opts).then(window.location.reload);
+    backends
+      .create(opts)
+      .then(() => window.location.reload());
   },
   handleRemove: function (e) {
     e.preventDefault();
