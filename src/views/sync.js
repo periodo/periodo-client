@@ -1,16 +1,13 @@
 "use strict";
 
-var _ = require('underscore')
-  , Immutable = require('immutable')
+var Immutable = require('immutable')
   , ajax = require('../ajax')
   , Backbone = require('../backbone')
-  , patch = require('fast-json-patch')
-  , PeriodizationCollection = function () { throw new Error() }
 
 module.exports = Backbone.View.extend({
   events: {
     'click #js-fetch-data': 'fetchData',
-    'click #js-accept-new-periods': 'handleAcceptPatches',
+    'click #js-accept-reviewed-patches': 'handleAcceptPatches',
     'change .select-all-patches': 'handleSelectAllPatches'
   },
   initialize: function ({ backend, state }) {
@@ -35,7 +32,7 @@ module.exports = Backbone.View.extend({
   fetchData: function () {
     var db = require('../db')
       , backends = require('../backends')
-      , url = this.url = this.$('#js-sync-root').val()
+      , serverURL = this.url = this.$('#js-sync-root').val()
 
     this.$cache.get('changesList').hide();
     this.$cache.get('acceptDialog').hide();
@@ -44,12 +41,13 @@ module.exports = Backbone.View.extend({
 
     db(backends.current().name).dumps.orderBy('synced').last()
       .then(function (lastDump) {
-        var headers = {};
+        var url = require('url')
+          , headers = {}
 
         //headers['If-Modified-Since'] = lastDump ? lastDump.modified : new Date(0).toGMTString();
 
         return ajax.ajax({
-          url: url + 'd/',
+          url: url.resolve(serverURL, 'd/'),
           headers: headers
         }).then(([dump, textStatus, xhr]) => {
           return Promise.resolve(dump);
@@ -119,6 +117,8 @@ module.exports = Backbone.View.extend({
     this.$cache.get('acceptDialog').show();
     reviewPatches = new ReviewPatchesView({
       patches,
+      acceptText: 'Add the following changes to current backend?', // FIXME: better error messages
+      acceptButtonText: 'Yes',
       fromState: Immutable.fromJS(this.collection.datasets.local),
       toState: Immutable.fromJS(this.collection.datasets.remote),
     });

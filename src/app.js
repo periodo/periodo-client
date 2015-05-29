@@ -275,11 +275,15 @@ ApplicationRouter = Backbone.Router.extend({
 
   submitPatch: function (backendName) {
     var db = require('./db')
+      , backend
 
-    return backends.switchTo(backendName)
+    return backends.get(backendName)
       .then(ensureIDB)
-      .then(backend => db(backend.name).getLocalData())
-      .then(localData => this.changeView(require('./views/submit_patch'), { localData }))
+      .then(_backend => (backend = _backend, backend.getStore()))
+      .then(store => this.changeView(require('./views/submit_patch'), {
+        backend,
+        state: { data: store }
+      }))
       .catch(err => this.handleError(err))
   },
 

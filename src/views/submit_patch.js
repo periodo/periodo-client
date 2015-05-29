@@ -3,44 +3,26 @@
 var url = require('url')
   , Immutable = require('immutable')
   , Backbone = require('../backbone')
-  , ChangeListView = require('./change_list')
+  , ChangeListView = require('./select_patches')
 
 module.exports = Backbone.View.extend({
   events: {
     'click #js-find-changes': 'findChanges',
-    'click #js-accept-patches': 'handleContinue',
-    'click #js-submit-patches': 'handleSubmit',
+    'click #js-accept-reviewed-patches': 'handleSubmit'
   },
-  initialize: function (opts) {
-    opts = opts || {};
-    this.backend = opts.backend || require('../backends').current()
-    this.localData = opts.localData;
+  initialize: function ({ backend, state }) {
+    this.backend = backend;
+    this.state = state;
     this.render();
+    this.subviews = new Map();
   },
   render: function () {
     var template = require('../templates/submit_patch.html');
     this.$el.html(template());
   },
-  handleContinue: function () {
-    var patches = this.getSelectedPatches();
-    this.renderConfirmPatches(patches);
-  },
-  renderConfirmPatches: function (patches) {
-    var patchHTML = this.makeDiffHTML(patches)
-      , template = require('../templates/confirm_patch.html')
-
-    this.$el.html(template());
-    this.$('#js-patch-list').html(patchHTML);
-    this.$('#js-patch-list').find('td:first-child, .select-patch-header').remove();
-    this.$('#js-accept-patches').remove();
-
-    patches = patches.map(patch => patch.delete('fake'));
-
-    this.selectedPatch = { patches: patches }
-  },
   handleSubmit: function () {
     var ajax = require('../ajax')
-      , patches = this.selectedPatch.patches
+      , patches = this.subviews.get('reviewPatches').patches
       , ajaxOpts
 
     ajaxOpts = {
@@ -48,8 +30,7 @@ module.exports = Backbone.View.extend({
       method: 'PATCH',
       contentType: 'application/json',
       data: JSON.stringify(patches),
-      headers: {
-      }
+      headers: {}
     }
 
     if (localStorage.auth) {
@@ -69,7 +50,8 @@ module.exports = Backbone.View.extend({
       })
       .then(() => {
         this.render();
-        this.$el.prepend('<div type="alert alert-success">Patch submitted.</div>');
+        this.$el.prepend('<div class="alert alert-success">Patch submitted.</div>');
+        require('../app').trigger('requestEnd');
       })
       .catch(err => require('../app').handleError(err))
   },
@@ -81,12 +63,39 @@ module.exports = Backbone.View.extend({
       .then(() => id);
   },
   initChangeListView: function (patches) {
-    this.changeListView = new ChangeListView({
+    var changeList
+
+    changeList = new ChangeListView({
       patches: patches,
       fromState: Immutable.fromJS(this.collection.datasets.local),
       toState: Immutable.fromJS(this.collection.datasets.remote),
-      el: this.$('#js-patch-list')
     });
+
+    this.subviews.set('changeList', changeList);
+
+    changeList.on('selectedPatches', patches => {
+      changeList.remove();
+      this.subviews.delete('changeList');
+      this.reviewSelectedPatches(patches);
+    });
+
+    this.$('#js-patch-list').append(changeList.el);
+  },
+  reviewSelectedPatches: function (patches) {
+    var ReviewPatchesView = require('./patches_review')
+      , reviewPatches
+
+    reviewPatches = new ReviewPatchesView({
+      patches,
+      acceptText: 'Submit the following patches?', // FIXME: better error messages
+      acceptButtonText: 'Yes',
+      fromState: Immutable.fromJS(this.collection.datasets.local),
+      toState: Immutable.fromJS(this.collection.datasets.remote),
+    });
+
+    this.$('#js-patch-list').append(reviewPatches.el);
+
+    this.subviews.set('reviewPatches', reviewPatches);
   },
   handlePatchSubmitError: function ([xhr, textStatus, errorThrown]) {
     var errorMessages
@@ -118,17 +127,20 @@ module.exports = Backbone.View.extend({
     require('../app').trigger('request');
     ajax.getJSON(url + '/d/')
       .then(([remoteData]) => this.collection = PatchDiffCollection.fromDatasets({
-        local: this.localData.data,
+        local: this.state.data.toJS(),
         remote: remoteData,
         to: 'remote'
       }))
       .then(patches => patches.filterByHash())
       .then(patches => {
-        // FIXME: Make new ChangeListView
         this.initChangeListView(patches);
         this.patches = patches;
       })
       .then(() => require('../app').trigger('requestEnd'))
       .catch(err => require('../app').handleError(err))
+  },
+  remove: function () {
+    Backbone.View.prototype.remove.call(this);
+    this.subviews.forEach(view => view.remove());
   }
 });
