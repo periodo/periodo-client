@@ -254,12 +254,12 @@ ApplicationRouter = Backbone.Router.extend({
 
   sync: function (backendName) {
     var SyncView = require('./views/sync')
-      , db = require('./db')
+      , backend
 
-    return backends.switchTo(backendName)
+    return backends.get(backendName)
       .then(ensureIDB)
-      .then(() => db(backendName).getLocalData())
-      .then(localData => this.changeView(SyncView, { localData }))
+      .then(_backend => (backend = _backend, backend.getStore()))
+      .then(store => this.changeView(SyncView, { backend, state: { data: store }}))
       .catch(err => this.handleError(err))
   },
 

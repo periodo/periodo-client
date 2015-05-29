@@ -10,30 +10,35 @@ var _ = require('underscore')
 module.exports = Backbone.View.extend({
   events: {
     'click #js-fetch-data': 'fetchData',
-    'click #js-accept-new-periods': 'handleAcceptPeriodizations',
-    'click #js-accept-patches': 'handleAcceptPatches',
+    'click #js-accept-new-periods': 'handleAcceptPatches',
     'change .select-all-patches': 'handleSelectAllPatches'
   },
-  initialize: function (opts) {
-    this.localData = opts.localData;
+  initialize: function ({ backend, state }) {
+    this.backend = backend;
+    this.state = state;
+
     this.render();
+
+    this.subviews = new Map();
+    this.$cache = new Map([
+      ['acceptDialog', this.$('#js-sync-dialog').hide()],
+      ['changesList', this.$('#js-list-changes').hide()],
+      ['success', this.$('#js-sync-success').hide()]
+    ]);
+
     this.url = null;
   },
   render: function () {
     var template = require('../templates/sync.html');
     this.$el.html(template());
-
-    this.$acceptDialog = this.$('#js-sync-dialog').hide();
-    this.$changesList = this.$('#js-list-changes').hide();
-    this.$success = this.$('#js-sync-success').hide();
   },
   fetchData: function () {
     var db = require('../db')
       , backends = require('../backends')
       , url = this.url = this.$('#js-sync-root').val()
 
-    this.$changesList.hide();
-    this.$acceptDialog.hide();
+    this.$cache.get('changesList').hide();
+    this.$cache.get('acceptDialog').hide();
 
     require('../app').trigger('request');
 
@@ -77,66 +82,70 @@ module.exports = Backbone.View.extend({
       .finally(() => { require('../app').trigger('requestEnd') });
   },
   initChangeList: function (patches) {
-    var ChangeListView = require('./change_list');
-    this.changeListView = new ChangeListView({
+    var ChangeListView = require('./select_patches')
+      , changeList
+
+    changeList = new ChangeListView({
       patches,
       fromState: Immutable.fromJS(this.collection.datasets.local),
       toState: Immutable.fromJS(this.collection.datasets.remote),
-      el: this.$changesList.show()
+    });
+
+    this.subviews.set('changeList', changeList);
+    this.$cache.get('changesList').show().append(changeList.el);
+    changeList.on('selectedPatches', patches => {
+      changeList.remove();
+      this.$cache.get('changesList').hide();
+      this.subviews.delete('changeList');
+      this.reviewSelectedPatches(patches);
     });
   },
   handleDump: function (data) {
     var PatchDiffCollection = require('../collections/patch_diff')
 
     this.collection = PatchDiffCollection.fromDatasets({
-      local: this.localData.data,
+      local: this.state.data.toJS(),
       remote: data,
       to: 'local'
-    })
+    });
 
     this.collection.filterByHash()
       .then(patches => this.initChangeList(patches));
   },
-  handleAcceptPeriodizations: function () {
-    var that = this;
-    var options = { message: 'Synced data from ' + this.url }
+  reviewSelectedPatches: function (patches) {
+    var ReviewPatchesView = require('./patches_review')
+      , reviewPatches
 
-    require('../app').trigger('request');
-    this.collection.sync('put', this.collection, options).then(function () {
-      that.$acceptDialog.hide();
-      that.$success
-        .html('<div class="alert alert-success">Data synced.</div>')
-        .show()
-    })
-    .finally(() => require('../app').trigger('requestEnd'))
+    this.$cache.get('acceptDialog').show();
+    reviewPatches = new ReviewPatchesView({
+      patches,
+      fromState: Immutable.fromJS(this.collection.datasets.local),
+      toState: Immutable.fromJS(this.collection.datasets.remote),
+    });
+
+    this.$cache.get('acceptDialog').show().find('#selected-changes-list').append(reviewPatches.el);
+    this.subviews.set('reviewPatches', reviewPatches);
   },
   handleAcceptPatches: function () {
-    var $selected = this.$('.toggle-patch-select input:checked')
-      , patches
-      , newData
-      , newCollection
+    var patch = require('immpatch')
+      , patches = this.subviews.get('reviewPatches').patches.toJS()
+      , newState = patch(this.state.data, patches)
 
-    patches = $selected.toArray().map(el => {
-      var cids = el.dataset.patchIds.split(',');
-      return this.remoteDiffs
-        .filter(patch => cids.indexOf(patch.cid) !== -1)
-        .map(patch => patch.toJSON())
-    });
-    patches = _.flatten(patches);
+    this.backend.saveStore(newState)
+      .then(() => {
+        this.$cache.get('acceptDialog').hide();
+        this.subviews.get('reviewPatches').remove();
+        this.subviews.delete('reviewPatches');
 
-    newData = JSON.parse(JSON.stringify(this.localData.data));
-    patch.apply(newData, patches);
-    newCollection = new PeriodizationCollection(newData, { parse: true });
-
-    var that = this;
-    var options = { message: 'Synced data from ' + this.url }
-
-    require('../app').trigger('request');
-    newCollection.sync('put', newCollection, options).then(function () {
-      that.$success
-        .html('<div class="alert alert-success">Data synced.</div>')
-        .show()
-    })
-    .finally(() => require('../app').trigger('requestEnd'));
+        this.$cache.get('success')
+          .html('<div class="alert alert-success">Data synced.</div>')
+          .show()
+      })
+      .catch(require('../app').handleError)
+  },
+  remove: function () {
+    this.subviews.forEach(view => view.remove());
+    this.$cache.clear();
+    Backbone.View.prototype.remove.call(this);
   }
 });
