@@ -309,16 +309,19 @@ ApplicationRouter = Backbone.Router.extend({
           , redirect = false
           , key
 
-        for (key in data.periodCollections) {
+        for (key in data.data.periodCollections) {
           if (key === matchKey) {
             redirect = true;
             break;
+          } else {
+            periodCollectionIDs.push(key);
           }
         }
 
         if (!redirect) {
           for (key in periodCollectionIDs) {
-            if ((data.periodCollections[key].definitions || {}).hasOwnProperty(key)) {
+            key = periodCollectionIDs[key];
+            if ((data.data.periodCollections[key].definitions || {}).hasOwnProperty(matchKey)) {
               redirect = true;
               break;
             }
@@ -327,7 +330,7 @@ ApplicationRouter = Backbone.Router.extend({
 
         if (redirect) {
           Backbone.history.navigate(
-            'p/web/periodCollections/' + key.slice(2) + '/',
+            'p/web/periodCollections/' + key + '/',
             { trigger: true, replace: true })
         } else {
           throw new errors.NotFoundError('Page not found');
