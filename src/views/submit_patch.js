@@ -56,10 +56,26 @@ module.exports = Backbone.View.extend({
       .catch(err => require('../app').handleError(err))
   },
   addLocalPatch: function(id, patches) {
-    var db = require('../db');
+    var db = require('../db')
+      , patchObj
+      , html
+
+    html = this.subviews.get('reviewPatches')
+      .$('.patch-collection')
+      .toArray()
+      .map(el => el.outerHTML)
+      .join('\n')
+
+    patchObj = {
+      id,
+      html,
+      resolved: false,
+      data: patches.toJS(),
+      submitted: new Date()
+    }
 
     return db(this.backend.name).localPatches
-      .put({ id: id, resolved: false, data: patches, submitted: new Date() })
+      .put(patchObj)
       .then(() => id);
   },
   initChangeListView: function (patches) {

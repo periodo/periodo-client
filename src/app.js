@@ -114,8 +114,10 @@ ApplicationRouter = Backbone.Router.extend({
     'p/:backendName/sync/': 'sync',
     'p/:backendName/patches/submit/': 'submitPatch',
     'p/:backendName/patches/': 'submittedPatches',
+    'p/:backendName/patches/:patchID/': 'submittedPatchShow',
     'signin/': 'signin',
     'signout/': 'signout',
+    //'reviewPatches/': 'reviewPatches',
     '*anything': 'attemptRedirect'
   },
   _view: null,
@@ -296,6 +298,44 @@ ApplicationRouter = Backbone.Router.extend({
       .then(localPatches => this.changeView(require('./views/local_patches'), { localPatches }))
       .catch(err => this.handleError(err))
   },
+
+  submittedPatchShow: function (backendName, patchID) {
+    var db = require('./db')
+
+    return backends.switchTo(backendName)
+      .then(ensureIDB)
+      .then(backend => db(backend.name)
+        .localPatches
+        .get(decodeURIComponent(patchID)))
+      .then(patch => this.changeView(require('./views/local_patch_show'), { patch }))
+      .catch(err => this.handleError(err))
+  },
+
+    /*
+     * WIP
+  reviewPatches: function () {
+    var _ = require('underscore')
+      , url = require('url')
+      , ajax = require('./ajax')
+      , patchURL = url.resolve(window.location.origin, 'patches')
+
+    ajax.getJSON(patchURL, { resolved: false, open: true })
+      .then(([patches]) => {
+        var authors
+
+        authors = _.unique(patches.map(patch => patch.created_by))
+          .map(orcid => $.ajax({
+            url: orcid,
+            headers: { Accept: 'text/turtle' }
+          }))
+
+        Promise.all(authors)
+          .then(authorsTTL => {
+            debugger;
+          });
+      });
+  },
+  */
 
   // FIXME: This should not actually switch the backend, but rather check if
   // the thing being linked to actually exists before redirection

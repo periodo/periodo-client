@@ -2,8 +2,14 @@
 
 <% localPatches.forEach(function (patch) { %>
 <div>
-  <%= patch.id %>
-  <p>Resolved? <%= patch.resolved %></p>
+  <a href="<%= window.location + encodeURIComponent(patch.id) + '/' %>">
+    <%= patch.id %>
+  </a>
+  <p>
+    Submitted <%= patch.submitted.toLocaleString() %>
+    <br/>
+    Resolved? <%= patch.resolved %>
+  </p>
 </div>
 <% }); %>
 
