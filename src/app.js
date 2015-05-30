@@ -101,6 +101,12 @@ function ensureIDB(backend) {
   return backend;
 }
 
+function ensureEditable(msg, backend) {
+  msg = msg || 'This functionality is only possible for editable backends';
+  if (!backend.editable) throw new Error(msg);
+  return backend;
+}
+
 ApplicationRouter = Backbone.Router.extend({
   start: initApp,
   routes: {
@@ -188,16 +194,11 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   periodCollectionShow: function (backendName, periodCollectionID) {
-    var backend
-
     periodCollectionID = decodeURIComponent(periodCollectionID)
 
     return backends.get(backendName)
-      .then(_backend => {
-        backend = _backend;
-        return backend.getStore();
-      })
-      .then(store => {
+      .then(backend => Promise.all([backend, backend.getStore()]))
+      .then((backend, store) => {
         var state = { data: store }
           , path = ['periodCollections', periodCollectionID]
 
@@ -215,7 +216,6 @@ ApplicationRouter = Backbone.Router.extend({
 
   periodCollectionEdit: function (backendName, periodCollectionID) {
     var isNew = !periodCollectionID
-      , backend
 
     if (isNew) {
       periodCollectionID = require('./utils/generate_skolem_id')();
@@ -224,14 +224,9 @@ ApplicationRouter = Backbone.Router.extend({
     }
 
     return backends.get(backendName)
-      .then(_backend => {
-        backend = _backend;
-        if (!backend.editable) {
-          throw new errors.NotFoundError('Cannot perform edits on a read-only backend.')
-        }
-        return backend.getStore();
-      })
-      .then(store => {
+      .then(ensureEditable)
+      .then(backend => Promise.all(backend, backend.getStore()))
+      .then((backend, store) => {
         var state = { data: store }
 
         state.data = state.data.setIn(
@@ -256,12 +251,14 @@ ApplicationRouter = Backbone.Router.extend({
 
   sync: function (backendName) {
     var SyncView = require('./views/sync')
-      , backend
 
     return backends.get(backendName)
       .then(ensureIDB)
-      .then(_backend => (backend = _backend, backend.getStore()))
-      .then(store => this.changeView(SyncView, { backend, state: { data: store }}))
+      .then(backend => Promise.all([backend, backend.getStore()]))
+      .then((backend, store) => this.changeView(SyncView, {
+        backend,
+        state: { data: store }
+      }))
       .catch(err => this.handleError(err))
   },
 
@@ -276,13 +273,10 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   submitPatch: function (backendName) {
-    var db = require('./db')
-      , backend
-
     return backends.get(backendName)
       .then(ensureIDB)
-      .then(_backend => (backend = _backend, backend.getStore()))
-      .then(store => this.changeView(require('./views/submit_patch'), {
+      .then(backend => Promise.all([backend, backend.getStore()]))
+      .then((backend, store) => this.changeView(require('./views/submit_patch'), {
         backend,
         state: { data: store }
       }))
