@@ -2,6 +2,8 @@
 
 var _ = require('underscore')
   , N3 = require('n3')
+  , parseTurtle = require('./parse_turtle')
+  , parseJsonLD = require('./parse_jsonld')
 
 const DEFAULT_PREDICATES = {
   title: [
@@ -32,53 +34,6 @@ const DEFAULT_PREDICATES = {
  * attributes, if they exist:
  *   title, yearPublished, creators, contributors, and partOf
  */
-
-
-/*
- * Returns Promise that resolves with an N3.store
- */
-function parseTurtle(turtle) {
-  var parser = N3.Parser()
-    , store = N3.Store()
-
-  return new Promise((resolve, reject) => {
-    parser.parse(turtle, function (err, triple, prefixes) {
-      if (err) {
-        reject(err);
-      } else if (triple) {
-        store.addTriple(triple);
-      } else {
-        store.addPrefixes(prefixes);
-        resolve(store);
-      }
-    });
-  });
-}
-
-function parseJsonLD(doc) {
-  var jsonld = require('jsonld')
-    , parser = N3.Parser()
-    , store = N3.Store()
-
-  doc = JSON.parse(doc);
-
-  return new Promise((resolve, reject) => {
-    jsonld.toRDF(doc, {format: 'application/nquads'}, function (err, nquads) {
-      if (err) reject(err);
-
-      parser.parse(nquads, function (err, triple, prefixes) {
-        if (err) {
-          reject(err);
-        } else if (triple) {
-          store.addTriple(triple);
-        } else {
-          store.addPrefixes(prefixes);
-          resolve(store);
-        }
-      });
-    });
-  });
-}
 
 function getFirstMatchingPredicate(store, subject, predicates) {
   var matchingObjects;
