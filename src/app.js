@@ -198,7 +198,7 @@ ApplicationRouter = Backbone.Router.extend({
 
     return backends.get(backendName)
       .then(backend => Promise.all([backend, backend.getStore()]))
-      .then((backend, store) => {
+      .then(([backend, store]) => {
         var state = { data: store }
           , path = ['periodCollections', periodCollectionID]
 
@@ -226,7 +226,7 @@ ApplicationRouter = Backbone.Router.extend({
     return backends.get(backendName)
       .then(ensureEditable)
       .then(backend => Promise.all(backend, backend.getStore()))
-      .then((backend, store) => {
+      .then(([backend, store]) => {
         var state = { data: store }
 
         state.data = state.data.setIn(
@@ -255,7 +255,7 @@ ApplicationRouter = Backbone.Router.extend({
     return backends.get(backendName)
       .then(ensureIDB)
       .then(backend => Promise.all([backend, backend.getStore()]))
-      .then((backend, store) => this.changeView(SyncView, {
+      .then(([backend, store]) => this.changeView(SyncView, {
         backend,
         state: { data: store }
       }))
@@ -276,7 +276,7 @@ ApplicationRouter = Backbone.Router.extend({
     return backends.get(backendName)
       .then(ensureIDB)
       .then(backend => Promise.all([backend, backend.getStore()]))
-      .then((backend, store) => this.changeView(require('./views/submit_patch'), {
+      .then(([backend, store]) => this.changeView(require('./views/submit_patch'), {
         backend,
         state: { data: store }
       }))
