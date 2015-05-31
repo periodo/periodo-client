@@ -1,8 +1,8 @@
 "use strict";
 
 var Backbone = require('../backbone')
+  , React = require('react')
   , backends = require('../backends')
-  , sortTable = require('../utils/sort_table')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -16,24 +16,21 @@ module.exports = Backbone.View.extend({
   },
   render: function () {
     var template = require('../templates/index.html')
-      , listTemplate = require('../templates/period_collection_list.html')
+      , PeriodCollectionListComponent = require('./period_collection_list.jsx')
+      , periodCollections
 
-    //this.collection.sort();
-
-    var periodCollections = this.store
+    periodCollections = this.store
       .get('periodCollections')
       .valueSeq()
       .map(require('../helpers/periodization').describe)
       .toJS()
 
     this.$el.html(template({ backend: this.backend }));
-    this.$('#periodization-list').html(listTemplate({
-      periodCollections: periodCollections,
-      backend: this.backend
-    }));
 
-    sortTable(this.$('#periodization-list table')[0]);
-
+    React.render(
+      <PeriodCollectionListComponent backend={this.backend} data={periodCollections} />,
+      this.$('#periodization-list').get(0)
+    );
   },
   deleteDatabase: function () {
     backends.destroy(this.backend.name)
