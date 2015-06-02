@@ -51,7 +51,7 @@ function handlePageClick(e) {
     , href = e.target.href
     , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
     , interceptClick = isLeftClick && href && href.indexOf(root) === 0
-    , redirect = !e.target.dataset.noRedirect
+    , redirect = !e.target.dataset.noRedirect && href !== root + '/'
 
   if (interceptClick) {
     e.preventDefault();

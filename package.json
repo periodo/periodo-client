@@ -25,6 +25,7 @@
     "n3": "^0.2.7",
     "pegjs": "^0.8.0",
     "react": "^0.13.3",
+    "react-paginate": "^0.1.31",
     "spark-md5": "0.0.5",
     "spin.js": "^2.0.1",
     "tablesort": "^3.0.2",
