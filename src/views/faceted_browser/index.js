@@ -20,11 +20,13 @@ module.exports = Backbone.View.extend({
       , periods
 
     this.$el.html(template({ backend: this.backend }));
+    this.listEl = this.$('#periodization-list').get(0);
 
-    React.render(
-      <FacetBrowser dataset={this.store} />,
-      this.$('#periodization-list').get(0)
-    );
+    React.render(<FacetBrowser backend={this.backend} dataset={this.store} />, this.listEl);
+  },
+  remove: function () {
+    React.unmountComponentAtNode(this.listEl);
+    Backbone.View.prototype.remove.call(this);
   },
   deleteDatabase: function () {
     backends.destroy(this.backend.name)
