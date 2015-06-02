@@ -43,7 +43,7 @@ PeriodDetailsRow = React.createClass({
   render: function () {
     var html = { __html: makePeriodDetail(this.props.data) }
       , linkBase = this.props.dataset.getIn(['@context', '@base'])
-      , collectionID = this.props.data.get('id').slice(0,7)
+      , collectionID = this.props.data.get('collection_id')
       , collectionURL = `#${this.props.backend.path}periodCollections/${collectionID}/`
       , source
       , addPermalink

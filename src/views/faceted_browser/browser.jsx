@@ -21,11 +21,13 @@ module.exports = React.createClass({
 
     periods = this.props.dataset
       .get('periodCollections')
-      .flatMap(collection => collection.get('definitions'))
+      .flatMap(collection => collection
+        .get('definitions')
+        .map(period => period.set('collection_id', collection.get('id'))))
 
     facets = immfacet(periods)
       .addFacet('source', period => {
-        var collectionID = period.get('id').slice(0,7)
+        var collectionID = period.get('collection_id')
           , source
 
         source = this.props.dataset.getIn([
