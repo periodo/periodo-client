@@ -102,7 +102,11 @@ function ensureIDB(backend) {
 }
 
 function ensureEditable(msg, backend) {
-  msg = msg || 'This functionality is only possible for editable backends';
+  // Shift parameters if only backend was passed
+  if (!backend) {
+    backend = msg;
+    msg = 'This functionality is only possible for editable backends';
+  }
   if (!backend.editable) throw new Error(msg);
   return backend;
 }
@@ -225,7 +229,7 @@ ApplicationRouter = Backbone.Router.extend({
 
     return backends.get(backendName)
       .then(ensureEditable)
-      .then(backend => Promise.all(backend, backend.getStore()))
+      .then(backend => Promise.all([backend, backend.getStore()]))
       .then(([backend, store]) => {
         var state = { data: store }
 
