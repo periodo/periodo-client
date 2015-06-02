@@ -189,7 +189,7 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   backendHome: function (backendName) {
-    var IndexView = require('./views/index')
+    var IndexView = require('./views/faceted_browser')
 
     return backends.get(backendName)
       .then(backend => backend.getStore())

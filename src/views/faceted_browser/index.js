@@ -1,8 +1,8 @@
 "use strict";
 
-var Backbone = require('../backbone')
+var Backbone = require('backbone')
   , React = require('react')
-  , backends = require('../backends')
+  , backends = require('../../backends')
 
 module.exports = Backbone.View.extend({
   events: {
@@ -15,20 +15,14 @@ module.exports = Backbone.View.extend({
     this.render();
   },
   render: function () {
-    var template = require('../templates/index.html')
-      , PeriodCollectionListComponent = require('./period_collection_list.jsx')
-      , periodCollections
-
-    periodCollections = this.store
-      .get('periodCollections')
-      .valueSeq()
-      .map(require('../helpers/periodization').describe)
-      .toJS()
+    var template = require('../../templates/index.html')
+      , FacetBrowser = require('./browser.jsx')
+      , periods
 
     this.$el.html(template({ backend: this.backend }));
 
     React.render(
-      <PeriodCollectionListComponent backend={this.backend} data={periodCollections} />,
+      <FacetBrowser dataset={this.store} />,
       this.$('#periodization-list').get(0)
     );
   },
