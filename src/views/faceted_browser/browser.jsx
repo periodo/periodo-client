@@ -98,10 +98,13 @@ module.exports = React.createClass({
 
     return (
       <div className="row">
-        <div className="col-md-6">
-          <PeriodList periods={this.state.facets.getMatchedDocuments()} />
+        <div className="col-md-7">
+          <PeriodList
+            periods={this.state.facets.getMatchedDocuments()}
+            dataset={this.props.dataset}
+            backend={this.props.backend} />
         </div>
-        <div className="col-md-6">
+        <div className="col-md-5">
           <h2>Filters</h2>
           <SourceFacet
             selectedValues={selectedFacetValues.get('source') || []}
