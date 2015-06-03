@@ -4,19 +4,12 @@ var React = require('react')
   , Immutable = require('immutable')
   , immfacet = require('immfacet')
   , PeriodList = require('./period_list.jsx')
-  , SourceFacet = require('./source_facet.jsx')
+  , FacetField = require('./facet_field.jsx')
 
 module.exports = React.createClass({
-  getInitialPeriods: function () {
-    if (!this._initialPeriods) {
-      this._initialPeriods = this.props.dataset
-        .get('periodCollections')
-        .flatMap(collection => collection.get('definitions'))
-    }
-    return this._initialPeriods;
-  },
   getInitialFacets: function () {
-    var periods
+    var iso639_3 = require('iso-639-3').all()
+      , periods
       , facets
 
     periods = this.props.dataset
@@ -27,15 +20,26 @@ module.exports = React.createClass({
 
     facets = immfacet(periods)
       .addFacet('source', period => {
-        var collectionID = period.get('collection_id')
-          , source
+        var { getDisplayTitle } = require('../../helpers/source')
+        return getDisplayTitle(this.props.dataset.getIn([
+          'periodCollections', period.get('collection_id'), 'source'
+        ]));
+      })
+      .addFacet('language', period => {
+        var alternateLabels = period.get('alternateLabel')
+          , languages
 
-        source = this.props.dataset.getIn([
-          'periodCollections', collectionID, 'source'
-        ])
+        languages = period
+          .get('originalLabel')
+          .keySeq()
+          .toSet()
 
-        return source.set('collection_id', collectionID);
-      });
+        if (alternateLabels) {
+          languages = languages.union(alternateLabels.keySeq());
+        }
+
+        return languages.map(code => iso639_3[code.split('-')[0]].name);
+      }, { multiValue: true });
 
     return facets;
   },
@@ -90,13 +94,32 @@ module.exports = React.createClass({
   },
   render: function () {
     var facetValues = this.state.facets.getFacetValues()
-      , previousFacetValues = this.state.previousFacets && this.state.previousFacets.getFacetValues()
       , selectedFacetValues = this.state.facets.getSelectedFacetValues()
-      , values
+      , previousFacetValues
+      , facetFields
 
-    values = this.state.previouslySelectedField === 'source' ?
-      previousFacetValues.get('source') :
-      facetValues.get('source')
+    previousFacetValues = (
+      this.state.previousFacets &&
+      this.state.previousFacets.getFacetValues()
+    )
+
+    facetFields = facetValues.keySeq().map(facetName => {
+      var usePreviousFacets = this.state.previouslySelectedField === facetName
+        , values
+
+      values = usePreviousFacets ?
+        previousFacetValues.get(facetName) :
+        facetValues.get(facetName)
+
+      return React.createElement(FacetField, {
+        values,
+        facetName,
+        key: facetName,
+        selectedValues: selectedFacetValues.get(facetName) || Immutable.OrderedMap(),
+        onSelectFacet: this.handleSelectFacet.bind(this, facetName),
+        onDeselectFacet: this.handleDeselectFacet.bind(this, facetName)
+      });
+    });
 
     return (
       <div className="row">
@@ -108,11 +131,7 @@ module.exports = React.createClass({
         </div>
         <div className="col-md-5">
           <h2>Filters</h2>
-          <SourceFacet
-            selectedValues={selectedFacetValues.get('source') || []}
-            onSelectFacet={this.handleSelectFacet.bind(this, 'source')}
-            onDeselectFacet={this.handleDeselectFacet.bind(this, 'source')}
-            values={values} />
+          {facetFields}
         </div>
       </div>
     )
