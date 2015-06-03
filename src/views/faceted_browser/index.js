@@ -17,7 +17,6 @@ module.exports = Backbone.View.extend({
   render: function () {
     var template = require('../../templates/index.html')
       , FacetBrowser = require('./browser.jsx')
-      , periods
 
     this.$el.html(template({ backend: this.backend }));
     this.listEl = this.$('#periodization-list').get(0);
@@ -30,7 +29,7 @@ module.exports = Backbone.View.extend({
   },
   deleteDatabase: function () {
     backends.destroy(this.backend.name)
-      .then(() =>  Backbone.history.navigate('#p/', { trigger: true }))
+      .then(() => Backbone.history.navigate('#p/', { trigger: true }))
       .catch(err => console.error(err));
   }
 });

@@ -72,7 +72,7 @@ function initApp() {
     length: 5,
     width: 2,
     radius: 6,
-    trail: 40 
+    trail: 40
   });
 
   function startSpinner() { spinner.spin(spinnerEl) }

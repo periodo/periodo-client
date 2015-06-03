@@ -26,7 +26,7 @@ function makePeriodDetail(period) {
 
   links.reverse().forEach(match => {
     let minusOne = ',;.'.indexOf(match.url.slice(-1)) !== -1
-      , url = minusOne ? match.url.slice(0,-1) : match.url
+      , url = minusOne ? match.url.slice(0, -1) : match.url
       , lastIndex = minusOne ? match.lastIndex - 1 : match.lastIndex
 
     html = (
@@ -49,7 +49,6 @@ PeriodDetailsRow = React.createClass({
       , addPermalink
       , permalink
 
-    debugger;
     source = getDisplayTitle(this.props.dataset.getIn([
       'periodCollections', collectionID, 'source'
     ]));
@@ -106,7 +105,7 @@ module.exports = React.createClass({
   },
   getNumberOfPages: function () {
     var numPeriods = this.props.periods.size
-    return numPeriods ?  Math.ceil(numPeriods / this.state.limit) : 1;
+    return numPeriods ? Math.ceil(numPeriods / this.state.limit) : 1;
   },
   handlePageClick: function (data) {
     this.setState({
