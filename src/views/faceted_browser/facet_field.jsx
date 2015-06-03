@@ -12,6 +12,10 @@ FacetValue = React.createClass({
       value = this.props.formatFacetValue(value);
     }
 
+    if (value === undefined) {
+      value = '(undefined)';
+    }
+
     return (
       <tr className="facet-result-row">
         <td className="facet-result-count">{this.props.count}</td>
