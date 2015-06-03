@@ -8,7 +8,7 @@ var React = require('react')
 
 module.exports = React.createClass({
   getInitialFacets: function () {
-    var iso639_3 = require('iso-639-3').all()
+    var facetFields = require('./facet_fields')
       , periods
       , facets
 
@@ -19,27 +19,13 @@ module.exports = React.createClass({
         .map(period => period.set('collection_id', collection.get('id'))))
 
     facets = immfacet(periods)
-      .addFacet('source', period => {
-        var { getDisplayTitle } = require('../../helpers/source')
-        return getDisplayTitle(this.props.dataset.getIn([
-          'periodCollections', period.get('collection_id'), 'source'
-        ]));
-      })
-      .addFacet('language', period => {
-        var alternateLabels = period.get('alternateLabel')
-          , languages
 
-        languages = period
-          .get('originalLabel')
-          .keySeq()
-          .toSet()
-
-        if (alternateLabels) {
-          languages = languages.union(alternateLabels.keySeq());
-        }
-
-        return languages.map(code => iso639_3[code.split('-')[0]].name);
-      }, { multiValue: true });
+    Object.keys(facetFields).forEach(facetName => {
+      let field = facetFields[facetName];
+      facets = facets.addFacet(facetName, field.fn.bind(this), {
+        multiValue: field.multiValue
+      });
+    });
 
     return facets;
   },
@@ -105,6 +91,7 @@ module.exports = React.createClass({
 
     facetFields = facetValues.keySeq().map(facetName => {
       var usePreviousFacets = this.state.previouslySelectedField === facetName
+        , field = require('./facet_fields')[facetName]
         , values
 
       values = usePreviousFacets ?
@@ -113,8 +100,9 @@ module.exports = React.createClass({
 
       return React.createElement(FacetField, {
         values,
-        facetName,
         key: facetName,
+        facetName: field.label,
+        getDisplayTitle: field.getDisplayTitle,
         selectedValues: selectedFacetValues.get(facetName) || Immutable.OrderedMap(),
         onSelectFacet: this.handleSelectFacet.bind(this, facetName),
         onDeselectFacet: this.handleDeselectFacet.bind(this, facetName)
