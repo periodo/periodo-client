@@ -47,7 +47,7 @@ module.exports = React.createClass({
     return React.createElement(FacetValue, {
       key: value instanceof Immutable.Iterable ? value.hashCode() : value,
       value: value,
-      count: periodIDs.size,
+      count: periodIDs ? periodIDs.size : 0,
       handleClick: handler.bind(null, value),
       formatFacetValue: this.props.formatFacetValue
     });
@@ -63,7 +63,8 @@ module.exports = React.createClass({
       selectedValues = selectedValues.set(value, matchedIDs);
     });
 
-    return [selectedValues, unselectedValues];
+    return [selectedValues, unselectedValues]
+      .map(values => values.sortBy(ids => ids ? -ids.size : 0));
   },
   render: function () {
     var [selectedFacetValues, unselectedFacetValues] = this.getFacetValues()
