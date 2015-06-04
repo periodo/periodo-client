@@ -7,7 +7,9 @@
       (<%= Object.keys(period.originalLabel)[0] %>)
       <% } %>
     </dt>
-    <dd><%= period.label %></dd>
+    <dd>
+      <%= period.label %>
+    </dd>
   </div>
 
   <% if (period.alternateLabel) { %>
@@ -26,28 +28,36 @@
   <% if (period.locator) { %>
   <div class="field">
     <dt>Locator</dt>
-    <dd><%= period.locator %></dd>
+    <dd>
+      <%= period.locator %>
+    </dd>
   </div>
   <% } %>
 
   <% if (period.url) { %>
   <div class="field">
     <dt>URL</dt>
-    <dd><%= period.url %></dd>
+    <dd>
+      <%= period.url %>
+    </dd>
   </div>
   <% } %>
 
   <% if (period.sameAs) { %>
   <div class="field">
     <dt>Same as</dt>
-    <dd><%= period.sameAs %></dd>
+    <dd>
+      <%= period.sameAs %>
+    </dd>
   </div>
   <% } %>
 
   <% if (period.spatialCoverageDescription) { %>
   <div class="field">
     <dt>Spatial coverage description</dt>
-    <dd><%= period.spatialCoverageDescription %></dd>
+    <dd>
+      <%= period.spatialCoverageDescription %>
+    </dd>
   </div>
   <% } %>
 
@@ -76,7 +86,9 @@
     var startParsed = 'unknown';
     }
     %>
-  <dd><%= period.start.label %> (ISO Value: <%= startParsed %>)</dd>
+  <dd>
+    <%= period.start.label %> (ISO Value: <%= startParsed %>)
+  </dd>
   </div>
 
   <div class="field">
@@ -91,20 +103,26 @@
     var stopParsed = 'unknown';
     }
     %>
-  <dd><%= period.stop.label %> (ISO Value: <%= stopParsed %></dd>
+  <dd>
+    <%= period.stop.label %> (ISO Value: <%= stopParsed %>
+  </dd>
   </div>
 
   <% if (period.note) { %>
   <div class="field">
     <dt>Source notes</dt>
-    <dd><%= period.note %></dd>
+    <dd>
+      <%= period.note %>
+    </dd>
   </div>
   <% } %>
 
   <% if (period.editorialNote) { %>
   <div class="field">
     <dt>Editorial notes</dt>
-    <dd><%= period.editorialNote %></dd>
+    <dd>
+      <%= period.editorialNote %>
+    </dd>
   </div>
   <% } %>
 </dl>

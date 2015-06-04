@@ -330,3 +330,55 @@ a#connect-orcid-link:hover {
   padding: 0;
   float: left;
 }
+
+/* FACETS */
+.facet-body {
+  border: 1px solid #ccc;
+  padding: 0 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.facet-result-row td {
+  padding: 5px;
+}
+
+.facet-result-count {
+  color: #999;
+}
+
+// Facet header
+@facetTitleSize: 18px;
+@facetHeaderVerticalPadding: 8px;
+
+.facet-header {
+  padding: @facetHeaderVerticalPadding 1em;
+  background: #fcfcfc;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+.facet-title {
+  font-weight: bold;
+  font-size: @facetTitleSize;
+}
+.facet-menu a {
+  line-height: @facetTitleSize + @facetHeaderVerticalPadding;
+  margin-left: .8em;
+}
+
+// Pagination
+.pages.pagination { margin: 0}
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+// Period display table
+.period-detail-table {
+  table-layout: fixed;
+}
+
+.period-details-row {
+  word-wrap: break-word;
+}

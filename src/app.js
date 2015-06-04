@@ -51,7 +51,7 @@ function handlePageClick(e) {
     , href = e.target.href
     , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
     , interceptClick = isLeftClick && href && href.indexOf(root) === 0
-    , redirect = !e.target.dataset.noRedirect
+    , redirect = !e.target.dataset.noRedirect && href !== root + '/'
 
   if (interceptClick) {
     e.preventDefault();
@@ -72,7 +72,7 @@ function initApp() {
     length: 5,
     width: 2,
     radius: 6,
-    trail: 40 
+    trail: 40
   });
 
   function startSpinner() { spinner.spin(spinnerEl) }
@@ -189,7 +189,7 @@ ApplicationRouter = Backbone.Router.extend({
   },
 
   backendHome: function (backendName) {
-    var IndexView = require('./views/index')
+    var IndexView = require('./views/faceted_browser')
 
     return backends.get(backendName)
       .then(backend => backend.getStore())
