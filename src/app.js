@@ -127,7 +127,7 @@ ApplicationRouter = Backbone.Router.extend({
     'p/:backendName/patches/:patchID/': 'submittedPatchShow',
     'signin/': 'signin',
     'signout/': 'signout',
-    //'reviewPatches/': 'reviewPatches',
+    'reviewPatches/': 'reviewPatches',
     '*anything': 'attemptRedirect'
   },
   _view: null,
@@ -309,31 +309,15 @@ ApplicationRouter = Backbone.Router.extend({
       .catch(err => this.handleError(err))
   },
 
-    /*
-     * WIP
   reviewPatches: function () {
-    var _ = require('underscore')
-      , url = require('url')
+    var url = require('url')
       , ajax = require('./ajax')
       , patchURL = url.resolve(window.location.origin, 'patches')
 
     ajax.getJSON(patchURL, { resolved: false, open: true })
-      .then(([patches]) => {
-        var authors
-
-        authors = _.unique(patches.map(patch => patch.created_by))
-          .map(orcid => $.ajax({
-            url: orcid,
-            headers: { Accept: 'text/turtle' }
-          }))
-
-        Promise.all(authors)
-          .then(authorsTTL => {
-            debugger;
-          });
-      });
+      .then(([patches]) => this.changeView(require('./views/review_patches'), { patches }))
+      .catch(err => this.handleError(err))
   },
-  */
 
   // FIXME: This should not actually switch the backend, but rather check if
   // the thing being linked to actually exists before redirection
