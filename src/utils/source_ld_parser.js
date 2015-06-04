@@ -2,7 +2,7 @@
 
 var _ = require('underscore')
   , N3 = require('n3')
-  , parseTurtle = require('./parse_turtle')
+  , parseRDF = require('./parse_rdf')
   , parseJsonLD = require('./parse_jsonld')
 
 const DEFAULT_PREDICATES = {
@@ -81,7 +81,13 @@ function makeSourceRepr(entity, store) {
 module.exports = function (entity, ttl) {
   if (!ttl) throw new Error('Must pass turtle string to parse.');
 
-  return parseTurtle(ttl).then(function (store) {
-    return makeSourceRepr(entity, store);
-  });
+  return parseRDF(ttl)
+    .then(({ triples, prefixes }) => {
+      var store = N3.Store();
+
+      store.addPrefixes(prefixes);
+      store.addTriples(triples);
+
+      return makeSourceRepr(entity, store);
+    });
 }

@@ -130,7 +130,7 @@ module.exports = Backbone.View.extend({
     } else if (filetype === 'jsonld') {
       Promise.resolve(asJSONLD(this.state.cursor))
         .then(obj => stringify(obj, { space: '  ' }))
-        .then(data => new Blob([data], { type: 'appliaction/json+ld' }))
+        .then(data => new Blob([data], { type: 'application/json+ld' }))
         .then(blob => saveAs(blob, filename))
     }
 
