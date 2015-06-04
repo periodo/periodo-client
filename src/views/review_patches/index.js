@@ -4,20 +4,69 @@ var _ = require('underscore')
   , Backbone = require('backbone')
   , N3 = require('n3')
   , React = require('react')
+  , Immutable = require('immutable')
+  , jsonpatch = require('fast-json-patch')
   , PatchReviewBrowser
   , PatchDetail
   , PatchList
 
 
 PatchDetail = React.createClass({
+  makeDiffRepresentation: function () {
+    var changeListTemplate = require('../../templates/change_list')
+      , fromDataset = this.props.dataset
+      , toDataset = JSON.parse(JSON.stringify(fromDataset))
+
+    jsonpatch.apply(toDataset, this.props.patchText);
+
+    return changeListTemplate(Immutable.fromJS(this.props.patchText), {
+      from: Immutable.fromJS(fromDataset),
+      to: Immutable.fromJS(toDataset)
+    }, true);
+  },
+  handleMerge: function () {
+    var { ajax } = require('../../ajax')
+      , ajaxOpts
+
+    ajaxOpts = {
+      url: this.props.data.url + 'merge',
+      method: 'POST',
+      headers: {}
+    }
+
+    if (localStorage.auth) {
+      ajaxOpts.headers.Authorization = 'Bearer ' + JSON.parse(localStorage.auth).token;
+    }
+
+    ajax(ajaxOpts)
+      .then(() => {
+        alert('merged!');
+      }, err => {
+        console.log(err);
+      });
+  },
   render: function () {
-    var patch = this.props.data;
+    var patch = this.props.data
+      , diffHTML = ''
+      , mergeMessage = (<div className="alert alert-warning">Unable to merge patch</div>)
+
+    if (patch.mergeable) {
+      mergeMessage = (
+        <div className="alert alert-success">
+          <p className="lead">Able to merge patch.</p>
+          <br />
+          <button onClick={this.handleMerge} className="btn btn-primary">Merge</button>
+        </div>
+      )
+      diffHTML = <div dangerouslySetInnerHTML={{ __html: this.makeDiffRepresentation() }} />
+    }
     return (
       <div>
-        <button className="btn btn-default" onClick={this.props.handleClick}>‹ Back to list</button>
+        <button className="btn btn-default" onClick={this.props.onHidePatch}>‹ Back to list</button>
         <h2>Review patch</h2>
         <p>Submitted at {patch.created_at} by {this.props.orcids[patch.created_by]}</p>
-        <p>{patch.mergeable ? 'Able to merge' : 'Not able to merge with current dataset.'}</p>
+        {mergeMessage}
+        {diffHTML}
       </div>
     )
   }
@@ -43,7 +92,7 @@ PatchList = React.createClass({
             </td>
             <td>{patch.created_at}</td>
             <td>
-              <a href="" onClick={this.props.handleClick.bind(null, patch.url, patch.text)}>
+              <a href="" onClick={this.props.onEditPatch.bind(null, patch.url, patch.text)}>
               EDIT
               </a>
             </td>
@@ -64,7 +113,6 @@ PatchReviewBrowser = React.createClass({
         this.setState({
           detail: { data, patchText }
         });
-        console.log(patchDetail, patchText);
       });
   },
   hidePatch: function () {
@@ -77,16 +125,18 @@ PatchReviewBrowser = React.createClass({
     if (this.state.detail) {
       return (
         <PatchDetail
+          dataset={this.props.dataset}
           orcids={this.props.orcids}
           data={this.state.detail.data}
-          handleClick={this.hidePatch.bind(this)} />
+          patchText={this.state.detail.patchText}
+          onHidePatch={this.hidePatch} />
       )
     } else {
       return (
         <PatchList
-          data={this.props.data}
+          data={this.props.patches}
           orcids={this.props.orcids}
-          handleClick={this.showPatch.bind(this)} />
+          onEditPatch={this.showPatch} />
       )
     }
   }
@@ -95,11 +145,17 @@ PatchReviewBrowser = React.createClass({
 module.exports = Backbone.View.extend({
   initialize: function ({ patches }) {
     this.patches = patches;
-    this.fetchOrcids()
-      .then(orcids => {
+    Promise.all([this.fetchOrcids(), this.fetchDataset()])
+      .then(([orcids, dataset]) => {
         this.orcids = orcids;
+        this.dataset = dataset;
         this.render();
       });
+  },
+  fetchDataset: function () {
+    var { getJSON } = require('../../ajax');
+    return getJSON(window.location.origin + '/d/')
+      .then(([data]) => data);
   },
   fetchOrcids: function () {
     var ld = require('../../linked_data_cache')
@@ -137,7 +193,10 @@ module.exports = Backbone.View.extend({
   render: function () {
     this.tableContainer = document.createElement('div');
     this.el.appendChild(this.tableContainer);
-    React.render(<PatchReviewBrowser data={this.patches} orcids={this.orcids} />, this.tableContainer);
+    React.render(<PatchReviewBrowser
+      dataset={this.dataset}
+      patches={this.patches}
+      orcids={this.orcids} />, this.tableContainer);
   }
 });
 
