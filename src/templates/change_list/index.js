@@ -7,7 +7,8 @@ function stripInputs(html) {
     , toRemove = ['td:first-child', '.select-patch-header']
 
   div.innerHTML = html;
-  [...div.querySelectorAll(toRemove.join(', '))].forEach(el => el.remove());
+  [...div.querySelectorAll(toRemove.join(', '))]
+    .forEach(el => el.parentNode.removeChild(el));
 
   return div.innerHTML;
 }
