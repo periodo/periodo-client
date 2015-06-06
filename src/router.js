@@ -58,7 +58,9 @@ module.exports = React.createClass({
       )
 
       if (changeBackend) {
-        promise = promise.then(() => getBackendAndStore(params.backendName))
+        promise = promise
+          .then(() => getBackendAndStore(params.backendName))
+          .then(data => ((localStorage.currentBackend = params.backendName), data));
       } else {
         promise = promise.then(() => ({
           backend: this.state.backend,

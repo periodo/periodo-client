@@ -3,14 +3,18 @@ var RouteRecognizer = require('route-recognizer')
   , routes
 
 routes = {
-  'p/': {
+  '/': {
+    name: 'home',
+    Component: require('./components/home.jsx')
+  },
+  '/p/': {
     name: 'backend-select',
     Component: require('./components/backend_select.jsx'),
     fetchData: function () {
       return require('./backends').list().then(backends => ({ backends }))
     }
   },
-  'p/:backendName/': {
+  '/p/:backendName/': {
     name: 'backend-home',
     Component: require('./components/backend_home.jsx')
   },
