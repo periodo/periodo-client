@@ -32,31 +32,28 @@ function Backend(opts) {
 Backend.prototype = {
   get editable() { return !!this.saveData },
   saveStore: function (newData) {
-    var app = require('./app')
-
     if (!this.saveData) {
       throw new Error(`Cannot save data for backend type ${this.type}`);
     }
 
     if (newData.equals(this._data)) return Promise.resolve(this._data);
 
-    app.trigger('request');
+    window.periodo.emit('request');
     return this.saveData(newData)
       .then(saved => {
-        app.trigger('requestEnd');
+        window.periodo.emit('requestEnd');
         return (this._data = saved instanceof Immutable.Iterable ? saved : Immutable.fromJS(saved));
       })
-      .catch(require('./app').handleError)
+      .catch(window.periodo.handleError)
   },
   getStore: function () {
-    var app = require('./app')
-      , promise
+    var promise
 
     if (!this.fetchData) {
       throw new Error(`Cannot fetch data for backend type ${this.type}`);
     }
 
-    app.trigger('request');
+    window.periodo.emit('request');
 
     if (!this._data) {
       promise = this.fetchData().then(fetched => {
@@ -68,10 +65,10 @@ Backend.prototype = {
       promise = Promise.resolve(this._data);
     }
 
-    promise.then(() => app.trigger('requestEnd'));
+    promise.then(() => window.periodo.emit('requestEnd'));
     promise.then(() => setCurrentBackend(this));
 
-    promise = promise.catch(app.handleError);
+    promise = promise.catch(window.periodo.handleError);
 
     return promise;
   }
@@ -234,7 +231,7 @@ function getBackend(name) {
 
 function setCurrentBackend(backend) {
   if (current !== backend) {
-    require('./app').trigger('backendSwitch', backend);
+    //require('./app').trigger('backendSwitch', backend);
     current = backend;
     localStorage.currentBackend = backend.name;
   }

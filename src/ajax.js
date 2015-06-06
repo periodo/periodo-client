@@ -5,13 +5,12 @@ var $ = require('jquery')
 module.exports = {
   ajax: function () {
     var args = arguments
-      , app = require('./app')
 
     return new Promise(function (resolve, reject) {
-      var end = app.trigger.bind(app, 'requestEnd')
+      var end = window.periodo.emit.bind(window.periodo, 'requestEnd')
         , promise
 
-      app.trigger('request');
+      window.periodo.emit('request');
 
       promise = $.ajax.apply($, args);
 
@@ -24,13 +23,12 @@ module.exports = {
   },
   getJSON: function () {
     var args = arguments
-      , app = require('./app')
 
     return new Promise(function (resolve, reject) {
-      var end = app.trigger.bind(app, 'requestEnd')
+      var end = window.periodo.emit.bind(window.periodo, 'requestEnd')
         , promise
 
-      app.trigger('request');
+      window.periodo.emit('request');
 
       promise = $.getJSON.apply($, args);
 

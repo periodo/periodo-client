@@ -7,18 +7,18 @@ html, body {
   height: 100%;
 }
 
-#wrapper {
+.content-wrapper {
   min-height: 100%;
   height: auto !important;
   margin: 0 auto -@footerHeight ;
   padding-bottom: 1.25em;
 }
 
-#footer, .push {
+.content-footer, .push {
   height: @footerHeight;
 }
 
-#footer {
+.content-footer {
   background: @navBackground;
   border-top: 1px solid #ccc;
 }
@@ -132,17 +132,14 @@ dl.source {
   background: none;
 }
 
-#nav {
+.navbar {
   background: @navBackground;
   border-bottom: 1px solid #ccc;
   border-radius: 0;
+}
 
-  //.container { position: relative; }
-  #spinner {
-    //position: absolute;
-    //right: 20px;
-    //top: 50%;
-  }
+.navbar-header > div, .navbar-header > ul {
+  display: inline-block;
 }
 
 ul.actions-list {
