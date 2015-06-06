@@ -11,6 +11,32 @@ function getBackendAndStore(backendName) {
     .then(store => ({ backend, store }))
 }
 
+const LEFT_CLICK = 1;
+
+function handlePageClick(e, locationBar) {
+  var anchor = e.target
+    , root = location.protocol + '//' + location.host
+
+  do {
+    if (!anchor || anchor.nodeName === 'A') break;
+  } while ((anchor = anchor.parentNode));
+
+  if (anchor) {
+    let url = require('url')
+      , href = anchor.href
+      , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
+      , interceptClick = isLeftClick && href && href.indexOf(root) === 0
+      , redirect = !anchor.dataset.noRedirect && href !== root + '/'
+
+    if (interceptClick) {
+      e.preventDefault();
+      if (redirect) {
+        locationBar.update(url.parse(href).hash, { trigger: true });
+      }
+    }
+  }
+}
+
 module.exports = React.createClass({
   getInitialState: function () {
     return {
@@ -74,8 +100,12 @@ module.exports = React.createClass({
       if (match) {
         this.handleRoute(match[0].handler, match[0].params);
       } else {
-        this.setState({ component: <h2>Page not found</h2> });
+        this.setState({ Component: require('./components/not_found.jsx') });
       }
+    });
+
+    document.addEventListener('click', e => {
+      handlePageClick(e, locationBar);
     });
 
     window.periodo.on('request', () => {
