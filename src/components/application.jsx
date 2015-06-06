@@ -19,19 +19,19 @@ module.exports = React.createClass({
       <div />;
 
     return (
-      <div className="content-wrapper">
+      <div className="outer">
+        <div className="content-wrapper">
 
-        <Header
-          backend={this.props.backend}
-          store={this.props.store}
-          loading={this.props.loading} />
+          <Header
+            backend={this.props.backend}
+            store={this.props.store}
+            loading={this.props.loading} />
 
-        <div className="container">{activeComponent}</div>
+          <div className="container">{activeComponent}</div>
 
-        <div className="push" />
-
+          <div className="push" />
+        </div>
         <Footer errors={this.props.errors} />
-
       </div>
     )
   }
