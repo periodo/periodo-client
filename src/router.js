@@ -41,9 +41,10 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       Component: null,
-      router: null,
       backend: null,
       store: null,
+      locationBar: null,
+      router: null,
       errors: Immutable.List()
     }
   },
@@ -77,7 +78,6 @@ module.exports = React.createClass({
     promise.then(props => {
       this.setState({
         Component,
-        router: props.router || null,
         backend: props.backend || null,
         store: props.store || null,
         data: props.data || {}
@@ -120,6 +120,8 @@ module.exports = React.createClass({
     window.periodo.handleError = this.handleError;
 
     locationBar.start();
+
+    this.setState({ locationBar, router });
   },
   render: function () {
     var Application = require('./components/application.jsx');

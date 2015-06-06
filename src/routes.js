@@ -54,7 +54,7 @@ routes = {
 }
 
 Object.keys(routes).forEach(path => {
-  router.add([{ path, handler: routes[path] }], { as: routes[path.name] });
+  router.add([{ path, handler: routes[path] }], { as: routes[path].name });
 });
 
 module.exports = router;
