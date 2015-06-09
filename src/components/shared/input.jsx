@@ -9,7 +9,7 @@ module.exports = React.createClass({
     label: React.PropTypes.string.isRequired,
     value: React.PropTypes.string,
     disabled: React.PropTypes.bool,
-    handleChange: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired
   },
 
   render: function () {
@@ -23,7 +23,7 @@ module.exports = React.createClass({
             name={this.props.name}
             value={this.props.value}
             disabled={this.props.disabled}
-            onChange={this.props.handleChange} />
+            onChange={this.props.onChange} />
       </div>
     )
   }

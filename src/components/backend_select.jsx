@@ -43,7 +43,7 @@ BackendForm = React.createClass({
           name="url"
           label="Source"
           value={this.state.source}
-          handleChange={this.handleChange} />
+          onChange={this.handleChange} />
     )
 
     return (
@@ -70,7 +70,7 @@ BackendForm = React.createClass({
                 name="name"
                 label="Name"
                 value={this.state.name}
-                handleChange={this.handleChange} />
+                onChange={this.handleChange} />
             {webSource}
           </div>
 
