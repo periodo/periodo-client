@@ -24,8 +24,8 @@ module.exports = React.createClass({
 
           <Header
             backend={this.props.backend}
-            store={this.props.store}
-            loading={this.props.loading} />
+            loading={this.props.loading}
+            router={this.props.router} />
 
           <div className="container">{activeComponent}</div>
 

@@ -58,17 +58,43 @@ Auth = React.createClass({
 });
 
 ActionsMenu = React.createClass({
+  getMenuItems: function () {
+    return (
+      <ul className="dropdown-menu dropdown-menu-right">
+        {this.props.backend ? this.getBackendMenuItems() : ''}
+        <li><a href={this.props.router.generate('backend-select')}>Switch backends</a></li>
+      </ul>
+    )
+  },
+  getEditableMenuItems: function (){
+    return (
+      <li>
+        <a href={this.props.router.generate('period-collection-add', {
+          backendName: this.props.backend.name
+        })}>Add period collection</a>
+      </li>
+    )
+  },
+  getBackendMenuItems: function () {
+    var additionItems = (this.props.backend && this.props.backend.editable) ?
+      this.getEditableMenuItems() : ''
+    return [
+      <li className="dropdown-header">
+        Current backend:
+        <br/>
+        <strong>{this.props.backend.name} {this.props.backend.editable ? '' : '(read-only)'}</strong>
+      </li>,
+      {additionItems},
+      <li className="divider" />
+    ]
+  },
   render: function () {
     return (
       <div className="btn-group">
         <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
           Menu <span className="caret"></span>
         </button>
-        <ul className="dropdown-menu">
-          <li><a href="">fixme</a></li>
-          <li><a href="">fixme</a></li>
-          <li><a href="">fixme</a></li>
-        </ul>
+        {this.props.router ? this.getMenuItems() : ''}
       </div>
     )
   }
@@ -96,7 +122,7 @@ module.exports = React.createClass({
           </div>
           <div className="navbar-header pull-right">
             <Auth user={this.props.user} />
-            <ActionsMenu />
+            <ActionsMenu backend={this.props.backend} router={this.props.router} />
           </div>
         </div>
       </div>
