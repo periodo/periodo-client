@@ -61,4 +61,15 @@ Object.keys(routes).forEach(path => {
   router.add([{ path, handler: routes[path] }], { as: routes[path].name });
 });
 
+router.generate = function () {
+  var result = RouteRecognizer.prototype.generate.apply(router, arguments);
+  if (result) {
+    result = '#' + result;
+    if (result.slice(-1) !== '/') {
+      result += '/';
+    }
+  }
+  return result;
+}
+
 module.exports = router;
