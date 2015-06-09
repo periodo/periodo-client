@@ -6,8 +6,6 @@ var React = require('react')
   , SpinIcon
   , ActionsMenu
 
-require('jquery-bootstrap');
-
 SpinIcon = React.createClass({
   getDefaultProps: function () {
     return { spin: false }
@@ -58,9 +56,14 @@ Auth = React.createClass({
 });
 
 ActionsMenu = React.createClass({
+  getInitialState: function (){
+    return { open: false }
+  },
   getMenuItems: function () {
+    var style = { display: this.state.open ? 'block' : 'none' }
+
     return (
-      <ul className="dropdown-menu dropdown-menu-right">
+      <ul style={style} className="dropdown-menu dropdown-menu-right">
         {this.props.backend ? this.getBackendMenuItems() : ''}
         <li><a href={this.props.router.generate('backend-select')}>Switch backends</a></li>
       </ul>
@@ -88,10 +91,33 @@ ActionsMenu = React.createClass({
       <li className="divider" />
     ]
   },
+  open: function () {
+    this.setState({ open: true });
+    document.addEventListener('click', this.close);
+  },
+  close: function () {
+    this.setState({ open: false });
+    document.removeEventListener('click', this.close);
+  },
+  handleClick: function () {
+    if (this.state.open) {
+      this.close();
+    } else {
+      this.open()
+    }
+  },
+  componentDidUpdate: function () {
+    if (this.state.open) {
+      let container = React.findDOMNode(this);
+    }
+  },
   render: function () {
     return (
-      <div className="btn-group">
-        <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <div className={'btn-group dropdown' + (this.state.open ? ' open' : '')}>
+        <button
+            className="btn btn-default"
+            onBlur={this.handleBlur}
+            onClick={this.handleClick}>
           Menu <span className="caret"></span>
         </button>
         {this.props.router ? this.getMenuItems() : ''}
