@@ -25,7 +25,8 @@ module.exports = React.createClass({
           <Header
             backend={this.props.backend}
             loading={this.props.loading}
-            router={this.props.router} />
+            router={this.props.router}
+            user={this.props.user} />
 
           <div className="container">{activeComponent}</div>
 

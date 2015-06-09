@@ -39,12 +39,14 @@ function handlePageClick(e, locationBar) {
 
 module.exports = React.createClass({
   getInitialState: function () {
+    var user = 'auth' in localStorage ? JSON.parse(localStorage.auth) : null;
     return {
       Component: null,
       backend: null,
       store: null,
       locationBar: null,
       router: null,
+      user,
       errors: Immutable.List()
     }
   },
@@ -116,6 +118,14 @@ module.exports = React.createClass({
 
     window.periodo.on('requestEnd', () => {
       this.setState({ loading: false });
+    });
+
+    window.periodo.on('signin', (user) => {
+      this.setState({ user });
+    });
+
+    window.periodo.on('signout', () => {
+      this.setState({ user: null });
     });
 
     // FIXME: listen for uncaught errors

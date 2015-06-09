@@ -44,7 +44,7 @@ Auth = React.createClass({
   },
   render: function () {
     var html = this.props.user ?
-      (<span>Signed in as {this.props.user} <a href="signout/">Sign out</a></span>) :
+      (<span>Signed in as {this.props.user.name} <a href="#signout/">Sign out</a></span>) :
       (<a href="#signin/"> Sign in </a>)
 
     return (

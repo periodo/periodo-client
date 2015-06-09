@@ -22,6 +22,12 @@ routes = {
     name: 'period-collection-add',
     Component: require('./components/period_collection_add.jsx')
   },
+  'signin/': {
+    Component: require('./components/signin.jsx')
+  },
+  'signout/': {
+    Component: require('./components/signout.jsx')
+  },
     /*
   'p/:backendName/periodCollections/': {
     Component: require('./components/period_collection_list.jsx')
@@ -43,12 +49,6 @@ routes = {
   },
   'p/:backendName/patches/:patchID/': {
     Component: require('./components/patch_show.jsx')
-  },
-  'signin/': {
-    Component: require('./components/signin.jsx')
-  },
-  'signout/': {
-    Component: require('./components/signout.jsx')
   },
   'reviewPatches/': {
     Component: require('./components/review_patches.jsx')
