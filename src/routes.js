@@ -18,12 +18,13 @@ routes = {
     name: 'backend-home',
     Component: require('./components/backend_home.jsx')
   },
+  'p/:backendName/periodCollections/add/': {
+    name: 'period-collection-add',
+    Component: require('./components/period_collection_add.jsx')
+  },
     /*
   'p/:backendName/periodCollections/': {
     Component: require('./components/period_collection_list.jsx')
-  },
-  'p/:backendName/periodCollections/add/': {
-    Component: require('./components/period_collection_add.jsx')
   },
   'p/:backendName/periodCollections/:collectionID/': {
     Component: require('./components/period_collection_show.jsx')
