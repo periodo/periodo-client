@@ -10,7 +10,7 @@ routes = {
   '/p/': {
     name: 'backend-select',
     Component: require('./components/backend_select.jsx'),
-    fetchData: function () {
+    getData: function () {
       return require('./backends').list().then(backends => ({ backends }))
     }
   },

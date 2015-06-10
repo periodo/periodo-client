@@ -50,7 +50,7 @@ module.exports = React.createClass({
       errors: Immutable.List()
     }
   },
-  handleRoute: function ({ Component, fetchData }, params) {
+  handleRoute: function ({ Component, getData }, params) {
     var promise = Promise.resolve({})
 
     if (params.hasOwnProperty('backendName')) {
@@ -71,12 +71,12 @@ module.exports = React.createClass({
       }
     }
 
-    if (fetchData) {
-      promise = Promise.all([promise, fetchData()])
-        .then(([props, fetchedData]) => {
-          props.data = fetchedData;
-          return props;
-        });
+    if (getData) {
+      let props;
+      promise = promise
+        .then(_props => props = _props)
+        .then(() => getData(props.store, params))
+        .then(data => ((props.data = data), props))
     }
 
     promise.then(props => {
