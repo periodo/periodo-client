@@ -15,7 +15,7 @@ module.exports = React.createClass({
       .forEach(key => componentProps[key] = this.props[key])
 
     activeComponent = ActiveComponent ?
-      <ActiveComponent {...componentProps} {...this.props.data}/> :
+      <ActiveComponent {...componentProps} {...this.props.data} /> :
       <div />;
 
     return (

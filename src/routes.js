@@ -22,6 +22,13 @@ routes = {
     name: 'period-collection-add',
     Component: require('./components/period_collection_add.jsx')
   },
+  'p/:backendName/periodCollections/:collectionID/': {
+    name: 'period-collection-show',
+    getData: function (store, { collectionID }) {
+      return { collection: store.getIn(['periodCollections', collectionID]) }
+    },
+    Component: require('./components/period_collection_show.jsx')
+  },
   'signin/': {
     Component: require('./components/signin.jsx')
   },
@@ -31,9 +38,6 @@ routes = {
     /*
   'p/:backendName/periodCollections/': {
     Component: require('./components/period_collection_list.jsx')
-  },
-  'p/:backendName/periodCollections/:collectionID/': {
-    Component: require('./components/period_collection_show.jsx')
   },
   'p/:backendName/periodCollections/:collectionID/edit/': {
     Component: require('./components/period_collection_edit.jsx')

@@ -2,9 +2,8 @@
 
 var React = require('react')
   , Paginate = require('react-paginate')
-  , linkify = require('linkify-it')()
   , { getDisplayTitle } = require('../../helpers/source')
-  , PeriodDetailsRow
+  , PeriodDetails
   , PeriodRow
 
 PeriodRow = React.createClass({
@@ -19,47 +18,37 @@ PeriodRow = React.createClass({
   }
 });
 
-function makePeriodDetail(period) {
-  var template = require('../../templates/period.html')
-    , html = template({ period: period.toJSON() })
-    , links = linkify.match(html) || []
-
-  links.reverse().forEach(match => {
-    let minusOne = ',;.'.indexOf(match.url.slice(-1)) !== -1
-      , url = minusOne ? match.url.slice(0, -1) : match.url
-      , lastIndex = minusOne ? match.lastIndex - 1 : match.lastIndex
-
-    html = (
-      html.slice(0, match.index) +
-      `<a target="_blank" href=${url}>${url}</a>` +
-      html.slice(lastIndex)
-    )
-  });
-
-  return html
-}
-
-PeriodDetailsRow = React.createClass({
+PeriodDetails = React.createClass({
   render: function () {
-    var html = { __html: makePeriodDetail(this.props.data) }
+    var Period = require('../../components/shared/period.jsx')
       , linkBase = this.props.dataset.getIn(['@context', '@base'])
-      , collectionID = this.props.data.get('collection_id')
+      , collectionID = this.props.period.get('collection_id')
       , collectionURL = `#${this.props.backend.path}periodCollections/${collectionID}/`
       , source
+      , sourceHTML
       , addPermalink
       , permalink
 
-    source = getDisplayTitle(this.props.dataset.getIn([
+    // Only show source if it was included in the list of periods
+    source = collectionID && getDisplayTitle(this.props.dataset.getIn([
       'periodCollections', collectionID, 'source'
     ]));
 
+    sourceHTML = !source ? '' : (
+      <div>
+        <span>
+        In collection: <a href={collectionURL}>{source}</a>
+        </span>
+      </div>
+    )
+
     addPermalink = (
       linkBase &&
-      this.props.data.get('id').indexOf('.well-known/genid') !== 0
+      this.props.period.get('id').indexOf('.well-known/genid') !== 0
     )
 
     if (addPermalink) {
-      let url = linkBase + this.props.data.get('id');
+      let url = linkBase + this.props.period.get('id');
       permalink = (
         <div>
           <span>
@@ -70,19 +59,13 @@ PeriodDetailsRow = React.createClass({
     }
 
     return (
-      <tr onClick={this.props.handleClick} className="period-details-row">
-        <td colSpan={3}>
-          <h4>{this.props.data.get('label')}</h4>
-          {permalink}
-          <div>
-            <span>
-            In collection: <a href={collectionURL}>{source}</a>
-            </span>
-          </div>
-          <br />
-          <div dangerouslySetInnerHTML={html} />
-        </td>
-      </tr>
+      <div>
+        <h4>{this.props.period.get('label')}</h4>
+        {permalink}
+        {sourceHTML}
+        <br />
+        <Period period={this.props.period} />
+      </div>
     )
   }
 });
@@ -90,6 +73,9 @@ PeriodDetailsRow = React.createClass({
 module.exports = React.createClass({
   getInitialState: function () {
     return { limit: 20, start: 0, page: 0, viewingDetails: [] }
+  },
+  getDefaultProps: function () {
+    return { PeriodDetails: PeriodDetails }
   },
   componentWillReceiveProps: function () {
     this.setState({ start: 0, page: 0, viewingDetails: []});
@@ -154,12 +140,18 @@ module.exports = React.createClass({
             data={period}
             handleClick={this.showPeriodRow.bind(this, period)} />;
         } else {
-          return <PeriodDetailsRow
-            key={period.get('id')}
-            data={period}
-            dataset={this.props.dataset}
-            backend={this.props.backend}
-            handleClick={this.hidePeriodRow.bind(this, period)} />;
+          return (
+            <tr key={period.get('id')}
+                className="period-details-row"
+                onClick={this.hidePeriodRow.bind(this, period)}>
+              <td colSpan={3}>
+                <this.props.PeriodDetails
+                    period={period}
+                    backend={this.props.backend}
+                    dataset={this.props.dataset} />
+              </td>
+            </tr>
+          )
         }
       });
 
