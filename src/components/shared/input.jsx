@@ -4,11 +4,12 @@ var React = require('react')
 
 module.exports = React.createClass({
   propTypes: {
-    name: React.PropTypes.string.isRequired,
     id: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string.isRequired,
     value: React.PropTypes.string,
     disabled: React.PropTypes.bool,
+    placeholder: React.PropTypes.string,
     onChange: React.PropTypes.func.isRequired
   },
 
@@ -22,6 +23,7 @@ module.exports = React.createClass({
             id={this.props.id}
             name={this.props.name}
             value={this.props.value}
+            placeholder={this.props.placeholder}
             disabled={this.props.disabled}
             onChange={this.props.onChange} />
       </div>

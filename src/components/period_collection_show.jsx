@@ -6,9 +6,10 @@ var React = require('react')
 
 PeriodEditModal = React.createClass({
   render: function () {
+    var PeriodForm = require('./period_form.jsx')
     return (
       <div className="modal" style={{ display: 'block' }} >
-        <div className="modal-dialog">
+        <div className="modal-dialog" style={{ width: '1000px' }}>
           <div className="modal-content">
             <div className="modal-header">
               <button type="button" className="close" onClick={this.props.hide}><span>×</span></button>
@@ -16,7 +17,7 @@ PeriodEditModal = React.createClass({
             </div>
 
             <div className="modal-body">
-              <p>This is the modal.</p>
+              <PeriodForm period={this.props.period} />
             </div>
 
             <div className="modal-footer">
@@ -55,7 +56,10 @@ PeriodDetails = React.createClass({
     document.body.appendChild(modalContainer);
     document.addEventListener('click', this.handleHide, false);
 
-    modal = React.createElement(PeriodEditModal, { hide: this.hideModal });
+    modal = React.createElement(PeriodEditModal, {
+      hide: this.hideModal,
+      period: this.props.period
+    });
     modal = React.render(modal, modalEl);
     this.setState({ modal, modalContainer });
   },
