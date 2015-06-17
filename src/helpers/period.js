@@ -12,7 +12,7 @@ function getOriginalLabel(period) {
 }
 
 function getAlternateLabels(period) {
-  return period.get('alternateLabel')
+  return period.get('alternateLabel', Immutable.List())
     .map((labels, isoCodes) => {
       var [language, script] = isoCodes.split('-');
       return labels.map(value => Immutable.Map({ value, language, script }))

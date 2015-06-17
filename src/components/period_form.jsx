@@ -108,7 +108,7 @@ TerminusInput = React.createClass({
 var LanguageSelectDropdown = React.createClass({
   displayName: 'LanguageSelectDropdown',
   handleSelect: function (language) {
-    console.log(language);
+    this.props.onChange(language);
   },
   getMatchingLanguages: function (text) {
     var languages = require('../utils/languages')
@@ -139,7 +139,7 @@ var LanguageSelectDropdown = React.createClass({
 var ScriptSelectDropdown = React.createClass({
   displayName: 'ScriptSelectDropdown',
   handleSelect: function (script) {
-    console.log(script);
+    this.props.onChange(script);
   },
   getMatchingScripts: function (text) {
     var scripts = require('../utils/scripts');
@@ -149,7 +149,6 @@ var ScriptSelectDropdown = React.createClass({
         .filter(script => matchingSet.subtract(Immutable.Set(script.get('name'))).size === 0)
     }
 
-    console.table(scripts.take(10).toJS());
     return scripts.take(10);
   },
   render: function () {
@@ -164,8 +163,13 @@ var ScriptSelectDropdown = React.createClass({
 });
 
 LabelInput = React.createClass({
-  getDefaultProps: function () {
-    return { language: 'eng', script: 'latn' }
+  handleSelect: function (field, value) {
+    var newLabel = this.props.label.set(field, value.get('code').toLowerCase());
+    this.props.onChange(newLabel);
+  },
+  handleChange: function (field, e) {
+    var newLabel = this.props.label.set(field, e.target.value);
+    this.props.onChange(newLabel);
   },
   render: function () {
     return (
@@ -173,19 +177,32 @@ LabelInput = React.createClass({
         <div className="input-group">
 
           <div className="input-group-btn">
-            <LanguageSelectDropdown language={this.props.label.get('language')} />
-            <ScriptSelectDropdown script={this.props.label.get('script')} />
+            <LanguageSelectDropdown
+                onChange={this.handleSelect.bind(null, 'language')}
+                language={this.props.label.get('language')} />
+            <ScriptSelectDropdown
+                onChange={this.handleSelect.bind(null, 'script')}
+                script={this.props.label.get('script')} />
           </div>
 
           <input
               className="form-control"
               id={this.props.id}
               value={this.props.label.get('value')}
+              onChange={this.handleChange.bind(null, 'value')}
               type="text" />
-          {this.props.handleAddLabel ?
-            (<span className="input-group-addon btn"><strong>+</strong></span>) : null}
-          {this.props.handleRemoveLabel ?
-            (<span className="input-group-addon btn"><strong>-</strong></span>) : null}
+          {
+            !this.props.handleAddLabel ? null :
+              <span className="input-group-addon btn" onClick={this.props.handleAddLabel}>
+                <strong>+</strong>
+              </span>
+          }
+          {
+            !this.props.handleRemoveLabel ? null :
+              <span className="input-group-addon btn" onClick={this.props.handleRemoveLabel}>
+                <strong>-</strong>
+              </span>
+          }
         </div>
       </div>
     )
@@ -195,10 +212,22 @@ LabelInput = React.createClass({
 module.exports = React.createClass({
   getInitialState: function () {
     var { wasAutoparsed } = require('../helpers/terminus')
+      , { getAlternateLabels } = require('../helpers/period.js')
+      , alternateLabels
+
+    alternateLabels = getAlternateLabels(this.props.period);
+    if (!alternateLabels.size) {
+      alternateLabels = Immutable.List.of(Immutable.Map({
+        value: '',
+        language: 'eng',
+        script: 'latn'
+      }));
+    }
 
     return {
       parseDates: true,
-      period: this.props.period
+      period: this.props.period,
+      alternateLabels
     }
   },
   toggleAutoparse: function () {
@@ -207,18 +236,38 @@ module.exports = React.createClass({
   handleChange: function (e) {
     console.log(e);
   },
+  handleAlternateLabelChange: function (idx, label) {
+    var prevAltLabels = this.state.alternateLabels;
+    this.setState({ alternateLabels: prevAltLabels.set(idx, label) });
+  },
+  addAlternateLabel: function (i) {
+    var prevAltLabels = this.state.alternateLabels
+      , after = prevAltLabels.get(i)
+
+    if (!after.get('value')) {
+      return
+    } else {
+      this.setState({
+        alternateLabels: prevAltLabels.splice(i + 1, 0, after.set('value', ''))
+      })
+    }
+  },
+  removeAlternateLabel: function (i) {
+    var prevAltLabels = this.state.alternateLabels
+
+    if (prevAltLabels.size === 1) {
+      this.setState({
+        alternateLabels: prevAltLabels.setIn([0, 'value'], '')
+      });
+    } else {
+      this.setState({
+        alternateLabels: prevAltLabels.splice(i, 1)
+      });
+    }
+  },
   render: function () {
     var Input = require('./shared/input.jsx')
-      , { getOriginalLabel, getAlternateLabels } = require('../helpers/period.js')
-      , alternateLabels = getAlternateLabels(this.props.period)
-
-    if (!alternateLabels.size) {
-      alternateLabels = Immutable.List(Immutable.Map({
-        value: '',
-        language: 'eng',
-        script: 'latn'
-      }));
-    }
+      , { getOriginalLabel } = require('../helpers/period.js')
 
     return (
       <div className="period-form-body">
@@ -227,15 +276,18 @@ module.exports = React.createClass({
             <label className="field-required-label" htmlFor="js-label">Label</label>
             <LabelInput
                 id="js-label"
-                label={getOriginalLabel(this.props.period)} />
+                label={getOriginalLabel(this.props.period)}
+                onChange={this.handleChange} />
 
             <label htmlFor="js-label">Alternate labels</label>
             {
-              alternateLabels.map(label =>
+              this.state.alternateLabels.map((label, i) =>
                 <LabelInput id="js-label"
+                    key={i}
                     label={label}
-                    handleAddLabel={() => null}
-                    handleRemoveLabel={() => null}/>
+                    onChange={this.handleAlternateLabelChange.bind(null, i)}
+                    handleAddLabel={this.addAlternateLabel.bind(null, i)}
+                    handleRemoveLabel={this.removeAlternateLabel.bind(null, i)} />
               )
             }
           </div>
