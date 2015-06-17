@@ -37,6 +37,9 @@ module.exports = React.createClass({
     // TODO: should be a read/write cursor, not just the period itself
     this.setState({ editingPeriod: period });
   },
+  handleSave: function () {
+    var period = this.refs.editForm.getPeriodValue()
+  },
   renderShownPeriod: function (period) {
     return (
       <PeriodDetails
@@ -44,9 +47,6 @@ module.exports = React.createClass({
           showEditButton={!this.state.editingPeriod}
           onPeriodEdit={this.handlePeriodEdit} />
     )
-  },
-  handleChange: function (value) {
-    console.log(value);
   },
   render: function () {
     var PeriodList = require('../views/faceted_browser/period_list.jsx')
@@ -62,11 +62,13 @@ module.exports = React.createClass({
               <div className="period-form-header">
               DOIN SOMETHIN
               </div>
-              <PeriodForm
-                period={this.state.editingPeriod}
-                onChange={this.handleChange} />
+              <PeriodForm period={this.state.editingPeriod} ref="editForm" />
               <div className="period-form-footer">
-              MAKE SOME ACTIONS
+                <button
+                    className="btn btn-primary"
+                    onClick={this.handleSave}>
+                  Save
+                </button>
               </div>
             </div>
         }

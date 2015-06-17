@@ -265,15 +265,10 @@ module.exports = React.createClass({
   toggleAutoparse: function () {
     this.setState(prev => ({ parseDates: !prev.parseDates }));
   },
-  afterUpdate: function () {
-    this.props.onChange(this.getPeriodValue());
-  },
   handleChange: function (field, e) {
     var value = e.target.value;
     if (!Array.isArray(field)) field = [field];
-    this.setState(
-      prev => ({ period: prev.period.setIn(field, value) }),
-      this.afterUpdate);
+    this.setState(prev => ({ period: prev.period.setIn(field, value) }));
   },
   handleLabelChange: function (label) {
     this.setState(prev => {
@@ -286,11 +281,11 @@ module.exports = React.createClass({
         }))
 
       return { period }
-    }, this.afterUpdate);
+    });
   },
   handleAlternateLabelChange: function (idx, label) {
     var prevAltLabels = this.state.alternateLabels;
-    this.setState({ alternateLabels: prevAltLabels.set(idx, label) }, this.afterUpdate);
+    this.setState({ alternateLabels: prevAltLabels.set(idx, label) });
   },
   addAlternateLabel: function (i) {
     if (!this.state.alternateLabels.getIn([i, 'value'])) {
@@ -312,11 +307,11 @@ module.exports = React.createClass({
     if (prevAltLabels.size === 1) {
       this.setState({
         alternateLabels: prevAltLabels.setIn([0, 'value'], '')
-      }, this.afterUpdate);
+      });
     } else {
       this.setState({
         alternateLabels: prevAltLabels.splice(i, 1)
-      }, this.afterUpdate);
+      });
     }
   },
   render: function () {
