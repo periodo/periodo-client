@@ -245,12 +245,14 @@ module.exports = React.createClass({
                 name="locator"
                 label="Locator"
                 placeholder="Position within the source (e.g. page 75)"
+                value={this.state.period.getIn(['source', 'locator'])}
                 onChange={this.handleChange} />
             <Input
                 id="js-same-as"
                 name="sameAs"
                 label="Same as"
                 placeholder="URL for this period in an external linked dataset"
+                value={this.state.period.get('sameAs')}
                 onChange={this.handleChange} />
           </div>
         </div>
