@@ -47,6 +47,7 @@ TerminusInput = React.createClass({
               id={`js-${this.props.terminusType}Date`}
               name="label"
               label="Label"
+              value={this.state.terminus.get('label')}
               onChange={this.props.autoparse ? this.handleChangeLabel : this.handleChange} />
         </div>
 
@@ -126,7 +127,12 @@ LabelInput = React.createClass({
 
 module.exports = React.createClass({
   getInitialState: function () {
-    return { parseDates: true }
+    var { wasAutoparsed } = require('../helpers/terminus')
+
+    return {
+      parseDates: true,
+      period: this.props.period
+    }
   },
   toggleAutoparse: function () {
     this.setState(prev => ({ parseDates: !prev.parseDates }));
@@ -136,16 +142,35 @@ module.exports = React.createClass({
   },
   render: function () {
     var Input = require('./shared/input.jsx')
+      , { getOriginalLabel, getAlternateLabels } = require('../helpers/period.js')
+      , alternateLabels = getAlternateLabels(this.props.period)
+
+    if (!alternateLabels.size) {
+      alternateLabels = Immutable.List(Immutable.Map({
+        value: '',
+        language: 'eng',
+        script: 'latn'
+      }));
+    }
 
     return (
       <div className="period-form-body">
         <div className="row">
           <div className="col-md-6 period-form-panel">
             <label className="field-required-label" htmlFor="js-label">Label</label>
-            <LabelInput id="js-label" />
+            <LabelInput
+                id="js-label"
+                label={getOriginalLabel(this.props.period)} />
 
             <label htmlFor="js-label">Alternate labels</label>
-            <LabelInput id="js-label" handleAddLabel={() => null} handleRemoveLabel={() => null} />
+            {
+              alternateLabels.map(label =>
+                <LabelInput id="js-label"
+                    label={label}
+                    handleAddLabel={() => null}
+                    handleRemoveLabel={() => null}/>
+              )
+            }
           </div>
           <div className="col-md-6 period-form-panel">
             <Input
@@ -182,10 +207,16 @@ module.exports = React.createClass({
             </div>
 
             <h4>Start</h4>
-            <TerminusInput autoparse={this.state.parseDates} terminusType="start" />
+            <TerminusInput
+                terminus={this.state.period.get('start')}
+                autoparse={this.state.parseDates}
+                terminusType="start" />
 
             <h4>Stop</h4>
-            <TerminusInput autoparse={this.state.parseDates} terminusType="stop" />
+            <TerminusInput
+                terminus={this.state.period.get('stop')}
+                autoparse={this.state.parseDates}
+                terminusType="stop" />
           </div>
 
         </div>
