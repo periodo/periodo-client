@@ -214,6 +214,7 @@ module.exports = React.createClass({
     var { wasAutoparsed } = require('../helpers/terminus')
       , { getAlternateLabels } = require('../helpers/period.js')
       , alternateLabels
+      , parseDates
 
     alternateLabels = getAlternateLabels(this.props.period);
     if (!alternateLabels.size) {
@@ -224,17 +225,55 @@ module.exports = React.createClass({
       }));
     }
 
+    if (!(this.props.period.get('start') && this.props.period.get('stop'))) {
+      parseDates = true;
+    } else {
+      parseDates = (
+        wasAutoparsed(this.props.period.get('start')) &&
+        wasAutoparsed(this.props.period.get('stop'))
+      )
+    }
+
     return {
-      parseDates: true,
       period: this.props.period,
+      parseDates,
       alternateLabels
     }
+  },
+  getPeriodValue: function () {
+    var period = this.state.period
+      , alternateLabels
+
+    alternateLabels = this.state.alternateLabels
+      .groupBy(label => `${label.get('language')}-${label.get('script')}`)
+      .toMap()
+      .map(labels => labels.map(label => label.get('value')))
+
+    if (alternateLabels.size) {
+      period = period.set('alternateLabel', alternateLabels)
+    }
+
+    period = period
+      .filter(val => val instanceof Immutable.Iterable ? val.size : (val && val.length))
+
+    if (!period.getIn(['source', 'locator'])) {
+      period = period.delete('source');
+    }
+
+    return period;
   },
   toggleAutoparse: function () {
     this.setState(prev => ({ parseDates: !prev.parseDates }));
   },
+  afterUpdate: function () {
+    this.props.onChange(this.getPeriodValue());
+  },
   handleChange: function (field, e) {
-    this.setState(prev => ({ period: prev.period.set(field, e.target.value) }));
+    var value = e.target.value;
+    if (!Array.isArray(field)) field = [field];
+    this.setState(
+      prev => ({ period: prev.period.setIn(field, value) }),
+      this.afterUpdate);
   },
   handleLabelChange: function (label) {
     this.setState(prev => {
@@ -247,11 +286,11 @@ module.exports = React.createClass({
         }))
 
       return { period }
-    });
+    }, this.afterUpdate);
   },
   handleAlternateLabelChange: function (idx, label) {
     var prevAltLabels = this.state.alternateLabels;
-    this.setState({ alternateLabels: prevAltLabels.set(idx, label) });
+    this.setState({ alternateLabels: prevAltLabels.set(idx, label) }, this.afterUpdate);
   },
   addAlternateLabel: function (i) {
     if (!this.state.alternateLabels.getIn([i, 'value'])) {
@@ -273,11 +312,11 @@ module.exports = React.createClass({
     if (prevAltLabels.size === 1) {
       this.setState({
         alternateLabels: prevAltLabels.setIn([0, 'value'], '')
-      });
+      }, this.afterUpdate);
     } else {
       this.setState({
         alternateLabels: prevAltLabels.splice(i, 1)
-      });
+      }, this.afterUpdate);
     }
   },
   render: function () {
@@ -313,7 +352,7 @@ module.exports = React.createClass({
                 label="Locator"
                 placeholder="Position within the source (e.g. page 75)"
                 value={this.state.period.getIn(['source', 'locator'])}
-                onChange={this.handleChange} />
+                onChange={this.handleChange.bind(null, ['source', 'locator'])} />
             <Input
                 id="js-same-as"
                 name="sameAs"

@@ -2,10 +2,9 @@
 
 var React = require('react')
   , PeriodDetails
-  , PeriodEditModal
 
 PeriodDetails = React.createClass({
-  handleClick: function (e) {
+  handleClick: function () {
     this.props.onPeriodEdit(this.props.period);
   },
   render: function () {
@@ -46,6 +45,9 @@ module.exports = React.createClass({
           onPeriodEdit={this.handlePeriodEdit} />
     )
   },
+  handleChange: function (value) {
+    console.log(value);
+  },
   render: function () {
     var PeriodList = require('../views/faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form.jsx')
@@ -60,7 +62,9 @@ module.exports = React.createClass({
               <div className="period-form-header">
               DOIN SOMETHIN
               </div>
-              <PeriodForm period={this.state.editingPeriod} />
+              <PeriodForm
+                period={this.state.editingPeriod}
+                onChange={this.handleChange} />
               <div className="period-form-footer">
               MAKE SOME ACTIONS
               </div>
