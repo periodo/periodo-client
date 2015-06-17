@@ -233,23 +233,38 @@ module.exports = React.createClass({
   toggleAutoparse: function () {
     this.setState(prev => ({ parseDates: !prev.parseDates }));
   },
-  handleChange: function (e) {
-    console.log(e);
+  handleChange: function (field, e) {
+    this.setState(prev => ({ period: prev.period.set(field, e.target.value) }));
+  },
+  handleLabelChange: function (label) {
+    this.setState(prev => {
+      var period = prev.period;
+
+      period = period
+        .set('label', label.get('value'))
+        .set('originalLabel', Immutable.Map({
+          [label.get('language') + '-' + label.get('script')]: label.get('value')
+        }))
+
+      return { period }
+    });
   },
   handleAlternateLabelChange: function (idx, label) {
     var prevAltLabels = this.state.alternateLabels;
     this.setState({ alternateLabels: prevAltLabels.set(idx, label) });
   },
   addAlternateLabel: function (i) {
-    var prevAltLabels = this.state.alternateLabels
-      , after = prevAltLabels.get(i)
-
-    if (!after.get('value')) {
+    if (!this.state.alternateLabels.getIn([i, 'value'])) {
       return
     } else {
-      this.setState({
-        alternateLabels: prevAltLabels.splice(i + 1, 0, after.set('value', ''))
-      })
+      this.setState(prev => {
+        var after = prev.alternateLabels.get(i)
+          , alternateLabels = prev.alternateLabels
+
+        alternateLabels = alternateLabels.splice(i + 1, 0, after.set('value', ''));
+
+        return { alternateLabels }
+      });
     }
   },
   removeAlternateLabel: function (i) {
@@ -276,8 +291,8 @@ module.exports = React.createClass({
             <label className="field-required-label" htmlFor="js-label">Label</label>
             <LabelInput
                 id="js-label"
-                label={getOriginalLabel(this.props.period)}
-                onChange={this.handleChange} />
+                label={getOriginalLabel(this.state.period)}
+                onChange={this.handleLabelChange} />
 
             <label htmlFor="js-label">Alternate labels</label>
             {
@@ -305,7 +320,7 @@ module.exports = React.createClass({
                 label="Same as"
                 placeholder="URL for this period in an external linked dataset"
                 value={this.state.period.get('sameAs')}
-                onChange={this.handleChange} />
+                onChange={this.handleChange.bind(null, 'sameAs')} />
           </div>
         </div>
 
@@ -350,7 +365,12 @@ module.exports = React.createClass({
             <div className="form-group col-md-6 period-form-panel">
               <label className="control-label" htmlFor="js-note">Note</label>
               <p className="small">Notes derived from the source</p>
-              <textarea className="form-control long" id="js-note" rows="5"></textarea>
+              <textarea
+                  className="form-control long"
+                  id="js-note"
+                  value={this.state.period.get('note')}
+                  onChange={this.handleChange.bind(null, 'note')}
+                  rows="5" />
             </div>
 
             <div className="form-group col-md-6 period-form-panel">
@@ -358,7 +378,12 @@ module.exports = React.createClass({
                 Editorial note
               </label>
               <p className="small">Notes about the import process</p>
-              <textarea className="form-control long" id="js-editorial-note" rows="5"></textarea>
+              <textarea
+                  className="form-control long"
+                  id="js-editorial-note"
+                  value={this.state.period.get('editorialNote')}
+                  onChange={this.handleChange.bind(null, 'editorialNote')}
+                  rows="5" />
             </div>
           </div>
         </div>
