@@ -75,7 +75,7 @@ module.exports = React.createClass({
     return { limit: 20, start: 0, page: 0, viewingDetails: [] }
   },
   getDefaultProps: function () {
-    return { PeriodDetails: PeriodDetails }
+    return { allowClicks: true }
   },
   componentWillReceiveProps: function () {
     this.setState({ start: 0, page: 0, viewingDetails: []});
@@ -128,6 +128,14 @@ module.exports = React.createClass({
       });
     }
   },
+  renderShownPeriod: function (period) {
+    return (
+        <PeriodDetails
+            period={period}
+            backend={this.props.backend}
+            dataset={this.props.dataset} />
+    )
+  },
   render: function () {
     var periods = this.props.periods
       .toSeq()
@@ -135,20 +143,19 @@ module.exports = React.createClass({
       .take(this.state.limit)
       .map(period => {
         if (this.state.viewingDetails.indexOf(period.get('id')) === -1) {
-          return <PeriodRow
-            key={period.get('id')}
-            data={period}
-            handleClick={this.showPeriodRow.bind(this, period)} />;
+          return (
+            <PeriodRow
+                key={period.get('id')}
+                data={period}
+                handleClick={this.showPeriodRow.bind(this, period)} />
+          )
         } else {
           return (
             <tr key={period.get('id')}
                 className="period-details-row"
                 onClick={this.hidePeriodRow.bind(this, period)}>
               <td colSpan={3}>
-                <this.props.PeriodDetails
-                    period={period}
-                    backend={this.props.backend}
-                    dataset={this.props.dataset} />
+                {(this.props.renderShownPeriod || this.renderShownPeriod)(period)}
               </td>
             </tr>
           )

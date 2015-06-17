@@ -4,74 +4,9 @@ var React = require('react')
   , PeriodDetails
   , PeriodEditModal
 
-PeriodEditModal = React.createClass({
-  render: function () {
-    var PeriodForm = require('./period_form.jsx')
-    return (
-      <div className="modal" style={{ display: 'block' }} >
-        <div className="modal-dialog" style={{ width: '1000px' }}>
-          <div className="modal-content">
-            <div className="modal-header">
-              <button type="button" className="close" onClick={this.props.hide}><span>×</span></button>
-              <h4 className="modal-title">Header</h4>
-            </div>
-
-            <div className="modal-body">
-              <PeriodForm period={this.props.period} />
-            </div>
-
-            <div className="modal-footer">
-              <button onClick={this.props.hide} className="btn btn-danger">Cancel</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-});
-
 PeriodDetails = React.createClass({
-  getInitialState: function () {
-    return { modalContainer: null, modal: null }
-  },
-  hideModal: function () {
-    document.removeEventListener('click', this.handleHide);
-    this.state.modalContainer.parentNode.removeChild(this.state.modalContainer);
-    this.setState({ modalContainer: null, modal: null });
-  },
-  showModal: function () {
-    var modalContainer = document.createElement('div')
-      , modalEl = document.createElement('div')
-      , modal
-
-    modalContainer.style.position = 'absolute';
-    modalContainer.style.background = 'rgba(0,0,0,0.5)';
-    modalContainer.style.top = 0;
-    modalContainer.style.height = document.body.scrollHeight + 'px';
-    modalContainer.style.width = '100%';
-    modalContainer.style.zIndex = '900';
-
-    modalContainer.appendChild(modalEl);
-
-    document.body.appendChild(modalContainer);
-    document.addEventListener('click', this.handleHide, false);
-
-    modal = React.createElement(PeriodEditModal, {
-      hide: this.hideModal,
-      period: this.props.period
-    });
-    modal = React.render(modal, modalEl);
-    this.setState({ modal, modalContainer });
-  },
-  handleHide: function (e) {
-    var { isChild } = require('../utils/dom')
-      , el = React.findDOMNode(this.state.modal).querySelector('.modal-content')
-
-    if (!isChild(e.target, el)) this.hideModal();
-  },
   handleClick: function (e) {
-    e.stopPropagation();
-    this.showModal();
+    this.props.onPeriodEdit(this.props.period);
   },
   render: function () {
     var Period = require('./shared/period.jsx')
@@ -84,7 +19,10 @@ PeriodDetails = React.createClass({
             <Period period={this.props.period} />
           </div>
           <div className="col-md-6">
-            <button onClick={this.handleClick} className="btn btn-primary">Edit</button>
+            {
+              !this.props.showEditButton ? '' :
+              <button onClick={this.handleClick} className="btn btn-primary">Edit</button>
+            }
           </div>
         </div>
       </div>
@@ -93,16 +31,45 @@ PeriodDetails = React.createClass({
 });
 
 module.exports = React.createClass({
+  getInitialState: function () {
+    return { editingPeriod: null }
+  },
+  handlePeriodEdit: function (period) {
+    // TODO: should be a read/write cursor, not just the period itself
+    this.setState({ editingPeriod: period });
+  },
+  renderShownPeriod: function (period) {
+    return (
+      <PeriodDetails
+          period={period}
+          showEditButton={!this.state.editingPeriod}
+          onPeriodEdit={this.handlePeriodEdit} />
+    )
+  },
   render: function () {
     var PeriodList = require('../views/faceted_browser/period_list.jsx')
+      , PeriodForm = require('./period_form.jsx')
       , { getDisplayTitle } = require('../helpers/source')
 
     return (
       <div>
         <h2>{getDisplayTitle(this.props.collection.get('source'))}</h2>
+        {
+          !this.state.editingPeriod ? '' :
+            <div className="period-form">
+              <div className="period-form-header">
+              DOIN SOMETHIN
+              </div>
+              <PeriodForm period={this.state.editingPeriod} />
+              <div className="period-form-footer">
+              MAKE SOME ACTIONS
+              </div>
+            </div>
+        }
+
         <PeriodList
-            periods={this.props.collection.get('definitions')}
-            PeriodDetails={PeriodDetails} />
+            renderShownPeriod={this.renderShownPeriod}
+            periods={this.props.collection.get('definitions')} />
       </div>
     )
   }
