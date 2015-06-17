@@ -1,4 +1,25 @@
+"use strict";
+
 var _ = require('underscore')
+  , Immutable = require('immutable')
+
+function getOriginalLabel(period) {
+  var originalLabel = period.get('originalLabel')
+    , value = originalLabel.valueSeq().first()
+    , [language, script] = originalLabel.keySeq().first().split('-')
+
+  return Immutable.Map({ value, language, script });
+}
+
+function getAlternateLabels(period) {
+  return period.get('alternateLabel')
+    .map((labels, isoCodes) => {
+      var [language, script] = isoCodes.split('-');
+      return labels.map(value => Immutable.Map({ value, language, script }))
+    })
+    .toList()
+    .flatten(1)
+}
 
 function validate(period) {
   var { getEarliestYear, getLatestYear } = require('./terminus')
@@ -27,4 +48,4 @@ function validate(period) {
   return _.isEmpty(errors) ? null : errors;
 }
 
-module.exports = { validate }
+module.exports = { validate, getOriginalLabel, getAlternateLabels }

@@ -105,16 +105,83 @@ TerminusInput = React.createClass({
   }
 });
 
+var LanguageSelectDropdown = React.createClass({
+  displayName: 'LanguageSelectDropdown',
+  handleSelect: function (language) {
+    console.log(language);
+  },
+  getMatchingLanguages: function (text) {
+    var languages = require('../utils/languages')
+
+    if (text) {
+      let matchingSet = Immutable.Set(text);
+      languages = languages
+        .filter(lang => matchingSet.subtract(Immutable.Set(lang.get('name'))).size === 0)
+    } else {
+      languages = languages
+        .filter(lang => lang.get('iso6391'))
+        .sortBy(lang => lang.get('name'))
+    }
+
+    return languages.take(10);
+  },
+  render: function () {
+    var DropdownAutocomplete = require('./shared/dropdown_autocomplete.jsx')
+
+    return <DropdownAutocomplete
+      label={this.props.language}
+      getMatchingItems={this.getMatchingLanguages}
+      renderMatch={lang => lang.get('name')}
+      onSelect={this.handleSelect} />
+  }
+});
+
+var ScriptSelectDropdown = React.createClass({
+  displayName: 'ScriptSelectDropdown',
+  handleSelect: function (script) {
+    console.log(script);
+  },
+  getMatchingScripts: function (text) {
+    var scripts = require('../utils/scripts');
+    if (text) {
+      let matchingSet = Immutable.Set(text);
+      scripts = scripts
+        .filter(script => matchingSet.subtract(Immutable.Set(script.get('name'))).size === 0)
+    }
+
+    console.table(scripts.take(10).toJS());
+    return scripts.take(10);
+  },
+  render: function () {
+    var DropdownAutocomplete = require('./shared/dropdown_autocomplete.jsx')
+
+    return <DropdownAutocomplete
+      label={this.props.script}
+      getMatchingItems={this.getMatchingScripts}
+      renderMatch={script => script.get('name')}
+      onSelect={this.handleSelect} />
+  }
+});
+
 LabelInput = React.createClass({
   getDefaultProps: function () {
-    return { code: 'eng-latn' }
+    return { language: 'eng', script: 'latn' }
   },
   render: function () {
     return (
       <div className="form-group" data-field="alternate-label">
         <div className="input-group">
-          <div className="input-group-addon label-language btn btn-default">{this.props.code}</div>
-          <input className="form-control" id={this.props.id} type="text" />
+
+          <div className="input-group-btn">
+            <LanguageSelectDropdown language={this.props.label.get('language')} />
+            <ScriptSelectDropdown script={this.props.label.get('script')} />
+          </div>
+
+          <input
+              className="form-control"
+              id={this.props.id}
+              value={this.props.label.get('value')}
+              type="text" />
           {this.props.handleAddLabel ?
             (<span className="input-group-addon btn"><strong>+</strong></span>) : null}
           {this.props.handleRemoveLabel ?
