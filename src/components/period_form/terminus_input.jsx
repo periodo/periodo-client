@@ -3,37 +3,65 @@
 var React = require('react')
   , Immutable = require('immutable')
 
-const emptyTerminus = Immutable.fromJS({ label: '', in: { year: '' }})
+const EMPTY_TERMINUS = Immutable.fromJS({ label: '', in: { year: '' }})
+
+function parse(label) {
+  var parseDate = require('../../utils/date_parser.js')
+    , parsed = parseDate(label)
+    , terminus
+
+  terminus = parsed ?
+    Immutable.fromJS(parsed).delete('_type') :
+    EMPTY_TERMINUS.set('label', label)
+
+  return terminus;
+}
 
 module.exports = React.createClass({
   displayName: 'TerminusInput',
+
   propTypes: {
     terminusType: React.PropTypes.oneOf(['start', 'stop']).isRequired,
   },
 
   getDefaultProps: function () {
-    return { terminus: emptyTerminus }
-  },
-
-  getInitialState: function () {
-    return {
-      terminus: this.props.terminus
-    }
+    return { terminus: EMPTY_TERMINUS }
   },
 
   isMultivalued: function () {
-    return this.state.terminus.hasIn(['in', 'earliestYear']);
+    return this.props.terminus.hasIn(['in', 'earliestYear']);
   },
 
-  handleChangeLabel: function (e) {
-    var parseDate = require('../../utils/date_parser.js')
-      , parsed = parseDate(e.target.value)
-
-    if (parsed) {
-      this.setState({ terminus: Immutable.fromJS(parsed).delete('_type') })
+  toggleMultiValue: function () {
+    let terminus = this.props.terminus
+    if (this.isMultivalued()) {
+      let earliest = terminus.getIn(['in', 'earliestYear']);
+      this.props.onChange(terminus
+        .deleteIn(['in', 'earliestYear'])
+        .deleteIn(['in', 'latestYear'])
+        .setIn(['in', 'year'], earliest || ''));
     } else {
-      this.setState({ terminus: emptyTerminus })
+      let year = terminus.getIn(['in', 'year']);
+      this.props.onChange(terminus
+        .deleteIn(['in', 'year'])
+        .setIn(['in', 'earliestYear'], year || '')
+        .setIn(['in', 'latestYear'], ''));
     }
+  },
+
+  handleChangeAutoparsedLabel: function (e) {
+    var terminus = parse(e.target.value);
+    this.props.onChange(terminus);
+  },
+
+  refreshAutoparse: function () {
+    var terminus = parse(this.props.terminus.get('label'));
+    this.props.onChange(terminus);
+  },
+
+  handleChange: function (field, e) {
+    var value = e.target.value;
+    this.props.onChange(this.props.terminus.setIn([].concat(field), value));
   },
 
   render: function () {
@@ -46,8 +74,10 @@ module.exports = React.createClass({
               id={`js-${this.props.terminusType}Date`}
               name="label"
               label="Label"
-              value={this.state.terminus.get('label')}
-              onChange={this.props.autoparse ? this.handleChangeLabel : this.handleChange} />
+              value={this.props.terminus.get('label')}
+              onChange={this.props.autoparse ?
+                this.handleChangeAutoparsedLabel :
+                this.handleChange.bind(null, 'label')} />
         </div>
 
         <div>
@@ -59,18 +89,18 @@ module.exports = React.createClass({
                     id={`js-${this.props.terminusType}-earliest-start`}
                     name="earliestStart"
                     label="Earliest start"
-                    value={this.state.terminus.getIn(['in', 'earliestYear'])}
+                    value={this.props.terminus.getIn(['in', 'earliestYear'])}
                     disabled={this.props.autoparse}
-                    onChange={this.handleChange} />
+                    onChange={this.handleChange.bind(null, ['in', 'earliestYear'])} />
               </div>
               <div className="col-md-4">
                 <Input
                     id={`js-${this.props.terminusType}-latest-stop`}
                     name="latestStop"
                     label="Latest stop"
-                    value={this.state.terminus.getIn(['in', 'latestYear'])}
+                    value={this.props.terminus.getIn(['in', 'latestYear'])}
                     disabled={this.props.autoparse}
-                    onChange={this.handleChange} />
+                    onChange={this.handleChange.bind(null, ['in', 'latestYear'])} />
               </div>
             </div>
             )
@@ -82,18 +112,20 @@ module.exports = React.createClass({
                     id={`js-${this.props.terminusType}Year`}
                     name="year"
                     label="Year"
-                    value={this.state.terminus.getIn(['in', 'year'])}
+                    value={this.props.terminus.getIn(['in', 'year'])}
                     disabled={this.props.autoparse}
-                    onChange={this.handleChange} />
+                    onChange={this.handleChange.bind(null, ['in', 'year'])} />
               </div>
-              <div className="col-md-4">
-              </div>
+              <div className="col-md-4" />
             </div>
             )
           }
           <div className="col-md-4">
             <label> </label>
-            <button className="btn btn-primary" disabled={this.props.autoparse}>
+            <button
+                className="btn btn-primary"
+                disabled={this.props.autoparse}
+                onClick={this.toggleMultiValue} >
               Toggle earliest/latest
             </button>
           </div>

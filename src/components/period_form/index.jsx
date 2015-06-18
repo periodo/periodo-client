@@ -2,16 +2,14 @@
 
 var React = require('react')
   , Immutable = require('immutable')
-  , TerminusInput = require('./terminus_input.jsx')
+  , TemporalCoverageForm = require('./temporal_coverage_form.jsx')
   , LocalizedLabelInput = require('./localized_label_input.jsx')
   , SpatialCoverageForm = require('./spatial_coverage_form.jsx')
 
 module.exports = React.createClass({
   getInitialState: function () {
-    var { wasAutoparsed } = require('../../helpers/terminus')
-      , { getAlternateLabels } = require('../../helpers/period.js')
+    var { getAlternateLabels } = require('../../helpers/period.js')
       , alternateLabels
-      , parseDates
 
     alternateLabels = getAlternateLabels(this.props.period);
     if (!alternateLabels.size) {
@@ -22,20 +20,7 @@ module.exports = React.createClass({
       }));
     }
 
-    if (!(this.props.period.get('start') && this.props.period.get('stop'))) {
-      parseDates = true;
-    } else {
-      parseDates = (
-        wasAutoparsed(this.props.period.get('start')) &&
-        wasAutoparsed(this.props.period.get('stop'))
-      )
-    }
-
-    return {
-      period: this.props.period,
-      parseDates,
-      alternateLabels
-    }
+    return { period: this.props.period, alternateLabels }
   },
   getPeriodValue: function () {
     var period = this.state.period
@@ -58,9 +43,6 @@ module.exports = React.createClass({
     }
 
     return period;
-  },
-  toggleAutoparse: function () {
-    this.setState(prev => ({ parseDates: !prev.parseDates }));
   },
 
   /* *
@@ -173,30 +155,11 @@ module.exports = React.createClass({
             <SpatialCoverageForm />
           </div>
           <div className="period-form-panel col-md-6">
-            <h3>Temporal coverage</h3>
-
-            <div>
-              <label>
-                <input
-                    type="checkbox"
-                    checked={this.state.parseDates}
-                    onChange={this.toggleAutoparse} /> Parse dates automatically
-              </label>
-            </div>
-
-            <h4>Start</h4>
-            <TerminusInput
-                terminus={this.state.period.get('start')}
-                autoparse={this.state.parseDates}
-                terminusType="start" />
-
-            <h4>Stop</h4>
-            <TerminusInput
-                terminus={this.state.period.get('stop')}
-                autoparse={this.state.parseDates}
-                terminusType="stop" />
+            <TemporalCoverageForm
+                start={this.state.period.get('start')}
+                stop={this.state.period.get('stop')}
+                ref="temporal-coverage" />
           </div>
-
         </div>
 
         <hr />
