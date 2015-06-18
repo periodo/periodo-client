@@ -43,10 +43,15 @@ module.exports = React.createClass({
   },
 
   makeFacetValueField: function (isSelected, periodIDs, value) {
-    var handler = isSelected ? this.props.onDeselectFacet : this.props.onSelectFacet;
+    var handler = isSelected ? this.props.onDeselectFacet : this.props.onSelectFacet
+      , key
+
+    key = value instanceof Immutable.Iterable ? value.hashCode() : value;
+    if (key === undefined) key = '__undefined';
+      
     return React.createElement(FacetValue, {
-      key: value instanceof Immutable.Iterable ? value.hashCode() : value,
-      value: value,
+      key,
+      value,
       count: periodIDs ? periodIDs.size : 0,
       handleClick: handler.bind(null, value),
       formatFacetValue: this.props.formatFacetValue

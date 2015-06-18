@@ -71,7 +71,7 @@ ActionsMenu = React.createClass({
   },
   getEditableMenuItems: function (){
     return (
-      <li>
+      <li key="add-collection">
         <a href={this.props.router.generate('period-collection-add', {
           backendName: this.props.backend.name
         })}>Add period collection</a>
@@ -79,16 +79,18 @@ ActionsMenu = React.createClass({
     )
   },
   getBackendMenuItems: function () {
-    var additionItems = (this.props.backend && this.props.backend.editable) ?
-      this.getEditableMenuItems() : ''
+    var additionalItems = (this.props.backend && this.props.backend.editable) ?
+      this.getEditableMenuItems() : null;
     return [
-      <li className="dropdown-header">
+      <li key="current-backend" className="dropdown-header">
         Current backend:
         <br/>
         <strong>{this.props.backend.name} {this.props.backend.editable ? '' : '(read-only)'}</strong>
       </li>,
-      {additionItems},
-      <li className="divider" />
+
+      additionalItems,
+
+      <li key="divider" className="divider" />
     ]
   },
   open: function () {
@@ -139,7 +141,7 @@ module.exports = React.createClass({
     var logoHref = this.props.backend ? `#p/${this.props.backend.name}/` : '#p/';
 
     return (
-      <div data-FIXME="nav" className="navbar">
+      <div className="navbar">
         <div className="container">
           <div className="navbar-header">
             <a className="navbar-brand" href={logoHref}>PeriodO</a>
