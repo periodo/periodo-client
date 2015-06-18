@@ -50,7 +50,7 @@ module.exports = React.createClass({
   },
   render: function () {
     var PeriodList = require('../views/faceted_browser/period_list.jsx')
-      , PeriodForm = require('./period_form.jsx')
+      , PeriodForm = require('./period_form')
       , { getDisplayTitle } = require('../helpers/source')
 
     return (
