@@ -24,6 +24,9 @@ module.exports = React.createClass({
       autoparse
     }
   },
+  getValue: function () {
+    return { start: this.state.start, stop: this.state.stop }
+  },
   toggleAutoparse: function () {
     this.setState(
       prev => ({ autoparse: !prev.autoparse }),

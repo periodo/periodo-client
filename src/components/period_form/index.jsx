@@ -3,39 +3,19 @@
 var React = require('react')
   , Immutable = require('immutable')
   , TemporalCoverageForm = require('./temporal_coverage_form.jsx')
-  , LocalizedLabelInput = require('./localized_label_input.jsx')
+  , LabelForm = require('./label_form.jsx')
   , SpatialCoverageForm = require('./spatial_coverage_form.jsx')
 
 module.exports = React.createClass({
   getInitialState: function () {
-    var { getAlternateLabels } = require('../../helpers/period.js')
-      , alternateLabels
-
-    alternateLabels = getAlternateLabels(this.props.period);
-    if (!alternateLabels.size) {
-      alternateLabels = Immutable.List.of(Immutable.Map({
-        value: '',
-        language: 'eng',
-        script: 'latn'
-      }));
-    }
-
-    return { period: this.props.period, alternateLabels }
+    return { period: this.props.period }
   },
   getPeriodValue: function () {
     var period = this.state.period
-      , alternateLabels
-
-    alternateLabels = this.state.alternateLabels
-      .groupBy(label => `${label.get('language')}-${label.get('script')}`)
-      .toMap()
-      .map(labels => labels.map(label => label.get('value')))
-
-    if (alternateLabels.size) {
-      period = period.set('alternateLabel', alternateLabels)
-    }
 
     period = period
+      .merge(this.refs.temporalCoverage.getValue())
+      .merge(this.refs.labelForm.getValue())
       .filter(val => val instanceof Immutable.Iterable ? val.size : (val && val.length))
 
     if (!period.getIn(['source', 'locator'])) {
@@ -45,89 +25,25 @@ module.exports = React.createClass({
     return period;
   },
 
-  /* *
-   * Change handlers for the various form components
-   * */
-
   handleChange: function (field, e) {
     var value = e.target.value;
     if (!Array.isArray(field)) field = [field];
     this.setState(prev => ({ period: prev.period.setIn(field, value) }));
   },
 
-  handleLabelChange: function (label) {
-    this.setState(prev => {
-      var period = prev.period;
-
-      period = period
-        .set('label', label.get('value'))
-        .set('originalLabel', Immutable.Map({
-          [label.get('language') + '-' + label.get('script')]: label.get('value')
-        }))
-
-      return { period }
-    });
-  },
-
-  handleAlternateLabelChange: function (idx, label) {
-    var prevAltLabels = this.state.alternateLabels;
-    this.setState({ alternateLabels: prevAltLabels.set(idx, label) });
-  },
-
-  addAlternateLabel: function (i) {
-    if (!this.state.alternateLabels.getIn([i, 'value'])) {
-      return
-    } else {
-      this.setState(prev => {
-        var after = prev.alternateLabels.get(i)
-          , alternateLabels = prev.alternateLabels
-
-        alternateLabels = alternateLabels.splice(i + 1, 0, after.set('value', ''));
-
-        return { alternateLabels }
-      });
-    }
-  },
-
-  removeAlternateLabel: function (i) {
-    var prevAltLabels = this.state.alternateLabels
-
-    if (prevAltLabels.size === 1) {
-      this.setState({
-        alternateLabels: prevAltLabels.setIn([0, 'value'], '')
-      });
-    } else {
-      this.setState({
-        alternateLabels: prevAltLabels.splice(i, 1)
-      });
-    }
-  },
-
   render: function () {
     var Input = require('../shared/input.jsx')
-      , { getOriginalLabel } = require('../../helpers/period.js')
+
+
 
     return (
       <div className="period-form-body">
         <div className="row">
           <div className="col-md-6 period-form-panel">
-            <label className="field-required-label" htmlFor="js-label">Label</label>
-            <LocalizedLabelInput
-                id="js-label"
-                label={getOriginalLabel(this.state.period)}
-                onChange={this.handleLabelChange} />
-
-            <label htmlFor="js-label">Alternate labels</label>
-            {
-              this.state.alternateLabels.map((label, i) =>
-                <LocalizedLabelInput id="js-label"
-                    key={i}
-                    label={label}
-                    onChange={this.handleAlternateLabelChange.bind(null, i)}
-                    handleAddLabel={this.addAlternateLabel.bind(null, i)}
-                    handleRemoveLabel={this.removeAlternateLabel.bind(null, i)} />
-              )
-            }
+            <LabelForm
+                ref="labelForm"
+                originalLabel={this.state.period.get('originalLabel')}
+                alternateLabels={this.state.period.get('alternateLabel')} />
           </div>
           <div className="col-md-6 period-form-panel">
             <Input
@@ -158,7 +74,7 @@ module.exports = React.createClass({
             <TemporalCoverageForm
                 start={this.state.period.get('start')}
                 stop={this.state.period.get('stop')}
-                ref="temporal-coverage" />
+                ref="temporalCoverage" />
           </div>
         </div>
 
