@@ -34,8 +34,6 @@ module.exports = React.createClass({
   render: function () {
     var Input = require('../shared/input.jsx')
 
-
-
     return (
       <div className="period-form-body">
         <div className="row">
@@ -68,7 +66,11 @@ module.exports = React.createClass({
         <div className="row">
           <div className="period-form-panel col-md-6">
             <h3>Spatial coverage</h3>
-            <SpatialCoverageForm />
+            <SpatialCoverageForm
+                ref="spatialCoverage"
+                description={this.state.period.get('spatialCoverageDescription')}
+                coverage={this.state.period.get('spatialCoverage')}
+                coverageDescriptionSet={this.props.spatialCoverages} />
           </div>
           <div className="period-form-panel col-md-6">
             <TemporalCoverageForm

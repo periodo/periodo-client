@@ -52,6 +52,7 @@ module.exports = React.createClass({
     var PeriodList = require('../views/faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form')
       , { getDisplayTitle } = require('../helpers/source')
+      , { getSpatialCoverages } = require('../helpers/periodization_collection.js')
 
     return (
       <div>
@@ -62,7 +63,10 @@ module.exports = React.createClass({
               <div className="period-form-header">
               DOIN SOMETHIN
               </div>
-              <PeriodForm period={this.state.editingPeriod} ref="editForm" />
+              <PeriodForm
+                  period={this.state.editingPeriod}
+                  spatialCoverages={getSpatialCoverages(this.props.store.get('periodCollections'))}
+                  ref="editForm" />
               <div className="period-form-footer">
                 <button
                     className="btn btn-primary"
