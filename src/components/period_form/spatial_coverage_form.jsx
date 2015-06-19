@@ -44,6 +44,12 @@ module.exports = React.createClass({
       coverage: (this.props.coverage || Immutable.List()).toOrderedSet()
     }
   },
+  getValue: function () {
+    return {
+      spatialCoverageDescription: this.state.description,
+      spatialCoverage: this.state.coverage
+    }
+  },
   removeCoverage: function (toRemove) {
     this.setState(prev => ({ coverage: prev.coverage.delete(toRemove) }));
   },

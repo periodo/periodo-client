@@ -28,6 +28,7 @@ module.exports = React.createClass({
 
     period = period
       .merge(this.refs.temporalCoverage.getValue())
+      .merge(this.refs.spatialCoverage.getValue())
       .merge(this.refs.labelForm.getValue())
       .merge({ type: 'PeriodDefinition' })
       .filter(val => val instanceof Immutable.Iterable ? val.size : (val && val.length))

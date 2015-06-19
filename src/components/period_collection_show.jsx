@@ -45,7 +45,7 @@ module.exports = React.createClass({
   handleSave: function () {
     var period = this.refs.editForm.getPeriodValue()
 
-    console.log(period);
+    console.log(period.toJS());
   },
   handleCancel: function () {
     this.setState({ editingPeriod: null });
