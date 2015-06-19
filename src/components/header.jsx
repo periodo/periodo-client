@@ -108,11 +108,6 @@ ActionsMenu = React.createClass({
       this.open()
     }
   },
-  componentDidUpdate: function () {
-    if (this.state.open) {
-      let container = React.findDOMNode(this);
-    }
-  },
   render: function () {
     return (
       <div className={'btn-group dropdown' + (this.state.open ? ' open' : '')}>
