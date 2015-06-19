@@ -5,6 +5,7 @@ var React = require('react')
   , Footer = require('./footer.jsx')
 
 module.exports = React.createClass({
+  displayName: 'PeriodoApplication',
   render: function () {
     var ActiveComponent = this.props.Component
       , componentProps = {}

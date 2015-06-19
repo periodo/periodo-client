@@ -8,9 +8,12 @@ function makeLink(url) {
 }
 
 module.exports = React.createClass({
+  displayName: 'Period',
+
   getDefaultProps: function () {
     return { linkify: true }
   },
+
   render: function () {
     var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
       , linkify = this.props.linkify ? require('../../utils/linkify') : text => text
@@ -129,7 +132,7 @@ module.exports = React.createClass({
 
         {
           noteFields.filter(field => field.value).map(field => (
-            <div className="field">
+            <div key={field.label} className="field">
               <dt>{field.label}</dt>
               <dd dangerouslySetInnerHTML={{ __html: field.value }} />
             </div>

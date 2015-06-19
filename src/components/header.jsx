@@ -124,6 +124,7 @@ ActionsMenu = React.createClass({
 });
 
 module.exports = React.createClass({
+  displayName: 'Header',
   render: function () {
     var backendMessage = this.props.backend ?
       (<span>

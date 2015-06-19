@@ -3,6 +3,7 @@
 var React = require('react')
 
 module.exports = React.createClass({
+  displayName: 'PeriodCollectionAdd',
   render: function () {
     var PeriodCollectionForm = require('./shared/period_collection_form');
     return (

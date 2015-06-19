@@ -3,6 +3,7 @@
 var React = require('react')
 
 module.exports = React.createClass({
+  displayName: 'Home',
   componentDidMount: function () {
     var currentBackend = localStorage.currentBackend
       , redirectURL

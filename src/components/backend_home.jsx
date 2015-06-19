@@ -3,6 +3,7 @@
 var React = require('react')
 
 module.exports = React.createClass({
+  displayName: 'BackendHome',
   render: function () {
     var FacetedBrowser = require('../views/faceted_browser/browser.jsx')
 

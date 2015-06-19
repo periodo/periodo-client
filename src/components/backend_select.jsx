@@ -88,6 +88,7 @@ BackendForm = React.createClass({
 });
 
 module.exports = React.createClass({
+  displayName: 'BackendSelect',
   render: function () {
     var sortedBackends = Immutable.fromJS(this.props.backends)
 

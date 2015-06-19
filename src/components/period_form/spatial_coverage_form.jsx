@@ -92,7 +92,7 @@ module.exports = React.createClass({
           <ul className="list-unstyled">
             {
               this.state.coverage.map(coverage =>
-                <li>
+                <li key={coverage.hashCode()}>
                   <button
                       style={{
                         'float': 'none',

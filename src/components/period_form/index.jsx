@@ -7,6 +7,7 @@ var React = require('react')
   , SpatialCoverageForm = require('./spatial_coverage_form.jsx')
 
 module.exports = React.createClass({
+  displayName: 'PeriodForm',
   getInitialState: function () {
     return { period: this.props.period }
   },

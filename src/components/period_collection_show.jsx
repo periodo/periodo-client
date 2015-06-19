@@ -30,6 +30,7 @@ PeriodDetails = React.createClass({
 });
 
 module.exports = React.createClass({
+  displayName: 'PeriodCollectionShow',
   getInitialState: function () {
     return { editingPeriod: null }
   },
@@ -79,7 +80,7 @@ module.exports = React.createClass({
 
         <PeriodList
             renderShownPeriod={this.renderShownPeriod}
-            periods={this.props.collection.get('definitions')} />
+            periods={this.props.collection.get('definitions').toList()} />
       </div>
     )
   }

@@ -3,6 +3,8 @@
 var React = require('react')
 
 module.exports = React.createClass({
+  displayName: 'Input',
+
   propTypes: {
     id: React.PropTypes.string.isRequired,
     name: React.PropTypes.string.isRequired,

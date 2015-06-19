@@ -15,10 +15,10 @@ module.exports = React.createClass({
 
   propTypes: {
     matchText: React.PropTypes.string.isRequired,
-    list: React.PropTypes.instanceOf(Immutable.Sequence).isRequired,
+    list: React.PropTypes.instanceOf(Immutable.Iterable).isRequired,
     getter: React.PropTypes.func.isRequired,
     onSelect: React.PropTypes.func.isRequired,
-    limit: React.PropTypes.number.isRequired
+    limit: React.PropTypes.number
   },
 
   getDefaultProps: function () {

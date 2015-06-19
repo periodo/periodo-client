@@ -12,6 +12,8 @@ function oneOf(data, ...paths) {
 }
 
 module.exports = React.createClass({
+  displayName: 'Source',
+
   getData: function () {
     var source = this.props.data;
     return [

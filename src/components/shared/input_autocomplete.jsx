@@ -19,7 +19,7 @@ module.exports = React.createClass({
     /* For autocomplete */
     autocompleteFrom: React.PropTypes.instanceOf(Immutable.Iterable).isRequired,
     autocompleteGetter: React.PropTypes.func.isRequired,
-    autocompleteLimit: React.PropTypes.number.isRequired,
+    autocompleteLimit: React.PropTypes.number,
     onSelect: React.PropTypes.func.isRequired
   },
 
