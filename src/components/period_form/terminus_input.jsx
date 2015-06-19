@@ -71,7 +71,6 @@ module.exports = React.createClass({
       <div className="row">
         <div className="col-md-12">
           <Input
-              id={`js-${this.props.terminusType}Date`}
               name="label"
               label="Label"
               value={this.props.terminus.get('label')}
@@ -86,7 +85,6 @@ module.exports = React.createClass({
             <div>
               <div className="col-md-4">
                 <Input
-                    id={`js-${this.props.terminusType}-earliest-start`}
                     name="earliestStart"
                     label="Earliest start"
                     value={this.props.terminus.getIn(['in', 'earliestYear'])}
@@ -95,7 +93,6 @@ module.exports = React.createClass({
               </div>
               <div className="col-md-4">
                 <Input
-                    id={`js-${this.props.terminusType}-latest-stop`}
                     name="latestStop"
                     label="Latest stop"
                     value={this.props.terminus.getIn(['in', 'latestYear'])}
@@ -109,7 +106,6 @@ module.exports = React.createClass({
             <div>
               <div className="col-md-4">
                 <Input
-                    id={`js-${this.props.terminusType}Year`}
                     name="year"
                     label="Year"
                     value={this.props.terminus.getIn(['in', 'year'])}

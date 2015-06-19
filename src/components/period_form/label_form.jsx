@@ -3,13 +3,14 @@
 var React = require('react')
   , Immutable = require('immutable')
   , LocalizedLabelInput = require('./localized_label_input.jsx')
+  , randomstr = require('../../utils/randomstr')
 
 
 function getCode(label) {
   return `${label.get('language')}-${label.get('script')}`;
 }
 
-const DEFAULT_ORIGINAL_LABEL = Immutable.Map({ 'en-us': '' })
+const DEFAULT_LANGUAGE_CODE = 'eng-latn'
     , DEFAULT_ALTERNATE_LABEL = Immutable.List()
 
 module.exports = React.createClass({
@@ -20,7 +21,9 @@ module.exports = React.createClass({
       , alternateLabels
 
     originalLabel = getOriginalLabel(Immutable.Map({
-      originalLabel: this.props.originalLabel || DEFAULT_ORIGINAL_LABEL
+      originalLabel: this.props.originalLabel || Immutable.Map({
+        [DEFAULT_LANGUAGE_CODE]: this.props.label || ''
+      })
     }));
 
     alternateLabels = getAlternateLabels(Immutable.Map({
@@ -38,20 +41,27 @@ module.exports = React.createClass({
     return { originalLabel, alternateLabels }
   },
   getValue: function () {
-    var alternateLabels
+    var value = {}
+      , alternateLabel
 
-    alternateLabels = this.state.alternateLabels
+    alternateLabel = this.state.alternateLabels
+      .filter(label => label.get('value'))
       .groupBy(getCode)
       .toMap()
       .map(labels => labels.map(label => label.get('value')))
 
-    return {
-      label: this.state.originalLabel.get('value'),
-      originalLabel: {
+    if (this.state.originalLabel.get('value')) {
+      value.originalLabel = {
         [getCode(this.state.originalLabel)]: this.state.originalLabel.get('value')
-      },
-      alternateLabels
+      }
+      value.label = this.state.originalLabel.get('value');
+    } else {
+      value.originalLabel = value.label = null
     }
+
+    value.alternateLabel = alternateLabel.size ? alternateLabel : null;
+
+    return value;
   },
 
   handleOriginalLabelChange: function (originalLabel) {
@@ -87,18 +97,22 @@ module.exports = React.createClass({
   },
 
   render: function () {
+    var randomID = randomstr()
+
     return (
       <div>
-        <label className="field-required-label" htmlFor="js-label">Label</label>
+        <label className="field-required-label" htmlFor={'label-' + randomID}>
+          Label
+        </label>
         <LocalizedLabelInput
-            id="js-label"
+            id={'label-' + randomID}
             label={this.state.originalLabel}
             onChange={this.handleOriginalLabelChange} />
 
         <label htmlFor="js-label">Alternate labels</label>
         {
           this.state.alternateLabels.map((label, i) =>
-            <LocalizedLabelInput id="js-label"
+            <LocalizedLabelInput
                 key={i}
                 label={label}
                 onChange={this.handleAlternateLabelChange.bind(null, i)}

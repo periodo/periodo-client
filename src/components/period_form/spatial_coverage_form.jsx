@@ -2,6 +2,7 @@
 
 var React = require('react')
   , Immutable = require('immutable')
+  , randomstr = require('../../utils/randomstr')
   , UsesSelect
 
 UsesSelect = React.createClass({
@@ -64,12 +65,13 @@ module.exports = React.createClass({
   },
   render: function () {
     var InputAutocomplete = require('../shared/input_autocomplete.jsx')
+      , randomID = randomstr()
 
     return (
       <div>
         <InputAutocomplete
             ref="autocomplete"
-            id="js-spatial-coverage-description"
+            id={'spatial-coverage-description' + randomID}
             name="spatialCoverageDescription"
             label="Spatial coverage description"
             placeholder="Text from the source describing the set of regions selected below."

@@ -2,21 +2,34 @@
 
 var React = require('react')
   , Immutable = require('immutable')
+  , randomstr = require('../../utils/randomstr')
   , TemporalCoverageForm = require('./temporal_coverage_form.jsx')
   , LabelForm = require('./label_form.jsx')
   , SpatialCoverageForm = require('./spatial_coverage_form.jsx')
 
 module.exports = React.createClass({
   displayName: 'PeriodForm',
+
+  propTypes: {
+    period: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    spatialCoverages: React.PropTypes.instanceOf(Immutable.List)
+  },
+
+  getDefaultProps: function () {
+    return { spatialCoverages: Immutable.List() }
+  },
+
   getInitialState: function () {
     return { period: this.props.period }
   },
+
   getPeriodValue: function () {
     var period = this.state.period
 
     period = period
       .merge(this.refs.temporalCoverage.getValue())
       .merge(this.refs.labelForm.getValue())
+      .merge({ type: 'PeriodDefinition' })
       .filter(val => val instanceof Immutable.Iterable ? val.size : (val && val.length))
 
     if (!period.getIn(['source', 'locator'])) {
@@ -34,6 +47,7 @@ module.exports = React.createClass({
 
   render: function () {
     var Input = require('../shared/input.jsx')
+      , randID = randomstr()
 
     return (
       <div className="period-form-body">
@@ -41,19 +55,18 @@ module.exports = React.createClass({
           <div className="col-md-6 period-form-panel">
             <LabelForm
                 ref="labelForm"
+                label={this.state.period.get('label')}
                 originalLabel={this.state.period.get('originalLabel')}
                 alternateLabels={this.state.period.get('alternateLabel')} />
           </div>
           <div className="col-md-6 period-form-panel">
             <Input
-                id="js-locator"
                 name="locator"
                 label="Locator"
                 placeholder="Position within the source (e.g. page 75)"
                 value={this.state.period.getIn(['source', 'locator'])}
                 onChange={this.handleChange.bind(null, ['source', 'locator'])} />
             <Input
-                id="js-same-as"
                 name="sameAs"
                 label="Same as"
                 placeholder="URL for this period in an external linked dataset"
@@ -87,24 +100,24 @@ module.exports = React.createClass({
           <h3>Notes</h3>
           <div className="row">
             <div className="form-group col-md-6 period-form-panel">
-              <label className="control-label" htmlFor="js-note">Note</label>
+              <label className="control-label" htmlFor={'note-' + randID}>Note</label>
               <p className="small">Notes derived from the source</p>
               <textarea
+                  id={'note-' + randID}
                   className="form-control long"
-                  id="js-note"
                   value={this.state.period.get('note')}
                   onChange={this.handleChange.bind(null, 'note')}
                   rows="5" />
             </div>
 
             <div className="form-group col-md-6 period-form-panel">
-              <label className="control-label" htmlFor="js-editorial-note">
+              <label className="control-label" htmlFor={'editorial-note-' + randID}>
                 Editorial note
               </label>
               <p className="small">Notes about the import process</p>
               <textarea
+                  id={'editorial-note-' + randID}
                   className="form-control long"
-                  id="js-editorial-note"
                   value={this.state.period.get('editorialNote')}
                   onChange={this.handleChange.bind(null, 'editorialNote')}
                   rows="5" />
