@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require('react')
+  , Immutable = require('immutable')
   , PeriodDetails
 
 PeriodDetails = React.createClass({
@@ -38,8 +39,13 @@ module.exports = React.createClass({
     // TODO: should be a read/write cursor, not just the period itself
     this.setState({ editingPeriod: period });
   },
+  handlePeriodAdd: function (period) {
+    this.setState({ editingPeriod: Immutable.Map({}) })
+  },
   handleSave: function () {
     var period = this.refs.editForm.getPeriodValue()
+
+    console.log(period);
   },
   handleCancel: function () {
     this.setState({ editingPeriod: null });
@@ -65,7 +71,13 @@ module.exports = React.createClass({
           !this.state.editingPeriod ? '' :
             <div className="period-form">
               <div className="period-form-header">
-              DOIN SOMETHIN
+                <h3>
+                {
+                  this.state.editingPeriod.has('id') ?
+                    'Editing period: ' + this.state.editingPeriod.get('label') :
+                    'Add period'
+                }
+                </h3>
               </div>
               <PeriodForm
                   period={this.state.editingPeriod}
@@ -87,6 +99,18 @@ module.exports = React.createClass({
             </div>
         }
 
+        {
+          this.state.editingPeriod ? null :
+            <div>
+              <br />
+              <br />
+              <button className="btn btn-lg btn-primary" onClick={this.handlePeriodAdd}>
+                Add period
+              </button>
+              <br />
+              <br />
+            </div>
+        }
         <PeriodList
             renderShownPeriod={this.renderShownPeriod}
             periods={this.props.collection.get('definitions').toList()} />
