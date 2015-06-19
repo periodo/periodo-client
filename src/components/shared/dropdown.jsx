@@ -27,7 +27,9 @@ module.exports = React.createClass({
     document.addEventListener('click', this.close);
   },
   close: function () {
-    this.setState({ open: false });
+    this.setState({ open: false }, () => {
+      if (this.props.onHidden) this.props.onHidden();
+    });
     document.removeEventListener('click', this.close);
   },
   handleClick: function () {
