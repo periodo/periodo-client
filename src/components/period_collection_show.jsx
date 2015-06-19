@@ -41,6 +41,9 @@ module.exports = React.createClass({
   handleSave: function () {
     var period = this.refs.editForm.getPeriodValue()
   },
+  handleCancel: function () {
+    this.setState({ editingPeriod: null });
+  },
   renderShownPeriod: function (period) {
     return (
       <PeriodDetails
@@ -73,6 +76,12 @@ module.exports = React.createClass({
                     className="btn btn-primary"
                     onClick={this.handleSave}>
                   Save
+                </button>
+
+                <button
+                    className="btn btn-danger pull-right"
+                    onClick={this.handleCancel}>
+                  Cancel
                 </button>
               </div>
             </div>
