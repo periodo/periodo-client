@@ -40,7 +40,7 @@ module.exports = React.createClass({
   displayName: 'PeriodSpatialCoverageForm',
   getInitialState: function () {
     return {
-      description: this.props.description,
+      description: this.props.description || '',
       coverage: (this.props.coverage || Immutable.List()).toOrderedSet()
     }
   },
