@@ -2,6 +2,7 @@
 
 var React = require('react')
   , Immutable = require('immutable')
+  , skolemID = require('../utils/generate_skolem_id.js')
   , PeriodDetails
 
 PeriodDetails = React.createClass({
@@ -35,17 +36,31 @@ module.exports = React.createClass({
   getInitialState: function () {
     return { editingPeriod: null }
   },
+  componentWillReceiveProps: function (nextProps, nextState) {
+    if (this.props.store && !this.props.store.equals(nextProps.store)) {
+      this.setState({ editingPeriod: null });
+    }
+  },
   handlePeriodEdit: function (period) {
-    // TODO: should be a read/write cursor, not just the period itself
-    this.setState({ editingPeriod: period });
+    this.setState({ editingPeriod: period.deref() });
   },
   handlePeriodAdd: function (period) {
     this.setState({ editingPeriod: Immutable.Map({}) })
   },
   handleSave: function () {
     var period = this.refs.editForm.getPeriodValue()
+      , save
 
-    console.log(period.toJS());
+    if (!period.has('id')) {
+      period = period.set('id', skolemID());
+      save = true;
+    } else {
+      save = !period.equals(this.props.cursor.getIn(['definitions', period.get('id')]));
+    }
+
+    if (save) {
+      this.props.cursor.setIn(['definitions', period.get('id')], period);
+    }
   },
   handleCancel: function () {
     this.setState({ editingPeriod: null });
@@ -113,7 +128,7 @@ module.exports = React.createClass({
         }
         <PeriodList
             renderShownPeriod={this.renderShownPeriod}
-            periods={this.props.collection.get('definitions').toList()} />
+            periods={this.props.cursor.get('definitions').toList()} />
       </div>
     )
   }

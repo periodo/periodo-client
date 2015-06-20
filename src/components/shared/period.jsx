@@ -69,7 +69,7 @@ module.exports = React.createClass({
         </div>
 
         {
-        !this.props.period.has('alternateLabel') ? '' :
+        !this.props.period.get('alternateLabel') ? '' :
         <div className="field">
           <dt>Alternate labels</dt>
           <dd>

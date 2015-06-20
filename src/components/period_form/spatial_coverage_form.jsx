@@ -47,7 +47,7 @@ module.exports = React.createClass({
   getValue: function () {
     return {
       spatialCoverageDescription: this.state.description,
-      spatialCoverage: this.state.coverage
+      spatialCoverage: this.state.coverage.toList()
     }
   },
   removeCoverage: function (toRemove) {

@@ -1,3 +1,5 @@
+"use strict";
+
 var RouteRecognizer = require('route-recognizer')
   , router = new RouteRecognizer()
   , routes
@@ -24,6 +26,9 @@ routes = {
   },
   'p/:backendName/periodCollections/:collectionID/': {
     name: 'period-collection-show',
+    getCursorPath: function ({ collectionID }) {
+      return ['periodCollections', collectionID]
+    },
     getData: function (store, { collectionID }) {
       return { collection: store.getIn(['periodCollections', collectionID]) }
     },

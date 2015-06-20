@@ -2,6 +2,7 @@
 
 var React = require('react')
   , Immutable = require('immutable')
+  , Cursor = require('immutable/contrib/cursor')
   , LocationBar = require('location-bar')
 
 function getBackendAndStore(backendName) {
@@ -50,7 +51,7 @@ module.exports = React.createClass({
       errors: Immutable.List()
     }
   },
-  handleRoute: function ({ Component, getData }, params) {
+  handleRoute: function ({ Component, getData, getCursorPath }, params) {
     var promise = Promise.resolve({})
 
     if (params.hasOwnProperty('backendName')) {
@@ -79,10 +80,33 @@ module.exports = React.createClass({
         .then(data => ((props.data = data), props))
     }
 
+    if (getCursorPath) {
+      let props;
+      promise = promise
+        .then(_props => props = _props)
+        .then(() => {
+          var path = getCursorPath(params)
+            , onUpdate
+
+          onUpdate = !props.backend.editable ? void 0 : updatedStore => {
+            props.backend
+              .saveStore(updatedStore)
+              .then(() => this.setState({
+                store: updatedStore,
+                cursor: Cursor.from(updatedStore, path, onUpdate)
+              }));
+          }
+
+          return Cursor.from(props.store, path, onUpdate);
+        })
+        .then(cursor => ((props.cursor = cursor), props))
+    }
+
     promise.then(props => {
       this.setState({
         Component,
         backend: props.backend || null,
+        cursor: props.cursor || null,
         store: props.store || null,
         data: props.data || {}
       });
