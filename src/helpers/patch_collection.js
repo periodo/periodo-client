@@ -4,26 +4,32 @@ var Immutable = require('immutable')
   , { parsePatchPath, hashPatch } = require('../utils/patch')
 
 // Return a tuple representing the type of change, which will be in the form:
-// [type, operation, (...identifiers)]. If this patch does not effect any
-// periods or period collections, return null.
+// [type, operation, ...identifiers]. If this patch does not effect any periods
+// or period collections, return null.
 function getChangeType(patch) {
   var parsed = parsePatchPath(patch.get('path'))
 
   if (!parsed) return null;
 
-  if (parsed.type === 'period') {
-    if (!parsed.label) {
-      // This is an add/remove operation
-      return Immutable.List(['period', patch.get('op'), parsed.collection_id]);
-    }
-    return Immutable.List(['period', 'edit', parsed.collection_id, parsed.id]);
-  }
+  // Parsed.label indicates that a single field was changed, not a whole period
+  // (i.e. adding or removing)
 
-  if (parsed.type === 'periodCollection') {
-    if (!parsed.label) {
-      return Immutable.List(['periodization', patch.get('op')]);
-    }
-    return Immutable.List(['periodidzation', 'edit', parsed.id]);
+  if (parsed.type === 'period') {
+    let type = `${patch.get('op')}Period`
+      , collection_id = parsed.collection_id
+      , period_id = parsed.id
+
+    return parsed.label ?
+      [type, collection_id, period_id] :
+      [type, collection_id]
+
+  } else if (parsed.type === 'periodCollection') {
+    let type = `${patch.get('op')}PeriodCollection`
+      , collection_id = parsed.id
+
+    return parsed.label ?
+      [type, collection_id] :
+      [type]
   }
 
   return null;
@@ -97,7 +103,7 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
           matchingHashes.indexOf(hash) !== -1 :
           matchingHashes.indexOf(hash) === -1
         ))
-        .valueSeq()
+        .toList()
         .map(patch => patch instanceof Immutable.List ? patch : Immutable.List.of(patch))
         .flatten(true)
     })
