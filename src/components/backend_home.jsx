@@ -12,7 +12,7 @@ CollectionList = React.createClass({
     var { describe } = require('../helpers/periodization')
 
     return this.props.store.get('periodCollections')
-      .toSeq()
+      .valueSeq()
       .skip(this.state.currentPage * this.state.limit)
       .take(this.state.limit)
       .map(describe)
@@ -41,15 +41,15 @@ CollectionList = React.createClass({
         <tbody>
           {
             collections.map(collection =>
-              <tr>
+              <tr key={collection.id}>
                 <td>
                   <a href={urlForCollection(collection.id)}>
                     {collection.source}
                   </a>
                 </td>
                 <td>{collection.definitions}</td>
-                <td>{collection.earliest}</td>
-                <td>{collection.latest}</td>
+                <td>{collection.earliest ? collection.earliest.iso : null}</td>
+                <td>{collection.latest ? collection.latest.iso : null}</td>
               </tr>
             )
           }
