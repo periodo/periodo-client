@@ -17,8 +17,14 @@ CollectionList = React.createClass({
       .take(this.state.limit)
       .map(describe)
   },
+  handlePageChange: function (currentPage) {
+    this.setState({ currentPage });
+  },
   render: function () {
-    var collections = this.getMatchedCollections()
+    var Paginator = require('./shared/paginate.jsx')
+      , collections = this.getMatchedCollections()
+      , numCollections = this.props.store.get('periodCollections').size
+      , firstIndex = this.state.currentPage * this.state.limit
       , urlForCollection
 
     urlForCollection = collectionID => (
@@ -29,32 +35,47 @@ CollectionList = React.createClass({
     )
 
     return (
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Source title</th>
-            <th>Num. of periods</th>
-            <th>Earliest start</th>
-            <th>Latest stop</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            collections.map(collection =>
-              <tr key={collection.id}>
-                <td>
-                  <a href={urlForCollection(collection.id)}>
-                    {collection.source}
-                  </a>
-                </td>
-                <td>{collection.definitions}</td>
-                <td>{collection.earliest ? collection.earliest.iso : null}</td>
-                <td>{collection.latest ? collection.latest.iso : null}</td>
-              </tr>
-            )
-          }
-        </tbody>
-      </table>
+      <div>
+        <h2>Period Collections</h2>
+        <div>
+          Viewing {firstIndex + 1} - {firstIndex + collections.size} of {numCollections}
+        </div>
+        <div className="row">
+          <div className="col-md-7">
+            <Paginator
+                numItems={numCollections}
+                limit={this.state.limit}
+                currentPage={this.state.currentPage}
+                onPageChange={this.handlePageChange} />
+          </div>
+        </div>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Source title</th>
+              <th>Num. of periods</th>
+              <th>Earliest start</th>
+              <th>Latest stop</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              collections.map(collection =>
+                <tr key={collection.id}>
+                  <td>
+                    <a href={urlForCollection(collection.id)}>
+                      {collection.source}
+                    </a>
+                  </td>
+                  <td>{collection.definitions}</td>
+                  <td>{collection.earliest ? collection.earliest.iso : null}</td>
+                  <td>{collection.latest ? collection.latest.iso : null}</td>
+                </tr>
+              )
+            }
+          </tbody>
+        </table>
+      </div>
     )
 
   }
