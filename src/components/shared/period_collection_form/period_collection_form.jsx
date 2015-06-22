@@ -15,6 +15,7 @@ module.exports = React.createClass({
     return {
       linkedData: true,
       sourceData: null,
+      editorialNote: '',
       errors: []
     }
   },
@@ -25,8 +26,24 @@ module.exports = React.createClass({
       errors: []
     });
   },
+  getValue: function () {
+    var value = Immutable.Map({
+      type: 'PeriodCollection',
+      source: this.state.sourceData,
+      definitions: Immutable.Map()
+    });
+
+    if (this.state.editorialNote) {
+      value = value.set('editorialNote', this.state.editorialNote);
+    }
+
+    return value;
+  },
+  handleEditorialNoteChange: function (e) {
+    var editorialNote = e.target.value;
+    this.setState({ editorialNote });
+  },
   handleSourceChange: function (source) {
-    console.log(source.toJS());
     this.setState({ sourceData: source });
   },
   render: function () {
@@ -34,8 +51,8 @@ module.exports = React.createClass({
       , NonLDSourceForm = require('./non_ld_source_form.jsx')
 
     var sourceForm = this.state.linkedData ?
-      <LDSourceForm onChange={this.handleSourceChange} data={this.state.sourceData} /> :
-      <NonLDSourceForm onChange={this.handleSourceChange} data={this.state.sourceData} />
+      <LDSourceForm onSourceChange={this.handleSourceChange} data={this.state.sourceData} /> :
+      <NonLDSourceForm onSourceChange={this.handleSourceChange} data={this.state.sourceData} />
 
     return (
       <div>
@@ -63,7 +80,12 @@ module.exports = React.createClass({
                 Editorial notes
               </label>
               <p className="small">Notes about importing this source</p>
-              <textarea className="form-control" id="js-editorial-note" rows={5} />
+              <textarea
+                  className="form-control"
+                  id="js-editorial-note"
+                  onChange={this.handleEditorialNoteChange}
+                  value={this.state.editorialNote}
+                  rows={5} />
             </div>
           </div>
         </div>

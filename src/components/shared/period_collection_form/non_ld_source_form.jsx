@@ -17,7 +17,7 @@ module.exports = React.createClass({
       .map(val => val instanceof Immutable.Iterable ? val.filter(v => v) : val)
       .filter(val => val instanceof Immutable.Iterable ? val.size : val.length)
 
-    this.props.onChange(source);
+    this.props.onSourceChange(source);
   },
   handleChange: function (e) {
     var name = e.target.name
@@ -64,6 +64,8 @@ module.exports = React.createClass({
                 className="form-control"
                 id="source-citation"
                 name="citation"
+                value={this.state.data.get('citation')}
+                onChange={this.handleChange}
                 rows={4} />
           </div>
 

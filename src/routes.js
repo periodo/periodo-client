@@ -22,7 +22,10 @@ routes = {
   },
   'p/:backendName/periodCollections/add/': {
     name: 'period-collection-add',
-    Component: require('./components/period_collection_add.jsx')
+    Component: require('./components/period_collection_add.jsx'),
+    getCursorPath: function () {
+      return ['periodCollections']
+    }
   },
   'p/:backendName/periodCollections/:collectionID/': {
     name: 'period-collection-show',
