@@ -164,7 +164,6 @@ module.exports = React.createClass({
 
     return (
       <div>
-        <h2>Matched periods</h2>
         <div>
           Viewing {this.getFirstIndex()} - {this.getLastIndex()} of {this.props.periods.size}
         </div>

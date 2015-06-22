@@ -109,19 +109,26 @@ module.exports = React.createClass({
       });
     });
 
+    var periods = this.state.facets.getMatchedDocuments()
+
     return (
-      <div className="row">
-        <div className="col-md-7">
-          <PeriodList
-            periods={this.state.facets.getMatchedDocuments()}
-            dataset={this.props.dataset}
-            backend={this.props.backend} />
+        <div className="row">
+          <div className="col-md-7">
+            <h2>Periods</h2>
+            {
+              !periods.length ?
+                <p>No periods yet defined.</p> :
+                <PeriodList
+                  periods={periods}
+                  dataset={this.props.dataset}
+                  backend={this.props.backend} />
+            }
+          </div>
+          <div className="col-md-5">
+            <h2>Filters</h2>
+            {facetFields}
+          </div>
         </div>
-        <div className="col-md-5">
-          <h2>Filters</h2>
-          {facetFields}
-        </div>
-      </div>
     )
   }
 });
