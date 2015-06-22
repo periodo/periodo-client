@@ -30,10 +30,7 @@ routes = {
   'p/:backendName/periodCollections/:collectionID/': {
     name: 'period-collection-show',
     getCursorPath: function ({ collectionID }) {
-      return ['periodCollections', collectionID]
-    },
-    getData: function (store, { collectionID }) {
-      return { collection: store.getIn(['periodCollections', collectionID]) }
+      return ['periodCollections', decodeURIComponent(collectionID)]
     },
     Component: require('./components/period_collection_show.jsx')
   },

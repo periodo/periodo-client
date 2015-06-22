@@ -81,7 +81,7 @@ module.exports = React.createClass({
 
     return (
       <div>
-        <h2>{getDisplayTitle(this.props.collection.get('source'))}</h2>
+        <h2>{getDisplayTitle(this.props.cursor.get('source'))}</h2>
         {
           !this.state.editingPeriod ? '' :
             <div className="period-form">
