@@ -70,13 +70,19 @@ ActionsMenu = React.createClass({
     )
   },
   getEditableMenuItems: function (){
-    return (
+    var routerOpts = { backendName: this.props.backend.name }
+    return [
+      <li key="sync">
+        <a href={this.props.router.generate('sync', routerOpts)}>
+          Sync with server
+        </a>
+      </li>,
       <li key="add-collection">
-        <a href={this.props.router.generate('period-collection-add', {
-          backendName: this.props.backend.name
-        })}>Add period collection</a>
-      </li>
-    )
+        <a href={this.props.router.generate('period-collection-add', routerOpts)}>
+          Add period collection
+        </a>
+      </li>,
+    ]
   },
   getBackendMenuItems: function () {
     var additionalItems = (this.props.backend && this.props.backend.editable) ?

@@ -34,6 +34,13 @@ routes = {
     },
     Component: require('./components/period_collection_show.jsx')
   },
+  'p/:backendName/sync/': {
+    name: 'sync',
+    Component: require('./components/sync.jsx'),
+    getCursorPath: function () {
+      return []
+    },
+  },
   'signin/': {
     Component: require('./components/signin.jsx')
   },
@@ -47,9 +54,6 @@ routes = {
   'p/:backendName/periodCollections/:collectionID/edit/': {
     Component: require('./components/period_collection_edit.jsx')
   },
-  'p/:backendName/sync': {
-    Component: require('./components/sync.jsx')
-  }
   'p/:backendName/patches/': {
     Component: require('./components/patch_list_submitted.jsx')
   },
