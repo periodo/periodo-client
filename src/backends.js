@@ -42,7 +42,12 @@ Backend.prototype = {
     return this.saveData(newData)
       .then(saved => {
         window.periodo.emit('requestEnd');
-        return (this._data = saved instanceof Immutable.Iterable ? saved : Immutable.fromJS(saved));
+        this._data = (
+          saved instanceof Immutable.Iterable ?
+            saved :
+            Immutable.fromJS(saved))
+
+        return this._data;
       })
       .catch(window.periodo.handleError)
   },
@@ -71,7 +76,61 @@ Backend.prototype = {
     promise = promise.catch(window.periodo.handleError);
 
     return promise;
+  },
+
+  // `toRemote` is a boolean value that represents if the returned patches
+  // should represent changes are meant to be applied to the remote dataset.
+  getChanges: function(toRemote, remote) {
+    var { makePatch } = require('./utils/patch')
+      , { filterByHash } = require('./helpers/patch_collection')
+      , periodCollectionRegex = /^\/periodCollection/
+
+    if (!(this.editable && this.matchHashes)) {
+      throw new Error(`Cannot get patches for backend with type ${this.type}`)
+    }
+
+    return this.getStore()
+      .then(store => {
+        return toRemote ?
+          // Patch submission (to server)
+          makePatch(store.toJS(), remote) :
+
+          // Sync (from server)
+          makePatch(remote, store.toJS())
+      })
+      .then(patches => patches.filter(
+        // Only deal with patches that deal with a period collection
+        patch => patch.path.match(periodCollectionRegex))
+      )
+      .then(Immutable.fromJS)
+      .then(patches => {
+        // If we're trying to make "remote" look like local, *only include*
+        // those patches that having matching forward patches stored in this
+        // backend.
+
+        // If we're trying to make "local" look like "remote", *exclude* all
+        // patches that having matching backward patches in this backend.
+
+        return filterByHash(
+          patches,
+          toRemote,
+          this.matchHashes.bind(this, toRemote ? 'forward' : 'backward'))
+      })
+  },
+
+  // Get the set of patches that would make "local" look like "remote", as in
+  // downloading assertions from a server to a local client.
+  getChangesFromRemote: function (remote) {
+    return this.getChanges(true, remote)
+  },
+
+
+  // Get the set of patches that would make "remote" look like "local", as in
+  // submitting some patches from the local client to a server.
+  getChangesFromLocal: function (remote) {
+    return this.getChanges(false, remote)
   }
+
 }
 
 
@@ -97,6 +156,14 @@ function IDBBackend(opts) {
   this.saveData = function (data) {
     return require('./db')(this.name).updateLocalData(data.toJS())
   }
+
+  this.matchHashes = function (direction, hashes) {
+    return require('./db')(this.name)
+      .patches
+      .where(direction + 'Hashes')
+      .anyOf(hashes.toArray())
+      .uniqueKeys()
+  }
 }
 
 IDBBackend.constructor = IDBBackend;
@@ -118,7 +185,7 @@ function WebBackend(opts) {
 
   this.fetchData = function () {
     return require('./ajax').getJSON(this.url + 'd/')
-      .then(function ([data, status, xhr]) {
+      .then(function ([data, , xhr]) {
         var modified = xhr.getResponseHeader('Last-Modified');
         modified = modified && new Date(modified).getTime();
         return { data, modified };
