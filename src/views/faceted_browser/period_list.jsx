@@ -1,7 +1,6 @@
 "use strict";
 
 var React = require('react')
-  , Paginate = require('react-paginate')
   , { getDisplayTitle } = require('../../helpers/source')
   , PeriodDetails
   , PeriodRow
@@ -72,33 +71,20 @@ PeriodDetails = React.createClass({
 
 module.exports = React.createClass({
   getInitialState: function () {
-    return { limit: 20, start: 0, page: 0, viewingDetails: [] }
+    return {
+      limit: 20,
+      currentPage: 0,
+      viewingDetails: []
+    }
   },
   getDefaultProps: function () {
     return { allowClicks: true }
   },
   componentWillReceiveProps: function () {
-    this.setState({ start: 0, page: 0, viewingDetails: []});
+    this.setState({ currentPage: 0, viewingDetails: []});
   },
-  getFirstIndex: function () {
-    return this.state.start + 1;
-  },
-  getLastIndex: function () {
-    var { start, limit } = this.state
-      , numPeriods = this.props.periods.size
-
-    return (start + limit) > numPeriods ? numPeriods : start + limit;
-  },
-  getNumberOfPages: function () {
-    var numPeriods = this.props.periods.size
-    return numPeriods ? Math.ceil(numPeriods / this.state.limit) : 1;
-  },
-  handlePageClick: function (data) {
-    this.setState({
-      start: data.selected * this.state.limit,
-      page: data.selected,
-      viewingDetails: []
-    });
+  handlePageChange: function (currentPage) {
+    this.setState({ currentPage, viewingDetails: [] });
   },
   showPeriodRow: function (period) {
     this.setState(prev => {
@@ -136,10 +122,10 @@ module.exports = React.createClass({
             dataset={this.props.dataset} />
     )
   },
-  render: function () {
-    var periods = this.props.periods
+  getMatchedPeriods: function () {
+    return this.props.periods
       .toSeq()
-      .skip(this.state.start)
+      .skip(this.getFirstIndex())
       .take(this.state.limit)
       .map(period => {
         if (this.state.viewingDetails.indexOf(period.get('id')) === -1) {
@@ -161,21 +147,26 @@ module.exports = React.createClass({
           )
         }
       });
+  },
+  getFirstIndex: function () {
+    return this.state.currentPage * this.state.limit;
+  },
+  render: function () {
+    var Paginator = require('../../components/shared/paginate.jsx')
+      , periods = this.getMatchedPeriods()
+      , firstIndex = this.getFirstIndex()
 
     return (
       <div>
         <div>
-          Viewing {this.getFirstIndex()} - {this.getLastIndex()} of {this.props.periods.size}
+          Viewing {firstIndex + 1} - {firstIndex + periods.size} of {this.props.periods.size}
         </div>
         <div>
-          <Paginate containerClassName="pagination-container pagination"
-                    subContainerClassName="pages pagination"
-                    activeClass="active"
-                    forceSelected={this.state.page}
-                    marginPagesDisplayed={2}
-                    breakLabel={<li className="break"><a href="">...</a></li>}
-                    pageNum={this.getNumberOfPages()}
-                    clickCallback={this.handlePageClick} />
+          <Paginator
+              numItems={this.props.periods.size}
+              limit={this.state.limit}
+              currentPage={this.state.currentPage}
+              onPageChange={this.handlePageChange} />
         </div>
         <table className="period-detail-table table table-hover">
           <thead className="nowrap">

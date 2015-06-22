@@ -116,7 +116,7 @@ module.exports = React.createClass({
           <div className="col-md-7">
             <h2>Periods</h2>
             {
-              !periods.length ?
+              !periods.size ?
                 <p>No periods yet defined.</p> :
                 <PeriodList
                   periods={periods}
