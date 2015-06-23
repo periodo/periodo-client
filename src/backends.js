@@ -129,8 +129,14 @@ Backend.prototype = {
   // submitting some patches from the local client to a server.
   getChangesFromLocal: function (remote) {
     return this.getChanges(false, remote)
-  }
+  },
 
+  saveSubmittedPatch: function (data) {
+    var { NotImplementedError } = require('./errors');
+    throw new NotImplementedError(
+      `saveSubmittedPatch not implemented for backend type ${this.type}`
+    )
+  }
 }
 
 
@@ -163,6 +169,12 @@ function IDBBackend(opts) {
       .where(direction + 'Hashes')
       .anyOf(hashes.toArray())
       .uniqueKeys()
+  }
+
+  this.saveSubmittedPatch = function (patchObj) {
+    return require('./db')(this.name).localPatches
+      .put(patchObj)
+      .then(() => patchObj.id)
   }
 }
 

@@ -77,6 +77,11 @@ ActionsMenu = React.createClass({
           Sync with server
         </a>
       </li>,
+      <li key="submit-patch">
+        <a href={this.props.router.generate('patch-submit', routerOpts)}>
+          Submit patch to server
+        </a>
+      </li>,
       <li key="add-collection">
         <a href={this.props.router.generate('period-collection-add', routerOpts)}>
           Add period collection

@@ -39,7 +39,11 @@ routes = {
     Component: require('./components/sync.jsx'),
     getCursorPath: function () {
       return []
-    },
+    }
+  },
+  'p/:backendName/patches/submit/': {
+    name: 'patch-submit',
+    Component: require('./components/patch_submit.jsx')
   },
   'signin/': {
     Component: require('./components/signin.jsx')
@@ -56,9 +60,6 @@ routes = {
   },
   'p/:backendName/patches/': {
     Component: require('./components/patch_list_submitted.jsx')
-  },
-  'p/:backendName/patches/submit/': {
-    Component: require('./components/patch_submit.jsx')
   },
   'p/:backendName/patches/:patchID/': {
     Component: require('./components/patch_show.jsx')
