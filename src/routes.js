@@ -45,6 +45,10 @@ routes = {
     name: 'patch-submit',
     Component: require('./components/patch_submit.jsx')
   },
+  'reviewPatches/': {
+    name: 'review-patches',
+    Component: require('./components/review_patches.jsx')
+  },
   'signin/': {
     Component: require('./components/signin.jsx')
   },
@@ -63,9 +67,6 @@ routes = {
   },
   'p/:backendName/patches/:patchID/': {
     Component: require('./components/patch_show.jsx')
-  },
-  'reviewPatches/': {
-    Component: require('./components/review_patches.jsx')
   },
   '*': {
   },
