@@ -36,7 +36,7 @@ module.exports = React.createClass({
   getInitialState: function () {
     return { editingPeriod: null }
   },
-  componentWillReceiveProps: function (nextProps, nextState) {
+  componentWillReceiveProps: function (nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
       this.setState({ editingPeriod: null });
     }
@@ -44,7 +44,7 @@ module.exports = React.createClass({
   handlePeriodEdit: function (period) {
     this.setState({ editingPeriod: period.deref() });
   },
-  handlePeriodAdd: function (period) {
+  handlePeriodAdd: function () {
     this.setState({ editingPeriod: Immutable.Map({}) })
   },
   handleSave: function () {

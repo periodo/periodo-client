@@ -1,7 +1,6 @@
 "use strict";
 
 var React = require('react')
-  , Immutable = require('immutable')
   , Paginate = require('react-paginate')
 
 module.exports = React.createClass({
