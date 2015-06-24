@@ -80,10 +80,10 @@ function formatPeriodCollectionAddition(addition) {
 }
 
 function formatPeriodAddition(addition) {
-  return {
+  return Immutable.Map({
     patches: Immutable.List.of(addition),
     component: <pre>A PERIOD ADDITION</pre>
-  }
+  })
 }
 
 module.exports = React.createClass({

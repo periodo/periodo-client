@@ -45,9 +45,14 @@ routes = {
     name: 'patch-submit',
     Component: require('./components/patch_submit.jsx')
   },
-  'reviewPatches/': {
-    name: 'review-patches',
-    Component: require('./components/review_patches.jsx')
+  'patches/': {
+    name: 'review-patch-list',
+    Component: require('./components/review_patch_list.jsx')
+  },
+  'patches/*patchURI': {
+    name: 'review-patch-detail',
+    Component: require('./components/review_patch_detail.jsx'),
+    getData: (store, { patchURI }) => Promise.resolve({ patchURI })
   },
   'signin/': {
     Component: require('./components/signin.jsx')

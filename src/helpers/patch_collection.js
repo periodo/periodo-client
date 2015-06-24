@@ -110,5 +110,16 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
     .then(filteredPatches => filteredPatches.concat(additions));
 }
 
+function getOrcids(patches) {
+  return patches
+    .map(patch => patch.get('created_by'))
+    .toSet()
+}
 
-module.exports = { groupByChangeType, combineChangePairs, filterByHash }
+
+module.exports = {
+  groupByChangeType,
+  combineChangePairs,
+  filterByHash,
+  getOrcids
+}

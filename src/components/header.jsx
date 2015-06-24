@@ -66,7 +66,7 @@ ActionsMenu = React.createClass({
       <ul style={style} className="dropdown-menu dropdown-menu-right">
         {this.props.backend ? this.getBackendMenuItems() : ''}
         <li><a href={this.props.router.generate('backend-select')}>Switch backends</a></li>
-        <li><a href={this.props.router.generate('review-patches')}>Review patches</a></li>
+        <li><a href={this.props.router.generate('review-patch-list')}>Review patches</a></li>
       </ul>
     )
   },
