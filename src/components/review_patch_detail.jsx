@@ -35,7 +35,7 @@ module.exports = React.createClass({
       , ajaxOpts
 
     ajaxOpts = {
-      url: this.props.data.url + 'merge',
+      url: this.state.patchData.url + 'merge',
       method: 'POST',
       headers: {}
     }

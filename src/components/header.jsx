@@ -1,42 +1,8 @@
 "use strict"
 
 var React = require('react')
-  , Spinner = require('spin.js')
   , Auth
-  , SpinIcon
   , ActionsMenu
-
-SpinIcon = React.createClass({
-  getDefaultProps: function () {
-    return { spin: false }
-  },
-  componentDidMount: function () {
-    this.spinner = new Spinner({
-      lines: 12,
-      length: 5,
-      width: 2,
-      radius: 6,
-      trail: 40
-    });
-    this.refreshSpin();
-  },
-  componentDidUpdate: function () {
-    this.refreshSpin();
-  },
-  componentWillUnmount: function () {
-    this.spinner.stop();
-  },
-  refreshSpin: function () {
-    if (this.props.spin) {
-      this.spinner.spin(React.findDOMNode(this));
-    } else {
-      this.spinner.stop();
-    }
-  },
-  render: function () {
-    return <div className="spinner-wrapper" />
-  }
-});
 
 Auth = React.createClass({
   getDefaultProps: function () {
@@ -81,6 +47,11 @@ ActionsMenu = React.createClass({
       <li key="submit-patch">
         <a href={this.props.router.generate('patch-submit', routerOpts)}>
           Submit patch to server
+        </a>
+      </li>,
+      <li key="view-patches">
+        <a href={this.props.router.generate('local-patch-list', routerOpts)}>
+          View submitted patches
         </a>
       </li>,
       <li key="add-collection">
@@ -138,6 +109,8 @@ ActionsMenu = React.createClass({
 module.exports = React.createClass({
   displayName: 'Header',
   render: function () {
+    var Spinner = require('./shared/spinner.jsx')
+
     var backendMessage = this.props.backend ?
       (<span>
          Current backend: {this.props.backend.name} [
@@ -154,7 +127,7 @@ module.exports = React.createClass({
           <div className="navbar-header">
             <a className="navbar-brand" href={logoHref}>PeriodO</a>
             <p className="navbar-text">{backendMessage}</p>
-            <SpinIcon spin={this.props.loading} />
+            <Spinner spin={this.props.loading} />
           </div>
           <div className="navbar-header pull-right">
             <Auth user={this.props.user} />

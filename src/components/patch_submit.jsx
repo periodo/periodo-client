@@ -50,7 +50,7 @@ module.exports = React.createClass({
 
   },
 
-  render: function () {
+  renderSubmitPatch: function () {
     var SelectChanges = require('./shared/select_changes.jsx')
       , getChanges = data => this.props.backend.getChangesFromLocal(data)
 
@@ -70,5 +70,20 @@ module.exports = React.createClass({
             onAcceptPatches={this.handleAcceptPatches} />
       </div>
     )
+  },
+
+  renderMustLogIn: function () {
+    return (
+      <div>
+        <h1>Submit patch</h1>
+        <h2>Log in required</h2>
+        <p>You must be <a href={this.props.router.generate('sign-in')}>logged in</a> to submit a patch to the server.</p>
+      </div>
+    )
+  },
+
+  render: function () {
+    return this.props.user ? this.renderSubmitPatch() : this.renderMustLogIn();
   }
+
 });

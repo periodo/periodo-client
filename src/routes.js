@@ -1,6 +1,7 @@
 "use strict";
 
 var RouteRecognizer = require('route-recognizer')
+  , Immutable = require('immutable')
   , router = new RouteRecognizer()
   , routes
 
@@ -45,6 +46,21 @@ routes = {
     name: 'patch-submit',
     Component: require('./components/patch_submit.jsx')
   },
+  'p/:backendName/patches/': {
+    name: 'local-patch-list',
+    Component: require('./components/local_patch_list.jsx'),
+    getData: function (store, { backendName }) {
+      return require('./backends').get(backendName)
+        .then(backend => backend.getSubmittedPatches())
+        .then(Immutable.fromJS)
+        .then(localPatches => ({ localPatches }))
+    }
+  },
+  'p/:backendName/patches/*patchURI': {
+    name: 'local-patch-detail',
+    Component: require('./components/local_patch_detail.jsx'),
+    getData: params => Promise.resolve(params)
+  },
   'patches/': {
     name: 'review-patch-list',
     Component: require('./components/review_patch_list.jsx')
@@ -55,6 +71,7 @@ routes = {
     getData: (store, { patchURI }) => Promise.resolve({ patchURI })
   },
   'signin/': {
+    name: 'sign-in',
     Component: require('./components/signin.jsx')
   },
   'signout/': {
@@ -66,14 +83,6 @@ routes = {
   },
   'p/:backendName/periodCollections/:collectionID/edit/': {
     Component: require('./components/period_collection_edit.jsx')
-  },
-  'p/:backendName/patches/': {
-    Component: require('./components/patch_list_submitted.jsx')
-  },
-  'p/:backendName/patches/:patchID/': {
-    Component: require('./components/patch_show.jsx')
-  },
-  '*': {
   },
   */
 }

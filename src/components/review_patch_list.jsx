@@ -67,7 +67,7 @@ module.exports = React.createClass({
     datasetP = getJSON(url.resolve(serverURL, 'd/'))
       .then(([dataset]) => dataset)
 
-    patchP = getJSON(url.resolve(serverURL, 'patches/'))
+    patchP = getJSON(url.resolve(serverURL, 'patches/?merged=false'))
       .then(([patches]) => patches)
 
     return patchP

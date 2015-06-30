@@ -136,6 +136,12 @@ Backend.prototype = {
     throw new NotImplementedError(
       `saveSubmittedPatch not implemented for backend type ${this.type}`
     )
+  },
+
+  getSubmittedPatches: function () {
+    throw new NotImplementedError(
+      `getSubmittedPatches not implemented for backend type ${this.type}`
+    )
   }
 }
 
@@ -175,6 +181,41 @@ function IDBBackend(opts) {
     return require('./db')(this.name).localPatches
       .put(patchObj)
       .then(() => patchObj.id)
+  }
+
+  this.markSubmittedPatchMerged = function (localPatchID, serverPatchObj) {
+    var db = require('./db')(this.name)
+      , prefixMatch = require('./utils/prefix_match')
+      , serverURL = prefixMatch(serverPatchObj.created_from, serverPatchObj.url)
+      , identifiers
+
+    identifiers = Object.keys(serverPatchObj.identifier_map).map(localID => ({
+      id: `${serverURL}|${localID}`,
+      serverURL,
+      localID,
+      serverID: serverPatchObj.identifier_map[localID]
+    }));
+
+    return db.transaction('rw', db.idMap, db.localPatches, () => {
+      db.localPatches.update(localPatchID, { resolved: true, merged: true });
+      identifiers.forEach(obj => db.idMap.put(obj));
+    });
+  }
+
+  this.markSubmittedPatchNotMerged = function (localPatchID) {
+    return require('./db')(this.name).localPatches.update(localPatchID, {
+      resolved: true,
+      merged: false
+    });
+  }
+
+  this.getSubmittedPatch = function (id) {
+    return require('./db')(this.name).localPatches.get(id);
+  }
+
+
+  this.getSubmittedPatches = function () {
+    return require('./db')(this.name).localPatches.toArray()
   }
 }
 
