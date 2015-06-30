@@ -27,7 +27,7 @@ module.exports = React.createClass({
 
   render: function () {
     var SelectChanges = require('./shared/select_changes.jsx')
-      , getChanges = data => this.props.backend.getChangesFromRemote(data)
+      , getChanges = (data, url) => this.props.backend.getChangesFromRemote(data, url)
 
     return (
       <div>

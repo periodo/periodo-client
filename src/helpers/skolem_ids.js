@@ -9,28 +9,28 @@ function isSkolemID(id) {
   )
 }
 
-function skolemIDNotPresent(id) {
-  throw new Error(`Skolem ID ${id} not present in replacement map.`);
-}
-
-function replaceSkolemIDs(data, map) {
+// For Immutable iterable `data`, replace all keys in `map` with their
+// corresponding values.
+function replaceIDs(data, map) {
   function mapper(key, val) {
     var newKey
       , newVal
 
-    if (isSkolemID(val)) {
+    if (map.has(val)) {
       newVal = map.get(val);
-      if (!newVal) skolemIDNotPresent(val);
     } else if (val instanceof Immutable.Iterable) {
-      newVal = replaceSkolemIDs(val, map);
+      newVal = replaceIDs(val, map);
+    } else {
+      newVal = val;
     }
 
-    if (isSkolemID(key)) {
+    if (map.has(key)) {
       newKey = map.get(key);
-      if (!newKey) skolemIDNotPresent(key);
+    } else {
+      newKey = key;
     }
 
-    return [newKey || key, newVal || val]
+    return [newKey, newVal]
   }
 
   return Immutable.Iterable.isKeyed(data) ?
@@ -38,4 +38,4 @@ function replaceSkolemIDs(data, map) {
     data.map(val => mapper(null, val)[1])
 }
 
-module.exports = { isSkolemID, replaceSkolemIDs }
+module.exports = { isSkolemID, replaceIDs }

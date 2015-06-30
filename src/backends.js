@@ -80,23 +80,26 @@ Backend.prototype = {
 
   // `toRemote` is a boolean value that represents if the returned patches
   // should represent changes are meant to be applied to the remote dataset.
-  getChanges: function(toRemote, remote) {
+  getChanges: function(toRemote, remote, remoteURL) {
     var { makePatch } = require('./utils/patch')
       , { filterByHash } = require('./helpers/patch_collection')
+      , { replaceIDs } = require('./helpers/skolem_ids')
       , periodCollectionRegex = /^\/periodCollection/
 
     if (!(this.editable && this.matchHashes)) {
       throw new Error(`Cannot get patches for backend with type ${this.type}`)
     }
 
-    return this.getStore()
-      .then(store => {
+    return this.getMappedIDs(remoteURL)
+      .then(mappedIDs => replaceIDs(Immutable.fromJS(remote), mappedIDs))
+      .then(remoteStore => Promise.all([this.getStore(), remoteStore]))
+      .then(([localStore, remoteStore]) => {
         return toRemote ?
           // Patch submission (to server)
-          makePatch(store.toJS(), remote) :
+          makePatch(localStore.toJS(), remoteStore.toJS()) :
 
           // Sync (from server)
-          makePatch(remote, store.toJS())
+          makePatch(remoteStore.toJS(), localStore.toJS())
       })
       .then(patches => patches.filter(
         // Only deal with patches that deal with a period collection
@@ -120,15 +123,15 @@ Backend.prototype = {
 
   // Get the set of patches that would make "local" look like "remote", as in
   // downloading assertions from a server to a local client.
-  getChangesFromRemote: function (remote) {
-    return this.getChanges(true, remote)
+  getChangesFromRemote: function (remote, remoteURL) {
+    return this.getChanges(true, remote, remoteURL)
   },
 
 
   // Get the set of patches that would make "remote" look like "local", as in
   // submitting some patches from the local client to a server.
-  getChangesFromLocal: function (remote) {
-    return this.getChanges(false, remote)
+  getChangesFromLocal: function (remote, remoteURL) {
+    return this.getChanges(false, remote, remoteURL)
   },
 
   saveSubmittedPatch: function (data) {
@@ -216,6 +219,17 @@ function IDBBackend(opts) {
 
   this.getSubmittedPatches = function () {
     return require('./db')(this.name).localPatches.toArray()
+  }
+
+  this.getMappedIDs = function (serverURL) {
+    return require('./db')(this.name).idMap
+      .where('serverURL').equals(serverURL)
+      .toArray()
+      .then(Immutable.fromJS)
+      .then(replacements => replacements
+        .toMap()
+        .mapEntries(([key, val]) => [val.get('serverID'), val.get('localID')])
+      )
   }
 }
 

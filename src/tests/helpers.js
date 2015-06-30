@@ -249,8 +249,8 @@ describe('Skolem ID helpers', function () {
     }
   });
 
-  it('should be able to replace Skolem IDs in a data structure', function () {
-    var { replaceSkolemIDs } = require('../helpers/skolem_ids')
+  it('should be able to replace IDs in a data structure', function () {
+    var { replaceIDs } = require('../helpers/skolem_ids')
       , skolemMap
 
     skolemMap = Immutable.Map({
@@ -260,7 +260,7 @@ describe('Skolem ID helpers', function () {
       'http://example.com/.well-known/genid/ghi789': 'id4'
     });
 
-    assert.deepEqual(replaceSkolemIDs(oldRecord, skolemMap).toJS(), {
+    assert.deepEqual(replaceIDs(oldRecord, skolemMap).toJS(), {
       a: 'id1',
       b: [
         'c', 'id2'

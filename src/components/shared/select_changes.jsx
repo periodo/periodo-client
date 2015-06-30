@@ -35,10 +35,15 @@ module.exports = React.createClass({
   fetchPeriods: function () {
     var url = require('url')
       , ajax = require('../../ajax')
+      , serverURL = this.state.url
+
+    if (!serverURL.slice(-1) === '/') {
+      serverURL += '/';
+    }
 
     this.setState({ changes: null }, () => ajax
-      .getJSON(url.resolve(this.state.url, 'd/'))
-      .then(([data]) => this.props.getChanges(data))
+      .getJSON(url.resolve(serverURL, 'd/'))
+      .then(([data]) => this.props.getChanges(data, serverURL))
       .then(changes => this.setState({ changes })))
 
   },
