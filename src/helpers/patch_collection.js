@@ -1,6 +1,7 @@
 "use strict";
 
 var Immutable = require('immutable')
+  , pointer = require('json-pointer')
   , { parsePatchPath, hashPatch } = require('../utils/patch')
 
 // Return a tuple representing the type of change, which will be in the form:
@@ -15,17 +16,17 @@ function getChangeType(patch) {
   // (i.e. adding or removing)
 
   if (parsed.type === 'period') {
-    let type = `${patch.get('op')}Period`
-      , collection_id = parsed.collection_id
-      , period_id = parsed.id
+    let type = `${parsed.label ? 'edit' : patch.get('op')}Period`
+      , collection_id = pointer.unescape(parsed.collection_id)
+      , period_id = pointer.unescape(parsed.id)
 
     return parsed.label ?
       [type, collection_id, period_id] :
       [type, collection_id]
 
   } else if (parsed.type === 'periodCollection') {
-    let type = `${patch.get('op')}PeriodCollection`
-      , collection_id = parsed.id
+    let type = `${parsed.label ? 'edit' : patch.get('op')}PeriodCollection`
+      , collection_id = pointer.unescape(parsed.id)
 
     return parsed.label ?
       [type, collection_id] :
@@ -39,8 +40,13 @@ function groupByChangeType(patches) {
   return Immutable.Map().withMutations(map => {
     patches.forEach(patch => {
       var path = getChangeType(patch);
+
       if (!path) return true;
-      map.updateIn(path, Immutable.List(), list => list.push(patch));
+      if (!map.hasIn(path)) {
+        map.setIn(path, Immutable.List())
+      }
+
+      map.updateIn(path, list => list.push(patch));
     });
   });
 }
