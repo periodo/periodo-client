@@ -5,7 +5,6 @@
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
   "dependencies": {
-    "backbone": "^1.1.2",
     "concat-stream": "^1.4.8",
     "csv-write-stream": "^0.3.0",
     "d3": "^3.4.8",
@@ -20,7 +19,6 @@
     "immutable": "^3.7.2",
     "iso-639-3": "^0.2.0",
     "javascript-natural-sort": "^0.7.1",
-    "jquery": "^1.11.0",
     "json-pointer": "^0.3.0",
     "json-stable-stringify": "^1.0.0",
     "jsonld": "^0.3.4",
@@ -34,7 +32,6 @@
     "router": "^1.1.1",
     "spark-md5": "0.0.5",
     "spin.js": "^2.0.1",
-    "tablesort": "^3.0.2",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
@@ -42,12 +39,10 @@
     "brfs": "1.0.0",
     "browserify": "^10.2.4",
     "browserify-shim": "^3.8.2",
-    "dom-sandbox": "0.0.1",
     "exorcist": "^0.4.0",
     "less": "^1.7.3",
     "mocha": "^1.18.0",
     "mochify": "^2.8.1",
-    "node-underscorify": "0.0.9",
     "phantomjs": "^1.9.16",
     "testling": "^1.6.1",
     "uglify-js": "^2.4.19",
