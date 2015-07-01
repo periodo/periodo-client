@@ -89,6 +89,26 @@ BackendForm = React.createClass({
 
 module.exports = React.createClass({
   displayName: 'BackendSelect',
+  handleDownloadBackend: function (backendMap) {
+    var saveAs = require('filesaver.js')
+      , stringify = require('json-stable-stringify')
+
+    require('../backends').get(backendMap.get('name'))
+      .then(backend => backend.fetchData())
+      .then(({ data, modified }) => {
+        var filename = `periodo-${backendMap.get('name')}-${modified}.json`
+          , blob
+
+        data['@context'] = require('../context.json');
+
+        blob = new Blob(
+          [stringify(data, { space: '  ' })],
+          { type: 'application/ld+json' }
+        )
+
+        saveAs(blob, filename);
+      })
+  },
   render: function () {
     var sortedBackends = Immutable.fromJS(this.props.backends)
 
@@ -106,6 +126,13 @@ module.exports = React.createClass({
             <li key={backend.get('name')} className="backend-option">
               <a href={'#p/' + backend.get('name') + '/'}>
                 { backend.get('name') } ({ backend.get('type') })
+              </a>
+
+              <a href="" onClick={this.handleDownloadBackend.bind(null, backend)}>
+                <img style={{
+                  height: '22px',
+                  marginLeft: '6px'
+                }} src="lib/noun_433_cc.svg" />
               </a>
             </li>
           ))}
