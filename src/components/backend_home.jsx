@@ -90,7 +90,7 @@ module.exports = React.createClass({
     this.setState({ browseBy });
   },
   render: function () {
-    var FacetedBrowser = require('../views/faceted_browser/browser.jsx')
+    var FacetedBrowser = require('./faceted_browser/browser.jsx')
 
     return (
       <div>
