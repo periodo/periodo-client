@@ -51,7 +51,6 @@ function validate(period) {
 }
 
 function wrapTextLeaves(className, item) {
-  debugger;
   return item instanceof Immutable.Iterable ?
     item.map(wrapTextLeaves.bind(null, className)) :
     <span className={className}>{item}</span>
