@@ -6,14 +6,20 @@ module.exports = React.createClass({
   displayName: 'DropdownMenu',
 
   propTypes: {
-    label: React.PropTypes.string.isRequired,
+    label: React.PropTypes.node.isRequired,
     renderMenuItems: React.PropTypes.func.isRequired,
-    openRight: React.PropTypes.bool.isRequired,
+    openRight: React.PropTypes.bool,
+    openUp: React.PropTypes.bool,
     onShown: React.PropTypes.func
   },
 
   getDefaultProps: function () {
-    return { openRight: false }
+    return {
+      openRight: false,
+      openUp: false,
+      containerClassName: 'btn-group',
+      togglerClassName: 'btn btn-default'
+    }
   },
 
   getInitialState: function () {
@@ -42,12 +48,21 @@ module.exports = React.createClass({
   render: function () {
     var style = { display: this.state.open ? 'block' : 'none' }
       , listClass = 'dropdown-menu' + (this.props.openRight ? ' dropdown-menu-right' : '')
+      , containerClassName = `drop${this.props.openUp ? 'up' : 'down'}`
+
+    if (this.state.open) {
+      containerClassName += ' open';
+    }
+
+    if (this.props.containerClassName) {
+      containerClassName += (' ' + this.props.containerClassName)
+    }
 
     return (
-      <div className={'btn-group dropdown' + (this.state.open ? ' open' : '')}>
-        <button className="btn btn-default" onClick={this.handleClick}>
+      <div className={containerClassName} style={{ position: 'relative' }}>
+        <div className={this.props.togglerClassName} onClick={this.handleClick}>
           {this.props.label} <span className="caret"></span>
-        </button>
+        </div>
         <ul style={style} className={listClass}>
           {this.props.renderMenuItems()}
         </ul>

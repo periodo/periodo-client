@@ -2,6 +2,7 @@
 
 var React = require('react')
   , Immutable = require('immutable')
+  , Dexie = require('dexie')
   , Cursor = require('immutable/contrib/cursor')
   , LocationBar = require('location-bar')
 
@@ -102,22 +103,21 @@ module.exports = React.createClass({
         .then(cursor => ((props.cursor = cursor), props))
     }
 
-    promise.then(props => {
-      this.setState({
+    promise
+      .then(props => this.setState({
         Component,
         backend: props.backend || null,
         cursor: props.cursor || null,
         store: props.store || null,
         data: props.data || {}
-      });
-    });
+      }))
+      .catch(this.addError)
   },
-  handleError: function (err) {
-    this.setState(prev => {
-      prev.loading = false;
-      prev.errors.push(err);
-      return prev;
-    });
+  addError: function (error) {
+    this.setState(prev => ({
+      loading: false,
+      errors: prev.errors.push(Immutable.Map({ time: new Date(), error }))
+    }));
   },
   componentDidMount: function () {
     var router = require('./routes')
@@ -152,8 +152,15 @@ module.exports = React.createClass({
       this.setState({ user: null });
     });
 
-    // FIXME: listen for uncaught errors
-    window.periodo.handleError = this.handleError;
+    window.periodo.addError = this.addError;
+    window.periodo.clearErrors = () => this.setState(prev => ({
+      errors: prev.errors.clear()
+    }));
+
+    Dexie.Promise.on('error', err => this.addError);
+    window.onerror = (message, filename, line, column, err) => {
+      this.addError(err || message);
+    }
 
     locationBar.start();
 
