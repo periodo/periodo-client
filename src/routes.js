@@ -35,6 +35,13 @@ routes = {
     },
     Component: require('./components/period_collection_show.jsx')
   },
+  'p/:backendName/periodCollections/:collectionID/edit/': {
+    name: 'period-collection-edit',
+    getCursorPath: function ({ collectionID }) {
+      return ['periodCollections', decodeURIComponent(collectionID)]
+    },
+    Component: require('./components/period_collection_edit.jsx')
+  },
   'p/:backendName/sync/': {
     name: 'sync',
     Component: require('./components/sync.jsx'),
@@ -80,9 +87,6 @@ routes = {
     /*
   'p/:backendName/periodCollections/': {
     Component: require('./components/period_collection_list.jsx')
-  },
-  'p/:backendName/periodCollections/:collectionID/edit/': {
-    Component: require('./components/period_collection_edit.jsx')
   },
   */
 }

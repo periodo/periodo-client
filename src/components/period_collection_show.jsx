@@ -119,6 +119,11 @@ module.exports = React.createClass({
             <div>
               <br />
               <br />
+              <a href={window.location.href + 'edit/'}
+                 className="btn btn-lg btn-primary">
+                Edit collection details
+              </a>
+              {' '}
               <button className="btn btn-lg btn-primary" onClick={this.handlePeriodAdd}>
                 Add period
               </button>
@@ -127,6 +132,16 @@ module.exports = React.createClass({
             </div>
           )
         }
+
+        {
+          this.props.cursor.has('editorialNote') && (
+            <div>
+              <h3>Editorial note</h3>
+              <p>{ this.props.cursor.get('editorialNote') }</p>
+            </div>
+          )
+        }
+
         <PeriodList
             renderShownPeriod={this.renderShownPeriod}
             periods={this.props.cursor.get('definitions').toList()} />

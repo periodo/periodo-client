@@ -12,11 +12,22 @@ Errors = React.createClass({
 
 module.exports = React.createClass({
   getInitialState: function () {
-    return {
-      linkedData: true,
-      sourceData: null,
-      editorialNote: '',
-      errors: []
+    var initialCollection = this.props.collection
+
+    if (initialCollection) {
+      return {
+        linkedData: initialCollection.get('source').has('id'),
+        sourceData: initialCollection.get('source'),
+        editorialNote: initialCollection.get('editorialNote', ''),
+        errors: []
+      }
+    } else {
+      return {
+        linkedData: true,
+        sourceData: null,
+        editorialNote: '',
+        errors: []
+      }
     }
   },
   toggleFormType: function () {
