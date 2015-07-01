@@ -10,12 +10,10 @@ ChangeGroup = React.createClass({
 
     return (
       <div>
+        { this.props.header }
+
         {
-          !this.props.source ? null :
-            <h4>In source: {this.props.source} </h4>
-        }
-        {
-          !this.props.select ? null :
+          this.props.select && (
             <div>
               <label>
                 <input
@@ -25,14 +23,17 @@ ChangeGroup = React.createClass({
                 {' '} Select all
               </label>
             </div>
+          )
         }
+
         <table className="table table-bordered">
           <tbody>
           {
             this.props.changes.map(change =>
               <tr className="select-patch" key={change.hashCode()}>
+
                 {
-                  !this.props.select ? null :
+                  this.props.select && (
                     <td className="toggle-patch-select">
                       <label>
                         <input
@@ -42,8 +43,10 @@ ChangeGroup = React.createClass({
                                 Immutable.Set.of(change.get('patches')))} />
                       </label>
                     </td>
+                  )
                 }
-                <td>{change.get('component')}</td>
+
+                <td>{ change.get('component') }</td>
               </tr>
             )
           }
@@ -195,14 +198,16 @@ module.exports = React.createClass({
         <p>No changes detected</p> :
         <div>
           {
-            !this.props.select ? null :
+            this.props.select && (
               <button
                   className="btn btn-default"
                   disabled={!this.state.selectedPatches.size}
                   onClick={this.handleContinue}>
                 Continue
               </button>
+            )
           }
+
           {
             grouped.map(group =>
               <div key={group.hashCode()}>

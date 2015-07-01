@@ -38,7 +38,7 @@ CollectionList = React.createClass({
       <div>
         <h2>Period Collections</h2>
         <div>
-          Viewing {firstIndex + 1} - {firstIndex + collections.size} of {numCollections}
+          Viewing { firstIndex + 1 } - { firstIndex + collections.size } of { numCollections }
         </div>
         <div className="row">
           <div className="col-md-7">
@@ -64,12 +64,12 @@ CollectionList = React.createClass({
                 <tr key={collection.id}>
                   <td>
                     <a href={urlForCollection(collection.id)}>
-                      {collection.source}
+                      { collection.source }
                     </a>
                   </td>
-                  <td>{collection.definitions}</td>
-                  <td>{collection.earliest ? collection.earliest.iso : null}</td>
-                  <td>{collection.latest ? collection.latest.iso : null}</td>
+                  <td>{ collection.definitions }</td>
+                  <td>{ collection.earliest && collection.earliest.iso }</td>
+                  <td>{ collection.latest && collection.latest.iso }</td>
                 </tr>
               )
             }

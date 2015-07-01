@@ -62,13 +62,17 @@ ActionsMenu = React.createClass({
     ]
   },
   getBackendMenuItems: function () {
-    var additionalItems = (this.props.backend && this.props.backend.editable) ?
-      this.getEditableMenuItems() : null;
+    var additionalItems = (
+      this.props.backend &&
+      this.props.backend.editable &&
+      this.getEditableMenuItems()
+    )
+
     return [
       <li key="current-backend" className="dropdown-header">
         Current backend:
         <br/>
-        <strong>{this.props.backend.name} {this.props.backend.editable ? '' : '(read-only)'}</strong>
+        <strong>{ this.props.backend.name } { !this.props.backend.editable && '(read-only)' }</strong>
       </li>,
 
       additionalItems,

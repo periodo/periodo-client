@@ -11,7 +11,7 @@ module.exports = React.createClass({
       <div className="content-footer">
         <div className="container">
           <div className="version-number-display">
-            PeriodO client <a href={githubURL}>{version}</a>
+            PeriodO client <a href={githubURL}>{ version }</a>
           </div>
           <div className="error-list">
           </div>

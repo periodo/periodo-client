@@ -90,11 +90,12 @@ module.exports = React.createClass({
 
         <div className="form-group">
           {
-            !(this.state.uses && this.state.uses.size > 1) ? null :
+            this.state.uses && this.state.uses.size > 1 && (
               <UsesSelect
                 uses={this.state.uses}
                 label={this.state.description}
                 onSelect={this.handleSelectUse} />
+            )
           }
           <label>Spatial Coverage Extent</label>
           <ul className="list-unstyled">

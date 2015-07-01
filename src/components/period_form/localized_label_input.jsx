@@ -41,16 +41,18 @@ module.exports = React.createClass({
               onChange={this.handleChange.bind(null, 'value')}
               type="text" />
           {
-            !this.props.handleAddLabel ? null :
+            this.props.handleAddLabel && (
               <span className="input-group-addon btn" onClick={this.props.handleAddLabel}>
                 <strong>+</strong>
               </span>
+            )
           }
           {
-            !this.props.handleRemoveLabel ? null :
+            this.props.handleRemoveLabel && (
               <span className="input-group-addon btn" onClick={this.props.handleRemoveLabel}>
                 <strong>-</strong>
               </span>
+            )
           }
         </div>
       </div>

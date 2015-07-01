@@ -64,16 +64,17 @@ module.exports = React.createClass({
             value={this.props.value}
             onChange={this.props.onChange} />
         {
-          !this.state.autocompleteOpen ? null :
-          <ul className="autocomplete-results">
-                <AutocompleteResults
-                    matchText={this.props.value}
-                    list={this.props.autocompleteFrom}
-                    getter={this.props.autocompleteGetter}
-                    limit={this.props.autocompleteLimit}
-                    onSelect={this.props.onSelect} />
+          this.state.autocompleteOpen && (
+            <ul className="autocomplete-results">
+                  <AutocompleteResults
+                      matchText={this.props.value}
+                      list={this.props.autocompleteFrom}
+                      getter={this.props.autocompleteGetter}
+                      limit={this.props.autocompleteLimit}
+                      onSelect={this.props.onSelect} />
 
-          </ul>
+            </ul>
+          )
         }
       </div>
     )

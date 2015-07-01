@@ -115,7 +115,7 @@ module.exports = React.createClass({
         }
 
         {
-          this.state.editingPeriod ? null :
+          !this.state.editingPeriod && (
             <div>
               <br />
               <br />
@@ -125,6 +125,7 @@ module.exports = React.createClass({
               <br />
               <br />
             </div>
+          )
         }
         <PeriodList
             renderShownPeriod={this.renderShownPeriod}

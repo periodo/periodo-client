@@ -91,7 +91,7 @@ module.exports = React.createClass({
           ‹ Back to list
         </a>
         <h2>Review patch</h2>
-        { !this.state.patchData ? null : this.renderPatch() }
+        { this.state.patchData && this.renderPatch() }
       </div>
     )
   }

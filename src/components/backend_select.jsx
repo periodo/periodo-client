@@ -71,7 +71,7 @@ BackendForm = React.createClass({
                 label="Name"
                 value={this.state.name}
                 onChange={this.handleChange} />
-            {webSource}
+            { webSource }
           </div>
 
           <div>
@@ -105,7 +105,7 @@ module.exports = React.createClass({
           {sortedBackends.map(backend => (
             <li key={backend.get('name')} className="backend-option">
               <a href={'#p/' + backend.get('name') + '/'}>
-                {backend.get('name')} ({backend.get('type')})
+                { backend.get('name') } ({ backend.get('type') })
               </a>
             </li>
           ))}

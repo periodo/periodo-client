@@ -84,10 +84,11 @@ module.exports = React.createClass({
       <div>
         <h1>Submit patch</h1>
         {
-          !this.state.savedPatchID ? null :
+          this.state.savedPatchID && (
             <div className="alert alert-success">
             Patch {this.state.savedPatchID} saved!
             </div>
+          )
         }
         <SelectChanges
             ref="selectChanges"
