@@ -5,7 +5,10 @@ var Immutable = require('immutable')
 function getSpatialCoverageCounts(periodList) {
   return periodList
     .countBy(period => period.get('spatialCoverage'))
-    .map((count, countries) => Immutable.Map({ count, countries }))
+    .map((count, countries) => Immutable.Map({
+      count,
+      countries: countries.toOrderedSet()
+    }))
     .toList()
 }
 

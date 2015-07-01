@@ -27,6 +27,13 @@ function openDB(dbName) {
    * still can
    *
    */
+  db.version(7).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
+    localPatches: 'id&,resolved',
+    idMap: 'id&,serverURL,localID'
+  })
 
   db.version(6).stores({
     dumps: 'id&,modified,synced',
@@ -34,8 +41,8 @@ function openDB(dbName) {
     patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
     localPatches: 'id&,resolved'
   }).upgrade(function (tx) {
-    tx.table('localData').get(DUMPID).then(function (d) {
-      var data = d.data;
+    tx.table('localData').get(DUMPID).then(function (localData) {
+      var data = localData.data;
       tx.table('patches').orderBy('id').reverse().modify(function (patch) {
         var after = JSON.parse(JSON.stringify(data))
           , before
@@ -141,8 +148,7 @@ function openDB(dbName) {
         promises.push(db.localData.put(localData));
         promises.push(db.patches.put(patchData));
 
-        return Dexie.Promise.all(promises)
-          .then(([localData]) => localData.data);
+        return Dexie.Promise.all(promises).then(() => newData)
       });
     });
   }

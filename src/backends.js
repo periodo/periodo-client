@@ -32,31 +32,33 @@ function Backend(opts) {
 Backend.prototype = {
   get editable() { return !!this.saveData },
   saveStore: function (newData) {
-    var app = require('./app')
-
     if (!this.saveData) {
       throw new Error(`Cannot save data for backend type ${this.type}`);
     }
 
     if (newData.equals(this._data)) return Promise.resolve(this._data);
 
-    app.trigger('request');
+    window.periodo.emit('request');
     return this.saveData(newData)
       .then(saved => {
-        app.trigger('requestEnd');
-        return (this._data = saved instanceof Immutable.Iterable ? saved : Immutable.fromJS(saved));
+        window.periodo.emit('requestEnd');
+        this._data = (
+          saved instanceof Immutable.Iterable ?
+            saved :
+            Immutable.fromJS(saved))
+
+        return this._data;
       })
-      .catch(require('./app').handleError)
+      .catch(window.periodo.handleError)
   },
   getStore: function () {
-    var app = require('./app')
-      , promise
+    var promise
 
     if (!this.fetchData) {
       throw new Error(`Cannot fetch data for backend type ${this.type}`);
     }
 
-    app.trigger('request');
+    window.periodo.emit('request');
 
     if (!this._data) {
       promise = this.fetchData().then(fetched => {
@@ -68,12 +70,92 @@ Backend.prototype = {
       promise = Promise.resolve(this._data);
     }
 
-    promise.then(() => app.trigger('requestEnd'));
+    promise.then(() => window.periodo.emit('requestEnd'));
     promise.then(() => setCurrentBackend(this));
 
-    promise = promise.catch(app.handleError);
+    promise = promise.catch(window.periodo.handleError);
 
     return promise;
+  },
+
+  // `toRemote` is a boolean value that represents if the returned patches
+  // should represent changes are meant to be applied to the remote dataset.
+  getChanges: function(toRemote, remote, remoteURL) {
+    var { makePatch } = require('./utils/patch')
+      , { filterByHash } = require('./helpers/patch_collection')
+      , { replaceIDs } = require('./helpers/skolem_ids')
+      , periodCollectionRegex = /^\/periodCollection/
+      , localStore
+      , remoteStore
+
+
+    if (!(this.editable && this.matchHashes)) {
+      throw new Error(`Cannot get patches for backend with type ${this.type}`)
+    }
+
+    return this.getMappedIDs(remoteURL)
+      .then(mappedIDs => replaceIDs(Immutable.fromJS(remote), mappedIDs))
+      .then(remoteStore => Promise.all([this.getStore(), remoteStore]))
+      .then(([_localStore, _remoteStore]) => {
+        localStore = _localStore;
+        remoteStore = _remoteStore;
+
+        return toRemote ?
+          // Patch submission (to server)
+          makePatch(localStore.toJS(), remoteStore.toJS()) :
+
+          // Sync (from server)
+          makePatch(remoteStore.toJS(), localStore.toJS())
+      })
+      .then(patches => patches.filter(
+        // Only deal with patches that deal with a period collection
+        patch => patch.path.match(periodCollectionRegex))
+      )
+      .then(Immutable.fromJS)
+      .then(patches => {
+        // If we're trying to make "remote" look like local, *only include*
+        // those patches that having matching forward patches stored in this
+        // backend.
+
+        // If we're trying to make "local" look like "remote", *exclude* all
+        // patches that having matching backward patches in this backend.
+
+        return filterByHash(
+          patches,
+          toRemote,
+          this.matchHashes.bind(this, toRemote ? 'forward' : 'backward'))
+      })
+      .then(patches => ({
+        patches,
+        sourceStore: toRemote ? localStore : remoteStore,
+        destStore: toRemote ? remoteStore : localStore
+      }))
+  },
+
+  // Get the set of patches that would make "local" look like "remote", as in
+  // downloading assertions from a server to a local client.
+  getChangesFromRemote: function (remote, remoteURL) {
+    return this.getChanges(true, remote, remoteURL)
+  },
+
+
+  // Get the set of patches that would make "remote" look like "local", as in
+  // submitting some patches from the local client to a server.
+  getChangesFromLocal: function (remote, remoteURL) {
+    return this.getChanges(false, remote, remoteURL)
+  },
+
+  saveSubmittedPatch: function (data) {
+    var { NotImplementedError } = require('./errors');
+    throw new NotImplementedError(
+      `saveSubmittedPatch not implemented for backend type ${this.type}`
+    )
+  },
+
+  getSubmittedPatches: function () {
+    throw new NotImplementedError(
+      `getSubmittedPatches not implemented for backend type ${this.type}`
+    )
   }
 }
 
@@ -100,6 +182,66 @@ function IDBBackend(opts) {
   this.saveData = function (data) {
     return require('./db')(this.name).updateLocalData(data.toJS())
   }
+
+  this.matchHashes = function (direction, hashes) {
+    return require('./db')(this.name)
+      .patches
+      .where(direction + 'Hashes')
+      .anyOf(hashes.toArray())
+      .uniqueKeys()
+  }
+
+  this.saveSubmittedPatch = function (patchObj) {
+    return require('./db')(this.name).localPatches
+      .put(patchObj)
+      .then(() => patchObj.id)
+  }
+
+  this.markSubmittedPatchMerged = function (localPatchID, serverPatchObj) {
+    var db = require('./db')(this.name)
+      , prefixMatch = require('./utils/prefix_match')
+      , serverURL = prefixMatch(serverPatchObj.created_from, serverPatchObj.url)
+      , identifiers
+
+    identifiers = Object.keys(serverPatchObj.identifier_map).map(localID => ({
+      id: `${serverURL}|${localID}`,
+      serverURL,
+      localID,
+      serverID: serverPatchObj.identifier_map[localID]
+    }));
+
+    return db.transaction('rw', db.idMap, db.localPatches, () => {
+      db.localPatches.update(localPatchID, { resolved: true, merged: true });
+      identifiers.forEach(obj => db.idMap.put(obj));
+    });
+  }
+
+  this.markSubmittedPatchNotMerged = function (localPatchID) {
+    return require('./db')(this.name).localPatches.update(localPatchID, {
+      resolved: true,
+      merged: false
+    });
+  }
+
+  this.getSubmittedPatch = function (id) {
+    return require('./db')(this.name).localPatches.get(id);
+  }
+
+
+  this.getSubmittedPatches = function () {
+    return require('./db')(this.name).localPatches.toArray()
+  }
+
+  this.getMappedIDs = function (serverURL) {
+    return require('./db')(this.name).idMap
+      .where('serverURL').equals(serverURL)
+      .toArray()
+      .then(Immutable.fromJS)
+      .then(replacements => replacements
+        .toMap()
+        .mapEntries(([key, val]) => [val.get('serverID'), val.get('localID')])
+      )
+  }
 }
 
 IDBBackend.constructor = IDBBackend;
@@ -121,7 +263,7 @@ function WebBackend(opts) {
 
   this.fetchData = function () {
     return require('./ajax').getJSON(this.url + 'd/')
-      .then(function ([data, status, xhr]) {
+      .then(function ([data, , xhr]) {
         var modified = xhr.getResponseHeader('Last-Modified');
         modified = modified && new Date(modified).getTime();
         return { data, modified };
@@ -234,7 +376,7 @@ function getBackend(name) {
 
 function setCurrentBackend(backend) {
   if (current !== backend) {
-    require('./app').trigger('backendSwitch', backend);
+    //require('./app').trigger('backendSwitch', backend);
     current = backend;
     localStorage.currentBackend = backend.name;
   }

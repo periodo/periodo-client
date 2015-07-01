@@ -8,27 +8,9 @@ describe('Application', function () {
   var container = document.createElement('div')
     , application
 
-  before(function () {
-    var main = document.createElement('div')
-      , spinner = document.createElement('div')
-      , currentBackend = document.createElement('div')
-
-    main.setAttribute('id', 'main');
-    spinner.setAttribute('id', 'spinner');
-    currentBackend.setAttribute('id', 'current-backend');
-
-    container.appendChild(main);
-    container.appendChild(spinner);
-    container.appendChild(currentBackend);
-
-    document.body.appendChild(container);
-
-    application = require('../app');
-    application.start();
-  });
-
   after(function () { document.body.removeChild(container) });
 
+  /*
   it('Should display a not found error for non-existent collections', function () {
     return application.periodCollectionShow('__memory__', 'fake').then(function (view) {
       assert.equal(view.$('p').html(), 'No period collection in __memory__ with ID fake.');
@@ -49,5 +31,6 @@ describe('Application', function () {
       assert(id.indexOf('.well-known/genid/') !== -1)
     });
   });
+  */
 
 });

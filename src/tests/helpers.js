@@ -233,3 +233,43 @@ describe('Patch collection helpers', function () {
     });
   });
 });
+
+describe('Skolem ID helpers', function () {
+  var oldRecord
+
+  oldRecord = Immutable.fromJS({
+    a: 'http://example.com/.well-known/genid/abc123',
+    b: [
+      'c', 'http://example.com/.well-known/genid/def456'
+    ],
+    e: {
+      'http://example.com/.well-known/genid/jkl012': {
+        f: 'http://example.com/.well-known/genid/ghi789'
+      }
+    }
+  });
+
+  it('should be able to replace IDs in a data structure', function () {
+    var { replaceIDs } = require('../helpers/skolem_ids')
+      , skolemMap
+
+    skolemMap = Immutable.Map({
+      'http://example.com/.well-known/genid/abc123': 'id1',
+      'http://example.com/.well-known/genid/def456': 'id2',
+      'http://example.com/.well-known/genid/jkl012': 'id3',
+      'http://example.com/.well-known/genid/ghi789': 'id4'
+    });
+
+    assert.deepEqual(replaceIDs(oldRecord, skolemMap).toJS(), {
+      a: 'id1',
+      b: [
+        'c', 'id2'
+      ],
+      e: {
+        id3: {
+          f: 'id4'
+        }
+      }
+    });
+  });
+});

@@ -3,35 +3,36 @@
 @footerHeight: 60px;
 @navBackground: #eee;
 
-html, body {
+html, body, .outer {
   height: 100%;
 }
 
-#wrapper {
+.content-wrapper {
   min-height: 100%;
   height: auto !important;
   margin: 0 auto -@footerHeight ;
   padding-bottom: 1.25em;
 }
 
-#footer, .push {
+.content-footer, .push {
   height: @footerHeight;
 }
 
-#footer {
+.content-footer {
   background: @navBackground;
   border-top: 1px solid #ccc;
 }
 
-#version-number {
+.version-number-display {
   float: right;
   line-height: @footerHeight;
 }
 
 
 // Error list
-#error-list {
+.error-list {
   line-height: @footerHeight;
+  cursor: pointer;
 }
 .error-icon {
   height: 22px;
@@ -53,7 +54,7 @@ html, body {
 }
 
 .period-form-header {
-  h2 { margin: 0; }
+  h3 { margin: 0; }
   border-bottom: 1px solid #ccc;
   border-radius: 6px 6px 0 0;
 }
@@ -132,17 +133,14 @@ dl.source {
   background: none;
 }
 
-#nav {
+.navbar {
   background: @navBackground;
   border-bottom: 1px solid #ccc;
   border-radius: 0;
+}
 
-  //.container { position: relative; }
-  #spinner {
-    //position: absolute;
-    //right: 20px;
-    //top: 50%;
-  }
+.navbar-header > div, .navbar-header > ul {
+  display: inline-block;
 }
 
 ul.actions-list {
@@ -315,16 +313,18 @@ th.sort-header.sort-down::before {
 
 // ORCID
 #auth-menu li a { display: inline-block }
-#connect-orcid-link {
+.connect-orcid-link {
   cursor: pointer;
   color: #999;
+  font-size: 16px;
+  line-height: 32px;
 }
 
-a#connect-orcid-link:hover {
+a.connect-orcid-link:hover {
   color: #338caf;
 }
 
-#orcid-id-logo {
+.orcid-id-logo {
   display: block;
   margin: 0 .5em 0 0;
   padding: 0;
@@ -367,12 +367,24 @@ a#connect-orcid-link:hover {
   margin-left: .8em;
 }
 
+
 // Pagination
 .pages.pagination { margin: 0}
 .pagination-container {
   display: flex;
   justify-content: space-between;
 }
+
+
+// Backend home - select navigation style
+.select-browse-item {
+  h2 {
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+}
+
+
 
 // Period display table
 .period-detail-table {
@@ -381,4 +393,24 @@ a#connect-orcid-link:hover {
 
 .period-details-row {
   word-wrap: break-word;
+}
+
+
+// Autocomplete widget
+.autocomplete-results {
+  position: absolute;
+  padding: 0;
+  width: 80%;
+  margin-top: -14px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+  // (individual results)
+.autocomplete-result {
+  padding: .25em 1em;
+}
+.autocomplete-result:hover,
+.autocomplete-result.autocomplete-result-focused {
+  background: #eee;
 }

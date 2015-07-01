@@ -1,25 +1,24 @@
 "use strict";
 
-var _ = require('underscore')
-  , Immutable = require('immutable')
+var Immutable = require('immutable')
+  , React = require('react')
   , DiffMatchPatch = require('diff-match-patch')
   , dmp = new DiffMatchPatch()
 
 
 // Takes a period and returns an object with key (field name), val (DOM Node)
 function periodToNodesObj(period) {
-  var container
+  var Period = require('../components/shared/period.jsx')
+    , container
 
-  if (period instanceof Immutable.Map) period = period.toJS();
-
-  if (!period || _.isEmpty(period)) return [];
+  if (!period || !period.size) return [];
 
   container = document.createElement('div');
-  container.innerHTML = require('../templates/period.html')({ period });
+  container.innerHTML = React.renderToStaticMarkup(<Period period={period} />);
 
   return Immutable.List(container.querySelectorAll('.field'))
     .toOrderedMap()
-    .mapEntries(([,el]) => [
+    .mapEntries(([, el]) => [
       el.children[0].textContent.trim(),
       el.children[1]
     ]);

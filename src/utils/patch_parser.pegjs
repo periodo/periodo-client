@@ -31,6 +31,7 @@ periodcollection = 'periodCollections/' pcid:pcid ret:pctype {
 
 pctype = emptypc
   / source
+  / editorialnote
   / period
 
 emptypc = EOF { return {
@@ -39,15 +40,20 @@ emptypc = EOF { return {
 }}
 
 
-/* source stuff */
+/* Period collection changes */
 
 source = '/source' (.+)? { return {
   type: 'periodCollection',
   label: 'source'
 }}
 
+editorialnote = '/editorialNote' { return {
+  type: 'periodCollection',
+  label: 'editorialNote'
+}}
 
-/* Period stuff */
+
+/* Period changes */
 
 period = '/definitions/' pid:pcid ret:ptype {
   ret.id = pid.join('');

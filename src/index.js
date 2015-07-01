@@ -1,8 +1,13 @@
 "use strict";
 
+var React = require('react')
+  , { EventEmitter } = require('events')
+
 require('babelify/polyfill');
 
-var app = require('./app')
-  , $ = require('jquery')
+window.periodo = new EventEmitter();
 
-$(document).ready(() => app.start());
+window.onload = function () {
+  var Router = require('./router');
+  React.render(<Router />, document.body);
+}
