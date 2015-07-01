@@ -142,9 +142,13 @@ module.exports = React.createClass({
           )
         }
 
-        <PeriodList
-            renderShownPeriod={this.renderShownPeriod}
-            periods={this.props.cursor.get('definitions').toList()} />
+        {
+          this.props.cursor.get('definitions').size === 0 ?
+            <p>No periods defined for collection.</p> :
+            <PeriodList
+                renderShownPeriod={this.renderShownPeriod}
+                periods={this.props.cursor.get('definitions').toList()} />
+        }
       </div>
     )
   }

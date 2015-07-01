@@ -20,7 +20,7 @@ CollectionList = React.createClass({
   handlePageChange: function (currentPage) {
     this.setState({ currentPage });
   },
-  render: function () {
+  renderCollectionList: function () {
     var Paginator = require('./shared/paginate.jsx')
       , collections = this.getMatchedCollections()
       , numCollections = this.props.store.get('periodCollections').size
@@ -36,7 +36,6 @@ CollectionList = React.createClass({
 
     return (
       <div>
-        <h2>Period Collections</h2>
         <div>
           Viewing { firstIndex + 1 } - { firstIndex + collections.size } of { numCollections }
         </div>
@@ -75,6 +74,28 @@ CollectionList = React.createClass({
             }
           </tbody>
         </table>
+      </div>
+    )
+  },
+  render: function () {
+    return (
+      <div>
+        <h2>Period Collections</h2>
+
+        <hr />
+        <div>
+          <a href={window.location.hash + 'periodCollections/add/'}
+              className="btn btn-lg btn-primary">
+            Add period collection
+          </a>
+        </div>
+        <hr />
+
+        {
+          this.props.store.get('periodCollections').size === 0 ?
+            <p>No period collections defined</p> :
+            this.renderCollectionList()
+        }
       </div>
     )
 
