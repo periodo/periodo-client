@@ -93,6 +93,7 @@ module.exports = React.createClass({
             ref="selectChanges"
             confirmTitle="Submit changes?"
             getChanges={getChanges}
+            localStore={this.props.store}
             onAcceptPatches={this.handleAcceptPatches} />
       </div>
     )

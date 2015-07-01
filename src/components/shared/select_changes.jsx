@@ -61,7 +61,10 @@ module.exports = React.createClass({
           </button>
         </div>
 
-        <ChangeList ref="changes" changes={this.state.acceptedPatches} select={false} />
+        <ChangeList
+            ref="changes"
+            select={false}
+            {...this.state.changes} />
       </div>
     )
   },
@@ -90,13 +93,12 @@ module.exports = React.createClass({
           </button>
         </div>
 
-        {
-          !this.state.changes ? null :
+        { this.state.changes && (
             <ChangeList
+                select={true}
                 onAcceptPatches={this.handleAcceptPatches}
-                changes={this.state.changes}
-                select={true} />
-        }
+                {...this.state.changes} />
+        ) }
       </div>
     )
   },

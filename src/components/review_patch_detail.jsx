@@ -2,6 +2,7 @@
 
 var React = require('react')
   , Immutable = require('immutable')
+  , jsonpatch = require('fast-json-patch')
 
 module.exports = React.createClass({
   displayName: 'ReviewPatchDetail',
@@ -23,10 +24,14 @@ module.exports = React.createClass({
       .then(([data]) => Promise.all([
         data,
         getJSON(data.text),
+        getJSON(data.created_from),
         fetchOrcids(getOrcids(Immutable.fromJS([data])))
       ]))
-      .then(([patchData, [patchText], orcids]) => this.setState({
-        patchData, patchText, orcids
+      .then(([patchData, [patchText], [sourceData], orcids]) => this.setState({
+        patchData,
+        patchText,
+        sourceData,
+        orcids
       }))
   },
 
@@ -54,10 +59,15 @@ module.exports = React.createClass({
   renderPatch: function () {
     var ChangeList = require('./shared/change_list')
       , patchData = this.state.patchData
+      , destData
 
     if (!patchData.mergeable) {
       return <div className="alert alert-warning">Unable to merge patch</div>
     } else {
+
+      destData = JSON.parse(JSON.stringify(this.state.sourceData));
+      jsonpatch.apply(destData, this.state.patchText);
+
       return (
         <div>
           <div className="alert alert-success">
@@ -65,7 +75,11 @@ module.exports = React.createClass({
             <br />
             <button onClick={this.handleMerge} className="btn btn-primary">Merge</button>
           </div>
-          <ChangeList select={false} changes={Immutable.fromJS(this.state.patchText)} />
+          <ChangeList
+              select={false}
+              patches={Immutable.fromJS(this.state.patchText)}
+              sourceStore={Immutable.fromJS(this.state.sourceData)}
+              destStore={Immutable.fromJS(destData)} />
         </div>
       )
     }
