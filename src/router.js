@@ -119,6 +119,47 @@ module.exports = React.createClass({
       errors: prev.errors.push(Immutable.Map({ time: new Date(), error }))
     }));
   },
+  attemptRedirect: function (path) {
+    var matchKey = 'p0' + path
+
+    if (path.indexOf('/') !== -1) this.showNotFound();
+
+    getBackendAndStore('web')
+      .then(({ store }) => {
+        if (store.hasIn(['periodCollections', matchKey])) {
+          let redirectURL = this.state.router.generate('period-collection-show', {
+            backendName: 'web',
+            collectionID: encodeURIComponent(matchKey)
+          })
+
+          this.state.locationBar.update(redirectURL, { trigger: true })
+        } else {
+          let collectionID
+
+          store.get('periodCollections').forEach(collection => {
+            if (collection.hasIn(['definitions', matchKey])) {
+              collectionID = collection.get('id');
+              return false;
+            }
+          });
+
+          if (collectionID) {
+            let redirectURL = this.state.router.generate('period-collection-show', {
+              backendName: 'web',
+              collectionID
+            });
+            this.state.locationBar.update(redirectURL, { trigger: true });
+          } else {
+            this.showNotFound();
+          }
+        }
+      })
+  },
+
+  showNotFound: function () {
+    this.setState({ Component: require('./components/not_found.jsx') });
+  },
+
   componentDidMount: function () {
     var router = require('./routes')
       , locationBar = new LocationBar()
@@ -128,7 +169,7 @@ module.exports = React.createClass({
       if (match) {
         this.handleRoute(match[0].handler, match[0].params);
       } else {
-        this.setState({ Component: require('./components/not_found.jsx') });
+        this.attemptRedirect(path);
       }
     });
 
@@ -157,14 +198,12 @@ module.exports = React.createClass({
       errors: prev.errors.clear()
     }));
 
-    Dexie.Promise.on('error', err => this.addError);
+    Dexie.Promise.on('error', err => this.addError(err));
     window.onerror = (message, filename, line, column, err) => {
       this.addError(err || message);
     }
 
-    locationBar.start();
-
-    this.setState({ locationBar, router });
+    this.setState({ locationBar, router }, () => locationBar.start());
   },
   render: function () {
     var Application = require('./components/application.jsx');
