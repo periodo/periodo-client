@@ -10,11 +10,15 @@ Auth = React.createClass({
   },
   render: function () {
     var html = this.props.user ?
-      (<span>Signed in as {this.props.user.name} <a href="#signout/">Sign out</a></span>) :
-      (<a href="#signin/"> Sign in </a>)
+      (
+        <span style={{ lineHeight: '48px' }}>
+          Signed in as {this.props.user.name} (<a href="#signout/">sign out</a>)
+        </span>
+      ) :
+      (<a style={{ paddingTop: '14px' }} href="#signin/"> Sign in </a>)
 
     return (
-      <ul className="nav navBar-nav">
+      <ul className="nav">
         <li>{html}</li>
       </ul>
     )
@@ -96,8 +100,9 @@ ActionsMenu = React.createClass({
     }
   },
   render: function () {
+    // TODO: this can be changed to use ./shared/dropdown.jsx
     return (
-      <div className={'btn-group dropdown' + (this.state.open ? ' open' : '')}>
+      <div className={'actions-menu dropdown' + (this.state.open ? ' open' : '')}>
         <button
             className="btn btn-default"
             onBlur={this.handleBlur}
@@ -133,7 +138,7 @@ module.exports = React.createClass({
             <p className="navbar-text">{backendMessage}</p>
             <Spinner spin={this.props.loading} />
           </div>
-          <div className="navbar-header pull-right">
+          <div className="navbar-header status-nav pull-right">
             <Auth user={this.props.user} />
             <ActionsMenu backend={this.props.backend} router={this.props.router} />
           </div>
