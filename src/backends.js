@@ -323,8 +323,10 @@ function listBackends() {
 
   if (clientSupportsDexie()) {
     dbPromise = Dexie.getDatabaseNames().then(dexieDBs => {
-      return dexieDBs.map(db => ({ type: 'idb', name: db }))
-    });
+      return dexieDBs
+        .filter(db => db !== '_linked_data_cache' )
+        .map(db => ({ type: 'idb', name: db }))
+    })
   } else {
     dbPromise = Promise.resolve([]);
   }
