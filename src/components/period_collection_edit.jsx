@@ -4,6 +4,15 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'PeriodCollectionAdd',
+  componentWillReceiveProps: function (nextProps) {
+    if (this.props.store && !this.props.store.equals(nextProps.store)) {
+      let url = this.props.router.generate('period-collection-show', {
+        backendName: this.props.backend.name,
+        collectionID: encodeURIComponent(this.props.cursor.get('id'))
+      });
+      window.location.href = url;
+    }
+  },
   handleSave: function () {
     var value = this.refs.form.getValue()
       , collection
