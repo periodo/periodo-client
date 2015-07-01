@@ -80,18 +80,39 @@ function formatPeriodCollectionAddition(addition) {
 }
 
 function formatPeriodAddition(addition) {
+  var Period = require('../period.jsx')
   return Immutable.Map({
     patches: Immutable.List.of(addition),
-    component: <pre>A PERIOD ADDITION</pre>
+    component: (
+      <div className="diff-addition">
+        <Period period={addition.get('value')} />
+      </div>
+    )
+  })
+}
+
+function formatPeriodEdit(patches, collectionID, periodID, sourceStore, destStore) {
+  var periodDiff = require('../../../utils/period_diff')
+    , periodPath = ['periodCollections', collectionID, 'definitions', periodID]
+    , oldPeriod = sourceStore.getIn(periodPath)
+    , newPeriod = destStore.getIn(periodPath)
+
+  return Immutable.Map({
+    patches,
+    component: <div dangerouslySetInnerHTML={{ __html: periodDiff(oldPeriod, newPeriod) }} />
   })
 }
 
 module.exports = React.createClass({
   displayName: 'ChangeList',
+
   propTypes: {
-    changes: React.PropTypes.instanceOf(Immutable.List).isRequired,
+    patches: React.PropTypes.instanceOf(Immutable.List).isRequired,
+    sourceStore: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    destStore: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     select: React.PropTypes.bool.isRequired
   },
+
   getInitialState: function () {
     return this.props.select ? { selectedPatches: Immutable.Set() } : {}
   },
@@ -106,6 +127,7 @@ module.exports = React.createClass({
   },
   getGroupedChanges: function (changes) {
     var { groupByChangeType } = require('../../../helpers/patch_collection')
+      , { getDisplayTitle } = require('../../../helpers/source')
       , grouped = groupByChangeType(changes)
       , groupedChanges = Immutable.List()
 
@@ -123,12 +145,34 @@ module.exports = React.createClass({
       groupedChanges = groupedChanges.push(Immutable.Map({
         header: 'New periods',
         groups: grouped.get('addPeriod').map((additions, collectionID) => {
+          var sourcePath = ['periodCollections', collectionID, 'source']
+            , source = this.props.sourceStore.getIn(sourcePath)
+
           return Immutable.Map({
-            header: 'In source: ' + collectionID,
+            header: <h3>In source: { getDisplayTitle(source) }</h3>,
             changes: additions.map(formatPeriodAddition)
           })
         })
       }))
+    }
+
+    if (grouped.has('editPeriod')) {
+      groupedChanges = groupedChanges.push(Immutable.Map({
+        header: 'Edited periods',
+        groups: grouped.get('editPeriod').map((periods, collectionID) => {
+          var sourcePath = ['periodCollections', collectionID, 'source']
+            , source = this.props.sourceStore.getIn(sourcePath)
+
+          return Immutable.Map({
+            header: <h3>In source: { getDisplayTitle(source) }</h3>,
+            changes: periods.map((patches, periodID) => (
+              formatPeriodEdit(
+                patches, collectionID, periodID,
+                this.props.sourceStore, this.props.destStore)
+            ))
+          })
+        })
+      }));
     }
 
     return groupedChanges;
@@ -137,7 +181,7 @@ module.exports = React.createClass({
     this.props.onAcceptPatches(this.state.selectedPatches.flatten(1));
   },
   render: function () {
-    var grouped = this.getGroupedChanges(this.props.changes)
+    var grouped = this.getGroupedChanges(this.props.patches)
       , changeGroupOpts
 
     changeGroupOpts = !this.props.select ? {} : {
@@ -162,7 +206,7 @@ module.exports = React.createClass({
           {
             grouped.map(group =>
               <div key={group.hashCode()}>
-                <h1>{group.get('header')}</h1>
+                <h2>{group.get('header')}</h2>
                 {
                   group.get('groups').map(changes =>
                     <ChangeGroup
