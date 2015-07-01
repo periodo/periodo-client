@@ -22,7 +22,7 @@ PeriodDetails = React.createClass({
     var Period = require('../../components/shared/period.jsx')
       , linkBase = this.props.dataset.getIn(['@context', '@base'])
       , collectionID = this.props.period.get('collection_id')
-      , collectionURL = `#${this.props.backend.path}periodCollections/${collectionID}/`
+      , collectionURL = `#${this.props.backend.path}periodCollections/${encodeURIComponent(collectionID)}/`
       , source
       , sourceHTML
       , addPermalink

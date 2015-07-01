@@ -35,7 +35,7 @@ module.exports = React.createClass({
         <h1>Edit period collection</h1>
         <PeriodCollectionForm
             ref="form"
-            collection={this.props.cursor} />
+            collection={this.props.cursor.deref()} />
         <div>
           <button className="btn btn-primary" onClick={this.handleSave}>
             Save

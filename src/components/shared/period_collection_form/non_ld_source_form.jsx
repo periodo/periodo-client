@@ -7,8 +7,8 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       data: Immutable.Map({
-        creators: Immutable.List(['']),
-        contributors: Immutable.List([''])
+        creators: Immutable.fromJS([{ name: '' }]),
+        contributors: Immutable.fromJS([{ name: '' }])
       }).merge(this.props.data || Immutable.Map())
     }
   },
@@ -30,7 +30,7 @@ module.exports = React.createClass({
   handleNameChange: function (type, idx, e) {
     var value = e.target.value;
     this.setState(prev => ({
-      data: prev.data.update(type, names => names.set(idx, value))
+      data: prev.data.update(type, names => names.update(idx, name => name.set('name', value)))
     }), this.handleSourceChange);
   },
   handleNameRemove: function (type, idx) {
@@ -46,7 +46,7 @@ module.exports = React.createClass({
     if (!this.state.data.get(type).get(idx)) return;
 
     this.setState(prev => ({
-      data: prev.data.update(type, names => names.splice(idx + 1, 0, ''))
+      data: prev.data.update(type, names => names.splice(idx + 1, 0, Immutable.Map({ name: '' })))
     }), this.handleSourceChange)
   },
   render: function () {
@@ -99,7 +99,7 @@ module.exports = React.createClass({
                     name="source-name"
                     key={'creators' + i}
                     type="text"
-                    value={name}
+                    value={name.get('name')}
                     onChange={this.handleNameChange.bind(null, 'creators', i)} />
                 <span
                     className="input-group-addon btn"
@@ -124,7 +124,7 @@ module.exports = React.createClass({
                     name="source-name"
                     key={'contributors' + i}
                     type="text"
-                    value={name}
+                    value={name.get('name')}
                     onChange={this.handleNameChange.bind(null, 'contributors', i)} />
                 <span
                     className="input-group-addon btn"
