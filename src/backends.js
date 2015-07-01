@@ -85,6 +85,9 @@ Backend.prototype = {
       , { filterByHash } = require('./helpers/patch_collection')
       , { replaceIDs } = require('./helpers/skolem_ids')
       , periodCollectionRegex = /^\/periodCollection/
+      , localStore
+      , remoteStore
+
 
     if (!(this.editable && this.matchHashes)) {
       throw new Error(`Cannot get patches for backend with type ${this.type}`)
@@ -93,7 +96,10 @@ Backend.prototype = {
     return this.getMappedIDs(remoteURL)
       .then(mappedIDs => replaceIDs(Immutable.fromJS(remote), mappedIDs))
       .then(remoteStore => Promise.all([this.getStore(), remoteStore]))
-      .then(([localStore, remoteStore]) => {
+      .then(([_localStore, _remoteStore]) => {
+        localStore = _localStore;
+        remoteStore = _remoteStore;
+
         return toRemote ?
           // Patch submission (to server)
           makePatch(localStore.toJS(), remoteStore.toJS()) :
@@ -119,6 +125,11 @@ Backend.prototype = {
           toRemote,
           this.matchHashes.bind(this, toRemote ? 'forward' : 'backward'))
       })
+      .then(patches => ({
+        patches,
+        sourceStore: toRemote ? localStore : remoteStore,
+        destStore: toRemote ? remoteStore : localStore
+      }))
   },
 
   // Get the set of patches that would make "local" look like "remote", as in
