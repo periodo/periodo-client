@@ -73,7 +73,7 @@ Backend.prototype = {
     promise.then(() => window.periodo.emit('requestEnd'));
     promise.then(() => setCurrentBackend(this));
 
-    promise = promise.catch(window.periodo.handleError);
+    promise = promise.catch(window.periodo.addEror);
 
     return promise;
   },

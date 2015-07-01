@@ -111,13 +111,19 @@ module.exports = React.createClass({
         store: props.store || null,
         data: props.data || {}
       }))
-      .catch(this.addError)
+      .catch(this.handleError)
   },
-  addError: function (error) {
-    this.setState(prev => ({
-      loading: false,
-      errors: prev.errors.push(Immutable.Map({ time: new Date(), error }))
-    }));
+  handleError: function (error) {
+    if (!this.state.errors.map(err => err.get('error')).contains(error)) {
+      try {
+        this.setState(prev => ({
+          loading: false,
+          errors: prev.errors.push(Immutable.Map({ time: new Date(), error }))
+        }));
+      } finally {
+        throw error;
+      }
+    }
   },
   attemptRedirect: function (path) {
     var matchKey = 'p0' + path
@@ -193,14 +199,16 @@ module.exports = React.createClass({
       this.setState({ user: null });
     });
 
-    window.periodo.addError = this.addError;
+    window.periodo.handleError = this.handleError;
     window.periodo.clearErrors = () => this.setState(prev => ({
       errors: prev.errors.clear()
     }));
 
-    Dexie.Promise.on('error', err => this.addError(err));
+    Dexie.Promise.on('error', err => {
+      this.handleError(err);
+    });
     window.onerror = (message, filename, line, column, err) => {
-      this.addError(err || message);
+      this.handleError(err || message);
     }
 
     this.setState({ locationBar, router }, () => locationBar.start());
