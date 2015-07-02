@@ -2,21 +2,31 @@
 
 var d3 = require('d3')
   , Immutable = require('immutable')
-  , { makeRangeBins } = require('../../helpers/period_collection')
 
 function RangeSelectionWidget(opts) {
   this.data = opts.data;
-  this.bins = makeRangeBins(this.data, 50);
+  this.onChange = opts.onChange;
 
   this.width = opts.width || 210;
   this.height = opts.height || 180;
+
+  this.dateRangeStart = null;
+  this.dateRangeStop = null;
 
   this.svg = d3.select(opts.el).insert('svg')
       .attr('width', this.width)
       .attr('height', this.height)
 
-  this.g = this.svg.append('g')
+  var g = this.svg.append('g')
     .attr('transform', 'translate(20)')
+
+  this.g = g.append('g');
+
+  this.g.append('g')
+    .attr('transform', `translate(0,${this.height - 37})`)
+    .attr('class', 'x-axis')
+
+  this.brushG = g.append('g').attr('class', 'brush')
 
   this.render();
 }
@@ -31,6 +41,22 @@ function roundNum(num) {
   return rounded * power;
 }
 
+RangeSelectionWidget.prototype.getBins = function () {
+  var { makeRangeBins } = require('../helpers/period_collection');
+  return makeRangeBins(this.data, 50);
+}
+
+RangeSelectionWidget.prototype.handleBrushEnd = function (start, end) {
+  if (this.onChange) {
+    this.onChange({ start, end });
+  }
+}
+
+RangeSelectionWidget.prototype.update = function (periods) {
+  this.data = periods;
+  this.render();
+}
+
 RangeSelectionWidget.prototype.remove = function () {
   this.svg.remove();
 }
@@ -39,12 +65,18 @@ RangeSelectionWidget.prototype.render = function () {
   const CIRCLE_RADIUS = 1
       , CIRCLE_SPACING = 1
 
+  var bins = this.getBins()
+    , dateRangeStart = bins.getIn([0, 'earliest'])
+    , dateRangeStop = bins.getIn([-1, 'latest'])
+
+  this.dateRangeStart = dateRangeStart;
+  this.dateRangeStop = dateRangeStop;
 
   /*
    * X scale and axis
    ***/
   var xScale = d3.scale.linear()
-    .domain([this.bins.getIn([0, 'earliest']), this.bins.getIn([-1, 'latest'])])
+    .domain([dateRangeStart, dateRangeStop])
     .range([0, this.width - 60]);
 
   var [minYear, maxYear] = xScale.domain().map(roundNum);
@@ -56,10 +88,7 @@ RangeSelectionWidget.prototype.render = function () {
     .tickValues([roundNum(minYear), roundNum((minYear + maxYear) / 2), roundNum(maxYear)])
     .tickFormat(d => (d > 2500 || d < -999) ? commaFormat(d) : noCommaFormat(d))
 
-  var axisG = this.g.append('g')
-    .attr('class', 'axis')
-    .attr('transform', `translate(0,${this.height - 37})`)
-    .call(xAxis)
+  var axisG = this.g.select('g.x-axis').call(xAxis)
 
   axisG
     .select('path')
@@ -74,7 +103,7 @@ RangeSelectionWidget.prototype.render = function () {
   /*
    * Y scales. First one is to draw enough circles to fill chart
    ***/
-  var maxCount = Math.max.apply(null, this.bins.map(bin => bin.get('count')).toJS());
+  var maxCount = Math.max.apply(null, bins.map(bin => bin.get('count')).toJS());
   var circleScale = d3.scale.linear()
     .domain([0, maxCount])
     .range([0, Math.floor((this.height - 40) / (CIRCLE_RADIUS * 2 + CIRCLE_SPACING))])
@@ -86,7 +115,10 @@ RangeSelectionWidget.prototype.render = function () {
   /*
    * Circles representing the bin counts
    ***/
-  var dots = this.g.selectAll('circle').data(this.bins.toJS());
+  var dots = this.g.selectAll('circle')
+    .data(bins.toJS(), () => Math.random().toString());
+
+  dots.exit().remove();
 
   dots.enter()
       .append('g')
@@ -104,17 +136,28 @@ RangeSelectionWidget.prototype.render = function () {
   /*
    * Brush representing a year range
    ***/
-/*
   this.brush = d3.svg.brush()
     .x(xScale)
 
-  this.g.append('g')
-    .attr('class', 'brush')
+  this.brushG
     .call(this.brush)
     .selectAll('rect')
     .attr('height', this.height - 37)
     .attr('opacity', '.3')
-*/
+
+  this.brush.on('brushend', () => {
+    var [earliest, latest] = this.brush.extent()
+
+    if (earliest === latest) {
+      earliest = null;
+      latest = null;
+    } else {
+      earliest = Math.floor(earliest);
+      latest = Math.ceil(latest);
+    }
+
+    this.handleBrushEnd(earliest, latest);
+  });
 }
 
 module.exports = RangeSelectionWidget;

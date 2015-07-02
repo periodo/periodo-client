@@ -33,6 +33,7 @@ module.exports = React.createClass({
     var facets = this.getInitialFacets();
     return {
       facets,
+      range: null,
       previouslySelectedField: null,
       previousFacets: null
     }
@@ -76,7 +77,31 @@ module.exports = React.createClass({
 
     this.setFacetState(facetFieldName, facets);
   },
-  handleResetFacet: function (facetFieldName) {
+  handleResetFacet: function () {
+  },
+  handleRangeBrush: function ({ start, end }) {
+    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+
+    if (start === end === null) {
+      this.setState(prev => ({
+        facets: prev.facets.removeFacet('_range')
+      }));
+    } else {
+      this.setState(prev => ({
+        facets: prev.facets.addFacet('_range', period => {
+          var earliest = period.get('start', null) && getLatestYear(period.get('start'))
+            , latest = period.get('stop', null) && getEarliestYear(period.get('stop'))
+
+          return (
+            earliest !== null &&
+            latest !== null &&
+            earliest >= start &&
+            latest <= end
+          )
+        })
+        .select('_range', [true])
+      }));
+    }
   },
   render: function () {
     var facetValues = this.state.facets.getFacetValues()
@@ -89,27 +114,31 @@ module.exports = React.createClass({
       this.state.previousFacets.getFacetValues()
     )
 
-    facetFields = facetValues.keySeq().map(facetName => {
-      var usePreviousFacets = this.state.previouslySelectedField === facetName
-        , field = require('./facet_fields')[facetName]
-        , values
+    facetFields = facetValues.keySeq()
+      .filter(facetName => facetName !== '_range')
+      .map(facetName => {
+        var usePreviousFacets = this.state.previouslySelectedField === facetName
+          , field = require('./facet_fields')[facetName]
+          , values
 
-      values = usePreviousFacets ?
-        previousFacetValues.get(facetName) :
-        facetValues.get(facetName)
+        values = usePreviousFacets ?
+          previousFacetValues.get(facetName) :
+          facetValues.get(facetName)
 
-      return React.createElement(FacetField, {
-        values,
-        key: facetName,
-        facetName: field.label,
-        getDisplayTitle: field.getDisplayTitle,
-        selectedValues: selectedFacetValues.get(facetName) || Immutable.OrderedMap(),
-        onSelectFacet: this.handleSelectFacet.bind(this, facetName),
-        onDeselectFacet: this.handleDeselectFacet.bind(this, facetName)
+        return React.createElement(FacetField, {
+          values,
+          key: facetName,
+          facetName: field.label,
+          getDisplayTitle: field.getDisplayTitle,
+          selectedValues: selectedFacetValues.get(facetName) || Immutable.OrderedMap(),
+          onSelectFacet: this.handleSelectFacet.bind(this, facetName),
+          onDeselectFacet: this.handleDeselectFacet.bind(this, facetName)
+        });
       });
-    });
 
     var periods = this.state.facets.getMatchedDocuments()
+
+    var RangeSelection = require('../shared/range_selection.jsx');
 
     return (
         <div className="row">
@@ -126,6 +155,9 @@ module.exports = React.createClass({
           </div>
           <div className="col-md-5">
             <h2>Filters</h2>
+            <RangeSelection
+                onChange={this.handleRangeBrush}
+                periods={periods} />
             {facetFields}
           </div>
         </div>
