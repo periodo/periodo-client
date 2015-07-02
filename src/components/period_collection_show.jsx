@@ -58,8 +58,12 @@ module.exports = React.createClass({
       save = !period.equals(this.props.cursor.getIn(['definitions', period.get('id')]));
     }
 
-    if (save) {
-      this.props.cursor.setIn(['definitions', period.get('id')], period);
+    if (this.refs.editForm.isValid()) {
+      if (save) {
+        this.props.cursor.setIn(['definitions', period.get('id')], period);
+      } else {
+        this.setState({ editingPeriod: null });
+      }
     }
   },
   handleCancel: function () {

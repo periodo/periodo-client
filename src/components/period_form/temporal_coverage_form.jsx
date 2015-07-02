@@ -54,7 +54,7 @@ module.exports = React.createClass({
           </label>
         </div>
 
-        <h4>Start</h4>
+        <h4 className="field-required-label">Start</h4>
         <TerminusInput
             ref="startTerminus"
             terminus={this.state.start}
@@ -62,7 +62,7 @@ module.exports = React.createClass({
             onChange={this.handleTerminusChange.bind(null, 'start')}
             terminusType="start" />
 
-        <h4>Stop</h4>
+        <h4 className="field-required-label">Stop</h4>
         <TerminusInput
             ref="stopTerminus"
             terminus={this.state.stop}

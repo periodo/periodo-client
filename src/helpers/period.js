@@ -41,10 +41,25 @@ function validate(period) {
     )
   }
 
+  function badTerminusRange(terminus) {
+    return (
+      terminus.hasIn(['in', 'latestYear']) &&
+      getEarliestYear(terminus) > getLatestYear(terminus)
+    )
+  }
+
   if (!periodPresent('start') || !periodPresent('stop')) {
     addError('dates', 'A period must have start and stop dates.');
   } else if (getLatestYear(period.get('stop')) < getEarliestYear(period.get('start'))) {
     addError('dates', 'A period\'s stop must come after its start.');
+  } else {
+    if (badTerminusRange(period.get('start'))) {
+      addError('dates', 'Date range for period start has a beginning later than its end.')
+    }
+
+    if (badTerminusRange(period.get('stop'))) {
+      addError('dates', 'Date range for period stop has a beginning later than its end.')
+    }
   }
 
   return _.isEmpty(errors) ? null : errors;

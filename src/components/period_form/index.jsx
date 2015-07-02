@@ -20,7 +20,20 @@ module.exports = React.createClass({
   },
 
   getInitialState: function () {
-    return { period: this.props.period }
+    return {
+      period: this.props.period,
+      errors: Immutable.Map()
+    }
+  },
+
+  isValid: function () {
+    var { validate } = require('../../helpers/period')
+      , errors = validate(this.getPeriodValue()) || {}
+
+    errors = Immutable.fromJS(errors);
+    this.setState({ errors });
+
+    return !errors.size;
   },
 
   getPeriodValue: function () {
@@ -49,11 +62,19 @@ module.exports = React.createClass({
   render: function () {
     var Input = require('../shared/input.jsx')
       , randID = randomstr()
+      , { errors } = this.state
 
     return (
       <div className="period-form-body">
         <div className="row">
           <div className="col-md-6 period-form-panel">
+            {
+              errors.has('label') && (
+                <div className="alert alert-danger">
+                  { errors.get('label').map(msg => <p>{ msg }</p>) }
+                </div>
+              )
+            }
             <LabelForm
                 ref="labelForm"
                 label={this.state.period.get('label')}
@@ -88,6 +109,13 @@ module.exports = React.createClass({
                 coverageDescriptionSet={this.props.spatialCoverages} />
           </div>
           <div className="period-form-panel col-md-6">
+            {
+              errors.has('dates') && (
+                <div className="alert alert-danger">
+                  { errors.get('dates').map(msg => <p>{ msg }</p>) }
+                </div>
+              )
+            }
             <TemporalCoverageForm
                 start={this.state.period.get('start')}
                 stop={this.state.period.get('stop')}
