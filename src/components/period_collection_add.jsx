@@ -18,10 +18,12 @@ module.exports = React.createClass({
     var id = skolemID()
       , collection = this.refs.form.getValue()
 
-    this.setState({ savedID: id }, () => {
-      collection = collection.set('id', id);
-      this.props.cursor.set(id, collection);
-    });
+    if (this.refs.form.isValid()) {
+      this.setState({ savedID: id }, () => {
+        collection = collection.set('id', id);
+        this.props.cursor.set(id, collection);
+      });
+    }
   },
   render: function () {
     var PeriodCollectionForm = require('./shared/period_collection_form');

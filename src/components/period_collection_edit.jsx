@@ -25,7 +25,9 @@ module.exports = React.createClass({
       collection = collection.delete('editorialNote')
     }
 
-    this.props.cursor.update(() => collection);
+    if (this.refs.form.isValid()) {
+      this.props.cursor.update(() => collection);
+    }
   },
   render: function () {
     var PeriodCollectionForm = require('./shared/period_collection_form');

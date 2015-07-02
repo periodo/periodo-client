@@ -2,13 +2,6 @@
 
 var React = require('react')
   , Immutable = require('immutable')
-  , Errors
-
-Errors = React.createClass({
-  render: function () {
-    return <div />
-  }
-});
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -19,24 +12,36 @@ module.exports = React.createClass({
         linkedData: initialCollection.get('source').has('id'),
         sourceData: initialCollection.get('source'),
         editorialNote: initialCollection.get('editorialNote', ''),
-        errors: []
+        errors: Immutable.Map()
       }
     } else {
       return {
         linkedData: true,
         sourceData: null,
         editorialNote: '',
-        errors: []
+        errors: Immutable.Map()
       }
     }
   },
+
   toggleFormType: function () {
     this.setState({
       linkedData: !this.state.linkedData,
       sourceData: null,
-      errors: []
+      errors: Immutable.Map()
     });
   },
+
+  isValid: function () {
+    var { validate } = require('../../../helpers/periodization')
+      , errors = validate(this.getValue()) || {}
+
+    errors = Immutable.fromJS(errors);
+
+    this.setState({ errors });
+    return !errors.size;
+  },
+
   getValue: function () {
     var value = Immutable.Map({
       type: 'PeriodCollection',
@@ -67,7 +72,13 @@ module.exports = React.createClass({
 
     return (
       <div>
-        <Errors errors={this.state.errors}/>
+        {
+          this.state.errors.size > 0 && (
+            <div className="alert alert-danger">
+              { this.state.errors.flatten().map(err => <p>{ err }</p>) }
+            </div>
+          )
+        }
 
         <div className="row">
           <div className="col-md-6">
