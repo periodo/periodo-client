@@ -90,6 +90,13 @@ module.exports = React.createClass({
             , onUpdate
 
           onUpdate = !props.backend.editable ? void 0 : updatedStore => {
+
+            // If cursor path has been set to undefined, delete it from the
+            // updated store.
+            if (updatedStore.getIn(path) === void 0) {
+              updatedStore = updatedStore.deleteIn(path);
+            }
+
             props.backend
               .saveStore(updatedStore)
               .then(() => this.setState({

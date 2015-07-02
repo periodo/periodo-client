@@ -6,12 +6,15 @@ module.exports = React.createClass({
   displayName: 'PeriodCollectionAdd',
   componentWillReceiveProps: function (nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
-      let url = this.props.router.generate('period-collection-show', {
-        backendName: this.props.backend.name,
-        collectionID: encodeURIComponent(this.props.cursor.get('id'))
-      });
-      window.location.href = url;
+      this.redirectToPeriod();
     }
+  },
+  redirectToPeriod: function () {
+    var url = this.props.router.generate('period-collection-show', {
+      backendName: this.props.backend.name,
+      collectionID: encodeURIComponent(this.props.cursor.get('id'))
+    });
+    window.location.href = url;
   },
   handleSave: function () {
     var value = this.refs.form.getValue()
@@ -29,6 +32,23 @@ module.exports = React.createClass({
       this.props.cursor.update(() => collection);
     }
   },
+  handleDelete: function () {
+    var { getDisplayTitle } = require('../helpers/source')
+      , collection = this.props.cursor.deref()
+      , defs = collection.get('definitions').size
+      , msg
+
+    msg = `Delete period based on "${getDisplayTitle(collection.get('source'))}"?`
+
+    if (defs) {
+      msg += `\n\nAll of its ${defs} period definitions will also be deleted.`
+    }
+
+    if (confirm(msg)) {
+      this.props.cursor.update(() => void 0);
+      window.location.href = this.props.router.generate('home');
+    }
+  },
   render: function () {
     var PeriodCollectionForm = require('./shared/period_collection_form');
 
@@ -41,6 +61,17 @@ module.exports = React.createClass({
         <div>
           <button className="btn btn-primary" onClick={this.handleSave}>
             Save
+          </button>
+
+          <button className="btn btn-default pull-right" onClick={this.redirectToPeriod}>
+            Cancel
+          </button>
+
+          <button
+              className="btn btn-danger pull-right"
+              style={{ marginRight: '8px' }}
+              onClick={this.handleDelete}>
+            Delete
           </button>
         </div>
       </div>

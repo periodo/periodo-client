@@ -25,6 +25,9 @@ module.exports = React.createClass({
       });
     }
   },
+  handleCancel: function () {
+    window.location.href = this.props.router.generate('home');
+  },
   render: function () {
     var PeriodCollectionForm = require('./shared/period_collection_form');
     return (
@@ -34,6 +37,10 @@ module.exports = React.createClass({
         <div>
           <button className="btn btn-primary" onClick={this.handleSave}>
             Save
+          </button>
+
+          <button className="btn btn-default pull-right" onClick={this.handleCancel}>
+            Cancel
           </button>
         </div>
       </div>
