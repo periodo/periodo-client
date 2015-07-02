@@ -69,6 +69,13 @@ module.exports = React.createClass({
   handleCancel: function () {
     this.setState({ editingPeriod: null });
   },
+  handleDelete: function () {
+    var period = this.state.editingPeriod
+
+    if (confirm(`Delete period "${period.get('label')}"?`)) {
+      this.props.cursor.deleteIn(['definitions', period.get('id')]);
+    }
+  },
   renderShownPeriod: function (period) {
     return (
       <PeriodDetails
@@ -110,10 +117,21 @@ module.exports = React.createClass({
                 </button>
 
                 <button
-                    className="btn btn-danger pull-right"
+                    className="btn btn-default pull-right"
                     onClick={this.handleCancel}>
                   Cancel
                 </button>
+
+                {
+                  this.state.editingPeriod.has('id') && (
+                    <button
+                        style={{ marginRight: '8px' }}
+                        className="btn btn-danger pull-right"
+                        onClick={this.handleDelete}>
+                      Delete
+                    </button>
+                  )
+                }
               </div>
             </div>
         }
