@@ -43,14 +43,19 @@ ActionsMenu = React.createClass({
   getEditableMenuItems: function (){
     var routerOpts = { backendName: this.props.backend.name }
     return [
+      <li key="add-collection">
+        <a href={this.props.router.generate('period-collection-add', routerOpts)}>
+          <span style={{ fontWeight: 'bold', marginRight: '6px' }}>➕</span> Add period collection
+        </a>
+      </li>,
       <li key="sync">
         <a href={this.props.router.generate('sync', routerOpts)}>
-          Sync with server
+         <span style={{ marginRight: '6px' }}>⬅</span> Get data from server
         </a>
       </li>,
       <li key="submit-patch">
         <a href={this.props.router.generate('patch-submit', routerOpts)}>
-          Submit patch to server
+          <span style={{ marginRight: '6px' }}>➡</span> Submit patch to server
         </a>
       </li>,
       <li key="view-patches">
@@ -58,9 +63,9 @@ ActionsMenu = React.createClass({
           View submitted patches
         </a>
       </li>,
-      <li key="add-collection">
-        <a href={this.props.router.generate('period-collection-add', routerOpts)}>
-          Add period collection
+      <li key="delete-backend" style={{ marginTop: '20px' }}>
+        <a href="" onClick={this.handleDeleteBackend} style={{ color: 'red' }}>
+          Delete backend
         </a>
       </li>,
     ]
@@ -91,6 +96,18 @@ ActionsMenu = React.createClass({
   close: function () {
     this.setState({ open: false });
     document.removeEventListener('click', this.close);
+  },
+  handleDeleteBackend: function () {
+    var msg = `
+Delete backend ${this.props.backend.name}?
+All of its data will be permanently destroyed.
+    `.trim();
+
+    if (confirm(msg)) {
+      require('../backends')
+        .destroy(this.props.backend.name)
+        .then(() => window.location.href = this.props.router.generate('backend-select'))
+    }
   },
   handleClick: function () {
     if (this.state.open) {
