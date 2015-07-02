@@ -19,6 +19,7 @@
     "immutable": "^3.7.2",
     "iso-639-3": "^0.2.0",
     "javascript-natural-sort": "^0.7.1",
+    "jquery": "^2.1.4",
     "json-pointer": "^0.3.0",
     "json-stable-stringify": "^1.0.0",
     "jsonld": "^0.3.4",
