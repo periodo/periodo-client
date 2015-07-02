@@ -17,18 +17,22 @@ function getDisplayTitle(source) {
 
   if (creators) {
     ret += creators;
-    ret += ' ';
-  }
-
-  if (year) {
-    ret += '(' + year + ')';
-  }
-
-  if (ret) {
-    ret += ', ';
+    if (ret.slice(-1) !== '.') {
+      ret += '. ';
+    } else {
+      ret += ' ';
+    }
   }
 
   ret += title;
+
+  if (ret.slice(-1) !== '.') {
+    ret += '.'
+  }
+
+  if (year) {
+    ret += ' ' + year + '.';
+  }
 
   return ret;
 }
