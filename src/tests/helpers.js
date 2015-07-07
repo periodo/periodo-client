@@ -12,6 +12,7 @@ if (!window.Promise) {
 describe('', function () {
   var termini = Immutable.fromJS([
     { label: '1200', in: { year: '1200' }},
+    { label: '0', in: { year: '0000' }},
     { label: '6th century', in: { earliestYear: '0501', latestYear: '0600' }},
     { label: 'one hundred bee cee', in: { year: '-0099' }},
     { label: 'present' },
@@ -23,7 +24,7 @@ describe('', function () {
       var { getEarliestYear } = require('../helpers/terminus');
       assert.deepEqual(
         termini.map(getEarliestYear).toJS(),
-        [1200, 501, -99, (new Date().getFullYear()), null]
+        [1200, 0, 501, -99, (new Date().getFullYear()), null]
       );
     });
 
@@ -31,7 +32,7 @@ describe('', function () {
       var { getLatestYear } = require('../helpers/terminus');
       assert.deepEqual(
         termini.map(getLatestYear).toJS(),
-        [1200, 600, -99, (new Date().getFullYear()), null]
+        [1200, 0, 600, -99, (new Date().getFullYear()), null]
       );
     });
 
@@ -39,7 +40,7 @@ describe('', function () {
       var { hasISOValue } = require('../helpers/terminus');
       assert.deepEqual(
         termini.map(hasISOValue).toJS(),
-        [true, true, true, true, false]
+        [true, true, true, true, true, false]
       );
     });
 
@@ -47,7 +48,7 @@ describe('', function () {
       var { wasAutoparsed } = require('../helpers/terminus');
       assert.deepEqual(
         termini.map(wasAutoparsed).toJS(),
-        [true, true, false, true, false]
+        [true, true, true, false, true, false]
       );
     });
   });

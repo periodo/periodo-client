@@ -3,32 +3,40 @@
 var Immutable = require('immutable')
   , parseDate = require('../utils/date_parser')
 
+function oneOf(...candidates) {
+  for (var i = 0; i < candidates.length; i++) {
+    if (candidates[i] !== undefined) {
+      return candidates[i];
+    }
+  }
+}
+
 function getEarliestYear(terminus) {
   var year
 
-  year = (
-    terminus.getIn(['in', 'year']) ||
-    terminus.getIn(['in', 'earliestYear']) ||
+  year = oneOf(
+    terminus.getIn(['in', 'year']),
+    terminus.getIn(['in', 'earliestYear']),
     (terminus.get('label') === 'present' ? (new Date().getFullYear()) : null)
   )
 
-  return year ? parseInt(year) : null;
+  return year === null ? null : parseInt(year);
 }
 
 function getLatestYear(terminus) {
   var year
 
-  year = (
-    terminus.getIn(['in', 'year']) ||
-    terminus.getIn(['in', 'latestYear']) ||
+  year = oneOf(
+    terminus.getIn(['in', 'year']),
+    terminus.getIn(['in', 'latestYear']),
     (terminus.get('label') === 'present' ? (new Date().getFullYear()) : null)
   )
 
-  return year ? parseInt(year) : null;
+  return year === null ? null : parseInt(year);
 }
 
 function hasISOValue(terminus) {
-  return !!(getEarliestYear(terminus) || getLatestYear(terminus))
+  return (getEarliestYear(terminus) !== null || getLatestYear(terminus) !== null)
 }
 
 function wasAutoparsed(terminus) {
