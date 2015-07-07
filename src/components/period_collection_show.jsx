@@ -80,7 +80,7 @@ module.exports = React.createClass({
     return (
       <PeriodDetails
           period={period}
-          showEditButton={!this.state.editingPeriod}
+          showEditButton={this.props.backend.editable && !this.state.editingPeriod}
           onPeriodEdit={this.handlePeriodEdit} />
     )
   },
@@ -94,7 +94,7 @@ module.exports = React.createClass({
       <div>
         <h2>{getDisplayTitle(this.props.cursor.get('source'))}</h2>
         {
-          !this.state.editingPeriod ? '' :
+          this.state.editingPeriod && (
             <div className="period-form">
               <div className="period-form-header">
                 <h3>
@@ -134,10 +134,11 @@ module.exports = React.createClass({
                 }
               </div>
             </div>
+          )
         }
 
         {
-          !this.state.editingPeriod && (
+          (this.props.backend.editable && !this.state.editingPeriod) && (
             <div>
               <br />
               <br />
