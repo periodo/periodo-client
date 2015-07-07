@@ -79,7 +79,7 @@ describe('', function () {
 
       assert.deepEqual(describe(data), {
         id: 'p03377f',
-        source: 'Ruiz, Arturo. (1998), The archaeology of the Iberians',
+        source: 'Ruiz, Arturo. The archaeology of the Iberians. 1998.',
         definitions: 2,
         earliest: {
           iso: -799,

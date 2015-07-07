@@ -210,17 +210,15 @@ describe('Patch utils', function () {
       , patches = Immutable.fromJS(samplePatches).toList()
 
     assert.deepEqual(groupByChangeType(patches).toJS(), {
-      period: {
-        add: {
-          a: [samplePatches.addPeriod]
-        },
-        remove: {
-          a: [samplePatches.removePeriod]
-        },
-        edit: {
-          a: {
-            b: [samplePatches.changePeriod]
-          }
+      addPeriod: {
+        a: [samplePatches.addPeriod]
+      },
+      removePeriod: {
+        a: [samplePatches.removePeriod]
+      },
+      editPeriod: {
+        a: {
+          b: [samplePatches.changePeriod]
         }
       }
     });
