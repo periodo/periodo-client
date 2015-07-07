@@ -49,6 +49,11 @@ module.exports = React.createClass({
     this.setState({ autocompleteOpen: false });
   },
 
+  handleSelect: function (value) {
+    this.props.onSelect(value);
+    React.findDOMNode(this.refs.input).querySelector('input').blur();
+  },
+
   render: function () {
     var Input = require('./input.jsx')
       , AutocompleteResults = require('../shared/autocomplete_results.jsx')
@@ -71,7 +76,7 @@ module.exports = React.createClass({
                       list={this.props.autocompleteFrom}
                       getter={this.props.autocompleteGetter}
                       limit={this.props.autocompleteLimit}
-                      onSelect={this.props.onSelect} />
+                      onSelect={this.handleSelect} />
 
             </ul>
           )

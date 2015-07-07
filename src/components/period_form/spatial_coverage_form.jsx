@@ -41,6 +41,7 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       description: this.props.description || '',
+      coverageText: '',
       coverage: (this.props.coverage || Immutable.List()).toOrderedSet()
     }
   },
@@ -57,6 +58,10 @@ module.exports = React.createClass({
     var description = e.target.value;
     this.setState({ description, uses: null });
   },
+  handleCoverageTextChange: function (e) {
+    var coverageText = e.target.value;
+    this.setState({ coverageText });
+  },
   handleSelect: function (coverage) {
     this.setState({
       description: coverage.get('label'),
@@ -68,6 +73,15 @@ module.exports = React.createClass({
   },
   handleSelectUse: function (countries) {
     this.setState({ coverage: countries });
+  },
+  handleAddSpatialCoverage: function (coverage) {
+    this.setState(prev => ({
+      coverageText: '',
+      coverage: prev.coverage.add(Immutable.Map({
+        id: coverage.get('id'),
+        label: coverage.get('label')
+      }))
+    }));
   },
   render: function () {
     var InputAutocomplete = require('../shared/input_autocomplete.jsx')
@@ -97,7 +111,18 @@ module.exports = React.createClass({
                 onSelect={this.handleSelectUse} />
             )
           }
-          <label>Spatial Coverage Extent</label>
+          <InputAutocomplete
+              id={'spatial-coverage' + randomID}
+              ref="spatialCoverageAdd"
+              name="spatialCoverage"
+              placeholder="Begin typing to search"
+              label="Spatial Coverage Extent"
+              value={this.state.coverageText}
+              onChange={this.handleCoverageTextChange}
+              autocompleteFrom={Immutable.fromJS(require('../../data/dbpedia_countries.json'))}
+              autocompleteGetter={coverage => coverage.get('label')}
+              onSelect={this.handleAddSpatialCoverage} />
+
           <ul className="list-unstyled">
             {
               this.state.coverage.map(coverage =>
