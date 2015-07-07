@@ -41,9 +41,17 @@ function roundNum(num) {
   return rounded * power;
 }
 
-RangeSelectionWidget.prototype.getBins = function () {
-  var { makeRangeBins } = require('../helpers/period_collection');
-  return makeRangeBins(this.data, 50);
+RangeSelectionWidget.prototype.getBins = function getBins(min, max) {
+  var { makeRangeBins } = require('../helpers/period_collection')
+    , bins = makeRangeBins(this.data, 50, min, max)
+    , count = this.data.size
+    , redo
+
+  redo = bins.slice(0, -1).every(bin => bin.get('count') / count < .02);
+
+  return redo ?
+    getBins.call(this, bins.getIn([-1, 'earliest']), bins.getIn([-1, 'latest'])) :
+    bins
 }
 
 RangeSelectionWidget.prototype.handleBrushEnd = function (start, end) {
@@ -71,6 +79,10 @@ RangeSelectionWidget.prototype.render = function () {
 
   this.dateRangeStart = dateRangeStart;
   this.dateRangeStop = dateRangeStop;
+
+  // Binning might hide some periods at the beginning; this includes those
+  // hidden periods
+  this.absoluteRange = bins._range;
 
   /*
    * X scale and axis

@@ -25,11 +25,7 @@ module.exports = React.createClass({
       onChange: this.props.onChange
     });
 
-    this.setState({
-      vis,
-      earliest: vis.dateRangeStart,
-      latest: vis.dateRangeStop,
-    });
+    this.setState({ vis });
   },
 
   componentDidUnmount: function () {
@@ -83,19 +79,16 @@ module.exports = React.createClass({
 
     if (shouldUpdateVis) {
       this.state.vis.update(nextProps.periods);
-      this.setState({
-        earliest: this.state.vis.dateRangeStart,
-        latest: this.state.vis.dateRangeStop,
-      });
+      this.forceUpdate();
     }
   },
 
   render: function () {
     var [earliest, latest] = this.getExtent();
     return (
-      <div>
-        <div style={{ display: "inline-block" }} ref="vis" />
-        <div style={{ display: "inline-block", verticalAlign: 'top' }}>
+      <div className="clearfix">
+        <div style={{ float: "left" }} ref="vis" />
+        <div>
           Viewing from {earliest} to {latest}
           {/*
           <br />
