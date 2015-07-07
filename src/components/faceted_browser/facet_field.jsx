@@ -48,7 +48,7 @@ module.exports = React.createClass({
 
     key = value instanceof Immutable.Iterable ? value.hashCode() : value;
     if (key === undefined) key = '__undefined';
-      
+
     return React.createElement(FacetValue, {
       key,
       value,
@@ -93,7 +93,7 @@ module.exports = React.createClass({
         <div className="facet-header clearfix">
           <span className="facet-title">{this.props.facetName}</span>
           <span className="facet-menu pull-right">
-            <a onClick={this.props.onResetFacet} href="#">Reset</a>
+            <a onClick={this.props.onResetFacet} href="">Reset</a>
           </span>
         </div>
         <div className="facet-body">
