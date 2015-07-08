@@ -2,13 +2,23 @@
 A web application for browsing and editing [PeriodO](http://perio.do/) data.
 
 ## Development
-NPM is required for development. Run `make setup` to install dependencies and 
-set up necessary directories.
+NPM is required for development. Run `npm install` from the project directory
+to set up a development environment.
 
 This application uses [browserify](http://browserify.org/) to structure code.
-The main entry point is `src/app.js`. Run `make build` to bundle the application
-or `make watch` to use [watchify](https://github.com/substack/watchify) to
-automatically bundle as files are edited.
+The main entry point is `src/index.js`. Run `make build` to bundle
+the application or `make watch` to use [watchify](https://github.com/substack/watchify)
+to automatically bundle as files are edited.
+
+Tests are run using PhantomJS run with [mochify](https://github.com/mantoni/mochify.js).
+Use `npm test` to run all tests.
+
+## CORS proxy
+Because this is a browser-base application that makes frequent use of
+cross-origin linked data, it is often necessary to tunnel requests through a
+proxy that adds CORS headers or fixes broken CORS implementations. The proxy URL
+is configurable, and can be changed in the `CORS_PROXY_URL` variable
+defined in `src/linked_data_cache.js`.
 
 ## Sample country data
 The pregenerated data to select spatial regions was obtained from DBPedia using
