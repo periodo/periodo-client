@@ -83,10 +83,17 @@ module.exports = React.createClass({
       <div className="content-footer">
         <div className="container">
           <div className="version-number-display">
-            PeriodO client <a href={githubURL}>{ version }</a>
+            <span className="version-label">PeriodO client <a href={githubURL}>{ version }</a></span>
+            <a className="periodo-logo" href="http://perio.do/">
+              <img title="PeriodO project homepage" src="lib/periodo-logo.svg" />
+            </a>
+            <a className="neh-logo" href="http://neh.gov/">
+              <img title="National Endowment for the Humanities" height="64" src="lib/neh-logo.svg" />
+            </a>
           </div>
+
           {
-            !!this.props.errors.size && (
+            this.props.errors.size > 0 && (
               <Dropdown
                   openUp={true}
                   containerClassName={' '}

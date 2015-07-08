@@ -1,6 +1,10 @@
 .hide { display: none; }
 
-@footerHeight: 60px;
+@footerFirstLine: 60px;
+@periodoLogoHeight: 44px;
+@nehLogoHeight: 64px;
+@logoMarginBottom: 20px;
+@footerHeight: @footerFirstLine + @periodoLogoHeight + @logoMarginBottom + @nehLogoHeight + 1 + @logoMarginBottom;
 @navBackground: #eee;
 
 html, body, .outer {
@@ -25,13 +29,30 @@ html, body, .outer {
 
 .version-number-display {
   float: right;
-  line-height: @footerHeight;
+}
+
+.version-number-display > * {
+  display: block;
+  text-align: right;
+}
+
+.periodo-logo {
+  img { height: @periodoLogoHeight }
+  margin-bottom: @logoMarginBottom;
+}
+
+.neh-logo {
+  margin-bottom: 16px;
+}
+
+.version-label {
+  line-height: @footerFirstLine;
 }
 
 
 // Error list
 .error-list {
-  line-height: @footerHeight;
+  line-height: @footerFirstLine;
   cursor: pointer;
 }
 .error-icon {
