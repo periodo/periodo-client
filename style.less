@@ -310,28 +310,24 @@ svg .period:hover {
 // SORTIES
 thead.nowrap th { white-space: nowrap; }
 
-th.sort-header {
+.sort-headers th {
   padding-left: 24px !important;
   padding-right: 24px !important;
   -webkit-user-select: none;
   user-select: none;
   cursor: pointer;
-}
-
-th.sort-header.sort-down,
-th.sort-header.sort-up {
   position: relative;
-  background: #f9f9f9;
 }
 
-th.sort-header.sort-up::before {
+.sort-headers th.sort-asc::before {
   position: absolute;
   left: 6px;
   content: "▲";
 }
-th.sort-header.sort-down::before {
+.sort-headers th.sort-desc::before {
   position: absolute;
   left: 6px;
+  margin-top: -1px;
   content: "▼";
 }
 

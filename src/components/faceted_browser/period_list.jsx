@@ -74,14 +74,25 @@ module.exports = React.createClass({
     return {
       limit: 20,
       currentPage: 0,
+      sortBy: 'label',
+      sortOrder: 'asc',
       viewingDetails: []
     }
+  },
+  componentWillMount: function () {
+    this.updateSortedPeriodSeq();
   },
   getDefaultProps: function () {
     return { allowClicks: true }
   },
-  componentWillReceiveProps: function () {
-    this.setState({ currentPage: 0, viewingDetails: []});
+  componentWillReceiveProps: function (nextProps) {
+    var toSet = { currentPage: 0, viewingDetails: [] }
+
+    if (nextProps.periods) {
+      toSet.periodSeq = this.getSortedPeriodSeq(nextProps.periods);
+    }
+
+    this.setState(toSet);
   },
   handlePageChange: function (currentPage) {
     this.setState({ currentPage, viewingDetails: [] });
@@ -122,9 +133,44 @@ module.exports = React.createClass({
             dataset={this.props.dataset} />
     )
   },
-  getMatchedPeriods: function () {
-    return this.props.periods
+  updateSortedPeriodSeq: function () {
+    this.setState({ periodSeq: this.getSortedPeriodSeq(this.props.periods) });
+  },
+  getSortedPeriodSeq: function (periods) {
+    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+      , naturalSort = require('javascript-natural-sort')
+
+    return periods
+      .sort((a, b) => {
+        var ret;
+
+        if (this.state.sortBy === 'label') {
+          ret = naturalSort(a.get('label'), b.get('label'));
+        } else {
+          let yearA
+            , yearB
+
+          yearA = this.state.sortBy === 'earliestStart' ?
+            getEarliestYear(a.get('start')) :
+            getLatestYear(a.get('stop'))
+
+          yearB = this.state.sortBy === 'earliestStart' ?
+            getEarliestYear(b.get('start')) :
+            getLatestYear(b.get('stop'))
+
+          if (yearA === null) return 1;
+          if (yearB === null) return -1;
+          if (yearA === yearB) return 0;
+
+          ret = yearA < yearB ? -1 : 1;
+        }
+
+        return this.state.sortOrder === 'asc' ? ret : -ret;
+      })
       .toSeq()
+  },
+  getMatchedPeriods: function () {
+    return this.state.periodSeq
       .skip(this.getFirstIndex())
       .take(this.state.limit)
       .map(period => {
@@ -151,16 +197,31 @@ module.exports = React.createClass({
   getFirstIndex: function () {
     return this.state.currentPage * this.state.limit;
   },
+  handleHeaderClick: function (fieldName) {
+    this.setState(prev => {
+      var toSet = {};
+
+      if (prev.sortBy === fieldName) {
+        toSet.sortOrder = prev.sortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        toSet.sortBy = fieldName;
+      }
+
+      return toSet;
+    }, this.updateSortedPeriodSeq);
+  },
   render: function () {
     var Paginator = require('../../components/shared/paginate.jsx')
       , periods = this.getMatchedPeriods()
       , firstIndex = this.getFirstIndex()
+      , sortClassName = 'sort-' + this.state.sortOrder
 
     return (
       <div>
         <div>
           Viewing {firstIndex + 1} - {firstIndex + periods.size} of {this.props.periods.size}
         </div>
+
         <div>
           <Paginator
               numItems={this.props.periods.size}
@@ -170,10 +231,19 @@ module.exports = React.createClass({
         </div>
         <table className="period-detail-table table table-hover">
           <thead className="nowrap">
-            <tr>
-              <th>Label</th>
-              <th>Earliest start</th>
-              <th>Latest stop</th>
+            <tr className="sort-headers">
+              <th onClick={this.handleHeaderClick.bind(null, 'label')}
+                  className={ this.state.sortBy !== 'label' ? '' : sortClassName }>
+                Label
+              </th>
+              <th onClick={this.handleHeaderClick.bind(null, 'earliestStart')}
+                  className={ this.state.sortBy !== 'earliestStart' ? '' : sortClassName }>
+                Earliest start
+              </th>
+              <th onClick={this.handleHeaderClick.bind(null, 'latestStop')}
+                  className={ this.state.sortBy !== 'latestStop' ? '' : sortClassName }>
+                Latest stop
+              </th>
             </tr>
           </thead>
           <tbody>
