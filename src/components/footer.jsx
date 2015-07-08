@@ -77,7 +77,7 @@ module.exports = React.createClass({
   render: function () {
     var Dropdown = require('./shared/dropdown.jsx')
       , version = require('../../package.json').version
-      , githubURL = `https://github.com/periodo/periodo-client/tree/${version}`
+      , githubURL = `https://github.com/periodo/periodo-client/tree/v${version}`
 
     return (
       <div className="content-footer">
