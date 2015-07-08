@@ -39,7 +39,7 @@ module.exports = React.createClass({
         <a onClick={this.initOrcidAuth} className="connect-orcid-link">
           <img
               className="orcid-id-logo"
-              src="http://orcid.org/sites/default/files/images/orcid_32x32.png"
+              src="https://orcid.org/sites/default/files/images/orcid_32x32.png"
               width="32"
               height="32"
               alt="ORCID logo" />
