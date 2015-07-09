@@ -12,7 +12,12 @@ module.exports = React.createClass({
   },
 
   getInitialState: function () {
-    return {}
+    return { vis: null, hideOutliers: true }
+  },
+
+  handleCheck: function (e) {
+    var hideOutliers = e.target.checked;
+    this.setState({ hideOutliers });
   },
 
   componentDidMount: function () {
@@ -22,39 +27,37 @@ module.exports = React.createClass({
     vis = new RangeSelectionVis({
       data: this.props.periods,
       el: React.findDOMNode(this.refs.vis),
-      onChange: this.props.onChange
+      onChange: this.props.onChange,
+      hideOutliers: true
     });
 
     this.setState({ vis });
   },
 
   componentDidUnmount: function () {
-    if (this.state.vis) {
-      this.state.vis.remove();
-    }
+    if (this.state.vis) this.state.vis.remove();
   },
 
-  getExtent: function () {
-    if (!this.state.vis) return [null, null];
+  getBrushedExtent: function () {
+    if (this.state.vis && this.state.vis.brush) {
+      let [start, end] = this.state.vis.brush.extent();
+      if (start !== end) return [start, end];
+    }
 
-    var { dateRangeStart, dateRangeStop } = this.state.vis
-      , start
-      , end
+    return null
+  },
 
-    if (this.state.vis.brush) {
-      [start, end] = this.state.vis.brush.extent();
-      if (start === end) {
-        start = dateRangeStart;
-        end = dateRangeStop;
+  getHiddenRange: function () {
+    if (this.state.vis) {
+      var [absoluteRangeStart] = this.state.vis.absoluteRange
+        , visibleRangeStart = this.state.vis.dateRangeStart
+
+      if (absoluteRangeStart < visibleRangeStart) {
+        return [absoluteRangeStart, visibleRangeStart];
       }
     }
 
-    if (start === undefined || end === undefined) {
-      start = dateRangeStart;
-      end = dateRangeStop;
-    }
-
-    return [Math.floor(start), Math.floor(end)];
+    return null;
   },
 
   isBrushed: function () {
@@ -70,26 +73,57 @@ module.exports = React.createClass({
     return brushStart !== brushStop;
   },
 
-  componentWillReceiveProps: function (nextProps) {
-    var shouldUpdateVis = (
-      this.state.vis &&
+  componentWillUpdate: function (nextProps, nextState) {
+    var hasNewPeriods
+      , updatedHideOutliers
+
+    if (!this.state.vis) return;
+
+    hasNewPeriods = (
       nextProps.periods &&
       !nextProps.periods.equals(this.props.periods)
     );
 
-    if (shouldUpdateVis) {
+    if (hasNewPeriods) {
+      this.state.vis.brush.clear();
+      this.props.onChange({ start: null, end: null });
       this.state.vis.update(nextProps.periods);
-      this.forceUpdate();
+    }
+
+    updatedHideOutliers = (
+      nextState.hasOwnProperty('hideOutliers') &&
+      nextState.hideOutliers !== this.state.hideOutliers
+    )
+
+    if (updatedHideOutliers) {
+      this.state.vis.brush.clear();
+      this.props.onChange({ start: null, end: null });
+      this.state.vis.hideOutliers = nextState.hideOutliers;
+      this.state.vis.render();
     }
   },
 
   render: function () {
-    var [earliest, latest] = this.getExtent();
+    var hiddenRange = this.getHiddenRange();
+
     return (
       <div className="clearfix">
         <div style={{ float: "left" }} ref="vis" />
         <div>
-          Viewing from {earliest} to {latest}
+          <div className="checkbox">
+            <label>
+              Hide outliers?
+              {' '}
+              <input onChange={this.handleCheck} checked={this.state.hideOutliers} type="checkbox" />
+            </label>
+          </div>
+          {
+            hiddenRange && (
+              <div>
+                <div>Hiding range from {hiddenRange[0]} to {hiddenRange[1]}</div>
+              </div>
+            )
+          }
           {/*
           <br />
           <button
