@@ -87,6 +87,7 @@ module.exports = React.createClass({
   render: function () {
     var PeriodList = require('./faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form')
+      , Source = require('./shared/source.jsx')
       , { getDisplayTitle } = require('../helpers/source')
       , { getSpatialCoverages } = require('../helpers/periodization_collection.js')
 
@@ -135,6 +136,10 @@ module.exports = React.createClass({
               </div>
             </div>
           )
+        }
+
+        {
+          !this.state.editingPeriod && <Source data={this.props.cursor.get('source')} />
         }
 
         {
