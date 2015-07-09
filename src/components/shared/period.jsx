@@ -65,7 +65,13 @@ module.exports = React.createClass({
       <dl className="dl-horizontal period-details">
         <div className="field">
           <dt>Original label</dt>
-          <dd>{this.props.period.get('label')}</dd>
+          <dd>
+            {
+              this.props.period.get('originalLabel')
+                .map((val, script) => `${val} (${script})`)
+                .first()
+            }
+          </dd>
         </div>
 
         {
