@@ -7,11 +7,27 @@ var React = require('react')
 
 PeriodRow = React.createClass({
   render: function () {
+    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+      , earliestStart = getEarliestYear(this.props.data.get('start'))
+      , latestStop = getLatestYear(this.props.data.get('stop'))
+
     return (
       <tr onClick={this.props.handleClick}>
         <td>{this.props.data.get('label') }</td>
-        <td>{this.props.data.getIn(['start', 'label']) || ''}</td>
-        <td>{this.props.data.getIn(['stop', 'label']) || ''}</td>
+        <td>
+          {
+            earliestStart !== null ?
+              earliestStart :
+              <em className="quiet">{ this.props.data.getIn(['start', 'label'], 'none') }</em>
+          }
+        </td>
+        <td>
+          {
+            latestStop !== null ?
+              latestStop :
+              <em className="quiet">{ this.props.data.getIn(['stop', 'label'], 'none') }</em>
+          }
+        </td>
       </tr>
     )
   }
