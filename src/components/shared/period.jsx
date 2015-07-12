@@ -15,14 +15,14 @@ module.exports = React.createClass({
   },
 
   render: function () {
-    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+    var { asString } = require('../../helpers/terminus')
       , linkify = this.props.linkify ? require('../../utils/linkify') : text => text
       , asURL = this.props.linkify ? makeLink : text => text
       , period = this.props.period
       , simpleFields
       , noteFields
-      , earliestStart
-      , latestStop
+      , startString
+      , stopString
 
     period = this.props.period;
 
@@ -58,8 +58,8 @@ module.exports = React.createClass({
 
 
 
-    earliestStart = getEarliestYear(period.get('start', Immutable.Map()));
-    latestStop = getLatestYear(period.get('stop', Immutable.Map()));
+    startString = asString(period.get('start', Immutable.Map()));
+    stopString = asString(period.get('stop', Immutable.Map()));
 
     return (
       <dl className="dl-horizontal period-details">
@@ -123,16 +123,18 @@ module.exports = React.createClass({
         <div className="field">
           <dt>Start</dt>
           <dd>
-          {period.getIn(['start', 'label'], 'unknown')}
-          {!earliestStart ? '' : (' (ISO value: ' + earliestStart + ')')}
+            {period.getIn(['start', 'label'], 'unknown')}
+            {startString && <br />}
+            {startString && ('(ISO value: ' + startString + ')')}
           </dd>
         </div>
 
         <div className="field">
           <dt>Stop</dt>
           <dd>
-          {period.getIn(['stop', 'label'], 'unknown')}
-          {!latestStop ? '' : (' (ISO value: ' + latestStop + ')')}
+            {period.getIn(['stop', 'label'], 'unknown')}
+            {stopString && <br />}
+            {stopString && ('(ISO value: ' + stopString + ')')}
           </dd>
         </div>
 

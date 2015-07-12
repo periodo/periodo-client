@@ -11,6 +11,21 @@ function oneOf(...candidates) {
   }
 }
 
+function asString(terminus) {
+  if (terminus.hasIn(['in', 'earliestYear']) || terminus.hasIn(['in', 'latestYear'])) {
+    let earliest = getEarliestYear(terminus)
+      , latest = getLatestYear(terminus)
+
+    if (earliest === null) earliest = '(unknown)';
+    if (latest === null) latest = '(unknown)';
+
+    return `range from ${earliest} to ${latest}`
+  } else {
+    let value = getEarliestYear(terminus)
+    return value === null ? null : ('' + value);
+  }
+}
+
 function getEarliestYear(terminus) {
   var year
 
@@ -57,4 +72,4 @@ function wasAutoparsed(terminus) {
     terminus.get('in') === null;
 }
 
-module.exports = { getEarliestYear, getLatestYear, hasISOValue, wasAutoparsed }
+module.exports = { asString, getEarliestYear, getLatestYear, hasISOValue, wasAutoparsed }
