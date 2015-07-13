@@ -16,8 +16,8 @@ function makeRangeBins(periods, numBins, min, max) {
       , period
 
     while((period = iter.next().value)) {
-      let earliest = getEarliestYear(period.get('start'))
-        , latest = getLatestYear(period.get('stop'))
+      let earliest = getEarliestYear(period.get('start', Immutable.Map()))
+        , latest = getLatestYear(period.get('stop', Immutable.Map()))
 
       if (earliest !== null && latest !== null) {
         list.push(Immutable.Map({ earliest, latest }));

@@ -1,6 +1,7 @@
 "use strict";
 
-var iso639_3 = require('iso-639-3').all()
+var Immutable = require('immutable')
+  , iso639_3 = require('iso-639-3').all()
 
 // formatValue
 
@@ -21,7 +22,7 @@ module.exports = {
         , languages
 
       languages = period
-        .get('originalLabel')
+        .get('originalLabel', Immutable.Map())
         .keySeq()
         .toSet()
 

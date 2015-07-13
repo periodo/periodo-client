@@ -6,8 +6,8 @@ var _ = require('underscore')
 function describe(periodization) {
   var { minYear, maxYear } = require('./terminus_collection')
     , definitions = periodization.get('definitions')
-    , starts = definitions.map(def => def.get('start'))
-    , stops = definitions.map(def => def.get('stop'))
+    , starts = definitions.map(def => def.get('start', Immutable.Map()))
+    , stops = definitions.map(def => def.get('stop', Immutable.Map()))
 
   return {
     id: periodization.get('id'),

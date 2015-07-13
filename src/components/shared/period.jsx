@@ -67,9 +67,9 @@ module.exports = React.createClass({
           <dt>Original label</dt>
           <dd>
             {
-              this.props.period.get('originalLabel')
+              this.props.period.get('originalLabel', Immutable.Map())
                 .map((val, script) => `${val} (${script})`)
-                .first()
+                .first() || <em>(not given)</em>
             }
           </dd>
         </div>
@@ -80,7 +80,7 @@ module.exports = React.createClass({
           <dt>Alternate labels</dt>
           <dd>
             <ul className="list-unstyled">
-            {this.props.period.get('alternateLabel')
+            {this.props.period.get('alternateLabel', Immutable.List())
               .map((labels, lang) => labels.map(label => Immutable.Map({ label, lang })))
               .toList()
               .flatten(1)
@@ -123,7 +123,7 @@ module.exports = React.createClass({
         <div className="field">
           <dt>Start</dt>
           <dd>
-            {period.getIn(['start', 'label'], 'unknown')}
+            {period.getIn(['start', 'label'], <em>(not given)</em>)}
             {startString && <br />}
             {startString && ('(ISO value: ' + startString + ')')}
           </dd>
@@ -132,7 +132,7 @@ module.exports = React.createClass({
         <div className="field">
           <dt>Stop</dt>
           <dd>
-            {period.getIn(['stop', 'label'], 'unknown')}
+            {period.getIn(['stop', 'label'], <em>(not given)</em>)}
             {stopString && <br />}
             {stopString && ('(ISO value: ' + stopString + ')')}
           </dd>

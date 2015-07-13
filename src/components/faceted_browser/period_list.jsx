@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require('react')
+  , Immutable = require('immutable')
   , { getDisplayTitle } = require('../../helpers/source')
   , PeriodDetails
   , PeriodRow
@@ -8,8 +9,8 @@ var React = require('react')
 PeriodRow = React.createClass({
   render: function () {
     var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
-      , earliestStart = getEarliestYear(this.props.data.get('start'))
-      , latestStop = getLatestYear(this.props.data.get('stop'))
+      , earliestStart = getEarliestYear(this.props.data.get('start', Immutable.Map()))
+      , latestStop = getLatestYear(this.props.data.get('stop', Immutable.Map()))
 
     return (
       <tr onClick={this.props.handleClick}>
