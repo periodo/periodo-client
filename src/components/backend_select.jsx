@@ -20,13 +20,44 @@ BackendForm = React.createClass({
       .create(this.state)
       .then(() => window.location.reload())
   },
+
+  handleFileChange: function (e) {
+    var reader = new FileReader()
+      , file = e.target.files[0]
+
+    reader.onload = upload => {
+      var data;
+
+      try {
+        data = JSON.parse(upload.target.result);
+
+        if (typeof data !== 'object') throw new Error();
+
+        this.setState({
+          name: file.name,
+          data: data
+        });
+      } catch (err) {
+        let msg = `${file.name} is not a JSON document.`;
+        this.setState({ name: null });
+        alert(msg);
+        throw new Error(msg);
+      }
+    }
+
+    reader.readAsText(file);
+  },
+
   isValidState: function () {
     var isValid = (
       !!this.state.type &&
       !!this.state.name &&
-      /^\w+$/.test(this.state.name) &&
       this.props.existing.indexOf(this.state.name) === -1
     )
+
+    if (this.state.type === 'web' || this.state.type === 'idb') {
+      isValid = isValid && /^\w+$/.test(this.state.name);
+    }
 
     if (this.state.type === 'web') {
       isValid = isValid && !!this.state.url;
@@ -37,13 +68,22 @@ BackendForm = React.createClass({
   render: function () {
     var Input = require('./shared/input.jsx')
 
-    var webSource = this.state.type !== 'web' ? '' : (
+    var webSource = this.state.type === 'web' && (
       <Input
           id="js-web-source"
           name="url"
           label="Source"
           value={this.state.source}
           onChange={this.handleChange} />
+    )
+
+    var fileSource = this.state.type === 'file' && (
+      <div>
+        <label>
+          Input file
+          <input type="file" onChange={this.handleFileChange} />
+        </label>
+      </div>
     )
 
     return (
@@ -61,6 +101,7 @@ BackendForm = React.createClass({
                 className="form-control">
               <option value="idb">IndexedDB (editable, stored locally)</option>
               <option value="web">Web (read-only, accessed remotely)</option>
+              <option value="file">File (read-only, stored locally)</option>
             </select>
           </div>
 
@@ -70,8 +111,10 @@ BackendForm = React.createClass({
                 name="name"
                 label="Name"
                 value={this.state.name}
+                disabled={this.state.type === 'file'}
                 onChange={this.handleChange} />
             { webSource }
+            { fileSource }
           </div>
 
           <div>

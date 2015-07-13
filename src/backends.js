@@ -7,6 +7,7 @@ var _ = require('underscore')
   , current
 
 const MEMORY_BACKEND = '__memory__'
+    , FILE_BACKEND = '__file__'
 
 
 
@@ -308,6 +309,27 @@ MemoryBackend.prototype = Object.create(Backend.prototype);
 
 
 /************************************************************
+ * File backend
+ ***********************************************************/
+function FileBackend(opts) {
+  Backend.call(this, opts);
+  this.type = 'file';
+
+  this.fetchData = function () {
+    return require('./file_backends')
+      .getFile(this.name.slice(5)) // Strip file: prefix
+      .then(fileObj => {
+        this._fileObj = fileObj;
+        return { data: fileObj.data }
+      });
+  }
+}
+FileBackend.constructor = FileBackend;
+FileBackend.prototype = Object.create(Backend.prototype);
+
+
+
+/************************************************************
  * Helper functions
  ***********************************************************/
 
@@ -324,9 +346,16 @@ function listBackends() {
   if (clientSupportsDexie()) {
     dbPromise = Dexie.getDatabaseNames().then(dexieDBs => {
       return dexieDBs
-        .filter(db => db !== '_linked_data_cache' )
+        .filter(db => db !== '_linked_data_cache' && db !== '_file_backends' )
         .map(db => ({ type: 'idb', name: db }))
-    })
+    });
+
+    dbPromise = dbPromise.then(idbBackends => {
+      return require('./file_backends')
+        .listFiles()
+        .then(files => files.map(name => ({ type: 'file', name: 'file:' + name })))
+        .then(files => idbBackends.concat(files))
+    });
   } else {
     dbPromise = Promise.resolve([]);
   }
@@ -362,7 +391,8 @@ function getBackend(name) {
       constructors = {
         idb: IDBBackend,
         web: WebBackend,
-        memory: MemoryBackend
+        memory: MemoryBackend,
+        file: FileBackend
       }
 
       if (!backendOpts) {
@@ -404,6 +434,11 @@ function addBackend(opts) {
         let webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
         webDBs[opts.name] = opts;
         localStorage.WebDatabaseNames = JSON.stringify(webDBs);
+      } else if (opts.type === 'file') {
+        // Name of DB will be different from filename itself
+        dbOpen = require('./file_backends')
+          .addFile(opts.name, opts.data)
+          .then(({ name }) => { opts.name = 'file:' + name })
       } else {
         throw new Error(`Invalid backend type: ${opts.type}`);
       }
