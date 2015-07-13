@@ -9,6 +9,7 @@ module.exports = React.createClass({
   propTypes: {
     numItems: React.PropTypes.number.isRequired,
     currentPage: React.PropTypes.number.isRequired,
+    initialPage: React.PropTypes.number,
     limit: React.PropTypes.number.isRequired,
     onPageChange: React.PropTypes.func
   },
@@ -28,6 +29,7 @@ module.exports = React.createClass({
                 subContainerClassName="pages pagination"
                 activeClass="active"
                 forceSelected={this.props.currentPage}
+                initialSelected={this.props.initialPage || 0}
                 pageNum={this.getNumberOfPages()}
                 marginPagesDisplayed={2}
                 breakLabel={<li className="break"><a href="">...</a></li>}

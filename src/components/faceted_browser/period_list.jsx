@@ -86,17 +86,51 @@ PeriodDetails = React.createClass({
 });
 
 module.exports = React.createClass({
+  propTypes: {
+    /*
+     * backend,
+     * dataset,
+     * periods,
+     * renderShownPeriod
+     *
+     * initiallyShownPeriodID
+     *
+     */
+  },
+
+  getPageFor(periodID, sequence) {
+    var foundPeriod = sequence.find(period => period.get('id') === periodID);
+    return foundPeriod ?
+      Math.floor(sequence.indexOf(foundPeriod) / this.state.limit) :
+      null
+  },
+
   getInitialState: function () {
     return {
+      periodSeq: null,
       limit: 20,
-      currentPage: 0,
       sortBy: 'label',
       sortOrder: 'asc',
+      currentPage: 0,
       viewingDetails: []
     }
   },
+
   componentWillMount: function () {
-    this.updateSortedPeriodSeq();
+    var periodSeq
+      , updatedPage
+
+    periodSeq = this.updateSortedPeriodSeq();
+
+    if (this.props.initiallyShownPeriodID) {
+      updatedPage = this.getPageFor(this.props.initiallyShownPeriodID, periodSeq);
+      if (updatedPage) {
+        this.setState({
+          currentPage: updatedPage,
+          viewingDetails: [this.props.initiallyShownPeriodID]
+        });
+      }
+    }
   },
   getDefaultProps: function () {
     return { allowClicks: true }
@@ -150,7 +184,9 @@ module.exports = React.createClass({
     )
   },
   updateSortedPeriodSeq: function () {
-    this.setState({ periodSeq: this.getSortedPeriodSeq(this.props.periods) });
+    var periodSeq = this.getSortedPeriodSeq(this.props.periods);
+    this.setState({ periodSeq });
+    return periodSeq;
   },
   getSortedPeriodSeq: function (periods) {
     var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
@@ -242,6 +278,7 @@ module.exports = React.createClass({
           <Paginator
               numItems={this.props.periods.size}
               limit={this.state.limit}
+              initialPage={this.state.currentPage}
               currentPage={this.state.currentPage}
               onPageChange={this.handlePageChange} />
         </div>

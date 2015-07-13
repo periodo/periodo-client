@@ -85,11 +85,15 @@ module.exports = React.createClass({
     )
   },
   render: function () {
-    var PeriodList = require('./faceted_browser/period_list.jsx')
+    var url = require('url')
+      , PeriodList = require('./faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form')
       , Source = require('./shared/source.jsx')
       , { getDisplayTitle } = require('../helpers/source')
       , { getSpatialCoverages } = require('../helpers/periodization_collection.js')
+      , initiallyShownPeriodID
+
+    initiallyShownPeriodID = url.parse(window.location.hash.slice(1), true).query.show_period
 
     return (
       <div>
@@ -174,6 +178,7 @@ module.exports = React.createClass({
           this.props.cursor.get('definitions').size === 0 ?
             <p>No periods defined for collection.</p> :
             <PeriodList
+                initiallyShownPeriodID={initiallyShownPeriodID}
                 renderShownPeriod={this.renderShownPeriod}
                 periods={this.props.cursor.get('definitions').toList()} />
         }

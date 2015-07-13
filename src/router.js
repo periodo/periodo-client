@@ -148,10 +148,12 @@ module.exports = React.createClass({
           this.state.locationBar.update(redirectURL, { trigger: true })
         } else {
           let collectionID
+            , periodID
 
           store.get('periodCollections').forEach(collection => {
             if (collection.hasIn(['definitions', matchKey])) {
               collectionID = collection.get('id');
+              periodID = matchKey;
               return false;
             }
           });
@@ -161,6 +163,8 @@ module.exports = React.createClass({
               backendName: 'web',
               collectionID
             });
+
+            redirectURL += '?show_period=' + periodID;
             this.state.locationBar.update(redirectURL, { trigger: true });
           } else {
             this.showNotFound();
