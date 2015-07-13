@@ -124,7 +124,7 @@ module.exports = React.createClass({
 
     if (this.props.initiallyShownPeriodID) {
       updatedPage = this.getPageFor(this.props.initiallyShownPeriodID, periodSeq);
-      if (updatedPage) {
+      if (updatedPage !== null) {
         this.setState({
           currentPage: updatedPage,
           viewingDetails: [this.props.initiallyShownPeriodID]
