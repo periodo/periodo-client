@@ -11,7 +11,8 @@ module.exports = React.createClass({
     return {
       facets: this.getInitialFacets(),
       selectedValues: Immutable.Map(),
-      brushedRange: null
+      brushedRange: null,
+      searchText: null
     }
   },
   getInitialFacets: function () {
@@ -61,6 +62,10 @@ module.exports = React.createClass({
       initialFacets = initialFacets.select('_range', [true]);
     }
 
+    if (this.state.searchText) {
+      initialFacets = initialFacets.select('_searchText', [true]);
+    }
+
     // First, get the matched documents for all other fields
     var intersectingIDs = this.state.selectedValues
       .delete(fieldName)
@@ -77,6 +82,10 @@ module.exports = React.createClass({
 
     if (this.state.brushedRange && onlyInRange) {
       initialFacets = initialFacets.select('_range', [true]);
+    }
+
+    if (this.state.searchText) {
+      initialFacets = initialFacets.select('_searchText', [true]);
     }
 
     return this.state.selectedValues
@@ -114,8 +123,35 @@ module.exports = React.createClass({
       }));
     }
   },
+
+  handleSearchTextChange: function (text) {
+    var { getAlternateLabels } = require('../../helpers/period')
+      , regex
+
+    if (!text) {
+      this.setState(prev => ({
+        searchText: null,
+        facets: prev.facets.removeFacet('_searchText')
+      }));
+    } else {
+      regex = new RegExp(text, 'i')
+
+      // TODO - maybe make search regex only with a checkbox
+      this.setState(prev => ({
+        searchText: text,
+        facets: prev.facets.removeFacet('_searchText').addFacet('_searchText', period => {
+          return (
+            regex.test(period.get('label', '')) ||
+            getAlternateLabels(period).some(label => regex.test(label))
+          )
+        })
+      }));
+    }
+  },
+
   render: function () {
     var RangeSelection = require('../shared/range_selection.jsx')
+      , TextMatch = require('./text_match.jsx')
       , anyPeriods = this.props.dataset.get('periodCollections').size > 0
       , periodsInRange = this.getMatchedPeriods(true)
       , periods = this.getMatchedPeriods(false)
@@ -123,7 +159,7 @@ module.exports = React.createClass({
 
     facetFields = this.state.facets.facets
       .keySeq()
-      .filter(key => key !== '_range')
+      .filter(key => key[0] !== '_') // ignore facets that start with _ (this is a kludge)
       .map(facetName => {
         var field = require('./facet_fields')[facetName]
           , values = this.getFacetValues(facetName)
@@ -157,9 +193,17 @@ module.exports = React.createClass({
             anyPeriods && (
               <div className="col-md-5">
                 <h2>Filters</h2>
+
+                <h3>Time range</h3>
                 <RangeSelection
                     onChange={this.handleRangeBrush}
                     periods={periods} />
+
+                <h3>Text</h3>
+                <TextMatch onSearchTextChange={this.handleSearchTextChange} />
+
+                <br />
+
                 {facetFields}
               </div>
             )
