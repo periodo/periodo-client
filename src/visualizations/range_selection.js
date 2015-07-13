@@ -78,8 +78,16 @@ RangeSelectionWidget.prototype.render = function () {
 
   var roundNum = require('../utils/truncate_number').bind(null, 2)
 
-  var bins = this.getBins()
-    , dateRangeStart = bins.getIn([0, 'earliest'])
+  // FIXME: show something useful if we can't figure out bins (because, for
+  // instance, there's no data). for now, the visualization just doesn't update
+  // from its previous state.
+  try {
+    var bins = this.getBins()
+  } catch (err) {
+    return null;
+  }
+
+  var dateRangeStart = bins.getIn([0, 'earliest'])
     , dateRangeStop = bins.getIn([-1, 'latest'])
 
   this.dateRangeStart = dateRangeStart;
