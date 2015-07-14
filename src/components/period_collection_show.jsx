@@ -34,7 +34,10 @@ PeriodDetails = React.createClass({
 module.exports = React.createClass({
   displayName: 'PeriodCollectionShow',
   getInitialState: function () {
-    return { editingPeriod: null }
+    return {
+      editingPeriod: null,
+      view: 'list'
+    }
   },
   componentWillReceiveProps: function (nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
@@ -88,9 +91,11 @@ module.exports = React.createClass({
     var url = require('url')
       , PeriodList = require('./faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form')
+      , PreformattedFile = require('./shared/pre_file.jsx')
       , Source = require('./shared/source.jsx')
       , { getDisplayTitle } = require('../helpers/source')
       , { getSpatialCoverages } = require('../helpers/periodization_collection.js')
+      , { asJSONLD, asTurtle, asCSV } = require('../helpers/periodization')
       , initiallyShownPeriodID
 
     initiallyShownPeriodID = url.parse(window.location.hash.slice(1), true).query.show_period
@@ -175,12 +180,60 @@ module.exports = React.createClass({
         }
 
         {
-          this.props.cursor.get('definitions').size === 0 ?
-            <p>No periods defined for collection.</p> :
-            <PeriodList
-                initiallyShownPeriodID={initiallyShownPeriodID}
-                renderShownPeriod={this.renderShownPeriod}
-                periods={this.props.cursor.get('definitions').toList()} />
+          !this.state.editingPeriod && (
+            <ul className="nav nav-tabs" style={{ marginBottom: '1.5em' }}>
+              <li className={this.state.view === 'list' ? 'active' : ''}>
+                <a href="" onClick={() => this.setState({ view: 'list' })}>Period list</a>
+              </li>
+              <li className={this.state.view === 'jsonld' ? 'active' : ''}>
+                <a href="" onClick={() => this.setState({ view: 'jsonld' })}>JSON-LD</a>
+              </li>
+              <li className={this.state.view === 'ttl' ? 'active' : ''}>
+                <a href="" onClick={() => this.setState({ view: 'ttl' })}>Turtle</a>
+              </li>
+              <li className={this.state.view === 'csv' ? 'active' : ''}>
+                <a href="" onClick={() => this.setState({ view: 'csv' })}>CSV</a>
+              </li>
+            </ul>
+          )
+        }
+
+        {
+          (this.state.view === 'list' || this.state.editingPeriod) && (
+            this.props.cursor.get('definitions').size === 0 ?
+              <p>No periods defined for collection.</p> :
+              <PeriodList
+                  initiallyShownPeriodID={initiallyShownPeriodID}
+                  renderShownPeriod={this.renderShownPeriod}
+                  periods={this.props.cursor.get('definitions').toList()} />
+          )
+        }
+
+        {
+          (this.state.view === 'jsonld' && !this.state.editingPeriods) && (
+            <PreformattedFile
+                filename={this.props.cursor.get('id') + '.jsonld'}
+                mimetype='application/ld+json'
+                getFileContent={() => JSON.stringify(asJSONLD(this.props.cursor), true, '  ')} />
+          )
+        }
+
+        {
+          (this.state.view === 'ttl' && !this.state.editingPeriods) && (
+            <PreformattedFile
+                filename={this.props.cursor.get('id') + '.ttl'}
+                mimetype='text/turtle'
+                getFileContent={() => asTurtle(this.props.cursor)} />
+          )
+        }
+
+        {
+          (this.state.view === 'csv' && !this.state.editingPeriods) && (
+            <PreformattedFile
+                filename={this.props.cursor.get('id') + '.csv'}
+                mimetype='text/csv'
+                getFileContent={() => asCSV(this.props.cursor)} />
+          )
         }
       </div>
     )
