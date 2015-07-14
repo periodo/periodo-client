@@ -2,6 +2,7 @@
 
 var _ = require('underscore')
   , Immutable = require('immutable')
+  , { asJSONLD, asTurtle } = require('./data')
 
 function describe(periodization) {
   var { minYear, maxYear } = require('./terminus_collection')
@@ -80,66 +81,6 @@ function asCSV(periodization) {
     });
 
     writer.end();
-  });
-}
-
-function asJSONLD(periodization) {
-  var json = periodization.toJS();
-  json['@context'] = require('../context');
-  return json;
-}
-
-function processStatement(statement) {
-  var val;
-
-  if (statement.type !== 'literal') return statement.value;
-
-  val = '"' + statement.value.replace(/"/g, '\\"') + '"';
-  if (statement.datatype === 'http://www.w3.org/2001/XMLSchema#string') {
-    // Good!
-  } else if (statement.datatype === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString') {
-    val += '@' + statement.language;
-  } else {
-    val += '^^' + statement.datatype;
-  }
-
-  return val;
-}
-
-function asTurtle(periodization) {
-  var jsonld = require('jsonld')
-    , N3 = require('n3')
-
-  return new Promise((resolve, reject) => {
-    jsonld.toRDF(asJSONLD(periodization), (err, dataset) => {
-      var writer
-
-      if (err) reject(err);
-
-      writer = N3.Writer({
-        skos: 'http://www.w3.org/2004/02/skos/core#',
-        dcterms: 'http://purl.org/dc/terms/',
-        foaf: 'http://xmlns.com/foaf/0.1/',
-        time: 'http://www.w3.org/2006/time#',
-        xsd: 'http://www.w3.org/2001/XMLSchema#',
-        periodo: 'http://perio.do/temporary/'
-      });
-
-      dataset['@default'].forEach(triple => writer.addTriple({
-        subject: processStatement(triple.subject),
-        predicate: processStatement(triple.predicate),
-        object: processStatement(triple.object)
-      }));
-
-      writer.end((err, result) => {
-        if (err) reject(err);
-        result = result
-          .replace(/\n</g, '\n\n<')
-          .replace(/(\n<.*?>) /g, "$1\n    ")
-
-        resolve(result);
-      });
-    });
   });
 }
 
