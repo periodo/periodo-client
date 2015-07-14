@@ -117,17 +117,13 @@ module.exports = React.createClass({
       <div>
         <div className="select-browse-item">
           <div>
-            <ul className="nav nav-tabs">
-              <li>
-                <h2 style={{
-                  margin: 0,
-                  padding: 0,
-                  marginTop: '-1px',
-                  paddingRight: '14px',
-                  lineHeight: '42px',
-                  borderBottom: '1px solid white'
-                }}>Browse by:</h2>
-              </li>
+            <h2 style={{
+              position: 'absolute',
+              margin: 0,
+              padding: 0,
+              lineHeight: '42px'
+            }}>Browse by:</h2>
+            <ul style={{ marginLeft: '120px' }} className="nav nav-tabs">
               <li className={this.state.browseBy === 'period' ? 'active' : ''}>
                 <a href="" onClick={this.handleBrowseBy.bind(null, 'period')}>
                   Period
