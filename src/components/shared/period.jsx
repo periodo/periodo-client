@@ -28,7 +28,7 @@ module.exports = React.createClass({
 
     simpleFields = [
       {
-        value: period.getIn(['locator']),
+        value: period.getIn(['source', 'locator']),
         label: 'Locator'
       },
       {
