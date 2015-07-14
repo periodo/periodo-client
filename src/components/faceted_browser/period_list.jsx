@@ -139,7 +139,7 @@ module.exports = React.createClass({
   componentWillReceiveProps: function (nextProps) {
     var toSet = { currentPage: 0, viewingDetails: [] }
 
-    if (nextProps.periods) {
+    if (nextProps.periods && !nextProps.periods.equals(this.props.periods)) {
       toSet.periodSeq = this.getSortedPeriodSeq(nextProps.periods);
     }
 
