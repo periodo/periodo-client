@@ -63,6 +63,7 @@ period = '/definitions/' pid:pcid ret:ptype {
 ptype = emptyp
   / alternatelabel
   / originallabel
+  / spatialCoverageDescription
   / spatialcoverage
   / startdate
   / stopdate
@@ -82,6 +83,12 @@ originallabel = '/originalLabel' (.+)? { return {
   type: 'period',
   label: 'originalLabel'
 }}
+
+spatialCoverageDescription = '/spatialCoverageDescription' (.+)? { return {
+  type: 'period',
+  label: 'spatialCoverageDescription'
+}}
+
 
 spatialcoverage = '/spatialCoverage' (.+)? { return {
   type: 'period',
