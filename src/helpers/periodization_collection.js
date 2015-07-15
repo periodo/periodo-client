@@ -7,7 +7,7 @@ function getSpatialCoverageCounts(periodList) {
     .countBy(period => period.get('spatialCoverage'))
     .map((count, countries) => Immutable.Map({
       count,
-      countries: countries.toOrderedSet()
+      countries: countries ? countries.toOrderedSet() : Immutable.OrderedSet()
     }))
     .toList()
 }
