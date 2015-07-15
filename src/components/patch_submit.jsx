@@ -78,7 +78,7 @@ module.exports = React.createClass({
 
   renderSubmitPatch: function () {
     var SelectChanges = require('./shared/select_changes.jsx')
-      , getChanges = (data, url) => this.props.backend.getChangesFromLocal(data, url)
+      , getChanges = (data, url) => this.props.backend.getChangesFromLocalToRemote(data, url)
 
     return (
       <div>

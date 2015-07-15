@@ -7,8 +7,6 @@ var _ = require('underscore')
   , current
 
 const MEMORY_BACKEND = '__memory__'
-    , FILE_BACKEND = '__file__'
-
 
 
 /************************************************************
@@ -79,39 +77,40 @@ Backend.prototype = {
     return promise;
   },
 
-  // `toRemote` is a boolean value that represents if the returned patches
+  mapStoreIDs: function (remoteStore, remoteURL) {
+    var { replaceIDs } = require('./helpers/skolem_ids')
+    return !this.getMappedIDs ?
+      Promise.resolve(remoteStore) :
+      this.getMappedIDs(remoteURL).then(mappedIDs => replaceIDs(remoteStore, mappedIDs))
+  },
+
+  // `originIsLocal` is a boolean value that represents if the returned patches
   // should represent changes are meant to be applied to the remote dataset.
-  getChanges: function(toRemote, remote, remoteURL) {
-    var { makePatch } = require('./utils/patch')
+  getChanges: function (originIsLocal, remote, remoteURL) {
+    var { makePatch, affectsPeriodCollections } = require('./utils/patch')
       , { filterByHash } = require('./helpers/patch_collection')
-      , { replaceIDs } = require('./helpers/skolem_ids')
-      , periodCollectionRegex = /^\/periodCollection/
       , localStore
       , remoteStore
 
 
-    if (!(this.editable && this.matchHashes)) {
-      throw new Error(`Cannot get patches for backend with type ${this.type}`)
+    if (!this.editable && !originIsLocal) {
+      throw new Error(`Cannot make changes to backend with tyep ${this.type}`);
     }
 
-    return this.getMappedIDs(remoteURL)
-      .then(mappedIDs => replaceIDs(Immutable.fromJS(remote), mappedIDs))
-      .then(remoteStore => Promise.all([this.getStore(), remoteStore]))
+    return this.mapStoreIDs(Immutable.fromJS(remote), remoteURL)
+      .then(_remoteStore => Promise.all([this.getStore(), _remoteStore]))
       .then(([_localStore, _remoteStore]) => {
         localStore = _localStore;
         remoteStore = _remoteStore;
 
-        return toRemote ?
+        return originIsLocal ?
           // Patch submission (to server)
           makePatch(localStore.toJS(), remoteStore.toJS()) :
 
           // Sync (from server)
           makePatch(remoteStore.toJS(), localStore.toJS())
       })
-      .then(patches => patches.filter(
-        // Only deal with patches that deal with a period collection
-        patch => patch.path.match(periodCollectionRegex))
-      )
+      .then(patches => patches.filter(affectsPeriodCollections))
       .then(Immutable.fromJS)
       .then(patches => {
         // If we're trying to make "remote" look like local, *only include*
@@ -121,32 +120,34 @@ Backend.prototype = {
         // If we're trying to make "local" look like "remote", *exclude* all
         // patches that having matching backward patches in this backend.
 
-        return filterByHash(
+        // (but only attempt to filter if this backend defines a matchHashes
+        // method.
+        return !this.matchHashes ? patches : filterByHash(
           patches,
-          toRemote,
-          this.matchHashes.bind(this, toRemote ? 'forward' : 'backward'))
+          originIsLocal,
+          this.matchHashes.bind(this, originIsLocal ? 'forward' : 'backward'))
       })
       .then(patches => ({
         patches,
-        sourceStore: toRemote ? localStore : remoteStore,
-        destStore: toRemote ? remoteStore : localStore
+        sourceStore: originIsLocal ? localStore : remoteStore,
+        destStore: originIsLocal ? remoteStore : localStore
       }))
   },
 
   // Get the set of patches that would make "local" look like "remote", as in
   // downloading assertions from a server to a local client.
-  getChangesFromRemote: function (remote, remoteURL) {
+  getChangesFromRemoteToLocal: function (remote, remoteURL) {
     return this.getChanges(true, remote, remoteURL)
   },
 
 
   // Get the set of patches that would make "remote" look like "local", as in
   // submitting some patches from the local client to a server.
-  getChangesFromLocal: function (remote, remoteURL) {
+  getChangesFromLocalToRemote: function (remote, remoteURL) {
     return this.getChanges(false, remote, remoteURL)
   },
 
-  saveSubmittedPatch: function (data) {
+  saveSubmittedPatch: function () {
     var { NotImplementedError } = require('./errors');
     throw new NotImplementedError(
       `saveSubmittedPatch not implemented for backend type ${this.type}`
@@ -154,6 +155,7 @@ Backend.prototype = {
   },
 
   getSubmittedPatches: function () {
+    var { NotImplementedError } = require('./errors');
     throw new NotImplementedError(
       `getSubmittedPatches not implemented for backend type ${this.type}`
     )
@@ -240,7 +242,7 @@ function IDBBackend(opts) {
       .then(Immutable.fromJS)
       .then(replacements => replacements
         .toMap()
-        .mapEntries(([key, val]) => [val.get('serverID'), val.get('localID')])
+        .mapEntries(([, val]) => [val.get('serverID'), val.get('localID')])
       )
   }
 }
@@ -264,7 +266,7 @@ function WebBackend(opts) {
 
   this.fetchData = function () {
     return require('./ajax').getJSON(this.url + 'd/')
-      .then(function ([data, , xhr]) {
+      .then(function ([data, status, xhr]) {
         var modified = xhr.getResponseHeader('Last-Modified');
         modified = modified && new Date(modified).getTime();
         return { data, modified };
@@ -292,7 +294,7 @@ function MemoryBackend(opts) {
     });
   }
 
-  this.saveData =  function (newStore) {
+  this.saveData = function (newStore) {
     var { formatPatch } = require('./utils/patch')
 
     return this.getStore().then(oldStore => {

@@ -184,6 +184,11 @@ function formatPatch(oldData, newData, message) {
   return patch;
 }
 
+const PERIOD_COLLECTION_REGEX = /^\/periodCollections/
+function affectsPeriodCollections(patch) {
+  return patch.path.match(PERIOD_COLLECTION_REGEX)
+}
+
 module.exports = {
   makePatch,
   formatPatch,
@@ -192,5 +197,6 @@ module.exports = {
   parsePatchPath,
   classifyPatch,
   getAffected,
+  affectsPeriodCollections,
   patchTypes
 }

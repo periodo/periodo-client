@@ -1,5 +1,7 @@
 "use strict";
 
+/* eslint camelcase:0 */
+
 var Immutable = require('immutable')
   , pointer = require('json-pointer')
   , { parsePatchPath, hashPatch } = require('../utils/patch')
@@ -68,7 +70,10 @@ function combineChangePairs(patches) {
     .map((patch, idx) => {
       var next
 
-      if (isPair) return (isPair = false);
+      if (isPair) {
+        isPair = false;
+        return null;
+      }
 
       next = patches.get(idx + 1)
       isPair = isChangePair(patch, next)
