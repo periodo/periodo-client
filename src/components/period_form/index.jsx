@@ -106,11 +106,17 @@ module.exports = React.createClass({
                 value={this.state.period.getIn(['source', 'locator'])}
                 onChange={this.handleLocatorChange} />
             <Input
+                name="url"
+                label="URL"
+                placeholder="URL for a webpage for this period"
+                value={this.state.period.get('url')}
+                onChange={this.handleChange.bind(null, 'url')} />
+            <Input
                 name="sameAs"
-                label="Same as"
-                placeholder="URL for this period in an external linked dataset"
-                value={this.state.period.get('sameAs')}
-                onChange={this.handleChange.bind(null, 'sameAs')} />
+                label="Same as (not editable)"
+                disabled={true}
+                placeholder="Linked data for this period"
+                value={this.state.period.get('sameAs')} />
           </div>
         </div>
 
