@@ -1,6 +1,6 @@
 {
   "name": "periodo-client",
-  "version": "1.0.13",
+  "version": "1.1.0",
   "author": "Patrick Golden",
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
