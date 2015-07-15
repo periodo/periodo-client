@@ -223,7 +223,7 @@ module.exports = React.createClass({
             <PreformattedFile
                 filename={this.props.cursor.get('id') + '.ttl'}
                 mimetype='text/turtle'
-                getFileContent={() => asTurtle(this.props.cursor)} />
+                getFileContent={() => asTurtle(this.props.cursor, true)} />
           )
         }
 

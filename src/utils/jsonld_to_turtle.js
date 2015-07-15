@@ -33,7 +33,8 @@ module.exports = function (jsonldData) {
         foaf: 'http://xmlns.com/foaf/0.1/',
         time: 'http://www.w3.org/2006/time#',
         xsd: 'http://www.w3.org/2001/XMLSchema#',
-        periodo: 'http://perio.do/temporary/'
+        owl: 'http://www.w3.org/2002/07/owl#',
+        periodo: 'http://n2t.net/ark:/99152/p0v#'
       });
 
       dataset['@default'].forEach(triple => writer.addTriple({
