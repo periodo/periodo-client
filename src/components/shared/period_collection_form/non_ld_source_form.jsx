@@ -84,6 +84,13 @@ module.exports = React.createClass({
               onChange={this.handleChange} />
 
           <Input
+              name="sameAs"
+              id="source-sameAs"
+              label="Same as (read-only)"
+              value={this.state.data.get('sameAs')}
+              disabled={true} />
+
+          <Input
               name="yearPublished"
               id="source-year-published"
               label="Year published"
