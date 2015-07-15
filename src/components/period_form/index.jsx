@@ -12,6 +12,7 @@ module.exports = React.createClass({
 
   propTypes: {
     period: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    source: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     spatialCoverages: React.PropTypes.instanceOf(Immutable.List)
   },
 
@@ -59,6 +60,22 @@ module.exports = React.createClass({
     this.setState(prev => ({ period: prev.period.setIn(field, value) }));
   },
 
+  handleLocatorChange: function (e) {
+    var { isLinkedData } = require('../../helpers/source')
+      , source = this.props.source
+      , locator = e.target.value
+
+    // Only set locator for periods whose sources are linked data.
+    if (!source || !isLinkedData(source) || !source.get('id')) return;
+
+    this.setState(prev => ({
+      period: prev.period.set('source', Immutable.Map({
+        partOf: source.get('id'),
+        locator
+      }))
+    }));
+  },
+
   render: function () {
     var Input = require('../shared/input.jsx')
       , randID = randomstr()
@@ -87,7 +104,7 @@ module.exports = React.createClass({
                 label="Locator"
                 placeholder="Position within the source (e.g. page 75)"
                 value={this.state.period.getIn(['source', 'locator'])}
-                onChange={this.handleChange.bind(null, ['source', 'locator'])} />
+                onChange={this.handleLocatorChange} />
             <Input
                 name="sameAs"
                 label="Same as"

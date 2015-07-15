@@ -117,6 +117,7 @@ module.exports = React.createClass({
               </div>
               <PeriodForm
                   period={this.state.editingPeriod}
+                  source={this.props.cursor.get('source')}
                   spatialCoverages={getSpatialCoverages(this.props.store.get('periodCollections'))}
                   ref="editForm" />
               <div className="period-form-footer">
