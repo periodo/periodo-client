@@ -64,7 +64,8 @@ module.exports = React.createClass({
         <ChangeList
             ref="changes"
             select={false}
-            {...this.state.changes} />
+            {...this.state.changes}
+            patches={this.state.acceptedPatches} />
       </div>
     )
   },
