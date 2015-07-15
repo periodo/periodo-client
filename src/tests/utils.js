@@ -108,6 +108,12 @@ describe('Date parser', function () {
       'in': { year: '0012' },
     });
 
+    assert.deepEqual(parse('circa 1000 BC'), {
+      _type: 'gregorian',
+      label: 'circa 1000 BC',
+      'in': { year: '-0999' },
+    });
+
     assert.deepEqual(parse('3200? BC'), {
       _type: 'gregorian',
       label: '3200? BC',

@@ -79,6 +79,9 @@ range =
 unclear =
   '~'
   / 'around'
+  / 'circa'
+  / 'about'
+  / 'approximately'
   / 'ca.'i
   / 'ca'i
   / 'c.'i !'e'i
