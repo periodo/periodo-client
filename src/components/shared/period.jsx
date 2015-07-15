@@ -123,18 +123,22 @@ module.exports = React.createClass({
         <div className="field">
           <dt>Start</dt>
           <dd>
-            {period.getIn(['start', 'label'], <em>(not given)</em>)}
-            {startString && <br />}
-            {startString && ('(ISO value: ' + startString + ')')}
+            <div>
+              <span>{period.getIn(['start', 'label'], <em>(not given)</em>)}</span>
+              {startString && <br />}
+              <span>{startString && ('(ISO value: ' + startString + ')')}</span>
+            </div>
           </dd>
         </div>
 
         <div className="field">
           <dt>Stop</dt>
           <dd>
-            {period.getIn(['stop', 'label'], <em>(not given)</em>)}
-            {stopString && <br />}
-            {stopString && ('(ISO value: ' + stopString + ')')}
+            <div>
+              <span>{period.getIn(['stop', 'label'], <em>(not given)</em>)}</span>
+              {stopString && <br />}
+              <span>{stopString && ('(ISO value: ' + stopString + ')')}</span>
+            </div>
           </dd>
         </div>
 

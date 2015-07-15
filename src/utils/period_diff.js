@@ -47,23 +47,25 @@ function getNestedText(el) {
 function makeNestedDiff(key, fromEl, toEl) {
   var texts = [fromEl, toEl].map(getNestedText)
     , diffs = setDiff(...texts)
+    , parentTag = fromEl.children[0].nodeName
+    , childTag = fromEl.children[0].children[0].nodeName
     , html = ''
 
-  html += `<dt>${key}</dt><dd><ul>`;
+  html += `<dt>${key}</dt><dd><${parentTag}>`;
 
   html += diffs.both
-    .map(text => `<li>${text}</li>`)
-    .join('');
+    .map(text => `<${childTag}>${text}</${childTag}>`)
+    .join(' ')
 
   html += diffs.from
-    .map(text => `<li><span class="diff-deletion">${text}</span></li>`)
-    .join('');
+    .map(text => `<${childTag}><span class="diff-deletion">${text}</span></${childTag}>`)
+    .join(' ')
 
   html += diffs.to
-    .map(text => `<li><span class="diff-addition">${text}</span></li>`)
-    .join('');
+    .map(text => `<${childTag}><span class="diff-addition">${text}</span></${childTag}>`)
+    .join(' ')
 
-  html += '</ul></dd>';
+  html += `</${parentTag}></dd>`;
 
   return html;
 }
