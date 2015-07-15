@@ -305,6 +305,18 @@ describe('Patch utils', function () {
       id: 'b'
     });
 
+    assert.deepEqual(
+      parsePatchPath({
+        path: '/periodCollections/abc/definitions/def/spatialCoverageDescription'
+      }),
+      {
+        label: 'spatialCoverageDescription',
+        type: 'period',
+        collection_id: 'abc',
+        id: 'def'
+      }
+    );
+
     assert.throws(parsePatchPath.bind({
       op: 'add',
       path: '/periodCollections/a/definitions/b/madeUpField'
