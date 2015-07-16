@@ -68,7 +68,21 @@ module.exports = React.createClass({
     }
 
     ajax(opts)
-      .then(([, , xhr]) => xhr.getResponseHeader('Location'))
+      .then(
+        ([, , xhr]) => xhr.getResponseHeader('Location'),
+        ([xhr]) => {
+          if (xhr.status === 400) {
+            alert('Patch error:\n' + xhr.responseText);
+          }
+
+          if (xhr.status === 401) {
+            alert('Bad authentication credentials. Sign out and sign back in.');
+          }
+
+          window.periodo.handleError(xhr.responseText);
+          throw new Error(xhr.responseText);
+        }
+      )
       .then(patchID => this.saveLocalPatch(patchID, localPatch))
       .then(savedPatchID => {
         this.setState({ savedPatchID }, () => this.refs.selectChanges.reset())

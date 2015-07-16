@@ -50,11 +50,23 @@ module.exports = React.createClass({
     }
 
     ajax(ajaxOpts)
-      .then(() => {
-        alert('merged!');
-      }, err => {
-        console.log(err);
-      });
+      .then(
+        () => {
+          alert('merged!');
+        },
+        ([xhr]) => {
+          if (xhr.status === 403) {
+            alert('You do not have permission to merge patches.');
+          } else if (xhr.status === 401) {
+            alert('Bad authentication credentials. Sign out and sign back in.');
+          } else {
+            alert(xhr.responseText);
+          }
+
+          window.periodo.handleError(xhr.responseText);
+          throw new Error(xhr.responseText);
+        }
+      )
   },
   renderPatch: function () {
     var ChangeList = require('./shared/change_list')
