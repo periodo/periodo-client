@@ -125,7 +125,7 @@ module.exports = React.createClass({
       , permalink
 
     permalink = this.getPermalinkBase();
-    permalink = isSkolemID(this.props.cursor.get('id')) ?
+    permalink = (!permalink || isSkolemID(this.props.cursor.get('id'))) ?
       null :
       (permalink + this.props.cursor.get('id'));
 
