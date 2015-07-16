@@ -9,7 +9,10 @@ module.exports = React.createClass({
 
     if (initialCollection) {
       return {
-        linkedData: initialCollection.get('source').has('id'),
+        linkedData: (
+          initialCollection.get('source').has('id') ||
+          initialCollection.get('source').hasIn(['partOf', 'id'])
+        ),
         sourceData: initialCollection.get('source'),
         editorialNote: initialCollection.get('editorialNote', ''),
         errors: Immutable.Map()

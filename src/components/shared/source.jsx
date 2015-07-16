@@ -36,13 +36,17 @@ module.exports = React.createClass({
       },
       {
         label: 'Creators',
-        value: source.get('creators'),
+        value: oneOf(source, ['creators'], ['partOf', 'creators']),
         format: creators => creators.map(c => <dd key={c.get('name')} >{c.get('name')}</dd>)
       },
       {
         label: 'Contributors',
-        value: source.get('contributors'),
+        value: oneOf(source, ['contributors'], ['partOf', 'contributors']),
         format: contributors => contributors.map(c => <dd key={c.get('name')} >{c.get('name')}</dd>)
+      },
+      {
+        label: 'Locator',
+        value: source.get('locator')
       }
     ]
   },

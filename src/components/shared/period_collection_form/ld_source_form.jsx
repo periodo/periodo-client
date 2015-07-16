@@ -50,7 +50,9 @@ FetchData = React.createClass({
 
 AcceptData = React.createClass({
   render: function () {
-    var Source = require('../source.jsx');
+    var Source = require('../source.jsx')
+      , Input = require('../input.jsx')
+
     return (
       <div>
         <Source data={this.props.source} />
@@ -60,24 +62,54 @@ AcceptData = React.createClass({
             <button onClick={this.props.onReset} className="btn btn-danger">‹ Reset</button>
           </div>
         </div>
+        {
+          this.props.source && (
+            <div>
+              <br />
+              <br />
+              <Input
+                label="Locator within source"
+                value={this.props.source.get('locator')}
+                onChange={this.props.onLocatorChange} />
+              <p className="help-block">
+                If all periods are defined on a single page within this source,
+                include that page number here. Otherwise, include a locator for
+                individual period definitions as you create them.
+              </p>
+            </div>
+          )
+        }
       </div>
     )
   }
 });
 
 module.exports = React.createClass({
-  getInitialState: function () {
-    return { fetchedSource: this.props.data }
-  },
   handleFetch: function (source) {
-    this.setState({ fetchedSource: source }, () => this.props.onSourceChange(source));
+    this.props.onSourceChange(source);
+  },
+  handleLocatorChange: function (e) {
+    var locator = e.target.value
+      , source = this.props.data
+      , newSource
+
+    newSource = source.has('partOf') ?
+      source.set('locator', locator) :
+      Immutable.Map({ partOf: source, locator })
+
+    if (!locator) newSource = newSource.get('partOf');
+
+    this.props.onSourceChange(newSource);
   },
   handleReset: function () {
     this.setState({ fetchedSource: null }, () => this.props.onSourceChange(null));
   },
   render: function () {
-    return this.state.fetchedSource ?
-      <AcceptData onReset={this.handleReset} source={this.state.fetchedSource} /> :
+    return this.props.data ?
+      <AcceptData
+        onReset={this.handleReset}
+        source={this.props.data}
+        onLocatorChange={this.handleLocatorChange} /> :
       <FetchData onFetch={this.handleFetch} />
   }
 });
