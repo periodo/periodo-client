@@ -11,10 +11,28 @@ PeriodDetails = React.createClass({
   },
   render: function () {
     var Period = require('./shared/period.jsx')
+      , { isSkolemID } = require('../helpers/skolem_ids')
+      , id = this.props.period.get('id')
+      , permalink
+
+    permalink = (this.props.permalinkBase && !isSkolemID(id)) ?
+      this.props.permalinkBase + id :
+      null;
 
     return (
       <div>
         <h4>{this.props.period.get('label')}</h4>
+        {
+          permalink && (
+            <div>
+              <span>Permalink:</span>
+              {' '}
+              <a href={permalink}>{permalink}</a>
+              <br />
+              <br />
+            </div>
+          )
+        }
         <div className="row">
           <div className="col-md-6">
             <Period period={this.props.period} />
@@ -79,10 +97,16 @@ module.exports = React.createClass({
       this.props.cursor.deleteIn(['definitions', period.get('id')]);
     }
   },
+
+  getPermalinkBase: function () {
+    return this.props.store.getIn(['@context', '@base']);
+  },
+
   renderShownPeriod: function (period) {
     return (
       <PeriodDetails
           period={period}
+          permalinkBase={this.getPermalinkBase()}
           showEditButton={this.props.backend.editable && !this.state.editingPeriod}
           onPeriodEdit={this.handlePeriodEdit} />
     )
@@ -96,7 +120,14 @@ module.exports = React.createClass({
       , { getDisplayTitle } = require('../helpers/source')
       , { getSpatialCoverages } = require('../helpers/periodization_collection.js')
       , { asJSONLD, asTurtle, asCSV } = require('../helpers/periodization')
+      , { isSkolemID } = require('../helpers/skolem_ids')
       , initiallyShownPeriodID
+      , permalink
+
+    permalink = this.getPermalinkBase();
+    permalink = isSkolemID(this.props.cursor.get('id')) ?
+      null :
+      (permalink + this.props.cursor.get('id'));
 
     initiallyShownPeriodID = url.parse(window.location.hash.slice(1), true).query.show_period
 
@@ -149,7 +180,20 @@ module.exports = React.createClass({
         }
 
         {
-          !this.state.editingPeriod && <Source data={this.props.cursor.get('source')} />
+          !this.state.editingPeriod && (
+            <div>
+              {
+                permalink && (
+                  <p>
+                    Permalink:
+                    {' '}
+                    <a href={permalink}>{permalink}</a>
+                  </p>
+                )
+              }
+              <Source data={this.props.cursor.get('source')} />
+            </div>
+          )
         }
 
         {
