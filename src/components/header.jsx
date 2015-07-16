@@ -50,7 +50,7 @@ ActionsMenu = React.createClass({
       </li>,
       <li key="sync">
         <a href={this.props.router.generate('sync', routerOpts)}>
-         <span style={{ marginRight: '6px' }}>⬅</span> Get data from server
+         <span style={{ marginRight: '6px' }}>⬅</span> Get data from server or file
         </a>
       </li>,
       <li key="submit-patch">

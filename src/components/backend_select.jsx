@@ -22,30 +22,17 @@ BackendForm = React.createClass({
   },
 
   handleFileChange: function (e) {
-    var reader = new FileReader()
-      , file = e.target.files[0]
+    var parsePeriodoUpload = require('../utils/parse_periodo_upload')
 
-    reader.onload = upload => {
-      var data;
-
-      try {
-        data = JSON.parse(upload.target.result);
-
-        if (typeof data !== 'object') throw new Error();
-
-        this.setState({
-          name: file.name,
-          data: data
-        });
-      } catch (err) {
-        let msg = `${file.name} is not a JSON document.`;
-        this.setState({ name: null });
-        alert(msg);
-        throw new Error(msg);
-      }
-    }
-
-    reader.readAsText(file);
+    parsePeriodoUpload(e.target.files[0])
+      .then(
+        data => this.setState({ name: file.name, data }),
+        err => {
+          this.setState({ name: null });
+          alert('Error parsing file:\n' + err.toString());
+          throw new Error(err);
+        }
+      );
   },
 
   isValidState: function () {

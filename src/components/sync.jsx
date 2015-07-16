@@ -35,6 +35,7 @@ module.exports = React.createClass({
         <SelectChanges
             ref="selectChanges"
             confirmTitle="Accept changes?"
+            showFileUpload={true}
             getChanges={getChanges}
             onAcceptPatches={this.handleAcceptPatches} />
       </div>
