@@ -145,7 +145,7 @@ module.exports = React.createClass({
         data['@context'] = require('../context.json');
 
         blob = new Blob(
-          [stringify(data, { space: '  ' })],
+          [stringify(JSON.parse(JSON.stringify(data)), { space: '  ' })],
           { type: 'application/ld+json' }
         )
 
