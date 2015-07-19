@@ -245,7 +245,7 @@ module.exports = React.createClass({
             </tr>
           )
         }
-      });
+      })
   },
   getFirstIndex: function () {
     return this.state.currentPage * this.state.limit;
@@ -301,7 +301,7 @@ module.exports = React.createClass({
             </tr>
           </thead>
           <tbody>
-            {periods}
+            {periods.toJS()}
           </tbody>
         </table>
       </div>

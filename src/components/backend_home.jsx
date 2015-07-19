@@ -59,7 +59,7 @@ CollectionList = React.createClass({
           </thead>
           <tbody>
             {
-              collections.map(collection =>
+              collections.toArray().map(collection =>
                 <tr key={collection.id}>
                   <td>
                     <a href={urlForCollection(collection.id)}>
