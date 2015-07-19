@@ -347,9 +347,7 @@ function listBackends() {
 
   if (clientSupportsDexie()) {
     dbPromise = new Promise(resolve => {
-      var idbPromise
-
-      idbPromise = Dexie.getDatabaseNames()
+      Dexie.getDatabaseNames()
         .then(dexieDBs => dexieDBs
           .filter(db => db !== '_linked_data_cache' && db !== '_file_backends' )
           .map(db => ({ type: 'idb', name: db })))
@@ -367,10 +365,6 @@ function listBackends() {
             resolve([])
           }
         )
-
-      idbPromise = idbPromise.then(idbBackends => {
-        return require('./file_backends')
-      });
     });
   } else {
     dbPromise = Promise.resolve([]);
