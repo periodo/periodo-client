@@ -46,6 +46,7 @@
     "mocha": "^1.18.0",
     "mochify": "^2.8.1",
     "phantomjs": "^1.9.16",
+    "source-map": "^0.4.4",
     "testling": "^1.6.1",
     "uglify-js": "^2.4.19",
     "watch-lessc": "0.0.2",
