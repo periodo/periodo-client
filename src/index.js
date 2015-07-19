@@ -8,6 +8,10 @@ require('babelify/polyfill');
 window.periodo = new EventEmitter();
 
 window.onload = function () {
-  var Router = require('./router');
+  var Router = require('./router')
+    , fastclick = require('fastclick')
+
+  fastclick(document.body);
+
   React.render(<Router />, document.body);
 }
