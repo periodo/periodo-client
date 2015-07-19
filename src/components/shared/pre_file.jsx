@@ -47,10 +47,7 @@ module.exports = React.createClass({
                 </a>
                 {this.props.filename}
               </p>
-              <pre style={{
-                maxHeight: '500px',
-                overflowY: 'auto'
-              }}>
+              <pre className="preformatted-file-display">
                 { this.state.fileContent }
               </pre>
             </div>
