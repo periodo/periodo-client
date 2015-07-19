@@ -346,17 +346,31 @@ function listBackends() {
     , dbPromise
 
   if (clientSupportsDexie()) {
-    dbPromise = Dexie.getDatabaseNames().then(dexieDBs => {
-      return dexieDBs
-        .filter(db => db !== '_linked_data_cache' && db !== '_file_backends' )
-        .map(db => ({ type: 'idb', name: db }))
-    });
+    dbPromise = new Promise(resolve => {
+      var idbPromise
 
-    dbPromise = dbPromise.then(idbBackends => {
-      return require('./file_backends')
-        .listFiles()
-        .then(files => files.map(name => ({ type: 'file', name: 'file:' + name })))
-        .then(files => idbBackends.concat(files))
+      idbPromise = Dexie.getDatabaseNames()
+        .then(dexieDBs => dexieDBs
+          .filter(db => db !== '_linked_data_cache' && db !== '_file_backends' )
+          .map(db => ({ type: 'idb', name: db })))
+        .then(idbBackends => require('./file_backends')
+          .listFiles()
+          .then(files => files.map(name => ({ type: 'file', name: 'file:' + name })))
+          .then(files => idbBackends.concat(files)))
+        .then(
+          resolve,
+          () => {
+            // If we're here, the client doesn't *actually* support indexedDB.
+            // This happens in Safari 7-8, which has awful IDB support. If
+            // that's the case, just skip any backends which rely on IDB, just
+            // as if it wasn't supported in the first place.
+            resolve([])
+          }
+        )
+
+      idbPromise = idbPromise.then(idbBackends => {
+        return require('./file_backends')
+      });
     });
   } else {
     dbPromise = Promise.resolve([]);
