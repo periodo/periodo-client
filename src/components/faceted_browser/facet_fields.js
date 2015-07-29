@@ -19,7 +19,7 @@ module.exports = {
     label: 'Language',
     fn: function (period) {
       return period
-        .get('localizedLabels')
+        .get('localizedLabels', Immutable.Map())
         .keySeq()
         .map(code => iso639_3[code.split('-')[0]].name)
     },
