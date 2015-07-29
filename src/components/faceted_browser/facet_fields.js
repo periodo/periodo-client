@@ -18,19 +18,10 @@ module.exports = {
   language: {
     label: 'Language',
     fn: function (period) {
-      var alternateLabels = period.get('alternateLabel')
-        , languages
-
-      languages = period
-        .get('originalLabel', Immutable.Map())
+      return period
+        .get('localizedLabels')
         .keySeq()
-        .toSet()
-
-      if (alternateLabels) {
-        languages = languages.union(alternateLabels.keySeq());
-      }
-
-      return languages.map(code => iso639_3[code.split('-')[0]].name);
+        .map(code => iso639_3[code.split('-')[0]].name)
     },
     multiValue: true
   },

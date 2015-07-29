@@ -94,9 +94,7 @@ module.exports = React.createClass({
             }
             <LabelForm
                 ref="labelForm"
-                label={this.state.period.get('label')}
-                originalLabel={this.state.period.get('originalLabel')}
-                alternateLabels={this.state.period.get('alternateLabel')} />
+                period={this.state.period} />
           </div>
           <div className="col-md-6 period-form-panel">
             <Input
@@ -116,7 +114,8 @@ module.exports = React.createClass({
                 label="Same as (not editable)"
                 disabled={true}
                 placeholder="Linked data for this period"
-                value={this.state.period.get('sameAs')} />
+                value={this.state.period.get('sameAs')}
+                onChange={() => null} />
           </div>
         </div>
 

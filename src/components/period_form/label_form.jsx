@@ -6,60 +6,41 @@ var React = require('react')
   , randomstr = require('../../utils/randomstr')
 
 
-function getCode(label) {
-  return `${label.get('language')}-${label.get('script')}`;
-}
-
-const DEFAULT_LANGUAGE_CODE = 'eng-latn'
-    , DEFAULT_ALTERNATE_LABEL = Immutable.List()
+const DEFAULT_LABEL = Immutable.Map({ value: '', language: 'eng', script: 'latn' })
 
 module.exports = React.createClass({
   displayName: 'LabelForm',
+
   getInitialState: function () {
     var { getAlternateLabels, getOriginalLabel } = require('../../helpers/period.js')
-      , originalLabel
-      , alternateLabels
+      , originalLabel = getOriginalLabel(this.props.period)
+      , alternateLabels = getAlternateLabels(this.props.period)
 
-    originalLabel = getOriginalLabel(Immutable.Map({
-      originalLabel: this.props.originalLabel || Immutable.Map({
-        [DEFAULT_LANGUAGE_CODE]: this.props.label || ''
-      })
-    }));
-
-    alternateLabels = getAlternateLabels(Immutable.Map({
-      alternateLabel: this.props.alternateLabels || DEFAULT_ALTERNATE_LABEL
-    }));
+    originalLabel = originalLabel || DEFAULT_LABEL;
 
     if (!alternateLabels.size) {
-      alternateLabels = Immutable.List.of(Immutable.Map({
-        value: '',
-        language: 'eng',
-        script: 'latn'
-      }));
+      alternateLabels = Immutable.List.of(DEFAULT_LABEL)
     }
 
     return { originalLabel, alternateLabels }
   },
   getValue: function () {
-    var value = {}
-      , alternateLabel
-
-    alternateLabel = this.state.alternateLabels
-      .filter(label => label.get('value'))
-      .groupBy(getCode)
-      .toMap()
-      .map(labels => labels.map(label => label.get('value')))
+    var { getCode, groupByCode } = require('../../helpers/label')
+      , value = Immutable.Map()
+      , localizedLabels
 
     if (this.state.originalLabel.get('value')) {
-      value.originalLabel = {
-        [getCode(this.state.originalLabel)]: this.state.originalLabel.get('value')
-      }
-      value.label = this.state.originalLabel.get('value');
-    } else {
-      value.originalLabel = value.label = null
+      value = value.set('label', this.state.originalLabel.get('value'))
+      value = value.set('language', getCode(this.state.originalLabel))
     }
 
-    value.alternateLabel = alternateLabel.size ? alternateLabel : null;
+    localizedLabels = this.state.alternateLabels
+      .unshift(this.state.originalLabel)
+      .filter(label => label.get('value'))
+
+    if (localizedLabels.size) {
+      value = value.set('localizedLabels', groupByCode(localizedLabels));
+    }
 
     return value;
   },

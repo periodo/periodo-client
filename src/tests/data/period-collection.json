@@ -5,7 +5,8 @@
         "p03377fkhrv": {
           "id": "p03377fkhrv",
           "label": "Iron Age",
-          "originalLabel": {
+          "language": "eng-latn",
+          "localizedLabels": {
             "eng-latn": "Iron Age"
           },
           "spatialCoverage": [
@@ -29,8 +30,9 @@
           "type": "PeriodDefinition"
         },
         "p03377ft59d": {
-          "alternateLabel": {
+          "localizedLabels": {
             "eng-latn": [
+              "Late Iron Age",
               "Iron Age VII",
               "Really late Iron Age"
             ],
@@ -40,9 +42,7 @@
           },
           "id": "p03377ft59d",
           "label": "Late Iron Age",
-          "originalLabel": {
-            "eng-latn": "Late Iron Age"
-          },
+          "language": "eng-latn",
           "spatialCoverage": [
             {
               "id": "http://dbpedia.org/resource/Spain",

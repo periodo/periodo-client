@@ -20,7 +20,10 @@ describe('Period form', function () {
       , form
 
     form = React.createElement(PeriodForm, {
-      period: Immutable.fromJS({ label: 'Progressive era' })
+      period: Immutable.fromJS({
+        label: 'Progressive era',
+        language: 'eng-latn'
+      })
     });
 
     container.appendChild(formEl);
@@ -32,12 +35,14 @@ describe('Period form', function () {
 
   it('Should have bound the label automatically', function () {
     var view = makePeriodFormView()
+      , period = view.getPeriodValue()
 
     assert.deepEqual(view.getPeriodValue().toJS(), {
       type: 'PeriodDefinition',
       label: 'Progressive era',
-      originalLabel: {
-        'eng-latn': 'Progressive era'
+      language: 'eng-latn',
+      localizedLabels: {
+        'eng-latn': [ 'Progressive era' ]
       }
     });
   });
@@ -55,8 +60,9 @@ describe('Period form', function () {
 
     assert.deepEqual(view.getPeriodValue().toJS(), {
       label: 'Progressive era',
-      originalLabel: {
-        'eng-latn': 'Progressive era'
+      language: 'eng-latn',
+      localizedLabels: {
+        'eng-latn': [ 'Progressive era' ]
       },
       type: 'PeriodDefinition',
       start: { in: { year: '1890' }, label: '1890' },

@@ -161,6 +161,43 @@ describe('Period helpers', function () {
 
     assert.deepEqual(validate(data.fine), null);
   });
+
+  it('should get original label from a period', function () {
+    var { getOriginalLabel } = require('../helpers/period')
+      , data = require('./data/multi-label-period.json')
+
+    assert.deepEqual(
+      getOriginalLabel(Immutable.fromJS(data)).toJS(),
+      { value: 'Progressive Era', language: 'eng', script: 'latn' }
+    )
+  });
+
+  it('should get all labels from a period', function () {
+    var { getAllLabels } = require('../helpers/period')
+      , data = require('./data/multi-label-period.json')
+
+    assert.deepEqual(
+      getAllLabels(Immutable.fromJS(data)).toJS(),
+      [
+        { value: 'Progressive Era', language: 'eng', script: 'latn' },
+        { value: 'The Progressive Era', language: 'eng', script: 'latn' },
+        { value: 'Ère progressiste', language: 'fra', script: 'latn' },
+      ]
+    );
+  });
+
+  it('should get only alternate labels from a period', function () {
+    var { getAlternateLabels } = require('../helpers/period')
+      , data = require('./data/multi-label-period.json')
+
+    assert.ok(
+      getAlternateLabels(Immutable.fromJS(data)).equals(Immutable.Set([
+        Immutable.Map({ value: 'The Progressive Era', language: 'eng', script: 'latn' }),
+        Immutable.Map({ value: 'Ère progressiste', language: 'fra', script: 'latn' })
+      ]))
+    );
+  });
+
 });
 
 describe('Period collection helpers', function () {

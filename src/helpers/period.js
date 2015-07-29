@@ -6,21 +6,33 @@ var _ = require('underscore')
   , diff = require('fast-diff')
 
 function getOriginalLabel(period) {
-  var originalLabel = period.get('originalLabel')
-    , value = originalLabel.valueSeq().first()
-    , [language, script] = originalLabel.keySeq().first().split('-')
+  var value
+    , language
+    , script
+
+  if (!period.get('label') || !period.get('language')) return null;
+
+  value = period.get('label');
+  [language, script] = period.get('language').split('-');
 
   return Immutable.Map({ value, language, script });
 }
 
-function getAlternateLabels(period) {
-  return period.get('alternateLabel', Immutable.List())
-    .map((labels, isoCodes) => {
-      var [language, script] = isoCodes.split('-');
-      return labels.map(value => Immutable.Map({ value, language, script }))
+function getAllLabels(period) {
+  return Immutable.Set()
+    .withMutations(alternateLabels => {
+      period.get('localizedLabels', Immutable.List())
+        .forEach((labels, isoCodes) => {
+          var [language, script] = isoCodes.split('-');
+          labels.forEach(value => {
+            alternateLabels.add(Immutable.Map({ value, language, script }));
+          });
+        })
     })
-    .toList()
-    .flatten(1)
+}
+
+function getAlternateLabels(period) {
+  return getAllLabels(period).remove(getOriginalLabel(period))
 }
 
 function validate(period) {
@@ -122,4 +134,4 @@ function diffToNode([type, text]) {
   return <span key={'k' + Math.random()} className={className}>{text}</span>
 }
 
-module.exports = { validate, getOriginalLabel, getAlternateLabels, diffTree }
+module.exports = { validate, getOriginalLabel, getAllLabels, getAlternateLabels, diffTree }

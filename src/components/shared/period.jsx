@@ -16,9 +16,13 @@ module.exports = React.createClass({
 
   render: function () {
     var { asString } = require('../../helpers/terminus')
+      , { getOriginalLabel, getAlternateLabels } = require('../../helpers/period')
+      , { groupByCode } = require('../../helpers/label')
       , linkify = this.props.linkify ? require('../../utils/linkify') : text => text
       , asURL = this.props.linkify ? makeLink : text => text
       , period = this.props.period
+      , originalLabel = getOriginalLabel(period)
+      , alternateLabels = getAlternateLabels(period)
       , simpleFields
       , noteFields
       , startString
@@ -66,25 +70,29 @@ module.exports = React.createClass({
         <div className="field">
           <dt>Original label</dt>
           <dd>
-            {
-              this.props.period.get('originalLabel', Immutable.Map())
-                .map((val, script) => `${val} (${script})`)
-                .first() || <em>(not given)</em>
-            }
+            { originalLabel.get('value') }
+            {' '}
+            ({ originalLabel.get('language') }-{ originalLabel.get('script') })
           </dd>
         </div>
 
         {
-        !this.props.period.get('alternateLabel') ? '' :
+        this.props.period.has('localizedLabel') ? '' :
         <div className="field">
           <dt>Alternate labels</dt>
           <dd>
             <ul className="list-unstyled">
-            {this.props.period.get('alternateLabel', Immutable.List())
-              .map((labels, lang) => labels.map(label => Immutable.Map({ label, lang })))
-              .toList()
-              .flatten(1)
-              .map(label => <li key={label}>{label.get('label')} ({label.get('lang')})</li>)}
+              {
+                groupByCode(alternateLabels)
+                  .map((labels, code) => labels.map(label => Immutable.Map({ label, code })))
+                  .toList()
+                  .flatten(1)
+                  .map(label =>
+                    <li key={label.hashCode()}>
+                      { label.get('label') } ({ label.get('code') })
+                    </li>
+                  )
+              }
             </ul>
           </dd>
         </div>
@@ -100,24 +108,25 @@ module.exports = React.createClass({
         }
 
         {
-          !period.has('spatialCoverage') ? '' :
-          <div className="field">
-            <dt>Spatial coverage</dt>
-            <dd>
-              <ul className="list-unstyled">
-                {period.get('spatialCoverage')
-                  .map(coverage => (
-                    <li key={coverage.get('id')}>
-                    {!this.props.linkify ?
-                     coverage.get('label') :
-                     <a href={coverage.get('id')} target="_blank">
-                        {coverage.get('label')}
-                     </a>}
-                    </li>
-                  ))}
-              </ul>
-            </dd>
-          </div>
+          period.has('spatialCoverage') && (
+            <div className="field">
+              <dt>Spatial coverage</dt>
+              <dd>
+                <ul className="list-unstyled">
+                  {period.get('spatialCoverage')
+                    .map(coverage => (
+                      <li key={coverage.get('id')}>
+                      {!this.props.linkify ?
+                       coverage.get('label') :
+                       <a href={coverage.get('id')} target="_blank">
+                          {coverage.get('label')}
+                       </a>}
+                      </li>
+                    ))}
+                </ul>
+              </dd>
+            </div>
+          )
         }
 
         <div className="field">
