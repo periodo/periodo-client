@@ -3,10 +3,6 @@
   "PeriodCollection": "http://www.w3.org/2004/02/skos/core#ConceptScheme",
   "PeriodDefinition": "http://www.w3.org/2004/02/skos/core#Concept",
   "abstract": "http://purl.org/dc/terms/abstract",
-  "alternateLabel": {
-    "@container": "@language",
-    "@id": "http://www.w3.org/2004/02/skos/core#altLabel"
-  },
   "contributors": "http://purl.org/dc/terms/contributor",
   "creators": "http://purl.org/dc/terms/creator",
   "dateAccessed": {
@@ -26,14 +22,15 @@
     "@type": "@id"
   },
   "label": "http://www.w3.org/2004/02/skos/core#prefLabel",
+  "language": "http://purl.org/dc/terms/language",
   "latestYear": "periodo:latestYear",
-  "locator": "http://purl.org/ontology/bibo/locator",
-  "name": "http://xmlns.com/foaf/0.1/name",
-  "note": "http://www.w3.org/2004/02/skos/core#note",
-  "originalLabel": {
+  "localizedLabels": {
     "@container": "@language",
     "@id": "http://www.w3.org/2004/02/skos/core#altLabel"
   },
+  "locator": "http://purl.org/ontology/bibo/locator",
+  "name": "http://xmlns.com/foaf/0.1/name",
+  "note": "http://www.w3.org/2004/02/skos/core#note",
   "partOf": {
     "@id": "http://purl.org/dc/terms/isPartOf",
     "@type": "@id"
@@ -52,7 +49,10 @@
     "@type": "@id"
   },
   "source": "http://purl.org/dc/terms/source",
-  "spatialCoverage": "http://purl.org/dc/terms/spatial",
+  "spatialCoverage": {
+    "@container": "@set",
+    "@id": "http://purl.org/dc/terms/spatial"
+  },
   "spatialCoverageDescription": "periodo:spatialCoverageDescription",
   "start": "http://www.w3.org/2006/time#intervalStartedBy",
   "stop": "http://www.w3.org/2006/time#intervalFinishedBy",
