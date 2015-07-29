@@ -123,7 +123,10 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
 
 function getOrcids(patches) {
   return patches
-    .map(patch => patch.get('created_by'))
+    .map(patch => Immutable.List.of(patch.get('created_by'))
+      .concat(patch.get('comments', Immutable.List())
+        .map(comment => comment.get('author'))))
+    .flatten(1)
     .toSet()
 }
 
