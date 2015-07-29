@@ -50,7 +50,7 @@
     "testling": "^1.6.1",
     "uglify-js": "^2.4.19",
     "watch-lessc": "0.0.2",
-    "watchify": "^3.2.2"
+    "watchify": "^3.3.1"
   },
   "browserify": {
     "transform": [
