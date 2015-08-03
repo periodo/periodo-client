@@ -122,15 +122,24 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function () {
-    this.fetchPatch();
+    this.fetchData();
   },
 
   fetchPatch: function () {
     var { getJSON } = require('../ajax')
+    return getJSON(this.props.patchURI);
+  },
+
+  refreshPatchData: function () {
+    this.fetchPatch().then(([patchData]) => this.setState({ patchData }));
+  },
+
+  fetchData: function () {
+    var { getJSON } = require('../ajax')
       , { getOrcids } = require('../helpers/patch_collection')
       , fetchOrcids = require('../utils/fetch_orcids')
 
-    getJSON(this.props.patchURI)
+    this.fetchPatch()
       .then(([data]) => Promise.all([
         data,
         getJSON(data.text),
@@ -251,7 +260,7 @@ module.exports = React.createClass({
                   patchURL={this.state.patchData.url}
                   comments={Immutable.fromJS(patchData.comments)}
                   orcidMap={this.state.orcids}
-                  onCommentAccepted={this.fetchPatch} />
+                  onCommentAccepted={this.refreshPatchData} />
             </div>
             <div className="col-md-8">
               <ChangeList
