@@ -67,7 +67,7 @@ module.exports = React.createClass({
     datasetP = getJSON(url.resolve(serverURL, 'd/'))
       .then(([dataset]) => dataset)
 
-    patchP = getJSON(url.resolve(serverURL, 'patches/?merged=false'))
+    patchP = getJSON(url.resolve(serverURL, 'patches/?open=true'))
       .then(([patches]) => patches)
 
     return patchP
@@ -82,11 +82,23 @@ module.exports = React.createClass({
   },
 
   render: function () {
-    return !this.state.patches ?
-      <div /> :
-      <PatchList
-          patches={this.state.patches}
-          orcids={this.state.orcids}
-          router={this.props.router} />
+    return (
+      <div>
+        <h1>Patches submitted to server</h1>
+        <p>
+        These are patches submitted to the server which have not been rejected
+        nor merged. To review a patch's changes and take action on it, click
+        the "Review" link.
+        </p>
+        {
+          this.state.patches && (
+            <PatchList
+                patches={this.state.patches}
+                orcids={this.state.orcids}
+                router={this.props.router} />
+          )
+        }
+      </div>
+    )
   }
 });
