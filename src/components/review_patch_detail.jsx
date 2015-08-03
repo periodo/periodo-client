@@ -164,8 +164,10 @@ module.exports = React.createClass({
 
     ajaxOpts = {
       url: this.state.patchData.url + (this.state.acceptPatch ? 'merge' : 'reject'),
+      contentType: 'application/json',
       method: 'POST',
-      headers: {}
+      headers: {},
+      dataType: 'json'
     }
 
     if (localStorage.auth) {
