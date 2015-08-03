@@ -117,7 +117,8 @@ module.exports = React.createClass({
     return {
       patchData: null,
       patchText: null,
-      acceptPatch: null
+      acceptPatch: null,
+      submitting: false
     }
   },
 
@@ -162,6 +163,8 @@ module.exports = React.createClass({
     var { ajax } = require('../ajax')
       , ajaxOpts
 
+    this.setState({ submitting: true });
+
     ajaxOpts = {
       url: this.state.patchData.url + (this.state.acceptPatch ? 'merge' : 'reject'),
       contentType: 'application/json',
@@ -177,9 +180,11 @@ module.exports = React.createClass({
     ajax(ajaxOpts)
       .then(
         () => {
-          alert('merged!');
+          this.setState({ submitting: false, successful: true });
         },
         ([xhr]) => {
+          this.setState({ submitting: false });
+
           if (xhr.status === 403) {
             alert('You do not have permission to merge patches.');
           } else if (xhr.status === 401) {
@@ -207,54 +212,12 @@ module.exports = React.createClass({
 
       return (
         <div>
-            <div className="well">
               {
-                patchData.mergeable ?
-                  <p className="text-success lead">Able to merge patch.</p> :
-                  <p className="text-warning lead">Unable to merge patch against current dataset on server.</p>
+                this.state.successful ?
+                  this.renderSuccessHeader() :
+                  this.renderMergeHeader()
               }
 
-              <div className="has-success">
-                <div className="radio">
-                  <label>
-                    { patchData.mergeable ? 'Accept patch' : <s>Accept patch</s> }
-                    <input
-                        type="radio"
-                        value={true}
-                        checked={this.state.acceptPatch === true}
-                        onChange={this.handleChangeDecision}
-                        disabled={!patchData.mergeable} />
-                  </label>
-                </div>
-              </div>
-
-              <div className="has-error">
-                <div className="radio">
-                  <label>
-                    Reject patch
-                    <input
-                        type="radio"
-                        value={false}
-                        checked={this.state.acceptPatch === false}
-                        onChange={this.handleChangeDecision} />
-                  </label>
-                </div>
-              </div>
-
-              <br />
-
-              { this.renderMergeButton() }
-
-              {
-                this.state.acceptPatch === null ? '' : (
-                  <div>
-                    <br />
-                    <p className="help-block"><strong>This action cannot be undone</strong></p>
-                  </div>
-                )
-              }
-
-            </div>
           <div className="row">
             <div className="col-md-4">
               <Comments
@@ -275,6 +238,74 @@ module.exports = React.createClass({
         </div>
       )
     }
+  },
+  renderSuccessHeader: function () {
+    return (
+      <div className="well">
+        <p className="lead">
+          {
+            this.state.acceptPatch ?
+              'Patch successfully merged.' :
+              'Patch successfully rejected.'
+          }
+        </p>
+      </div>
+    )
+  },
+  renderMergeHeader: function () {
+    var patchData = this.state.patchData
+
+    return (
+      <div className="well">
+        {
+          patchData.mergeable ?
+            <p className="text-success lead">Able to merge patch.</p> :
+            <p className="text-warning lead">Unable to merge patch against current dataset on server.</p>
+        }
+
+        <div className="has-success">
+          <div className="radio">
+            <label>
+              { patchData.mergeable ? 'Accept patch' : <s>Accept patch</s> }
+              <input
+                  type="radio"
+                  value={true}
+                  checked={this.state.acceptPatch === true}
+                  onChange={this.handleChangeDecision}
+                  disabled={!patchData.mergeable || this.state.submitting} />
+            </label>
+          </div>
+        </div>
+
+        <div className="has-error">
+          <div className="radio">
+            <label>
+              Reject patch
+              <input
+                  type="radio"
+                  value={false}
+                  checked={this.state.acceptPatch === false}
+                  onChange={this.handleChangeDecision || this.state.submitting}
+                  disabled={this.state.submitting} />
+            </label>
+          </div>
+        </div>
+
+        <br />
+
+        { this.renderMergeButton() }
+
+        {
+          this.state.acceptPatch === null ? '' : (
+            <div>
+              <br />
+              <p className="help-block"><strong>This action cannot be undone</strong></p>
+            </div>
+          )
+        }
+
+      </div>
+    )
   },
   renderMergeButton: function () {
     var btnClassMap = { null: 'default', true: 'primary', false: 'danger' }
