@@ -272,7 +272,7 @@ module.exports = React.createClass({
                   value={true}
                   checked={this.state.acceptPatch === true}
                   onChange={this.handleChangeDecision}
-                  disabled={!patchData.mergeable || this.state.submitting} />
+                  disabled={!patchData.mergeable} />
             </label>
           </div>
         </div>
@@ -285,8 +285,7 @@ module.exports = React.createClass({
                   type="radio"
                   value={false}
                   checked={this.state.acceptPatch === false}
-                  onChange={this.handleChangeDecision || this.state.submitting}
-                  disabled={this.state.submitting} />
+                  onChange={this.handleChangeDecision} />
             </label>
           </div>
         </div>
@@ -314,7 +313,7 @@ module.exports = React.createClass({
     return (
       <button
           onClick={this.handleMerge}
-          disabled={this.state.acceptPatch === null}
+          disabled={this.state.acceptPatch === null || this.state.submitting}
           className={'btn btn-' + btnClassMap[this.state.acceptPatch]}>
         { btnTextMap[this.state.acceptPatch] }
       </button>
