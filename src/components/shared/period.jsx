@@ -77,25 +77,26 @@ module.exports = React.createClass({
         </div>
 
         {
-        this.props.period.has('localizedLabel') ? '' :
-        <div className="field">
-          <dt>Alternate labels</dt>
-          <dd>
-            <ul className="list-unstyled">
-              {
-                groupByCode(alternateLabels)
-                  .map((labels, code) => labels.map(label => Immutable.Map({ label, code })))
-                  .toList()
-                  .flatten(1)
-                  .map(label =>
-                    <li key={label.hashCode()}>
-                      { label.get('label') } ({ label.get('code') })
-                    </li>
-                  )
-              }
-            </ul>
-          </dd>
-        </div>
+          alternateLabels.size > 0 && (
+            <div className="field">
+              <dt>Alternate labels</dt>
+              <dd>
+                <ul className="list-unstyled">
+                  {
+                    groupByCode(alternateLabels)
+                      .map((labels, code) => labels.map(label => Immutable.Map({ label, code })))
+                      .toList()
+                      .flatten(1)
+                      .map(label =>
+                        <li key={label.hashCode()}>
+                          { label.get('label') } ({ label.get('code') })
+                        </li>
+                      )
+                  }
+                </ul>
+              </dd>
+            </div>
+          )
         }
 
         {
