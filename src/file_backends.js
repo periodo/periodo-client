@@ -61,4 +61,11 @@ function addFile(filename, data) {
   }).then(() => fileData);
 }
 
-module.exports = { listFiles, getFile, addFile }
+function deleteFile(filename) {
+  return getDB().files
+    .where('name')
+    .equals(filename)
+    .delete()
+}
+
+module.exports = { listFiles, getFile, addFile, deleteFile }

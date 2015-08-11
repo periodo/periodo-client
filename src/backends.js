@@ -319,7 +319,7 @@ function FileBackend(opts) {
 
   this.fetchData = function () {
     return require('./file_backends')
-      .getFile(this.name.slice(5)) // Strip file: prefix
+      .getFile(this.name)
       .then(fileObj => {
         this._fileObj = fileObj;
         return { data: fileObj.data }
@@ -353,7 +353,7 @@ function listBackends() {
           .map(db => ({ type: 'idb', name: db })))
         .then(idbBackends => require('./file_backends')
           .listFiles()
-          .then(files => files.map(name => ({ type: 'file', name: 'file:' + name })))
+          .then(files => files.map(name => ({ type: 'file', name })))
           .then(files => idbBackends.concat(files)))
         .then(
           resolve,
@@ -448,7 +448,7 @@ function addBackend(opts) {
         // Name of DB will be different from filename itself
         dbOpen = require('./file_backends')
           .addFile(opts.name, opts.data)
-          .then(({ name }) => { opts.name = 'file:' + name })
+          .then(({ name }) => { opts.name = name })
       } else {
         throw new Error(`Invalid backend type: ${opts.type}`);
       }
@@ -472,6 +472,9 @@ function deleteBackend(name) {
         delete webDBs.name;
         localStorage.WebDatabaseNames = JSON.stringify(webDBs);
         promise = Dexie.Promise.resolve();
+      } else if (toDelete.type === 'file') {
+        let { deleteFile } = require('./file_backends');
+        promise = deleteFile(name);
       }
 
       return promise;
