@@ -23,8 +23,9 @@ BackendForm = React.createClass({
 
   handleFileChange: function (e) {
     var parsePeriodoUpload = require('../utils/parse_periodo_upload')
+      , file = e.target.files[0]
 
-    parsePeriodoUpload(e.target.files[0])
+    parsePeriodoUpload(file)
       .then(
         data => this.setState({ name: file.name, data }),
         err => {
