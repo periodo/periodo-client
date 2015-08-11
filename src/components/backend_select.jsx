@@ -4,6 +4,13 @@ var React = require('react')
   , Immutable = require('immutable')
   , BackendForm
 
+const BACKEND_NAMES = {
+  web: 'Web',
+  idb: 'IndexedDB',
+  file: 'File',
+  memory: 'In-memory'
+}
+
 BackendForm = React.createClass({
   getInitialState: function () {
     return { type: 'idb' }
@@ -140,34 +147,83 @@ module.exports = React.createClass({
         saveAs(blob, filename);
       })
   },
+  handleDeleteBackend: function (backend) {
+    var { destroy } = require('../backends')
+      , sure = confirm(`Delete backend ${backend.get('name')}?`)
+
+    if (sure) {
+      destroy(backend.get('name'))
+        .then(() => window.location.reload())
+    }
+  },
   render: function () {
     var sortedBackends = Immutable.fromJS(this.props.backends)
 
     sortedBackends = sortedBackends
       .toOrderedMap()
-      .sort((a, b) => b === 'web' ? 1 : 0)
+      .sort((a, b) => b.name === 'Canonical' ? 0 : 1)
       .valueSeq()
 
     return (
       <div>
         <h2>Select backends</h2>
         <p>Select a backend to use.</p>
-        <ul>
-          {sortedBackends.map(backend => (
-            <li key={backend.get('name')} className="backend-option">
-              <a href={'#p/' + backend.get('name') + '/'}>
-                { backend.get('name') } ({ backend.get('type') })
-              </a>
 
-              <a href="" onClick={this.handleDownloadBackend.bind(null, backend)}>
-                <img style={{
-                  height: '22px',
-                  marginLeft: '6px'
-                }} src="lib/noun_433_cc.svg" />
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="row">
+          <div className="col-md-6">
+            <table className="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th style={{ textAlign: 'center' }}>Type</th>
+                  <th style={{ textAlign: 'center' }}>Download</th>
+                  <th style={{ textAlign: 'center' }}>Delete</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {sortedBackends.map(backend => (
+                  <tr key={backend.get('name')}>
+                    <td style={{ width: '100%' }}>
+                      <a href={'#p/' + backend.get('name') + '/'}>
+                        { backend.get('name') }
+                      </a>
+                    </td>
+
+                    <td style={{ textAlign: 'center' }}>
+                      { BACKEND_NAMES[backend.get('type')] }
+                    </td>
+
+                    <td style={{ textAlign: 'center' }}>
+                      <a href="" onClick={this.handleDownloadBackend.bind(null, backend)}>
+                        <img style={{
+                          height: '22px',
+                          width: '80px',
+                          marginLeft: '6px'
+                        }} src="lib/noun_433_cc.svg" />
+                      </a>
+                    </td>
+
+                    <td style={{ textAlign: 'center' }}>
+                      {
+                        backend.get('name') === 'Canonical' ? '' :
+                          <a href="" onClick={this.handleDeleteBackend.bind(null, backend)}>
+                            <img style={{
+                              height: '22px',
+                              width: '80px',
+                              marginLeft: '6px'
+                            }} src="lib/noun_304_cc.svg" />
+                          </a>
+                      }
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <BackendForm existing={Object.keys(this.props.backends)} />
       </div>
     )
