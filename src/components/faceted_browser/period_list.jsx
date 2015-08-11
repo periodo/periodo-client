@@ -109,7 +109,7 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       periodSeq: null,
-      limit: 20,
+      limit: 25,
       sortBy: 'label',
       sortOrder: 'asc',
       currentPage: 0,
@@ -263,8 +263,20 @@ module.exports = React.createClass({
       return toSet;
     }, this.updateSortedPeriodSeq);
   },
+  renderLimit: function () {
+    var sizes = [10, 25, 50, 100, 250]
+
+    return sizes.map((limit, i) =>
+      <li key={'limit' + i}>
+        <a href="" onClick={() => this.setState({ currentPage: 0, limit })}>
+          { limit }
+        </a>
+      </li>
+    );
+  },
   render: function () {
     var Paginator = require('../../components/shared/paginate.jsx')
+      , Dropdown = require('../shared/dropdown.jsx')
       , periods = this.getMatchedPeriods()
       , firstIndex = this.getFirstIndex()
       , sortClassName = 'sort-' + this.state.sortOrder
@@ -273,6 +285,18 @@ module.exports = React.createClass({
       <div>
         <div>
           Viewing {firstIndex + 1} - {firstIndex + periods.size} of {this.props.periods.size}
+        </div>
+
+        <br />
+
+        <div>
+        Show
+        {' '}
+        <Dropdown
+            label={this.state.limit}
+            renderMenuItems={this.renderLimit} />
+        {' '}
+        periods at a time.
         </div>
 
         <div>
@@ -304,6 +328,15 @@ module.exports = React.createClass({
             {periods.toJS()}
           </tbody>
         </table>
+
+        <div>
+          <Paginator
+              numItems={this.props.periods.size}
+              limit={this.state.limit}
+              initialPage={this.state.currentPage}
+              currentPage={this.state.currentPage}
+              onPageChange={this.handlePageChange} />
+        </div>
       </div>
     )
   }
