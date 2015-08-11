@@ -260,7 +260,7 @@ function WebBackend(opts) {
   Backend.call(this, opts);
   this.type = 'web';
 
-  this.url = this.name === 'web' ?
+  this.url = this.name === 'Canonical' ?
     window.location.origin + window.location.pathname :
     opts.url;
 
@@ -376,9 +376,9 @@ function listBackends() {
     dbs.forEach(db => backends[db.name] = db);
 
     if (window && window.location.protocol.indexOf('http') !== -1) {
-      backends.web = {
+      backends.Canonical = {
         type: 'web',
-        name: 'web',
+        name: 'Canonical',
         url: window.location.origin + window.location.pathname,
       }
     }
