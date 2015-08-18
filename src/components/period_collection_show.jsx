@@ -9,6 +9,7 @@ PeriodDetails = React.createClass({
   handleClick: function () {
     this.props.onPeriodEdit(this.props.period);
   },
+
   render: function () {
     var Period = require('./shared/period.jsx')
       , { isSkolemID } = require('../helpers/skolem_ids')
@@ -62,6 +63,21 @@ module.exports = React.createClass({
       this.setState({ editingPeriod: null });
     }
   },
+  getBreadcrumb: function() {
+    var { getDisplayTitle } = require('../helpers/source')
+      ,  { backend, router, cursor } = this.props
+
+    return [
+      {
+        label: backend.name,
+        url: router.generate('backend-home', { backendName: backend.name })
+      },
+      {
+        label: getDisplayTitle(cursor.get('source'))
+      }
+    ]
+  },
+
   handlePeriodEdit: function (period) {
     this.setState({ editingPeriod: period.deref() });
   },
@@ -115,6 +131,7 @@ module.exports = React.createClass({
     var url = require('url')
       , PeriodList = require('./faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form')
+      , Breadcrumb = require('./shared/breadcrumb.jsx')
       , PreformattedFile = require('./shared/pre_file.jsx')
       , Source = require('./shared/source.jsx')
       , { getDisplayTitle } = require('../helpers/source')
@@ -133,6 +150,7 @@ module.exports = React.createClass({
 
     return (
       <div>
+        <Breadcrumb crumbs={this.getBreadcrumb()} />
         <h2>{getDisplayTitle(this.props.cursor.get('source'))}</h2>
         {
           this.state.editingPeriod && (
