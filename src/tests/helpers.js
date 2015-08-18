@@ -191,7 +191,7 @@ describe('Period helpers', function () {
       , data = require('./data/multi-label-period.json')
 
     assert.ok(
-      getAlternateLabels(Immutable.fromJS(data)).equals(Immutable.Set([
+      getAlternateLabels(Immutable.fromJS(data)).equals(Immutable.OrderedSet([
         Immutable.Map({ value: 'The Progressive Era', language: 'eng', script: 'latn' }),
         Immutable.Map({ value: 'Ère progressiste', language: 'fra', script: 'latn' })
       ]))

@@ -19,7 +19,7 @@ function getOriginalLabel(period) {
 }
 
 function getAllLabels(period) {
-  return Immutable.Set()
+  return Immutable.OrderedSet()
     .withMutations(alternateLabels => {
       period.get('localizedLabels', Immutable.List())
         .forEach((labels, isoCodes) => {

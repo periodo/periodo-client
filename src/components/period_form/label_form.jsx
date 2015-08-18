@@ -14,7 +14,7 @@ module.exports = React.createClass({
   getInitialState: function () {
     var { getAlternateLabels, getOriginalLabel } = require('../../helpers/period.js')
       , originalLabel = getOriginalLabel(this.props.period)
-      , alternateLabels = getAlternateLabels(this.props.period)
+      , alternateLabels = getAlternateLabels(this.props.period).toList()
 
     originalLabel = originalLabel || DEFAULT_LABEL;
 
