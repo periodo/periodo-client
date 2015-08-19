@@ -137,11 +137,11 @@ module.exports = React.createClass({
 
     if (path.indexOf('/') !== -1) this.showNotFound();
 
-    getBackendAndStore('canonical')
+    getBackendAndStore('Canonical')
       .then(({ store }) => {
         if (store.hasIn(['periodCollections', matchKey])) {
           let redirectURL = this.state.router.generate('period-collection-show', {
-            backendName: 'canonical',
+            backendName: 'Canonical',
             collectionID: encodeURIComponent(matchKey)
           })
 
@@ -160,7 +160,7 @@ module.exports = React.createClass({
 
           if (collectionID) {
             let redirectURL = this.state.router.generate('period-collection-show', {
-              backendName: 'canonical',
+              backendName: 'Canonical',
               collectionID
             });
 
