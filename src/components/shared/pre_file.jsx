@@ -24,7 +24,7 @@ module.exports = React.createClass({
     var saveAs = require('filesaver.js')
       , blob
 
-    blob = new Blob([this.props.fileContent], { type: this.props.mimetype });
+    blob = new Blob([this.state.fileContent], { type: this.props.mimetype });
     saveAs(blob, this.props.filename);
   },
 
