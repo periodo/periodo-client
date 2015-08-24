@@ -83,7 +83,7 @@ Comments = React.createClass({
               <div key={comment.hashCode()}>
                 <h4>{this.props.orcidMap[comment.get('author')]}</h4>
                 <div>{(new Date(comment.get('posted_at'))).toLocaleString()}</div>
-                <p>{comment.get('message')}</p>
+                <p style={{ whiteSpace: 'pre-wrap' }}>{comment.get('message')}</p>
                 <hr />
               </div>
             )
