@@ -88,7 +88,7 @@ module.exports = function (from, to) {
           <dd>${fromEl.innerHTML}</dd>
         </div>
       `
-    } else if (fromEl.children.length) {
+    } else if (fromEl.children.length && fromEl.children[0].nodeName.toLowerCase() === 'ul') {
       // This is a nested field (i.e. spatialCoverage)
       html += makeNestedDiff(key, fromEl, toEl);
     } else {
