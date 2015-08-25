@@ -27,6 +27,28 @@ function openDB(dbName) {
    * still can
    *
    */
+  db.version(8).stores({
+    dumps: 'id&,modified,synced',
+    localData: 'id&,modified',
+    patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
+    localPatches: 'id&,resolved',
+    idMap: 'id&,serverURL,localID'
+  }).upgrade(function (tx) {
+      tx.table('patches').orderBy('id').modify(function (patch) {
+        var fixedForward
+          , fixedBackward
+
+        fixedForward = patch.forward.filter(patch => !patch.fake);
+        fixedBackward = patch.backward.filter(patch => !patch.fake);
+
+        patch.forward = fixedForward;
+        patch.backward = fixedBackward;
+
+        patch.forwardHashes = patch.forward.map(patchUtils.hashPatch);
+        patch.backwardHashes = patch.backward.map(patchUtils.hashPatch);
+      });
+  });
+
   db.version(7).stores({
     dumps: 'id&,modified,synced',
     localData: 'id&,modified',
