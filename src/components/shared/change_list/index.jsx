@@ -40,7 +40,7 @@ ChangeGroup = React.createClass({
                             type="checkbox"
                             checked={this.props.selectedPatches.contains(change.get('patches'))}
                             onChange={this.props.onPatchSelectionChange.bind(null,
-                                Immutable.Set.of(change.get('patches')))} />
+                                Immutable.OrderedSet.of(change.get('patches')))} />
                       </label>
                     </td>
                   )
