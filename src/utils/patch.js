@@ -58,7 +58,6 @@ function transformSimplePatch(patch, opts) {
     } else {
       if (replaced.indexOf(valuePath) === -1) {
         replaced.push(valuePath);
-        acc.push({ op: 'remove', path: valuePath, fake: true });
         acc.push({ op: 'add', path: valuePath, value: pointer.get(after, valuePath) });
       }
     }
@@ -161,7 +160,6 @@ function formatPatch(oldData, newData, message) {
     , patch
 
   description = forward
-    .filter(patch => !patch.fake)
     .map(patch => classifyPatch(patch)[1])
     .join('\n');
 

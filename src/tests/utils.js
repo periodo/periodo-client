@@ -230,17 +230,12 @@ describe('Patch utils', function () {
     });
   });
 
-  it('should add and remove simple values', function () {
+  it('should use "add" operation for simple values instead of "replace"', function () {
     var attrPath = ['periodCollections', 'p03377f', 'source']
       , newData = data.setIn(attrPath.concat('yearPublished'), '1900')
       , patch = makePatch(data.toJS(), newData.toJS())
 
     assert.deepEqual(patch, [
-      {
-        fake: true,
-        op: 'remove',
-        path: '/' + attrPath.join('/')
-      },
       {
         op: 'add',
         path: '/' + attrPath.join('/'),
@@ -249,7 +244,7 @@ describe('Patch utils', function () {
     ]);
   });
 
-  it('should add and remove complicated values', function () {
+  it('should use "add" operation for complex values instead of "replace"', function () {
     var attrPath = ['periodCollections', 'p03377f', 'definitions', 'p03377fkhrv', 'spatialCoverage']
       , newData
       , patch
@@ -261,11 +256,6 @@ describe('Patch utils', function () {
     patch = makePatch(data.toJS(), newData.toJS());
 
     assert.deepEqual(patch, [
-      {
-        fake: true,
-        op: 'remove',
-        path: '/' + attrPath.join('/')
-      },
       {
         op: 'add',
         path: '/' + attrPath.join('/'),

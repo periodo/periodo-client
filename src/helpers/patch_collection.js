@@ -6,6 +6,7 @@ var Immutable = require('immutable')
   , pointer = require('json-pointer')
   , { parsePatchPath, hashPatch } = require('../utils/patch')
 
+
 // Return a tuple representing the type of change, which will be in the form:
 // [type, operation, ...identifiers]. If this patch does not effect any periods
 // or period collections, return null.
@@ -38,6 +39,7 @@ function getChangeType(patch) {
   return null;
 }
 
+
 function groupByChangeType(patches) {
   return Immutable.Map().withMutations(map => {
     patches.forEach(patch => {
@@ -53,54 +55,38 @@ function groupByChangeType(patches) {
   });
 }
 
-function isChangePair(a, b) {
-  return (
-    a &&
-    b &&
-    a.get('op') === 'remove' &&
-    b.get('op') === 'add' &&
-    a.get('path') === b.get('path')
-  )
-}
-
-function combineChangePairs(patches) {
-  var isPair
-
-  return patches
-    .map((patch, idx) => {
-      var next
-
-      if (isPair) {
-        isPair = false;
-        return null;
-      }
-
-      next = patches.get(idx + 1)
-      isPair = isChangePair(patch, next)
-
-      return isPair ? Immutable.List([patch, next]) : patch;
-    })
-    .filter(patch => patch)
-}
-
 
 function filterByHash(patches, keepMatched, hashMatchFn) {
-  var patchSet = combineChangePairs(patches).toSet()
+  var patchSet = patches.toOrderedSet()
     , additions
     , hashesToCheck
     , matched
 
-  additions = patchSet.filter(patch => (
-    patch instanceof Immutable.Map &&
-    patch.get('op') === 'add'
-  ));
+  // These are patches that add a new period or period collection. They will
+  // automatically be added without checking hashes.
+  additions = patchSet.filter(patch => {
+    if (patch instanceof Immutable.Map && patch.get('op') === 'add') {
+      let parsed
+
+      try {
+        parsed = parsePatchPath(patch.get('path'));
+      } catch (err) {
+        parsed = {};
+      }
+
+      return (
+        (parsed.type === 'periodCollection' || parsed.type === 'period') &&
+        !parsed.label
+      )
+    }
+
+    return false;
+  });
 
   hashesToCheck = patchSet
     .subtract(additions)
     .toMap()
-    .mapKeys((k, v) => hashPatch(
-      (v instanceof Immutable.List ? v.get(1) : v).toJS()
-    ));
+    .mapKeys((k, v) => hashPatch(v.toJS()))
 
   matched = hashesToCheck.size === 0 ?
     [] :
@@ -133,7 +119,6 @@ function getOrcids(patches) {
 
 module.exports = {
   groupByChangeType,
-  combineChangePairs,
   filterByHash,
   getOrcids
 }

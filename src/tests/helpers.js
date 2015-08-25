@@ -241,50 +241,40 @@ describe('Period collection helpers', function () {
 
 describe('Patch collection helpers', function () {
   var patches = Immutable.fromJS([
-    { op: 'remove', path: '/an/edit' },
     { op: 'add', path: '/an/edit' },
     { op: 'remove', path: '/real/removal' },
-    { op: 'add', path: '/real/add' }
+    { op: 'add', path: '/periodCollections/123' }
   ]);
-
-  it('should be able to detect patch change pairs', function () {
-    var { combineChangePairs } = require('../helpers/patch_collection')
-
-    assert.deepEqual(combineChangePairs(patches).toJS(), [
-      [ { op: 'remove', path: '/an/edit' }, { op: 'add', path: '/an/edit' } ],
-      { op: 'remove', path: '/real/removal' },
-      { op: 'add', path: '/real/add' }
-    ]);
-  });
 
   describe('Hash filter', function () {
     var { filterByHash } = require('../helpers/patch_collection')
       , expectedHashes
 
     expectedHashes = [
-      // Hash of '{"op":"remove","path":"/real/removal"}'
-      '853d0d152a3988088d49e40eaf0a9ba0',
-
       // Hash of '{"op":"add","path":"/an/edit"}'
       'ce7bac76879ea3bc97b0ffdea4b0daf4',
+
+      // Hash of '{"op":"remove","path":"/real/removal"}'
+      '853d0d152a3988088d49e40eaf0a9ba0',
     ]
 
     it('should enable patches to be filtered by hash', function () {
       function matcher(hashes) {
         assert(hashes.toSet().equals(Immutable.Set(expectedHashes)));
-        return [expectedHashes[1]]
+        return [expectedHashes[0]]
       }
       return filterByHash(patches, true, matcher).then(function (filteredPatches) {
         assert.deepEqual(
-          filteredPatches.toJS().sort(),
-          patches.splice(2, 1).toJS().sort());
+          filteredPatches.toJS(),
+          [patches.toJS()[0], patches.toJS()[2]]
+        )
       });
     });
 
     it('should only return additions when no hashes match', function () {
       function noneMatcher() { return [] }
       return filterByHash(patches, true, noneMatcher).then(function (filteredPatches) {
-        assert.deepEqual(filteredPatches.toJS(), [patches.toJS()[3]]);
+        assert.deepEqual(filteredPatches.toJS(), [patches.toJS()[2]]);
       });
     });
   });
