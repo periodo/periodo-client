@@ -6,7 +6,7 @@ var React = require('react')
 
 ChangeGroup = React.createClass({
   render: function () {
-    var allPatches = this.props.changes.map(change => change.get('patches')).toSet()
+    var allPatches = this.props.changes.map(change => change.get('patches')).toOrderedSet()
 
     return (
       <div>
@@ -117,7 +117,7 @@ module.exports = React.createClass({
   },
 
   getInitialState: function () {
-    return this.props.select ? { selectedPatches: Immutable.Set() } : {}
+    return this.props.select ? { selectedPatches: Immutable.OrderedSet() } : {}
   },
   getSelectedPatches: function () {
     return this.state.selectedPatches;
