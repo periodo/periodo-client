@@ -45,11 +45,17 @@ function validate(period) {
     addError('label', 'This field is required.');
   }
 
+  function isInteger(value) {
+    return (typeof value === "number" &&
+            isFinite(value) &&
+            Math.floor(value) === value);
+  }
+
   function periodPresent(type) {
     return (
       period.get(type) &&
       period.getIn([type, 'label']) &&
-      !!getEarliestYear(period.get(type))
+      isInteger(getEarliestYear(period.get(type)))
     )
   }
 
