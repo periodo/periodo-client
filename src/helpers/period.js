@@ -49,7 +49,7 @@ function validate(period) {
     return (
       period.get(type) &&
       period.getIn([type, 'label']) &&
-      !!getEarliestYear(period.get(type))
+      getEarliestYear(period.get(type)) !== null
     )
   }
 

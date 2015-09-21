@@ -144,7 +144,11 @@ describe('Period helpers', function () {
       start: { label: '1890', in: { year: '1890' }},
       stop: { label: '1917', in: { year: '1917' }}
     });
-
+    data.zeroTerminus = Immutable.fromJS({
+      label: 'A Long Time Ago',
+      start: { label: '2450 BP', in: { year: '-0500' }},
+      stop: { label: '1950 BP', in: { year: '0000' }}
+    });
 
     assert.deepEqual(validate(data.nothing), {
       label: ['This field is required.'],
@@ -160,6 +164,8 @@ describe('Period helpers', function () {
     });
 
     assert.deepEqual(validate(data.fine), null);
+
+    assert.deepEqual(validate(data.zeroTerminus), null);
   });
 
   it('should get original label from a period', function () {
