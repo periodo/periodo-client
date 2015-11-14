@@ -35,6 +35,8 @@ function getEarliestYear(terminus) {
     (terminus.get('label') === 'present' ? (new Date().getFullYear()) : null)
   )
 
+  if (year === '') year = null;
+
   return year === null ? null : parseInt(year);
 }
 
@@ -46,6 +48,8 @@ function getLatestYear(terminus) {
     terminus.getIn(['in', 'latestYear']),
     (terminus.get('label') === 'present' ? (new Date().getFullYear()) : null)
   )
+
+  if (year === '') year = null;
 
   return year === null ? null : parseInt(year);
 }
