@@ -3,8 +3,18 @@
   "PeriodCollection": "http://www.w3.org/2004/02/skos/core#ConceptScheme",
   "PeriodDefinition": "http://www.w3.org/2004/02/skos/core#Concept",
   "abstract": "http://purl.org/dc/terms/abstract",
-  "contributors": "http://purl.org/dc/terms/contributor",
-  "creators": "http://purl.org/dc/terms/creator",
+  "collection": {
+    "@id": "http://www.w3.org/2004/02/skos/core#inScheme",
+    "@type": "@id"
+  },
+  "contributors": {
+    "@container": "@set",
+    "@id": "http://purl.org/dc/terms/contributor"
+  },
+  "creators": {
+    "@container": "@set",
+    "@id": "http://purl.org/dc/terms/creator"
+  },
   "dateAccessed": {
     "@id": "http://purl.org/dc/terms/date",
     "@type": "http://www.w3.org/2001/XMLSchema#date"
@@ -13,8 +23,11 @@
     "@container": "@index",
     "@reverse": "http://www.w3.org/2004/02/skos/core#inScheme"
   },
-  "earliestYear": "periodo:earliestYear",
-  "editorialNote": "http://www.w3.org/2004/02/skos/core#note",
+  "earliestYear": {
+    "@id": "periodo:earliestYear",
+    "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+  },
+  "editorialNote": "http://www.w3.org/2004/02/skos/core#editorialNote",
   "id": "@id",
   "in": "http://www.w3.org/2006/time#hasDateTimeDescription",
   "inDataset": {
@@ -23,7 +36,10 @@
   },
   "label": "http://www.w3.org/2004/02/skos/core#prefLabel",
   "language": "http://purl.org/dc/terms/language",
-  "latestYear": "periodo:latestYear",
+  "latestYear": {
+    "@id": "periodo:latestYear",
+    "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+  },
   "localizedLabels": {
     "@container": "@language",
     "@id": "http://www.w3.org/2004/02/skos/core#altLabel"
