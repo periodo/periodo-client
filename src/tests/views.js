@@ -70,6 +70,21 @@ describe('Period form', function () {
     });
   });
 
+  it('Should have a null value for empty period termini', function () {
+    var view = makePeriodFormView()
+      , { startTerminus, stopTerminus } = view.refs.temporalCoverage.refs
+
+    Simulate.change(
+      React.findDOMNode(startTerminus).querySelector('[name="label"]'),
+      { target: { value: '1890'}});
+
+    Simulate.change(
+      React.findDOMNode(startTerminus).querySelector('[name="label"]'),
+      { target: { value: ''}});
+
+    assert.equal(view.getPeriodValue().get('start'), null);
+  });
+
   /*
   it('Should render errors', function () {
     var view = makePeriodFormView();

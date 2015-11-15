@@ -50,9 +50,9 @@ module.exports = React.createClass({
   },
 
   handleChangeAutoparsedLabel: function (e) {
-    var terminus = parse(e.target.value);
-    this.props.onChange(terminus);
-  },
+    var label = e.target.value;
+    this.props.onChange(label.length ? parse(label) : undefined);
+ },
 
   refreshAutoparse: function () {
     var terminus = parse(this.props.terminus.get('label'));
@@ -60,8 +60,18 @@ module.exports = React.createClass({
   },
 
   handleChange: function (field, e) {
-    var value = e.target.value;
-    this.props.onChange(this.props.terminus.setIn([].concat(field), value));
+    var { hasISOValue } = require('../../helpers/terminus')
+      , { terminus, onChange } = this.props
+      , value = e.target.value
+      , updatedTerminus = terminus.setIn([].concat(field), value)
+      , isEmpty
+
+    isEmpty = (
+      updatedTerminus.get('label').length === 0 &&
+      !hasISOValue(updatedTerminus)
+    )
+
+    onChange(isEmpty ? undefined : updatedTerminus);
   },
 
   render: function () {
