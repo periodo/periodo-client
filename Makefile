@@ -2,7 +2,7 @@
 
 NPM_BIN = ./node_modules/.bin
 DIST_DIR = dist
-VERSION_STR = $(shell grep -oP '(?<="version": ")[^"]+' package.json)
+VERSION_STR := $(shell npm ls --depth=0 | head -n 1 | grep -o '@[^ ]\+' | cut -c 2-)
 
 
 CSS_BUNDLE = $(DIST_DIR)/periodo.css
