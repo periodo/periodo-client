@@ -1,6 +1,6 @@
 {
   "name": "periodo-client",
-  "version": "2.3.10",
+  "version": "2.3.11",
   "author": "Patrick Golden",
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
@@ -98,7 +98,6 @@
     "postversion": "git push && git push --tags && make zip && ./bin/release",
     "isMaster": "test master = $(git rev-parse --abbrev-ref HEAD)",
     "matchesRemote": "test $(git rev-parse @) = $(git rev-parse @{u})",
-
     "test": "mochify -R spec ./src/tests/*.js",
     "test-watch": "mochify -w -R spec ./src/tests/*.js",
     "start": "serve -p 8000"
