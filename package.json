@@ -95,8 +95,7 @@
   },
   "scripts": {
     "preversion": "npm test && npm run isMaster && npm run matchesRemote",
-    "version": "make",
-    "postversion": "git push && git push --tags",
+    "postversion": "git push && git push --tags && make zip && ./bin/release",
     "isMaster": "test master = $(git rev-parse --abbrev-ref HEAD)",
     "matchesRemote": "test $(git rev-parse @) = $(git rev-parse @{u})",
 
