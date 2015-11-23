@@ -30,6 +30,8 @@ describe('Period form', function () {
     return React.render(form, formEl);
   }
 
+  makePeriodFormView();
+
   before(function () { document.body.appendChild(container) });
   after(function () { document.body.removeChild(container) });
 
