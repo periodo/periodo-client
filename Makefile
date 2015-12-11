@@ -64,7 +64,8 @@ $(JS_BUNDLE): $(DIST_DIR) $(SRC_FILES)
 	$(NPM_BIN)/browserify -d -o $@ $(JS_ENTRY)
 
 $(JS_BUNDLE_VERSIONED): $(DIST_DIR) $(SRC_FILES)
-	$(NPM_BIN)/browserify -d $(JS_ENTRY) | $(NPM_BIN)/exorcist $(JS_VERSIONED_SOURCE_MAP) --url $(subst dist/,,$(JS_VERSIONED_SOURCE_MAP)) > $@
+	NODE_ENV=production $(NPM_BIN)/browserify -d $(JS_ENTRY) | \
+		 $(NPM_BIN)/exorcist $(JS_VERSIONED_SOURCE_MAP) --url $(subst dist/,,$(JS_VERSIONED_SOURCE_MAP)) > $@
 
 $(JS_MINIFIED_BUNDLE): $(JS_BUNDLE)
 	$(NPM_BIN)/uglifyjs $< --source-map $(JS_MINIFIED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_SOURCE_MAP)) -c warnings=false -o $@
