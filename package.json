@@ -95,7 +95,7 @@
   },
   "scripts": {
     "preversion": "npm test && npm run isMaster && npm run matchesRemote",
-    "postversion": "git push && git push --tags && make zip && ./bin/release",
+    "postversion": "git push && git push --tags && make zip && ./bin/release.js",
     "isMaster": "test master = $(git rev-parse --abbrev-ref HEAD)",
     "matchesRemote": "test $(git rev-parse @) = $(git rev-parse @{u})",
     "test": "mochify -R spec ./src/tests/*.js",
