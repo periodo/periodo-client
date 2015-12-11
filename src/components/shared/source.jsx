@@ -36,13 +36,28 @@ module.exports = React.createClass({
       },
       {
         label: 'Creators',
-        value: oneOf(source, ['creators'], ['partOf', 'creators']),
-        format: creators => creators.map(c => <dd key={c.get('name')} >{c.get('name')}</dd>)
+        value: (() => {
+          var val = oneOf(source, ['creators'], ['partOf', 'creators']);
+
+          val = val.toList().filter(c => c.get('name'));
+          return val.size ? val : null;
+        })(),
+        format: creators => creators.map(c =>
+          <dd key={c.get('name')}>{c.get('name')}</dd>
+        )
       },
       {
         label: 'Contributors',
-        value: oneOf(source, ['contributors'], ['partOf', 'contributors']),
-        format: contributors => contributors.map(c => <dd key={c.get('name')} >{c.get('name')}</dd>)
+        value: (() => {
+          var val = oneOf(source, ['contributors'], ['partOf', 'contributors']);
+
+          val = val.toList().filter(c => c.get('name'));
+
+          return val.size ? val : null;
+        })(),
+        format: contributors => contributors.map(c =>
+          <dd key={c.get('name')}>{c.get('name')}</dd>
+        )
       },
       {
         label: 'Locator',
@@ -52,6 +67,7 @@ module.exports = React.createClass({
   },
   render: function () {
     var data = this.getData();
+
     return (
       <dl className="dl-horizontal source">
         {data.filter(entry => entry.value).map(entry => (
