@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require('react')
+  , Immutable = require('immutable')
 
 function oneOf(data, ...paths) {
   var result;
@@ -39,7 +40,7 @@ module.exports = React.createClass({
         value: (() => {
           var val = oneOf(source, ['creators'], ['partOf', 'creators']);
 
-          val = val.toList().filter(c => c.get('name'));
+          val = (val || Immutable.List()).toList().filter(c => c.get('name'));
           return val.size ? val : null;
         })(),
         format: creators => creators.map(c =>
@@ -51,8 +52,7 @@ module.exports = React.createClass({
         value: (() => {
           var val = oneOf(source, ['contributors'], ['partOf', 'contributors']);
 
-          val = val.toList().filter(c => c.get('name'));
-
+          val = (val || Immutable.List()).toList().filter(c => c.get('name'));
           return val.size ? val : null;
         })(),
         format: contributors => contributors.map(c =>
