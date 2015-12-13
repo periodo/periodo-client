@@ -49,7 +49,7 @@ RangeSelectionWidget.prototype.getBins = function getBins(min, max) {
     , redo
 
   redo = this.hideOutliers && (
-    bins.slice(0, -1).every(bin => bin.get('count') / count < .02)
+    bins.slice(0, -1).every(bin => bin.get('count') / count < .05)
   );
 
   return redo ?
