@@ -78,18 +78,26 @@ CollectionList = React.createClass({
     )
   },
   render: function () {
+    var { backend } = this.props
+
     return (
       <div>
         <h2>Period Collections</h2>
 
-        <hr />
-        <div>
-          <a href={window.location.hash + 'periodCollections/add/'}
-              className="btn btn-lg btn-primary">
-            Add period collection
-          </a>
-        </div>
-        <hr />
+        {
+          backend.editable && (
+            <div>
+              <hr />
+              <div>
+                <a href={window.location.hash + 'periodCollections/add/'}
+                    className="btn btn-lg btn-primary">
+                  Add period collection
+                </a>
+              </div>
+              <hr />
+            </div>
+          )
+        }
 
         {
           this.props.store.get('periodCollections').size === 0 ?
