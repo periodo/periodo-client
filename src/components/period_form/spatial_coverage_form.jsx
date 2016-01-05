@@ -102,7 +102,7 @@ module.exports = React.createClass({
             autocompleteGetter={coverage => coverage.get('label')}
             onSelect={this.handleSelect} />
 
-        <div className="form-group">
+        <div className="form-group SpatialCoverageExtent">
           {
             this.state.uses && this.state.uses.size > 1 && (
               <UsesSelect
@@ -116,14 +116,14 @@ module.exports = React.createClass({
               ref="spatialCoverageAdd"
               name="spatialCoverage"
               placeholder="Begin typing to search"
-              label="Spatial Coverage Extent"
+              label="Spatial coverage extent"
               value={this.state.coverageText}
               onChange={this.handleCoverageTextChange}
               autocompleteFrom={Immutable.fromJS(require('../../data/dbpedia_countries.json'))}
               autocompleteGetter={coverage => coverage.get('label')}
               onSelect={this.handleAddSpatialCoverage} />
 
-          <ul className="list-unstyled">
+          <ul className="list-unstyled SpatialCoverageExtent--list">
             {
               this.state.coverage.map(coverage =>
                 <li key={coverage.hashCode()}>
