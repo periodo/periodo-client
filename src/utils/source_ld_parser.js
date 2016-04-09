@@ -1,7 +1,8 @@
 "use strict";
 
 var _ = require('underscore')
-  , N3 = require('n3')
+  , N3Store = require('n3/lib/N3Store')
+  , N3Util = require('n3/lib/N3Util')
   , parseRDF = require('./parse_rdf')
   , parseJsonLD = require('./parse_jsonld')
 
@@ -48,7 +49,7 @@ function getFirstMatchingPredicate(store, subject, predicates) {
 function getFirstLiteralObject() {
   return _.chain(getFirstMatchingPredicate.apply(null, arguments))
     .pluck('object')
-    .map(N3.Util.getLiteralValue)
+    .map(N3Util.getLiteralValue)
     .first()
     .value();
 }
@@ -83,7 +84,7 @@ module.exports = function (entity, ttl) {
 
   return parseRDF(ttl)
     .then(({ triples, prefixes }) => {
-      var store = N3.Store();
+      var store = N3Store();
 
       store.addPrefixes(prefixes);
       store.addTriples(triples);

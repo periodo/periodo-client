@@ -1,6 +1,7 @@
 "use strict";
 
 var _ = require('underscore')
+  , d3 = require('d3')
   , Immutable = require('immutable')
   , { asJSONLD, asTurtle } = require('./data')
 
@@ -36,52 +37,28 @@ function validate(periodization) {
 }
 
 function asCSV(periodization) {
-  var csv = require('csv-write-stream')
-    , concat = require('concat-stream')
-    , headers
+  var { getEarliestYear, getLatestYear } = require('./terminus')
 
-  headers = [
-    'label',
-    'start_label',
-    'earliest_start',
-    'latest_start',
-    'stop_label',
-    'earliest_stop',
-    'latest_stop',
-    'spatialCoverages',
-    'note',
-    'editorial_note',
-  /*'alternateLabels', */
-  ]
+  return d3.csv.format(periodization.get('definitions').map(period => {
+    var start = period.get('start')
+      , stop = period.get('stop')
 
-  return new Promise((resolve, reject) => {
-    var writer = csv({ headers })
-      , { getEarliestYear, getLatestYear } = require('./terminus')
-
-
-    writer.pipe(concat(resolve));
-    writer.on('error', reject);
-
-    periodization.get('definitions').forEach(period => {
-      var start = period.get('start')
-        , stop = period.get('stop')
-
-      writer.write([
-        period.get('label'),
-        start.get('label'),
-        getEarliestYear(start),
-        getLatestYear(start),
-        stop.get('label'),
-        getEarliestYear(stop),
-        getLatestYear(stop),
-        period.get('spatialCoverage', Immutable.List()).map(sc => sc.get('id')).join('|'),
-        period.get('note'),
-        period.get('editorialNote')
-      ]);
-    });
-
-    writer.end();
-  });
+    return {
+      'label': period.get('label'),
+      'start_label': start.get('label'),
+      'earliest_start': getEarliestYear(start),
+      'latest_start': getLatestYear(start),
+      'stop_label': stop.get('label'),
+      'earliest_stop': getEarliestYear(stop),
+      'latest_stop': getLatestYear(stop),
+      'spatialCoverages': (
+        period.get('spatialCoverage', Immutable.List())
+          .map(sc => sc.get('id'))
+          .join('|')),
+      'note': period.get('note'),
+      'editorial_note': period.get('editorialNote')
+    }
+  }))
 }
 
 module.exports = { describe, validate, asCSV, asJSONLD, asTurtle }

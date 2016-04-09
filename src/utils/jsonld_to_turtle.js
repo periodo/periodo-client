@@ -1,7 +1,7 @@
 "use strict";
 
 var jsonld = require('jsonld')
-  , N3 = require('n3')
+  , N3Writer = require('n3/lib/N3Writer')
 
 const PREFIXES = {
   skos: 'http://www.w3.org/2004/02/skos/core#',
@@ -52,7 +52,7 @@ module.exports = function (jsonldData) {
 
       if (err) reject(err);
 
-      writer = N3.Writer(PREFIXES);
+      writer = N3Writer(PREFIXES);
 
       dataset['@default'].forEach(triple => writer.addTriple({
         subject: processStatement(triple.subject),

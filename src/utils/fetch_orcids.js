@@ -1,12 +1,13 @@
 "use strict";
 
-var N3 = require('n3')
+var N3Store = require('n3/lib/N3Store')
+  , N3Util = require('n3/lib/N3Util')
 
 // Returns a promise that resolves to an object whose keys are the given
 // ORCIDs, and whose values are names resolved to them.
 module.exports = function (orcids) {
   var ld = require('../linked_data_cache')
-    , store = N3.Store()
+    , store = N3Store()
 
   return Promise.all(orcids.map(orcid => ld.get(orcid)))
     .then(orcidLDEntities => orcidLDEntities
@@ -20,13 +21,13 @@ module.exports = function (orcids) {
 
         givenName = store.find(url, 'foaf:givenName', null);
         if (givenName.length) {
-          givenName = N3.Util.getLiteralValue(givenName[0].object);
+          givenName = N3Util.getLiteralValue(givenName[0].object);
           fullName += (givenName + ' ');
         }
 
         familyName = store.find(url, 'foaf:familyName', null);
         if (familyName.length) {
-          familyName = N3.Util.getLiteralValue(familyName[0].object);
+          familyName = N3Util.getLiteralValue(familyName[0].object);
           fullName += familyName;
         }
 

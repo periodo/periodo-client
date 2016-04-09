@@ -1,6 +1,7 @@
 "use strict";
 
-var $ = require('jquery')
+// FIXME
+var $ = {}
 
 module.exports = {
   ajax: function () {
