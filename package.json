@@ -25,52 +25,45 @@
     "location-bar": "^2.0.0",
     "n3": "^0.2.7",
     "pegjs": "^0.8.0",
-    "react": "^0.13.3",
-    "react-paginate": "^0.1.34",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1",
     "route-recognizer": "^0.1.5",
     "router": "^1.1.1",
     "spark-md5": "0.0.5",
-    "spin.js": "^2.0.1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "babelify": "^6.0.2",
+    "babel-preset-es2015": "^6.6.0",
+    "babelify": "^7.2.0",
+    "basscss": "^8.0.1",
+    "basscss-addons": "^1.0.0-beta4",
     "brfs": "1.0.0",
     "browserify": "^10.2.4",
     "envify": "^3.4.0",
     "exorcist": "^0.4.0",
-    "less": "^1.7.3",
-    "mocha": "^1.18.0",
-    "mochify": "^2.8.1",
-    "phantomjs": "^1.9.16",
+    "postcss": "^5.0.19",
+    "postcss-cli": "^2.5.1",
+    "postcss-cssnext": "^2.5.1",
+    "postcss-import": "^8.1.0",
+    "react-hyperscript": "^2.4.0",
     "source-map": "^0.4.4",
-    "testling": "^1.6.1",
+    "tape": "^4.5.1",
     "uglify-js": "^2.4.19",
-    "watch-lessc": "0.0.2",
     "watchify": "^3.3.1"
   },
   "browserify": {
-    "transform": ["babelify", "brfs"]
-  },
-  "testling": {
-    "harness": "mocha",
-    "files": "src/tests/*.js",
-    "browsers": [
-      "firefox/24..latest",
-      "chrome/latest",
-      "ie/10..latest",
-      "safari/6..latest",
-      "opera/latest",
-      "ipad/6..latest"
+    "transform": [
+      "babelify",
+      {
+        "presets": [
+          "es2015"
+        ]
+      },
+      "brfs"
     ]
   },
   "scripts": {
-    "preversion": "npm test && npm run isMaster && npm run matchesRemote",
-    "postversion": "git push && git push --tags && make zip && ./bin/release.js",
-    "isMaster": "test master = $(git rev-parse --abbrev-ref HEAD)",
-    "matchesRemote": "test $(git rev-parse @) = $(git rev-parse @{u})",
-    "test": "mochify -R spec ./src/tests/*.js",
-    "test-watch": "mochify -w -R spec ./src/tests/*.js",
+    "test": "tape ./src/tests/*.js",
     "start": "serve -p 8000"
   }
 }

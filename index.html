@@ -3,39 +3,11 @@
   <head>
     <meta charset="utf-8">
     <title>PeriodO client</title>
-    <script src="/dist/periodo.js"></script>
-    <link rel="stylesheet" type="text/css" href="/lib/bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/lib/typeaheadjs.css" />
     <link rel="stylesheet" type="text/css" href="/dist/periodo.css" />
   </head>
+
   <body>
-    <div id="wrapper">
-      <div id="nav" class="navbar">
-        <div class="container">
-          <div class="navbar-header">
-            <a class="navbar-brand" id="periodo-logo" href="#">PeriodO</a>
-            <p class="navbar-text" id="current-backend"></p>
-            <div id="spinner"></div>
-            <ul class="nav navbar-nav">
-              <!-- <li><a href="#admin/">Admin</a></li> -->
-            </ul>
-          </div>
-          <div class="navbar-header pull-right">
-            <ul id="auth-menu" class="nav navbar-nav">
-              <li id="auth-signin-link"><a href="#signin/">Sign in</a></li>
-              <li id="auth-signout-link" class="hide">Signed in as <span></span><a href="#signout/">Sign out</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div id="main" class="container"></div>
-      <div class="push"></div>
-    </div>
-    <div id="footer">
-      <div class="container">
-        <div id="version-number"></div>
-        <div id="error-list"></div>
-      </div>
-    </div>
+    <div id="main"></div>
+    <script src="/dist/periodo.js"></script>
   </body>
 </html>
