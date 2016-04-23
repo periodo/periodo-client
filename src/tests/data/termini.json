@@ -1,0 +1,8 @@
+[
+  { "label": "1200", "in": { "year": "1200" }},
+  { "label": "0", "in": { "year": "0000" }},
+  { "label": "6th century", "in": { "earliestYear": "0501", "latestYear": "0600" }},
+  { "label": "one hundred bee cee", "in": { "year": "-0099" }},
+  { "label": "present" },
+  { "label": "unknown" }
+]
