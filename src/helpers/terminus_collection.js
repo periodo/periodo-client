@@ -1,9 +1,10 @@
 "use strict";
 
-var { getEarliestYear, getLatestYear } = require('./terminus')
+const { getEarliestYear, getLatestYear } = require('./terminus')
 
 function maxYear(termini) {
-  var latest = termini.maxBy(getLatestYear) || null;
+  const latest = termini.maxBy(getLatestYear) || null
+
   return latest && {
     label: latest.get('label'),
     iso: getLatestYear(latest)
@@ -11,7 +12,8 @@ function maxYear(termini) {
 }
 
 function minYear(termini) {
-  var earliest = termini.minBy(getEarliestYear) || null;
+  const earliest = termini.minBy(getEarliestYear) || null
+
   return earliest && {
     label: earliest.get('label'),
     iso: getEarliestYear(earliest)

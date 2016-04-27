@@ -1,19 +1,21 @@
 "use strict";
 
-var Immutable = require('immutable')
+const Immutable = require('immutable')
 
 
 function isLinkedData(source) {
-  var match = require('../utils/source_ld_fetch').match;
+  const { match } = require('../utils/source_ld_fetch')
+
   return !!match(source.get('id')) || !!match(source.getIn(['partOf', 'id'], ''));
 }
 
 function getDisplayTitle(source) {
-  var { formatContributorList } = require('./contributor_collection')
-    , creators = formatContributorList(getCreators(source))
-    , year = getYearPublished(source)
-    , title = getTitle(source)
-    , ret = ''
+  const { formatContributorList } = require('./contributor_collection')
+      , creators = formatContributorList(getCreators(source))
+      , year = getYearPublished(source)
+      , title = getTitle(source)
+
+  let ret = ''
 
   if (creators) {
     ret += creators;

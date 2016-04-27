@@ -1,6 +1,6 @@
 "use strict";
 
-var Immutable = require('immutable')
+const Immutable = require('immutable')
 
 function isSkolemID(id) {
   return (
@@ -13,7 +13,7 @@ function isSkolemID(id) {
 // corresponding values.
 function replaceIDs(data, map) {
   function mapper(key, val) {
-    var newKey
+    let newKey
       , newVal
 
     if (map.has(val)) {
@@ -33,9 +33,9 @@ function replaceIDs(data, map) {
     return [newKey, newVal]
   }
 
-  return Immutable.Iterable.isKeyed(data) ?
-    data.mapEntries(([key, val]) => mapper(key, val)) :
-    data.map(val => mapper(null, val)[1])
+  return Immutable.Iterable.isKeyed(data)
+    ? data.mapEntries(([key, val]) => mapper(key, val))
+    : data.map(val => mapper(null, val)[1])
 }
 
 module.exports = { isSkolemID, replaceIDs }

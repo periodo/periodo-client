@@ -1,15 +1,15 @@
 "use strict";
 
-var _ = require('underscore')
-  , d3 = require('d3')
-  , Immutable = require('immutable')
-  , { asJSONLD, asTurtle } = require('./data')
+const _ = require('underscore')
+    , d3 = require('d3')
+    , Immutable = require('immutable')
+    , { asJSONLD, asTurtle } = require('./data')
 
 function describe(periodization) {
-  var { minYear, maxYear } = require('./terminus_collection')
-    , definitions = periodization.get('definitions')
-    , starts = definitions.map(def => def.get('start', Immutable.Map()))
-    , stops = definitions.map(def => def.get('stop', Immutable.Map()))
+  const { minYear, maxYear } = require('./terminus_collection')
+      , definitions = periodization.get('definitions')
+      , starts = definitions.map(def => def.get('start', Immutable.Map()))
+      , stops = definitions.map(def => def.get('stop', Immutable.Map()))
 
   return {
     id: periodization.get('id'),
@@ -21,9 +21,9 @@ function describe(periodization) {
 }
 
 function validate(periodization) {
-  var { isLinkedData } = require('./source')
-    , source = periodization.get('source')
-    , errors = {}
+  const { isLinkedData } = require('./source')
+      , source = periodization.get('source')
+      , errors = {}
 
   if (!source) {
     errors.source = ['A source is required for a period collection.'];
@@ -37,11 +37,11 @@ function validate(periodization) {
 }
 
 function asCSV(periodization) {
-  var { getEarliestYear, getLatestYear } = require('./terminus')
+  const { getEarliestYear, getLatestYear } = require('./terminus')
 
   return d3.csv.format(periodization.get('definitions').map(period => {
-    var start = period.get('start')
-      , stop = period.get('stop')
+    const start = period.get('start')
+        , stop = period.get('stop')
 
     return {
       'label': period.get('label'),

@@ -1,10 +1,10 @@
 "use strict";
 
-var Immutable = require('immutable')
-  , parseDate = require('../utils/date_parser')
+const Immutable = require('immutable')
+    , parseDate = require('../utils/date_parser')
 
 function oneOf(...candidates) {
-  for (var i = 0; i < candidates.length; i++) {
+  for (let i = 0; i < candidates.length; i++) {
     if (candidates[i] !== undefined) {
       return candidates[i];
     }
@@ -21,13 +21,14 @@ function asString(terminus) {
 
     return `range from ${earliest} to ${latest}`
   } else {
-    let value = getEarliestYear(terminus)
+    const value = getEarliestYear(terminus)
+
     return value === null ? null : ('' + value);
   }
 }
 
 function getEarliestYear(terminus) {
-  var year
+  let year
 
   year = oneOf(
     terminus.getIn(['in', 'year']),
@@ -41,7 +42,7 @@ function getEarliestYear(terminus) {
 }
 
 function getLatestYear(terminus) {
-  var year
+  let year
 
   year = oneOf(
     terminus.getIn(['in', 'year']),
@@ -59,8 +60,6 @@ function hasISOValue(terminus) {
 }
 
 function wasAutoparsed(terminus) {
-  var parsed
-
   // This was checking if the terminus is blank. If it was, it would return
   // that it's autoparsed- that's probably not the best thing to do.
   /*
@@ -69,7 +68,7 @@ function wasAutoparsed(terminus) {
   }
   */
 
-  parsed = parseDate(terminus.get('label'));
+  const parsed = parseDate(terminus.get('label'));
 
   return parsed ?
     Immutable.is(terminus, Immutable.fromJS(parsed).delete('_type')) :

@@ -1,8 +1,10 @@
 "use strict"
 
 function asJSONLD(data) {
-  var json = data.toJS();
+  const json = data.toJS()
+
   json['@context'] = require('../context');
+
   return json;
 }
 
@@ -14,10 +16,9 @@ function prefixLines(text, prefix) {
 }
 
 function inlineBlankNodes(blankNodesMap, ttl) {
-  var regex = /^(\s+)([^ ]+ )(_:b\d+)/gm
-    , inlined
+  const regex = /^(\s+)([^ ]+ )(_:b\d+)/gm
 
-  inlined = ttl.replace(regex, (match, whitespace, predicate, blankNode) => {
+  const inlined = ttl.replace(regex, (match, whitespace, predicate, blankNode) => {
     return (
       whitespace + predicate + '[\n' +
       prefixLines(blankNodesMap[blankNode], whitespace + '  ') +
@@ -29,11 +30,10 @@ function inlineBlankNodes(blankNodesMap, ttl) {
 }
 
 function replaceBlankNodes(ttl) {
-  var regex = /^(_:b\d+) ([\s\S]+?)\.$/gm
-    , nodes = {}
-    , strippedTtl
+  const regex = /^(_:b\d+) ([\s\S]+?)\.$/gm
+      , nodes = {}
 
-  strippedTtl = ttl.replace(regex, (match, nodeName, nodeValue) => {
+  const strippedTtl = ttl.replace(regex, (match, nodeName, nodeValue) => {
     nodes[nodeName] = nodeValue;
     return '';
   });
