@@ -4,19 +4,22 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'PeriodCollectionAdd',
-  componentWillReceiveProps: function (nextProps) {
+
+  componentWillReceiveProps(nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
       this.redirectToPeriod();
     }
   },
-  redirectToPeriod: function () {
+
+  redirectToPeriod() {
     var url = this.props.router.generate('period-collection-show', {
       backendName: this.props.backend.name,
       collectionID: encodeURIComponent(this.props.cursor.get('id'))
     });
     window.location.href = url;
   },
-  handleSave: function () {
+
+  handleSave() {
     var value = this.refs.form.getValue()
       , collection
 
@@ -32,7 +35,8 @@ module.exports = React.createClass({
       this.props.cursor.update(() => collection);
     }
   },
-  handleDelete: function () {
+
+  handleDelete() {
     var { getDisplayTitle } = require('../helpers/source')
       , collection = this.props.cursor.deref()
       , defs = collection.get('definitions').size
@@ -49,7 +53,8 @@ module.exports = React.createClass({
       window.location.href = this.props.router.generate('home');
     }
   },
-  render: function () {
+
+  render() {
     var PeriodCollectionForm = require('./shared/period_collection_form');
 
     return (

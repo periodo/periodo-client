@@ -11,7 +11,8 @@ const DEFAULT_LABEL = Immutable.Map({ value: '', language: 'eng', script: 'latn'
 module.exports = React.createClass({
   displayName: 'LabelForm',
 
-  getInitialState: function () {
+
+  getInitialState() {
     var { getAlternateLabels, getOriginalLabel } = require('../../helpers/period.js')
       , originalLabel = getOriginalLabel(this.props.period)
       , alternateLabels = getAlternateLabels(this.props.period).toList()
@@ -24,7 +25,8 @@ module.exports = React.createClass({
 
     return { originalLabel, alternateLabels }
   },
-  getValue: function () {
+
+  getValue() {
     var { getCode, groupByCode } = require('../../helpers/label')
       , value = Immutable.Map()
       , localizedLabels
@@ -45,17 +47,20 @@ module.exports = React.createClass({
     return value;
   },
 
-  handleOriginalLabelChange: function (originalLabel) {
+
+  handleOriginalLabelChange(originalLabel) {
     this.setState({ originalLabel });
   },
 
-  handleAlternateLabelChange: function (idx, label) {
+
+  handleAlternateLabelChange(idx, label) {
     this.setState(prev => {
       return { alternateLabels: prev.alternateLabels.set(idx, label) }
     });
   },
 
-  addAlternateLabel: function (i) {
+
+  addAlternateLabel(i) {
     if (!this.state.alternateLabels.getIn([i, 'value'])) return;
 
     this.setState(prev => {
@@ -67,7 +72,8 @@ module.exports = React.createClass({
     });
   },
 
-  removeAlternateLabel: function (i) {
+
+  removeAlternateLabel(i) {
     this.setState(prev => {
       var alternateLabels = prev.alternateLabels.size === 1 ?
         prev.alternateLabels.setIn([0, 'value'], '') :
@@ -77,7 +83,8 @@ module.exports = React.createClass({
     });
   },
 
-  render: function () {
+
+  render() {
     var randomID = randomstr()
 
     return (

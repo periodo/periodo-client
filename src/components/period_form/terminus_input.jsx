@@ -24,15 +24,18 @@ module.exports = React.createClass({
     terminusType: React.PropTypes.oneOf(['start', 'stop']).isRequired,
   },
 
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { terminus: EMPTY_TERMINUS }
   },
 
-  isMultivalued: function () {
+
+  isMultivalued() {
     return this.props.terminus.hasIn(['in', 'earliestYear']);
   },
 
-  toggleMultiValue: function () {
+
+  toggleMultiValue() {
     let terminus = this.props.terminus
     if (this.isMultivalued()) {
       let earliest = terminus.getIn(['in', 'earliestYear']);
@@ -49,17 +52,20 @@ module.exports = React.createClass({
     }
   },
 
-  handleChangeAutoparsedLabel: function (e) {
+
+  handleChangeAutoparsedLabel(e) {
     var label = e.target.value;
     this.props.onChange(label.length ? parse(label) : undefined);
  },
 
-  refreshAutoparse: function () {
+
+  refreshAutoparse() {
     var terminus = parse(this.props.terminus.get('label'));
     this.props.onChange(terminus);
   },
 
-  handleChange: function (field, e) {
+
+  handleChange(field, e) {
     var { hasISOValue } = require('../../helpers/terminus')
       , { terminus, onChange } = this.props
       , value = e.target.value
@@ -74,7 +80,8 @@ module.exports = React.createClass({
     onChange(isEmpty ? undefined : updatedTerminus);
   },
 
-  render: function () {
+
+  render() {
     var Input = require('../shared/input.jsx')
 
     return (

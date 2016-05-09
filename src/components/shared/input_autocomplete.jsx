@@ -23,38 +23,46 @@ module.exports = React.createClass({
     onSelect: React.PropTypes.func.isRequired
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { autocompleteOpen: false }
   },
 
-  componentDidMount: function () {
+
+  componentDidMount() {
     this.findInput().addEventListener('blur', this.close, false);
     this.findInput().addEventListener('focus', this.open, false);
   },
 
-  componentWillUnmount: function () {
+
+  componentWillUnmount() {
     this.findInput().removeEventListener('blur', this.close);
     this.findInput().removeEventListener('focus', this.open);
   },
 
-  findInput: function () {
+
+  findInput() {
     return React.findDOMNode(this.refs.input).querySelector('input');
   },
 
-  open: function () {
+
+  open() {
     this.setState({ autocompleteOpen: true });
   },
 
-  close: function () {
+
+  close() {
     this.setState({ autocompleteOpen: false });
   },
 
-  handleSelect: function (value) {
+
+  handleSelect(value) {
     this.props.onSelect(value);
     React.findDOMNode(this.refs.input).querySelector('input').blur();
   },
 
-  render: function () {
+
+  render() {
     var Input = require('./input.jsx')
       , AutocompleteResults = require('../shared/autocomplete_results.jsx')
 

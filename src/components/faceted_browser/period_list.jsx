@@ -7,7 +7,8 @@ var React = require('react')
   , PeriodRow
 
 PeriodRow = React.createClass({
-  render: function () {
+
+  render() {
     var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
       , earliestStart = getEarliestYear(this.props.data.get('start', Immutable.Map()))
       , latestStop = getLatestYear(this.props.data.get('stop', Immutable.Map()))
@@ -35,7 +36,8 @@ PeriodRow = React.createClass({
 });
 
 PeriodDetails = React.createClass({
-  render: function () {
+
+  render() {
     var Period = require('../../components/shared/period.jsx')
       , linkBase = this.props.dataset.getIn(['@context', '@base'])
       , collectionID = this.props.period.get('collection_id')
@@ -106,7 +108,8 @@ module.exports = React.createClass({
       null
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       periodSeq: null,
       limit: 25,
@@ -117,7 +120,8 @@ module.exports = React.createClass({
     }
   },
 
-  componentWillMount: function () {
+
+  componentWillMount() {
     var periodSeq
       , updatedPage
 
@@ -133,10 +137,12 @@ module.exports = React.createClass({
       }
     }
   },
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { allowClicks: true }
   },
-  componentWillReceiveProps: function (nextProps) {
+
+  componentWillReceiveProps(nextProps) {
     var toSet = { currentPage: 0, viewingDetails: [] }
 
     if (nextProps.periods && !nextProps.periods.equals(this.props.periods)) {
@@ -145,16 +151,19 @@ module.exports = React.createClass({
 
     this.setState(toSet);
   },
-  handlePageChange: function (currentPage) {
+
+  handlePageChange(currentPage) {
     this.setState({ currentPage, viewingDetails: [] });
   },
-  showPeriodRow: function (period) {
+
+  showPeriodRow(period) {
     this.setState(prev => {
       prev.viewingDetails = prev.viewingDetails.concat(period.get('id'));
       return prev;
     });
   },
-  hidePeriodRow: function (period, e) {
+
+  hidePeriodRow(period, e) {
     // Don't hide row if user clicked on a link
     var shouldHide = e.target.nodeName !== 'A'
       , selection = window.getSelection()
@@ -176,7 +185,8 @@ module.exports = React.createClass({
       });
     }
   },
-  renderShownPeriod: function (period) {
+
+  renderShownPeriod(period) {
     return (
         <PeriodDetails
             period={period}
@@ -184,12 +194,14 @@ module.exports = React.createClass({
             dataset={this.props.dataset} />
     )
   },
-  updateSortedPeriodSeq: function () {
+
+  updateSortedPeriodSeq() {
     var periodSeq = this.getSortedPeriodSeq(this.props.periods);
     this.setState({ periodSeq });
     return periodSeq;
   },
-  getSortedPeriodSeq: function (periods) {
+
+  getSortedPeriodSeq(periods) {
     var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
       , naturalSort = require('javascript-natural-sort')
 
@@ -222,7 +234,8 @@ module.exports = React.createClass({
       })
       .toSeq()
   },
-  getMatchedPeriods: function () {
+
+  getMatchedPeriods() {
     return this.state.periodSeq
       .skip(this.getFirstIndex())
       .take(this.state.limit)
@@ -247,10 +260,12 @@ module.exports = React.createClass({
         }
       })
   },
-  getFirstIndex: function () {
+
+  getFirstIndex() {
     return this.state.currentPage * this.state.limit;
   },
-  handleHeaderClick: function (fieldName) {
+
+  handleHeaderClick(fieldName) {
     this.setState(prev => {
       var toSet = {};
 
@@ -263,7 +278,8 @@ module.exports = React.createClass({
       return toSet;
     }, this.updateSortedPeriodSeq);
   },
-  renderLimit: function () {
+
+  renderLimit() {
     var sizes = [10, 25, 50, 100, 250]
 
     return sizes.map((limit, i) =>
@@ -274,7 +290,8 @@ module.exports = React.createClass({
       </li>
     );
   },
-  render: function () {
+
+  render() {
     var Paginator = require('../../components/shared/paginate.jsx')
       , Dropdown = require('../shared/dropdown.jsx')
       , periods = this.getMatchedPeriods()

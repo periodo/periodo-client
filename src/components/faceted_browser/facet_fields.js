@@ -8,7 +8,8 @@ var Immutable = require('immutable')
 module.exports = {
   source: {
     label: 'Source',
-    fn: function (period) {
+
+    fn(period) {
       var { getDisplayTitle } = require('../../helpers/source')
       return getDisplayTitle(this.props.dataset.getIn([
         'periodCollections', period.get('collection_id'), 'source'
@@ -17,7 +18,8 @@ module.exports = {
   },
   language: {
     label: 'Language',
-    fn: function (period) {
+
+    fn(period) {
       return period
         .get('localizedLabels', Immutable.Map())
         .keySeq()
@@ -27,7 +29,8 @@ module.exports = {
   },
   spatialCoverage: {
     label: 'Spatial coverage',
-    fn: function (period) {
+
+    fn(period) {
       return period.get('spatialCoverageDescription')
     }
   }

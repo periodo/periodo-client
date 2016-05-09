@@ -11,23 +11,27 @@ module.exports = React.createClass({
     onSearchTextChange: React.PropTypes.func.isRequired
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { text: '' }
   },
 
-  componentWillMount: function () {
+
+  componentWillMount() {
     const { onSearchTextChange } = this.props
 
     this.handleSearch = debounce(() => onSearchTextChange(this.state.text), 250);
   },
 
-  handleChange: function (e) {
+
+  handleChange(e) {
     var text = e.target.value;
     this.setState({ text });
     this.handleSearch();
   },
 
-  render: function () {
+
+  render() {
     return (
       <div>
         <label>

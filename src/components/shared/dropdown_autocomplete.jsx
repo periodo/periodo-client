@@ -13,31 +13,37 @@ module.exports = React.createClass({
     onSelect: React.PropTypes.func.isRequired
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { matchText: '', shown: false }
   },
 
-  handleInput: function (e) {
+
+  handleInput(e) {
     this.setState({ matchText: e.target.value });
   },
 
-  handleShown: function () {
+
+  handleShown() {
     this.setState({ matchText: '', shown: true }, () => {
       var input = React.findDOMNode(this).querySelector('input')
       input.focus();
     });
   },
 
-  handleHidden: function () {
+
+  handleHidden() {
     this.setState({ shown: false });
   },
 
-  handleSelect: function (value) {
+
+  handleSelect(value) {
     this.refs.dropdown.close();
     this.props.onSelect(value);
   },
 
-  renderMenuItems: function () {
+
+  renderMenuItems() {
     var AutocompleteResults = require('./autocomplete_results.jsx')
 
     return [
@@ -60,7 +66,8 @@ module.exports = React.createClass({
       </li>
     ]
   },
-  render: function () {
+
+  render() {
     var Dropdown = require('./dropdown.jsx')
 
     return <Dropdown

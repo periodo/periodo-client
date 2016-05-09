@@ -4,15 +4,18 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'PeriodLabelsForm',
-  handleSelect: function (field, value) {
+
+  handleSelect(field, value) {
     var newLabel = this.props.label.set(field, value.get('code').toLowerCase());
     this.props.onChange(newLabel);
   },
-  handleChange: function (field, e) {
+
+  handleChange(field, e) {
     var newLabel = this.props.label.set(field, e.target.value);
     this.props.onChange(newLabel);
   },
-  render: function () {
+
+  render() {
     var DropdownAutocomplete = require('../shared/dropdown_autocomplete.jsx')
       , languages = require('../../utils/languages')
       , scripts = require('../../utils/scripts')

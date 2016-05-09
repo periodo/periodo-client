@@ -5,10 +5,12 @@ var React = require('react')
 
 CollectionList = React.createClass({
   displayName: 'CollectionList',
-  getInitialState: function () {
+
+  getInitialState() {
     return { limit: 20, currentPage: 0 }
   },
-  getMatchedCollections: function () {
+
+  getMatchedCollections() {
     var { describe } = require('../helpers/periodization')
 
     return this.props.store.get('periodCollections')
@@ -17,10 +19,12 @@ CollectionList = React.createClass({
       .take(this.state.limit)
       .map(describe)
   },
-  handlePageChange: function (currentPage) {
+
+  handlePageChange(currentPage) {
     this.setState({ currentPage });
   },
-  renderCollectionList: function () {
+
+  renderCollectionList() {
     var Paginator = require('./shared/paginate.jsx')
       , collections = this.getMatchedCollections()
       , numCollections = this.props.store.get('periodCollections').size
@@ -77,7 +81,8 @@ CollectionList = React.createClass({
       </div>
     )
   },
-  render: function () {
+
+  render() {
     var { backend } = this.props
 
     return (
@@ -112,13 +117,16 @@ CollectionList = React.createClass({
 
 module.exports = React.createClass({
   displayName: 'BackendHome',
-  getInitialState: function () {
+
+  getInitialState() {
     return { browseBy: 'period' }
   },
-  handleBrowseBy: function (browseBy) {
+
+  handleBrowseBy(browseBy) {
     this.setState({ browseBy });
   },
-  render: function () {
+
+  render() {
     var FacetedBrowser = require('./faceted_browser/browser.jsx')
 
     return (

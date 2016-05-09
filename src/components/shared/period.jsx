@@ -10,11 +10,13 @@ function makeLink(url) {
 module.exports = React.createClass({
   displayName: 'Period',
 
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { linkify: true }
   },
 
-  render: function () {
+
+  render() {
     var { asString } = require('../../helpers/terminus')
       , { getOriginalLabel, getAlternateLabels } = require('../../helpers/period')
       , { groupByCode } = require('../../helpers/label')

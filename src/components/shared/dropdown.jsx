@@ -13,7 +13,8 @@ module.exports = React.createClass({
     onShown: React.PropTypes.func
   },
 
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return {
       openRight: false,
       openUp: false,
@@ -22,30 +23,35 @@ module.exports = React.createClass({
     }
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { open: false }
   },
 
-  open: function () {
+
+  open() {
     this.setState({ open: true }, () => {
       if (this.props.onShown) this.props.onShown();
     });
     document.addEventListener('click', this.close);
   },
-  close: function () {
+
+  close() {
     this.setState({ open: false }, () => {
       if (this.props.onHidden) this.props.onHidden();
     });
     document.removeEventListener('click', this.close);
   },
-  handleClick: function () {
+
+  handleClick() {
     if (this.state.open) {
       this.close();
     } else {
       this.open()
     }
   },
-  render: function () {
+
+  render() {
     var style = { display: this.state.open ? 'block' : 'none' }
       , listClass = 'dropdown-menu' + (this.props.openRight ? ' dropdown-menu-right' : '')
       , containerClassName = `drop${this.props.openUp ? 'up' : 'down'}`

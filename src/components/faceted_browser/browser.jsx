@@ -7,7 +7,8 @@ var React = require('react')
   , FacetField = require('./facet_field.jsx')
 
 module.exports = React.createClass({
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       facets: this.getInitialFacets(),
       selectedValues: Immutable.Map(),
@@ -15,7 +16,8 @@ module.exports = React.createClass({
       searchText: null
     }
   },
-  getInitialFacets: function () {
+
+  getInitialFacets() {
     var facetFields = require('./facet_fields')
       , periods
       , facets
@@ -36,14 +38,16 @@ module.exports = React.createClass({
 
     return facets;
   },
-  handleSelectFacet: function (facetFieldName, value) {
+
+  handleSelectFacet(facetFieldName, value) {
     this.setState(prev => ({
       selectedValues: prev.selectedValues.update(facetFieldName, values => {
         return (values || Immutable.Set()).add(value)
       })
     }));
   },
-  handleDeselectFacet: function (facetFieldName, value) {
+
+  handleDeselectFacet(facetFieldName, value) {
     this.setState(prev => {
       var selectedValues = prev.selectedValues
         .update(facetFieldName, values => values.remove(value))
@@ -55,7 +59,8 @@ module.exports = React.createClass({
       return { selectedValues }
     });
   },
-  getFacetValues: function (fieldName) {
+
+  getFacetValues(fieldName) {
     var initialFacets = this.state.facets
 
     if (this.state.brushedRange) {
@@ -77,7 +82,8 @@ module.exports = React.createClass({
       .getFacetValues({ fields: [fieldName], ids: intersectingIDs })
       .get(fieldName);
   },
-  getMatchedPeriods: function (onlyInRange) {
+
+  getMatchedPeriods(onlyInRange) {
     var initialFacets = this.state.facets
 
     if (this.state.brushedRange && onlyInRange) {
@@ -92,12 +98,14 @@ module.exports = React.createClass({
       .reduce((facets, values, name) => facets.select(name, values), initialFacets)
       .getMatchedDocuments()
   },
-  handleResetFacet: function (facetName) {
+
+  handleResetFacet(facetName) {
     this.setState(prev => ({
       selectedValues: prev.selectedValues.delete(facetName)
     }));
   },
-  handleRangeBrush: function ({ start, end }) {
+
+  handleRangeBrush({ start, end }) {
     var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
       , intersects = require('../../utils/intersects')
 
@@ -124,7 +132,8 @@ module.exports = React.createClass({
     }
   },
 
-  handleSearchTextChange: function (text) {
+
+  handleSearchTextChange(text) {
     var { getAlternateLabels } = require('../../helpers/period')
       , regex
 
@@ -149,7 +158,8 @@ module.exports = React.createClass({
     }
   },
 
-  render: function () {
+
+  render() {
     var RangeSelection = require('../shared/range_selection.jsx')
       , TextMatch = require('./text_match.jsx')
       , anyPeriods = this.props.dataset.get('periodCollections').size > 0

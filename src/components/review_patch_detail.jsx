@@ -12,16 +12,19 @@ Comments = React.createClass({
     patchURL: React.PropTypes.string.isRequired,
     onCommentAccepted: React.PropTypes.func
   },
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       comment: '',
       loading: false
     }
   },
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { comments: Immutable.List() }
   },
-  handlePostComment: function () {
+
+  handlePostComment() {
     var { ajax } = require('../ajax')
       , ajaxOpts
 
@@ -64,7 +67,8 @@ Comments = React.createClass({
         }
       )
   },
-  render: function () {
+
+  render() {
     return (
       <div>
         <h3>Discussion</h3>
@@ -113,7 +117,8 @@ Comments = React.createClass({
 module.exports = React.createClass({
   displayName: 'ReviewPatchDetail',
 
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       patchData: null,
       patchText: null,
@@ -122,20 +127,24 @@ module.exports = React.createClass({
     }
   },
 
-  componentDidMount: function () {
+
+  componentDidMount() {
     this.fetchData();
   },
 
-  fetchPatch: function () {
+
+  fetchPatch() {
     var { getJSON } = require('../ajax')
     return getJSON(this.props.patchURI);
   },
 
-  refreshPatchData: function () {
+
+  refreshPatchData() {
     this.fetchPatch().then(([patchData]) => this.setState({ patchData }));
   },
 
-  fetchData: function () {
+
+  fetchData() {
     var { getJSON } = require('../ajax')
       , { getOrcids } = require('../helpers/patch_collection')
       , fetchOrcids = require('../utils/fetch_orcids')
@@ -155,11 +164,13 @@ module.exports = React.createClass({
       }))
   },
 
-  handleChangeDecision: function (e) {
+
+  handleChangeDecision(e) {
     this.setState({ acceptPatch: e.target.value === 'true' ? true : false });
   },
 
-  handleMerge: function () {
+
+  handleMerge() {
     var { ajax } = require('../ajax')
       , ajaxOpts
 
@@ -198,7 +209,8 @@ module.exports = React.createClass({
         }
       )
   },
-  renderPatch: function () {
+
+  renderPatch() {
     var ChangeList = require('./shared/change_list')
       , patchData = this.state.patchData
       , destData
@@ -239,7 +251,8 @@ module.exports = React.createClass({
       )
     }
   },
-  renderSuccessHeader: function () {
+
+  renderSuccessHeader() {
     return (
       <div className="well">
         <p className="lead">
@@ -252,7 +265,8 @@ module.exports = React.createClass({
       </div>
     )
   },
-  renderMergeHeader: function () {
+
+  renderMergeHeader() {
     var patchData = this.state.patchData
 
     return (
@@ -306,7 +320,8 @@ module.exports = React.createClass({
       </div>
     )
   },
-  renderMergeButton: function () {
+
+  renderMergeButton() {
     var btnClassMap = { null: 'default', true: 'primary', false: 'danger' }
       , btnTextMap = { null: 'Select an option', true: 'Accept', false: 'Reject' }
 
@@ -319,7 +334,8 @@ module.exports = React.createClass({
       </button>
     )
   },
-  render: function () {
+
+  render() {
     return (
       <div>
         <a className="btn btn-default" href={this.props.router.generate('review-patch-list')}>

@@ -16,18 +16,21 @@ module.exports = React.createClass({
     spatialCoverages: React.PropTypes.instanceOf(Immutable.List)
   },
 
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { spatialCoverages: Immutable.List() }
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       period: this.props.period,
       errors: Immutable.Map()
     }
   },
 
-  isValid: function () {
+
+  isValid() {
     var { validate } = require('../../helpers/period')
       , errors = validate(this.getPeriodValue()) || {}
 
@@ -37,7 +40,8 @@ module.exports = React.createClass({
     return !errors.size;
   },
 
-  getPeriodValue: function () {
+
+  getPeriodValue() {
     var period = this.state.period
 
     period = period
@@ -54,13 +58,15 @@ module.exports = React.createClass({
     return period;
   },
 
-  handleChange: function (field, e) {
+
+  handleChange(field, e) {
     var value = e.target.value;
     if (!Array.isArray(field)) field = [field];
     this.setState(prev => ({ period: prev.period.setIn(field, value) }));
   },
 
-  handleLocatorChange: function (e) {
+
+  handleLocatorChange(e) {
     var { isLinkedData } = require('../../helpers/source')
       , source = this.props.source
       , locator = e.target.value
@@ -76,7 +82,8 @@ module.exports = React.createClass({
     }));
   },
 
-  render: function () {
+
+  render() {
     var Input = require('../shared/input.jsx')
       , randID = randomstr()
       , { errors } = this.state

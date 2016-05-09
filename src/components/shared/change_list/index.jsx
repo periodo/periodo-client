@@ -5,7 +5,8 @@ var React = require('react')
   , ChangeGroup
 
 ChangeGroup = React.createClass({
-  render: function () {
+
+  render() {
     var allPatches = this.props.changes.map(change => change.get('patches')).toOrderedSet()
 
     return (
@@ -116,19 +117,23 @@ module.exports = React.createClass({
     select: React.PropTypes.bool.isRequired
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return this.props.select ? { selectedPatches: Immutable.OrderedSet() } : {}
   },
-  getSelectedPatches: function () {
+
+  getSelectedPatches() {
     return this.state.selectedPatches;
   },
-  handlePatchSelectionChange: function (patches, e) {
+
+  handlePatchSelectionChange(patches, e) {
     var checked = e.target.checked;
     this.setState(prev => ({
       selectedPatches: prev.selectedPatches[checked ? 'union' : 'subtract'](patches)
     }));
   },
-  getGroupedChanges: function (changes) {
+
+  getGroupedChanges(changes) {
     var { groupByChangeType } = require('../../../helpers/patch_collection')
       , { getDisplayTitle } = require('../../../helpers/source')
       , grouped = groupByChangeType(changes)
@@ -180,10 +185,12 @@ module.exports = React.createClass({
 
     return groupedChanges;
   },
-  handleContinue: function () {
+
+  handleContinue() {
     this.props.onAcceptPatches(this.state.selectedPatches.flatten(1));
   },
-  render: function () {
+
+  render() {
     var grouped = this.getGroupedChanges(this.props.patches)
       , changeGroupOpts
 

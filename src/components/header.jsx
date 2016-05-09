@@ -5,10 +5,12 @@ var React = require('react')
   , ActionsMenu
 
 Auth = React.createClass({
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { user: null }
   },
-  render: function () {
+
+  render() {
     var html = this.props.user ?
       (
         <span style={{ lineHeight: '48px' }}>
@@ -26,10 +28,12 @@ Auth = React.createClass({
 });
 
 ActionsMenu = React.createClass({
-  getInitialState: function (){
+
+  getInitialState(){
     return { open: false }
   },
-  getMenuItems: function () {
+
+  getMenuItems() {
     var style = { display: this.state.open ? 'block' : 'none' }
 
     return (
@@ -40,7 +44,8 @@ ActionsMenu = React.createClass({
       </ul>
     )
   },
-  getEditableMenuItems: function (){
+
+  getEditableMenuItems(){
     var routerOpts = { backendName: this.props.backend.name }
     return [
       <li key="add-collection">
@@ -70,7 +75,8 @@ ActionsMenu = React.createClass({
       </li>,
     ]
   },
-  getBackendMenuItems: function () {
+
+  getBackendMenuItems() {
     var additionalItems = (
       this.props.backend &&
       this.props.backend.editable &&
@@ -89,15 +95,18 @@ ActionsMenu = React.createClass({
       <li key="divider" className="divider" />
     ]
   },
-  open: function () {
+
+  open() {
     this.setState({ open: true });
     document.addEventListener('click', this.close);
   },
-  close: function () {
+
+  close() {
     this.setState({ open: false });
     document.removeEventListener('click', this.close);
   },
-  handleDeleteBackend: function () {
+
+  handleDeleteBackend() {
     var msg = `
 Delete backend ${this.props.backend.name}?
 All of its data will be permanently destroyed.
@@ -109,14 +118,16 @@ All of its data will be permanently destroyed.
         .then(() => window.location.href = this.props.router.generate('backend-select'))
     }
   },
-  handleClick: function () {
+
+  handleClick() {
     if (this.state.open) {
       this.close();
     } else {
       this.open()
     }
   },
-  render: function () {
+
+  render() {
     // TODO: this can be changed to use ./shared/dropdown.jsx
     return (
       <div className={'actions-menu dropdown' + (this.state.open ? ' open' : '')}>
@@ -134,7 +145,8 @@ All of its data will be permanently destroyed.
 
 module.exports = React.createClass({
   displayName: 'Header',
-  render: function () {
+
+  render() {
     var Spinner = require('./shared/spinner.jsx')
 
     var backendMessage = this.props.backend ?

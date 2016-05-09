@@ -5,7 +5,8 @@ var React = require('react')
   , FacetValue
 
 FacetValue = React.createClass({
-  render: function () {
+
+  render() {
     var value = this.props.value;
 
     if (this.props.formatFacetValue) {
@@ -42,7 +43,8 @@ module.exports = React.createClass({
     onResetFacet: React.PropTypes.func
   },
 
-  makeFacetValueField: function (isSelected, periodIDs, value) {
+
+  makeFacetValueField(isSelected, periodIDs, value) {
     var handler = isSelected ? this.props.onDeselectFacet : this.props.onSelectFacet
       , key
 
@@ -58,7 +60,8 @@ module.exports = React.createClass({
     });
   },
 
-  getFacetValues: function () {
+
+  getFacetValues() {
     var unselectedValues = this.props.values
       , selectedValues = Immutable.OrderedMap()
 
@@ -71,7 +74,8 @@ module.exports = React.createClass({
     return [selectedValues, unselectedValues]
       .map(values => values.sortBy(ids => ids ? -ids.size : 0));
   },
-  render: function () {
+
+  render() {
     var [selectedFacetValues, unselectedFacetValues] = this.getFacetValues()
 
     var selectedSection = selectedFacetValues.size === 0 ? <div /> : (

@@ -6,11 +6,13 @@ var React = require('react')
 module.exports = React.createClass({
   displayName: 'PatchSubmit',
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { savedPatchID: null }
   },
 
-  saveLocalPatch: function (patchID, patches) {
+
+  saveLocalPatch(patchID, patches) {
     var patchObj = {
       id: patchID,
       html: React.renderToStaticMarkup(this.refs.selectChanges.refs.changes.render()),
@@ -22,7 +24,8 @@ module.exports = React.createClass({
     return this.props.backend.saveSubmittedPatch(patchObj)
   },
 
-  handleAcceptPatches: function (localPatch) {
+
+  handleAcceptPatches(localPatch) {
     var url = require('url')
       , pointer = require('json-pointer')
       , { replaceIDs } = require('../helpers/skolem_ids')
@@ -48,7 +51,8 @@ module.exports = React.createClass({
       .then(remotePatch => this.sendPatch(localPatch, remotePatch));
   },
 
-  sendPatch: function (localPatch, remotePatch) {
+
+  sendPatch(localPatch, remotePatch) {
     var url = require('url')
       , { ajax } = require('../ajax')
       , opts
@@ -90,7 +94,8 @@ module.exports = React.createClass({
 
   },
 
-  renderSubmitPatch: function () {
+
+  renderSubmitPatch() {
     var SelectChanges = require('./shared/select_changes.jsx')
       , getChanges = (data, url) => this.props.backend.getChangesFromLocalToRemote(data, url)
 
@@ -114,7 +119,8 @@ module.exports = React.createClass({
     )
   },
 
-  renderMustLogIn: function () {
+
+  renderMustLogIn() {
     return (
       <div>
         <h1>Submit patch</h1>
@@ -124,7 +130,8 @@ module.exports = React.createClass({
     )
   },
 
-  render: function () {
+
+  render() {
     return this.props.user ? this.renderSubmitPatch() : this.renderMustLogIn();
   }
 

@@ -21,30 +21,36 @@ module.exports = React.createClass({
     limit: React.PropTypes.number
   },
 
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { limit: 10 }
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { focused: 0, matches: this.getMatches(this.props.matchText) }
   },
 
-  componentDidMount: function () {
+
+  componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown, false);
   },
 
-  componentWillUnmount: function () {
+
+  componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
   },
 
-  componentWillReceiveProps: function (props) {
+
+  componentWillReceiveProps(props) {
     this.setState({
       focused: 0,
       matches: this.getMatches(props.matchText)
     });
   },
 
-  handleKeyDown: function (e) {
+
+  handleKeyDown(e) {
     if (e.which === KEYS.UP_ARROW && this.state.focused > 0) {
       this.setState(prev => ({ focused: prev.focused - 1 }));
     } else if (
@@ -57,7 +63,8 @@ module.exports = React.createClass({
     }
   },
 
-  getMatches: function (text) {
+
+  getMatches(text) {
     return Immutable.List(fuzzy.filter(text, this.props.list, {
       pre: '<strong>',
       post: '</strong>',
@@ -65,7 +72,8 @@ module.exports = React.createClass({
     })).take(this.props.limit);
   },
 
-  renderMatch: function (match, i) {
+
+  renderMatch(match, i) {
     var className = 'autocomplete-result'
       , key
 
@@ -88,7 +96,8 @@ module.exports = React.createClass({
     )
   },
 
-  render: function () {
+
+  render() {
     var matches = this.state.matches;
     return (
       <ul className="list-unstyled">

@@ -15,7 +15,8 @@ function oneOf(data, ...paths) {
 module.exports = React.createClass({
   displayName: 'Source',
 
-  getData: function () {
+
+  getData() {
     var source = this.props.data;
     return [
       {
@@ -65,7 +66,8 @@ module.exports = React.createClass({
       }
     ]
   },
-  render: function () {
+
+  render() {
     var data = this.getData();
 
     return (

@@ -6,7 +6,8 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'PeriodoApplication',
-  render: function () {
+
+  render() {
     var ActiveComponent = this.props.Component
       , componentProps = {}
       , activeComponent

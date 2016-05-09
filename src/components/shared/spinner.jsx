@@ -5,10 +5,12 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'Spinner',
-  getDefaultProps: function () {
+
+  getDefaultProps() {
     return { spin: false }
   },
-  componentDidMount: function () {
+
+  componentDidMount() {
     this.spinner = new Spinner({
       lines: 12,
       length: 5,
@@ -18,20 +20,24 @@ module.exports = React.createClass({
     });
     this.refreshSpin();
   },
-  componentDidUpdate: function () {
+
+  componentDidUpdate() {
     this.refreshSpin();
   },
-  componentWillUnmount: function () {
+
+  componentWillUnmount() {
     this.spinner.stop();
   },
-  refreshSpin: function () {
+
+  refreshSpin() {
     if (this.props.spin) {
       this.spinner.spin(React.findDOMNode(this));
     } else {
       this.spinner.stop();
     }
   },
-  render: function () {
+
+  render() {
     return <div className="spinner-wrapper" />
   }
 });

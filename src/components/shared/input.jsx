@@ -16,7 +16,8 @@ module.exports = React.createClass({
     onChange: React.PropTypes.func.isRequired
   },
 
-  render: function () {
+
+  render() {
     var id = this.props.id || this.props.name + '-' + randomstr()
 
     return (

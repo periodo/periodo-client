@@ -6,11 +6,13 @@ var React = require('react')
   , PeriodDetails
 
 PeriodDetails = React.createClass({
-  handleClick: function () {
+
+  handleClick() {
     this.props.onPeriodEdit(this.props.period);
   },
 
-  render: function () {
+
+  render() {
     var Period = require('./shared/period.jsx')
       , { isSkolemID } = require('../helpers/skolem_ids')
       , id = this.props.period.get('id')
@@ -52,13 +54,15 @@ PeriodDetails = React.createClass({
 
 module.exports = React.createClass({
   displayName: 'PeriodCollectionShow',
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       editingPeriod: null,
       view: 'list'
     }
   },
-  componentWillReceiveProps: function (nextProps) {
+
+  componentWillReceiveProps(nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
       this.setState({ editingPeriod: null });
     }
@@ -78,13 +82,16 @@ module.exports = React.createClass({
     ]
   },
 
-  handlePeriodEdit: function (period) {
+
+  handlePeriodEdit(period) {
     this.setState({ editingPeriod: period.deref() });
   },
-  handlePeriodAdd: function () {
+
+  handlePeriodAdd() {
     this.setState({ editingPeriod: Immutable.Map({}) })
   },
-  handleSave: function () {
+
+  handleSave() {
     var period = this.refs.editForm.getPeriodValue()
       , save
 
@@ -103,10 +110,12 @@ module.exports = React.createClass({
       }
     }
   },
-  handleCancel: function () {
+
+  handleCancel() {
     this.setState({ editingPeriod: null });
   },
-  handleDelete: function () {
+
+  handleDelete() {
     var period = this.state.editingPeriod
 
     if (confirm(`Delete period "${period.get('label')}"?`)) {
@@ -114,11 +123,13 @@ module.exports = React.createClass({
     }
   },
 
-  getPermalinkBase: function () {
+
+  getPermalinkBase() {
     return this.props.store.getIn(['@context', '@base']);
   },
 
-  renderShownPeriod: function (period) {
+
+  renderShownPeriod(period) {
     return (
       <PeriodDetails
           period={period}
@@ -127,7 +138,8 @@ module.exports = React.createClass({
           onPeriodEdit={this.handlePeriodEdit} />
     )
   },
-  render: function () {
+
+  render() {
     var url = require('url')
       , PeriodList = require('./faceted_browser/period_list.jsx')
       , PeriodForm = require('./period_form')

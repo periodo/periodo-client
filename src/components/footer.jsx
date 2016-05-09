@@ -15,7 +15,8 @@ function errorAsText(err) {
 
 module.exports = React.createClass({
   displayName: 'Footer',
-  renderErrorLabel: function () {
+
+  renderErrorLabel() {
     return (
       <span className="error-list">
         <img className="error-icon" src="/lib/noun_2189_cc.svg" />
@@ -23,7 +24,8 @@ module.exports = React.createClass({
       </span>
     )
   },
-  handleDragError: function (error, e) {
+
+  handleDragError(error, e) {
     var dt = e.nativeEvent.dataTransfer
       , text = errorAsText(error)
 
@@ -31,14 +33,17 @@ module.exports = React.createClass({
     dt.setData('text/plain', text);
     dt.setData('text/html', text);
   },
-  handleClickError: function (error) {
+
+  handleClickError(error) {
     var text = errorAsText(error);
     prompt('Copy text to clipboard and report issue.', text);
   },
-  handleClearErrors: function () {
+
+  handleClearErrors() {
     window.periodo.clearErrors();
   },
-  renderErrors: function () {
+
+  renderErrors() {
     return this.props.errors.map((err, i) => {
       var ret = []
         , keybase = 'err' + i
@@ -74,7 +79,8 @@ module.exports = React.createClass({
       </li>
     )
   },
-  render: function () {
+
+  render() {
     var Dropdown = require('./shared/dropdown.jsx')
       , version = require('../../package.json').version
       , githubURL = `https://github.com/periodo/periodo-client/tree/v${version}`

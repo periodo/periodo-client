@@ -12,23 +12,27 @@ const BACKEND_NAMES = {
 }
 
 BackendForm = React.createClass({
-  getInitialState: function () {
+
+  getInitialState() {
     return { type: 'idb' }
   },
-  handleChange: function (e) {
+
+  handleChange(e) {
     if (e.target.name === 'type') {
       this.replaceState({ type: e.target.value });
     } else {
       this.setState({ [e.target.name]: e.target.value });
     }
   },
-  handleSave: function () {
+
+  handleSave() {
     require('../backends')
       .create(this.state)
       .then(() => window.location.reload())
   },
 
-  handleFileChange: function (e) {
+
+  handleFileChange(e) {
     var parsePeriodoUpload = require('../utils/parse_periodo_upload')
       , file = e.target.files[0]
 
@@ -43,7 +47,8 @@ BackendForm = React.createClass({
       );
   },
 
-  isValidState: function () {
+
+  isValidState() {
     var isValid = (
       !!this.state.type &&
       !!this.state.name &&
@@ -60,7 +65,8 @@ BackendForm = React.createClass({
 
     return isValid;
   },
-  render: function () {
+
+  render() {
     var Input = require('./shared/input.jsx')
 
     var webSource = this.state.type === 'web' && (
@@ -127,7 +133,8 @@ BackendForm = React.createClass({
 
 module.exports = React.createClass({
   displayName: 'BackendSelect',
-  handleDownloadBackend: function (backendMap) {
+
+  handleDownloadBackend(backendMap) {
     var saveAs = require('filesaver.js')
       , stringify = require('json-stable-stringify')
 
@@ -147,7 +154,8 @@ module.exports = React.createClass({
         saveAs(blob, filename);
       })
   },
-  handleDeleteBackend: function (backend) {
+
+  handleDeleteBackend(backend) {
     var { destroy } = require('../backends')
       , sure = confirm(`Delete backend ${backend.get('name')}?`)
 
@@ -156,7 +164,8 @@ module.exports = React.createClass({
         .then(() => window.location.reload())
     }
   },
-  render: function () {
+
+  render() {
     var sortedBackends = Immutable.fromJS(this.props.backends)
 
     sortedBackends = sortedBackends

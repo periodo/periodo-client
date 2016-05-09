@@ -5,7 +5,8 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'PeriodTemporalCoverageForm',
-  getInitialState: function () {
+
+  getInitialState() {
     var { wasAutoparsed } = require('../../helpers/terminus')
       , autoparse
 
@@ -24,10 +25,12 @@ module.exports = React.createClass({
       autoparse
     }
   },
-  getValue: function () {
+
+  getValue() {
     return { start: this.state.start, stop: this.state.stop }
   },
-  toggleAutoparse: function () {
+
+  toggleAutoparse() {
     this.setState(
       prev => ({ autoparse: !prev.autoparse }),
       () => {
@@ -37,10 +40,12 @@ module.exports = React.createClass({
         }
       });
   },
-  handleTerminusChange: function (terminusType, value) {
+
+  handleTerminusChange(terminusType, value) {
     this.setState({ [terminusType]: value });
   },
-  render: function () {
+
+  render() {
     return (
       <div>
         <h3>Temporal coverage</h3>

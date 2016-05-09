@@ -4,11 +4,13 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'SignOut',
-  componentDidMount: function () {
+
+  componentDidMount() {
     localStorage.removeItem('auth');
     window.periodo.emit('signout');
   },
-  render: function () {
+
+  render() {
     return (
       <h1>You are now logged out.</h1>
     )

@@ -11,16 +11,19 @@ module.exports = React.createClass({
     onChange: React.PropTypes.func
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { vis: null, hideOutliers: true }
   },
 
-  handleCheck: function (e) {
+
+  handleCheck(e) {
     var hideOutliers = e.target.checked;
     this.setState({ hideOutliers });
   },
 
-  componentDidMount: function () {
+
+  componentDidMount() {
     var RangeSelectionVis = require('../../visualizations/range_selection')
       , vis
 
@@ -34,11 +37,13 @@ module.exports = React.createClass({
     this.setState({ vis });
   },
 
-  componentDidUnmount: function () {
+
+  componentDidUnmount() {
     if (this.state.vis) this.state.vis.remove();
   },
 
-  getBrushedExtent: function () {
+
+  getBrushedExtent() {
     if (this.state.vis && this.state.vis.brush) {
       let [start, end] = this.state.vis.brush.extent();
       if (start !== end) return [start, end];
@@ -47,7 +52,8 @@ module.exports = React.createClass({
     return null
   },
 
-  getHiddenRange: function () {
+
+  getHiddenRange() {
     if (this.state.vis) {
       var [absoluteRangeStart] = this.state.vis.absoluteRange
         , visibleRangeStart = this.state.vis.dateRangeStart
@@ -60,7 +66,8 @@ module.exports = React.createClass({
     return null;
   },
 
-  isBrushed: function () {
+
+  isBrushed() {
     var brushStart
       , brushStop
 
@@ -73,7 +80,8 @@ module.exports = React.createClass({
     return brushStart !== brushStop;
   },
 
-  componentWillUpdate: function (nextProps, nextState) {
+
+  componentWillUpdate(nextProps, nextState) {
     var hasNewPeriods
       , updatedHideOutliers
 
@@ -103,7 +111,8 @@ module.exports = React.createClass({
     }
   },
 
-  render: function () {
+
+  render() {
     var hiddenRange = this.getHiddenRange();
 
     return (

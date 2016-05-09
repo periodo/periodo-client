@@ -4,7 +4,8 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'Home',
-  componentDidMount: function () {
+
+  componentDidMount() {
     var currentBackend = localStorage.currentBackend
       , redirectURL
 
@@ -16,7 +17,8 @@ module.exports = React.createClass({
 
     this.props.locationBar.update(redirectURL, { replace: true, trigger: true });
   },
-  render: function () {
+
+  render() {
     return <div />
   }
 });

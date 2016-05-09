@@ -4,10 +4,12 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'SignIn',
-  getInitialState: function () {
+
+  getInitialState() {
     return { message: '' }
   },
-  initOrcidAuth: function () {
+
+  initOrcidAuth() {
     var oauthWindow
       , check
 
@@ -27,7 +29,8 @@ module.exports = React.createClass({
       }
     }, 100);
   },
-  render: function () {
+
+  render() {
     var msg = !this.state.message ? '' : (
       <div className="alert alert-success">{this.state.message}</div>
     )

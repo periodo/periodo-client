@@ -7,7 +7,8 @@ var React = require('react')
 
 UsesSelect = React.createClass({
   displayName: 'UsesSelect',
-  renderUses: function () {
+
+  renderUses() {
     return this.props.uses.map(use =>
       <li key={use.hashCode()} onClick={this.props.onSelect.bind(null, use.get('countries'))} >
         <h4>{use.get('count')} uses</h4>
@@ -23,7 +24,8 @@ UsesSelect = React.createClass({
       </li>
     )
   },
-  render: function () {
+
+  render() {
     var Dropdown = require('../shared/dropdown.jsx')
 
     return (
@@ -38,31 +40,37 @@ UsesSelect = React.createClass({
 
 module.exports = React.createClass({
   displayName: 'PeriodSpatialCoverageForm',
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       description: this.props.description || '',
       coverageText: '',
       coverage: (this.props.coverage || Immutable.List()).toOrderedSet()
     }
   },
-  getValue: function () {
+
+  getValue() {
     return {
       spatialCoverageDescription: this.state.description,
       spatialCoverage: this.state.coverage.toList()
     }
   },
-  removeCoverage: function (toRemove) {
+
+  removeCoverage(toRemove) {
     this.setState(prev => ({ coverage: prev.coverage.delete(toRemove) }));
   },
-  handleDescriptionChange: function (e) {
+
+  handleDescriptionChange(e) {
     var description = e.target.value;
     this.setState({ description, uses: null });
   },
-  handleCoverageTextChange: function (e) {
+
+  handleCoverageTextChange(e) {
     var coverageText = e.target.value;
     this.setState({ coverageText });
   },
-  handleSelect: function (coverage) {
+
+  handleSelect(coverage) {
     this.setState({
       description: coverage.get('label'),
       coverage: coverage.getIn(['uses', 0, 'countries']),
@@ -71,10 +79,12 @@ module.exports = React.createClass({
       React.findDOMNode(this).querySelector('input').blur();
     });
   },
-  handleSelectUse: function (countries) {
+
+  handleSelectUse(countries) {
     this.setState({ coverage: countries });
   },
-  handleAddSpatialCoverage: function (coverage) {
+
+  handleAddSpatialCoverage(coverage) {
     this.setState(prev => ({
       coverageText: '',
       coverage: prev.coverage.add(Immutable.Map({
@@ -83,7 +93,8 @@ module.exports = React.createClass({
       }))
     }));
   },
-  render: function () {
+
+  render() {
     var InputAutocomplete = require('../shared/input_autocomplete.jsx')
       , randomID = randomstr()
 

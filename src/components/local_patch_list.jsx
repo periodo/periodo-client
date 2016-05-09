@@ -12,21 +12,24 @@ function fetchPatch(localPatch) {
 module.exports = React.createClass({
   displayName: 'LocalPatchList',
 
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       checkingStatuses: false,
       statuses: Immutable.Map()
     }
   },
 
-  handleCheckStatus: function () {
+
+  handleCheckStatus() {
     this.setState({
       checkingStatuses: true,
       statuses: Immutable.Map()
     }, this.checkStatuses);
   },
 
-  checkStatuses: function () {
+
+  checkStatuses() {
     this.props.localPatches
       .filter(patch => {
         if (patch.get('resolved')) {
@@ -58,7 +61,8 @@ module.exports = React.createClass({
       }));
   },
 
-  renderPatchRow: function (patch) {
+
+  renderPatchRow(patch) {
     var Spinner = require('./shared/spinner.jsx')
       , patchID = patch.get('id')
       , hasCheckedStatus = this.state.statuses.has(patchID)
@@ -95,7 +99,8 @@ module.exports = React.createClass({
     )
   },
 
-  render: function () {
+
+  render() {
     return (
       <div>
         <h1>Submitted patches</h1>

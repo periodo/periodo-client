@@ -14,16 +14,19 @@ module.exports = React.createClass({
     onPageChange: React.PropTypes.func
   },
 
-  handlePageChange: function (data) {
+
+  handlePageChange(data) {
     this.props.onPageChange(data.selected);
   },
 
-  getNumberOfPages: function () {
+
+  getNumberOfPages() {
     var numItems = this.props.numItems;
     return numItems ? Math.ceil(numItems / this.props.limit) : 1;
   },
 
-  render: function () {
+
+  render() {
     return (
       <Paginate containerClassName="pagination-container pagination"
                 subContainerClassName="pages pagination"

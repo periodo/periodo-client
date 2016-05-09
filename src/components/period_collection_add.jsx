@@ -5,7 +5,8 @@ var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'PeriodCollectionAdd',
-  componentWillReceiveProps: function (nextProps) {
+
+  componentWillReceiveProps(nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
       let url = this.props.router.generate('period-collection-show', {
         backendName: this.props.backend.name,
@@ -14,7 +15,8 @@ module.exports = React.createClass({
       window.location.href = url;
     }
   },
-  handleSave: function () {
+
+  handleSave() {
     var id = skolemID()
       , collection = this.refs.form.getValue()
 
@@ -25,10 +27,12 @@ module.exports = React.createClass({
       });
     }
   },
-  handleCancel: function () {
+
+  handleCancel() {
     window.location.href = this.props.router.generate('home');
   },
-  render: function () {
+
+  render() {
     var PeriodCollectionForm = require('./shared/period_collection_form');
     return (
       <div>

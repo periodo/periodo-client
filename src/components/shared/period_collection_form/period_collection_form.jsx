@@ -4,7 +4,8 @@ var React = require('react')
   , Immutable = require('immutable')
 
 module.exports = React.createClass({
-  getInitialState: function () {
+
+  getInitialState() {
     var initialCollection = this.props.collection
 
     if (initialCollection) {
@@ -27,7 +28,8 @@ module.exports = React.createClass({
     }
   },
 
-  toggleFormType: function () {
+
+  toggleFormType() {
     this.setState({
       linkedData: !this.state.linkedData,
       sourceData: null,
@@ -35,7 +37,8 @@ module.exports = React.createClass({
     });
   },
 
-  isValid: function () {
+
+  isValid() {
     var { validate } = require('../../../helpers/periodization')
       , errors = validate(this.getValue()) || {}
 
@@ -45,7 +48,8 @@ module.exports = React.createClass({
     return !errors.size;
   },
 
-  getValue: function () {
+
+  getValue() {
     var value = Immutable.Map({
       type: 'PeriodCollection',
       source: this.state.sourceData,
@@ -58,14 +62,17 @@ module.exports = React.createClass({
 
     return value;
   },
-  handleEditorialNoteChange: function (e) {
+
+  handleEditorialNoteChange(e) {
     var editorialNote = e.target.value;
     this.setState({ editorialNote });
   },
-  handleSourceChange: function (source) {
+
+  handleSourceChange(source) {
     this.setState({ sourceData: source });
   },
-  render: function () {
+
+  render() {
     var LDSourceForm = require('./ld_source_form.jsx')
       , NonLDSourceForm = require('./non_ld_source_form.jsx')
 

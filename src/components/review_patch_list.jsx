@@ -5,7 +5,8 @@ var React = require('react')
   , PatchList
 
 PatchList = React.createClass({
-  render: function () {
+
+  render() {
     var urlForPatch
 
     urlForPatch = patchURI => this.props.router.generate(
@@ -47,15 +48,18 @@ PatchList = React.createClass({
 module.exports = React.createClass({
   displayName: 'ReviewPatches',
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { patches: null, showingPatch: null }
   },
 
-  componentDidMount: function () {
+
+  componentDidMount() {
     this.fetchPatches();
   },
 
-  fetchPatches: function () {
+
+  fetchPatches() {
     var url = require('url')
       , { getJSON } = require('../ajax')
       , { getOrcids } = require('../helpers/patch_collection')
@@ -81,7 +85,8 @@ module.exports = React.createClass({
       });
   },
 
-  render: function () {
+
+  render() {
     return (
       <div>
         <h1>Patches submitted to server</h1>

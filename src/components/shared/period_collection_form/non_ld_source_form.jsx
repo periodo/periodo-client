@@ -4,7 +4,8 @@ var React = require('react')
   , Immutable = require('immutable')
 
 module.exports = React.createClass({
-  getInitialState: function () {
+
+  getInitialState() {
     return {
       data: Immutable.Map({
         creators: Immutable.fromJS([{ name: '' }]),
@@ -12,14 +13,16 @@ module.exports = React.createClass({
       }).merge(this.props.data || Immutable.Map())
     }
   },
-  handleSourceChange: function () {
+
+  handleSourceChange() {
     var source = this.state.data
       .map(val => val instanceof Immutable.Iterable ? val.filter(v => v) : val)
       .filter(val => val instanceof Immutable.Iterable ? val.size : val.length)
 
     this.props.onSourceChange(source);
   },
-  handleChange: function (e) {
+
+  handleChange(e) {
     var name = e.target.name
       , value = e.target.value
 
@@ -27,13 +30,15 @@ module.exports = React.createClass({
       data: value ? prev.data.set(name, value) : prev.data.delete(name)
     }), this.handleSourceChange);
   },
-  handleNameChange: function (type, idx, e) {
+
+  handleNameChange(type, idx, e) {
     var value = e.target.value;
     this.setState(prev => ({
       data: prev.data.update(type, names => names.update(idx, name => name.set('name', value)))
     }), this.handleSourceChange);
   },
-  handleNameRemove: function (type, idx) {
+
+  handleNameRemove(type, idx) {
     var newState = this.state.data.get(type).delete(idx)
 
     if (!newState.size) newState = newState.push('');
@@ -42,14 +47,16 @@ module.exports = React.createClass({
       data: prev.data.set(type, newState)
     }), this.handleSourceChange);
   },
-  handleNameAdd: function (type, idx) {
+
+  handleNameAdd(type, idx) {
     if (!this.state.data.get(type).get(idx)) return;
 
     this.setState(prev => ({
       data: prev.data.update(type, names => names.splice(idx + 1, 0, Immutable.Map({ name: '' })))
     }), this.handleSourceChange)
   },
-  render: function () {
+
+  render() {
     var Input = require('../input.jsx')
     return (
       <div>

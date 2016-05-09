@@ -6,13 +6,15 @@ var React = require('react')
 module.exports = React.createClass({
   displayName: 'Sync',
 
-  componentWillReceiveProps: function (nextProps) {
+
+  componentWillReceiveProps(nextProps) {
     if (this.props.store && !this.props.store.equals(nextProps.store)) {
       this.refs.selectChanges.reset();
     }
   },
 
-  handleAcceptPatches: function (patches) {
+
+  handleAcceptPatches(patches) {
     var immpatch = require('immpatch')
       , patchedStore
 
@@ -25,7 +27,8 @@ module.exports = React.createClass({
     this.props.cursor.update(() => patchedStore);
   },
 
-  render: function () {
+
+  render() {
     var SelectChanges = require('./shared/select_changes.jsx')
       , getChanges = (data, url) => this.props.backend.getChangesFromRemoteToLocal(data, url)
 

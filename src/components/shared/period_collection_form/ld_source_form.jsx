@@ -6,10 +6,12 @@ var React = require('react')
   , AcceptData
 
 FetchData = React.createClass({
-  getInitialState: function () {
+
+  getInitialState() {
     return { message: '' }
   },
-  handleChange: function (e) {
+
+  handleChange(e) {
     var fetchLD = require('../../../utils/source_ld_fetch')
       , text = e.currentTarget.value
       , url = fetchLD.match(text)
@@ -26,7 +28,8 @@ FetchData = React.createClass({
 
     fetchLD.fetch(url).then(data => this.props.onFetch(Immutable.fromJS(data)))
   },
-  render: function () {
+
+  render() {
     return (
       <div>
         <h3>Linked data source</h3>
@@ -49,7 +52,8 @@ FetchData = React.createClass({
 });
 
 AcceptData = React.createClass({
-  render: function () {
+
+  render() {
     var Source = require('../source.jsx')
       , Input = require('../input.jsx')
 
@@ -85,10 +89,12 @@ AcceptData = React.createClass({
 });
 
 module.exports = React.createClass({
-  handleFetch: function (source) {
+
+  handleFetch(source) {
     this.props.onSourceChange(source);
   },
-  handleLocatorChange: function (e) {
+
+  handleLocatorChange(e) {
     var locator = e.target.value
       , source = this.props.data
       , newSource
@@ -101,10 +107,12 @@ module.exports = React.createClass({
 
     this.props.onSourceChange(newSource);
   },
-  handleReset: function () {
+
+  handleReset() {
     this.setState({ fetchedSource: null }, () => this.props.onSourceChange(null));
   },
-  render: function () {
+
+  render() {
     return this.props.data ?
       <AcceptData
         onReset={this.handleReset}

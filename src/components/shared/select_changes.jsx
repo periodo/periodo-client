@@ -13,27 +13,33 @@ module.exports = React.createClass({
     onAcceptPatches: React.PropTypes.func.isRequired
   },
 
-  getInitialState: function () {
+
+  getInitialState() {
     return { url: window.location.origin + window.location.pathname }
   },
 
-  reset: function (cb) {
+
+  reset(cb) {
     return this.setState({ acceptedPatches: null, changes: null }, cb);
   },
 
-  handleChange: function (e) {
+
+  handleChange(e) {
     this.setState({ url: e.target.value });
   },
 
-  handleAcceptPatches: function (acceptedPatches) {
+
+  handleAcceptPatches(acceptedPatches) {
     this.setState({ acceptedPatches });
   },
 
-  handleAcceptChanges: function () {
+
+  handleAcceptChanges() {
     this.props.onAcceptPatches(this.state.acceptedPatches.toJS());
   },
 
-  handleFileUpload: function (e) {
+
+  handleFileUpload(e) {
     var parsePeriodoUpload = require('../../utils/parse_periodo_upload')
 
     parsePeriodoUpload(e.target.files[0])
@@ -41,7 +47,8 @@ module.exports = React.createClass({
       .then(changes => this.setState({ changes }))
   },
 
-  fetchPeriods: function () {
+
+  fetchPeriods() {
     var url = require('url')
       , ajax = require('../../ajax')
       , serverURL = this.state.url
@@ -56,7 +63,8 @@ module.exports = React.createClass({
       .then(changes => this.setState({ changes })))
 
   },
-  renderConfirmChanges: function () {
+
+  renderConfirmChanges() {
     var ChangeList = require('./change_list')
 
     return (
@@ -78,7 +86,8 @@ module.exports = React.createClass({
       </div>
     )
   },
-  renderSelectChanges: function () {
+
+  renderSelectChanges() {
     var ChangeList = require('./change_list')
       , randomID = randomstr()
 
@@ -140,7 +149,8 @@ module.exports = React.createClass({
       </div>
     )
   },
-  render: function () {
+
+  render() {
     return this.state.acceptedPatches ?
       this.renderConfirmChanges() :
       this.renderSelectChanges()

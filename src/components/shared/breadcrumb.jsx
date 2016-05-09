@@ -9,7 +9,8 @@ module.exports = React.createClass({
     crumbs: React.PropTypes.list
   },
 
-  renderCrumb: function (crumb, i) {
+
+  renderCrumb(crumb, i) {
     var last = i === this.props.crumbs.length - 1
 
     return last ?
@@ -17,7 +18,8 @@ module.exports = React.createClass({
       <li><a href={ crumb.url }>{ crumb.label }</a></li>
   },
 
-  render: function () {
+
+  render() {
     return (
       <ol className="breadcrumb">
         { this.props.crumbs.map(this.renderCrumb, this) }
