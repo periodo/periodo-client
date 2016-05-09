@@ -1,102 +1,124 @@
 "use strict";
 
-var RouteRecognizer = require('route-recognizer')
-  , Immutable = require('immutable')
-  , router = new RouteRecognizer()
-  , routes
+const RouteRecognizer = require('route-recognizer')
+    , Immutable = require('immutable')
 
-routes = {
-  '/': {
+const routes = [
+  {
+    path: '/',
     name: 'home',
-    Component: require('./components/home.jsx')
+    Component: require('./components/home')
   },
-  '/p/': {
+
+  {
+    path: '/p/',
     name: 'backend-select',
-    Component: require('./components/backend_select.jsx'),
-    getData: function () {
+    Component: require('./components/backend_select'),
+    getData() {
       return require('./backends').list().then(backends => ({ backends }))
     }
   },
-  '/p/:backendName/': {
+
+  {
+    path: '/p/:backendName/',
     name: 'backend-home',
-    Component: require('./components/backend_home.jsx')
+    Component: require('./components/backend_home')
   },
-  'p/:backendName/periodCollections/add/': {
+
+  {
+    path: 'p/:backendName/collections/add/',
     name: 'period-collection-add',
-    Component: require('./components/period_collection_add.jsx'),
-    getCursorPath: function () {
+    Component: require('./components/period_collection_add'),
+    getCursorPath() {
       return ['periodCollections']
     }
   },
-  'p/:backendName/periodCollections/:collectionID/': {
+
+  {
+    path: 'p/:backendName/collections/:collectionID/',
     name: 'period-collection-show',
-    getCursorPath: function ({ collectionID }) {
+    getCursorPath({ collectionID }) {
       return ['periodCollections', decodeURIComponent(collectionID)]
     },
-    Component: require('./components/period_collection_show.jsx')
+    Component: require('./components/period_collection_show')
   },
-  'p/:backendName/periodCollections/:collectionID/edit/': {
+
+  {
+    path: 'p/:backendName/collections/:collectionID/edit/',
     name: 'period-collection-edit',
-    getCursorPath: function ({ collectionID }) {
+    getCursorPath({ collectionID }) {
       return ['periodCollections', decodeURIComponent(collectionID)]
     },
-    Component: require('./components/period_collection_edit.jsx')
+    Component: require('./components/period_collection_edit')
   },
-  'p/:backendName/sync/': {
+
+  {
+    path: 'p/:backendName/sync/',
     name: 'sync',
-    Component: require('./components/sync.jsx'),
-    getCursorPath: function () {
+    Component: require('./components/sync'),
+    getCursorPath() {
       return []
     }
   },
-  'p/:backendName/patches/submit/': {
+
+  {
+    path: 'p/:backendName/patches/submit/',
     name: 'patch-submit',
-    Component: require('./components/patch_submit.jsx')
+    Component: require('./components/patch_submit')
   },
-  'p/:backendName/patches/': {
+
+  {
+    path: 'p/:backendName/patches/',
     name: 'local-patch-list',
-    Component: require('./components/local_patch_list.jsx'),
-    getData: function (store, { backendName }) {
+    Component: require('./components/local_patch_list'),
+    getData(store, { backendName }) {
       return require('./backends').get(backendName)
         .then(backend => backend.getSubmittedPatches())
         .then(Immutable.fromJS)
         .then(localPatches => ({ localPatches }))
     }
   },
-  'p/:backendName/patches/*patchURI': {
+
+  {
+    path: 'p/:backendName/patches/*patchURI',
     name: 'local-patch-detail',
-    Component: require('./components/local_patch_detail.jsx'),
+    Component: require('./components/local_patch_detail'),
     getData: params => Promise.resolve(params)
   },
-  'patches/': {
+
+  {
+    path: 'patches/',
     name: 'review-patch-list',
-    Component: require('./components/review_patch_list.jsx')
+    Component: require('./components/review_patch_list')
   },
-  'patches/*patchURI': {
+
+  {
+    path: 'patches/*patchURI',
     name: 'review-patch-detail',
-    Component: require('./components/review_patch_detail.jsx'),
+    Component: require('./components/review_patch_detail'),
     getData: (store, { patchURI }) => Promise.resolve({ patchURI })
   },
-  'signin/': {
-    name: 'sign-in',
-    Component: require('./components/signin.jsx')
-  },
-  'signout/': {
-    Component: require('./components/signout.jsx')
-  },
-    /*
-  'p/:backendName/periodCollections/': {
-    Component: require('./components/period_collection_list.jsx')
-  },
-  */
-}
 
-Object.keys(routes).forEach(path => {
+  {
+    path: 'signin/',
+    name: 'sign-in',
+    Component: require('./components/signin')
+  },
+
+  {
+    path: 'signout/',
+    Component: require('./components/signout')
+  },
+]
+
+const router = new RouteRecognizer()
+
+routes.forEach(path => {
   router.add([{ path, handler: routes[path] }], { as: routes[path].name });
 });
 
 router.generate = function () {
-  var result = RouteRecognizer.prototype.generate.apply(router, arguments);
+  let result = RouteRecognizer.prototype.generate.apply(router, arguments);
   if (result) {
     result = '#' + result;
     if (result.slice(-1) !== '/') {

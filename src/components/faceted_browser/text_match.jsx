@@ -1,7 +1,8 @@
 "use strict";
 
-var React = require('react')
-  , _ = require('underscore')
+const React = require('react')
+    , debounce = require('debounce')
+    , h = require('react-hyperscript')
 
 module.exports = React.createClass({
   displayName: 'TextMatch',
@@ -15,9 +16,9 @@ module.exports = React.createClass({
   },
 
   componentWillMount: function () {
-    this.handleSearch = _.debounce(function () {
-      this.props.onSearchTextChange(this.state.text);
-    }, 250);
+    const { onSearchTextChange } = this.props
+
+    this.handleSearch = debounce(() => onSearchTextChange(this.state.text), 250);
   },
 
   handleChange: function (e) {

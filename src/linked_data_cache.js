@@ -1,28 +1,28 @@
 "use strict";
 
-var Dexie = require('dexie')
-  , ajax = require('./ajax')
-  , openedDB
+const Dexie = require('dexie')
+
 
 const CORS_PROXY_URL = 'https://ptgolden.org/cors-anywhere/'
     , CORS_PROXY_ENABLED = true
 
-function initDB() {
-  var db = new Dexie('_linked_data_cache')
+let openedDB
 
-  db.version(1).stores({
-    resources: '&url,*triples.subject,*triples.object'
-  });
-
-  db.open();
-
-  return db;
-}
 
 function getDB() {
-  if (!openedDB) openedDB = initDB();
+  if (!openedDB) {
+    openedDB = new Dexie('_linked_data_cache')
+
+    openedDB.version(1).stores({
+      resources: '&url,*triples.subject,*triples.object'
+    });
+
+    openedDB.open();
+  }
+
   return openedDB;
 }
+
 
 function formatURL(url) {
   if (CORS_PROXY_ENABLED && url.indexOf(CORS_PROXY_URL) === -1) {
@@ -49,31 +49,38 @@ function formatResource(url, triples) {
 */
 
 function fetchResource(url, type="text/turtle") {
-  var formattedURL = formatURL(url)
-    , parser
+  const formattedURL = formatURL(url)
 
   // TODO: Validate the type here... or base it off of the extension on the URL
+  const parser = type === 'application/json+ld'
+    ? require('./utils/parse_jsonld')
+    : require('./utils/parse_rdf')
 
-  parser = type === 'application/json+ld' ?
-    require('./utils/parse_jsonld') :
-    require('./utils/parse_rdf')
-
-  return ajax.ajax({ url: formattedURL, headers: { Accept: type }})
-    .then(([data]) => parser(data))
+  return fetch(formattedURL, { mode: 'cors', headers: { Accept: type }})
+    .then(resp => {
+      if (resp.ok) {
+        return resp.text();
+      } else {
+        throw new Error(`Could not fetch ${resp.url} (${resp.status}):\n\n${resp.statusText}`);
+      }
+    })
+    .then(parser)
     .then(({ triples, prefixes }) => ({ triples, prefixes, url }))
 }
 
+
 function fetchAndSaveResource(url, type='text/turtle') {
-  var savedResource;
+  let savedResource
+
   return fetchResource(url, type)
     .then(resource => (savedResource = resource))
     .then(resource => getDB().resources.put(resource))
     .then(() => savedResource)
 }
 
+
 function get(uri, type) {
-  return getDB().resources
-    .get(uri)
+  return getDB().resources.get(uri)
     .then(result => result || fetchAndSaveResource(uri, type))
     .catch(err => { throw err; });
 }

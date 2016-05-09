@@ -1,7 +1,6 @@
 "use strict";
 
-const _ = require('underscore')
-    , d3 = require('d3')
+const d3 = require('d3')
     , Immutable = require('immutable')
     , { asJSONLD, asTurtle } = require('./data')
 
@@ -33,7 +32,7 @@ function validate(periodization) {
     }
   }
 
-  return _.isEmpty(errors) ? null : errors;
+  return Object.keys(errors).length ? null : errors;
 }
 
 function asCSV(periodization) {

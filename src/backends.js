@@ -1,10 +1,10 @@
 "use strict";
 
-var _ = require('underscore')
-  , Dexie = require('dexie')
-  , Immutable = require('immutable')
-  , errors = require('./errors')
-  , current
+const Dexie = require('dexie')
+    , Immutable = require('immutable')
+    , errors = require('./errors')
+
+let current
 
 const MEMORY_BACKEND = '__memory__'
 
@@ -30,7 +30,8 @@ function Backend(opts) {
 
 Backend.prototype = {
   get editable() { return !!this.saveData },
-  saveStore: function (newData) {
+
+  saveStore(newData) {
     if (!this.saveData) {
       throw new Error(`Cannot save data for backend type ${this.type}`);
     }
@@ -50,8 +51,9 @@ Backend.prototype = {
       })
       .catch(window.periodo.handleError)
   },
-  getStore: function () {
-    var promise
+
+  getStore() {
+    let promise
 
     if (!this.fetchData) {
       throw new Error(`Cannot fetch data for backend type ${this.type}`);
@@ -77,19 +79,22 @@ Backend.prototype = {
     return promise;
   },
 
-  mapStoreIDs: function (remoteStore, remoteURL) {
-    var { replaceIDs } = require('./helpers/skolem_ids')
-    return !this.getMappedIDs ?
-      Promise.resolve(remoteStore) :
-      this.getMappedIDs(remoteURL).then(mappedIDs => replaceIDs(remoteStore, mappedIDs))
+  mapStoreIDs(remoteStore, remoteURL) {
+    const { replaceIDs } = require('./helpers/skolem_ids')
+
+    return !this.getMappedIDs
+      ? Promise.resolve(remoteStore)
+      : this.getMappedIDs(remoteURL)
+          .then(mappedIDs => replaceIDs(remoteStore, mappedIDs))
   },
 
   // `originIsLocal` is a boolean value that represents if the returned patches
   // should represent changes are meant to be applied to the remote dataset.
-  getChanges: function (originIsLocal, remote, remoteURL) {
-    var { makePatch, affectsPeriodCollections } = require('./utils/patch')
+  getChanges(originIsLocal, remote, remoteURL) {
+    const { makePatch, affectsPeriodCollections } = require('./utils/patch')
       , { filterByHash } = require('./helpers/patch_collection')
-      , localStore
+
+    let localStore
       , remoteStore
 
 
@@ -136,26 +141,28 @@ Backend.prototype = {
 
   // Get the set of patches that would make "local" look like "remote", as in
   // downloading assertions from a server to a local client.
-  getChangesFromRemoteToLocal: function (remote, remoteURL) {
+  getChangesFromRemoteToLocal(remote, remoteURL) {
     return this.getChanges(true, remote, remoteURL)
   },
 
 
   // Get the set of patches that would make "remote" look like "local", as in
   // submitting some patches from the local client to a server.
-  getChangesFromLocalToRemote: function (remote, remoteURL) {
+  getChangesFromLocalToRemote(remote, remoteURL) {
     return this.getChanges(false, remote, remoteURL)
   },
 
-  saveSubmittedPatch: function () {
-    var { NotImplementedError } = require('./errors');
+  saveSubmittedPatch() {
+    const { NotImplementedError } = require('./errors');
+
     throw new NotImplementedError(
       `saveSubmittedPatch not implemented for backend type ${this.type}`
     )
   },
 
-  getSubmittedPatches: function () {
-    var { NotImplementedError } = require('./errors');
+  getSubmittedPatches() {
+    const { NotImplementedError } = require('./errors');
+
     throw new NotImplementedError(
       `getSubmittedPatches not implemented for backend type ${this.type}`
     )
@@ -170,16 +177,15 @@ Backend.prototype = {
 
 function IDBBackend(opts) {
   Backend.call(this, opts);
+
   this.type = 'idb';
 
   this.fetchData = function () {
     return require('./db')(this.name).getLocalData()
-      .then(function (localData) {
-        return {
-          data: localData.data,
-          modified: localData.modified,
-        }
-      });
+      .then(localData => ({
+        data: localData.data,
+        modified: localData.modified,
+      }));
   }
 
   this.saveData = function (data) {
@@ -201,12 +207,11 @@ function IDBBackend(opts) {
   }
 
   this.markSubmittedPatchMerged = function (localPatchID, serverPatchObj) {
-    var db = require('./db')(this.name)
+    const db = require('./db')(this.name)
       , prefixMatch = require('./utils/prefix_match')
       , serverURL = prefixMatch(serverPatchObj.created_from, serverPatchObj.url)
-      , identifiers
 
-    identifiers = Object.keys(serverPatchObj.identifier_map).map(localID => ({
+    const identifiers = Object.keys(serverPatchObj.identifier_map).map(localID => ({
       id: `${serverURL}|${localID}`,
       serverURL,
       localID,
@@ -266,8 +271,9 @@ function WebBackend(opts) {
 
   this.fetchData = function () {
     return require('./ajax').getJSON(this.url + 'd/')
-      .then(function ([data, status, xhr]) {
-        var modified = xhr.getResponseHeader('Last-Modified');
+      .then(([data, status, xhr]) => {
+        let modified = xhr.getResponseHeader('Last-Modified');
+
         modified = modified && new Date(modified).getTime();
         return { data, modified };
       });
@@ -295,10 +301,11 @@ function MemoryBackend(opts) {
   }
 
   this.saveData = function (newStore) {
-    var { formatPatch } = require('./utils/patch')
+    const { formatPatch } = require('./utils/patch')
 
     return this.getStore().then(oldStore => {
-      var patch = formatPatch(oldStore.toJS(), newStore.toJS());
+      const patch = formatPatch(oldStore.toJS(), newStore.toJS());
+
       this._patches.push(patch);
       this._data = newStore;
       return newStore;
@@ -336,14 +343,15 @@ FileBackend.prototype = Object.create(Backend.prototype);
  ***********************************************************/
 
 function clientSupportsDexie() {
-  var dependencies = Dexie.dependencies;
+  const { dependencies } = Dexie;
   return Object.keys(dependencies).every(k => dependencies[k]);
 }
 
 
 function listBackends() {
-  var webDBs = JSON.parse((localStorage || {}).WebDatabaseNames || '{}')
-    , dbPromise
+  const webDBs = JSON.parse((localStorage || {}).WebDatabaseNames || '{}')
+
+  let dbPromise
 
   if (clientSupportsDexie()) {
     dbPromise = new Promise(resolve => {
@@ -370,8 +378,8 @@ function listBackends() {
     dbPromise = Promise.resolve([]);
   }
 
-  return dbPromise.then(function (dbs) {
-    var backends = _.extend({}, webDBs)
+  return dbPromise.then(dbs => {
+    const backends = Object.assign({}, webDBs)
 
     dbs.forEach(db => backends[db.name] = db);
 
@@ -394,11 +402,9 @@ function getBackend(name) {
     return Promise.resolve(new MemoryBackend({ name: MEMORY_BACKEND, type: 'memory' }));
   } else {
     return listBackends().then(backends => {
-      var backendOpts = backends[name]
-        , constructors
-        , BackendConstructor
+      const backendOpts = backends[name]
 
-      constructors = {
+      const constructors = {
         idb: IDBBackend,
         web: WebBackend,
         memory: MemoryBackend,
@@ -409,7 +415,7 @@ function getBackend(name) {
         throw new errors.NotFoundError(`Backend ${name} does not exist`);
       }
 
-      BackendConstructor = constructors[backendOpts.type];
+      const BackendConstructor = constructors[backendOpts.type];
 
       return new BackendConstructor(backendOpts);
     });
@@ -434,14 +440,15 @@ function addBackend(opts) {
       }
     })
     .then(() => {
-      var db
+      let db
         , dbOpen
 
       if (opts.type === 'idb') {
         db = require('./db')(opts.name);
         dbOpen = new Promise(resolve => db.on('ready', resolve));
       } else if (opts.type === 'web') {
-        let webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
+        const webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
+
         webDBs[opts.name] = opts;
         localStorage.WebDatabaseNames = JSON.stringify(webDBs);
       } else if (opts.type === 'file') {
@@ -462,18 +469,20 @@ function addBackend(opts) {
 function deleteBackend(name) {
   return listBackends()
     .then(backends => {
-      var toDelete = backends[name] || {}
-        , promise
+      const toDelete = backends[name] || {}
+
+      let promise
 
       if (toDelete.type === 'idb') {
         promise = require('./db')(name).delete();
       } else if (toDelete.type === 'web') {
-        let webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
+        const webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
+
         delete webDBs.name;
         localStorage.WebDatabaseNames = JSON.stringify(webDBs);
         promise = Dexie.Promise.resolve();
       } else if (toDelete.type === 'file') {
-        let { deleteFile } = require('./file_backends');
+        const { deleteFile } = require('./file_backends');
         promise = deleteFile(name);
       }
 
@@ -493,10 +502,10 @@ module.exports = {
   create: addBackend,
   destroy: deleteBackend,
 
-  current: function () {
+  current() {
     return current;
   },
-  switchTo: function (name) {
+  switchTo(name) {
     return getBackend(name).then(setCurrentBackend)
   }
 }

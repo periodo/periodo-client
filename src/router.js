@@ -1,34 +1,29 @@
 "use strict";
 
-var React = require('react')
-  , Immutable = require('immutable')
-  , Dexie = require('dexie')
-  , Cursor = require('immutable/contrib/cursor')
-  , LocationBar = require('location-bar')
-
-function getBackendAndStore(backendName) {
-  var backend;
-  return require('./backends').get(backendName)
-    .then(_backend => ((backend = _backend), backend.getStore()))
-    .then(store => ({ backend, store }))
-}
+const React = require('react')
+    , Immutable = require('immutable')
+    , Dexie = require('dexie')
+    , Cursor = require('immutable/contrib/cursor')
+    , LocationBar = require('location-bar')
+    , h = require('react-hyperscript')
 
 const LEFT_CLICK = 1;
 
-function handlePageClick(e, locationBar) {
-  var anchor = e.target
-    , root = location.protocol + '//' + location.host
+const handlePageClick = (e, locationBar) => {
+  let anchor = e.target
+
+  const root = location.protocol + '//' + location.host
 
   do {
     if (!anchor || anchor.nodeName === 'A') break;
   } while ((anchor = anchor.parentNode));
 
   if (anchor) {
-    let url = require('url')
-      , href = anchor.href
-      , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
-      , interceptClick = isLeftClick && href && href.indexOf(root) === 0
-      , redirect = !anchor.dataset.noRedirect && href !== root + '/'
+    const url = require('url')
+        , href = anchor.href
+        , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
+        , interceptClick = isLeftClick && href && href.indexOf(root) === 0
+        , redirect = !anchor.dataset.noRedirect && href !== root + '/'
 
     if (interceptClick) {
       e.preventDefault();
@@ -40,8 +35,9 @@ function handlePageClick(e, locationBar) {
 }
 
 module.exports = React.createClass({
-  getInitialState: function () {
-    var user = 'auth' in localStorage ? JSON.parse(localStorage.auth) : null;
+  getInitialState() {
+    const user = 'auth' in localStorage ? JSON.parse(localStorage.auth) : null;
+
     return {
       Component: null,
       backend: null,
@@ -52,11 +48,12 @@ module.exports = React.createClass({
       errors: Immutable.List()
     }
   },
-  handleRoute: function ({ Component, getData, getCursorPath }, params) {
-    var promise = Promise.resolve({})
+
+  handleRoute({ Component, getData, getCursorPath }, params) {
+    let promise = Promise.resolve({})
 
     if (params.hasOwnProperty('backendName')) {
-      let changeBackend = (
+      const changeBackend = (
         !this.state.backend ||
         this.state.backend.name !== params.backendName
       )
@@ -86,10 +83,9 @@ module.exports = React.createClass({
       promise = promise
         .then(_props => props = _props)
         .then(() => {
-          var path = getCursorPath(params)
-            , onUpdate
+          const path = getCursorPath(params)
 
-          onUpdate = !props.backend.editable ? void 0 : updatedStore => {
+          const onUpdate = !props.backend.editable ? void 0 : updatedStore => {
 
             // If cursor path has been set to undefined, delete it from the
             // updated store.
@@ -120,7 +116,8 @@ module.exports = React.createClass({
       }))
       .catch(this.handleError)
   },
-  handleError: function (error) {
+
+  handleError(error) {
     if (!this.state.errors.map(err => err.get('error')).contains(error)) {
       try {
         this.setState(prev => ({
@@ -132,15 +129,16 @@ module.exports = React.createClass({
       }
     }
   },
-  attemptRedirect: function (path) {
-    var matchKey = 'p0' + path
+
+  attemptRedirect(path) {
+    const matchKey = 'p0' + path
 
     if (path.indexOf('/') !== -1) this.showNotFound();
 
     getBackendAndStore('Canonical')
       .then(({ store }) => {
         if (store.hasIn(['periodCollections', matchKey])) {
-          let redirectURL = this.state.router.generate('period-collection-show', {
+          const redirectURL = this.state.router.generate('period-collection-show', {
             backendName: 'Canonical',
             collectionID: encodeURIComponent(matchKey)
           })
@@ -173,16 +171,17 @@ module.exports = React.createClass({
       })
   },
 
-  showNotFound: function () {
+  showNotFound() {
     this.setState({ Component: require('./components/not_found.jsx') });
   },
 
-  componentDidMount: function () {
-    var router = require('./routes')
-      , locationBar = new LocationBar()
+  componentDidMount() {
+    const router = require('./routes')
+        , locationBar = new LocationBar()
 
     locationBar.onChange(path => {
-      var match = router.recognize(path);
+      const match = router.recognize(path);
+
       if (match) {
         this.handleRoute(match[0].handler, match[0].params);
       } else {
@@ -224,9 +223,10 @@ module.exports = React.createClass({
 
     this.setState({ locationBar, router }, () => locationBar.start());
   },
-  render: function () {
-    var Application = require('./components/application.jsx');
 
-    return <Application {...this.state} />
+  render() {
+    const Application = require('./components/application.jsx');
+
+    return h(Application, this.state);
   }
 });

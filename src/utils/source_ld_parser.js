@@ -1,12 +1,12 @@
 "use strict";
 
-var _ = require('underscore')
-  , N3Store = require('n3/lib/N3Store')
-  , N3Util = require('n3/lib/N3Util')
-  , parseRDF = require('./parse_rdf')
-  , parseJsonLD = require('./parse_jsonld')
+const N3Store = require('n3/lib/N3Store')
+    , { getLiteralValue } = require('n3/lib/N3Util')
+    , parseRDF = require('./parse_rdf')
+    , parseJsonLD = require('./parse_jsonld')
 
-const DEFAULT_PREDICATES = {
+
+const availablePredicates = Immutable.fromJS({
   title: [
     'http://purl.org/dc/terms/title',
     'http://schema.org/name'
@@ -28,7 +28,8 @@ const DEFAULT_PREDICATES = {
     'http://xmlns.com/foaf/0.1/name',
     'http://schema.org/name'
   ]
-}
+})
+
 
 /*
  * Parsers for worldcat and citeseer citations. Returns the following
@@ -36,59 +37,63 @@ const DEFAULT_PREDICATES = {
  *   title, yearPublished, creators, contributors, and partOf
  */
 
-function getFirstMatchingPredicate(store, subject, predicates) {
-  var matchingObjects;
-  predicates = _.isArray(predicates) ? predicates : Array.prototype.slice.call(arguments, 2);
-  for (var i = 0; i < predicates.length; i++) {
-    matchingObjects = store.find(subject, predicates[i], null);
-    if (matchingObjects.length) break;
+const SOURCE_FIELDS = ['title', 'yearPublished', 'creators', 'contributors'];
+
+
+function getFirstMatchingStatement(store, subjectURI, field) {
+  for (const predicateURI of predicateList.get(field)) {
+    const matchingObjects = store.find(subjectURI, predicateURI, null)
+
+    if (matchingObjects) {
+      return matchingObjects;
+    }
   }
-  return matchingObjects;
+
+  return null;
 }
 
-function getFirstLiteralObject() {
-  return _.chain(getFirstMatchingPredicate.apply(null, arguments))
-    .pluck('object')
-    .map(N3Util.getLiteralValue)
-    .first()
-    .value();
+
+function getFirstObjectLiteral() {
+  const statements = getFirstMatchingStatement(...arguments) || [];
+
+  return statements && getLiteralValue(statements[0].object);
 }
 
-function formatContrib(store, entity) {
-  return {
-    'id': entity,
-    'name': getFirstLiteralObject(store, entity, DEFAULT_PREDICATES.name)
-  }
-}
 
-function makeSourceRepr(entity, store) {
-  var data = { id: entity };
+function makeSourceRepr(store, entity) {
+  const _getFirstLiteralObject = getFirstLiteralObject.bind(null, store, entity)
 
-  // FIXME: Need to handle partOf dates too
+  const fields = SOURCE_FIELDS.map(getFirstLiteralObject.bind(null, store, entity));
 
-  ['title', 'yearPublished'].forEach(key => {
-    var val = getFirstLiteralObject(store, entity, DEFAULT_PREDICATES[key]);
-    if (val) data[key] = val;
-  });
+  const data = { id: entity }
 
-  ['creators', 'contributors'].forEach(key => {
-    var val = getFirstMatchingPredicate(store, entity, DEFAULT_PREDICATES[key]);
-    if (val) data[key] = val.map(pred => formatContrib(store, pred.object));
+  fields.forEach((val, i) => {
+    if (!val) return
+
+    const key = SOURCE_FIELDS[i];
+
+    data[key] = val !== 'creators' && val !== 'contributors'
+      ? val
+      : val.map(pred => ({
+        id: entity,
+        name: getFirstLiteralObject(store, entity, availablePredicates.get('name'))
+      }))
   });
 
   return data;
 }
+
 
 module.exports = function (entity, ttl) {
   if (!ttl) throw new Error('Must pass turtle string to parse.');
 
   return parseRDF(ttl)
     .then(({ triples, prefixes }) => {
-      var store = N3Store();
+      const store = N3Store();
 
       store.addPrefixes(prefixes);
       store.addTriples(triples);
 
-      return makeSourceRepr(entity, store);
+      return makeSourceRepr(store, entity);
     });
 }
