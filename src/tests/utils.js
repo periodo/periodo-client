@@ -227,7 +227,8 @@ test('Patch utils', t => {
   ], 'should use "add" operation for complex values instead of "replace"');
 
 
-  const { classifyPatch, parsePatchPath, patchTypes } = require('../utils/patch')
+  const { classifyPatch, parsePatchPath } = require('../utils/patch')
+      , { patchTypes } = require('../consts')
 
   t.deepEqual([
     classifyPatch(samplePatches.addPeriod),

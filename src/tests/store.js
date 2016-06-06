@@ -2,7 +2,7 @@
 
 const test = require('tape')
     , Immutable = require('immutable')
-    , actions = require('../actions')
+    , { actions } = require('../consts')
     , { Backend } = require('../records')
 
 function makeEmptyStore() {
