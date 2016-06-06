@@ -24,6 +24,16 @@ define('actions', [
 ]);
 
 
+define('backends', [
+    'WEB',
+    'FILE',
+    'MEMORY',
+    'INDEXEDDB',
+
+    'CANONICAL',
+]);
+
+
 define('patchTypes', [
   'SYNC',
   'MULTIPLE',
