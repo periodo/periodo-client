@@ -99,7 +99,7 @@ Backend.prototype = {
 
 
     if (!this.editable && !originIsLocal) {
-      throw new Error(`Cannot make changes to backend with tyep ${this.type}`);
+      throw new Error(`Cannot make changes to backend with type ${this.type}`);
     }
 
     return this.mapStoreIDs(Immutable.fromJS(remote), remoteURL)
