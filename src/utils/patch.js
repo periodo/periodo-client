@@ -9,7 +9,7 @@ var fs = require('fs')
   , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
   , parser = peg.buildParser(grammar)
 
-const { patchTypes } = require('../consts')
+const { patchTypes } = require('../types')
 
 function transformSimplePatch(patch, opts) {
   var replaced = []

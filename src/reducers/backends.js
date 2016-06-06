@@ -11,7 +11,7 @@ const {
 
   SET_CURRENT_BACKEND,
   UNSET_CURRENT_BACKEND,
-} = require('../consts').actions
+} = require('../types').actions
 
 
 const available = createReducer(Immutable.Set(), {

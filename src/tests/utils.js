@@ -228,7 +228,7 @@ test('Patch utils', t => {
 
 
   const { classifyPatch, parsePatchPath } = require('../utils/patch')
-      , { patchTypes } = require('../consts')
+      , { patchTypes } = require('../types')
 
   t.deepEqual([
     classifyPatch(samplePatches.addPeriod),
