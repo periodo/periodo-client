@@ -46,6 +46,7 @@
     "browserify": "^10.2.4",
     "envify": "^3.4.0",
     "exorcist": "^0.4.0",
+    "fake-indexeddb": "^1.0.6",
     "postcss": "^5.0.19",
     "postcss-cli": "^2.5.1",
     "postcss-cssnext": "^2.5.1",
