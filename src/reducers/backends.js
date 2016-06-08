@@ -3,46 +3,33 @@
 const Immutable = require('immutable')
     , { createReducer, combineReducers } = require('redux-immutablejs')
 
-const {
-  SET_AVAILABLE_BACKENDS,
-
-  ADD_LOADED_BACKEND,
-  REMOVE_LOADED_BACKEND,
-
-  SET_CURRENT_BACKEND,
-  UNSET_CURRENT_BACKEND,
-} = require('../types').actions
-
+const actionTypes = require('../types/actions')
 
 const available = createReducer(Immutable.Set(), {
-  [SET_AVAILABLE_BACKENDS]: (state, { backends }) => (
-    backends
-  )
+  [actionTypes.SET_AVAILABLE_BACKENDS]
+  (state, { backends }) {
+    return backends
+  }
 })
 
-
-const loaded = createReducer(Immutable.Map(), {
-  [ADD_LOADED_BACKEND]: (state, { backend }) => (
-    state.set(Immutable.List([backend.type, backend.name]), backend)
-  ),
-
-  [REMOVE_LOADED_BACKEND]: (state, { backend }) => (
-    state.delete(Immutable.List([backend.type, backend.name]))
-  )
-});
-
 const current = createReducer(null, {
-  [SET_CURRENT_BACKEND]: (state, { backend }) => (
-    backend
-  ),
+  [actionTypes.REQUEST_CHANGE_BACKEND]
+  (state, { backend }) {
+    return backend
+  },
 
-  [UNSET_CURRENT_BACKEND]: () => (
-    null
-  )
+  [actionTypes.SET_CURRENT_BACKEND]
+  (state, { backend }) {
+    return backend
+  },
+
+  [actionTypes.UNSET_CURRENT_BACKEND]
+  () {
+    return null
+  }
 });
 
 module.exports = combineReducers({
   available,
-  loaded,
   current
 });

@@ -2,7 +2,7 @@ module.exports = [
     'WEB',
     'FILE',
     'MEMORY',
-    'INDEXEDDB',
+    'INDEXED_DB',
 
     'CANONICAL',
 ]
