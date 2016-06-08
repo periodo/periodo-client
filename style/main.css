@@ -1,0 +1,11 @@
+@import "normalize.css";
+@import "basscss";
+@import "basscss-addons/modules/colors";
+@import "basscss-addons/modules/btn";
+@import "basscss-addons/modules/background-colors";
+
+@import "./variables";
+
+html, body, #main {
+  height: 100%;
+}

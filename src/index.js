@@ -1,16 +1,26 @@
 "use strict";
 
-const React = require('react')
+const h = require('react-hyperscript')
     , ReactDOM = require('react-dom')
-    , { EventEmitter } = require('events')
     , fastclick = require('fastclick')
-    , Router = require('./router')
+    , { createStore, applyMiddleware, compose } = require('redux')
+    , thunk = require('redux-thunk').default
+    , rootReducer = require('./reducers')
+    , Root = require('./components/root')
 
 
-window.periodo = new EventEmitter();
+function initialize() {
+  const store = createStore(
+    rootReducer,
+    compose(
+      applyMiddleware(thunk),
+      window.devToolsExtension ? window.devToolsExtension() : undefined
+    )
+  )
+
+  ReactDOM.render(h(Root, { store }), document.getElementById('main'))
+}
+
+
 fastclick(document.body);
-
-
-ReactDOM.render(
-  React.createElement(Router),
-  document.getElementById('main'))
+initialize();

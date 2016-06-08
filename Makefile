@@ -54,11 +54,7 @@ watch: node_modules | dist
 	$(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
 
 
-GITHUB_TOKEN = ~/.githubtoken
-release: $(ZIP_FILE)
-	./release.sh $(ZIP_FILE) v$(VERSION_STR)
-
-.PHONY: all zip clean wawtch release
+.PHONY: all zip clean watch release
 
 
 #############
