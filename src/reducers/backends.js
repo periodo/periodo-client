@@ -2,31 +2,28 @@
 
 const Immutable = require('immutable')
     , { createReducer, combineReducers } = require('redux-immutablejs')
+    , { RequestedResource } = require('../records')
 
-const actionTypes = require('../types/actions')
+const actionTypes = require('../types').actions
 
-const available = createReducer(Immutable.Set(), {
-  [actionTypes.SET_AVAILABLE_BACKENDS]
-  (state, { backends }) {
-    return backends
+const {
+  UNSENT,
+  SUCCESS,
+} = require('../types').readyStates
+
+
+const available = createReducer(new RequestedResource(), {
+  [actionTypes.REQUEST_AVAILABLE_BACKENDS]
+  (state, action) {
+    return state.merge(Immutable.fromJS(action).delete('type'))
   }
 })
 
 const current = createReducer(null, {
-  [actionTypes.REQUEST_CHANGE_BACKEND]
-  (state, { backend }) {
-    return backend
-  },
-
   [actionTypes.SET_CURRENT_BACKEND]
-  (state, { backend }) {
-    return backend
+  (state, { backend, dataset }) {
+    return Immutable.Map({ backend, dataset })
   },
-
-  [actionTypes.UNSET_CURRENT_BACKEND]
-  () {
-    return null
-  }
 });
 
 module.exports = combineReducers({

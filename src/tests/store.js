@@ -2,8 +2,8 @@
 
 const test = require('tape')
     , Immutable = require('immutable')
-    , { actions } = require('../types')
-    , { Backend } = require('../records')
+    , { actions, readyStates } = require('../types')
+    , { Backend, RequestedResource } = require('../records')
 
 function makeEmptyStore() {
   const { createStore } = require('redux')
@@ -14,8 +14,7 @@ function makeEmptyStore() {
 
 const emptyState = Immutable.Map({
   backends: Immutable.Map({
-    available: Immutable.Set(),
-    loaded: Immutable.Map(),
+    available: new RequestedResource(),
     current: null
   }),
 
@@ -25,7 +24,6 @@ const emptyState = Immutable.Map({
 
 test('Application store', t => {
   t.plan(3);
-
 
   const store1 = makeEmptyStore();
 
@@ -39,14 +37,18 @@ test('Application store', t => {
 
   store2.dispatch({
     type: actions.SET_CURRENT_BACKEND,
-    backend: new Backend({ type: 'fake', name: 'a backend' })
+    backend: new Backend({ type: 'fake', name: 'a backend' }),
+    dataset: 'nothing'
   });
 
   t.ok(
     store2.getState().equals(
-      emptyState.setIn(['backends', 'current'], new Backend({
-        type: 'fake',
-        name: 'a backend'
+      emptyState.setIn(['backends', 'current'], Immutable.Map({
+        backend: new Backend({
+          type: 'fake',
+          name: 'a backend'
+        }),
+        dataset: 'nothing'
       }))
     ),
     'Able to set the current backend'
@@ -56,17 +58,24 @@ test('Application store', t => {
   const store3 = makeEmptyStore();
 
   store3.dispatch({
-    type: actions.ADD_LOADED_BACKEND,
-    backend: new Backend({ type: 'web', name: 'a web backend' })
+    type: actions.REQUEST_AVAILABLE_BACKENDS,
+    readyState: readyStates.SUCCESS,
+    responseData: Immutable.fromJS({
+      backends: [
+        new Backend({ type: 'web', name: 'a web backend' }),
+      ]
+    })
   })
+
 
   t.ok(
     store3.getState().equals(
-      emptyState.updateIn(['backends', 'loaded'], map => map.set(
-        Immutable.List(['web', 'a web backend']),
-        new Backend({ type: 'web', name: 'a web backend' })
-      ))
-    ),
-    'Can add loaded backends'
-  );
+      emptyState
+        .setIn(['backends', 'available', 'readyState'], readyStates.SUCCESS)
+        .setIn(['backends', 'available', 'responseData'], Immutable.fromJS({
+          backends: [
+            new Backend({ type: 'web', name: 'a web backend' })
+          ]
+        }))
+    ), 'Can add loaded backends');
 });

@@ -1,6 +1,7 @@
 "use strict";
 
 const Immutable = require('immutable')
+    , { UNSENT } = require('./types').readyStates
 
 
 exports.Backend = Immutable.Record({
@@ -11,6 +12,14 @@ exports.Backend = Immutable.Record({
   created: null,
   modified: null,
   accessed: null,
+});
+
+
+exports.RequestedResource = Immutable.Record({
+  readyState: UNSENT,
+  payload: null,
+  responseData: null,
+  responseError: null,
 });
 
 
