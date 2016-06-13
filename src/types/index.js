@@ -13,5 +13,6 @@ function defineTypes(label, types) {
 defineTypes('actions', require('./actions'));
 defineTypes('backends', require('./backends'));
 defineTypes('patchTypes', require('./patch_types'));
+defineTypes('readyStates', require('./ready_states'));
 
 Object.freeze(exports);
