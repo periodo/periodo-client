@@ -1,27 +1,39 @@
 const Immutable = require('immutable')
     , { Backend } = require('../records')
-    , periodoDB = require('../../db')
+    , { bindRequestAction } = require('./requests')
+
 
 const {
-  SET_AVAILABLE_BACKENDS,
-  SET_CURRENT_BACKEND
+  REQUEST_AVAILABLE_BACKENDS,
+
+  REQUEST_ADD_BACKEND,
+  REQUEST_DELETE_BACKEND,
+  REQUEST_GET_BACKEND,
+
+  SET_CURRENT_BACKEND,
 } = require('../types').actions
 
 const {
-  INDEXED_DB
+  INDEXED_DB,
 } = require('../types').backends
 
+const {
+  PENDING,
+  SUCCESS,
+  FAILURE,
+} = require('../types').readyStates
 
-/*
-function determineIDBSupport() {
-  return Object.keys(Dexie.dependencies).every(k => dependencies[k]);
-}
-*/
 
-function listAvailableBackends(orderBy='modified', dexieOpts) {
-  return dispatch => {
-    return periodoDB(dexieOpts)
-      .backends
+function listAvailableBackends(orderBy='modified') {
+  return (dispatch, getState, { db }) => {
+    const dispatchReadyState = bindRequestAction(
+      dispatch,
+      REQUEST_AVAILABLE_BACKENDS
+    )
+
+    dispatchReadyState(PENDING);
+
+    return db.backends
       .orderBy(orderBy)
       .toArray()
       .then(backends => {
@@ -31,12 +43,12 @@ function listAvailableBackends(orderBy='modified', dexieOpts) {
           )
         );
 
-        dispatch({
-          type: SET_AVAILABLE_BACKENDS,
-          backends
-        });
+        dispatchReadyState(SUCCESS, { backends });
 
         return backends;
+      })
+      .catch(error => {
+        dispatchReadyState(FAILURE, { error });
       })
   }
 }
@@ -44,19 +56,27 @@ function listAvailableBackends(orderBy='modified', dexieOpts) {
 
 function setCurrentBackend(name, type) {
   return dispatch => {
-    getBackend(name, type).then(backend => {
-      dispatch({
-        type: SET_CURRENT_BACKEND,
-        backend
-      })
-    });
+    dispatch(getBackendWithDataset(name, type))
+      .then(backend => {
+        dispatch({
+          type: SET_CURRENT_BACKEND,
+          backend
+        })
+      });
   }
 }
 
 
-function getBackend(name, type, dexieOpts) {
-  return dispatch => {
-    return periodoDB(dexieOpts)
+function getBackendWithDataset(name, type) {
+  return (dispatch, getState, { db }) => {
+    const dispatchReadyState = bindRequestAction(
+      dispatch,
+      REQUEST_GET_BACKEND
+    )
+
+    dispatchReadyState(PENDING)
+
+    return db.backends
       .where('[name+type]')
       .equals([name, type])
       .toArray()
@@ -65,13 +85,12 @@ function getBackend(name, type, dexieOpts) {
           // FIXME: dispatch error
         }
 
-        const data = Immutable.fromJS(backend.data);
+        const dataset = Immutable.fromJS(backend.dataset);
 
-        dispatch({
-          type: SET_CURRENT_BACKEND,
-          backend,
-          data
-        });
+        dispatch(SUCCESS, {
+          backend: new Backend(backend),
+          dataset
+        })
 
         return backend;
       });
@@ -79,77 +98,68 @@ function getBackend(name, type, dexieOpts) {
 }
 
 
-/*
-function addBackend(backend, dexieOpts) {
-  return listAvailableBackends(undefined, dexieOpts)
-    .then(backends => {
-      const alreadyExists = backends.filter(backend =>
-        backend.type == type && backend.name === name
+// backend should be a Backend record
+function addBackend(backend, dataset) {
+  return (dispatch, getState, { db }) => {
+    const dispatchReadyState = bindRequestAction(
+      dispatch,
+      REQUEST_ADD_BACKEND
+    )
+
+    const now = new Date().getTime()
+
+    backend = new Backend(backend)
+      .set('created', now)
+      .set('modified', now)
+      .set('accessed', now)
+
+    if (backend.type === INDEXED_DB) {
+      dataset = {
+        periodCollections: {},
+        type: 'rdf:Bag'
+      }
+    }
+
+    const payload = Immutable.fromJS({ backend, dataset })
+
+    dispatchReadyState(PENDING, { payload });
+
+    return db.backends
+      .add(Object.assign(backend.toJS(), { dataset }))
+      .then(
+        () => {
+          dispatchReadyState(SUCCESS, { payload });
+        },
+        error => {
+          dispatchReadyState(FAILURE, { payload, error })
+        }
       )
-
-      if (alreadyExists) {
-        throw new Error(`There is already a backend with name: ${name}`);
-      }
-
-      let db
-        , dbOpen
-
-      if (type === 'idb') {
-        db = require('./db')(name);
-        dbOpen = new Promise(resolve => db.on('ready', resolve));
-      } else if (type === 'web') {
-        const webDBs = JSON.parse(localStorage.WebDatabaseNames || '{}')
-
-        webDBs[name] = opts;
-        localStorage.WebDatabaseNames = JSON.stringify(webDBs);
-      } else if (type === 'file') {
-        // Name of DB will be different from filename itself
-        dbOpen = require('./file_backends')
-          .addFile(name, data)
-          .then(({ name }) => ({ name }))
-      } else {
-        throw new Error(`Invalid backend type: ${opts.type}`);
-      }
-
-      return Promise
-        .resolve(dbOpen)
-        .then(() => getBackend(name));
-    })
+  }
 }
 
+function updateBackendDataset(backend, dataset) {
+  return (dispatch, getState, { db }) => {
+    const transactionTables = [db.backends]
 
-*/
+    if (backend.type === INDEXED_DB) {
+      transactionTables.push(db.idbBackendPatches);
+    }
 
-function updateBackend(name, type, data, dexieOpts) {
-  const db = periodoDB(dexieOpts)
-      , transactionTables = [db.backends]
-
-  if (type === INDEXED_DB) {
-    transactionTables.push(db.idbBackendPatches);
-  }
-
-  return (dispatch, getState) => {
     return db.transaction('rw', ...transactionTables, () => {
-      if (type === INDEXED_DB) {
+      if (backend.type === INDEXED_DB) {
         // const patchData = patchUtils.formatPatch(oldData.data, newData, message)
       }
 
-      db.backends
+      return db.backends
         .where('[name+type]')
-        .equals([name, type])
+        .equals([backend.name, backend.type])
         .modify({
-          data: data.toJS(),
+          dataset: dataset.toJS(),
           modified: new Date().getTime()
         })
         .then(ct => {
           if (ct === 0) {
             // FIXME: nothing was saved? Raise an error?
-          }
-
-          const { current } = getState().backends
-
-          if (current.name === name && current.type === type) {
-            getBackend(name, type, dexieOpts)(dispatch);
           }
         })
     });
@@ -157,9 +167,16 @@ function updateBackend(name, type, data, dexieOpts) {
 }
 
 
-function deleteBackend(name, type, dexieOpts) {
-  return dispatch => {
-    return periodoDB(dexieOpts)
+function deleteBackend(name, type) {
+  return (dispatch, getState, { db }) => {
+    const dispatchReadyState = bindRequestAction(
+      dispatch,
+      REQUEST_DELETE_BACKEND
+    )
+
+    dispatchReadyState(PENDING);
+
+    return db.backends
       .where('[name+type]')
       .equals([name, type])
       .delete()
@@ -168,17 +185,17 @@ function deleteBackend(name, type, dexieOpts) {
           // FIXME: nothing was deleted? Raise an error?
         }
 
-        // FIXME: dispatch something
-      });
+        dispatchReadyState(SUCCESS);
+      })
   }
 }
 
 module.exports = {
   listAvailableBackends,
   setCurrentBackend,
-  getBackend,
-  //addBackend,
-  updateBackend,
+  getBackendWithDataset,
+  addBackend,
+  updateBackendDataset,
   deleteBackend,
 
 }

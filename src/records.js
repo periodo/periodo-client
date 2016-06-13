@@ -10,7 +10,7 @@ exports.Backend = Immutable.Record({
 
   created: null,
   modified: null,
-  accesssed: null,
+  accessed: null,
 });
 
 
