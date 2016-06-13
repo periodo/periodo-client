@@ -1,5 +1,7 @@
 /* global describe, it, before, after */
 
+/*
+
 "use strict";
 
 var assert = require('assert')
@@ -268,5 +270,5 @@ describe('Period collection edit view', function () {
 
     return view.handleSave();
   });
-  */
 });
+*/
