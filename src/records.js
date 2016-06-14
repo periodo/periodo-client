@@ -12,7 +12,7 @@ exports.Backend = Immutable.Record({
   created: null,
   modified: null,
   accessed: null,
-});
+}, 'Backend');
 
 
 exports.RequestedResource = Immutable.Record({
@@ -20,7 +20,7 @@ exports.RequestedResource = Immutable.Record({
   payload: null,
   responseData: null,
   responseError: null,
-});
+}, 'RequestedResource');
 
 
 Object.freeze(exports)
