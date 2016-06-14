@@ -1,4 +1,5 @@
 const Immutable = require('immutable')
+    , patchUtils = require('../utils/patch')
     , { Backend } = require('../records')
     , { bindRequestAction } = require('./requests')
 
@@ -9,13 +10,12 @@ const {
   REQUEST_ADD_BACKEND,
   REQUEST_DELETE_BACKEND,
   REQUEST_GET_BACKEND,
+  REQUEST_UPDATE_BACKEND,
 
   SET_CURRENT_BACKEND,
 } = require('../types').actions
 
-const {
-  INDEXED_DB,
-} = require('../types').backends
+const backendTypes = require('../types').backends
 
 const {
   PENDING,
@@ -85,84 +85,116 @@ function getBackendWithDataset(name, type) {
           // FIXME: dispatch error
         }
 
-        const dataset = Immutable.fromJS(backend.dataset);
-
-        dispatch(SUCCESS, {
+        const responseData = {
           backend: new Backend(backend),
-          dataset
-        })
+          dataset: Immutable.fromJS(backend.dataset)
+        }
 
-        return backend;
+        dispatchReadyState(SUCCESS, { responseData });
+
+        return { responseData };
       });
   }
 }
 
 
 // backend should be a Backend record
-function addBackend(backend, dataset) {
+function addBackend(name, type, opts=Immutable.Map(), dataset) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
       REQUEST_ADD_BACKEND
     )
 
-    const now = new Date().getTime()
-
-    backend = new Backend(backend)
-      .set('created', now)
-      .set('modified', now)
-      .set('accessed', now)
-
-    if (backend.type === INDEXED_DB) {
-      dataset = {
-        periodCollections: {},
-        type: 'rdf:Bag'
+    return Promise.resolve().then(() => {
+      if (Object.keys(backendTypes).indexOf(type) === -1) {
+        throw new Error('Invalid backend type')
       }
-    }
 
-    const payload = Immutable.fromJS({ backend, dataset })
+      const now = new Date().getTime()
 
-    dispatchReadyState(PENDING, { payload });
+      const backend = new Backend({ name, type, opts })
+        .set('created', now)
+        .set('modified', now)
+        .set('accessed', now)
 
-    return db.backends
-      .add(Object.assign(backend.toJS(), { dataset }))
-      .then(
-        () => {
-          dispatchReadyState(SUCCESS, { payload });
-        },
-        error => {
-          dispatchReadyState(FAILURE, { payload, error })
+      if (backend.type === backendTypes.INDEXED_DB) {
+        dataset = {
+          periodCollections: {},
+          type: 'rdf:Bag'
         }
-      )
-  }
-}
-
-function updateBackendDataset(backend, dataset) {
-  return (dispatch, getState, { db }) => {
-    const transactionTables = [db.backends]
-
-    if (backend.type === INDEXED_DB) {
-      transactionTables.push(db.idbBackendPatches);
-    }
-
-    return db.transaction('rw', ...transactionTables, () => {
-      if (backend.type === INDEXED_DB) {
-        // const patchData = patchUtils.formatPatch(oldData.data, newData, message)
       }
+
+      const payload = Immutable.fromJS({ backend, dataset })
+
+      dispatchReadyState(PENDING, { payload });
 
       return db.backends
-        .where('[name+type]')
-        .equals([backend.name, backend.type])
-        .modify({
-          dataset: dataset.toJS(),
-          modified: new Date().getTime()
-        })
-        .then(ct => {
-          if (ct === 0) {
-            // FIXME: nothing was saved? Raise an error?
+        .add(Object.assign(backend.toJS(), { dataset }))
+        .then(
+          () => {
+            dispatchReadyState(SUCCESS, { payload });
+          },
+          error => {
+            dispatchReadyState(FAILURE, { payload, error });
           }
-        })
-    });
+        )
+    })
+  } }
+
+function updateBackendDataset(name, type, dataset, message) {
+  return (dispatch, getState, { db }) => {
+    const dispatchReadyState = bindRequestAction(
+      dispatch,
+      REQUEST_UPDATE_BACKEND
+    )
+
+    return Promise.resolve()
+      .then(() => {
+        const payload = { dataset }
+
+        if (type !== backendTypes.INDEXED_DB) {
+          throw new Error('Can only update indexedDB backends')
+        }
+
+        dispatchReadyState(PENDING, { payload });
+
+        return db.transaction('rw', db.backends, db.backendDatasetPatches, () => {
+          return dispatch(getBackendWithDataset(name, type))
+            .then(({ responseData }) => {
+              const now = new Date().getTime()
+                  , oldDataset = responseData.dataset.toJS()
+                  , newDataset = dataset.toJS()
+                  , patchData = patchUtils.formatPatch(oldDataset, newDataset, message)
+
+              db.backends
+                .where('[name+type]')
+                .equals([name, type])
+                .modify({
+                  dataset: newDataset,
+                  modified: now
+                })
+
+              db.backendDatasetPatches.add(Object.assign({ backendName: name }, patchData));
+
+              return {
+                payload,
+                responseData: {
+                  backend: responseData.backend.set('modified', now),
+                  dataset,
+                  patchData
+                }
+              }
+            })
+        }).then(
+          resp => {
+            dispatchReadyState(SUCCESS, resp);
+          },
+          error => {
+            dispatchReadyState(FAILURE, { error })
+          }
+        )
+      })
   }
 }
 
@@ -197,5 +229,4 @@ module.exports = {
   addBackend,
   updateBackendDataset,
   deleteBackend,
-
 }
