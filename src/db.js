@@ -12,11 +12,10 @@ module.exports = function periodoDB(dexieOpts) {
     backends: '++, &[name+type], created, modified, accessed',
 
     // Maps between local skolem IDs and permanent URIs on the server
-    idbBackendIDMaps: '++, backendName, serverURL, localID',
+    backendIDMaps: '++, backendName, serverURL, localID',
 
     // Patches derived from changes in IDB backends
-    idbBackendPatches: '++, backendName, created, *changeType, *affectedCollections, *affectedPeriods, *forwardHashes, *backwardHashes',
-
+    backendDatasetPatches: '++, backendName, created, *changeType, *affectedCollections, *affectedPeriods, *forwardHashes, *backwardHashes',
 
     // Patches submitted from a local dataset
     submittedPatches: 'url, resolved',
