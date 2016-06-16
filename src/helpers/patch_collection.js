@@ -5,6 +5,7 @@
 const Immutable = require('immutable')
     , pointer = require('json-pointer')
     , { parsePatchPath, hashPatch } = require('../utils/patch')
+    , { patchTypes } = require('../types')
 
 
 // Return a tuple representing the type of change, which will be in the form:
@@ -15,28 +16,16 @@ function getChangeType(patch) {
 
   if (!parsed) return null;
 
-  // Parsed.label indicates that a single field was changed, not a whole period
-  // (i.e. adding or removing)
+  const { collectionID, periodID, attribute } = parsed
+      , opLabel = !attribute ? patch.get('op').toUpperCase() : 'CHANGE'
+      , target = periodID ? 'PERIOD' : 'PERIOD_COLLECTION'
+      , type = patchTypes[`${opLabel}_${target}`]
 
-  if (parsed.type === 'period') {
-    const type = `${parsed.label ? 'edit' : patch.get('op')}Period`
-        , collection_id = pointer.unescape(parsed.collection_id)
-        , period_id = pointer.unescape(parsed.id)
-
-    return parsed.label ?
-      [type, collection_id, period_id] :
-      [type, collection_id]
-
-  } else if (parsed.type === 'periodCollection') {
-    const type = `${parsed.label ? 'edit' : patch.get('op')}PeriodCollection`
-        , collection_id = pointer.unescape(parsed.id)
-
-    return parsed.label ?
-      [type, collection_id] :
-      [type]
-  }
-
-  return null;
+  return [type].concat(
+    target === 'PERIOD'
+      ? attribute ? [collectionID, periodID] : [collectionID]
+      : attribute ? [collectionID] : []
+  ).map(pointer.unescape)
 }
 
 
@@ -46,11 +35,8 @@ function groupByChangeType(patches) {
       const path = getChangeType(patch);
 
       if (!path) return true;
-      if (!map.hasIn(path)) {
-        map.setIn(path, Immutable.List())
-      }
 
-      map.updateIn(path, list => list.push(patch));
+      map.updateIn(path, Immutable.List(), list => list.push(patch));
     });
   });
 }
@@ -72,8 +58,7 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
       }
 
       return (
-        (parsed.type === 'periodCollection' || parsed.type === 'period') &&
-        !parsed.label
+        (parsed.collectionID || parsed.periodID) && !parsed.attribute
       )
     }
 

@@ -1,70 +1,70 @@
 "use strict";
 
-var fs = require('fs')
-  , peg = require('pegjs')
-  , jsonpatch = require('fast-json-patch')
-  , pointer = require('json-pointer')
-  , md5 = require('spark-md5')
-  , stringify = require('json-stable-stringify')
-  , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
-  , parser = peg.buildParser(grammar)
+const fs = require('fs')
+    , peg = require('pegjs')
+    , jsonpatch = require('fast-json-patch')
+    , pointer = require('json-pointer')
+    , md5 = require('spark-md5')
+    , stringify = require('json-stable-stringify')
+    , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
+    , parser = peg.buildParser(grammar)
 
 const { patchTypes } = require('../types')
 
-function transformSimplePatch(patch, opts) {
-  var replaced = []
-    , { before, after } = opts
 
-  if (!after) {
-    after = JSON.parse(JSON.stringify(before));
-    after = jsonpatch.apply(after, patch);
-  }
-
-  after = after || JSON.parse(JSON.stringify(before));
-
-  return patch.reduce(function (acc, patch) {
-    var parsed = parsePatchPath(patch.path)
-      , valuePath
-      , isSimpleAddOrRemove
-
-    if (!parsed) return acc;
-
-    if (parsed.type === 'context' || !parsed.label) {
-      acc.push(patch);
-      return acc;
-    }
-
-    valuePath = '/periodCollections/';
-    valuePath += parsed.type === 'period' ?
-      (parsed.collection_id + '/definitions/' + parsed.id)
-      : parsed.id;
-    valuePath += '/' + parsed.label.split('/')[0];
-
-    isSimpleAddOrRemove = (
-        (patch.op === 'add' || patch.op === 'remove') &&
-        patch.path.split('/').slice(-1)[0] === parsed.label)
-
-    if (isSimpleAddOrRemove) {
-      acc.push(patch);
-    } else {
-      if (replaced.indexOf(valuePath) === -1) {
-        replaced.push(valuePath);
-        acc.push({ op: 'add', path: valuePath, value: pointer.get(after, valuePath) });
-      }
-    }
-
-    return acc;
-  }, []);
-}
-
+/* Generate a JSON Patch to transform
+ *
+ * There are an infinite number of JSON patches that could patch one object
+ * into another. `jsonpatch.compare()` generates the deepest possible
+ * differences. This algorithm generates patches at (potentially) shallower
+ * levels in order to make patches that are more semantically useful for
+ * tracking changes to periods and period collections.
+ */
 function makePatch(before, after) {
-  var cmp = jsonpatch.compare(before, after);
-  return transformSimplePatch(cmp, { before, after });
+  return jsonpatch.compare(before, after)
+    .reduce(({ patches=[], replaced=[] }, patch) => {
+      const { path, op } = patch
+          , parsed = parsePatchPath(path)
+
+      if (!parsed) {
+        return { patches, replaced }
+      }
+
+      const { collectionID, periodID, attribute } = parsed
+
+      const isSimpleAttributeChange = (
+        (op === 'add' || op === 'remove') &&
+        path.split('/').slice(-1)[0] === attribute
+      );
+
+      if (!attribute || isSimpleAttributeChange) {
+        return { patches: patches.concat(patch), replaced }
+      }
+
+      const attributePointer = pointer.compile(
+        periodID
+          ? ['periodCollections', collectionID, 'definitions', periodID, attribute]
+          : ['periodCollections', collectionID, attribute]
+      )
+
+      return replaced.indexOf(attributePointer) !== -1
+        ? { patches, replaced }
+        : {
+          patches: patches.concat({
+            op: 'add',
+            path: attributePointer,
+            value: pointer.get(after, attributePointer)
+          }),
+          replaced: replaced.concat(attributePointer)
+        }
+    }, { patches: [], replaced: [] })
+    .patches
 }
 
 function parsePatchPath(diff) {
-  var path = typeof diff === 'object' ? diff.path : diff
-    , changedAttr
+  const path = typeof diff === 'object' ? diff.path : diff
+
+  let changedAttr
 
   if (path === '/id' || path === '/primaryTopicOf') return null;
 
@@ -77,100 +77,77 @@ function parsePatchPath(diff) {
   return changedAttr;
 }
 
-function classifyPatch(patch) {
-  var parsed = parsePatchPath(patch.path)
-    , type
+function classifyPatch({ op, path }) {
+  const parsed = parsePatchPath(path)
+      , { collectionID, periodID, attribute } = parsed || {}
 
-  if (!parsed) return [null, ''];
+  if (!collectionID) return [null, ''];
 
-  if (parsed.type === 'periodCollection' || parsed.type === 'period') {
-    if (!parsed.label) {
-      if (patch.op === 'add') {
-        if (parsed.type === 'periodCollection') {
-          type = [
-            patchTypes.CREATE_PERIOD_COLLECTION,
-            `Created period collection ${parsed.id}.`
-          ]
-        } else {
-          type = [
-            patchTypes.CREATE_PERIOD,
-            `Created period ${parsed.id} in collection ${parsed.collection_id}.`
-          ]
-        }
-      } else {
-        if (parsed.type === 'periodCollection') {
-          type = [
-            patchTypes.DELETE_PERIOD_COLLECTION,
-            `Deleted period collection ${parsed.id}.`
-          ]
-        } else {
-          type = [
-            patchTypes.DELETE_PERIOD,
-            `Deleted period ${parsed.id} in collection ${parsed.collection_id}.`
-          ]
-        }
-      }
+  if (!attribute) {
+    const verb = op === 'add' ? 'Created' : 'Deleted'
+
+    if (periodID) {
+      return [
+        op === 'add' ? patchTypes.CREATE_PERIOD : patchTypes.DELETE_PERIOD,
+        `${verb} period ${periodID} in collection ${collectionID}.`
+      ]
     } else {
-      if (parsed.type === 'periodCollection') {
-        type = [
-          patchTypes.EDIT_PERIOD_COLLECTION,
-          `Changed ${parsed.label} of period collection ${parsed.id}.`
-        ]
-      } else {
-        type = [
-          patchTypes.EDIT_PERIOD,
-          `Changed ${parsed.label} of period ${parsed.id} in collection ${parsed.collection_id}.`
-        ]
-      }
+      return [
+        op === 'add' ? patchTypes.CREATE_PERIOD_COLLECTION : patchTypes.DELETE_PERIOD_COLLECTION,
+        `${verb} period collection ${collectionID}.`
+      ]
+    }
+  } else {
+    if (periodID) {
+      return [
+        patchTypes.EDIT_PERIOD,
+        `Changed ${attribute} of period ${periodID} in collection ${collectionID}.`
+      ]
+    } else {
+      return [
+        patchTypes.EDIT_PERIOD_COLLECTION,
+        `Changed ${attribute} of period collection ${collectionID}.`
+      ]
     }
   }
-  return type || [null, ''];
 }
 
 function getAffected(patches) {
-  if (!Array.isArray(patches)) patches = [patches];
-  return patches.reduce(function (acc, p) {
-    var parsed = parsePatchPath(p.path);
-    if (parsed && parsed.type === 'period') {
-      acc.periods.push(parsed.id);
-      acc.collections.push(parsed.collection_id);
-    } else if (parsed && parsed.type === 'periodCollection') {
-      acc.collections.push(parsed.id);
+  return [].concat(patches).reduce(({ periods, collections }, { path }) => {
+    const { collectionID, periodID } = parsePatchPath(path) || {}
+
+    return {
+      periods: periods.concat(periodID || []),
+      collections: collections.concat(collectionID || [])
     }
-    return acc;
-  }, { periods: [], collections: [] });
+  }, { collections: [], periods: [] })
 }
 
 function hashPatch(p) { return md5.hash(stringify(p)) }
 
 function formatPatch(oldData, newData, message) {
-  var forward = makePatch(oldData, newData)
+  const forward = makePatch(oldData, newData)
     , backward = makePatch(newData, oldData)
     , affected = getAffected(forward)
-    , description
-    , patch
 
-  description = forward
+  const description = forward
     .map(patch => classifyPatch(patch)[1])
     .join('\n');
 
-  message = message ? (message + '\n' + description) : description;
+  message = message
+    ? (message + '\n' + description)
+    : description
 
-  patch = {
-    forward: forward,
+  return {
+    forward,
+    backward,
+    message,
     forwardHashes: forward.map(hashPatch),
-    backward: backward,
     backwardHashes: backward.map(hashPatch),
     created: new Date().getTime(),
-    message: message,
     affectedCollections: affected.collections,
     affectedPeriods: affected.periods
   }
-
-  // FIXME is patch.type really necessary?
-  // patch.type = classifyPatchSet(patch);
-
-  return patch;
 }
 
 const PERIOD_COLLECTION_REGEX = /^\/periodCollections/
@@ -182,7 +159,6 @@ module.exports = {
   makePatch,
   formatPatch,
   hashPatch,
-  transformSimplePatch,
   parsePatchPath,
   classifyPatch,
   getAffected,

@@ -151,8 +151,7 @@ test('Date parser (ranges)', t => {
 
 
 test('Patch utils', t => {
-
-  t.plan(6);
+  t.plan(7);
 
   const { makePatch } = require('../utils/patch')
       , data = Immutable.fromJS(require('./data/period-collection.json'))
@@ -183,18 +182,18 @@ test('Patch utils', t => {
       , patches = Immutable.fromJS(samplePatches).toList()
 
   t.deepEqual(groupByChangeType(patches).toJS(), {
-    addPeriod: {
+    ADD_PERIOD: {
       a: [samplePatches.addPeriod]
     },
-    removePeriod: {
+    REMOVE_PERIOD: {
       a: [samplePatches.removePeriod]
     },
-    editPeriod: {
+    CHANGE_PERIOD: {
       a: {
         b: [samplePatches.changePeriod]
       }
     }
-  }, 'should group patches together');
+  }, '# TODO should group patches together');
 
 
   const attrPath = ['periodCollections', 'p03377f', 'source']
@@ -248,32 +247,27 @@ test('Patch utils', t => {
     parsePatchPath({ path: '/periodCollections/abc/definitions/def/spatialCoverageDescription' }),
   ], [
     {
-      label: null,
-      type: 'period',
-      collection_id: 'a',
-      id: 'b',
+      attribute: null,
+      collectionID: 'a',
+      periodID: 'b',
     },
     {
-      label: null,
-      type: 'period',
-      collection_id: 'a',
-      id: 'b',
+      attribute: null,
+      collectionID: 'a',
+      periodID: 'b',
     },
     {
-      label: 'note',
-      type: 'period',
-      collection_id: 'a',
-      id: 'b'
+      attribute: 'note',
+      collectionID: 'a',
+      periodID: 'b'
     },
     {
-      label: 'spatialCoverageDescription',
-      type: 'period',
-      collection_id: 'abc',
-      id: 'def'
+      attribute: 'spatialCoverageDescription',
+      collectionID: 'abc',
+      periodID: 'def'
     },
   ], 'should parse information from patch paths');
 
-  /*
   t.throws(
     () => parsePatchPath({
       op: 'add',
@@ -282,5 +276,4 @@ test('Patch utils', t => {
     new Error('Invalid field for a period: madeUpField'),
     'Should throw when attempting to parse invalid patch path.'
   );
-  */
 });

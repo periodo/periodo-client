@@ -3,7 +3,7 @@
 const test = require('tape');
 const Immutable = require('immutable');
 
-test('Patch formatting', function (t) {
+test('Patch formatting', t => {
   t.plan(7);
 
   const { formatPatch } = require('../utils/patch');
