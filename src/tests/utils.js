@@ -151,7 +151,7 @@ test('Date parser (ranges)', t => {
 
 
 test('Patch utils', t => {
-  t.plan(7);
+  t.plan(6);
 
   const { makePatch } = require('../utils/patch')
       , data = Immutable.fromJS(require('./data/period-collection.json'))
@@ -226,47 +226,37 @@ test('Patch utils', t => {
   ], 'should use "add" operation for complex values instead of "replace"');
 
 
-  const { classifyPatch, parsePatchPath } = require('../utils/patch')
+  const { describePatch, parsePatchPath } = require('../utils/patch')
       , { patchTypes } = require('../types')
 
   t.deepEqual([
-    classifyPatch(samplePatches.addPeriod),
-    classifyPatch(samplePatches.removePeriod),
-    classifyPatch(samplePatches.changePeriod),
-  ], [
-    [patchTypes.CREATE_PERIOD, 'Created period b in collection a.'],
-    [patchTypes.DELETE_PERIOD, 'Deleted period b in collection a.'],
-    [patchTypes.EDIT_PERIOD, 'Changed note of period b in collection a.'],
-  ], 'should classify patch paths');
-
-
-  t.deepEqual([
-    parsePatchPath(samplePatches.addPeriod),
-    parsePatchPath(samplePatches.removePeriod),
-    parsePatchPath(samplePatches.changePeriod),
-    parsePatchPath({ path: '/periodCollections/abc/definitions/def/spatialCoverageDescription' }),
+    describePatch(samplePatches.addPeriod),
+    describePatch(samplePatches.removePeriod),
+    describePatch(samplePatches.changePeriod),
   ], [
     {
-      attribute: null,
+      type: patchTypes.ADD_PERIOD,
+      label: 'Created period b in collection a.',
       collectionID: 'a',
       periodID: 'b',
+      attribute: null,
     },
     {
-      attribute: null,
+      type: patchTypes.REMOVE_PERIOD,
+      label: 'Deleted period b in collection a.',
       collectionID: 'a',
       periodID: 'b',
+      attribute: null,
     },
     {
+      type: patchTypes.CHANGE_PERIOD,
+      label: 'Changed note of period b in collection a.',
+      collectionID: 'a',
+      periodID: 'b',
       attribute: 'note',
-      collectionID: 'a',
-      periodID: 'b'
     },
-    {
-      attribute: 'spatialCoverageDescription',
-      collectionID: 'abc',
-      periodID: 'def'
-    },
-  ], 'should parse information from patch paths');
+  ], 'should describe patches in a semantically useful way');
+
 
   t.throws(
     () => parsePatchPath({

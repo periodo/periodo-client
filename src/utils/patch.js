@@ -8,8 +8,7 @@ const fs = require('fs')
     , stringify = require('json-stable-stringify')
     , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
     , parser = peg.buildParser(grammar)
-
-const { patchTypes } = require('../types')
+    , { patchTypes } = require('../types')
 
 
 /* Generate a JSON Patch to transform
@@ -24,13 +23,7 @@ function makePatch(before, after) {
   return jsonpatch.compare(before, after)
     .reduce(({ patches=[], replaced=[] }, patch) => {
       const { path, op } = patch
-          , parsed = parsePatchPath(path)
-
-      if (!parsed) {
-        return { patches, replaced }
-      }
-
-      const { collectionID, periodID, attribute } = parsed
+          , { collectionID, periodID, attribute } = describePatch(patch)
 
       const isSimpleAttributeChange = (
         (op === 'add' || op === 'remove') &&
@@ -61,60 +54,48 @@ function makePatch(before, after) {
     .patches
 }
 
-function parsePatchPath(diff) {
-  const path = typeof diff === 'object' ? diff.path : diff
 
-  let changedAttr
+function describePatch({ path, op }) {
+  // FIXME Ignore if top-level change
 
-  if (path === '/id' || path === '/primaryTopicOf') return null;
-
+  let parsed;
   try {
-    changedAttr = parser.parse(path);
+    parsed = parser.parse(path);
   } catch (e) {
     throw new Error('could not parse ' + path);
   }
 
-  return changedAttr;
-}
+  const { collectionID, periodID, attribute } = parsed
+      , opLabel = !attribute ? op.toUpperCase() : 'CHANGE'
+      , target = periodID ? 'PERIOD' : 'PERIOD_COLLECTION'
+      , type = patchTypes[`${opLabel}_${target}`]
 
-function classifyPatch({ op, path }) {
-  const parsed = parsePatchPath(path)
-      , { collectionID, periodID, attribute } = parsed || {}
-
-  if (!collectionID) return [null, ''];
+  // TODO Move this stuff to general i18n
+  let label
 
   if (!attribute) {
     const verb = op === 'add' ? 'Created' : 'Deleted'
 
     if (periodID) {
-      return [
-        op === 'add' ? patchTypes.CREATE_PERIOD : patchTypes.DELETE_PERIOD,
-        `${verb} period ${periodID} in collection ${collectionID}.`
-      ]
+      label = `${verb} period ${periodID} in collection ${collectionID}.`
     } else {
-      return [
-        op === 'add' ? patchTypes.CREATE_PERIOD_COLLECTION : patchTypes.DELETE_PERIOD_COLLECTION,
-        `${verb} period collection ${collectionID}.`
-      ]
+      label = `${verb} period collection ${collectionID}.`
     }
   } else {
     if (periodID) {
-      return [
-        patchTypes.EDIT_PERIOD,
-        `Changed ${attribute} of period ${periodID} in collection ${collectionID}.`
-      ]
+      label = `Changed ${attribute} of period ${periodID} in collection ${collectionID}.`
     } else {
-      return [
-        patchTypes.EDIT_PERIOD_COLLECTION,
-        `Changed ${attribute} of period collection ${collectionID}.`
-      ]
+      label = `Changed ${attribute} of period collection ${collectionID}.`
     }
   }
+
+  return { type, label, collectionID, periodID, attribute }
 }
 
+
 function getAffected(patches) {
-  return [].concat(patches).reduce(({ periods, collections }, { path }) => {
-    const { collectionID, periodID } = parsePatchPath(path) || {}
+  return [].concat(patches).reduce(({ periods, collections }, patch) => {
+    const { collectionID, periodID } = describePatch(patch)
 
     return {
       periods: periods.concat(periodID || []),
@@ -123,7 +104,9 @@ function getAffected(patches) {
   }, { collections: [], periods: [] })
 }
 
+
 function hashPatch(p) { return md5.hash(stringify(p)) }
+
 
 function formatPatch(oldData, newData, message) {
   const forward = makePatch(oldData, newData)
@@ -131,7 +114,7 @@ function formatPatch(oldData, newData, message) {
     , affected = getAffected(forward)
 
   const description = forward
-    .map(patch => classifyPatch(patch)[1])
+    .map(patch => describePatch(patch).label)
     .join('\n');
 
   message = message
@@ -150,18 +133,10 @@ function formatPatch(oldData, newData, message) {
   }
 }
 
-const PERIOD_COLLECTION_REGEX = /^\/periodCollections/
-function affectsPeriodCollections(patch) {
-  return patch.path.match(PERIOD_COLLECTION_REGEX)
-}
-
 module.exports = {
   makePatch,
   formatPatch,
   hashPatch,
-  parsePatchPath,
-  classifyPatch,
+  describePatch,
   getAffected,
-  affectsPeriodCollections,
-  patchTypes
 }

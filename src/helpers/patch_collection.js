@@ -4,25 +4,17 @@
 
 const Immutable = require('immutable')
     , pointer = require('json-pointer')
-    , { parsePatchPath, hashPatch } = require('../utils/patch')
-    , { patchTypes } = require('../types')
+    , { describePatch, hashPatch } = require('../utils/patch')
 
 
 // Return a tuple representing the type of change, which will be in the form:
 // [type, operation, ...identifiers]. If this patch does not effect any periods
 // or period collections, return null.
 function getChangeType(patch) {
-  const parsed = parsePatchPath(patch.get('path'))
-
-  if (!parsed) return null;
-
-  const { collectionID, periodID, attribute } = parsed
-      , opLabel = !attribute ? patch.get('op').toUpperCase() : 'CHANGE'
-      , target = periodID ? 'PERIOD' : 'PERIOD_COLLECTION'
-      , type = patchTypes[`${opLabel}_${target}`]
+  const { type, collectionID, periodID, attribute } = describePatch(patch.toJS())
 
   return [type].concat(
-    target === 'PERIOD'
+    periodID
       ? attribute ? [collectionID, periodID] : [collectionID]
       : attribute ? [collectionID] : []
   ).map(pointer.unescape)
@@ -52,7 +44,7 @@ function filterByHash(patches, keepMatched, hashMatchFn) {
       let parsed
 
       try {
-        parsed = parsePatchPath(patch.get('path'));
+        parsed = describePatch(patch.toJS());
       } catch (err) {
         parsed = {};
       }
