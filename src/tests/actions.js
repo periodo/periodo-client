@@ -45,10 +45,10 @@ test('Periodo DB', t => {
     )
     .then(() =>
       store.dispatch(
-        actions.addBackend(
-          'test backend',
-          types.backends.INDEXED_DB
-        )
+        actions.addBackend({
+          name: 'test backend',
+          type: types.backends.INDEXED_DB
+        })
       ).then(() => {
         const timestamp = store.getActions()[0].payload.getIn(['backend', 'created'])
 
@@ -90,10 +90,10 @@ test('Periodo DB', t => {
     )
     .then(() =>
       store.dispatch(
-        actions.addBackend(
-          'test backend',
-          types.backends.INDEXED_DB
-        )
+        actions.addBackend({
+          name: 'test backend',
+          type: types.backends.INDEXED_DB
+        })
       ).then(() => {
         const lastAction = store.getActions().pop();
 
@@ -124,11 +124,10 @@ test('Periodo DB', t => {
       })
 
       return store.dispatch(
-        actions.updateBackendDataset(
-          'test backend',
-          types.backends.INDEXED_DB,
-          updatedDataset
-        )
+        actions.updateBackendDataset({
+          name: 'test backend',
+          type: types.backends.INDEXED_DB,
+        }, updatedDataset)
       ).then(() => {
         const lastAction = store.getActions().pop();
 
@@ -145,10 +144,10 @@ test('Periodo DB', t => {
       })
     }).then(() =>
       store.dispatch(
-        actions.deleteBackend(
-          'test backend',
-          types.backends.INDEXED_DB
-        )
+        actions.deleteBackend({
+          name: 'test backend',
+          type: types.backends.INDEXED_DB
+        })
       )
     )
     .then(() =>

@@ -54,9 +54,9 @@ function listAvailableBackends(orderBy='modified') {
 }
 
 
-function setCurrentBackend(name, type) {
+function setCurrentBackend({ name, type }) {
   return dispatch => {
-    dispatch(getBackendWithDataset(name, type))
+    dispatch(getBackendWithDataset({ name, type }))
       .then(backend => {
         dispatch({
           type: SET_CURRENT_BACKEND,
@@ -67,7 +67,7 @@ function setCurrentBackend(name, type) {
 }
 
 
-function getBackendWithDataset(name, type) {
+function getBackendWithDataset({ name, type }) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
@@ -99,7 +99,7 @@ function getBackendWithDataset(name, type) {
 
 
 // backend should be a Backend record
-function addBackend(name, type, opts=Immutable.Map(), dataset) {
+function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
@@ -142,7 +142,7 @@ function addBackend(name, type, opts=Immutable.Map(), dataset) {
     })
   } }
 
-function updateBackendDataset(name, type, dataset, message) {
+function updateBackendDataset({ name, type }, dataset, message) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
@@ -160,7 +160,7 @@ function updateBackendDataset(name, type, dataset, message) {
         dispatchReadyState(PENDING, { payload });
 
         return db.transaction('rw', db.backends, db.backendDatasetPatches, () => {
-          return dispatch(getBackendWithDataset(name, type))
+          return dispatch(getBackendWithDataset({ name, type }))
             .then(({ responseData }) => {
               const now = new Date().getTime()
                   , oldDataset = responseData.dataset.toJS()
@@ -199,7 +199,7 @@ function updateBackendDataset(name, type, dataset, message) {
 }
 
 
-function deleteBackend(name, type) {
+function deleteBackend({ name, type }) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
