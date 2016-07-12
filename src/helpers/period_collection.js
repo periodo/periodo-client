@@ -70,4 +70,6 @@ function makeRangeBins(periods, numBins, min, max) {
   });
 }
 
-module.exports = { makeRangeBins }
+module.exports = {
+  makeRangeBins,
+}

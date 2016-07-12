@@ -75,4 +75,10 @@ function wasAutoparsed(terminus) {
     terminus.get('in') === null;
 }
 
-module.exports = { asString, getEarliestYear, getLatestYear, hasISOValue, wasAutoparsed }
+module.exports = {
+  asString,
+  getEarliestYear,
+  getLatestYear,
+  hasISOValue,
+  wasAutoparsed
+}

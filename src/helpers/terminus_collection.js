@@ -20,4 +20,7 @@ function minYear(termini) {
   }
 }
 
-module.exports = { maxYear, minYear }
+module.exports = {
+  maxYear,
+  minYear,
+}

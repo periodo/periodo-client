@@ -8,4 +8,6 @@ function formatContributorList(contributors) {
     : formatName(contributors.first())
 }
 
-module.exports = { formatContributorList }
+module.exports = {
+  formatContributorList,
+}

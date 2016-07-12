@@ -34,6 +34,21 @@ function groupByChangeType(patches) {
 }
 
 
+function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
+  return require('db').backendIDMaps
+    .where('[fromBackendName+toBackendName]')
+      .equals([fromBackendName.name, toBackendName.name])
+    .toArray()
+    .then(idMapObjects => {
+      const idMap = Immutable.List(idMapObjects)
+        .toMap()
+        .mapEntries(([, { fromID, toID }]) => [fromID, toID])
+
+      return replaceIDs(dataset, idMap)
+    })
+}
+
+
 function filterByHash(patches, keepMatched, hashMatchFn) {
   const patchSet = patches.toOrderedSet()
 

@@ -5,4 +5,6 @@ function formatName(contributor) {
   return contributor.get('name');
 }
 
-module.exports = { formatName }
+module.exports = {
+  formatName,
+}

@@ -12,4 +12,7 @@ function getCode(label) {
   return `${label.get('language')}-${label.get('script')}`
 }
 
-module.exports = { getCode, groupByCode }
+module.exports = {
+  getCode,
+  groupByCode,
+}

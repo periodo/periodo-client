@@ -22,4 +22,7 @@ function getSpatialCoverages(collections) {
     .toList()
 }
 
-module.exports = { getSpatialCoverages }
+module.exports = {
+  getSpatialCoverages,
+  getSpatialCoverageCounts,
+}

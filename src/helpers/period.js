@@ -136,4 +136,10 @@ function diffToNode([type, text]) {
 }
 
 
-module.exports = { validate, getOriginalLabel, getAllLabels, getAlternateLabels, diffTree }
+module.exports = {
+  validate,
+  getOriginalLabel,
+  getAllLabels,
+  getAlternateLabels,
+  diffTree,
+}

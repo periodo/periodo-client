@@ -60,4 +60,10 @@ function asCSV(periodization) {
   }))
 }
 
-module.exports = { describe, validate, asCSV, asJSONLD, asTurtle }
+module.exports = {
+  describe,
+  validate,
+  asCSV,
+  asJSONLD,
+  asTurtle
+}
