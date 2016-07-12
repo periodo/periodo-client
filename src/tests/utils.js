@@ -154,7 +154,7 @@ test('Patch utils', t => {
   t.plan(6);
 
   const { makePatch } = require('../utils/patch')
-      , data = Immutable.fromJS(require('./data/period-collection.json'))
+      , data = Immutable.fromJS(require('./fixtures/period-collection.json'))
 
   const samplePatches = {
     addPeriod: {

@@ -8,7 +8,7 @@ test('Patch formatting', t => {
 
   const { formatPatch } = require('../utils/patch');
 
-  const initialData = Immutable.fromJS(require('./data/period-collection.json'));
+  const initialData = Immutable.fromJS(require('./fixtures/period-collection.json'));
   const path = ['periodCollections', 'p03377f', 'definitions', 'p03377fkhrv', 'editorialNote'];
   const updatedData = initialData.setIn(path, 'This is an editorial note.');
 

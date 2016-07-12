@@ -8,7 +8,7 @@ test('Period terminus helpers', function (t) {
   t.plan(4);
 
   const helpers = require('../helpers/terminus');
-  const termini = Immutable.fromJS(require('./data/termini.json'));
+  const termini = Immutable.fromJS(require('./fixtures/termini.json'));
 
   t.ok(Immutable.is(
     termini.map(helpers.getEarliestYear),
@@ -36,7 +36,7 @@ test('Period terminus collection helpers', function (t) {
   t.plan(2);
 
   const helpers = require('../helpers/terminus_collection');
-  const termini = Immutable.fromJS(require('./data/termini.json'));
+  const termini = Immutable.fromJS(require('./fixtures/termini.json'));
 
   t.deepEqual(
     helpers.maxYear(termini),
@@ -57,7 +57,7 @@ test('Periodization helpers', function (t) {
   t.plan(1);
 
   const helpers = require('../helpers/periodization');
-  const data = Immutable.fromJS(require('./data/period-collection.json'));
+  const data = Immutable.fromJS(require('./fixtures/period-collection.json'));
 
   t.deepEqual(helpers.describe(data.getIn(['periodCollections', 'p03377f'])), {
     id: 'p03377f',
@@ -158,7 +158,7 @@ test('Multi label periods', function (t) {
   t.plan(3)
 
   const helpers = require('../helpers/period');
-  const multiLabelPeriod = Immutable.fromJS(require('./data/multi-label-period.json'));
+  const multiLabelPeriod = Immutable.fromJS(require('./fixtures/multi-label-period.json'));
 
   t.ok(Immutable.is(
     helpers.getOriginalLabel(multiLabelPeriod),
