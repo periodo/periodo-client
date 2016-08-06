@@ -4,43 +4,13 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , diff = require('fast-diff')
 
-
-function getOriginalLabel(period) {
-  if (!period.get('label') || !period.get('language')) return null;
-
-  const value = period.get('label');
-  const [ language, script ] = period.get('language').split('-');
-
-  return Immutable.Map({ value, language, script });
-}
-
-
-function getAllLabels(period) {
-  return Immutable.OrderedSet().withMutations(alternateLabels => {
-    period
-      .get('localizedLabels', Immutable.List())
-      .forEach((labels, isoCodes) => {
-        const [ language, script ] = isoCodes.split('-');
-        labels.forEach(value => {
-          alternateLabels.add(Immutable.Map({ value, language, script }));
-        })
-      })
-  })
-}
-
-
-function getAlternateLabels(period) {
-  return getAllLabels(period).remove(getOriginalLabel(period))
-}
-
-
 function addError(map, label, err) {
   return map.update(label, Immutable.List(), list => list.push(err));
 }
 
 
 function validate(period) {
-  const { getEarliestYear, getLatestYear } = require('./terminus')
+  const { getEarliestYear, getLatestYear } = require('periodo-utils/items/terminus')
 
   let errors = Immutable.Map()
 
@@ -138,8 +108,5 @@ function diffToNode([type, text]) {
 
 module.exports = {
   validate,
-  getOriginalLabel,
-  getAllLabels,
-  getAlternateLabels,
   diffTree,
 }

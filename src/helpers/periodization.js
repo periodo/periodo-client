@@ -1,24 +1,3 @@
-"use strict";
-
-const d3 = require('d3')
-    , Immutable = require('immutable')
-    , { asJSONLD, asTurtle } = require('./data')
-
-function describe(periodization) {
-  const { minYear, maxYear } = require('./terminus_collection')
-      , definitions = periodization.get('definitions')
-      , starts = definitions.map(def => def.get('start', Immutable.Map()))
-      , stops = definitions.map(def => def.get('stop', Immutable.Map()))
-
-  return {
-    id: periodization.get('id'),
-    source: require('./source').getDisplayTitle(periodization.get('source')),
-    definitions: periodization.get('definitions', { size: 0 }).size,
-    earliest: minYear(starts),
-    latest: maxYear(stops)
-  }
-}
-
 function validate(periodization) {
   const { isLinkedData } = require('./source')
       , source = periodization.get('source')

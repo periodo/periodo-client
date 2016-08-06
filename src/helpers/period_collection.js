@@ -3,7 +3,7 @@
 const Immutable = require('immutable')
 
 function makeRangeBins(periods, numBins, min, max) {
-  const { getEarliestYear, getLatestYear } = require('./terminus')
+  const { getEarliestYear, getLatestYear } = require('periodo-utils/items/terminus')
 
   let setMin = Infinity
     , setMax = -Infinity
