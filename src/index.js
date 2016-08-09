@@ -15,7 +15,7 @@ function initialize() {
     rootReducer,
     compose(
       applyMiddleware(thunk.withExtraArgument({ db: periodoDB() })),
-      window.devToolsExtension ? window.devToolsExtension() : undefined
+      window.devToolsExtension ? window.devToolsExtension() : a => a
     )
   )
 
