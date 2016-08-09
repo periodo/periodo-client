@@ -1,20 +1,14 @@
 "use strict";
 
 const test = require('blue-tape')
-    , thunk = require('redux-thunk').default
     , actions = require('../actions/backends')
     , Immutable = require('immutable')
-    , configureMockStore = require('redux-mock-store')
     , types = require('../types')
     , { Backend } = require('../records')
-    , mockStorage = require('./mock_storage')()
+    , makeMockStore = require('./mock_store')
 
 
-const mockStore = configureMockStore([
-  thunk.withExtraArgument({ db: require('../db')(mockStorage) })
-])
-
-const store = mockStore();
+const store = makeMockStore();
 
 
 test('Periodo DB', t => Promise.resolve()
