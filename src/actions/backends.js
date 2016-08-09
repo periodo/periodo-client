@@ -171,15 +171,16 @@ function updateBackendDataset({ name, type }, dataset, message) {
                   , newDataset = dataset.toJS()
                   , patchData = patchUtils.formatPatch(oldDataset, newDataset, message)
 
-              db.backends
-                .where('[name+type]')
-                .equals([name, type])
-                .modify({
-                  dataset: newDataset,
-                  modified: now
-                })
+              const backend = db.backends.where('[name+type]').equals([name, type])
 
-              db.backendDatasetPatches.add(Object.assign({ backendName: name }, patchData));
+              backend.modify({
+                dataset: newDataset,
+                modified: now
+              })
+
+              backend.first().then(({ id }) => {
+                db.backendDatasetPatches.add(Object.assign({ backendID: id }, patchData));
+              })
 
               return {
                 payload,

@@ -1,3 +1,4 @@
 module.exports = {
-  backends: require('./backends')
+  backends: require('./backends'),
+  patches: require('./patches'),
 }

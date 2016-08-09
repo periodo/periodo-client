@@ -25,10 +25,6 @@ module.exports = function (initialData) {
     localStorage: new MockLocalStorage(),
   }
 
-  if (initialData) {
-    console.log('loading initial data');
-  }
-
   return configureMockStore([
     thunk.withExtraArgument({ db: require('../db')(mockStorage) })
   ])()
