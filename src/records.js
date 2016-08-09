@@ -5,6 +5,8 @@ const Immutable = require('immutable')
 
 
 exports.Backend = Immutable.Record({
+  id: null,
+
   type: null,
   name: null,
   opts: Immutable.Map(),

@@ -85,6 +85,8 @@ function getBackendWithDataset({ name, type }) {
           // FIXME: dispatch error
         }
 
+        // FIXME: fetch datasets from the web, too
+
         const responseData = {
           backend: new Backend(backend),
           dataset: Immutable.fromJS(backend.dataset)
@@ -113,7 +115,7 @@ function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
 
       const now = new Date().getTime()
 
-      const backend = new Backend({ name, type, opts })
+      let backend = new Backend({ name, type, opts })
         .set('created', now)
         .set('modified', now)
         .set('accessed', now)
@@ -124,6 +126,8 @@ function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
           type: 'rdf:Bag'
         }
       }
+
+      backend = backend.toMap().delete('id');
 
       const payload = Immutable.fromJS({ backend, dataset })
 

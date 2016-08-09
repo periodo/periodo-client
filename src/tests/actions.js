@@ -62,7 +62,7 @@ test('Periodo DB', t => Promise.resolve()
           created: timestamp,
           modified: timestamp,
           accessed: timestamp,
-        }),
+        }).toMap().delete('id'),
 
         dataset: {
           type: 'rdf:Bag',
