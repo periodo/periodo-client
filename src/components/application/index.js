@@ -12,10 +12,18 @@ const LEFT_CLICK = 1;
 module.exports = React.createClass({
   displayName: 'Application',
 
+  childContextTypes: {
+    router: React.PropTypes.instanceOf(require('route-recognizer'))
+  },
+
   getInitialState() {
     return {
       activeComponent: null
     }
+  },
+
+  getChildContext() {
+    return { router: this.props.router }
   },
 
   componentDidMount() {

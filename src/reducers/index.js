@@ -1,8 +1,8 @@
 "use strict";
 
-const { combineReducers } = require('redux-immutablejs')
+const { combineReducers, createReducer } = require('redux-immutablejs')
 
 module.exports = combineReducers({
   backends: require('./backends'),
-  user: require('./user')
+  user: require('./user'),
 })
