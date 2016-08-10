@@ -62,7 +62,7 @@ module.exports = React.createClass({
   fetchPatches() {
     var url = require('url')
       , { getJSON } = require('../ajax')
-      , { getOrcids } = require('../helpers/patch_collection')
+      , { getOrcids } = require('../utils/patch_collection')
       , fetchOrcids = require('../utils/fetch_orcids')
       , serverURL = window.location.origin + window.location.pathname
       , datasetP

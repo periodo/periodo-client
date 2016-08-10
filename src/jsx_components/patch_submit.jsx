@@ -28,7 +28,7 @@ module.exports = React.createClass({
   handleAcceptPatches(localPatch) {
     var url = require('url')
       , pointer = require('json-pointer')
-      , { replaceIDs } = require('../helpers/skolem_ids')
+      , { replaceIDs } = require('../utils/skolem_ids')
       , serverURL = url.resolve(window.location.href, './')
 
     this.props.backend.getMappedIDs(serverURL)

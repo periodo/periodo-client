@@ -14,7 +14,7 @@ PeriodDetails = React.createClass({
 
   render() {
     var Period = require('./shared/period.jsx')
-      , { isSkolemID } = require('../helpers/skolem_ids')
+      , { isSkolemID } = require('../utils/skolem_ids')
       , id = this.props.period.get('id')
       , permalink
 
@@ -68,7 +68,7 @@ module.exports = React.createClass({
     }
   },
   getBreadcrumb: function() {
-    var { getDisplayTitle } = require('../helpers/source')
+    var { getDisplayTitle } = require('../utils/source')
       ,  { backend, router, cursor } = this.props
 
     return [
@@ -146,10 +146,10 @@ module.exports = React.createClass({
       , Breadcrumb = require('./shared/breadcrumb.jsx')
       , PreformattedFile = require('./shared/pre_file.jsx')
       , Source = require('./shared/source.jsx')
-      , { getDisplayTitle } = require('../helpers/source')
-      , { getSpatialCoverages } = require('../helpers/periodization_collection.js')
-      , { asJSONLD, asTurtle, asCSV } = require('../helpers/periodization')
-      , { isSkolemID } = require('../helpers/skolem_ids')
+      , { getDisplayTitle } = require('../utils/source')
+      , { getSpatialCoverages } = require('../utils/periodization_collection.js')
+      , { asJSONLD, asTurtle, asCSV } = require('../utils/periodization')
+      , { isSkolemID } = require('../utils/skolem_ids')
       , initiallyShownPeriodID
       , permalink
 

@@ -13,7 +13,7 @@ module.exports = React.createClass({
 
 
   getInitialState() {
-    var { getAlternateLabels, getOriginalLabel } = require('../../helpers/period.js')
+    var { getAlternateLabels, getOriginalLabel } = require('../../utils/period.js')
       , originalLabel = getOriginalLabel(this.props.period)
       , alternateLabels = getAlternateLabels(this.props.period).toList()
 
@@ -27,7 +27,7 @@ module.exports = React.createClass({
   },
 
   getValue() {
-    var { getCode, groupByCode } = require('../../helpers/label')
+    var { getCode, groupByCode } = require('../../utils/label')
       , value = Immutable.Map()
       , localizedLabels
 

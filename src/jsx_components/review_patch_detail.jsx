@@ -146,7 +146,7 @@ module.exports = React.createClass({
 
   fetchData() {
     var { getJSON } = require('../ajax')
-      , { getOrcids } = require('../helpers/patch_collection')
+      , { getOrcids } = require('../utils/patch_collection')
       , fetchOrcids = require('../utils/fetch_orcids')
 
     this.fetchPatch()

@@ -1,10 +1,10 @@
 const test = require('tape')
     , Immutable = require('immutable')
 
-test('Skolem ID helpers', t => {
+test('Skolem ID utils', t => {
   t.plan(1);
 
-  const { replaceIDs } = require('../helpers/skolem_ids')
+  const { replaceIDs } = require('../utils/skolem_ids')
 
   const oldRecord = Immutable.fromJS({
     a: 'http://example.com/.well-known/genid/abc123',
@@ -42,7 +42,7 @@ test('Skolem ID helpers', t => {
 test('Patch collection hash filtering', t => {
   t.plan(3);
 
-  const { filterByHash } = require('../helpers/patch_collection');
+  const { filterByHash } = require('../utils/patch_collection');
 
   const patches = Immutable.fromJS([
     { op: 'add', path: '/an/edit' },
@@ -87,7 +87,7 @@ test('Patch collection hash filtering', t => {
 test('Period range bins', t => {
   t.plan(2);
 
-  const { makeRangeBins } = require('../helpers/period_collection');
+  const { makeRangeBins } = require('../utils/period_collection');
 
   const periods = Immutable.fromJS([
     { start: { in: { year: 100 }}, stop: { in: { year: 200 }}},
@@ -128,7 +128,7 @@ test('Period range bins', t => {
 test('Period validation', t => {
   t.plan(5);
 
-  const helpers = require('../helpers/period');
+  const utils = require('../utils/period');
 
   const data = Immutable.fromJS({
     nothing: {},
@@ -152,20 +152,20 @@ test('Period validation', t => {
     }
   });
 
-  t.deepEqual(helpers.validate(data.get('nothing')), {
+  t.deepEqual(utils.validate(data.get('nothing')), {
     label: ['This field is required.'],
     dates: ['A period must have start and stop dates.']
   });
 
-  t.deepEqual(helpers.validate(data.get('noDates')), {
+  t.deepEqual(utils.validate(data.get('noDates')), {
     dates: ['A period must have start and stop dates.']
   });
 
-  t.deepEqual(helpers.validate(data.get('mixedEndpoints')), {
+  t.deepEqual(utils.validate(data.get('mixedEndpoints')), {
     dates: ["A period's stop must come after its start."]
   });
 
-  t.deepEqual(helpers.validate(data.get('fine')), null);
+  t.deepEqual(utils.validate(data.get('fine')), null);
 
-  t.deepEqual(helpers.validate(data.get('zeroTerminus')), null);
+  t.deepEqual(utils.validate(data.get('zeroTerminus')), null);
 });

@@ -2,7 +2,7 @@ const Immutable = require('immutable')
     , { bindRequestAction } = require('./requests')
     , { getBackendWithDataset } = require('./backends')
     , { makePatch } = require('../utils/patch')
-    , { filterByHash } = require('../helpers/patch_collection')
+    , { filterByHash } = require('../utils/patch_collection')
 
 
 const {

@@ -67,7 +67,7 @@ test('Patch utils', t => {
   );
 
 
-  const { groupByChangeType } = require('../helpers/patch_collection')
+  const { groupByChangeType } = require('../utils/patch_collection')
       , patches = Immutable.fromJS(samplePatches).toList()
 
   t.deepEqual(groupByChangeType(patches).toJS(), {

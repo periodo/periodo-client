@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
 
 
-const { groupByCode } = require('../../helpers/label')
+const { groupByCode } = require('../../utils/label')
 
 
 const OriginalLabel = ({ value, language, script }) =>

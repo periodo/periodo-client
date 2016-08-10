@@ -31,7 +31,7 @@ module.exports = React.createClass({
 
 
   isValid() {
-    var { validate } = require('../../helpers/period')
+    var { validate } = require('../../utils/period')
       , errors = validate(this.getPeriodValue()) || {}
 
     errors = Immutable.fromJS(errors);
@@ -67,7 +67,7 @@ module.exports = React.createClass({
 
 
   handleLocatorChange(e) {
-    var { isLinkedData } = require('../../helpers/source')
+    var { isLinkedData } = require('../../utils/source')
       , source = this.props.source
       , locator = e.target.value
 

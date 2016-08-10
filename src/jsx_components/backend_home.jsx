@@ -11,7 +11,7 @@ CollectionList = React.createClass({
   },
 
   getMatchedCollections() {
-    var { describe } = require('../helpers/periodization')
+    var { describe } = require('../utils/periodization')
 
     return this.props.store.get('periodCollections')
       .valueSeq()

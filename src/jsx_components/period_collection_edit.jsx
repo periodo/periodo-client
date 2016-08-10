@@ -37,7 +37,7 @@ module.exports = React.createClass({
   },
 
   handleDelete() {
-    var { getDisplayTitle } = require('../helpers/source')
+    var { getDisplayTitle } = require('../utils/source')
       , collection = this.props.cursor.deref()
       , defs = collection.get('definitions').size
       , msg

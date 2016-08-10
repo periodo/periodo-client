@@ -10,7 +10,7 @@ module.exports = {
     label: 'Source',
 
     fn(period) {
-      var { getDisplayTitle } = require('../../helpers/source')
+      var { getDisplayTitle } = require('../../utils/source')
       return getDisplayTitle(this.props.dataset.getIn([
         'periodCollections', period.get('collection_id'), 'source'
       ]));

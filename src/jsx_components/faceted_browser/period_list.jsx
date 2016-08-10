@@ -2,14 +2,14 @@
 
 var React = require('react')
   , Immutable = require('immutable')
-  , { getDisplayTitle } = require('../../helpers/source')
+  , { getDisplayTitle } = require('../../utils/source')
   , PeriodDetails
   , PeriodRow
 
 PeriodRow = React.createClass({
 
   render() {
-    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+    var { getEarliestYear, getLatestYear } = require('../../utils/terminus')
       , earliestStart = getEarliestYear(this.props.data.get('start', Immutable.Map()))
       , latestStop = getLatestYear(this.props.data.get('stop', Immutable.Map()))
 
@@ -202,7 +202,7 @@ module.exports = React.createClass({
   },
 
   getSortedPeriodSeq(periods) {
-    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+    var { getEarliestYear, getLatestYear } = require('../../utils/terminus')
       , naturalSort = require('javascript-natural-sort')
 
     return periods

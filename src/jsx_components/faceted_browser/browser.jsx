@@ -106,7 +106,7 @@ module.exports = React.createClass({
   },
 
   handleRangeBrush({ start, end }) {
-    var { getEarliestYear, getLatestYear } = require('../../helpers/terminus')
+    var { getEarliestYear, getLatestYear } = require('../../utils/terminus')
       , intersects = require('../../utils/intersects')
 
     if (start === null && end === null) {
@@ -134,7 +134,7 @@ module.exports = React.createClass({
 
 
   handleSearchTextChange(text) {
-    var { getAlternateLabels } = require('../../helpers/period')
+    var { getAlternateLabels } = require('../../utils/period')
       , regex
 
     if (!text) {

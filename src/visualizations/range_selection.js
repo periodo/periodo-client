@@ -43,7 +43,7 @@ function RangeSelectionWidget(opts) {
 }
 
 RangeSelectionWidget.prototype.getBins = function getBins(min, max) {
-  var { makeRangeBins } = require('../helpers/period_collection')
+  var { makeRangeBins } = require('../utils/period_collection')
     , bins = makeRangeBins(this.data, 50, min, max)
     , count = this.data.size
     , redo

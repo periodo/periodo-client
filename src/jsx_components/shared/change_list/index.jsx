@@ -60,7 +60,7 @@ ChangeGroup = React.createClass({
 });
 
 function formatPeriodCollectionAddition(addition) {
-  var { describe } = require('../../../helpers/periodization')
+  var { describe } = require('../../../utils/periodization')
     , description = describe(addition.get('value'))
 
   return Immutable.Map({
@@ -134,8 +134,8 @@ module.exports = React.createClass({
   },
 
   getGroupedChanges(changes) {
-    var { groupByChangeType } = require('../../../helpers/patch_collection')
-      , { getDisplayTitle } = require('../../../helpers/source')
+    var { groupByChangeType } = require('../../../utils/patch_collection')
+      , { getDisplayTitle } = require('../../../utils/source')
       , grouped = groupByChangeType(changes)
       , groupedChanges = Immutable.List()
 

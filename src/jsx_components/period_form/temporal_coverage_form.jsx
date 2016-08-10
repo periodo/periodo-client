@@ -7,7 +7,7 @@ module.exports = React.createClass({
   displayName: 'PeriodTemporalCoverageForm',
 
   getInitialState() {
-    var { wasAutoparsed } = require('../../helpers/terminus')
+    var { wasAutoparsed } = require('../../utils/terminus')
       , autoparse
 
     if (!this.props.start && !this.props.stop) {

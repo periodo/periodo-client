@@ -66,7 +66,7 @@ module.exports = React.createClass({
 
 
   handleChange(field, e) {
-    var { hasISOValue } = require('../../helpers/terminus')
+    var { hasISOValue } = require('../../utils/terminus')
       , { terminus, onChange } = this.props
       , value = e.target.value
       , updatedTerminus = terminus.setIn([].concat(field), value)

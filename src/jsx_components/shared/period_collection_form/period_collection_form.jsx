@@ -39,7 +39,7 @@ module.exports = React.createClass({
 
 
   isValid() {
-    var { validate } = require('../../../helpers/periodization')
+    var { validate } = require('../../../utils/periodization')
       , errors = validate(this.getValue()) || {}
 
     errors = Immutable.fromJS(errors);
