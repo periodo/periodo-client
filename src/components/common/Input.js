@@ -7,13 +7,14 @@ const h = require('react-hyperscript')
 function Input(props) {
   const id = props.id || props.name + '-' + randomstr()
 
-  const inputProps = Object.extend({}, props, {
+  const inputProps = Object.assign({}, props, {
     id,
     type: 'text'
   })
 
   return (
-    h('label', props.label, [
+    h('label', [
+      props.label,
       h('input', inputProps)
     ])
   )
