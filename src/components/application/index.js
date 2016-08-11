@@ -2,28 +2,34 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
+    , Immutable = require('immutable')
     , NotFound = require('./not_found')
     , Footer = require('./footer')
     , Header = require('./header')
+    , { connect } = require('react-redux')
 
 const LEFT_CLICK = 1;
 
+const noop = () => null
 
-module.exports = React.createClass({
-  displayName: 'Application',
-
+const Application = React.createClass({
   childContextTypes: {
-    router: React.PropTypes.instanceOf(require('route-recognizer'))
+    router: React.PropTypes.instanceOf(require('route-recognizer')),
+    locationBar: React.PropTypes.instanceOf(require('location-bar')),
   },
 
   getInitialState() {
     return {
-      activeComponent: null
+      activeComponent: null,
+      errors: Immutable.List()
     }
   },
 
   getChildContext() {
-    return { router: this.props.router }
+    return {
+      router: this.props.router,
+      locationBar: this.props.locationBar,
+    }
   },
 
   componentDidMount() {
@@ -42,13 +48,32 @@ module.exports = React.createClass({
       }
     });
 
+
     locationBar.start();
+
+    if (!window.location.hash) {
+      window.location.hash = '#/'
+    }
   },
 
-  handleRoute({ Component, opts={} }, params) {
-    params;
+  handleRoute(handler, params, queryParams) {
+    const { dispatch } = this.props
+        , { load=noop, Component } = handler
 
-    this.setState({ activeComponent: h(Component) })
+    Promise.resolve(load.call(null, dispatch, params, queryParams))
+      .then(() => {
+        const activeComponent = h(Component)
+
+        this.setState({ activeComponent })
+      })
+      .catch(error => {
+        this.setState(prev => ({
+          errors: prev.errors.unshift(Immutable.Map({
+            error,
+            time: new Date()
+          }))
+        }))
+      })
   },
 
   handlePageClick(locationBar, e) {
@@ -78,20 +103,22 @@ module.exports = React.createClass({
 
 
   render() {
-    const { activeComponent } = this.state
+    const { activeComponent, errors } = this.state
 
     return h('div .flex .flex-column', { style: { height: '100%' }}, [
-      h('header .bg-silver .p2 .border-bottom', [
+      h('header .flex-none .bg-silver .p2 .border-bottom', [
         h('div .max-width-4 .mx-auto', [
           h(Header)
         ])
       ]),
-      h('main .flex-auto .p2', [
+
+      h('main .flex-grow .p2', [
         activeComponent
       ]),
-      h('footer .bg-silver .p2 .border-top', [
+
+      h('footer .flex-none .bg-silver .p2 .border-top', [
         h('div .max-width-4 .mx-auto', [
-          h(Footer)
+          h(Footer, { errors })
         ])
       ])
     ])
@@ -140,3 +167,5 @@ module.exports = React.createClass({
       })
   },
 */
+
+module.exports = connect()(Application)

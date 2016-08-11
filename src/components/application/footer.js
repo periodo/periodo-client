@@ -13,9 +13,20 @@ const Logo = ({ href, title, src, height=44 }) =>
   ])
 
 
-const Footer = () =>
+const Footer = ({ errors }) =>
   h('div .flex .justify-between', [
-    h('div', ' '),
+    errors.size === 0 && h('div', ' '),
+
+    errors.size > 0 && h('div', [
+      h('h3', 'Errors'),
+
+      h('pre', errors.map((err, i) =>
+        `${i + 1} (${err.get('time').toISOString()})` +
+        '\n=========\n' +
+        (err.get('error').stack || err.get('error').toString()) +
+        '\n\n'
+      ).toArray())
+    ]),
 
     h('div .right-align', [
       h('span', [

@@ -8,13 +8,21 @@ module.exports = function routerKnower(Component) {
     displayName: 'RouterKnower',
 
     contextTypes: {
-      router: React.PropTypes.instanceOf(require('route-recognizer'))
+      router: React.PropTypes.instanceOf(require('route-recognizer')),
+      locationBar: React.PropTypes.instanceOf(require('location-bar')),
+    },
+
+    navigateTo(routeName, params, queryParams) {
+      const { router, locationBar } = this.context
+          , target = router.generate(routeName, params);
+
+      locationBar.update(target, { trigger: true });
     },
 
     render() {
-      const { router } = this.context
+      const props = Object.assign({ navigateTo: this.navigateTo }, this.props)
 
-      return h(Component, Object.assign({ router }, this.props))
+      return h(Component, props)
     }
   })
 }
