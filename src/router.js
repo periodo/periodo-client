@@ -1,32 +1,63 @@
 "use strict";
 
 const RouteRecognizer = require('route-recognizer')
+    , types = require('./types')
+    , actions = require('./actions')
 
 
-const routes = {
-  '/': {
+const routes = [
+  {
+    path: '/',
     name: 'home',
-    Component: require('./components/pages/home')
+    Component: require('./pages/Home')
   },
-}
 
-/*
-  '/p/': {
+  {
+    path: '/backends/',
     name: 'backend-select',
-    Component: require('./components/backend_select'),
-    opts: {
-      loadInitial: () => actions.backend.listAvailableBackends()
-    }
+    Component: require('./pages/BackendSelect'),
   },
 
-  '/p/:backendName/': {
+  {
+    path: '/:type/:nameOrURL/',
     name: 'backend-home',
-    Component: require('./components/backend_home'),
-    opts: {
-      loadInitial: ({ backendName }) => actions.backend.getBackend(backendName)
-    }
+    Component: require('./components/pages/BackendHome'),
   },
+]
+
+
+module.exports = function () {
+  const router = new RouteRecognizer()
+
+  pages.forEach(({ name, path, load, Component }) => {
+    const handler = { Component, load, name }
+
+    if (!path || !name) {
+      throw new Error('Each page must have a path and name.');
+    }
+
+    if (!handler.Component) {
+      throw new Error(`Route for ${name} (${path}) has no defined Component.`);
+    }
+
+    router.add([{ path, handler }], { as: handler.name });
+  });
+
+  router.generate = (...args) => {
+    let result = RouteRecognizer.prototype.generate.apply(router, args);
+
+    if (result) {
+      result = '#' + result;
+      if (result.slice(-1) !== '/') {
+        result += '/';
+      }
+    }
+    return result;
+  }
+
+  return router;
 }
+
 
 /*
 const backendRoutes = {
@@ -95,25 +126,3 @@ const backendRoutes = {
   },
   */
 
-module.exports = function () {
-  const router = new RouteRecognizer()
-
-  Object.keys(routes).forEach(path => {
-    router.add([
-      { path, handler: routes[path] }
-    ], { as: routes[path].name });
-  });
-
-  router.generate = function () {
-    let result = RouteRecognizer.prototype.generate.apply(router, arguments);
-    if (result) {
-      result = '#' + result;
-      if (result.slice(-1) !== '/') {
-        result += '/';
-      }
-    }
-    return result;
-  }
-
-  return router;
-}

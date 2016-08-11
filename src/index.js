@@ -5,7 +5,9 @@ const h = require('react-hyperscript')
     , fastclick = require('fastclick')
     , thunk = require('redux-thunk').default
     , { createStore, applyMiddleware, compose } = require('redux')
-    , Root = require('./components/root')
+    , LocationBar = require('location-bar')
+    , { Provider } = require('react-redux')
+    , Application = require('./application')
     , rootReducer = require('./reducers')
     , periodoDB = require('./db')
 
@@ -19,7 +21,16 @@ function initialize() {
     )
   )
 
-  ReactDOM.render(h(Root, { store }), document.getElementById('main'))
+  const component = (
+    h(Provider, { store }, [
+      h(Application, {
+        router: require('../router')(),
+        locationBar: new LocationBar()
+      })
+    ])
+  )
+
+  ReactDOM.render(component, document.getElementById('main'))
 }
 
 

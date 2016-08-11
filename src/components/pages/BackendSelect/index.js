@@ -1,142 +1,44 @@
 "use strict";
 
-var React = require('react')
-  , Immutable = require('immutable')
-  , BackendForm
+const React = require('react')
+    , h = require('react-hyperscript')
+    , { connect } = require('react-redux')
+    , BackendForm = require('./Form')
+    , types = require('../../../types')
+    , { listAvailableBackends } = require('../../../actions/backends')
 
-const BACKEND_NAMES = {
-  web: 'Web',
-  idb: 'IndexedDB',
-  file: 'File',
-  memory: 'In-memory'
+exports.path = '/backends/';
+
+exports.name = 'backend-select';
+
+exports.load = function load(dispatch) {
+  return dispatch(listAvailableBackends())
 }
 
-BackendForm = React.createClass({
-
-  getInitialState() {
-    return { type: 'idb' }
-  },
-
-  handleChange(e) {
-    if (e.target.name === 'type') {
-      this.replaceState({ type: e.target.value });
-    } else {
-      this.setState({ [e.target.name]: e.target.value });
-    }
-  },
-
-  handleSave() {
-    require('../backends')
-      .create(this.state)
-      .then(() => window.location.reload())
-  },
-
-
-  handleFileChange(e) {
-    var parsePeriodoUpload = require('../utils/parse_periodo_upload')
-      , file = e.target.files[0]
-
-    parsePeriodoUpload(file)
-      .then(
-        data => this.setState({ name: file.name, data }),
-        err => {
-          this.setState({ name: null });
-          alert('Error parsing file:\n' + err.toString());
-          throw new Error(err);
-        }
-      );
-  },
-
-
-  isValidState() {
-    var isValid = (
-      !!this.state.type &&
-      !!this.state.name &&
-      this.props.existing.indexOf(this.state.name) === -1
-    )
-
-    if (this.state.type === 'web' || this.state.type === 'idb') {
-      isValid = isValid && /^\w+$/.test(this.state.name);
-    }
-
-    if (this.state.type === 'web') {
-      isValid = isValid && !!this.state.url;
-    }
-
-    return isValid;
-  },
-
-  render() {
-    var Input = require('./shared/input.jsx')
-
-    var webSource = this.state.type === 'web' && (
-      <Input
-          id="js-web-source"
-          name="url"
-          label="Source"
-          value={this.state.source}
-          onChange={this.handleChange} />
-    )
-
-    var fileSource = this.state.type === 'file' && (
-      <div>
-        <label>
-          Input file
-          <input type="file" onChange={this.handleFileChange} />
-        </label>
-      </div>
-    )
-
-    return (
-      <div className="row">
-        <div className="col-md-4">
-          <h2>Add backend</h2>
-
-          <div className="form-group">
-            <label htmlFor="js-backend-type">Type</label>
-            <select
-                name="type"
-                value={this.state.type}
-                onChange={this.handleChange}
-                id="js-backend-type"
-                className="form-control">
-              <option value="idb">IndexedDB (editable, stored locally)</option>
-              <option value="web">Web (read-only, accessed remotely)</option>
-              <option value="file">File (read-only, stored locally)</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <Input
-                id="js-name"
-                name="name"
-                label="Name"
-                value={this.state.name}
-                disabled={this.state.type === 'file'}
-                onChange={this.handleChange} />
-            { webSource }
-            { fileSource }
-          </div>
-
-          <div>
-            <button
-                type="button"
-                className="btn btn-primary"
-                onClick={this.handleSave}
-                disabled={!this.isValidState()}>Add</button>
-          </div>
-        </div>
-      </div>
-    )
+function mapPropsToState(props) {
+  return {
+    backends: props.getIn(['backends', 'available', 'responseData', 'backends'])
   }
-});
+}
 
+
+const BackendSelect = props =>
+  h('div', [
+    h('pre', JSON.stringify(props, true, '  ')),
+    h(BackendForm, { existing: [] })
+  ])
+
+
+exports.Component = connect(mapPropsToState)(BackendSelect)
+
+
+  /*
 module.exports = React.createClass({
   displayName: 'BackendSelect',
 
   handleDownloadBackend(backendMap) {
-    var saveAs = require('filesaver.js')
-      , stringify = require('json-stable-stringify')
+    const saveAs = require('filesaver.js')
+        , stringify = require('json-stable-stringify')
 
     require('../backends').get(backendMap.get('name'))
       .then(backend => backend.fetchData())
@@ -238,3 +140,4 @@ module.exports = React.createClass({
     )
   }
 });
+*/

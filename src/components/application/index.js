@@ -60,7 +60,7 @@ const Application = React.createClass({
     const { dispatch } = this.props
         , { load=noop, Component } = handler
 
-    Promise.resolve(load.call(null, dispatch, params, queryParams))
+    Promise.resolve(() => load(dispatch, params, queryParams))
       .then(() => {
         const activeComponent = h(Component)
 
