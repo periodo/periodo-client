@@ -27,14 +27,16 @@ test('Periodo DB', t => Promise.resolve()
         })
       ));
 
-      t.ok(Immutable.is(
+      t.deepEqual(
         Immutable.fromJS(store.getActions().shift()),
         Immutable.fromJS({
           type: types.actions.REQUEST_AVAILABLE_BACKENDS,
           readyState: types.readyStates.SUCCESS,
-          backends: Immutable.List()
-        })
-      ), 'should return an empty List when no backends are present');
+          responseData: {
+            backends: []
+          }
+        }),
+        'should return an empty List when no backends are present');
     })
   )
   .then(() =>
@@ -106,7 +108,7 @@ test('Periodo DB', t => Promise.resolve()
     )
     .then(() => {
       t.equal(2, store.getActions().length);
-      t.equal(1, store.getActions()[1].backends.size, 'should list 1 available backend after adding');
+      t.equal(1, store.getActions()[1].responseData.backends.size, 'should list 1 available backend after adding');
 
       store.clearActions();
     })
@@ -157,7 +159,7 @@ test('Periodo DB', t => Promise.resolve()
     .then(() => {
       const dispatchedActions = store.getActions()
 
-      t.equal(dispatchedActions[dispatchedActions.length - 1].backends.size, 0,
+      t.equal(dispatchedActions[dispatchedActions.length - 1].responseData.backends.size, 0,
           'should list 0 available backends after deleting');
     })
   )
