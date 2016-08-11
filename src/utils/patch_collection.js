@@ -35,7 +35,7 @@ function groupByChangeType(patches) {
 
 
 function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
-  return require('db').backendIDMaps
+  return require('../db').backendIDMaps
     .where('[fromBackendName+toBackendName]')
       .equals([fromBackendName.name, toBackendName.name])
     .toArray()
