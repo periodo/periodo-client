@@ -9,7 +9,7 @@ exports.Backend = Immutable.Record({
 
   type: null,
   name: null,
-  opts: Immutable.Map(),
+  url: null,
 
   created: null,
   modified: null,

@@ -43,7 +43,7 @@ function listAvailableBackends(orderBy='modified') {
           )
         );
 
-        dispatchReadyState(SUCCESS, { backends });
+        dispatchReadyState(SUCCESS, { responseData: { backends }});
 
         return backends;
       })
@@ -67,8 +67,10 @@ function setCurrentBackend({ name, type }) {
 }
 
 
-function getBackendWithDataset({ name, type }) {
+function getBackendWithDataset({ name, url, type }) {
   return (dispatch, getState, { db }) => {
+    let promise
+
     const dispatchReadyState = bindRequestAction(
       dispatch,
       REQUEST_GET_BACKEND
@@ -76,17 +78,45 @@ function getBackendWithDataset({ name, type }) {
 
     dispatchReadyState(PENDING)
 
-    return db.backends
-      .where('[name+type]')
-      .equals([name, type])
-      .toArray()
-      .then(([backend]) => {
-        if (!backend) {
-          // FIXME: dispatch error
-        }
+    if (type === backendTypes.INDEXED_DB) {
+      promise = db.backends
+        .where('[name+type]')
+        .equals([name, type])
+        .toArray()
+        .then(([backend]) => {
+          if (!backend) {
+            throw Error(`No existing local backend named ${name}`)
+          }
 
-        // FIXME: fetch datasets from the web, too
+          return backend
+        })
+    } else if (type === backendTypes.WEB) {
+      const backend = { type, url }
 
+      promise = fetch(backend.url)
+        .then(resp => {
+          if (!resp.ok) {
+            throw new Error(
+            `Failed to fetch backend at ${url}.` +
+            '\n' +
+            `${resp.status} ${resp.statusText}`)
+          }
+
+          backend.modified = resp.headers.get('Last-Modified');
+
+          return resp.json()
+        })
+        .then(dataset => {
+          backend.dataset = dataset;
+
+          return backend;
+        })
+    } else {
+      throw Error(`No way to fetch backend with type ${type}.`)
+    }
+
+    return promise
+      .then(backend => {
         const responseData = {
           backend: new Backend(backend),
           dataset: Immutable.fromJS(backend.dataset)
@@ -95,7 +125,11 @@ function getBackendWithDataset({ name, type }) {
         dispatchReadyState(SUCCESS, { responseData });
 
         return { responseData };
-      });
+      })
+      .catch(error => {
+        dispatchReadyState(FAILURE, { error });
+        throw error;
+      })
   }
 }
 
