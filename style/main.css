@@ -5,6 +5,7 @@
 @import "basscss-addons/modules/background-colors";
 
 @import "./variables";
+@import "./flex";
 
 html, body, #main {
   height: 100%;
