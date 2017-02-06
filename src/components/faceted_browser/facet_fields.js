@@ -1,7 +1,7 @@
 "use strict";
 
 var Immutable = require('immutable')
-  , iso639_3 = require('iso-639-3').all()
+  , tags = require('language-tags')
 
 // formatValue
 
@@ -21,7 +21,9 @@ module.exports = {
       return period
         .get('localizedLabels', Immutable.Map())
         .keySeq()
-        .map(code => iso639_3[code.split('-')[0]].name)
+        .map(tag => tags.check(tag)
+          ? tags(tag).language().descriptions().join('/')
+          : tag)
     },
     multiValue: true
   },
