@@ -1,3 +1,5 @@
+"use strict";
+
 const h = require('react-hyperscript')
     , { getBackendWithDataset } = require('../../actions/backends')
     , types = require('../../types')
@@ -10,7 +12,9 @@ exports.load = function load(dispatch, { type, nameOrURL }) {
 }
 
 module.exports = React.createClass({
-  loadComponentData() {
+  routeName: 'backend-home',
+  routePath: '/:type/:nameOrURL/';
+  loadComponentData({ type, nameOrURL }) {
     let name, url
 
     if (type === 'web') {

@@ -58,9 +58,9 @@ const Application = React.createClass({
 
   handleRoute(handler, params, queryParams) {
     const { dispatch } = this.props
-        , { load=noop, Component } = handler
+        , { onRoute=noop, Component } = handler
 
-    Promise.resolve(() => load(dispatch, params, queryParams))
+    Promise.resolve(() => onRoute(dispatch, params, queryParams))
       .then(() => {
         const activeComponent = h(Component)
 
