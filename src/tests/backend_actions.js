@@ -8,14 +8,13 @@ const test = require('blue-tape')
     , makeMockStore = require('./mock_store')
 
 
-const store = makeMockStore();
+test('Adding backends', t => {
+  const store = makeMockStore()
 
-
-test('Periodo DB', t => Promise.resolve()
-  .then(() =>
-    store.dispatch(
+  return Promise.resolve()
+    .then(() => store.dispatch(
       actions.listAvailableBackends()
-    )
+    ))
     .then(() => {
       t.equal(store.getActions().length, 2);
 
@@ -38,14 +37,12 @@ test('Periodo DB', t => Promise.resolve()
         }),
         'should return an empty List when no backends are present');
     })
-  )
-  .then(() =>
-    store.dispatch(
+    .then(() => store.dispatch(
       actions.addBackend({
         name: 'test backend',
         type: types.backends.INDEXED_DB
       })
-    )
+    ))
     .then(() => {
       const timestamp = store.getActions()[0].payload.getIn(['backend', 'created'])
 
@@ -81,54 +78,58 @@ test('Periodo DB', t => Promise.resolve()
           }
         ])
       ), 'should allow adding backends')
-
-      store.clearActions();
     })
-  )
-  .then(() =>
-    store.dispatch(
+    .then(() => store.dispatch(
+      actions.listAvailableBackends()
+    ))
+    .then(() => {
+      // Two for adding, two for listing
+      t.equal(4, store.getActions().length);
+      t.equal(1, store.getActions()[3].responseData.backends.size, 'should list 1 available backend after adding');
+
+    })
+    .then(() => store.dispatch(
       actions.addBackend({
         name: 'test backend',
         type: types.backends.INDEXED_DB
       })
-    )
+    ))
     .then(() => {
       const lastAction = store.getActions().pop();
 
       t.equal(lastAction.readyState, types.readyStates.FAILURE);
       t.equal(lastAction.error.name, 'ConstraintError',
           'Should throw a Dexie ConstraintError when adding multiple backends with the same type+name')
-
-      store.clearActions();
     })
-  )
-  .then(() =>
-    store.dispatch(
-      actions.listAvailableBackends()
-    )
-    .then(() => {
-      t.equal(2, store.getActions().length);
-      t.equal(1, store.getActions()[1].responseData.backends.size, 'should list 1 available backend after adding');
+})
 
-      store.clearActions();
-    })
-  )
-  .then(() => {
-    const updatedDataset = Immutable.fromJS({
-      type: 'rdf:Bag',
-      periodCollections: {
-        'collection1': {
-          id: 'collection1'
-        }
-      }
-    })
+test('Updating backends', t => {
+  const store = makeMockStore()
 
-    return store.dispatch(
-      actions.updateBackendDataset({
+  return Promise.resolve()
+    .then(() => store.dispatch(
+      actions.addBackend({
         name: 'test backend',
-        type: types.backends.INDEXED_DB,
-      }, updatedDataset)
-    )
+        type: types.backends.INDEXED_DB
+      })
+    ))
+    .then(() => {
+      const updatedDataset = Immutable.fromJS({
+        type: 'rdf:Bag',
+        periodCollections: {
+          'collection1': {
+            id: 'collection1'
+          }
+        }
+      })
+
+      return store.dispatch(
+        actions.updateBackendDataset({
+          name: 'test backend',
+          type: types.backends.INDEXED_DB,
+        }, updatedDataset)
+      )
+    })
     .then(() => {
       const lastAction = store.getActions().pop();
 
@@ -143,24 +144,19 @@ test('Periodo DB', t => Promise.resolve()
         }
       ], 'Should generate patch data for an updated dataset');
     })
-  })
-  .then(() =>
-    store.dispatch(
+    .then(() => store.dispatch(
       actions.deleteBackend({
         name: 'test backend',
         type: types.backends.INDEXED_DB
       })
-    )
-  )
-  .then(() =>
-    store.dispatch(
+    ))
+    .then(() => store.dispatch(
       actions.listAvailableBackends()
-    )
+    ))
     .then(() => {
       const dispatchedActions = store.getActions()
 
       t.equal(dispatchedActions[dispatchedActions.length - 1].responseData.backends.size, 0,
           'should list 0 available backends after deleting');
     })
-  )
-);
+});

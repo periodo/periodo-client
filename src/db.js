@@ -7,18 +7,19 @@ const Dexie = require('dexie')
 module.exports = function periodoDB(dexieOpts) {
   const db = new Dexie(DB_NAME, dexieOpts)
 
-  db.version(1).stores({
-    // All available backends
-    backends: `
+  db.version(2).stores({
+    localBackends: `
       ++id,
-      &[name+type],
+      &name,
       created,
       modified,
       accessed
     `,
 
+    remoteBackends: 'url',
+
     // Patches derived from changes in IDB backends
-    backendDatasetPatches: `
+    localBackendPatches: `
       ++,
       backendID,
       created,
@@ -30,7 +31,7 @@ module.exports = function periodoDB(dexieOpts) {
     `,
 
     // Patches submitted from a local dataset
-    submittedPatches: 'url, resolved',
+    submittedPatches: 'url, backendName, resolved',
 
     // Cached triples from URLs
     linkedDataCache: 'url, *triples.subject, *triples.object',

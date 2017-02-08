@@ -1,20 +1,15 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { getBackendWithDataset } = require('../../actions/backends')
-    , types = require('../../types')
+    , React = require('react')
+    , { getBackendWithDataset } = require('../actions/backends')
+    , types = require('../types')
 
 exports.name = 'backend-home';
 
 exports.path = '/:type/:nameOrURL/';
 
-exports.load = function load(dispatch, { type, nameOrURL }) {
-}
-
-module.exports = React.createClass({
-  routeName: 'backend-home',
-  routePath: '/:type/:nameOrURL/';
-  loadComponentData({ type, nameOrURL }) {
+exports.onLoad = function load(dispatch, { type, nameOrURL }) {
     let name, url
 
     if (type === 'web') {
@@ -28,8 +23,9 @@ module.exports = React.createClass({
     }
 
     return dispatch(getBackendWithDataset({ type, name, url }));
-  },
+}
 
+exports.Component = React.createClass({
   render () {
     return h('h1', 'HOME')
   }

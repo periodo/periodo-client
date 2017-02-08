@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { createStore, applyMiddleware, compose } = require('redux')
     , LocationBar = require('location-bar')
     , { Provider } = require('react-redux')
-    , Application = require('./application')
+    , Application = require('./components/application')
     , rootReducer = require('./reducers')
     , periodoDB = require('./db')
 
@@ -24,7 +24,7 @@ function initialize() {
   const component = (
     h(Provider, { store }, [
       h(Application, {
-        router: require('../router')(),
+        router: require('./router')(),
         locationBar: new LocationBar()
       })
     ])

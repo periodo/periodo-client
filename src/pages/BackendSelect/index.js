@@ -1,17 +1,15 @@
 "use strict";
 
-const React = require('react')
-    , h = require('react-hyperscript')
+const  h = require('react-hyperscript')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
-    , types = require('../../../types')
-    , { listAvailableBackends } = require('../../../actions/backends')
+    , { listAvailableBackends } = require('../../actions/backends')
 
 exports.path = '/backends/';
 
 exports.name = 'backend-select';
 
-exports.load = function load(dispatch) {
+exports.onLoad = function load(dispatch) {
   return dispatch(listAvailableBackends())
 }
 

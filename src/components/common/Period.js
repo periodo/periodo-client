@@ -1,8 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , React = require('react')
     , Immutable = require('immutable')
+    , linkify = require('../../utils/linkify')
 
 
 const { groupByCode } = require('../../utils/label')
@@ -60,11 +60,11 @@ const simpleFields = period => [
     label: 'Locator'
   },
   {
-    value: asURL(period.getIn(['url'])),
+    value: linkify(period.getIn(['url'])),
     label: 'URL'
   },
   {
-    value: asURL(period.getIn(['sameAs'])),
+    value: linkify(period.getIn(['sameAs'])),
     label: 'Same as'
   },
   {
@@ -115,3 +115,5 @@ function Period({ period, linkify }) {
     ])
   )
 }
+
+module.exports = Period;

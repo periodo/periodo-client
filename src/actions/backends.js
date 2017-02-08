@@ -24,7 +24,12 @@ const {
 } = require('../types').readyStates
 
 
-function listAvailableBackends(orderBy='modified') {
+function makeBackend(type) {
+  return backend => new Backend(backend).set('type', type)
+}
+
+
+function listAvailableBackends() {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
@@ -33,23 +38,22 @@ function listAvailableBackends(orderBy='modified') {
 
     dispatchReadyState(PENDING);
 
-    return db.backends
-      .orderBy(orderBy)
-      .toArray()
-      .then(backends => {
-        backends = Immutable.List(
-          backends.map(backend =>
-            new Backend(backend).update('opts', Immutable.fromJS)
-          )
-        );
+    return db.transaction('r', db.localBackends, db.remoteBackends, () => {
+      db.localBackends.toArray(localBackends => {
+        db.remoteBackends.toArray(remoteBackends => {
+          const backends = Immutable.List()
+            .concat(localBackends.map(makeBackend(backendTypes.INDEXED_DB)))
+            .concat(remoteBackends.map(makeBackend(backendTypes.WEB)))
 
-        dispatchReadyState(SUCCESS, { responseData: { backends }});
+          dispatchReadyState(SUCCESS, { responseData: { backends }});
 
-        return backends;
+          return backends;
+        })
       })
       .catch(error => {
         dispatchReadyState(FAILURE, { error });
       })
+    })
   }
 }
 
@@ -79,9 +83,9 @@ function getBackendWithDataset({ name, url, type }) {
     dispatchReadyState(PENDING)
 
     if (type === backendTypes.INDEXED_DB) {
-      promise = db.backends
-        .where('[name+type]')
-        .equals([name, type])
+      promise = db.localBackends
+        .where('name')
+        .equals(name)
         .toArray()
         .then(([backend]) => {
           if (!backend) {
@@ -142,6 +146,8 @@ function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
       REQUEST_ADD_BACKEND
     )
 
+    let payload;
+
     return Promise.resolve().then(() => {
       if (Object.keys(backendTypes).indexOf(type) === -1) {
         throw new Error('Invalid backend type')
@@ -163,22 +169,19 @@ function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
 
       backend = backend.toMap().delete('id');
 
-      const payload = Immutable.fromJS({ backend, dataset })
+      payload = Immutable.fromJS({ backend, dataset })
 
       dispatchReadyState(PENDING, { payload });
 
-      return db.backends
+      return db.localBackends
         .add(Object.assign(backend.toJS(), { dataset }))
-        .then(
-          () => {
-            dispatchReadyState(SUCCESS, { payload });
-          },
-          error => {
-            dispatchReadyState(FAILURE, { payload, error });
-          }
-        )
+    }).then(() => {
+      dispatchReadyState(SUCCESS, { payload });
+    }, error => {
+      dispatchReadyState(FAILURE, { payload, error })
     })
-  } }
+  }
+}
 
 function updateBackendDataset({ name, type }, dataset, message) {
   return (dispatch, getState, { db }) => {
@@ -197,7 +200,7 @@ function updateBackendDataset({ name, type }, dataset, message) {
 
         dispatchReadyState(PENDING, { payload });
 
-        return db.transaction('rw', db.backends, db.backendDatasetPatches, () => {
+        return db.transaction('rw', db.localBackends, db.localBackendPatches, () => {
           return dispatch(getBackendWithDataset({ name, type }))
             .then(({ responseData }) => {
               const now = new Date().getTime()
@@ -205,7 +208,7 @@ function updateBackendDataset({ name, type }, dataset, message) {
                   , newDataset = dataset.toJS()
                   , patchData = patchUtils.formatPatch(oldDataset, newDataset, message)
 
-              const backend = db.backends.where('[name+type]').equals([name, type])
+              const backend = db.localBackends.where('name').equals(name)
 
               backend.modify({
                 dataset: newDataset,
@@ -213,7 +216,7 @@ function updateBackendDataset({ name, type }, dataset, message) {
               })
 
               backend.first().then(({ id }) => {
-                db.backendDatasetPatches.add(Object.assign({ backendID: id }, patchData));
+                db.localBackendPatches.add(Object.assign({ backendID: id }, patchData));
               })
 
               return {
@@ -225,15 +228,11 @@ function updateBackendDataset({ name, type }, dataset, message) {
                 }
               }
             })
-        }).then(
-          resp => {
-            dispatchReadyState(SUCCESS, resp);
-          },
-          error => {
-            dispatchReadyState(FAILURE, { error })
-          }
-        )
+        })
+      }).then(resp => {
+        dispatchReadyState(SUCCESS, resp)
       })
+      .catch(error => { dispatchReadyState(FAILURE, { error }) })
   }
 }
 
@@ -245,11 +244,14 @@ function deleteBackend({ name, type }) {
       REQUEST_DELETE_BACKEND
     )
 
+    // fixme
+    type
+
     dispatchReadyState(PENDING);
 
-    return db.backends
-      .where('[name+type]')
-      .equals([name, type])
+    return db.localBackends
+      .where('name')
+      .equals(name)
       .delete()
       .then(ct => {
         if (ct === 0) {

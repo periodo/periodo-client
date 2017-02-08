@@ -53,7 +53,7 @@ function generateDatasetPatch(originBackend, remoteBackend, action=PUSH) {
             , hashObjectStore = `${push ? 'forward' : 'backward'}Hashes`
 
         const filterHashes = hashes =>
-          db.backendDatasetPatches
+          db.localBackendPatches
             .where(hashObjectStore)
             .anyOf(hashes.toArray())
             .and(({ backendID }) => backendID === originID)

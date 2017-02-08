@@ -2,7 +2,7 @@
 
 const FDBFactory = require('fake-indexeddb/lib/FDBFactory')
     , thunk = require('redux-thunk').default
-    , configureMockStore = require('redux-mock-store')
+    , configureMockStore = require('redux-mock-store').default
 
 class MockLocalStorage {
   constructor() {

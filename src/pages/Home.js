@@ -4,7 +4,7 @@ const React = require('react')
     , h = require('react-hyperscript')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
-    , routerKnower = require('../util/router_knower')
+    , routerKnower = require('../components/util/router_knower')
 
 exports.name = 'home'
 

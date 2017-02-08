@@ -58,15 +58,18 @@ const Application = React.createClass({
 
   handleRoute(handler, params, queryParams) {
     const { dispatch } = this.props
-        , { onRoute=noop, Component } = handler
+        , { onLoad=noop, Component } = handler
 
-    Promise.resolve(() => onRoute(dispatch, params, queryParams))
+    Promise.resolve()
+      .then(() => onLoad(dispatch, params, queryParams))
       .then(() => {
         const activeComponent = h(Component)
 
         this.setState({ activeComponent })
       })
       .catch(error => {
+        console.error(error);
+        throw error;
         this.setState(prev => ({
           errors: prev.errors.unshift(Immutable.Map({
             error,

@@ -19,11 +19,6 @@ const backendB = {
   type: types.backends.INDEXED_DB,
 }
 
-function deepEqual(a, b) {
-  
-}
-
-
 test('Patch generation actions', t => {
   const store = makeMockStore()
 
@@ -32,20 +27,20 @@ test('Patch generation actions', t => {
       store.dispatch(backendActions.addBackend(backendA)),
       store.dispatch(backendActions.addBackend(backendB)),
     ]))
-    .then(() => Promise.all([
-      store.dispatch(backendActions.updateBackendDataset(backendA, Immutable.fromJS({
+    .then(() => store.dispatch(
+      backendActions.updateBackendDataset(backendA, Immutable.fromJS({
         type: 'rdf:Bag',
         periodCollections: {
           fakeID: {
             id: 'fakeID'
           }
         }
-      }))),
-    ]))
-    .then(() => store.dispatch(
-        patchActions.generateDatasetPatch(backendA, backendB)
+      }))
     ))
-    .then(() =>
+    .then(() => store.dispatch(
+      patchActions.generateDatasetPatch(backendA, backendB)
+    ))
+    .then(() => {
       t.deepEqual(store.getActions().pop(), {
         type: types.actions.REQUEST_GENERATE_DATASET_PATCH,
         readyState: types.readyStates.SUCCESS,
@@ -59,15 +54,15 @@ test('Patch generation actions', t => {
           }
         ])
       }, 'should patch additions')
-    )
+    })
     .then(() => store.dispatch(
       patchActions.generateDatasetPatch(backendA, backendB, types.patchDirections.PULL)
     ))
-    .then(() =>
+    .then(() => {
       t.deepEqual(store.getActions().pop(), {
         type: types.actions.REQUEST_GENERATE_DATASET_PATCH,
         readyState: types.readyStates.SUCCESS,
         patch: Immutable.fromJS([])
       }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
-    )
+    })
 })

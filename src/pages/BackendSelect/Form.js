@@ -1,6 +1,6 @@
 const React = require('react')
     , h = require('react-hyperscript')
-    , types = require('../../../types')
+    , types = require('../../types')
 
 
 const {
@@ -37,7 +37,7 @@ module.exports = React.createClass({
 
 
   handleFileChange(e) {
-    const parsePeriodoUpload = require('../../../utils/parse_periodo_upload')
+    const parsePeriodoUpload = require('../../utils/parse_periodo_upload')
         , file = e.target.files[0]
 
     parsePeriodoUpload(file)
@@ -71,7 +71,7 @@ module.exports = React.createClass({
   },
 
   render() {
-    const Input = require('../../common/Input')
+    const Input = require('../../components/common/Input')
 
     return (
       h('div', [

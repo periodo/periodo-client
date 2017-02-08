@@ -5,32 +5,18 @@ const RouteRecognizer = require('route-recognizer')
     , actions = require('./actions')
 
 
-const routes = [
-  {
-    path: '/',
-    name: 'home',
-    Component: require('./pages/Home')
-  },
-
-  {
-    path: '/backends/',
-    name: 'backend-select',
-    Component: require('./pages/BackendSelect'),
-  },
-
-  {
-    path: '/:type/:nameOrURL/',
-    name: 'backend-home',
-    Component: require('./components/pages/BackendHome'),
-  },
+const pages = [
+  require('./pages/Home'),
+  require('./pages/BackendSelect'),
+  require('./pages/BackendHome'),
 ]
 
 
 module.exports = function () {
   const router = new RouteRecognizer()
 
-  pages.forEach(({ name, path, load, Component }) => {
-    const handler = { Component, load, name }
+  pages.forEach(({ name, path, onLoad, Component }) => {
+    const handler = { Component, onLoad, name }
 
     if (!path || !name) {
       throw new Error('Each page must have a path and name.');

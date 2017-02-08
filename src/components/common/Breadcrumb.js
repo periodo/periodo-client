@@ -1,6 +1,7 @@
 "use strict";
 
-const h = require('react-hyperscript')
+const React = require('react')
+    , h = require('react-hyperscript')
 
 const Crumb = ({ url, label }, i, crumbs) => {
   const last = i === crumbs.length - 1
@@ -18,7 +19,7 @@ const Crumb = ({ url, label }, i, crumbs) => {
 }
 
 function Breadcrumb({ crumbs }) {
-  return h('ol', crumps.map(Crumb))
+  return h('ol', crumbs.map(Crumb))
 }
 
 Breadcrumb.propTypes = {

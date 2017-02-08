@@ -34,6 +34,7 @@
     "redux": "^3.5.2",
     "redux-immutablejs": "0.0.8",
     "redux-thunk": "^2.1.0",
+    "route-recognizer": "^0.2.9",
     "routes": "^2.1.0",
     "spark-md5": "0.0.5"
   },
