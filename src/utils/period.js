@@ -10,7 +10,7 @@ function addError(map, label, err) {
 
 
 function validate(period) {
-  const { getEarliestYear, getLatestYear } = require('periodo-utils/items/terminus')
+  const { getEarliestYear, getLatestYear } = require('periodo-utils/lib/items/terminus')
 
   let errors = Immutable.Map()
 
