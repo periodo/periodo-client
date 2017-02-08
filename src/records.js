@@ -3,7 +3,6 @@
 const Immutable = require('immutable')
     , { UNSENT } = require('./types').readyStates
 
-
 exports.Backend = Immutable.Record({
   id: null,
 
