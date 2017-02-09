@@ -1,5 +1,6 @@
 const Immutable = require('immutable')
     , patchUtils = require('../utils/patch')
+    , parseURL = require('url').parse
     , { Backend } = require('../records')
     , { bindRequestAction } = require('./requests')
 
@@ -139,7 +140,7 @@ function getBackendWithDataset({ name, url, type }) {
 
 
 // backend should be a Backend record
-function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
+function addBackend({ name, type, url=null }, dataset=null) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
@@ -148,38 +149,53 @@ function addBackend({ name, type, opts=Immutable.Map() }, dataset) {
 
     let payload;
 
-    return Promise.resolve().then(() => {
-      if (Object.keys(backendTypes).indexOf(type) === -1) {
-        throw new Error('Invalid backend type')
-      }
-
-      const now = new Date().getTime()
-
-      let backend = new Backend({ name, type, opts })
-        .set('created', now)
-        .set('modified', now)
-        .set('accessed', now)
-
-      if (backend.type === backendTypes.INDEXED_DB) {
-        dataset = {
-          periodCollections: {},
-          type: 'rdf:Bag'
+    return Promise.resolve()
+      .then(() => {
+        if (Object.keys(backendTypes).indexOf(type) === -1) {
+          throw new Error('Invalid backend type');
         }
-      }
 
-      backend = backend.toMap().delete('id');
+        if (type === backendTypes.WEB) {
+          if (!url) {
+            throw new Error('Cannot add a Web backend without a URL.');
+          }
 
-      payload = Immutable.fromJS({ backend, dataset })
+          const { protocol, host } = parseURL(url)
 
-      dispatchReadyState(PENDING, { payload });
+          if (!(protocol && host)) {
+            throw new Error(`Invalid URL: ${url}`);
+          }
+        }
 
-      return db.localBackends
-        .add(Object.assign(backend.toJS(), { dataset }))
-    }).then(() => {
-      dispatchReadyState(SUCCESS, { payload });
-    }, error => {
-      dispatchReadyState(FAILURE, { payload, error })
-    })
+        const now = new Date().getTime()
+
+        let backend = new Backend({ name, type, url })
+          .set('created', now)
+          .set('modified', now)
+          .set('accessed', now)
+
+        if (backend.type === backendTypes.INDEXED_DB) {
+          dataset = {
+            periodCollections: {},
+            type: 'rdf:Bag'
+          }
+        }
+
+        backend = backend.toMap().delete('id');
+
+        payload = Immutable.fromJS({ backend, dataset })
+
+        dispatchReadyState(PENDING, { payload });
+
+        return db.localBackends
+          .add(Object.assign(backend.toJS(), { dataset }))
+      })
+      .then(() => {
+        dispatchReadyState(SUCCESS, { payload });
+      })
+      .catch(error => {
+        dispatchReadyState(FAILURE, { payload, error })
+      })
   }
 }
 
@@ -229,36 +245,54 @@ function updateBackendDataset({ name, type }, dataset, message) {
               }
             })
         })
-      }).then(resp => {
+      })
+      .then(resp => {
         dispatchReadyState(SUCCESS, resp)
       })
-      .catch(error => { dispatchReadyState(FAILURE, { error }) })
+      .catch(error => {
+        dispatchReadyState(FAILURE, { error })
+      })
   }
 }
 
 
-function deleteBackend({ name, type }) {
+function deleteBackend({ name, url, type }) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
       REQUEST_DELETE_BACKEND
     )
 
-    // fixme
-    type
-
     dispatchReadyState(PENDING);
 
-    return db.localBackends
-      .where('name')
-      .equals(name)
-      .delete()
+    let promise
+
+    if (type === backendTypes.INDEXED_DB) {
+      promise = db.localBackends
+        .where('name')
+        .equals(name)
+        .delete()
+    } else if (type === backendTypes.WEB) {
+      promise = db.remoteBackends
+        .where('url')
+        .equals(url)
+        .delete()
+    } else {
+      promise = Promise.resolve().then(() => {
+        throw new Error(`Cannot delete backend with type ${type}`)
+      })
+    }
+
+    return promise
       .then(ct => {
         if (ct === 0) {
           // FIXME: nothing was deleted? Raise an error?
         }
 
         dispatchReadyState(SUCCESS);
+      })
+      .catch(error => {
+        dispatchReadyState(FAILURE, { error })
       })
   }
 }

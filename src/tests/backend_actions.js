@@ -8,7 +8,7 @@ const test = require('blue-tape')
     , makeMockStore = require('./mock_store')
 
 
-test('Adding backends', t => {
+test('Adding IDB backends', t => {
   const store = makeMockStore()
 
   return Promise.resolve()
@@ -26,7 +26,7 @@ test('Adding backends', t => {
         })
       ));
 
-      t.deepEqual(
+      t.ok(Immutable.is(
         Immutable.fromJS(store.getActions().shift()),
         Immutable.fromJS({
           type: types.actions.REQUEST_AVAILABLE_BACKENDS,
@@ -34,8 +34,8 @@ test('Adding backends', t => {
           responseData: {
             backends: []
           }
-        }),
-        'should return an empty List when no backends are present');
+        })
+      ), 'should return an empty List when no backends are present');
     })
     .then(() => store.dispatch(
       actions.addBackend({
@@ -100,6 +100,72 @@ test('Adding backends', t => {
       t.equal(lastAction.readyState, types.readyStates.FAILURE);
       t.equal(lastAction.error.name, 'ConstraintError',
           'Should throw a Dexie ConstraintError when adding multiple backends with the same type+name')
+    })
+})
+
+test('Adding Web backends', t => {
+  const store = makeMockStore()
+
+  return Promise.resolve()
+    .then(() => store.dispatch(
+      actions.addBackend({
+        name: 'test backend',
+        type: types.backends.WEB,
+        url: 'http://example.com/'
+      })
+    ))
+    .then(() => {
+      const timestamp = store.getActions()[0].payload.getIn(['backend', 'created'])
+
+      const expectedPayload = Immutable.fromJS({
+        backend: new Backend({
+          name: 'test backend',
+          type: types.backends.WEB,
+          url: 'http://example.com/',
+          created: timestamp,
+          modified: timestamp,
+          accessed: timestamp,
+        }).toMap().delete('id'),
+
+        dataset: null
+      });
+
+      t.ok(Immutable.is(
+        Immutable.fromJS(store.getActions()),
+        Immutable.fromJS([
+          {
+            type: types.actions.REQUEST_ADD_BACKEND,
+            readyState: types.readyStates.PENDING,
+            payload: expectedPayload
+          },
+          {
+            type: types.actions.REQUEST_ADD_BACKEND,
+            readyState: types.readyStates.SUCCESS,
+            payload: expectedPayload
+          }
+        ])
+      ), 'should allow adding Web backends')
+    })
+    .then(() => store.dispatch(
+      actions.listAvailableBackends()
+    ))
+    .then(() => {
+      // Two for adding, two for listing
+      t.equal(4, store.getActions().length);
+      t.equal(1, store.getActions()[3].responseData.backends.size, 'should list 1 available backend after adding');
+
+    })
+    .then(() => store.dispatch(
+      actions.addBackend({
+        name: 'test backend2',
+        type: types.backends.WEB,
+      })
+    ))
+    .then(() => {
+      const last = store.getActions().pop()
+
+      t.equals(last.readyState, types.readyStates.FAILURE,
+          'should fail to add a Web backend without a URL')
     })
 })
 
