@@ -15,7 +15,7 @@ const {
 const available = createReducer(new RequestedResource(), {
   [actionTypes.REQUEST_AVAILABLE_BACKENDS]
   (state, action) {
-    return state.merge(Immutable.fromJS(action).delete('type'))
+    return Immutable.fromJS(action).delete('type');
   }
 })
 
