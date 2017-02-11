@@ -9,7 +9,9 @@ function groupByCode(labels) {
 }
 
 function getCode(label) {
-  return `${label.get('language')}-${label.get('script')}`
+  return label.get('script')
+    ? `${label.get('language')}-${label.get('script')}`
+    : `${label.get('language')}`
 }
 
 module.exports = { getCode, groupByCode }

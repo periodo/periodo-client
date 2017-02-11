@@ -6,7 +6,7 @@ var React = require('react')
   , randomstr = require('../../utils/randomstr')
 
 
-const DEFAULT_LABEL = Immutable.Map({ value: '', language: 'eng', script: 'latn' })
+const DEFAULT_LABEL = Immutable.Map({ value: '', language: 'en' })
 
 module.exports = React.createClass({
   displayName: 'LabelForm',

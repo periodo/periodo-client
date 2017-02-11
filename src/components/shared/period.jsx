@@ -17,7 +17,7 @@ module.exports = React.createClass({
   render: function () {
     var { asString } = require('../../helpers/terminus')
       , { getOriginalLabel, getAlternateLabels } = require('../../helpers/period')
-      , { groupByCode } = require('../../helpers/label')
+      , { groupByCode, getCode } = require('../../helpers/label')
       , linkify = this.props.linkify ? require('../../utils/linkify') : text => text
       , asURL = this.props.linkify ? makeLink : text => text
       , period = this.props.period
@@ -72,7 +72,7 @@ module.exports = React.createClass({
           <dd>
             { originalLabel.get('value') }
             {' '}
-            ({ originalLabel.get('language') }-{ originalLabel.get('script') })
+            { getCode(originalLabel) }
           </dd>
         </div>
 

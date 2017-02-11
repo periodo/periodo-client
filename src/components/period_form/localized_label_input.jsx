@@ -1,11 +1,21 @@
 "use strict";
 
 var React = require('react')
+  , Immutable = require('immutable')
+  , tags = require('language-tags')
+  , languages = Immutable.Map(
+      require('language-subtag-registry/data/json/language')).keySeq()
+  , scripts = Immutable.Map(
+      require('language-subtag-registry/data/json/script')).keySeq()
+
+const describe = tag => tag ? tag.descriptions().join('/') : ''
+const language = tag => tags(tag).language()
+const script = tag => tag ? tags(tag).script() : undefined
 
 module.exports = React.createClass({
   displayName: 'PeriodLabelsForm',
   handleSelect: function (field, value) {
-    var newLabel = this.props.label.set(field, value.get('code').toLowerCase());
+    var newLabel = this.props.label.set(field, value);
     this.props.onChange(newLabel);
   },
   handleChange: function (field, e) {
@@ -14,8 +24,6 @@ module.exports = React.createClass({
   },
   render: function () {
     var DropdownAutocomplete = require('../shared/dropdown_autocomplete.jsx')
-      , languages = require('../../utils/languages')
-      , scripts = require('../../utils/scripts')
 
     return (
       <div className="form-group" data-field="alternate-label">
@@ -24,13 +32,19 @@ module.exports = React.createClass({
           <div className="input-group-btn">
             <DropdownAutocomplete
                 label={this.props.label.get('language')}
+                initialInput={
+                  describe(language(this.props.label.get('language')))
+                }
                 list={languages}
-                getter={language => language.get('name')}
+                getter={tag => describe(language(tag))}
                 onSelect={this.handleSelect.bind(null, 'language')} />
             <DropdownAutocomplete
                 label={this.props.label.get('script')}
+                initialInput={
+                  describe(script(this.props.label.get('script')))
+                }
                 list={scripts}
-                getter={script => script.get('name')}
+                getter={tag => describe(script(tag))}
                 onSelect={this.handleSelect.bind(null, 'script')} />
           </div>
 
