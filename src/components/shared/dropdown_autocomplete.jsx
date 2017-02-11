@@ -3,18 +3,29 @@
 var React = require('react')
   , Immutable = require('immutable')
 
+const moveCursorToEnd = e => {
+  var value = e.target.value
+  e.target.value = ''
+  e.target.value = value
+}
+
 module.exports = React.createClass({
   displayName: 'AutocompleteDropdown',
 
   propTypes: {
     label: React.PropTypes.string.isRequired,
+    initialInput: React.PropTypes.string,
     list: React.PropTypes.instanceOf(Immutable.Iterable).isRequired,
     getter: React.PropTypes.func.isRequired,
     onSelect: React.PropTypes.func.isRequired
   },
 
+  getDefaultProps: function () {
+    return { initialInput: '' }
+  },
+
   getInitialState: function () {
-    return { matchText: '', shown: false }
+    return { matchText: this.props.initialInput, shown: false }
   },
 
   handleInput: function (e) {
@@ -22,7 +33,7 @@ module.exports = React.createClass({
   },
 
   handleShown: function () {
-    this.setState({ matchText: '', shown: true }, () => {
+    this.setState({ matchText: this.props.initialInput, shown: true }, () => {
       var input = React.findDOMNode(this).querySelector('input')
       input.focus();
     });
@@ -44,6 +55,7 @@ module.exports = React.createClass({
       <li key="_input" style={{ padding: '1em' }}>
         <input
             value={this.state.matchText}
+            onFocus={moveCursorToEnd}
             onChange={this.handleInput}
             className="form-control" />
         <br />
