@@ -58,11 +58,13 @@ module.exports = React.createClass({
   },
 
   getMatches: function (text) {
-    return Immutable.List(fuzzy.filter(text, this.props.list, {
-      pre: '<strong>',
-      post: '</strong>',
-      extract: this.props.getter
-    })).take(this.props.limit);
+    return text
+      ? Immutable.List(fuzzy.filter(text, this.props.list, {
+          pre: '<strong>',
+          post: '</strong>',
+          extract: this.props.getter
+        })).take(this.props.limit)
+      : Immutable.List()
   },
 
   renderMatch: function (match, i) {
@@ -94,7 +96,7 @@ module.exports = React.createClass({
       <ul className="list-unstyled">
         {
           !matches.size ?
-            <p>No matches.</p> :
+            <p style={{paddingLeft: '1em'}}>No matches.</p> :
             matches.map(this.renderMatch)
         }
       </ul>
