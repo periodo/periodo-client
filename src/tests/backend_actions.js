@@ -8,100 +8,106 @@ const test = require('blue-tape')
     , makeMockStore = require('./mock_store')
 
 
-test('Adding IDB backends', t => {
+test('Adding IDB backends', async t => {
   const store = makeMockStore()
 
-  return Promise.resolve()
-    .then(() => store.dispatch(
-      actions.listAvailableBackends()
-    ))
-    .then(() => {
-      t.equal(store.getActions().length, 2);
+  await store.dispatch(
+    actions.listAvailableBackends())
 
-      t.ok(Immutable.is(
-        Immutable.fromJS(store.getActions().shift()),
-        Immutable.fromJS({
-          type: types.actions.REQUEST_AVAILABLE_BACKENDS,
-          readyState: types.readyStates.PENDING,
-        })
-      ));
+  {
+    t.equal(store.getActions().length, 2);
+    t.equal(store.getActions()[0].requestID, store.getActions()[1].requestID);
 
-      t.ok(Immutable.is(
-        Immutable.fromJS(store.getActions().shift()),
-        Immutable.fromJS({
-          type: types.actions.REQUEST_AVAILABLE_BACKENDS,
-          readyState: types.readyStates.SUCCESS,
-          responseData: {
-            backends: []
-          }
-        })
-      ), 'should return an empty List when no backends are present');
-    })
-    .then(() => store.dispatch(
-      actions.addBackend({
-        name: 'test backend',
-        type: types.backends.INDEXED_DB
+    t.ok(Immutable.is(
+      Immutable.fromJS(store.getActions().shift()).delete('requestID'),
+      Immutable.fromJS({
+        type: types.actions.GET_ALL_BACKENDS,
+        readyState: types.readyStates.PENDING,
       })
-    ))
-    .then(() => {
-      const timestamp = store.getActions()[0].payload.getIn(['backend', 'created'])
+    ));
 
-      t.ok(timestamp, 'should automatically set a timestamp when adding a new backend')
-
-      const expectedPayload = Immutable.fromJS({
-        backend: new Backend({
-          name: 'test backend',
-          type: types.backends.INDEXED_DB,
-          created: timestamp,
-          modified: timestamp,
-          accessed: timestamp,
-        }).toMap().delete('id'),
-
-        dataset: {
-          type: 'rdf:Bag',
-          periodCollections: {}
+    t.ok(Immutable.is(
+      Immutable.fromJS(store.getActions().shift()).delete('requestID'),
+      Immutable.fromJS({
+        type: types.actions.GET_ALL_BACKENDS,
+        readyState: types.readyStates.SUCCESS,
+        responseData: {
+          backends: []
         }
-      });
-
-      t.ok(Immutable.is(
-        Immutable.fromJS(store.getActions()),
-        Immutable.fromJS([
-          {
-            type: types.actions.REQUEST_ADD_BACKEND,
-            readyState: types.readyStates.PENDING,
-            payload: expectedPayload
-          },
-          {
-            type: types.actions.REQUEST_ADD_BACKEND,
-            readyState: types.readyStates.SUCCESS,
-            payload: expectedPayload
-          }
-        ])
-      ), 'should allow adding backends')
-    })
-    .then(() => store.dispatch(
-      actions.listAvailableBackends()
-    ))
-    .then(() => {
-      // Two for adding, two for listing
-      t.equal(4, store.getActions().length);
-      t.equal(1, store.getActions()[3].responseData.backends.size, 'should list 1 available backend after adding');
-
-    })
-    .then(() => store.dispatch(
-      actions.addBackend({
-        name: 'test backend',
-        type: types.backends.INDEXED_DB
       })
-    ))
-    .then(() => {
-      const lastAction = store.getActions().pop();
+    ), 'should return an empty List when no backends are present');
+  }
 
-      t.equal(lastAction.readyState, types.readyStates.FAILURE);
-      t.equal(lastAction.error.name, 'ConstraintError',
-          'Should throw a Dexie ConstraintError when adding multiple backends with the same type+name')
+  await store.dispatch(
+    actions.addBackend({
+      name: 'test backend',
+      type: types.backends.INDEXED_DB
+    }))
+
+  {
+    const timestamp = store.getActions()[0].payload.getIn(['backend', 'created'])
+
+    t.ok(timestamp, 'should automatically set a timestamp when adding a new backend')
+
+    const expectedPayload = Immutable.fromJS({
+      backend: new Backend({
+        name: 'test backend',
+        type: types.backends.INDEXED_DB,
+        url: null,
+        created: timestamp,
+        modified: timestamp,
+        accessed: timestamp,
+      }).toMap().delete('id'),
+
+      dataset: {
+        type: 'rdf:Bag',
+        periodCollections: {}
+      }
+    });
+
+    t.ok(Immutable.is(
+      Immutable.fromJS(store.getActions()).map(action => action.delete('requestID')),
+      Immutable.fromJS([
+        {
+          type: types.actions.CREATE_BACKEND,
+          readyState: types.readyStates.PENDING,
+          payload: expectedPayload
+        },
+        {
+          type: types.actions.CREATE_BACKEND,
+          readyState: types.readyStates.SUCCESS,
+          payload: expectedPayload
+        }
+      ])
+    ), 'should allow adding backends')
+  }
+
+
+  await store.dispatch(
+    actions.listAvailableBackends())
+
+  {
+    // Two for adding, two for listing
+    t.equal(4, store.getActions().length);
+    t.equal(1, store.getActions()[3].responseData.backends.size, 'should list 1 available backend after adding');
+  }
+
+  await store.dispatch(
+    actions.addBackend({
+      name: 'test backend',
+      type: types.backends.INDEXED_DB
     })
+  )
+
+  {
+    const lastAction = store.getActions().pop();
+
+    t.equal(lastAction.readyState, types.readyStates.FAILURE);
+    t.equal(lastAction.error.name, 'ConstraintError',
+      'Should throw a Dexie ConstraintError when adding multiple backends with the same type+name')
+  }
 })
+
 
 test('Adding Web backends', t => {
   const store = makeMockStore()
@@ -131,15 +137,15 @@ test('Adding Web backends', t => {
       });
 
       t.ok(Immutable.is(
-        Immutable.fromJS(store.getActions()),
+        Immutable.fromJS(store.getActions()).map(action => action.delete('requestID')),
         Immutable.fromJS([
           {
-            type: types.actions.REQUEST_ADD_BACKEND,
+            type: types.actions.CREATE_BACKEND,
             readyState: types.readyStates.PENDING,
             payload: expectedPayload
           },
           {
-            type: types.actions.REQUEST_ADD_BACKEND,
+            type: types.actions.CREATE_BACKEND,
             readyState: types.readyStates.SUCCESS,
             payload: expectedPayload
           }

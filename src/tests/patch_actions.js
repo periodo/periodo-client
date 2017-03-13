@@ -41,8 +41,12 @@ test('Patch generation actions', t => {
       patchActions.generateDatasetPatch(backendA, backendB)
     ))
     .then(() => {
-      t.deepEqual(store.getActions().pop(), {
-        type: types.actions.REQUEST_GENERATE_DATASET_PATCH,
+      const action = store.getActions().pop()
+
+      delete action.requestID;
+
+      t.deepEqual(action, {
+        type: types.actions.GENERATE_DATASET_PATCH,
         readyState: types.readyStates.SUCCESS,
         patch: Immutable.fromJS([
           {
@@ -59,8 +63,12 @@ test('Patch generation actions', t => {
       patchActions.generateDatasetPatch(backendA, backendB, types.patchDirections.PULL)
     ))
     .then(() => {
-      t.deepEqual(store.getActions().pop(), {
-        type: types.actions.REQUEST_GENERATE_DATASET_PATCH,
+      const action = store.getActions().pop()
+
+      delete action.requestID
+
+      t.deepEqual(action, {
+        type: types.actions.GENERATE_DATASET_PATCH,
         readyState: types.readyStates.SUCCESS,
         patch: Immutable.fromJS([])
       }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')

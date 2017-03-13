@@ -58,20 +58,21 @@ test('Application store', t => {
   const store3 = makeEmptyStore();
 
   store3.dispatch({
-    type: actions.REQUEST_AVAILABLE_BACKENDS,
+    type: actions.GET_ALL_BACKENDS,
+    requestID: 1,
     readyState: readyStates.SUCCESS,
     responseData: Immutable.fromJS({
       backends: [
         new Backend({ type: 'web', name: 'a web backend' }),
       ]
     })
-  })
-
+  });
 
   t.ok(
     store3.getState().equals(
       emptyState
         .setIn(['backends', 'available', 'readyState'], readyStates.SUCCESS)
+        .setIn(['backends', 'available', 'requestID'], 1)
         .setIn(['backends', 'available', 'responseData'], Immutable.fromJS({
           backends: [
             new Backend({ type: 'web', name: 'a web backend' })

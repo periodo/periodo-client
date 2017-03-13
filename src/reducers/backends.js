@@ -13,9 +13,11 @@ const {
 
 
 const available = createReducer(new RequestedResource(), {
-  [actionTypes.REQUEST_AVAILABLE_BACKENDS]
+  [actionTypes.GET_ALL_BACKENDS]
   (state, action) {
-    return Immutable.fromJS(action).delete('type');
+    const resp = Immutable.Map(action).delete('type')
+
+    return state.merge(resp)
   }
 })
 

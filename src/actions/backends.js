@@ -6,12 +6,12 @@ const Immutable = require('immutable')
 
 
 const {
-  REQUEST_AVAILABLE_BACKENDS,
+  GET_ALL_BACKENDS,
 
-  REQUEST_ADD_BACKEND,
-  REQUEST_DELETE_BACKEND,
-  REQUEST_GET_BACKEND,
-  REQUEST_UPDATE_BACKEND,
+  GET_BACKEND,
+  CREATE_BACKEND,
+  UPDATE_BACKEND,
+  DELETE_BACKEND,
 
   SET_CURRENT_BACKEND,
 } = require('../types').actions
@@ -32,10 +32,7 @@ function makeBackend(type) {
 
 function listAvailableBackends() {
   return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(
-      dispatch,
-      REQUEST_AVAILABLE_BACKENDS
-    )
+    const dispatchReadyState = bindRequestAction(dispatch, GET_ALL_BACKENDS)
 
     dispatchReadyState(PENDING);
 
@@ -71,70 +68,101 @@ function setCurrentBackend({ name, type }) {
   }
 }
 
+function setFileBackend({ file }) {
+  const parsePeriodoUpload = require('../utils/parse_periodo_upload')
 
-function getBackendWithDataset({ name, url, type }) {
+  return dispatch => {
+    const backend = new Backend({
+      type: FILE,
+      name: file.name,
+      // ...the rest of the metadata
+    })
+
+    parsePeriodoUpload(file).then(
+      dataset => dispatch({
+        type: SET_CURRENT_BACKEND,
+        backend,
+        dataset
+      })
+    )
+
+  }
+}
+
+
+function getBackendWithDataset({ name, url, type }, setAsActive=false) {
   return (dispatch, getState, { db }) => {
     let promise
 
-    const dispatchReadyState = bindRequestAction(
-      dispatch,
-      REQUEST_GET_BACKEND
-    )
+    const dispatchReadyState = bindRequestAction(dispatch, GET_BACKEND)
 
     dispatchReadyState(PENDING)
 
-    if (type === backendTypes.INDEXED_DB) {
-      promise = db.localBackends
-        .where('name')
-        .equals(name)
-        .toArray()
-        .then(([backend]) => {
-          if (!backend) {
-            throw Error(`No existing local backend named ${name}`)
-          }
+    switch (type) {
+      case backendTypes.INDEXED_DB:
+        promise = db.localBackends
+          .where('name')
+          .equals(name)
+          .toArray()
+          .then(([backend]) => {
+            if (!backend) {
+              throw Error(`No existing local backend named ${name}`)
+            }
 
-          return backend
-        })
-    } else if (type === backendTypes.WEB) {
-      const backend = { type, url }
+            return [backend, backend.dataset]
+          })
+        break;
 
-      promise = fetch(backend.url)
-        .then(resp => {
-          if (!resp.ok) {
-            throw new Error(
-            `Failed to fetch backend at ${url}.` +
-            '\n' +
-            `${resp.status} ${resp.statusText}`)
-          }
+      case backendTypes.WEB:
+        promise = db.remoteBackends
+          .where('url')
+          .equals(url)
+          .toArray()
+          .then(([backend]) => {
+            if (!backend) {
+              backend = { type: backendTypes.WEB_ANONYMOUS, url }
+            }
+
+            return backend;
+          })
+          .then(backend => fetch(url).then(resp => {
+            if (!resp.ok) {
+              throw new Error(
+              `Failed to fetch backend at ${url}.` +
+              '\n' +
+              `${resp.status} ${resp.statusText}`)
+            }
 
           backend.modified = resp.headers.get('Last-Modified');
 
-          return resp.json()
-        })
-        .then(dataset => {
-          backend.dataset = dataset;
+          return resp.json().then(dataset => [backend, dataset])
+        }))
+        break;
 
-          return backend;
-        })
-    } else {
-      throw Error(`No way to fetch backend with type ${type}.`)
+      default:
+        throw Error(`No way to fetch backend with type ${type}.`)
     }
 
-    return promise
-      .then(backend => {
-        const responseData = {
-          backend: new Backend(backend),
-          dataset: Immutable.fromJS(backend.dataset)
-        }
+    return promise.then(([backend, dataset]) => {
+      const responseData = {
+        backend: new Backend(backend),
+        dataset: Immutable.fromJS(dataset)
+      }
 
-        dispatchReadyState(SUCCESS, { responseData });
 
-        return { responseData };
-      })
-      .catch(error => {
-        dispatchReadyState(FAILURE, { error });
-        throw error;
-      })
+
+      dispatchReadyState(SUCCESS, { responseData });
+
+      if (setAsActive) {
+        dispatch({ SET_CURRENT_BACKEND, backend })
+      }
+
+      return responseData;
+    })
+    .catch(error => {
+      dispatchReadyState(FAILURE, { error });
+      throw error;
+    })
   }
 }
 
@@ -142,10 +170,7 @@ function getBackendWithDataset({ name, url, type }) {
 // backend should be a Backend record
 function addBackend({ name, type, url=null }, dataset=null) {
   return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(
-      dispatch,
-      REQUEST_ADD_BACKEND
-    )
+    const dispatchReadyState = bindRequestAction(dispatch, CREATE_BACKEND)
 
     let payload;
 
@@ -201,10 +226,7 @@ function addBackend({ name, type, url=null }, dataset=null) {
 
 function updateBackendDataset({ name, type }, dataset, message) {
   return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(
-      dispatch,
-      REQUEST_UPDATE_BACKEND
-    )
+    const dispatchReadyState = bindRequestAction(dispatch, UPDATE_BACKEND)
 
     return Promise.resolve()
       .then(() => {
@@ -218,7 +240,7 @@ function updateBackendDataset({ name, type }, dataset, message) {
 
         return db.transaction('rw', db.localBackends, db.localBackendPatches, () => {
           return dispatch(getBackendWithDataset({ name, type }))
-            .then(({ responseData }) => {
+            .then(responseData => {
               const now = new Date().getTime()
                   , oldDataset = responseData.dataset.toJS()
                   , newDataset = dataset.toJS()
@@ -258,10 +280,7 @@ function updateBackendDataset({ name, type }, dataset, message) {
 
 function deleteBackend({ name, url, type }) {
   return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(
-      dispatch,
-      REQUEST_DELETE_BACKEND
-    )
+    const dispatchReadyState = bindRequestAction(dispatch, DELETE_BACKEND)
 
     dispatchReadyState(PENDING);
 

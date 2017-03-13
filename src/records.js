@@ -17,6 +17,7 @@ exports.Backend = Immutable.Record({
 
 
 exports.RequestedResource = Immutable.Record({
+  requestID: null,
   readyState: UNSENT,
   payload: null,
   responseData: null,

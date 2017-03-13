@@ -6,7 +6,7 @@ const Immutable = require('immutable')
 
 
 const {
-  REQUEST_GENERATE_DATASET_PATCH
+  GENERATE_DATASET_PATCH
 } = require('../types').actions
 
 const {
@@ -33,7 +33,7 @@ function generateDatasetPatch(originBackend, remoteBackend, action=PUSH) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(
       dispatch,
-      REQUEST_GENERATE_DATASET_PATCH
+      GENERATE_DATASET_PATCH
     )
 
     dispatchReadyState(PENDING);
@@ -47,9 +47,9 @@ function generateDatasetPatch(originBackend, remoteBackend, action=PUSH) {
     return backendRequests
       .then(([originResp, remoteResp]) => {
         const push = action === PUSH
-            , originID = originResp.responseData.backend.id
-            , originDataset = originResp.responseData.dataset
-            , remoteDataset = remoteResp.responseData.dataset
+            , originID = originResp.backend.id
+            , originDataset = originResp.dataset
+            , remoteDataset = remoteResp.dataset
             , hashObjectStore = `${push ? 'forward' : 'backward'}Hashes`
 
         const filterHashes = hashes =>
