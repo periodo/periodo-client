@@ -7,10 +7,9 @@ const Dexie = require('dexie')
 module.exports = function periodoDB(dexieOpts) {
   const db = new Dexie(DB_NAME, dexieOpts)
 
-  db.version(2).stores({
+  db.version(1).stores({
     localBackends: `
       ++id,
-      &name,
       created,
       modified,
       accessed
