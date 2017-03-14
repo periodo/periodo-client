@@ -5,6 +5,8 @@
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
   "dependencies": {
+    "axs": "^1.0.6",
+    "axs-ui": "^1.0.4",
     "d3": "^3.5.16",
     "debounce": "^1.0.0",
     "dexie": "^1.0.4",
