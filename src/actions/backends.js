@@ -1,8 +1,8 @@
-const Immutable = require('immutable')
-    , patchUtils = require('../utils/patch')
+const patchUtils = require('../utils/patch')
     , parseURL = require('url').parse
     , { Backend } = require('../records')
     , { bindRequestAction } = require('./requests')
+    , { RETHROW_ERRORS } = global
 
 
 const {
@@ -37,28 +37,30 @@ function listAvailableBackends() {
     dispatchReadyState(PENDING);
 
     return db.transaction('r', db.localBackends, db.remoteBackends, () => {
-      db.localBackends.toArray(localBackends => {
+      return db.localBackends.toArray(localBackends =>
         db.remoteBackends.toArray(remoteBackends => {
-          const backends = Immutable.List()
+          const backends = []
             .concat(localBackends.map(makeBackend(backendTypes.INDEXED_DB)))
             .concat(remoteBackends.map(makeBackend(backendTypes.WEB)))
 
-          dispatchReadyState(SUCCESS, { responseData: { backends }});
-
-          return backends;
+          return dispatchReadyState(SUCCESS, { responseData: { backends }});
         })
-      })
+      )
       .catch(error => {
-        dispatchReadyState(FAILURE, { error });
+        if (RETHROW_ERRORS) {
+          throw error;
+        }
+
+        return dispatchReadyState(FAILURE, { error });
       })
     })
   }
 }
 
 
-function setCurrentBackend({ label, type }) {
+function setCurrentBackend({ id, type }) {
   return dispatch => {
-    dispatch(getBackendWithDataset({ name, type }))
+    dispatch(getBackendWithDataset({ id, type }))
       .then(backend => {
         dispatch({
           type: SET_CURRENT_BACKEND,
@@ -68,29 +70,7 @@ function setCurrentBackend({ label, type }) {
   }
 }
 
-function setFileBackend({ file }) {
-  const parsePeriodoUpload = require('../utils/parse_periodo_upload')
-
-  return dispatch => {
-    const backend = new Backend({
-      type: FILE,
-      name: file.name,
-      // ...the rest of the metadata
-    })
-
-    parsePeriodoUpload(file).then(
-      dataset => dispatch({
-        type: SET_CURRENT_BACKEND,
-        backend,
-        dataset
-      })
-    )
-
-  }
-}
-
-
-function getBackendWithDataset({ name, url, type }, setAsActive=false) {
+function getBackendWithDataset({ id, url, type }, setAsActive=false) {
   return (dispatch, getState, { db }) => {
     let promise
 
@@ -101,12 +81,12 @@ function getBackendWithDataset({ name, url, type }, setAsActive=false) {
     switch (type) {
       case backendTypes.INDEXED_DB:
         promise = db.localBackends
-          .where('name')
-          .equals(name)
+          .where('id')
+          .equals(id)
           .toArray()
           .then(([backend]) => {
             if (!backend) {
-              throw Error(`No existing local backend named ${name}`)
+              throw Error(`No existing local backend with id ${id}`)
             }
 
             return [backend, backend.dataset]
@@ -145,11 +125,9 @@ function getBackendWithDataset({ name, url, type }, setAsActive=false) {
 
     return promise.then(([backend, dataset]) => {
       const responseData = {
-        backend: new Backend(backend),
-        dataset: Immutable.fromJS(dataset)
+        backend,
+        dataset
       }
-
-
 
       dispatchReadyState(SUCCESS, { responseData });
 
@@ -160,6 +138,10 @@ function getBackendWithDataset({ name, url, type }, setAsActive=false) {
       return responseData;
     })
     .catch(error => {
+      if (RETHROW_ERRORS) {
+        throw error;
+      }
+
       dispatchReadyState(FAILURE, { error });
       throw error;
     })
@@ -168,124 +150,134 @@ function getBackendWithDataset({ name, url, type }, setAsActive=false) {
 
 
 // backend should be a Backend record
-function addBackend({ label, description, type, url=null }, dataset=null) {
+function addBackend({ type, label='', description='', url=null }) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(dispatch, CREATE_BACKEND)
+        , isIDB = type === backendTypes.INDEXED_DB
 
-    let payload;
+    let backendObject
+      , payload
+      , dataset = null
 
     return Promise.resolve()
       .then(() => {
-        if (Object.keys(backendTypes).indexOf(type) === -1) {
-          throw new Error('Invalid backend type');
+        payload = {
+          type,
+          label,
+          description,
         }
 
-        if (type === backendTypes.WEB) {
-          if (!url) {
-            throw new Error('Cannot add a Web backend without a URL.');
+        switch (type) {
+          case backendTypes.WEB: {
+            if (!url) {
+              throw new Error('Cannot add a Web backend without a URL.');
+            }
+
+            const { protocol, host } = parseURL(url)
+
+            if (!(protocol && host)) {
+              throw new Error(`Invalid URL: ${url}`);
+            }
+
+            payload.url = url;
+            break;
           }
 
-          const { protocol, host } = parseURL(url)
+          case backendTypes.INDEXED_DB: {
+            dataset = {
+              periodCollections: {},
+              type: 'rdf:Bag'
+            }
+            break;
+          }
 
-          if (!(protocol && host)) {
-            throw new Error(`Invalid URL: ${url}`);
+          default: {
+            throw new Error('Invalid backend type');
           }
         }
 
-        const now = new Date().getTime()
-
-        let backend = new Backend({ label, description, type, url })
-          .set('created', now)
-          .set('modified', now)
-          .set('accessed', now)
-
-        backend = backend.toMap().delete('id');
-
-        if (backend.get('type') === backendTypes.INDEXED_DB) {
-          dataset = {
-            periodCollections: {},
-            type: 'rdf:Bag'
-          }
-
-          backend = backend.delete('url')
-        }
-
-        const table = backend.type === backendTypes.WEB
+        const table = type === backendTypes.WEB
           ? db.remoteBackends
           : db.localBackends
 
-        backend = backend.delete('type')
+        const now = new Date().getTime()
 
-        payload = Immutable.fromJS({ backend, dataset })
+        const metadata = {
+          created: now,
+          modified: now,
+          accessed: now
+        }
+
 
         dispatchReadyState(PENDING, { payload });
 
-        return table.add(Object.assign(backend.toJS(), { dataset }))
+        backendObject = Object.assign({ dataset }, payload, metadata)
+
+        return table.add(backendObject);
       })
-      .then(() => {
-        dispatchReadyState(SUCCESS, { payload });
-      })
-      .catch(error => {
-        dispatchReadyState(FAILURE, { payload, error })
-      })
+      .then(
+        id => dispatchReadyState(SUCCESS, {
+          responseData: {
+            backend: Object.assign(isIDB ? { id } : {}, backendObject)
+          }
+        }),
+        error => dispatchReadyState(FAILURE, {
+          payload,
+          error
+        })
+      )
   }
 }
 
-function updateBackendDataset({ name, type }, dataset, message) {
+function updateLocalBackendDataset({ id, updatedDataset, message }) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(dispatch, UPDATE_BACKEND)
 
-    return Promise.resolve()
-      .then(() => {
-        const payload = { dataset }
+    let updatedBackend
+      , patchData
 
-        if (type !== backendTypes.INDEXED_DB) {
-          throw new Error('Can only update indexedDB backends')
-        }
+    return Promise.resolve().then(() => {
+      const payload = { id, updatedDataset, message }
 
-        dispatchReadyState(PENDING, { payload });
+      dispatchReadyState(PENDING, { payload });
 
-        return db.transaction('rw', db.localBackends, db.localBackendPatches, () => {
-          return dispatch(getBackendWithDataset({ name, type }))
-            .then(responseData => {
-              const now = new Date().getTime()
-                  , oldDataset = responseData.dataset.toJS()
-                  , newDataset = dataset.toJS()
-                  , patchData = patchUtils.formatPatch(oldDataset, newDataset, message)
+      return db.transaction('rw', db.localBackends, db.localBackendPatches, () => {
+        return dispatch(getBackendWithDataset({ id, type: backendTypes.INDEXED_DB }))
+          .then(({ backend, dataset }) => {
+            const now = new Date().getTime()
 
-              const backend = db.localBackends.where('name').equals(name)
+            patchData = patchUtils.formatPatch(dataset, updatedDataset, message)
 
-              backend.modify({
-                dataset: newDataset,
-                modified: now
-              })
-
-              backend.first().then(({ id }) => {
-                db.localBackendPatches.add(Object.assign({ backendID: id }, patchData));
-              })
-
-              return {
-                payload,
-                responseData: {
-                  backend: responseData.backend.set('modified', now),
-                  dataset,
-                  patchData
-                }
-              }
+            updatedBackend = Object.assign({}, backend, {
+              dataset: updatedDataset,
+              modified: now
             })
+
+            return db.localBackends.put(updatedBackend).then(() =>
+              db.localBackendPatches.add(Object.assign({ backendID: backend.id }, patchData)))
+          })
         })
       })
-      .then(resp => {
-        dispatchReadyState(SUCCESS, resp)
-      })
-      .catch(error => {
-        dispatchReadyState(FAILURE, { error })
-      })
+      .then(
+        resp => dispatchReadyState(SUCCESS, {
+          responseData: {
+            backend: updatedBackend,
+            patchData
+          }
+        }),
+        error => {
+          if (RETHROW_ERRORS) {
+            throw error;
+          }
+
+          return dispatchReadyState(FAILURE, { error })
+        }
+      )
   }
 }
 
 
-function deleteBackend({ name, url, type }) {
+function deleteBackend({ id, url, type }) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(dispatch, DELETE_BACKEND)
 
@@ -293,31 +285,43 @@ function deleteBackend({ name, url, type }) {
 
     let promise
 
-    if (type === backendTypes.INDEXED_DB) {
-      promise = db.localBackends
-        .where('name')
-        .equals(name)
-        .delete()
-    } else if (type === backendTypes.WEB) {
-      promise = db.remoteBackends
-        .where('url')
-        .equals(url)
-        .delete()
-    } else {
-      promise = Promise.resolve().then(() => {
+    switch (type) {
+      case backendTypes.INDEXED_DB: {
+        promise = db.localBackends
+          .where('id')
+          .equals(id)
+          .delete()
+
+        break;
+      }
+
+      case backendTypes.WEB: {
+        promise = db.remoteBackends
+          .where('url')
+          .equals(url)
+          .delete()
+
+        break;
+      }
+      default: {
         throw new Error(`Cannot delete backend with type ${type}`)
-      })
+      }
     }
 
     return promise
       .then(ct => {
         if (ct === 0) {
+          console.log('HEREWEREARE');
           // FIXME: nothing was deleted? Raise an error?
         }
 
         dispatchReadyState(SUCCESS);
       })
       .catch(error => {
+        if (RETHROW_ERRORS) {
+          throw error;
+        }
+
         dispatchReadyState(FAILURE, { error })
       })
   }
@@ -328,6 +332,6 @@ module.exports = {
   setCurrentBackend,
   getBackendWithDataset,
   addBackend,
-  updateBackendDataset,
+  updateLocalBackendDataset,
   deleteBackend,
 }

@@ -5,9 +5,8 @@ function bindRequestAction(dispatch, type) {
 
   _requestIDCounter += 1;
 
-  return (readyState, rest={}) => {
+  return (readyState, rest={}) =>
     dispatch(Object.assign({ requestID, type, readyState }, rest));
-  }
 }
 
 module.exports = {
