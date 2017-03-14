@@ -1,11 +1,11 @@
 const React = require('react')
     , h = require('react-hyperscript')
     , types = require('../../types')
+    , { Box, Button, Input, Label, Select, Textarea } = require('axs-ui')
 
 
 const {
   INDEXED_DB,
-  FILE,
   WEB
 } = types.backends
 
@@ -27,98 +27,76 @@ module.exports = React.createClass({
     }
   },
 
-  handleSave() {
-    /*
-    require('../backends')
-      .create(this.state)
-      .then(() => window.location.reload())
-      */
-  },
-
-
-  handleFileChange(e) {
-    const parsePeriodoUpload = require('../../utils/parse_periodo_upload')
-        , file = e.target.files[0]
-
-    parsePeriodoUpload(file)
-      .then(
-        data => this.setState({ name: file.name, data }),
-        err => {
-          this.setState({ name: null });
-          alert('Error parsing file:\n' + err.toString());
-          throw new Error(err);
-        }
-      );
-  },
-
-
   isValidState() {
-    let isValid = (
-      !!this.state.type &&
-      !!this.state.name &&
-      this.props.existing.indexOf(this.state.name) === -1
-    )
+    const { type, label, url } = this.state
 
-    if (this.state.type === 'web' || this.state.type === 'idb') {
-      isValid = isValid && /^\w+$/.test(this.state.name);
-    }
+    let isValid = !!type && !!label
 
-    if (this.state.type === 'web') {
-      isValid = isValid && !!this.state.url;
+    if (type === WEB) {
+      isValid = isValid && !!url;
     }
 
     return isValid;
   },
 
   render() {
-    const Input = require('../../components/common/Input')
+    const { handleSave } = this.props
+        , { label, description, url, type } = this.state
 
     return (
-      h('div', [
-        h('h2', 'Add backend'),
-
+      h(Box, { width: 400 }, [
         h('div', [
-          h('label', { htmlFor: 'type' }, 'Type'),
+          h(Label, { htmlFor: 'type' }, 'Type'),
 
-          h('select', {
+          h(Select, {
+            id: 'type',
             name: 'type',
-            value: this.state.type,
+            value: type,
             onChange: this.handleChange,
           }, [
-            h('option', { value: INDEXED_DB }, 'Local'),
-            h('option', { value: WEB }, 'Web resource'),
-            h('option', { value: FILE }, 'File'),
+            h('option', { value: INDEXED_DB }, 'Local (editable)'),
+            h('option', { value: WEB }, 'Web (read-only)'),
           ])
         ]),
 
         h('div', [
+          h(Label, { mt: 1, htmlFor: 'label' }, 'Label'),
+
           h(Input, {
-            name: 'name',
-            label: 'Name',
-            value: this.state.name,
-            disabled: this.state.type === FILE,
+            id: 'label',
+            name: 'label',
+            type: 'text',
+            value: label || '',
             onChange: this.handleChange
           }),
 
-          this.state.type === WEB && h(Input, {
+          type === WEB && h(Label, { mt: 1, htmlFor: 'url' }, 'URL'),
+
+          type === WEB && h(Input, {
+            id: 'url',
             name: 'url',
             label: 'URL',
-            value: this.state.url,
+            value: url || '',
             onChange: this.handleChange
           }),
 
-          this.state.type === FILE && h('div', [
-            h('label', [
-              'Input file',
-              h('input', { type: 'file', onChange: this.handleFileChange })
-            ])
-          ])
+          h(Label, { mt: 1, htmlFor: 'description' }, 'Description'),
+
+          h(Textarea, {
+            rows: 4,
+            id: 'description',
+            name: 'description',
+            value: description || '',
+            onChange: this.handleChange
+          }),
+
         ]),
 
         h('div', [
-          h('button .btn .btn-primary', {
+          h(Button, {
+            mt: 1,
             type: 'button',
-            onClick: this.handleSave,
+            onClick: () => handleSave(this.state),
             disabled: !this.isValidState()
           }, 'Add')
         ])

@@ -7,7 +7,8 @@ exports.Backend = Immutable.Record({
   id: null,
 
   type: null,
-  name: null,
+  label: null,
+  description: null,
   url: null,
 
   created: null,

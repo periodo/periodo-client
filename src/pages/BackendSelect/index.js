@@ -1,9 +1,10 @@
 "use strict";
 
-const  h = require('react-hyperscript')
+const h = require('react-hyperscript')
+    , React = require('react')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
-    , { listAvailableBackends } = require('../../actions/backends')
+    , { listAvailableBackends, addBackend } = require('../../actions/backends')
 
 exports.path = '/backends/';
 
@@ -13,21 +14,70 @@ exports.onLoad = function load(dispatch) {
   return dispatch(listAvailableBackends())
 }
 
-function mapPropsToState(props) {
+function mapStateToProps(state) {
   return {
-    backends: props.getIn(['backends', 'available', 'responseData', 'backends'])
+    backends: state.getIn(['backends', 'available', 'responseData']).backends
+  }
+}
+
+class UploadFileForm extends React.Component {
+  handleFileChange(e) {
+    const { setFileBackend } = this.props
+
+    setFileBackend(e.target.files[0]);
+  }
+
+
+  render() {
+    return h('div', [
+      h('label', [
+        'Input file',
+        h('input', {
+          type: 'file',
+          onChange: this.handleFileChange.bind(this)
+        })
+      ])
+    ])
   }
 }
 
 
 const BackendSelect = props =>
-  h('div', [
-    h('pre', JSON.stringify(props, true, '  ')),
-    h(BackendForm, { existing: [] })
+  h('div .container', [
+
+    h('h2', 'Existing backends'),
+
+    h('table', [
+      h('thead', [
+        h('tr', [
+          h('td', 'Type'),
+          h('td', 'Label'),
+          h('td', 'Description'),
+        ])
+      ]),
+
+      h('tbody', props.backends.map(backend =>
+        h('tr', { key: backend.url || backend.id }, [
+          h('td', backend.type),
+          h('td', backend.label),
+          h('td', backend.description),
+        ])
+      ).toArray())
+    ]),
+
+    h('h2', 'Add new backend'),
+
+    h(BackendForm, {
+      handleSave: backend => {
+        props.addBackend(backend).then(() => {
+          window.location.reload();
+        })
+      }
+    }),
   ])
 
 
-exports.Component = connect(mapPropsToState)(BackendSelect)
+exports.Component = connect(mapStateToProps, { addBackend })(BackendSelect)
 
 
   /*

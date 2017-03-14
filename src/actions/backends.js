@@ -56,7 +56,7 @@ function listAvailableBackends() {
 }
 
 
-function setCurrentBackend({ name, type }) {
+function setCurrentBackend({ label, type }) {
   return dispatch => {
     dispatch(getBackendWithDataset({ name, type }))
       .then(backend => {
@@ -168,7 +168,7 @@ function getBackendWithDataset({ name, url, type }, setAsActive=false) {
 
 
 // backend should be a Backend record
-function addBackend({ name, type, url=null }, dataset=null) {
+function addBackend({ label, description, type, url=null }, dataset=null) {
   return (dispatch, getState, { db }) => {
     const dispatchReadyState = bindRequestAction(dispatch, CREATE_BACKEND)
 
@@ -194,26 +194,33 @@ function addBackend({ name, type, url=null }, dataset=null) {
 
         const now = new Date().getTime()
 
-        let backend = new Backend({ name, type, url })
+        let backend = new Backend({ label, description, type, url })
           .set('created', now)
           .set('modified', now)
           .set('accessed', now)
 
-        if (backend.type === backendTypes.INDEXED_DB) {
+        backend = backend.toMap().delete('id');
+
+        if (backend.get('type') === backendTypes.INDEXED_DB) {
           dataset = {
             periodCollections: {},
             type: 'rdf:Bag'
           }
+
+          backend = backend.delete('url')
         }
 
-        backend = backend.toMap().delete('id');
+        const table = backend.type === backendTypes.WEB
+          ? db.remoteBackends
+          : db.localBackends
+
+        backend = backend.delete('type')
 
         payload = Immutable.fromJS({ backend, dataset })
 
         dispatchReadyState(PENDING, { payload });
 
-        return db.localBackends
-          .add(Object.assign(backend.toJS(), { dataset }))
+        return table.add(Object.assign(backend.toJS(), { dataset }))
       })
       .then(() => {
         dispatchReadyState(SUCCESS, { payload });
