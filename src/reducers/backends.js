@@ -15,7 +15,7 @@ const {
 const available = createReducer(new RequestedResource(), {
   [actionTypes.GET_ALL_BACKENDS]
   (state, action) {
-    const resp = Immutable.Map(action).delete('type')
+    const resp = Immutable.fromJS(action).delete('type')
 
     return state.merge(resp)
   }
@@ -24,7 +24,7 @@ const available = createReducer(new RequestedResource(), {
 const current = createReducer(null, {
   [actionTypes.SET_CURRENT_BACKEND]
   (state, { backend, dataset }) {
-    return Immutable.Map({ backend, dataset })
+    return Immutable.fromJS({ backend, dataset })
   },
 });
 

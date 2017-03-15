@@ -1,7 +1,6 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , React = require('react')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
     , { listAvailableBackends, addBackend } = require('../../actions/backends')
@@ -16,35 +15,12 @@ exports.onLoad = function load(dispatch) {
 
 function mapStateToProps(state) {
   return {
-    backends: state.getIn(['backends', 'available', 'responseData']).backends
+    backends: state.getIn(['backends', 'available', 'responseData', 'backends'])
   }
 }
-
-class UploadFileForm extends React.Component {
-  handleFileChange(e) {
-    const { setFileBackend } = this.props
-
-    setFileBackend(e.target.files[0]);
-  }
-
-
-  render() {
-    return h('div', [
-      h('label', [
-        'Input file',
-        h('input', {
-          type: 'file',
-          onChange: this.handleFileChange.bind(this)
-        })
-      ])
-    ])
-  }
-}
-
 
 const BackendSelect = props =>
-  h('div .container', [
-
+  h('div', [
     h('h2', 'Existing backends'),
 
     h('table', [
