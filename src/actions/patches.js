@@ -1,9 +1,11 @@
-const Immutable = require('immutable')
-    , { bindRequestAction } = require('./requests')
+"use strict";
+
+const { bindRequestAction } = require('./requests')
     , { getBackendWithDataset } = require('./backends')
     , { makePatch } = require('../utils/patch')
     , { filterByHash } = require('../utils/patch_collection')
 
+const { RETHROW_ERRORS } = global
 
 const {
   GENERATE_DATASET_PATCH
@@ -61,11 +63,9 @@ function generateDatasetPatch(originBackend, remoteBackend, action=PUSH) {
 
         // if PUSH, make remote look like origin.
         // if PULL, make origin look like remote.
-        const rawPatch = Immutable.fromJS(
-          push
-            ? makePatch(remoteDataset.toJS(), originDataset.toJS())
-            : makePatch(originDataset.toJS(), remoteDataset.toJS())
-        )
+        const rawPatch = push
+          ? makePatch(remoteDataset, originDataset)
+          : makePatch(originDataset, remoteDataset)
 
         return filterByHash(rawPatch, push, filterHashes)
       })
@@ -75,7 +75,11 @@ function generateDatasetPatch(originBackend, remoteBackend, action=PUSH) {
         return patch;
       })
       .catch(error => {
-        dispatchReadyState(FAILURE, { error, errorString: error.toString() })
+        if (RETHROW_ERRORS) {
+          throw error;
+        }
+
+        return dispatchReadyState(FAILURE, { error, errorString: error.toString() })
       })
   }
 }

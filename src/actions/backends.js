@@ -311,7 +311,6 @@ function deleteBackend({ id, url, type }) {
     return promise
       .then(ct => {
         if (ct === 0) {
-          console.log('HEREWEREARE');
           // FIXME: nothing was deleted? Raise an error?
         }
 

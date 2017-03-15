@@ -1,5 +1,7 @@
 "use strict";
 
+global.RETHROW_ERRORS = true;
+
 const test = require('blue-tape')
     , Immutable = require('immutable')
     , backendActions = require('../actions/backends')
@@ -9,68 +11,73 @@ const test = require('blue-tape')
 
 
 
-const backendA = {
-  name: 'origin',
+const backendAData = {
+  label: 'origin',
   type: types.backends.INDEXED_DB,
 }
 
-const backendB = {
-  name: 'remote',
+const backendBData = {
+  label: 'remote',
   type: types.backends.INDEXED_DB,
 }
 
-test('Patch generation actions', t => {
+test('Patch generation actions', async t => {
   const store = makeMockStore()
 
-  return Promise.resolve()
-    .then(() => Promise.all([
-      store.dispatch(backendActions.addBackend(backendA)),
-      store.dispatch(backendActions.addBackend(backendB)),
-    ]))
-    .then(() => store.dispatch(
-      backendActions.updateBackendDataset(backendA, Immutable.fromJS({
+  const resps = await Promise.all([
+    store.dispatch(backendActions.addBackend(backendAData)),
+    store.dispatch(backendActions.addBackend(backendBData)),
+  ])
+
+  const [ backendA, backendB ] = resps.map(resp => resp.responseData.backend)
+
+  await store.dispatch(
+    backendActions.updateLocalBackendDataset(Object.assign({}, backendA, {
+      updatedDataset: {
         type: 'rdf:Bag',
         periodCollections: {
           fakeID: {
             id: 'fakeID'
           }
         }
-      }))
-    ))
-    .then(() => store.dispatch(
-      patchActions.generateDatasetPatch(backendA, backendB)
-    ))
-    .then(() => {
-      const action = store.getActions().pop()
+      }
+    })))
 
-      delete action.requestID;
+  await store.dispatch(
+    patchActions.generateDatasetPatch(backendA, backendB))
 
-      t.deepEqual(action, {
-        type: types.actions.GENERATE_DATASET_PATCH,
-        readyState: types.readyStates.SUCCESS,
-        patch: Immutable.fromJS([
-          {
-            op: 'add',
-            path: '/periodCollections/fakeID',
-            value: {
-              id: 'fakeID'
-            }
+  {
+    const action = store.getActions().pop()
+
+    delete action.requestID;
+
+    t.deepEqual(action, {
+      type: types.actions.GENERATE_DATASET_PATCH,
+      readyState: types.readyStates.SUCCESS,
+      patch: Immutable.fromJS([
+        {
+          op: 'add',
+          path: '/periodCollections/fakeID',
+          value: {
+            id: 'fakeID'
           }
-        ])
-      }, 'should patch additions')
-    })
-    .then(() => store.dispatch(
-      patchActions.generateDatasetPatch(backendA, backendB, types.patchDirections.PULL)
-    ))
-    .then(() => {
-      const action = store.getActions().pop()
+        }
+      ])
+    }, 'should patch additions')
+  }
 
-      delete action.requestID
+  await store.dispatch(
+    patchActions.generateDatasetPatch(backendA, backendB, types.patchDirections.PULL))
 
-      t.deepEqual(action, {
-        type: types.actions.GENERATE_DATASET_PATCH,
-        readyState: types.readyStates.SUCCESS,
-        patch: Immutable.fromJS([])
-      }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
-    })
+  {
+    const action = store.getActions().pop()
+
+    delete action.requestID
+
+    t.deepEqual(action, {
+      type: types.actions.GENERATE_DATASET_PATCH,
+      readyState: types.readyStates.SUCCESS,
+      patch: Immutable.fromJS([])
+    }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
+  }
 })

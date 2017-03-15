@@ -50,7 +50,7 @@ function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
 
 
 function filterByHash(patches, keepMatched, hashMatchFn) {
-  const patchSet = patches.toOrderedSet()
+  const patchSet = Immutable.fromJS(patches).toOrderedSet()
 
   // These are patches that add a new period or period collection. They will
   // automatically be added without checking hashes.
