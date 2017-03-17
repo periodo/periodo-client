@@ -12,15 +12,15 @@ exports.path = '/'
 
 const Home = React.createClass({
   componentDidMount() {
-    const { navigateTo } = this.props
+    const { navigateToRoute } = this.props
         , { currentBackend } = localStorage
 
     if (currentBackend) {
       const [ name, type ] = currentBackend.split('-')
 
-      navigateTo('backend-home', { name, type })
+      navigateToRoute('backend-home', { name, type })
     } else {
-      navigateTo('backend-select')
+      navigateToRoute('backend-select')
     }
   },
 

@@ -12,15 +12,27 @@ module.exports = function routerKnower(Component) {
       locationBar: React.PropTypes.instanceOf(require('location-bar')),
     },
 
-    navigateTo(routeName, params, queryParams) {
-      const { router, locationBar } = this.context
-          , target = router.generate(routeName, params);
+    navigateToRoute(routeName, params, queryParams) {
+      const { locationBar } = this.context
+          , target = this.generateRoute(routeName, params, queryParams)
 
       locationBar.update(target, { trigger: true });
     },
 
+    generateRoute(routeName, params, queryParams) {
+      const { router } = this.context
+
+      // TODO
+      queryParams;
+
+      return router.generate(routeName, params);
+    },
+
     render() {
-      const props = Object.assign({ navigateTo: this.navigateTo }, this.props)
+      const props = Object.assign({}, this.props, {
+        generateRoute: this.generateRoute,
+        navigateToRoute: this.navigateToRoute,
+      })
 
       return h(Component, props)
     }

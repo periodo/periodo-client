@@ -1,9 +1,12 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , { compose } = require('redux')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
     , { listAvailableBackends, addBackend } = require('../../actions/backends')
+    , routerKnower = require('../../components/util/router_knower')
+    , { INDEXED_DB } = require('../../types').backends
 
 exports.path = '/backends/';
 
@@ -35,7 +38,14 @@ const BackendSelect = props =>
       h('tbody', props.backends.map(backend =>
         h('tr', { key: backend.url || backend.id }, [
           h('td', backend.type),
-          h('td', backend.label),
+          h('td', [
+            h('a', {
+              href: props.generateRoute('backend-home', {
+                idOrURL: backend.url || backend.id,
+                type: backend.type === INDEXED_DB ? 'local' : 'web'
+              })
+            }, backend.label)
+          ]),
           h('td', backend.description),
         ])
       ).toArray())
@@ -53,7 +63,10 @@ const BackendSelect = props =>
   ])
 
 
-exports.Component = connect(mapStateToProps, { addBackend })(BackendSelect)
+exports.Component = compose(
+  routerKnower,
+  connect(mapStateToProps, { addBackend })
+)(BackendSelect)
 
 
   /*
