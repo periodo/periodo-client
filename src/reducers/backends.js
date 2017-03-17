@@ -22,9 +22,11 @@ const available = createReducer(new RequestedResource(), {
 })
 
 const current = createReducer(null, {
-  [actionTypes.SET_CURRENT_BACKEND]
-  (state, { backend, dataset }) {
-    return Immutable.fromJS({ backend, dataset })
+  [actionTypes.GET_BACKEND]
+  (state, action) {
+    const resp = Immutable.fromJS(action).delete('type')
+
+    return resp.get('setAsActive') ? resp : state
   },
 });
 

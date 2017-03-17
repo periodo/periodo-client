@@ -13,7 +13,6 @@ const {
   UPDATE_BACKEND,
   DELETE_BACKEND,
 
-  SET_CURRENT_BACKEND,
 } = require('../types').actions
 
 const backendTypes = require('../types').backends
@@ -58,25 +57,13 @@ function listAvailableBackends() {
 }
 
 
-function setCurrentBackend({ id, type }) {
-  return dispatch => {
-    dispatch(getBackendWithDataset({ id, type }))
-      .then(backend => {
-        dispatch({
-          type: SET_CURRENT_BACKEND,
-          backend
-        })
-      });
-  }
-}
-
 function getBackendWithDataset({ id, url, type }, setAsActive=false) {
   return (dispatch, getState, { db }) => {
     let promise
 
     const dispatchReadyState = bindRequestAction(dispatch, GET_BACKEND)
 
-    dispatchReadyState(PENDING)
+    dispatchReadyState(PENDING, { setAsActive })
 
     switch (type) {
       case backendTypes.INDEXED_DB:
@@ -129,11 +116,7 @@ function getBackendWithDataset({ id, url, type }, setAsActive=false) {
         dataset
       }
 
-      dispatchReadyState(SUCCESS, { responseData });
-
-      if (setAsActive) {
-        dispatch({ SET_CURRENT_BACKEND, backend })
-      }
+      dispatchReadyState(SUCCESS, { responseData, setAsActive });
 
       return responseData;
     })
@@ -142,8 +125,7 @@ function getBackendWithDataset({ id, url, type }, setAsActive=false) {
         throw error;
       }
 
-      dispatchReadyState(FAILURE, { error });
-      throw error;
+      dispatchReadyState(FAILURE, { error, setAsActive });
     })
   }
 }
@@ -328,7 +310,6 @@ function deleteBackend({ id, url, type }) {
 
 module.exports = {
   listAvailableBackends,
-  setCurrentBackend,
   getBackendWithDataset,
   addBackend,
   updateLocalBackendDataset,
