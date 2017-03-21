@@ -4,12 +4,7 @@ const test = require('tape')
     , Immutable = require('immutable')
     , { actions, readyStates } = require('../types')
     , { Backend, RequestedResource } = require('../records')
-
-function makeEmptyStore() {
-  const { createStore } = require('redux')
-
-  return createStore(require('../reducers'));
-}
+    , createStore = require('./store')
 
 
 const emptyState = Immutable.Map({
@@ -25,7 +20,7 @@ const emptyState = Immutable.Map({
 test('Application store', t => {
   t.plan(3);
 
-  const store1 = makeEmptyStore();
+  const store1 = createStore()
 
   t.ok(
     store1.getState().equals(emptyState),
@@ -33,7 +28,7 @@ test('Application store', t => {
   );
 
 
-  const store2 = makeEmptyStore();
+  const store2 = createStore()
 
   store2.dispatch({
     type: actions.SET_CURRENT_BACKEND,
@@ -55,7 +50,7 @@ test('Application store', t => {
   );
 
 
-  const store3 = makeEmptyStore();
+  const store3 = createStore()
 
   store3.dispatch({
     type: actions.GET_ALL_BACKENDS,

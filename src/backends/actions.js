@@ -1,19 +1,19 @@
-const patchUtils = require('../utils/patch')
-    , parseURL = require('url').parse
-    , { Backend } = require('../records')
-    , { bindRequestAction } = require('./requests')
-    , { RETHROW_ERRORS } = global
+const parseURL = require('url').parse
+    , { Backend } = require('./records')
+    , { formatPatch } = require('../patches/utils/patch')
+    , { bindRequestAction } = require('../common/requests')
 
+const {
+  RETHROW_ERRORS
+} = global
 
 const {
   GET_ALL_BACKENDS,
-
   GET_BACKEND,
   CREATE_BACKEND,
   UPDATE_BACKEND,
   DELETE_BACKEND,
-
-} = require('../types').actions
+} = require('./types').actions
 
 const backendTypes = require('../types').backends
 
@@ -35,14 +35,16 @@ function listAvailableBackends() {
 
     dispatchReadyState(PENDING);
 
-    return db.transaction('r', db.localBackends, db.remoteBackends, () => {
-      return db.localBackends.toArray(localBackends =>
-        db.remoteBackends.toArray(remoteBackends => {
-          const backends = []
-            .concat(localBackends.map(makeBackend(backendTypes.INDEXED_DB)))
-            .concat(remoteBackends.map(makeBackend(backendTypes.WEB)))
-
-          return dispatchReadyState(SUCCESS, { responseData: { backends }});
+    return db.transaction('r', db.localBackends, db.remoteBackends, () =>
+      db.localBackends.toArray(localBackends =>
+        db.remoteBackends.toArray(remoteBackends =>
+          dispatchReadyState(SUCCESS, {
+            responseData: {
+              backends: []
+                .concat(localBackends.map(makeBackend(backendTypes.INDEXED_DB)))
+                .concat(remoteBackends.map(makeBackend(backendTypes.WEB)))
+            }
+          )
         })
       )
       .catch(error => {
@@ -52,7 +54,7 @@ function listAvailableBackends() {
 
         return dispatchReadyState(FAILURE, { error });
       })
-    })
+    )
   }
 }
 
@@ -228,7 +230,7 @@ function updateLocalBackendDataset({ id, updatedDataset, message }) {
           .then(({ backend, dataset }) => {
             const now = new Date().getTime()
 
-            patchData = patchUtils.formatPatch(dataset, updatedDataset, message)
+            patchData = formatPatch(dataset, updatedDataset, message)
 
             updatedBackend = Object.assign({}, backend, {
               dataset: updatedDataset,

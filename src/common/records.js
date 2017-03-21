@@ -3,20 +3,6 @@
 const Immutable = require('immutable')
     , { UNSENT } = require('./types').readyStates
 
-exports.Backend = Immutable.Record({
-  id: null,
-
-  type: null,
-  label: null,
-  description: null,
-  url: null,
-
-  created: null,
-  modified: null,
-  accessed: null,
-}, 'Backend');
-
-
 exports.RequestedResource = Immutable.Record({
   requestID: null,
   readyState: UNSENT,
@@ -24,6 +10,3 @@ exports.RequestedResource = Immutable.Record({
   responseData: null,
   responseError: null,
 }, 'RequestedResource');
-
-
-Object.freeze(exports)

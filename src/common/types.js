@@ -1,0 +1,6 @@
+module.exports = {
+  UNSENT: 'UNSENT',
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE',
+}
