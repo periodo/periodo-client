@@ -8,11 +8,7 @@ const h = require('react-hyperscript')
     , routerKnower = require('../../components/util/router_knower')
     , { INDEXED_DB } = require('../../types').backends
 
-exports.path = '/backends/';
-
-exports.name = 'backend-select';
-
-exports.onLoad = function load(dispatch) {
+exports.onBeforeRoute = function load(dispatch) {
   return dispatch(listAvailableBackends())
 }
 

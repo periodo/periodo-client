@@ -1,36 +1,38 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , React = require('react')
     , { connect } = require('react-redux')
-    , { getBackendWithDataset } = require('../actions/backends')
-    , types = require('../types')
-    , { PENDING, SUCCESS, FAILURE } = types.readyStates
+    , { fetchBackend } = require('../actions/backends')
+    , { Backend } = require('../types')
 
 exports.name = 'backend-home';
 
 exports.path = '/backends/:type/:idOrURL/';
 
-exports.onLoad = function load(dispatch, { type, idOrURL }) {
-    let id, url
+exports.onBeforeRoute = (dispatch, params) => {
+  let backend
 
-    if (type === 'web') {
-      type = types.backends.WEB;
-      url = decodeURIComponent(idOrURL)
-    }
+  const { type, idOrURL } = params
 
-    if (type === 'local') {
-      type = types.backends.INDEXED_DB;
-      id = parseInt(idOrURL);
-    }
+  switch (type) {
+    case 'web':
+      backend = Backend.Web(decodeURIComponent(idOrURL));
+      break;
 
-    return dispatch(getBackendWithDataset({ type, id, url }, true));
+    case 'local':
+      backend = Backend.IndexedDB(parseInt(idOrURL));
+      break;
+
+    default:
+      throw new Error(`Invalid backend type: ${type}`);
+  }
+
+
+  return dispatch(fetchBackend(backend, true));
 }
 
 function mapStateToProps(state) {
   const resp = state.getIn(['backends', 'current'])
-
-  debugger;
 
   return {
     resp,

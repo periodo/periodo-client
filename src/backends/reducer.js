@@ -1,36 +1,40 @@
 "use strict";
 
-const Immutable = require('immutable')
-    , { createReducer, combineReducers } = require('redux-immutablejs')
-    , { RequestedResource } = require('../records')
+const R = require('ramda')
 
-const actionTypes = require('../types').actions
-
-const {
-  UNSENT,
-  SUCCESS,
-} = require('../types').readyStates
-
-
-const available = createReducer(new RequestedResource(), {
-  [actionTypes.GET_ALL_BACKENDS]
-  (state, action) {
-    const resp = Immutable.fromJS(action).delete('type')
-
-    return state.merge(resp)
-  }
+const initialState = () => ({
+  available: null,
+  current: null,
+  loaded: {},
 })
 
-const current = createReducer(null, {
-  [actionTypes.GET_BACKEND]
-  (state, action) {
-    const resp = Immutable.fromJS(action).delete('type')
+module.exports = function backends(state=initialState(), action) {
+  if (action.module !== 'backends') return state;
 
-    return resp.get('setAsActive') ? resp : state
-  },
-});
+  const isSuccess = action.readyState.case({
+    Success: () => true,
+    _: () => false
+  })
 
-module.exports = combineReducers({
-  available,
-  current
-});
+  if (!isSuccess) return state;
+
+  return action.case({
+    GetAllBackends() {
+      return R.set(
+        R.lensProp('available'),
+        action.response.backends,
+        state
+      )
+    },
+
+    GetBackend() {
+      const { metadata, dataset, /*setAsActive*/ } = action.response
+
+      return R.set(
+        R.lensProp('current'),
+        { metadata, dataset },
+        state
+      )
+    }
+  })
+}

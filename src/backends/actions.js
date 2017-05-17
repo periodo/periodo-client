@@ -1,318 +1,199 @@
-const parseURL = require('url').parse
-    , { Backend } = require('./records')
-    , { formatPatch } = require('../patches/utils/patch')
-    , { bindRequestAction } = require('../common/requests')
+"use strict";
 
-const {
-  RETHROW_ERRORS
-} = global
-
-const {
-  GET_ALL_BACKENDS,
-  GET_BACKEND,
-  CREATE_BACKEND,
-  UPDATE_BACKEND,
-  DELETE_BACKEND,
-} = require('./types').actions
-
-const backendTypes = require('../types').backends
-
-const {
-  PENDING,
-  SUCCESS,
-  FAILURE,
-} = require('../types').readyStates
-
-
-function makeBackend(type) {
-  return backend => new Backend(backend).set('type', type)
-}
-
+const { formatPatch } = require('../patches/utils/patch')
+    , { Backend, BackendAction, BackendMetadata } = require('./types')
+    , { makeEmptyDataset } = require('./utils')
 
 function listAvailableBackends() {
-  return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(dispatch, GET_ALL_BACKENDS)
+  const action = BackendAction.GetAllBackends()
 
-    dispatchReadyState(PENDING);
+  return action.do(async (dispatch, getState, { db }) => {
+    let localBackends, remoteBackends
 
-    return db.transaction('r', db.localBackends, db.remoteBackends, () =>
-      db.localBackends.toArray(localBackends =>
-        db.remoteBackends.toArray(remoteBackends =>
-          dispatchReadyState(SUCCESS, {
-            responseData: {
-              backends: []
-                .concat(localBackends.map(makeBackend(backendTypes.INDEXED_DB)))
-                .concat(remoteBackends.map(makeBackend(backendTypes.WEB)))
-            }
-          )
-        })
-      )
-      .catch(error => {
-        if (RETHROW_ERRORS) {
-          throw error;
-        }
+    await db.transaction('r', db.localBackends, db.remoteBackends, async () => {
+      [localBackends, remoteBackends] = await Promise.all([
+        db.localBackends.toArray(),
+        db.remoteBackends.toArray(),
+      ])
+    })
 
-        return dispatchReadyState(FAILURE, { error });
-      })
-    )
-  }
+    return {
+        backends: []
+          .concat(localBackends.map(obj => ({
+            type: Backend.IndexedDBOf(obj),
+            metadata: BackendMetadata.BackendMetadataOf(obj)
+          })))
+          .concat(remoteBackends.map(obj => ({
+            type: Backend.WebOf(obj),
+            metadata: BackendMetadata.BackendMetadataOf(obj)
+          })))
+    }
+  })
 }
 
+function fetchBackend(backend, setAsActive=false) {
+  const action = BackendAction.GetBackendOf({
+    backend,
+    setAsActive,
+  })
 
-function getBackendWithDataset({ id, url, type }, setAsActive=false) {
-  return (dispatch, getState, { db }) => {
-    let promise
+  return action.do(async (dispatch, getState, { db }) => {
+    const [metadata, dataset] = await backend.case({
+      IndexedDB: id =>
+        db.localBackends.get(id)
+          .then(
+            backendObj => [backendObj, backendObj.dataset],
+            err => {
+              // FIXME: better error handlign
+              err;
+              throw new Error('No backend with params ... ');
+            }),
 
-    const dispatchReadyState = bindRequestAction(dispatch, GET_BACKEND)
-
-    dispatchReadyState(PENDING, { setAsActive })
-
-    switch (type) {
-      case backendTypes.INDEXED_DB:
-        promise = db.localBackends
-          .where('id')
-          .equals(id)
-          .toArray()
-          .then(([backend]) => {
-            if (!backend) {
-              throw Error(`No existing local backend with id ${id}`)
-            }
-
-            return [backend, backend.dataset]
-          })
-        break;
-
-      case backendTypes.WEB:
-        promise = db.remoteBackends
+      Web: async url => {
+        let metadata = await db.remoteBackends
           .where('url')
           .equals(url)
-          .toArray()
-          .then(([backend]) => {
-            if (!backend) {
-              backend = { type: backendTypes.WEB_ANONYMOUS, url }
-            }
+          .get()
 
-            return backend;
-          })
-          .then(backend => fetch(url).then(resp => {
-            if (!resp.ok) {
-              throw new Error(
-              `Failed to fetch backend at ${url}.` +
-              '\n' +
-              `${resp.status} ${resp.statusText}`)
-            }
+        const isSavedLocally = !!metadata
 
-          backend.modified = resp.headers.get('Last-Modified');
+        const resp = await fetch(url);
 
-          return resp.json().then(dataset => [backend, dataset])
-        }))
-        break;
+        if (!resp.ok) {
+          throw new Error(
+          `Failed to fetch backend at ${url}.` +
+          '\n' +
+          `${resp.status} ${resp.statusText}`)
+        }
 
-      default:
-        throw Error(`No way to fetch backend with type ${type}.`)
+        const dataset = await resp.json();
+
+        if (!isSavedLocally) {
+          metadata = {
+            label: 'Anonymous Web URL',
+            description: '',
+            created: resp.headers.get('Date'),
+            modified: resp.headers.get('Last-Modified'),
+            accessed: Date.now()
+          }
+        }
+
+        return [metadata, dataset]
+      }
+    });
+
+    return {
+      type: backend,
+      metadata,
+      dataset,
+      setAsActive,
     }
-
-    return promise.then(([backend, dataset]) => {
-      const responseData = {
-        backend,
-        dataset
-      }
-
-      dispatchReadyState(SUCCESS, { responseData, setAsActive });
-
-      return responseData;
-    })
-    .catch(error => {
-      if (RETHROW_ERRORS) {
-        throw error;
-      }
-
-      dispatchReadyState(FAILURE, { error, setAsActive });
-    })
-  }
+  })
 }
 
 
 // backend should be a Backend record
-function addBackend({ type, label='', description='', url=null }) {
-  return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(dispatch, CREATE_BACKEND)
-        , isIDB = type === backendTypes.INDEXED_DB
+function addBackend(backend, label='', description='') {
+  const action = BackendAction.CreateBackend(backend, label, description)
 
-    let backendObject
-      , payload
-      , dataset = null
-
-    return Promise.resolve()
-      .then(() => {
-        payload = {
-          type,
-          label,
-          description,
-        }
-
-        switch (type) {
-          case backendTypes.WEB: {
-            if (!url) {
-              throw new Error('Cannot add a Web backend without a URL.');
-            }
-
-            const { protocol, host } = parseURL(url)
-
-            if (!(protocol && host)) {
-              throw new Error(`Invalid URL: ${url}`);
-            }
-
-            payload.url = url;
-            break;
-          }
-
-          case backendTypes.INDEXED_DB: {
-            dataset = {
-              periodCollections: {},
-              type: 'rdf:Bag'
-            }
-            break;
-          }
-
-          default: {
-            throw new Error('Invalid backend type');
-          }
-        }
-
-        const table = type === backendTypes.WEB
-          ? db.remoteBackends
-          : db.localBackends
-
-        const now = new Date().getTime()
-
-        const metadata = {
-          created: now,
-          modified: now,
-          accessed: now
-        }
-
-
-        dispatchReadyState(PENDING, { payload });
-
-        backendObject = Object.assign({ dataset }, payload, metadata)
-
-        return table.add(backendObject);
-      })
-      .then(
-        id => dispatchReadyState(SUCCESS, {
-          responseData: {
-            backend: Object.assign(isIDB ? { id } : {}, backendObject)
-          }
-        }),
-        error => dispatchReadyState(FAILURE, {
-          payload,
-          error
-        })
-      )
-  }
-}
-
-function updateLocalBackendDataset({ id, updatedDataset, message }) {
-  return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(dispatch, UPDATE_BACKEND)
-
-    let updatedBackend
-      , patchData
-
-    return Promise.resolve().then(() => {
-      const payload = { id, updatedDataset, message }
-
-      dispatchReadyState(PENDING, { payload });
-
-      return db.transaction('rw', db.localBackends, db.localBackendPatches, () => {
-        return dispatch(getBackendWithDataset({ id, type: backendTypes.INDEXED_DB }))
-          .then(({ backend, dataset }) => {
-            const now = new Date().getTime()
-
-            patchData = formatPatch(dataset, updatedDataset, message)
-
-            updatedBackend = Object.assign({}, backend, {
-              dataset: updatedDataset,
-              modified: now
-            })
-
-            return db.localBackends.put(updatedBackend).then(() =>
-              db.localBackendPatches.add(Object.assign({ backendID: backend.id }, patchData)))
-          })
-        })
-      })
-      .then(
-        resp => dispatchReadyState(SUCCESS, {
-          responseData: {
-            backend: updatedBackend,
-            patchData
-          }
-        }),
-        error => {
-          if (RETHROW_ERRORS) {
-            throw error;
-          }
-
-          return dispatchReadyState(FAILURE, { error })
-        }
-      )
-  }
-}
-
-
-function deleteBackend({ id, url, type }) {
-  return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(dispatch, DELETE_BACKEND)
-
-    dispatchReadyState(PENDING);
-
-    let promise
-
-    switch (type) {
-      case backendTypes.INDEXED_DB: {
-        promise = db.localBackends
-          .where('id')
-          .equals(id)
-          .delete()
-
-        break;
+  return action.do(async (dispatch, getState, { db }) => {
+    const table = backend.case({
+      Web: () => db.remoteBackends,
+      IndexedDB: () => db.localBackends,
+      _: () => {
+        throw new Error(
+          `Backend of type ${action._type} is not meant to be created.`
+        )
       }
+    })
 
-      case backendTypes.WEB: {
-        promise = db.remoteBackends
-          .where('url')
-          .equals(url)
-          .delete()
+    const now = new Date().getTime()
 
-        break;
-      }
-      default: {
-        throw new Error(`Cannot delete backend with type ${type}`)
-      }
+    const metadata = {
+      label,
+      description,
+      created: now,
+      modified: now,
+      accessed: now
     }
 
-    return promise
-      .then(ct => {
-        if (ct === 0) {
-          // FIXME: nothing was deleted? Raise an error?
-        }
+    const backendObj = Object.assign({}, metadata, backend.case({
+      Web: () => ({ url: backend.url }),
+      IndexedDB: () => ({ dataset: makeEmptyDataset() }),
+    }));
 
-        dispatchReadyState(SUCCESS);
-      })
-      .catch(error => {
-        if (RETHROW_ERRORS) {
-          throw error;
-        }
+    const id = await table.add(backendObj);
 
-        dispatchReadyState(FAILURE, { error })
+    return {
+      backend: backend.case({
+        Web: () => backend,
+        IndexedDB: () => Backend.IndexedDB(id)
+      }),
+
+      metadata: BackendMetadata.BackendMetadataOf(metadata)
+    }
+  })
+}
+
+function updateLocalBackendDataset(backend, updatedDataset, message) {
+  const action = BackendAction.UpdateBackend(backend, updatedDataset)
+
+  return action.do((dispatch, getState, { db }) =>
+    db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
+      const resp = await(dispatch(fetchBackend(backend)))
+          , { metadata, dataset } = resp.readyState.response
+          , patchData = formatPatch(dataset, updatedDataset, message)
+          , now = new Date().getTime()
+
+      const updatedBackend = Object.assign({}, metadata, {
+        dataset: updatedDataset,
+        modified: now
       })
-  }
+
+      await db.localBackends.put(updatedBackend);
+
+      await db.localBackendPatches.add(Object.assign({
+        backendID: backend.id
+      }, patchData))
+
+      return;
+    }))
+}
+
+
+function deleteBackend(backend) {
+  const action = BackendAction.DeleteBackend(backend)
+
+  return action.do(async (dispatch, getState, { db }) => {
+    const ct = await backend.case({
+      Web: url =>
+        db.remoteBackends
+          .where('url')
+          .equals(url)
+          .delete(),
+
+      IndexedDB: id =>
+        db.localBackends
+          .where('id')
+          .equals(id)
+          .delete(),
+
+      _: () => {
+        throw new Error(
+          `Backend of type ${action._type} is not meant to be deleted.`
+        )
+      }
+    })
+
+    if (ct === 0) {
+      // FIXME: nothing was deleted? Raise an error?
+    }
+  })
 }
 
 module.exports = {
   listAvailableBackends,
-  getBackendWithDataset,
+  fetchBackend,
   addBackend,
   updateLocalBackendDataset,
   deleteBackend,
