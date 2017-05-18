@@ -3,7 +3,7 @@
 const FDBFactory = require('fake-indexeddb/lib/FDBFactory')
     , thunk = require('redux-thunk').default
     , configureMockStore = require('redux-mock-store').default
-    , { unionTypeMiddleware } = require('../store')
+    , unionTypeMiddleware = require('../typed-actions/middleware')
 
 class MockLocalStorage {
   constructor() {

@@ -2,25 +2,8 @@
 
 const thunk = require('redux-thunk').default
     , { createStore, applyMiddleware, compose } = require('redux')
-    , { isUnionTypeRecord } = require('./common/types')
+    , unionTypeMiddleware = require('./typed-actions/middleware')
 
-const unionTypeMiddleware = store => next => action => {
-  if (action.constructor === Object) {
-    if (!isUnionTypeRecord(action)) {
-      throw new Error('Actions should be called by creating a union type record.')
-    }
-
-    // FIXME: require doing the makeActionType thing everywhere
-    const nextAction = {
-      [Symbol.for('Type')]: action.type,
-      type: action.type._name,
-      requestID: action.requestID,
-      readyState: action.readyState
-    }
-
-    return next(nextAction);
-  }
-}
 
 function initStore() {
   const store = createStore(
@@ -33,7 +16,7 @@ function initStore() {
   return store;
 }
 
+// FIXME: make single export
 module.exports = {
-  unionTypeMiddleware,
   initStore,
 }

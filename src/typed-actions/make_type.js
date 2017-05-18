@@ -1,31 +1,12 @@
 "use strict";
 
 const Type = require('union-type')
+    , { ActionRequest, ReadyState } = require('./types')
 
-const ReadyState = Type({
-  Pending: {},
-  Success: { response: Object },
-  Failure: { error: Error},
-})
-
-function isUnionTypeRecord(obj) {
-  return (
-    Array.isArray(obj._keys) &&
-    typeof obj._name === 'string' &&
-    typeof obj.case === 'function'
-  )
-}
-
-const ActionRequest = Type({ ActionRequest: {
-  type: isUnionTypeRecord,
-  requestID: Number,
-  readyState: ReadyState,
-}})
-
-let id = 0;
+let _requestID = 0;
 
 function makeAsyncActionCreator(type, fn) {
-  const requestID = id++
+  const requestID = _requestID++
 
   const func = async (dispatch, ...args) => {
     const update = readyState => dispatch(ActionRequest.ActionRequestOf({
@@ -48,8 +29,6 @@ function makeAsyncActionCreator(type, fn) {
 
       return update(ReadyState.Failure(err));
     }
-
-    return;
   }
 
   func.requestID = requestID;
@@ -70,10 +49,4 @@ function makeActionType(label, obj) {
 }
 
 
-module.exports = {
-  ActionRequest,
-  ReadyState,
-  isUnionTypeRecord,
-  makeAsyncActionCreator,
-  makeActionType,
-}
+module.exports = makeActionType;

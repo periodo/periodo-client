@@ -1,7 +1,7 @@
 "use strict";
 
 const Type = require('union-type')
-    , { makeActionType } = require('../common/types')
+    , makeActionType = require('../typed-actions/make_type')
     , { Backend } = require('../backends/types')
 
 const PatchDirection = Type({

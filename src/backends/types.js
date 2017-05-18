@@ -2,7 +2,7 @@
 
 const Type = require('union-type')
     , { isURL } = require('../common/utils')
-    , { makeActionType } = require('../common/types')
+    , makeActionType = require('../typed-actions/make_type')
 
 function isDataset(obj) {
   return (

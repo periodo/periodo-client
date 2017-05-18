@@ -4,7 +4,7 @@ global.RETHROW_ERRORS = true;
 
 const test = require('blue-tape')
     , makeMockStore = require('../../common/mock_store')
-    , { ReadyState } = require('../../common/types')
+    , { ReadyState } = require('../../typed-actions/types')
     , actions = require('../actions')
     , { Backend, BackendAction, BackendMetadata } = require('../types')
 
