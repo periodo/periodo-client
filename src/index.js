@@ -6,13 +6,11 @@ const h = require('react-hyperscript')
     , { Provider } = require('react-redux')
     , createStore = require('./store')
     , Application = require('./components/application')
-    , { makeApplicationStream } = require('./routes')
 
 
 if (process.browser) {
-  const store = createStore();
+  const store = createStore()
 
-  makeApplicationStream(store.dispatch);
   fastclick(document.body);
 
   const component = (

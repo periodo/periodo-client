@@ -2,15 +2,20 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
+    , through = require('through2')
     , Immutable = require('immutable')
     , NotFound = require('./not_found')
     , Footer = require('./footer')
     , Header = require('./header')
     , { connect } = require('react-redux')
+    , locationHashStream = require('location-hash-stream')
+    , { match } = require('../router')
 
 const LEFT_CLICK = 1;
 
 const noop = () => null
+
+const locationStream = locationHashStream()
 
 const Application = React.createClass({
   childContextTypes: {
@@ -20,6 +25,7 @@ const Application = React.createClass({
 
   getInitialState() {
     return {
+      loadingNewPage: true,
       activeComponent: null,
       errors: Immutable.List()
     }
@@ -33,53 +39,48 @@ const Application = React.createClass({
   },
 
   componentDidMount() {
-    const { router, locationBar } = this.props
+    if (!window.location.hash) {
+      window.location.hash = '#/'
+    }
 
-    document.addEventListener('click', this.handlePageClick.bind(null, locationBar));
-
-    locationBar.onChange(path => {
-      const match = router.recognize(path);
+    locationStream.pipe(through.obj(async (path, enc, cb) => {
+      const m = match(path);
 
       if (match) {
-        this.handleRoute(match[0].handler, match[0].params);
+        this.handleRoute(m.matched, m.params, m.queryParams);
       } else {
         // this.attemptRedirect(path);
         this.setState({ activeComponent: h(NotFound) })
       }
-    });
 
+      cb();
+    }))
 
-    locationBar.start();
+    document.addEventListener('click', this.handlePageClick);
+  },
 
-    if (!window.location.hash) {
-      window.location.hash = '#/'
+  async handleRoute(handler, params, queryParams) {
+    const { dispatch } = this.props
+        , { onBeforeRoute=noop, Component } = handler
+
+    try {
+      await onBeforeRoute(dispatch, params, queryParams);
+      this.setState({ activeComponent: h(Component) })
+    } catch (error) {
+      this.setState(prev => ({
+        errors: prev.errors.unshift(Immutable.Map({
+          error,
+          time: new Date()
+        }))
+      }));
+
+      throw error;
+    } finally {
+      this.setState({ loadingNewPage: false })
     }
   },
 
-  handleRoute(handler, params, queryParams) {
-    const { dispatch } = this.props
-        , { onLoad=noop, Component } = handler
-
-    Promise.resolve()
-      .then(() => onLoad(dispatch, params, queryParams))
-      .then(() => {
-        const activeComponent = h(Component)
-
-        this.setState({ activeComponent })
-      })
-      .catch(error => {
-        console.error(error);
-        throw error;
-        this.setState(prev => ({
-          errors: prev.errors.unshift(Immutable.Map({
-            error,
-            time: new Date()
-          }))
-        }))
-      })
-  },
-
-  handlePageClick(locationBar, e) {
+  handlePageClick(e) {
     let anchor = e.target
 
     const root = location.protocol + '//' + location.host
@@ -98,7 +99,7 @@ const Application = React.createClass({
       if (interceptClick) {
         e.preventDefault();
         if (redirect) {
-          locationBar.update(url.parse(href).hash, { trigger: true });
+          locationStream.write(url.parse(href).hash)
         }
       }
     }
