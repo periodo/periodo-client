@@ -11,13 +11,10 @@ function isDataset(obj) {
   )
 }
 
-function nullableNumber(n) {
-  return n === null || typeof n === 'number'
-}
-
 const Backend = Type({
-  IndexedDB: { id: nullableNumber },
   Web: { url: isURL },
+  IndexedDB: { id: Number },
+  UnsavedIndexedDB: {},
   Memory: {},
   Canonical: {},
 })

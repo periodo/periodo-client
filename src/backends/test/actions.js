@@ -8,43 +8,42 @@ const test = require('blue-tape')
     , actions = require('../actions')
     , { Backend, BackendAction, BackendMetadata } = require('../types')
 
-test('Adding IDB backends', async t => {
+test('Listing backends', async t => {
   const store = makeMockStore()
 
+  const action = actions.listAvailableBackends()
+      , resp = await store.dispatch(action)
+
+  t.deepEqual(
+    store.getActions()[1],
+    resp,
+    'should return success response as final dispatched action')
+
+  t.deepEqual(
+    store.getActions(),
+    [
+      {
+        requestID: action.requestID,
+        type: 'GetAllBackends',
+        readyState: ReadyState.Pending(),
+      },
+      {
+        requestID: action.requestID,
+        type: 'GetAllBackends',
+        readyState: ReadyState.Success({
+          backends: []
+        })
+      }
+    ],
+    'should return an empty array when no backends are present'
+  );
+})
+
+test('Adding local backends', async t => {
+  const store = makeMockStore()
 
   {
-    const action = actions.listAvailableBackends()
-        , resp = await store.dispatch(action)
-
-    t.deepEqual(
-      store.getActions()[1],
-      resp,
-      'should return success response as final dispatched action')
-
-    t.deepEqual(
-      store.getActions(),
-      [
-        {
-          requestID: action.requestID,
-          type: 'GetAllBackends',
-          readyState: ReadyState.Pending(),
-        },
-        {
-          requestID: action.requestID,
-          type: 'GetAllBackends',
-          readyState: ReadyState.Success({
-            backends: []
-          })
-        }
-      ],
-      'should return an empty array when no backends are present'
-    );
-  }
-
-  store.clearActions();
-
-  {
-    const action = actions.addBackend(Backend.IndexedDB(null), 'test backend', '')
+    const action = actions.addBackend(Backend.UnsavedIndexedDB(), 'test backend', '')
         , resp = await store.dispatch(action);
 
     const { response } = resp.readyState
@@ -55,7 +54,7 @@ test('Adding IDB backends', async t => {
 
     t.deepEqual(
       store.getActions()[0][Symbol.for('Type')], BackendAction.CreateBackend(
-      Backend.IndexedDB(null), 'test backend', ''),
+      Backend.UnsavedIndexedDB(), 'test backend', ''),
       'Should include the union-type representation of the action in the Type symbol'
     );
 
@@ -66,13 +65,6 @@ test('Adding IDB backends', async t => {
           type: 'CreateBackend',
           requestID: action.requestID,
           readyState: ReadyState.Pending(),
-          /*
-          payload: {
-            type: Backend.IndexedDB(null),
-            label: 'test backend',
-            description: '',
-          }
-          */
         },
         {
           type: 'CreateBackend',
@@ -163,7 +155,7 @@ test('Updating backends', async t => {
 
   await store.dispatch(
     actions.addBackend(
-      Backend.IndexedDB(null),
+      Backend.UnsavedIndexedDB(),
       'test backend',
       ''
     ))
@@ -208,7 +200,7 @@ test('Updating backends', async t => {
   {
     const dispatchedActions = store.getActions()
 
-    t.equal(dispatchedActions[dispatchedActions.length - 1].responseData.backends.length, 0,
+    t.equal(dispatchedActions[dispatchedActions.length - 1].readyState.response.backends.length, 0,
         'should list 0 available backends after deleting');
   }
 });
