@@ -1,13 +1,6 @@
 const React = require('react')
     , h = require('react-hyperscript')
-    , types = require('../../types')
     , { Box, Button, Input, Label, Select, Textarea } = require('axs-ui')
-
-
-const {
-  INDEXED_DB,
-  WEB
-} = types.backends
 
 
 module.exports = React.createClass({
@@ -15,7 +8,7 @@ module.exports = React.createClass({
 
   getInitialState() {
     return {
-      type: INDEXED_DB
+      type: 'IndexedDB',
     }
   },
 
@@ -32,7 +25,7 @@ module.exports = React.createClass({
 
     let isValid = !!type && !!label
 
-    if (type === WEB) {
+    if (type === 'Web') {
       isValid = isValid && !!url;
     }
 
@@ -54,8 +47,8 @@ module.exports = React.createClass({
             value: type,
             onChange: this.handleChange,
           }, [
-            h('option', { value: INDEXED_DB }, 'Local (editable)'),
-            h('option', { value: WEB }, 'Web (read-only)'),
+            h('option', { value: 'IndexedDB' }, 'Local (editable)'),
+            h('option', { value: 'Web' }, 'Web (read-only)'),
           ])
         ]),
 
@@ -70,9 +63,9 @@ module.exports = React.createClass({
             onChange: this.handleChange
           }),
 
-          type === WEB && h(Label, { mt: 1, htmlFor: 'url' }, 'URL'),
+          type === 'Web' && h(Label, { mt: 1, htmlFor: 'url' }, 'URL'),
 
-          type === WEB && h(Input, {
+          type === 'Web' && h(Input, {
             id: 'url',
             name: 'url',
             label: 'URL',

@@ -4,9 +4,8 @@ const h = require('react-hyperscript')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
-    , { listAvailableBackends, addBackend } = require('../../actions/backends')
-    , routerKnower = require('../../components/util/router_knower')
-    , { INDEXED_DB } = require('../../types').backends
+    , { listAvailableBackends, addBackend } = require('../../actions')
+    , routerKnower = require('../../../shared/components/router_knower')
 
 exports.onBeforeRoute = function load(dispatch) {
   return dispatch(listAvailableBackends())
@@ -14,7 +13,7 @@ exports.onBeforeRoute = function load(dispatch) {
 
 function mapStateToProps(state) {
   return {
-    backends: state.getIn(['backends', 'available', 'responseData', 'backends'])
+    backends: state.backends.available
   }
 }
 
@@ -38,7 +37,7 @@ const BackendSelect = props =>
             h('a', {
               href: props.generateRoute('backend-home', {
                 idOrURL: backend.url || backend.id,
-                type: backend.type === INDEXED_DB ? 'local' : 'web'
+                type: backend.type === 'IndexedDB' ? 'local' : 'web'
               })
             }, backend.label)
           ]),

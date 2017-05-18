@@ -2,12 +2,8 @@
 
 const h = require('react-hyperscript')
     , { connect } = require('react-redux')
-    , { fetchBackend } = require('../actions/backends')
+    , { fetchBackend } = require('../actions')
     , { Backend } = require('../types')
-
-exports.name = 'backend-home';
-
-exports.path = '/backends/:type/:idOrURL/';
 
 exports.onBeforeRoute = (dispatch, params) => {
   let backend
