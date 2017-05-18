@@ -8,7 +8,6 @@
     "axs": "^1.0.6",
     "axs-ui": "^1.0.4",
     "d3": "^3.5.16",
-    "debounce": "^1.0.0",
     "dexie": "^2.0.0-beta.10",
     "diff-match-patch": "^1.0.0",
     "fast-diff": "^1.0.1",
@@ -16,34 +15,30 @@
     "fastclick": "^1.0.6",
     "filesaver.js": "^0.1.1",
     "fuzzy": "^0.1.0",
-    "immfacet": "^0.6.1",
     "immpatch": "^0.2.0",
     "immutable": "^3.7.2",
     "iso-639-3": "^0.2.0",
-    "javascript-natural-sort": "^0.7.1",
     "json-pointer": "^0.3.0",
     "json-stable-stringify": "^1.0.0",
-    "jsonld": "^0.3.4",
+    "jsonld": "^0.4.12",
     "linkify-it": "^1.1.0",
-    "location-bar": "^2.0.0",
+    "location-hash-stream": "^2.0.0",
     "n3": "^0.2.7",
     "pegjs": "^0.9.0",
     "periodo-utils": "^4.0.0",
+    "pump": "^1.0.2",
     "react": "^15.0.1",
     "react-dom": "^15.0.1",
     "react-hyperscript": "^2.4.0",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
-    "redux-immutablejs": "0.0.8",
     "redux-thunk": "^2.1.0",
-    "route-recognizer": "^0.2.9",
-    "routes": "^2.1.0",
+    "route-parser": "0.0.5",
     "spark-md5": "0.0.5",
+    "through2": "^2.0.3",
     "union-type": "^0.3.3"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.9.0",
-    "babelify": "^7.2.0",
     "basscss": "^8.0.1",
     "basscss-addons": "^1.0.0-beta4",
     "blue-tape": "^0.2.0",
@@ -66,14 +61,6 @@
   },
   "browserify": {
     "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "es2015"
-          ]
-        }
-      ],
       "envify",
       "brfs"
     ]
