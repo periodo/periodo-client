@@ -4,12 +4,12 @@ const React = require('react')
     , h = require('react-hyperscript')
     , through = require('through2')
     , Immutable = require('immutable')
-    , NotFound = require('./NotFound')
-    , Footer = require('./Footer')
-    , Header = require('./Header')
+    , NotFound = require('./components/NotFound')
+    , Footer = require('./components/Footer')
+    , Header = require('./components/Header')
     , { connect } = require('react-redux')
     , locationHashStream = require('location-hash-stream')
-    , { match } = require('../router')
+    , { match } = require('./router')
 
 const LEFT_CLICK = 1;
 
