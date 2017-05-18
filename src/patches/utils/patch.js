@@ -8,7 +8,7 @@ const fs = require('fs')
     , stringify = require('json-stable-stringify')
     , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
     , parser = peg.buildParser(grammar)
-    , { patchTypes } = require('../types')
+    , { PatchType } = require('../types')
 
 
 /* Generate a JSON Patch to transform
@@ -54,6 +54,10 @@ function makePatch(before, after) {
     .patches
 }
 
+function titleCase(word) {
+  return word[0].toUpperCase() + word.slice(1)
+}
+
 
 function describePatch({ path, op }) {
   // FIXME Ignore if top-level change
@@ -66,28 +70,12 @@ function describePatch({ path, op }) {
   }
 
   const { collectionID, periodID, attribute } = parsed
-      , opLabel = !attribute ? op.toUpperCase() : 'CHANGE'
-      , target = periodID ? 'PERIOD' : 'PERIOD_COLLECTION'
-      , type = patchTypes[`${opLabel}_${target}`]
+      , opLabel = titleCase(!attribute ? op : 'Change')
+      , target = periodID ? 'Period' : 'PeriodCollection'
+      , type = PatchType[`${opLabel}${target}Of`](parsed)
 
   // TODO Move this stuff to general i18n
-  let label
-
-  if (!attribute) {
-    const verb = op === 'add' ? 'Created' : 'Deleted'
-
-    if (periodID) {
-      label = `${verb} period ${periodID} in collection ${collectionID}.`
-    } else {
-      label = `${verb} period collection ${collectionID}.`
-    }
-  } else {
-    if (periodID) {
-      label = `Changed ${attribute} of period ${periodID} in collection ${collectionID}.`
-    } else {
-      label = `Changed ${attribute} of period collection ${collectionID}.`
-    }
-  }
+  const label = type.getLabel();
 
   return { type, label, collectionID, periodID, attribute }
 }

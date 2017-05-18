@@ -1,7 +1,8 @@
 "use strict";
 
-const test = require('tape');
-const Immutable = require('immutable');
+const test = require('tape')
+    , Immutable = require('immutable')
+    , { PatchType } = require('../types')
 
 test('Patch formatting', t => {
   t.plan(7);
@@ -71,13 +72,13 @@ test('Patch utils', t => {
       , patches = Immutable.fromJS(samplePatches).toList()
 
   t.deepEqual(groupByChangeType(patches).toJS(), {
-    ADD_PERIOD: {
+    AddPeriod: {
       a: [samplePatches.addPeriod]
     },
-    REMOVE_PERIOD: {
+    RemovePeriod: {
       a: [samplePatches.removePeriod]
     },
-    CHANGE_PERIOD: {
+    ChangePeriod: {
       a: {
         b: [samplePatches.changePeriod]
       }
@@ -116,7 +117,6 @@ test('Patch utils', t => {
 
 
   const { describePatch, parsePatchPath } = require('../utils/patch')
-      , { patchTypes } = require('../types')
 
   t.deepEqual([
     describePatch(samplePatches.addPeriod),
@@ -124,21 +124,21 @@ test('Patch utils', t => {
     describePatch(samplePatches.changePeriod),
   ], [
     {
-      type: patchTypes.ADD_PERIOD,
-      label: 'Created period b in collection a.',
+      type: PatchType.AddPeriod('a', 'b'),
+      label: 'Added period b in collection a.',
       collectionID: 'a',
       periodID: 'b',
       attribute: null,
     },
     {
-      type: patchTypes.REMOVE_PERIOD,
-      label: 'Deleted period b in collection a.',
+      type: PatchType.RemovePeriod('a', 'b'),
+      label: 'Removed period b in collection a.',
       collectionID: 'a',
       periodID: 'b',
       attribute: null,
     },
     {
-      type: patchTypes.CHANGE_PERIOD,
+      type: PatchType.ChangePeriod('a', 'b', 'note'),
       label: 'Changed note of period b in collection a.',
       collectionID: 'a',
       periodID: 'b',
@@ -157,10 +157,11 @@ test('Patch utils', t => {
   );
 });
 
+// TODO: Move this to linked-data module
 test('Skolem ID utils', t => {
   t.plan(1);
 
-  const { replaceIDs } = require('../utils/skolem_ids')
+  const { replaceIDs } = require('../../linked-data/utils/skolem_ids')
 
   const oldRecord = Immutable.fromJS({
     a: 'http://example.com/.well-known/genid/abc123',
@@ -195,7 +196,7 @@ test('Skolem ID utils', t => {
 
 });
 
-test('Patch collection hash filtering', t => {
+test('Patch collection hash filtering', async t => {
   t.plan(3);
 
   const { filterByHash } = require('../utils/patch_collection');
@@ -220,22 +221,26 @@ test('Patch collection hash filtering', t => {
     return [ expectedHashes[0] ];
   }
 
-  filterByHash(patches, true, matcher).then(filteredPatches => {
+  {
+    const filteredPatches = await filterByHash(patches, true, matcher)
+
     t.deepEqual(
       filteredPatches.toJS(),
       [ patches.toJS()[0], patches.toJS()[2] ],
       'should enable patches to be filtered by hash');
-  });
+  }
 
 
   const noneMatcher = () => [];
 
-  filterByHash(patches, true, noneMatcher).then(filteredPatches => {
+  {
+    const filteredPatches = await filterByHash(patches, true, noneMatcher)
+
     t.deepEqual(
       filteredPatches.toJS(),
       [ patches.toJS()[2] ],
       'should only return additions when no hashes match');
-  });
+  }
 });
 
 

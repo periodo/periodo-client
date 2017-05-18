@@ -1,87 +1,56 @@
 "use strict";
 
-const { bindRequestAction } = require('./requests')
-    , { getBackendWithDataset } = require('./backends')
-    , { makePatch } = require('../utils/patch')
-    , { filterByHash } = require('../utils/patch_collection')
+const { fetchBackend } = require('../backends/actions')
+    , { makePatch } = require('./utils/patch')
+    , { filterByHash } = require('./utils/patch_collection')
+    , { PatchDirection, PatchAction } = require('./types')
 
-const { RETHROW_ERRORS } = global
-
-const {
-  GENERATE_DATASET_PATCH
-} = require('../types').actions
-
-const {
-  PENDING,
-  SUCCESS,
-  FAILURE,
-} = require('../types').readyStates
-
-const {
-  PUSH,
-  PULL,
-} = require('../types').patchDirections
 
 // push means going from a->b; pull from b->a
-function generateDatasetPatch(originBackend, remoteBackend, action=PUSH) {
-  if (action !== PUSH && action !== PULL) {
-    throw new Error(`Action must either be ${PUSH} or ${PULL}.`);
-  }
+function generateDatasetPatch(
+  originBackend,
+  remoteBackend,
+  direction=PatchDirection.Push()
+) {
+  const action = PatchAction.GenerateDatasetPatch(
+    originBackend,
+    remoteBackend,
+    direction
+  )
 
-  if (!originBackend || !remoteBackend) {
-    throw new Error('Must pass both origin and remote backend.');
-  }
-
-  return (dispatch, getState, { db }) => {
-    const dispatchReadyState = bindRequestAction(
-      dispatch,
-      GENERATE_DATASET_PATCH
-    )
-
-    dispatchReadyState(PENDING);
-
-    const backendRequests = Promise.all([
-      dispatch(getBackendWithDataset(originBackend)),
-      dispatch(getBackendWithDataset(remoteBackend)),
+  return action.do(async (dispatch, getState, { db }) => {
+    const [originReq, remoteReq] = await Promise.all([
+      dispatch(fetchBackend(originBackend)),
+      dispatch(fetchBackend(remoteBackend)),
     ])
 
     // FIXME: Handle errors in responses?
-    return backendRequests
-      .then(([originResp, remoteResp]) => {
-        const push = action === PUSH
-            , originID = originResp.backend.id
-            , originDataset = originResp.dataset
-            , remoteDataset = remoteResp.dataset
-            , hashObjectStore = `${push ? 'forward' : 'backward'}Hashes`
 
-        const filterHashes = hashes =>
-          db.localBackendPatches
-            .where(hashObjectStore)
-            .anyOf(hashes.toArray())
-            .and(({ backendID }) => backendID === originID)
-            .uniqueKeys()
+    const originID = originReq.readyState.response.backend.id
+        , originDataset = originReq.readyState.response.dataset
+        , remoteDataset = remoteReq.readyState.response.dataset
 
-        // if PUSH, make remote look like origin.
-        // if PULL, make origin look like remote.
-        const rawPatch = push
-          ? makePatch(remoteDataset, originDataset)
-          : makePatch(originDataset, remoteDataset)
+    const hashObjectStore = direction.case({
+      Push: () => 'forwardHashes',
+      Pull: () => 'backwardHashes',
+    })
 
-        return filterByHash(rawPatch, push, filterHashes)
-      })
-      .then(patch => {
-        dispatchReadyState(SUCCESS, { patch });
+    const filterHashes = hashes =>
+      db.localBackendPatches
+        .where(hashObjectStore)
+        .anyOf(hashes.toArray())
+        .and(({ backendID }) => backendID === originID)
+        .uniqueKeys()
 
-        return patch;
-      })
-      .catch(error => {
-        if (RETHROW_ERRORS) {
-          throw error;
-        }
+    // if PUSH, make remote look like origin.
+    // if PULL, make origin look like remote.
+    const rawPatch = direction.case({
+      Push: () => makePatch(remoteDataset, originDataset),
+      Pull: () => makePatch(originDataset, remoteDataset)
+    })
 
-        return dispatchReadyState(FAILURE, { error, errorString: error.toString() })
-      })
-  }
+    return filterByHash(rawPatch, direction, filterHashes)
+  })
 }
 
 module.exports = {

@@ -13,7 +13,7 @@ const Immutable = require('immutable')
 function getChangeType(patch) {
   const { type, collectionID, periodID, attribute } = describePatch(patch.toJS())
 
-  return [type].concat(
+  return [type._name].concat(
     periodID
       ? attribute ? [collectionID, periodID] : [collectionID]
       : attribute ? [collectionID] : []
