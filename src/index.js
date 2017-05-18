@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , fastclick = require('fastclick')
     , { Provider } = require('react-redux')
     , createStore = require('./store')
-    , Application = require('./components/application')
+    , Application = require('./main/Application')
 
 
 if (process.browser) {
