@@ -11,6 +11,20 @@ function isDataset(obj) {
   )
 }
 
+function isURL(str) {
+  if (!(typeof str === 'string')) {
+    throw new Error('URL must be a string')
+  }
+
+  const { protocol, host } = url.parse(str)
+
+  if (!(protocol && host)) {
+    throw new Error(`Invalid URL: ${str}`);
+  }
+
+  return true;
+}
+
 const Backend = Type({
   Web: { url: isURL },
   IndexedDB: { id: Number },
