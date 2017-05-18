@@ -4,44 +4,43 @@ global.RETHROW_ERRORS = true;
 
 const test = require('blue-tape')
     , Immutable = require('immutable')
-    , backendActions = require('../actions/backends')
-    , patchActions = require('../actions/patches')
-    , types = require('../types')
-    , makeMockStore = require('./mock_store')
+    , backendActions = require('../../backends/actions')
+    , { Backend } = require('../../backends/types')
+    , { ReadyState } = require('../../typed-actions/types')
+    , patchActions = require('../actions')
+    , { PatchAction, PatchDirection } = require('../types')
+    , makeMockStore = require('../../shared/mock_store')
 
-
-
-const backendAData = {
-  label: 'origin',
-  type: types.backends.INDEXED_DB,
-}
-
-const backendBData = {
-  label: 'remote',
-  type: types.backends.INDEXED_DB,
-}
 
 test('Patch generation actions', async t => {
   const store = makeMockStore()
 
   const resps = await Promise.all([
-    store.dispatch(backendActions.addBackend(backendAData)),
-    store.dispatch(backendActions.addBackend(backendBData)),
+    store.dispatch(backendActions.addBackend(
+      Backend.UnsavedIndexedDB(),
+      'origin',
+      ''
+    )),
+    store.dispatch(backendActions.addBackend(
+      Backend.UnsavedIndexedDB(),
+      'remote',
+      ''
+    ))
   ])
 
-  const [ backendA, backendB ] = resps.map(resp => resp.responseData.backend)
+  const [ backendA, backendB ] = resps.map(resp => resp.readyState.response.backend)
 
   await store.dispatch(
-    backendActions.updateLocalBackendDataset(Object.assign({}, backendA, {
-      updatedDataset: {
+    backendActions.updateLocalBackendDataset(
+      backendA,
+      {
         type: 'rdf:Bag',
         periodCollections: {
           fakeID: {
             id: 'fakeID'
           }
         }
-      }
-    })))
+      }))
 
   await store.dispatch(
     patchActions.generateDatasetPatch(backendA, backendB))
@@ -52,22 +51,23 @@ test('Patch generation actions', async t => {
     delete action.requestID;
 
     t.deepEqual(action, {
-      type: types.actions.GENERATE_DATASET_PATCH,
-      readyState: types.readyStates.SUCCESS,
-      patch: Immutable.fromJS([
-        {
-          op: 'add',
-          path: '/periodCollections/fakeID',
-          value: {
-            id: 'fakeID'
+      type: 'GenerateDatasetPatch',
+      readyState: ReadyState.Success({
+        patch: Immutable.fromJS([
+          {
+            op: 'add',
+            path: '/periodCollections/fakeID',
+            value: {
+              id: 'fakeID'
+            }
           }
-        }
-      ])
+        ])
+      })
     }, 'should patch additions')
   }
 
   await store.dispatch(
-    patchActions.generateDatasetPatch(backendA, backendB, types.patchDirections.PULL))
+    patchActions.generateDatasetPatch(backendA, backendB, PatchDirection.Pull()))
 
   {
     const action = store.getActions().pop()
@@ -75,9 +75,10 @@ test('Patch generation actions', async t => {
     delete action.requestID
 
     t.deepEqual(action, {
-      type: types.actions.GENERATE_DATASET_PATCH,
-      readyState: types.readyStates.SUCCESS,
-      patch: Immutable.fromJS([])
+      type: 'GenerateDatasetPatch',
+      readyState: ReadyState.Success({
+        patch: Immutable.fromJS([])
+      })
     }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
   }
 })

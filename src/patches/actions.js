@@ -26,7 +26,7 @@ function generateDatasetPatch(
 
     // FIXME: Handle errors in responses?
 
-    const originID = originReq.readyState.response.backend.id
+    const originID = originReq.readyState.response.type.id
         , originDataset = originReq.readyState.response.dataset
         , remoteDataset = remoteReq.readyState.response.dataset
 
@@ -49,7 +49,9 @@ function generateDatasetPatch(
       Pull: () => makePatch(originDataset, remoteDataset)
     })
 
-    return filterByHash(rawPatch, direction, filterHashes)
+    const patch = await filterByHash(rawPatch, direction, filterHashes)
+
+    return { patch }
   })
 }
 
