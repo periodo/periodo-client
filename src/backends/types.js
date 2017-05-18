@@ -1,7 +1,7 @@
 "use strict";
 
-const Type = require('union-type')
-    , { isURL } = require('../common/utils')
+const url = require('url')
+    , Type = require('union-type')
     , makeActionType = require('../typed-actions/make_type')
 
 function isDataset(obj) {
