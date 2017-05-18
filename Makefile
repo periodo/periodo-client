@@ -76,7 +76,7 @@ $(VERSIONED_JS_BUNDLE): $(JS_FILES) | dist
 	NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
 
 $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
-	$(NPM_BIN)/uglifyjs $< -c warnings=false -o $@
+	$(NPM_BIN)/babili $< -o $@
 
 
 $(VERSIONED_CSS_BUNDLE): $(CSS_FILES) | dist

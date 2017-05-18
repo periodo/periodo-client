@@ -39,11 +39,12 @@
     "union-type": "^0.3.3"
   },
   "devDependencies": {
+    "babili": "0.0.12",
     "basscss": "^8.0.1",
     "basscss-addons": "^1.0.0-beta4",
     "blue-tape": "^0.2.0",
-    "brfs": "1.0.0",
-    "browserify": "^10.2.4",
+    "brfs-babel": "^1.0.0",
+    "browserify": "^14.3.0",
     "envify": "^3.4.0",
     "exorcist": "^0.4.0",
     "fake-indexeddb": "^1.0.6",
@@ -56,13 +57,12 @@
     "redux-mock-store": "^1.1.0",
     "source-map": "^0.4.4",
     "tape": "^4.5.1",
-    "uglify-js": "^2.4.19",
     "watchify": "^3.3.1"
   },
   "browserify": {
     "transform": [
-      "envify",
-      "brfs"
+      "brfs-babel",
+      "envify"
     ]
   },
   "scripts": {
