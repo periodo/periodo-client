@@ -1,22 +1,17 @@
 "use strict";
 
-const thunk = require('redux-thunk').default
-    , { createStore, applyMiddleware, compose } = require('redux')
+const { createStore, applyMiddleware, compose } = require('redux')
+    , thunk = require('redux-thunk').default
     , unionTypeMiddleware = require('./typed-actions/middleware')
+    , periodoDB = require('./db')
+    , { getApplicationReducer } = require('./modules')
 
-
-function initStore() {
-  const store = createStore(
-    rootReducer,
+module.exports = function () {
+  createStore(
+    getApplicationReducer(),
     compose(
-      applyMiddleware(unionTypeMiddleware, thunk.withExtraArgument(exposedStorage)),
-      (global.window || {}).devToolsExtension ? window.devToolsExtension() : a => a
-    ))
-
-  return store;
-}
-
-// FIXME: make single export
-module.exports = {
-  initStore,
+      applyMiddleware(thunk.withExtraArgument({ db: periodoDB() }), unionTypeMiddleware),
+      window.devToolsExtension ? window.devToolsExtension() : a => a
+    )
+  )
 }
