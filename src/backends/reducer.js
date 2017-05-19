@@ -6,6 +6,7 @@ const R = require('ramda')
       , moduleActionCase
       , readyStateCase
       } = require('../typed-actions/utils')
+    , { Backend } = require('./types')
 
 const initialState = () => ({
   available: null,
@@ -29,7 +30,9 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       GetBackend() {
-        const { metadata, dataset, /*setAsActive*/ } = getResponse(action)
+        const { metadata, dataset, type } = getResponse(action)
+
+        localStorage.currentBackend = Backend.serialize(type)
 
         return R.set(
           R.lensProp('current'),

@@ -4,32 +4,29 @@ const React = require('react')
     , h = require('react-hyperscript')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
+    , { getCurrentBackend } = require('../../backends/utils')
     , routerKnower = require('../components/util/router_knower')
 
-exports.name = 'home'
-
-exports.path = '/'
-
 const Home = React.createClass({
-  componentDidMount() {
+  render() {
     const { navigateToRoute } = this.props
-        , { currentBackend } = localStorage
+        , currentBackend = getCurrentBackend()
 
     if (currentBackend) {
-      const [ name, type ] = currentBackend.split('-')
-
-      navigateToRoute('backend-home', { name, type })
+      currentBackend.case({
+        IndexedDB: () => navigateToRoute('local-backend-home', currentBackend),
+        Web: () => navigateToRoute('web-backend-home', currentBackend),
+        _: () => null,
+      })
     } else {
       navigateToRoute('backend-select')
     }
-  },
 
-  render() {
-    return h('div')
+    return h('div', `Backend homepage for ${currentBackend._name} not yet implemented.`)
   }
 })
 
-exports.Component = compose(
+module.exports = compose(
   routerKnower,
   connect(state => ({ backend: state.get('backend') }))
 )(Home)

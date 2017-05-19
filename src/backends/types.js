@@ -33,6 +33,14 @@ const Backend = Type({
   Canonical: {},
 })
 
+Backend.serialize = backend => JSON.stringify(backend)
+
+Backend.deserialize = str => {
+  const obj = JSON.parse(str)
+
+  return Backend[obj._name + 'Of'](obj)
+}
+
 const BackendMetadata = Type({
   BackendMetadata: {
     label: String,
