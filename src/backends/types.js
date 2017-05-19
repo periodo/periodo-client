@@ -51,11 +51,18 @@ const BackendMetadata = Type({
   }
 })
 
+const _BackendResp = Type({ _BackendResp: {
+  type: Backend,
+  metadata: BackendMetadata,
+}})
+
 const BackendAction = makeActionType('backend', {
   GetAllBackends: [
     {},
-    // FIXME: make more specific
-    { backends: Array }
+    {
+      //FIXME: This is not ideal
+      backends: Type.ListOf(x => _BackendResp._BackendRespOf(x))
+    }
   ],
 
   GetBackend: [
