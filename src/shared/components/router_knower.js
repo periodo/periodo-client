@@ -11,7 +11,7 @@ module.exports = function routerKnower(Component) {
     navigateToRoute() {
       const target = this.generateRoute(...arguments)
 
-      window.hash = target;
+      window.location.hash = target;
     },
 
     generateRoute(routeName, params, queryParams) {

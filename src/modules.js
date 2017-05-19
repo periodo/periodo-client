@@ -7,7 +7,9 @@ const Type = require('union-type')
 
 
 function registerModules() {
-  register('backends', require('./backends'))
+  register('backends', require('./backends'));
+  register('main', require('./main'));
+
   // register('auth', require('./auth'))
   // register('ld', require('./ld'))
   // register('patches', require('./patches'))

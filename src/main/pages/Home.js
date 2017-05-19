@@ -5,7 +5,7 @@ const React = require('react')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
     , { getCurrentBackend } = require('../../backends/utils')
-    , routerKnower = require('../components/util/router_knower')
+    , routerKnower = require('../../shared/components/router_knower')
 
 const Home = React.createClass({
   render() {
@@ -28,5 +28,4 @@ const Home = React.createClass({
 
 module.exports = compose(
   routerKnower,
-  connect(state => ({ backend: state.get('backend') }))
 )(Home)
