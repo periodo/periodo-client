@@ -4,6 +4,7 @@ const h = require('react-hyperscript')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
+    , { Backend } = require('../../types')
     , { addBackend } = require('../../actions')
     , routerKnower = require('../../../shared/components/router_knower')
 
@@ -48,8 +49,14 @@ const BackendSelect = props =>
     h('h2', 'Add new backend'),
 
     h(BackendForm, {
-      handleSave: backend => {
-        props.addBackend(backend).then(() => {
+      handleSave: state => {
+        const { label, description } = state
+
+        const backend = type === 'web'
+            ? Backend.WebOf(state)
+            : Backend.UnsavedIndexedDB()
+
+        props.addBackend(backend, label, description).then(() => {
           window.location.reload();
         })
       }
