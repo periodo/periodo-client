@@ -4,6 +4,7 @@ const { formatPatch } = require('../patches/utils/patch')
     , { Backend, BackendAction, BackendMetadata } = require('./types')
     , { makeEmptyDataset } = require('./utils')
     , { NotImplementedError } = require('../shared/errors')
+    , { getResponse } = require('../typed-actions/utils')
 
 function makeBackend(typeConstructor) {
   return obj => ({
@@ -170,8 +171,9 @@ function updateLocalBackendDataset(backend, updatedDataset, message) {
 
   return action.do((dispatch, getState, { db }) =>
     db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
-      const resp = await(dispatch(fetchBackend(backend)))
-          , { metadata, dataset } = resp.readyState.response
+      const fetchAction = await(dispatch(fetchBackend(backend)))
+
+      const { metadata, dataset } = getResponse(fetchAction)
           , patchData = formatPatch(dataset, updatedDataset, message)
           , now = new Date().getTime()
 

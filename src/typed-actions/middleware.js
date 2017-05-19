@@ -1,6 +1,7 @@
 "use strict";
 
-const { isUnionTypeRecord } = require('./utils')
+const { $$ActionType, $$ReadyState } = require('./symbols')
+    , { isUnionTypeRecord } = require('./utils')
 
 const unionTypeMiddleware = store => next => action => {
   if (action.constructor === Object) {
@@ -10,10 +11,11 @@ const unionTypeMiddleware = store => next => action => {
 
     // FIXME: require doing the makeActionType thing everywhere
     const nextAction = {
-      [Symbol.for('Type')]: action.type,
+      [$$ActionType]: action.type,
+      [$$ReadyState]: action.readyState,
       type: action.type._name,
       requestID: action.requestID,
-      readyState: action.readyState
+      readyState: action.readyState._name,
     }
 
     return next(nextAction);

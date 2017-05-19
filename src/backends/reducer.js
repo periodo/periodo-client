@@ -1,6 +1,11 @@
 "use strict";
 
 const R = require('ramda')
+    , { isInModule
+      , getResponse
+      , moduleActionCase
+      , readyStateCase
+      } = require('../typed-actions/utils')
 
 const initialState = () => ({
   available: null,
@@ -9,34 +14,29 @@ const initialState = () => ({
 })
 
 module.exports = function backends(state=initialState(), action) {
-  const T = action[Symbol.for('Type')]
+  if (!isInModule(action, 'backend')) return state;
 
-  if (!T || T.module !== 'backend') return state;
+  return readyStateCase(action, {
+    Pending: () => state,
+    Failure: () => state,
+    Success: () => moduleActionCase({
+      GetAllBackends() {
+        return R.set(
+          R.lensProp('available'),
+          getResponse(action).backends,
+          state
+        )
+      },
 
-  const isSuccess = action.readyState.case({
-    Success: () => true,
-    _: () => false
-  })
+      GetBackend() {
+        const { metadata, dataset, /*setAsActive*/ } = getResponse(action)
 
-  if (!isSuccess) return state;
-
-  return T.case({
-    GetAllBackends() {
-      return R.set(
-        R.lensProp('available'),
-        action.readyState.response.backends,
-        state
-      )
-    },
-
-    GetBackend() {
-      const { metadata, dataset, /*setAsActive*/ } = action.readyState.response
-
-      return R.set(
-        R.lensProp('current'),
-        { metadata, dataset },
-        state
-      )
-    }
+        return R.set(
+          R.lensProp('current'),
+          { metadata, dataset },
+          state
+        )
+      }
+    })
   })
 }

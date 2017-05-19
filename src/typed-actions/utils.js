@@ -1,5 +1,7 @@
 "use strict";
 
+const { $$ActionType, $$ReadyState } = require('./symbols')
+
 function isUnionTypeRecord(obj) {
   return (
     Array.isArray(obj._keys) &&
@@ -8,6 +10,68 @@ function isUnionTypeRecord(obj) {
   )
 }
 
+function getActionType(action) {
+  return action[$$ActionType]
+}
+
+function getReadyState(action) {
+  return action[$$ReadyState]
+}
+
+function getModule(action) {
+  return getActionType(action).module
+}
+
+function isInModule(action, module) {
+  return getModule(action) === module
+}
+
+function readyStateCase(action, cases) {
+  return getReadyState(action).case(cases)
+}
+
+function moduleActionCase(action, cases) {
+  return getActionType(action).case(cases)
+}
+
+function getResponse(action) {
+  return readyStateCase(action, {
+    Success: resp => resp,
+    _: () => {
+      throw new Error('Ready state of action was not \'Success\'.')
+    }
+  })
+}
+
+function getError(action) {
+  return readyStateCase(action, {
+    Failure: err => err,
+    _: () => {
+      throw new Error('Ready state of action was not \'Failure\'.')
+    }
+  })
+}
+
+function handleCompletedAction(action, onSuccess, onError) {
+  return readyStateCase(action, {
+    Success: onSuccess,
+    Failure: onError,
+    Pending: () => {
+      throw new Error(
+        'Ready state of action was pending. This can only be ' +
+        'called on a completed action.')
+    }
+  })
+}
+
 module.exports = {
   isUnionTypeRecord,
+  getModule,
+  getReadyState,
+  isInModule,
+  readyStateCase,
+  moduleActionCase,
+  getResponse,
+  getError,
+  handleCompletedAction,
 }

@@ -1,6 +1,7 @@
 "use strict";
 
 const { fetchBackend } = require('../backends/actions')
+    , { getResponse } = require('../typed-actions/utils')
     , { makePatch } = require('./utils/patch')
     , { filterByHash } = require('./utils/patch_collection')
     , { PatchDirection, PatchAction } = require('./types')
@@ -25,10 +26,9 @@ function generateDatasetPatch(
     ])
 
     // FIXME: Handle errors in responses?
-
-    const originID = originReq.readyState.response.type.id
-        , originDataset = originReq.readyState.response.dataset
-        , remoteDataset = remoteReq.readyState.response.dataset
+    const originID = getResponse(originReq).type.id
+        , originDataset = getResponse(originReq).dataset
+        , remoteDataset = getResponse(remoteReq).dataset
 
     const hashObjectStore = direction.case({
       Push: () => 'forwardHashes',
