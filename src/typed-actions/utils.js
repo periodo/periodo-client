@@ -19,11 +19,13 @@ function getReadyState(action) {
 }
 
 function getModule(action) {
-  return getActionType(action).module
+  const Type = getActionType(action);
+
+  return Type ? Type.module : null
 }
 
-function isInModule(action, module) {
-  return getModule(action) === module
+function isInModule(action, moduleString) {
+  return getModule(action) === moduleString
 }
 
 function readyStateCase(action, cases) {

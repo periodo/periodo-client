@@ -19,7 +19,7 @@ module.exports = function backends(state=initialState(), action) {
   return readyStateCase(action, {
     Pending: () => state,
     Failure: () => state,
-    Success: () => moduleActionCase({
+    Success: () => moduleActionCase(action, {
       GetAllBackends() {
         return R.set(
           R.lensProp('available'),
