@@ -1,80 +1,93 @@
-###########
+###############
+#  Variables  #
+###############
 
-NPM_BIN = ./node_modules/.bin
-DIST_DIR = dist
-VERSION_STR := $(shell npm ls --depth=0 | head -n 1 | grep -o '@[^ ]\+' | cut -c 2-)
+PROJECT_NAME = periodo
+
+NPM_BIN = node_modules/.bin
+
+BROWSERIFY_ENTRY = src/index.js
+CSS_ENTRY = style/main.css
+
+VERSION := $(shell grep version package.json | cut -d \" -f 4)
+
+JS_BUNDLE := dist/$(PROJECT_NAME).js
+VERSIONED_JS_BUNDLE := $(JS_BUNDLE:.js=-$(VERSION).js)
+MINIFIED_VERSIONED_JS_BUNDLE := $(VERSIONED_JS_BUNDLE:.js=.min.js)
+
+CSS_BUNDLE := $(JS_BUNDLE:.js=.css)
+VERSIONED_CSS_BUNDLE := $(VERSIONED_JS_BUNDLE:.js=.css)
 
 
-CSS_BUNDLE = $(DIST_DIR)/periodo.css
-CSS_BUNDLE_VERSIONED = $(subst .css,-$(VERSION_STR).css,$(CSS_BUNDLE))
-
-JS_BUNDLE = $(DIST_DIR)/periodo.js
-JS_BUNDLE_VERSIONED = $(subst .js,-$(VERSION_STR).js,$(JS_BUNDLE))
-JS_VERSIONED_SOURCE_MAP = $(subst .js,.map,$(JS_BUNDLE_VERSIONED))
-JS_MINIFIED_BUNDLE = $(DIST_DIR)/periodo.min.js
-JS_MINIFIED_SOURCE_MAP = $(DIST_DIR)/periodo.min.map
-JS_MINIFIED_BUNDLE_VERSIONED = $(subst .min.js,-$(VERSION_STR).min.js,$(JS_MINIFIED_BUNDLE))
-JS_MINIFIED_VERSIONED_SOURCE_MAP = $(subst .min.map,-$(VERSION_STR).min.map,$(JS_MINIFIED_SOURCE_MAP))
-
-ZIP_FILE = $(DIST_DIR)/periodo-$(VERSION_STR).zip
+VERSIONED_DIRECTORY := $(PROJECT_NAME)-$(VERSION)
+VERSIONED_ZIPFILE := dist/$(VERSIONED_DIRECTORY).zip
 
 
-JS_ENTRY = src/index.js
-SRC_FILES = $(shell find ./src -type f)
-LIB_FILES = $(shell find ./lib -type f)
+ZIPPED_FILES := $(MINIFIED_VERSIONED_JS_BUNDLE) \
+	       $(VERSIONED_CSS_BUNDLE) \
+	       index.html \
+	       LICENSE \
+	       README.md
 
-###########
 
-bundle: node_modules $(JS_BUNDLE) $(CSS_BUNDLE)
+POSTCSS_OPTS := --use postcss-import \
+	        --use postcss-cssnext
 
-node_modules: package.json
-	npm install
+JS_FILES := $(shell find src/ -type f -name *js -o -name *jsx)
+CSS_FILES := $(shell find style/ -type f -name *css)
 
-zip: $(ZIP_FILE)
+
+###################
+#  Phony targets  #
+###################
+
+all: node_modules $(MINIFIED_VERSIONED_JS_BUNDLE) $(VERSIONED_CSS_BUNDLE)
+
+zip: $(VERSIONED_ZIPFILE)
 
 clean:
 	@rm -rf dist
 
-watch:
-	$(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) $(JS_ENTRY) &
-	$(NPM_BIN)/watch-lessc -i style.less -o $(CSS_BUNDLE)
+serve:
+	python3 -m http.server 8020
 
-GITHUB_TOKEN = ~/.githubtoken
-release: $(ZIP_FILE)
-	./release.sh $(ZIP_FILE) v$(VERSION_STR)
+test:
+	npm test
 
-.PHONY: bundle clean watch zip
+watch: node_modules | dist
+	$(NPM_BIN)/postcss $(POSTCSS_OPTS) $(CSS_ENTRY) -o $(CSS_BUNDLE)
+	$(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
 
 
-$(DIST_DIR):
-	@mkdir -p $(DIST_DIR)
+.PHONY: all zip clean serve watch test
 
-$(ZIP_FILE): $(JS_MINIFIED_BUNDLE_VERSIONED) $(JS_MINIFIED_VERSIONED_SOURCE_MAP) $(CSS_BUNDLE_VERSIONED) $(LIB_FILES) LICENSE COPYING favicon.ico
-	@rm -f $@
-	cp index.html dist/index.html
+
+#############
+#  Targets  #
+#############
+
+dist:
+	mkdir -p $@
+
+node_modules: package.json
+	npm install
+
+$(VERSIONED_JS_BUNDLE): $(JS_FILES) | dist
+	NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
+
+$(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
+	$(NPM_BIN)/babili $< -o $@
+
+
+$(VERSIONED_CSS_BUNDLE): $(CSS_FILES) | dist
+	$(NPM_BIN)/postcss $(POSTCSS_OPTS) $(CSS_ENTRY) -o $@
+
+$(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
+	mkdir $(VERSIONED_DIRECTORY)
+	cp $^ $(VERSIONED_DIRECTORY)
 	sed -i \
-		-e 's|$(JS_BUNDLE)|$(JS_MINIFIED_BUNDLE_VERSIONED)|' \
-		-e 's|$(CSS_BUNDLE)|$(CSS_BUNDLE_VERSIONED)|' \
-		dist/index.html
-	zip $@ $^
-	zip -j $@ dist/index.html
-	rm dist/index.html
-
-$(JS_BUNDLE): $(DIST_DIR) $(SRC_FILES)
-	$(NPM_BIN)/browserify -d -o $@ $(JS_ENTRY)
-
-$(JS_BUNDLE_VERSIONED): $(DIST_DIR) $(SRC_FILES)
-	NODE_ENV=production $(NPM_BIN)/browserify -d $(JS_ENTRY) | \
-		 $(NPM_BIN)/exorcist $(JS_VERSIONED_SOURCE_MAP) --url $(subst dist/,,$(JS_VERSIONED_SOURCE_MAP)) > $@
-
-$(JS_MINIFIED_BUNDLE): $(JS_BUNDLE)
-	$(NPM_BIN)/uglifyjs $< --source-map $(JS_MINIFIED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_SOURCE_MAP)) -c warnings=false -o $@
-
-$(JS_MINIFIED_BUNDLE_VERSIONED): $(JS_BUNDLE_VERSIONED)
-	$(NPM_BIN)/uglifyjs $< --in-source-map $(JS_VERSIONED_SOURCE_MAP) --source-map $(JS_MINIFIED_VERSIONED_SOURCE_MAP) --source-map-url $(subst dist/,,$(JS_MINIFIED_VERSIONED_SOURCE_MAP)) -c warnings=false -o $@
-
-$(CSS_BUNDLE): $(DIST_DIR) style.less
-	$(NPM_BIN)/lessc style.less $@
-
-$(CSS_BUNDLE_VERSIONED): $(CSS_BUNDLE)
-	cp $< $@
+		-e "s|$(JS_BUNDLE)|$(MINIFIED_VERSIONED_JS_BUNDLE)|" \
+		-e "s|$(CSS_BUNDLE)|$(VERSIONED_CSS_BUNDLE)|" \
+		$(VERSIONED_DIRECTORY)/index.html
+	zip -r $@ $(VERSIONED_DIRECTORY)
+	rm -rf $(VERSIONED_DIRECTORY)

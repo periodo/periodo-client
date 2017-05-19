@@ -5,102 +5,68 @@
   "description": "Client for browsing and editing PeriodO data.",
   "private": true,
   "dependencies": {
-    "concat-stream": "^1.4.8",
-    "csv-write-stream": "^0.3.0",
-    "d3": "^3.4.8",
-    "dexie": "^1.0.4",
+    "axs": "^1.0.6",
+    "axs-ui": "^1.0.4",
+    "d3": "^3.5.16",
+    "dexie": "^2.0.0-beta.10",
     "diff-match-patch": "^1.0.0",
-    "envify": "^3.4.0",
     "fast-diff": "^1.0.1",
     "fast-json-patch": "^0.5.2",
     "fastclick": "^1.0.6",
     "filesaver.js": "^0.1.1",
     "fuzzy": "^0.1.0",
-    "immfacet": "^0.6.1",
     "immpatch": "^0.2.0",
     "immutable": "^3.7.2",
     "iso-639-3": "^0.2.0",
-    "javascript-natural-sort": "^0.7.1",
-    "jquery": "^2.1.4",
     "json-pointer": "^0.3.0",
     "json-stable-stringify": "^1.0.0",
-    "jsonld": "^0.3.4",
+    "jsonld": "^0.4.12",
     "linkify-it": "^1.1.0",
-    "location-bar": "^2.0.0",
+    "location-hash-stream": "^2.0.0",
     "n3": "^0.2.7",
-    "pegjs": "^0.8.0",
-    "react": "^0.13.3",
-    "react-paginate": "^0.1.34",
-    "route-recognizer": "^0.1.5",
-    "router": "^1.1.1",
+    "pegjs": "^0.9.0",
+    "periodo-utils": "^4.0.0",
+    "pump": "^1.0.2",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1",
+    "react-hyperscript": "^2.4.0",
+    "react-redux": "^4.4.5",
+    "redux": "^3.5.2",
+    "redux-thunk": "^2.1.0",
+    "route-parser": "0.0.5",
     "spark-md5": "0.0.5",
-    "spin.js": "^2.0.1",
-    "underscore": "^1.8.3"
+    "through2": "^2.0.3",
+    "union-type": "^0.3.3"
   },
   "devDependencies": {
-    "babelify": "^6.0.2",
-    "brfs": "1.0.0",
-    "browserify": "^10.2.4",
-    "browserify-shim": "^3.8.2",
+    "babili": "0.0.12",
+    "basscss": "^8.0.1",
+    "basscss-addons": "^1.0.0-beta4",
+    "blue-tape": "^0.2.0",
+    "brfs-babel": "^1.0.0",
+    "browserify": "^14.3.0",
+    "envify": "^3.4.0",
     "exorcist": "^0.4.0",
-    "less": "^1.7.3",
-    "mocha": "^1.18.0",
-    "mochify": "^2.8.1",
-    "phantomjs": "^1.9.16",
+    "fake-indexeddb": "^1.0.6",
+    "normalize.css": "^4.1.1",
+    "postcss": "^5.0.19",
+    "postcss-cli": "^2.5.1",
+    "postcss-cssnext": "^2.5.1",
+    "postcss-import": "^8.1.0",
+    "react-hyperscript": "^2.4.0",
+    "redux-mock-store": "^1.1.0",
     "source-map": "^0.4.4",
-    "testling": "^1.6.1",
-    "uglify-js": "^2.4.19",
-    "watch-lessc": "0.0.2",
+    "tape": "^4.5.1",
     "watchify": "^3.3.1"
   },
   "browserify": {
     "transform": [
-      [
-        "babelify",
-        {
-          "sourceMapRelative": ".",
-          "only": "src/**"
-        }
-      ],
-      "browserify-shim",
-      "brfs"
-    ]
-  },
-  "browser": {
-    "jquery-bootstrap": "./lib/bootstrap.js",
-    "jquery-typeahead": "./lib/typeahead.bundle.js"
-  },
-  "browserify-shim": {
-    "jquery-bootstrap": {
-      "depends": [
-        "jquery:jQuery"
-      ]
-    },
-    "jquery-typeahead": {
-      "depends": [
-        "jquery:jQuery"
-      ]
-    }
-  },
-  "testling": {
-    "harness": "mocha",
-    "files": "src/tests/*.js",
-    "browsers": [
-      "firefox/24..latest",
-      "chrome/latest",
-      "ie/10..latest",
-      "safari/6..latest",
-      "opera/latest",
-      "ipad/6..latest"
+      "brfs-babel",
+      "envify"
     ]
   },
   "scripts": {
-    "preversion": "npm test && npm run isMaster && npm run matchesRemote",
-    "postversion": "git push && git push --tags && make zip && ./bin/release.js",
-    "isMaster": "test master = $(git rev-parse --abbrev-ref HEAD)",
-    "matchesRemote": "test $(git rev-parse @) = $(git rev-parse @{u})",
-    "test": "mochify -R spec ./src/tests/*.js",
-    "test-watch": "mochify -w -R spec ./src/tests/*.js",
+    "test": "tape ./src/**/test/*.js",
     "start": "serve -p 8000"
   }
 }

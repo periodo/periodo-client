@@ -1,17 +1,23 @@
 "use strict";
 
-var React = require('react')
-  , { EventEmitter } = require('events')
-
-require('babelify/polyfill');
-
-window.periodo = new EventEmitter();
-
-window.onload = function () {
-  var Router = require('./router')
+const h = require('react-hyperscript')
+    , ReactDOM = require('react-dom')
     , fastclick = require('fastclick')
+    , { Provider } = require('react-redux')
+    , createStore = require('./store')
+    , Application = require('./main/Application')
+
+
+if (process.browser) {
+  const store = createStore()
 
   fastclick(document.body);
 
-  React.render(<Router />, document.body);
+  const component = (
+    h(Provider, { store }, [
+      h(Application)
+    ])
+  )
+
+  ReactDOM.render(component, document.getElementById('main'))
 }

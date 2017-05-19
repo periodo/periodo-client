@@ -1,23 +1,25 @@
 {
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
   "env": {
-    "es6": true,
     "node": true,
     "browser": true
   },
-  "ecmaFeatures": {
-    "jsx": true
-  },
-  "plugins": [
-    "react"
-  ],
   "rules": {
-    "comma-dangle": false,
+    "comma-dangle": 0,
     "curly": [2, "multi-line"],
-    "new-cap": false,
-    "no-mixed-requires": false,
-    "no-underscore-dangle": false,
+    "new-cap": 0,
+    "no-mixed-requires": 0,
+    "no-underscore-dangle": 0,
     "no-use-before-define": [2, "nofunc"],
-    "quotes": false,
-    "semi": false
+    "no-var": 2,
+    "object-shorthand": 2,
+    "prefer-arrow-callback": 2,
+    "prefer-const": 2,
+    "prefer-spread": 2,
+    "quotes": 0,
+    "semi": 0
   }
 }
