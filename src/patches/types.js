@@ -73,11 +73,16 @@ PatchType.prototype.getLabel = function () {
 }
 
 const PatchAction = makeActionType('patch', {
-  GenerateDatasetPatch: {
-    origin: Backend,
-    remote: Backend,
-    direction: PatchDirection
-  }
+  GenerateDatasetPatch: [
+    {
+      origin: Backend,
+      remote: Backend,
+      direction: PatchDirection
+    },
+    {
+      patch: Object,
+    }
+  ]
 })
 
 module.exports = {

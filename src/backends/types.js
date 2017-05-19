@@ -52,27 +52,43 @@ const BackendMetadata = Type({
 })
 
 const BackendAction = makeActionType('backend', {
-  GetAllBackends: {},
+  GetAllBackends: [
+    {},
+    // FIXME: make more specific
+    { backends: Array }
+  ],
 
-  GetBackend: {
-    backend: Backend,
-    setAsActive: Boolean
-  },
+  GetBackend: [
+    { backend: Backend, setAsActive: Boolean },
+    {
+      type: Backend,
+      setAsActive: Boolean,
+      metadata: BackendMetadata,
+      dataset: isDataset,
+    }
+  ],
 
-  CreateBackend: {
-    backend: Backend,
-    label: String,
-    description: String,
-  },
+  CreateBackend: [
+    { backend: Backend, label: String, description: String, },
+    { backend: Backend, metadata: BackendMetadata, }
+  ],
 
-  UpdateBackend: {
-    backend: Backend,
-    newDataset: isDataset
-  },
+  UpdateBackend: [
+    { backend: Backend, newDataset: isDataset },
+    {
+      backend: Backend,
+      metadata: BackendMetadata,
+      dataset: isDataset,
+      patchData: Object,
+    }
+  ],
 
-  DeleteBackend: [Backend],
-  GenerateDatasetPatch: [isDataset, isDataset, String],
-  UnsetCurrentBackend: [],
+  DeleteBackend: [
+    { backend: Backend },
+    {}
+  ],
+
+  UnsetCurrentBackend: [ {}, {} ],
 })
 
 module.exports = {

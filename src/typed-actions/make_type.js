@@ -1,6 +1,7 @@
 "use strict";
 
-const Type = require('union-type')
+const R = require('ramda')
+    , Type = require('union-type')
     , { ActionRequest, ReadyState } = require('./types')
 
 let _requestID = 0;
@@ -20,6 +21,14 @@ function makeAsyncActionCreator(type, fn) {
     try {
       const resp = await fn(dispatch, ...args)
 
+      try {
+        type.validateResponse(resp);
+      } catch (e) {
+        console.error(
+          `ERROR: Invalid response given to success condition for action ${type._name}`);
+        throw e;
+      }
+
       return update(ReadyState.Success(resp));
     } catch (err) {
 
@@ -37,15 +46,44 @@ function makeAsyncActionCreator(type, fn) {
 }
 
 function makeActionType(label, obj) {
-  const T = Type(obj)
+  const reqs = {}
+      , resps = {}
 
-  T.prototype.do = function (fn) {
+  Object.keys(obj).forEach(key => {
+    const val = obj[key]
+
+    if (!Array.isArray(val) || val.length !== 2) {
+      throw new Error(
+        'Each new action must define two types as an array. The first is ' +
+        'the request type, the second the response type.'
+      )
+    }
+
+    const [req, resp] = val
+
+    reqs[key] = req;
+    resps[key + 'Response'] = resp;
+  })
+
+  const RequestType = Type(reqs)
+      , ResponseType = Type(resps)
+
+  RequestType.prototype.do = function (fn) {
     return makeAsyncActionCreator(this, fn);
   }
 
-  T.prototype.module = label;
+  RequestType.prototype.validateResponse = function (obj) {
+    const resp = ResponseType[this._name + 'ResponseOf'](obj)
+        , extraKeys = R.difference(Object.keys(obj), resp._keys)
 
-  return T;
+    if (extraKeys.length) {
+      throw new Error(`Extra keys in ${label}.${resp._name}: ${extraKeys.join(', ')}`)
+    }
+  }
+
+  RequestType.prototype.module = label;
+
+  return RequestType;
 }
 
 

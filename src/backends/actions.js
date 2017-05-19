@@ -89,6 +89,7 @@ function fetchBackend(backend, setAsActive=false) {
       },
 
       Canonical: async url => {
+        url;
         throw new NotImplementedError();
       },
 
@@ -103,7 +104,7 @@ function fetchBackend(backend, setAsActive=false) {
 
     return {
       type: backend,
-      metadata,
+      metadata: BackendMetadata.BackendMetadataOf(metadata),
       dataset,
       setAsActive,
     }
@@ -171,16 +172,29 @@ function updateLocalBackendDataset(backend, updatedDataset, message) {
 
   return action.do((dispatch, getState, { db }) =>
     db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
-      const fetchAction = await(dispatch(fetchBackend(backend)))
+      let metadata, dataset
 
-      const { metadata, dataset } = getResponse(fetchAction)
-          , patchData = formatPatch(dataset, updatedDataset, message)
+      async function _refetch() {
+        const fetchAction = await dispatch(fetchBackend(backend))
+            , resp = getResponse(fetchAction)
+
+        metadata = resp.metadata;
+        dataset = resp.dataset;
+      }
+
+      await _refetch()
+
+      const patchData = formatPatch(dataset, updatedDataset, message)
           , now = new Date().getTime()
 
       const updatedBackend = Object.assign({}, metadata, {
+        id: backend.id,
         dataset: updatedDataset,
         modified: now
       })
+
+      delete updatedBackend._name;
+      delete updatedBackend._keys;
 
       await db.localBackends.put(updatedBackend);
 
@@ -188,7 +202,14 @@ function updateLocalBackendDataset(backend, updatedDataset, message) {
         backendID: backend.id
       }, patchData))
 
-      return { patchData }
+      await _refetch()
+
+      return {
+        backend,
+        dataset,
+        metadata,
+        patchData
+      }
     }))
 }
 

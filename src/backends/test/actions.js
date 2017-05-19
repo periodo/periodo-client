@@ -118,10 +118,10 @@ test('Updating backends', async t => {
   await store.dispatch(
     actions.updateLocalBackendDataset(backend, updatedDataset))
 
-  t.equal(store.getActions().length, 4);
+  t.equal(store.getActions().length, 6);
 
   t.deepEqual(
-    getResponse(store.getActions()[3]).patchData.forward, [
+    getResponse(store.getActions()[5]).patchData.forward, [
       {
         op: 'add',
         path: '/periodCollections/collection1',
