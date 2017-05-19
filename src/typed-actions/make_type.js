@@ -45,7 +45,7 @@ function makeAsyncActionCreator(type, fn) {
   return func
 }
 
-function makeActionType(label, obj) {
+module.exports = function makeActionType(label, obj) {
   const reqs = {}
       , resps = {}
 
@@ -85,6 +85,3 @@ function makeActionType(label, obj) {
 
   return RequestType;
 }
-
-
-module.exports = makeActionType;
