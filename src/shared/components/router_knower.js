@@ -2,30 +2,28 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
+    , qs = require('querystring')
 
 module.exports = function routerKnower(Component) {
   return React.createClass({
     displayName: 'RouterKnower',
 
-    contextTypes: {
-      router: React.PropTypes.instanceOf(require('route-recognizer')),
-      locationBar: React.PropTypes.instanceOf(require('location-bar')),
-    },
+    navigateToRoute() {
+      const target = this.generateRoute(...arguments)
 
-    navigateToRoute(routeName, params, queryParams) {
-      const { locationBar } = this.context
-          , target = this.generateRoute(routeName, params, queryParams)
-
-      locationBar.update(target, { trigger: true });
+      window.hash = target;
     },
 
     generateRoute(routeName, params, queryParams) {
-      const { router } = this.context
+      const { reverse } = require('../../router')
 
-      // TODO
-      queryParams;
+      let path = '#' + reverse(routeName, params)
 
-      return router.generate(routeName, params);
+      if (queryParams) {
+        path += '?' + qs.encode(queryParams)
+      }
+
+      return path
     },
 
     render() {

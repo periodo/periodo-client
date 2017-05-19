@@ -7,7 +7,7 @@ const { createStore, applyMiddleware, compose } = require('redux')
     , { getApplicationReducer } = require('./modules')
 
 module.exports = function () {
-  createStore(
+  return createStore(
     getApplicationReducer(),
     compose(
       applyMiddleware(thunk.withExtraArgument({ db: periodoDB() }), unionTypeMiddleware),

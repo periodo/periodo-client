@@ -4,17 +4,19 @@ const h = require('react-hyperscript')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
     , BackendForm = require('./Form')
-    , { listAvailableBackends, addBackend } = require('../../actions')
+    , { addBackend } = require('../../actions')
     , routerKnower = require('../../../shared/components/router_knower')
-
-exports.onBeforeRoute = function load(dispatch) {
-  return dispatch(listAvailableBackends())
-}
 
 function mapStateToProps(state) {
   return {
-    backends: state.backends.available
+    backends: state.backends.available || []
   }
+}
+
+function getRouteParams(backend) {
+  return backend.type._name === 'IndexedDB'
+    ? ['local-backend-home', { id: backend.type.id }]
+    : ['web-backend-home', { url: backend.type.url }]
 }
 
 const BackendSelect = props =>
@@ -31,19 +33,16 @@ const BackendSelect = props =>
       ]),
 
       h('tbody', props.backends.map(backend =>
-        h('tr', { key: backend.url || backend.id }, [
-          h('td', backend.type),
+        h('tr', { key: backend.type._url || backend.type._id }, [
+          h('td', backend.type._name),
           h('td', [
             h('a', {
-              href: props.generateRoute('backend-home', {
-                idOrURL: backend.url || backend.id,
-                type: backend.type === 'IndexedDB' ? 'local' : 'web'
-              })
-            }, backend.label)
+              href: props.generateRoute(...getRouteParams(backend))
+            }, backend.metadata.label)
           ]),
-          h('td', backend.description),
+          h('td', backend.metadata.description),
         ])
-      ).toArray())
+      ))
     ]),
 
     h('h2', 'Add new backend'),
@@ -58,7 +57,7 @@ const BackendSelect = props =>
   ])
 
 
-exports.Component = compose(
+module.exports = compose(
   routerKnower,
   connect(mapStateToProps, { addBackend })
 )(BackendSelect)

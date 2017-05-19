@@ -9,7 +9,7 @@ const React = require('react')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
     , locationHashStream = require('location-hash-stream')
-    , { match } = require('./router')
+    , { match } = require('../router')
 
 const LEFT_CLICK = 1;
 
@@ -44,10 +44,10 @@ const Application = React.createClass({
     }
 
     locationStream.pipe(through.obj(async (path, enc, cb) => {
-      const m = match(path);
+      const m = match(path.slice(1));
 
-      if (match) {
-        this.handleRoute(m.matched, m.params, m.queryParams);
+      if (m) {
+        this.handleRoute(m);
       } else {
         // this.attemptRedirect(path);
         this.setState({ activeComponent: h(NotFound) })
@@ -59,9 +59,8 @@ const Application = React.createClass({
     document.addEventListener('click', this.handlePageClick);
   },
 
-  async handleRoute(handler, params, queryParams) {
+  async handleRoute({ onBeforeRoute=noop, Component, params, queryParams }) {
     const { dispatch } = this.props
-        , { onBeforeRoute=noop, Component } = handler
 
     try {
       await onBeforeRoute(dispatch, params, queryParams);

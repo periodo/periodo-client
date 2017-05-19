@@ -9,7 +9,9 @@ const initialState = () => ({
 })
 
 module.exports = function backends(state=initialState(), action) {
-  if (action.module !== 'backends') return state;
+  const T = action[Symbol.for('Type')]
+
+  if (!T || T.module !== 'backend') return state;
 
   const isSuccess = action.readyState.case({
     Success: () => true,
@@ -18,17 +20,17 @@ module.exports = function backends(state=initialState(), action) {
 
   if (!isSuccess) return state;
 
-  return action.case({
+  return T.case({
     GetAllBackends() {
       return R.set(
         R.lensProp('available'),
-        action.response.backends,
+        action.readyState.response.backends,
         state
       )
     },
 
     GetBackend() {
-      const { metadata, dataset, /*setAsActive*/ } = action.response
+      const { metadata, dataset, /*setAsActive*/ } = action.readyState.response
 
       return R.set(
         R.lensProp('current'),

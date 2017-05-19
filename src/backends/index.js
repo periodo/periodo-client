@@ -1,6 +1,6 @@
 "use strict";
 
 module.exports = {
-  routes: require('./routes'),
+  resources: require('./resources'),
   reducer: require('./reducer'),
 }
