@@ -18,23 +18,11 @@ const noop = () => null
 const locationStream = locationHashStream()
 
 const Application = React.createClass({
-  childContextTypes: {
-    router: React.PropTypes.instanceOf(require('route-recognizer')),
-    locationBar: React.PropTypes.instanceOf(require('location-bar')),
-  },
-
   getInitialState() {
     return {
       loadingNewPage: true,
       activeComponent: null,
       errors: Immutable.List()
-    }
-  },
-
-  getChildContext() {
-    return {
-      router: this.props.router,
-      locationBar: this.props.locationBar,
     }
   },
 
