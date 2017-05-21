@@ -1,19 +1,26 @@
 "use strict";
 
-const test = require('tape')
+const test = require('blue-tape')
+    , R = require('ramda')
     , Immutable = require('immutable')
     , { PatchType } = require('../types')
 
-test('Patch formatting', t => {
-  t.plan(7);
-
+test('Formatting and hashing patches', async t => {
   const { formatPatch } = require('../utils/patch');
 
-  const initialData = Immutable.fromJS(require('./fixtures/period-collection.json'));
-  const path = ['periodCollections', 'p03377f', 'definitions', 'p03377fkhrv', 'editorialNote'];
-  const updatedData = initialData.setIn(path, 'This is an editorial note.');
+  const initialData = R.clone(require('./fixtures/period-collection.json'));
 
-  const patch = formatPatch(initialData.toJS(), updatedData.toJS(), '');
+  const path = [
+    'periodCollections',
+    'p03377f',
+    'definitions',
+    'p03377fkhrv',
+    'editorialNote'
+  ]
+
+  const updatedData = R.assocPath(path, 'This is an editorial note.', initialData);
+
+  const patch = formatPatch(initialData, updatedData, '');
 
   t.deepEqual(patch.forward, [
     {
@@ -40,11 +47,9 @@ test('Patch formatting', t => {
     'Changed editorialNote of period p03377fkhrv in collection p03377f.');
 })
 
-test('Patch utils', t => {
-  t.plan(6);
-
+test('Patch utils', async t => {
   const { makePatch } = require('../utils/patch')
-      , data = Immutable.fromJS(require('./fixtures/period-collection.json'))
+      , data = R.clone(require('./fixtures/period-collection.json'))
 
   const samplePatches = {
     addPeriod: {
@@ -62,16 +67,15 @@ test('Patch utils', t => {
   }
 
   t.deepEqual(
-    makePatch(data.toJS(), data.toJS()),
+    makePatch(data, data),
     [],
     'should not detect any changes between two identical datasets'
   );
 
-
   const { groupByChangeType } = require('../utils/patch_collection')
-      , patches = Immutable.fromJS(samplePatches).toList()
+      , patches = R.values(samplePatches)
 
-  t.deepEqual(groupByChangeType(patches).toJS(), {
+  t.deepEqual(groupByChangeType(patches), {
     AddPeriod: {
       a: [samplePatches.addPeriod]
     },
@@ -83,35 +87,45 @@ test('Patch utils', t => {
         b: [samplePatches.changePeriod]
       }
     }
-  }, '# TODO should group patches together');
+  }, 'should group patches together');
 
 
   const attrPath = ['periodCollections', 'p03377f', 'source']
-      , newData = data.setIn(attrPath.concat('yearPublished'), '1900')
-      , patch = makePatch(data.toJS(), newData.toJS())
+      , newData = R.assocPath(attrPath.concat('yearPublished'), '1900', data)
+      , patch = makePatch(data, newData)
 
   t.deepEqual(patch, [
     {
       op: 'add',
       path: '/' + attrPath.join('/'),
-      value: newData.getIn(attrPath).toJS()
+      value: R.view(R.lensPath(attrPath), newData)
     }
   ], 'should use "add" operation for simple values instead of "replace"');
 
 
-  const attrPath2 = ['periodCollections', 'p03377f', 'definitions', 'p03377fkhrv', 'spatialCoverage']
+  const attrPath2 = [
+    'periodCollections',
+    'p03377f',
+    'definitions',
+    'p03377fkhrv',
+    'spatialCoverage'
+  ]
 
-  const newData2 = data.updateIn(attrPath2, sc => {
-    return sc.unshift(Immutable.Map({ id: 'http://example.com/', label: 'New country' }));
-  });
+  const newData2 = R.over(
+    R.lensPath(attrPath2),
+    sc => sc.concat([
+      { id: 'http://example.com/', label: 'New country' }
+    ]),
+    data)
 
-  const patch2 = makePatch(data.toJS(), newData2.toJS());
+
+  const patch2 = makePatch(data, newData2);
 
   t.deepEqual(patch2, [
     {
       op: 'add',
       path: '/' + attrPath2.join('/'),
-      value: newData2.getIn(attrPath2).toJS()
+      value: R.view(R.lensPath(attrPath2), newData2)
     }
   ], 'should use "add" operation for complex values instead of "replace"');
 
@@ -197,36 +211,29 @@ test('Skolem ID utils', t => {
 });
 
 test('Patch collection hash filtering', async t => {
-  t.plan(3);
-
   const { filterByHash } = require('../utils/patch_collection');
 
-  const patches = Immutable.fromJS([
-    { op: 'add', path: '/an/edit' },
-    { op: 'remove', path: '/real/removal' },
-    { op: 'add', path: '/periodCollections/123' }
-  ]);
-
-  const expectedHashes = [
-    // Hash of '{"op":"add","path":"/an/edit"}'
-    'ce7bac76879ea3bc97b0ffdea4b0daf4',
-
-    // Hash of '{"op":"remove","path":"/real/removal"}'
-    '853d0d152a3988088d49e40eaf0a9ba0',
-  ];
-
+  const patches = [
+    { op: 'add', path: '/periodCollections/a/definitions/aa/note' },
+    { op: 'remove', path: '/periodCollections/b' },
+    { op: 'add', path: '/periodCollections/c' }
+  ]
 
   const matcher = hashes => {
-    t.ok(hashes.toSet().equals(Immutable.Set(expectedHashes)));
-    return [ expectedHashes[0] ];
+    // Hash of '{"op":"add","path":"/periodCollections/a/definitions/aa/note"}'
+    const expectedHash = '0af819ad2546c595c88eaad3672d4e78'
+
+    t.deepEqual(hashes, [expectedHash]);
+
+    return [expectedHash];
   }
 
   {
     const filteredPatches = await filterByHash(patches, true, matcher)
 
     t.deepEqual(
-      filteredPatches.toJS(),
-      [ patches.toJS()[0], patches.toJS()[2] ],
+      filteredPatches,
+      [ patches[0], patches[2] ],
       'should enable patches to be filtered by hash');
   }
 
@@ -237,10 +244,8 @@ test('Patch collection hash filtering', async t => {
     const filteredPatches = await filterByHash(patches, true, noneMatcher)
 
     t.deepEqual(
-      filteredPatches.toJS(),
-      [ patches.toJS()[2] ],
+      filteredPatches,
+      [ patches[2] ],
       'should only return additions when no hashes match');
   }
 });
-
-

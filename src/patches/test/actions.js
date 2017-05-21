@@ -4,7 +4,6 @@ global.RETHROW_ERRORS = true;
 
 const test = require('blue-tape')
     , R = require('ramda')
-    , Immutable = require('immutable')
     , backendActions = require('../../backends/actions')
     , { Backend } = require('../../backends/types')
     , { ReadyState } = require('../../typed-actions/types')
@@ -54,7 +53,7 @@ test('Patch generation actions', async t => {
   t.deepEqual(
     getReadyState(R.last(store.getActions())),
     ReadyState.Success({
-      patch: Immutable.fromJS([
+      patch: [
         {
           op: 'add',
           path: '/periodCollections/fakeID',
@@ -62,7 +61,7 @@ test('Patch generation actions', async t => {
             id: 'fakeID'
           }
         }
-      ])
+      ]
     }),
     'should patch additions'
   )
@@ -76,7 +75,7 @@ test('Patch generation actions', async t => {
   t.deepEqual(
     getReadyState(R.last(store.getActions())),
     ReadyState.Success({
-      patch: Immutable.fromJS([])
+      patch: []
     }),
     'should ignore "deletions" of items that simply aren\'t present in both source/origin'
   )

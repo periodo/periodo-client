@@ -2,7 +2,7 @@
 
 /* eslint camelcase:0 */
 
-const Immutable = require('immutable')
+const R = require('ramda')
     , pointer = require('json-pointer')
     , { describePatch, hashPatch } = require('../utils/patch')
 
@@ -11,7 +11,7 @@ const Immutable = require('immutable')
 // [type, operation, ...identifiers]. If this patch does not effect any periods
 // or period collections, return null.
 function getChangeType(patch) {
-  const { type, collectionID, periodID, attribute } = describePatch(patch.toJS())
+  const { type, collectionID, periodID, attribute } = describePatch(patch)
 
   return [type._name].concat(
     periodID
@@ -22,15 +22,15 @@ function getChangeType(patch) {
 
 
 function groupByChangeType(patches) {
-  return Immutable.Map().withMutations(map => {
-    patches.forEach(patch => {
-      const path = getChangeType(patch);
+  return patches.reduce((acc, patch) => {
+    const changePath = getChangeType(patch);
 
-      if (!path) return true;
-
-      map.updateIn(path, Immutable.List(), list => list.push(patch));
-    });
-  });
+    return !changePath ? acc : R.over(
+      R.lensPath(changePath),
+      ps => (ps || []).concat(patch),
+      acc
+    )
+  }, {});
 }
 
 
@@ -49,51 +49,48 @@ function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
 }
 
 
-function filterByHash(patches, keepMatched, hashMatchFn) {
-  const patchSet = Immutable.fromJS(patches).toOrderedSet()
+async function filterByHash(patches, keepMatched, hashMatchFn) {
+  const additions = []
+      , patchesByHash = new Map()
 
-  // These are patches that add a new period or period collection. They will
-  // automatically be added without checking hashes.
-  const additions = patchSet.filter(patch => {
-    if (patch instanceof Immutable.Map && patch.get('op') === 'add') {
-      let parsed
+  patches.forEach(patch => {
+    const parsed = describePatch(patch)
 
-      try {
-        parsed = describePatch(patch.toJS());
-      } catch (err) {
-        parsed = {};
+    const affectsWholeEntity = (
+      (parsed.collectionID || parsed.periodID) &&
+      !parsed.attribute
+    )
+
+    if (affectsWholeEntity) {
+      // These are patches that add a new period or period collection. They will
+      // automatically be added without checking hashes.
+      if (patch.op === 'add') {
+        additions.push(patch)
+      } else if (patch.op !== 'remove') {
+        // FIXME: better error, dummy
+        throw new Error('Invalid patch');
       }
 
-      return (
-        (parsed.collectionID || parsed.periodID) && !parsed.attribute
-      )
+      // Otherwise, these are patches that "remove" a new period or period
+      // collection. This is the result of a patch not being in the target
+      // dataset. We just remove them from consideration
+
+    } else {
+      patchesByHash.set(hashPatch(patch), patch);
     }
+  })
 
-    return false;
-  });
+  const matchingHashes = await patchesByHash.size
+    ? hashMatchFn([...patchesByHash.keys()].sort())
+    : []
 
-  const hashesToCheck = patchSet
-    .subtract(additions)
-    .toMap()
-    .mapKeys((k, v) => hashPatch(v.toJS()))
-
-  const matched = hashesToCheck.size === 0 ?
-    [] :
-    hashMatchFn(hashesToCheck.keySeq().sort());
-
-  return Promise.resolve(matched)
-    .then(matchingHashes => {
-      return hashesToCheck
-        .filter((val, hash) =>
-          keepMatched
-            ? matchingHashes.indexOf(hash) !== -1
-            : matchingHashes.indexOf(hash) === -1
-        )
-        .toList()
-        .map(patch => patch instanceof Immutable.List ? patch : Immutable.List.of(patch))
-        .flatten(true)
-    })
-    .then(filteredPatches => filteredPatches.concat(additions));
+  return [...patchesByHash]
+    .filter(([hash]) =>
+      keepMatched
+        ? matchingHashes.indexOf(hash) !== -1
+        : matchingHashes.indexOf(hash) === -1)
+    .map(([, patch]) => patch)
+    .concat(additions)
 }
 
 function getOrcids(patches) {
