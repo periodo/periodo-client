@@ -1,13 +1,10 @@
 "use strict";
 
-const fs = require('fs')
-    , peg = require('pegjs')
-    , jsonpatch = require('fast-json-patch')
+const jsonpatch = require('fast-json-patch')
     , pointer = require('json-pointer')
     , md5 = require('spark-md5')
     , stringify = require('json-stable-stringify')
-    , grammar = fs.readFileSync(__dirname + '/patch_parser.pegjs', 'utf8')
-    , parser = peg.buildParser(grammar)
+    , parse = require('./parse_patch_path')
     , { PatchType } = require('../types')
 
 
@@ -62,12 +59,7 @@ function titleCase(word) {
 function describePatch({ path, op }) {
   // FIXME Ignore if top-level change
 
-  let parsed;
-  try {
-    parsed = parser.parse(path);
-  } catch (e) {
-    throw new Error('could not parse ' + path);
-  }
+  const parsed = parse(path);
 
   const { collectionID, periodID, attribute } = parsed
       , opLabel = titleCase(!attribute ? op : 'Change')
