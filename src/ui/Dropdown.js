@@ -2,6 +2,15 @@
 
 var React = require('react')
 
+class DropdownMenu extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
+    }
+  }
+}
+
 module.exports = React.createClass({
   displayName: 'DropdownMenu',
 
