@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { connect } = require('react-redux')
-    , PeriodForm = require('../../period_form')
+    , { PeriodForm } = require('../../editors')
 
 function mapStateToProps(state) {
   return {
@@ -27,7 +27,6 @@ class BackendHome extends React.Component {
         h(PeriodForm, {
           period: this.state.period,
           onValueChange: period => {
-            console.log(JSON.stringify(period, true, '  '));
             this.setState({ period })
           }
         }),

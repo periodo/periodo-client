@@ -2,10 +2,10 @@
 
 const h = require('react-hyperscript')
     , Autocomplete = require('react-autocomplete')
-    , languages = require('../utils/languages')
-    , scripts = require('../utils/scripts')
+    , languages = require('../../utils/languages')
+    , scripts = require('../../utils/scripts')
     , { Input, Flex } = require('axs-ui')
-    , { PrimaryButton } = require('../ui')
+    , { PrimaryButton } = require('../../ui')
 
 module.exports = ({
   id,

@@ -2,22 +2,28 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , RandomID = require('../period_form/RandomID')
-    , { Box, Input, Label } = require('axs-ui')
+    , RandomID = require('../utils/RandomID')
+    , { Box, Input, Textarea, Label, Text } = require('axs-ui')
 
 const inputProps = [
   'name',
-  'label',
   'value',
   'onChange',
   'placeholder',
   'disabled',
+
+  'rows',
 ]
 
-exports.InputBlock = RandomID(props => {
-  return h(Box, R.omit(inputProps.concat('randomID'), props), [
+const FormControlBlock = FormComponent => RandomID(props =>
+  h(Box, R.omit(inputProps.concat('randomID', 'label'), props), [
     h(Label, { htmlFor: props.randomID(props.name) }, props.label),
-    h(Input, Object.assign(R.pick(inputProps, props), {
+
+    props.helpText && h(Text, {
+      size: 1,
+    }, props.helpText),
+
+    h(FormComponent, Object.assign(R.pick(inputProps, props), {
       id: props.randomID(props.name),
       css: {
         ':disabled': {
@@ -26,5 +32,8 @@ exports.InputBlock = RandomID(props => {
         }
       }
     }))
-  ])
-})
+  ]))
+
+exports.InputBlock = FormControlBlock(Input)
+
+exports.TextareaBlock = FormControlBlock(Textarea)

@@ -3,15 +3,10 @@
 const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , LabelForm = require('./LabelForm')
-    , RandomID = require('./RandomID')
+    , RandomID = require('../../utils/RandomID')
     , { Flex, Box, Label, Textarea } = require('axs-ui')
-    , { InputBlock } = require('../ui')
+    , { InputBlock, Debug } = require('../../ui')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
-    // , React = require('react')
-    // , Immutable = require('immutable')
-    // , SpatialCoverageForm = require('./spatial_coverage_form')
-    // , { validate } = require('../../utils/period')
-    // , { InputBlock, ErrorAlert } = require('../ui')
 
 const PeriodForm = ({
   period=Immutable.Map({ type: 'PeriodDefinition' }),
@@ -114,7 +109,7 @@ const PeriodForm = ({
       ])
     ]),
 
-    h(require('../ui').Debug, { period })
+    h(Debug, { period })
   ])
 
 module.exports = RandomID(PeriodForm)

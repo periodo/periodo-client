@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , dateParser = require('periodo-date-parser')
     , { Box, Button, Flex } = require('axs-ui')
-    , { InputBlock, Checkbox } = require('../ui')
+    , { InputBlock, Checkbox } = require('../../ui')
 
 const emptyTerminus = Immutable.fromJS({
   label: '',
