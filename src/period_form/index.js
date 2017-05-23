@@ -18,9 +18,9 @@ const PeriodForm = ({
   onValueChange,
   randomID,
 }) =>
-  h('div', [
+  h(Box, { border: 'black', p: 2 }, [
     h(Flex, [
-      h(Box, { width: 1 }, [
+      h(Box, { width: .5, pr: 1 }, [
         // this.renderError('label'),
         h(LabelForm, {
           period,
@@ -28,7 +28,7 @@ const PeriodForm = ({
         })
       ]),
 
-      h(Box, { width: 1 }, [
+      h(Box, { width: .5, pl: 1 }, [
       /*
         h(InputBlock, {
           name: 'locator',
@@ -60,22 +60,20 @@ const PeriodForm = ({
       ]),
     ]),
 
-    h('hr'),
-
     h(Flex, [
-      /*
-      h(Block, { width: 1 }, [
+      h(Box, { width: .5, pr: 1 }, [
         h('h3', 'Spatial coverage'),
+      /*
         h(SpatialCoverageForm, {
           onValueChange: this.handleValueChange,
           description: period.get('spatialCoverageDescription'),
           coverage: period.get('spatialCoverage'),
           coverageDescriptionSet: spatialCoverages
         })
-      ]),
       */
+      ]),
 
-      h(Box, { width: 1 }, [
+      h(Box, { width: .5, pl: 1 }, [
         // this.renderError('dates'),
         h(TemporalCoverageForm, {
           onValueChange: val => {
@@ -87,11 +85,9 @@ const PeriodForm = ({
       ])
     ]),
 
-    h('hr'),
-
     h('h3', 'Notes'),
     h(Flex, [
-      h(Box, { width: 1 }, [
+      h(Box, { width: .5, pr: 1 }, [
         h(Label, { htmlFor: randomID('note') }, 'Note'),
         h(Textarea, {
           id: randomID('note'),
@@ -104,7 +100,7 @@ const PeriodForm = ({
         h('p', 'Notes derived from the source'),
       ]),
 
-      h(Box, { width: 1 }, [
+      h(Box, { width: .5, pl: 1 }, [
         h(Label, { htmlFor: randomID('editorial-note') }, 'Editorial note'),
         h(Textarea, {
           id: randomID('editorial-note'),

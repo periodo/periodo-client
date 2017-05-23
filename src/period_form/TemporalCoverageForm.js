@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , TerminusInput = require('./TerminusInput')
-    , { Label } = require('axs-ui')
+    , { Label, Flex, Heading, Box } = require('axs-ui')
     , { Checkbox } = require('../ui')
     , { wasAutoparsed } = require('periodo-utils/lib/items/terminus')
 
@@ -30,8 +30,9 @@ module.exports = class TemporalCoverageForm extends React.Component {
         , { start, stop, onValueChange } = this.props
 
     return h('div', [
-      h('h3', 'Temporal coverage'),
-      h('div', [
+      h(Heading, { level: 3 }, 'Temporal coverage'),
+
+      h(Box, { my: 1 }, [
         h(Label, [
           h(Checkbox, {
             checked: autoparse,
@@ -42,19 +43,23 @@ module.exports = class TemporalCoverageForm extends React.Component {
         ])
       ]),
 
-      h('h4', 'Start'),
-      h(TerminusInput, {
-        autoparse,
-        terminus: start || emptyTerminus,
-        onValueChange: start => onValueChange({ start })
-      }),
+      h(Flex, { alignItems: 'center', mt: 2 }, [
+        h(Heading, { level: 4, mr: 2 }, 'Start'),
+        h(TerminusInput, {
+          autoparse,
+          terminus: start || emptyTerminus,
+          onValueChange: start => onValueChange({ start })
+        }),
+      ]),
 
-      h('h4', 'Stop'),
-      h(TerminusInput, {
-        autoparse,
-        terminus: stop || emptyTerminus,
-        onValueChange: stop => onValueChange({ stop })
-      }),
+      h(Flex, { alignItems: 'center', mt: 3 }, [
+        h(Heading, { level: 4, mr: 2 }, 'Stop'),
+        h(TerminusInput, {
+          autoparse,
+          terminus: stop || emptyTerminus,
+          onValueChange: stop => onValueChange({ stop })
+        }),
+      ])
     ])
   }
 }

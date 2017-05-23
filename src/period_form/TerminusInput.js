@@ -62,33 +62,37 @@ module.exports = class TerminusInput extends React.Component {
     const { terminus, autoparse, onValueChange } = this.props
 
     return (
-      h(Box, [
-        h(Box, [
+      h(Box, { width: 1 }, [
+        h(Flex, { mb: 1, alignItems: 'center' }, [
           h(InputBlock, {
             name: 'label',
             label: 'Label',
+            width: .5,
+            pr: 2,
             onChange: !autoparse
               ? this.handleChange.bind(this, 'label')
               : e => onValueChange(parse(e.target.value))
-          })
-        ]),
-
-        h(Box, [
-          h(Checkbox, {
-            disabled: autoparse,
-            checked: isMultivalued(terminus),
-            onChange: () => {
-              onValueChange(toggleMultiValue(terminus))
-            },
           }),
-          'Two part date',
+
+          h(Box, { width: .5 }, [
+            h(Checkbox, {
+              disabled: autoparse,
+              checked: isMultivalued(terminus),
+              onChange: () => {
+                onValueChange(toggleMultiValue(terminus))
+              },
+            }),
+            'Two part date',
+          ]),
         ]),
 
-        h(Box, [
+        h(Flex, [
           isMultivalued(terminus)
             ? h(InputBlock, {
-                name: 'earliestStart',
-                label: 'Earliest start',
+                name: 'earliest',
+                label: 'Earliest',
+                width: .5,
+                pr: 2,
                 disabled: autoparse,
                 value: terminus.getIn(['in', 'earliestYear']),
                 onChange: this.handleChange.bind(this, ['in', 'earliestYear'])
@@ -96,14 +100,17 @@ module.exports = class TerminusInput extends React.Component {
             : h(InputBlock, {
                 name: 'year',
                 label: 'Year',
+                width: .5,
+                pr: 2,
                 disabled: autoparse,
                 value: terminus.getIn(['in', 'year']),
                 onChange: this.handleChange.bind(this, ['in', 'year'])
               }),
 
           isMultivalued(terminus) && h(InputBlock, {
-            name: 'latestStart',
-            label: 'Latest start',
+            name: 'latest',
+            label: 'Latest',
+            width: .5,
             disabled: autoparse,
             value: terminus.getIn(['in', 'latestYear']),
             onChange: this.handleChange.bind(this, ['in', 'latestYear'])

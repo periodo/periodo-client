@@ -1,14 +1,22 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , randomstr = require('./randomstr')
 
 module.exports = function (Component) {
-  const str = randomstr()
-      , randomID = identifier => `${identifier}-${str}`
+  return class RandomID extends React.Component {
+    constructor() {
+      super();
 
-  return props =>
-    h(Component, Object.assign({}, props, {
-      randomID
-    }))
+      const str = randomstr()
+      this.randomID = identifier => `${identifier}-${str}`
+    }
+
+    render() {
+      return h(Component, Object.assign({}, this.props, {
+        randomID: this.randomID
+      }))
+    }
+  }
 }
