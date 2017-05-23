@@ -3,7 +3,7 @@
 // List of scripts from http://unicode.org/iso15924/iso15924-codes.html
 
 var Immutable = require('immutable')
-  , isoScripts = require('../data/scripts.json')
+  , isoScripts = require('../../lib/scripts.json')
 
 isoScripts = Immutable.fromJS(isoScripts)
   .sort((b, a) => {
