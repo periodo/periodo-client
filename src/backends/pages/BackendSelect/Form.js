@@ -1,17 +1,22 @@
+"use strict";
+
 const React = require('react')
     , h = require('react-hyperscript')
-    , { Box, Button, Input, Label, Select, Textarea } = require('axs-ui')
+    , { Box, Input, Label, Select, Textarea } = require('axs-ui')
     , { PrimaryButton } = require('../../../ui')
 
 
-module.exports = React.createClass({
-  displayName: 'BackendForm',
+module.exports = class BackendForm extends React.Component {
+  constructor() {
+    super();
 
-  getInitialState() {
-    return {
+    this.state = {
       type: 'IndexedDB',
     }
-  },
+
+    this.handleChange = this.handleChange.bind(this);
+    this.isValidState = this.isValidState.bind(this);
+  }
 
   handleChange(e) {
     if (e.target.name === 'type') {
@@ -19,7 +24,7 @@ module.exports = React.createClass({
     } else {
       this.setState({ [e.target.name]: e.target.value });
     }
-  },
+  }
 
   isValidState() {
     const { type, label, url } = this.state
@@ -31,7 +36,7 @@ module.exports = React.createClass({
     }
 
     return isValid;
-  },
+  }
 
   render() {
     const { handleSave } = this.props
@@ -97,4 +102,4 @@ module.exports = React.createClass({
       ])
     )
   }
-});
+};

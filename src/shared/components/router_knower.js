@@ -5,14 +5,12 @@ const h = require('react-hyperscript')
     , qs = require('querystring')
 
 module.exports = function routerKnower(Component) {
-  return React.createClass({
-    displayName: 'RouterKnower',
-
+  return class RouterKnower extends React.Component {
     navigateToRoute() {
       const target = this.generateRoute(...arguments)
 
       window.location.hash = target;
-    },
+    }
 
     generateRoute(routeName, params, queryParams) {
       const { reverse } = require('../../router')
@@ -24,15 +22,15 @@ module.exports = function routerKnower(Component) {
       }
 
       return path
-    },
+    }
 
     render() {
       const props = Object.assign({}, this.props, {
-        generateRoute: this.generateRoute,
-        navigateToRoute: this.navigateToRoute,
+        generateRoute: this.generateRoute.bind(this),
+        navigateToRoute: this.navigateToRoute.bind(this),
       })
 
       return h(Component, props)
     }
-  })
+  }
 }

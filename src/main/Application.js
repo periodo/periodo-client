@@ -17,14 +17,16 @@ const noop = () => null
 
 const locationStream = locationHashStream()
 
-const Application = React.createClass({
-  getInitialState() {
-    return {
+class Application extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
       loadingNewPage: true,
       activeComponent: null,
       errors: Immutable.List()
     }
-  },
+  }
 
   componentDidMount() {
     if (!window.location.hash) {
@@ -35,7 +37,7 @@ const Application = React.createClass({
       const m = match(path.slice(1));
 
       if (m) {
-        this.handleRoute(m);
+        this.handleRoute.call(this, m);
       } else {
         // this.attemptRedirect(path);
         this.setState({ activeComponent: h(NotFound) })
@@ -44,8 +46,8 @@ const Application = React.createClass({
       cb();
     }))
 
-    document.addEventListener('click', this.handlePageClick);
-  },
+    document.addEventListener('click', this.handlePageClick.bind(this));
+  }
 
   async handleRoute({ onBeforeRoute=noop, Component, params, queryParams }) {
     const { dispatch } = this.props
@@ -65,7 +67,7 @@ const Application = React.createClass({
     } finally {
       this.setState({ loadingNewPage: false })
     }
-  },
+  }
 
   handlePageClick(e) {
     let anchor = e.target
@@ -90,7 +92,7 @@ const Application = React.createClass({
         }
       }
     }
-  },
+  }
 
 
   render() {
@@ -114,7 +116,7 @@ const Application = React.createClass({
       ])
     ])
   }
-})
+}
 
 /*
   attemptRedirect(path) {

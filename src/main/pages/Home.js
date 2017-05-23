@@ -1,31 +1,24 @@
 "use strict";
 
-const React = require('react')
-    , h = require('react-hyperscript')
-    , { compose } = require('redux')
-    , { connect } = require('react-redux')
+const h = require('react-hyperscript')
     , { getCurrentBackend } = require('../../backends/utils')
-    , routerKnower = require('../../shared/components/router_knower')
+    , RouterKnower = require('../../shared/components/router_knower')
 
-const Home = React.createClass({
-  render() {
-    const { navigateToRoute } = this.props
-        , currentBackend = getCurrentBackend()
+const Home = props => {
+  const { navigateToRoute } = props
+      , currentBackend = getCurrentBackend()
 
-    if (currentBackend) {
-      currentBackend.case({
-        IndexedDB: () => navigateToRoute('local-backend-home', currentBackend),
-        Web: () => navigateToRoute('web-backend-home', currentBackend),
-        _: () => null,
-      })
-    } else {
-      navigateToRoute('backend-select')
-    }
-
-    return h('div', `Backend homepage for ${currentBackend._name} not yet implemented.`)
+  if (currentBackend) {
+    currentBackend.case({
+      IndexedDB: () => navigateToRoute('local-backend-home', currentBackend),
+      Web: () => navigateToRoute('web-backend-home', currentBackend),
+      _: () => null,
+    })
+  } else {
+    navigateToRoute('backend-select')
   }
-})
 
-module.exports = compose(
-  routerKnower,
-)(Home)
+  return h('div', `Backend homepage for ${currentBackend._name} not yet implemented.`)
+}
+
+module.exports = RouterKnower(Home)
