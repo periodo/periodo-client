@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , RandomID = require('../period_form/RandomID')
     , { Box, Input, Label } = require('axs-ui')
 
-const InputBlock = ({
+exports.InputBlock = RandomID(({
   name,
   label,
   value,
@@ -29,6 +29,4 @@ const InputBlock = ({
         }
       }
     })
-  ])
-
-module.exports = RandomID(InputBlock)
+  ]))

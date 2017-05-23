@@ -118,7 +118,7 @@ const PeriodForm = ({
       ])
     ]),
 
-    h(require('../ui/Debug'), { period })
+    h(require('../ui').Debug, { period })
   ])
 
 module.exports = RandomID(PeriodForm)

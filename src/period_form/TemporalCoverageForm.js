@@ -4,7 +4,8 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , TerminusInput = require('./TerminusInput')
-    , { Checkbox, Label } = require('axs-ui')
+    , { Label } = require('axs-ui')
+    , { Checkbox } = require('../ui')
     , { wasAutoparsed } = require('periodo-utils/lib/items/terminus')
 
 const emptyTerminus = Immutable.fromJS({

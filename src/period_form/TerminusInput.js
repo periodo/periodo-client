@@ -4,8 +4,8 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , dateParser = require('periodo-date-parser')
-    , { Box, Button } = require('axs-ui')
-    , { InputBlock } = require('../ui')
+    , { Box, Button, Flex } = require('axs-ui')
+    , { InputBlock, Checkbox } = require('../ui')
 
 const emptyTerminus = Immutable.fromJS({
   label: '',
@@ -74,6 +74,17 @@ module.exports = class TerminusInput extends React.Component {
         ]),
 
         h(Box, [
+          h(Checkbox, {
+            disabled: autoparse,
+            checked: isMultivalued(terminus),
+            onChange: () => {
+              onValueChange(toggleMultiValue(terminus))
+            },
+          }),
+          'Two part date',
+        ]),
+
+        h(Box, [
           isMultivalued(terminus)
             ? h(InputBlock, {
                 name: 'earliestStart',
@@ -90,20 +101,13 @@ module.exports = class TerminusInput extends React.Component {
                 onChange: this.handleChange.bind(this, ['in', 'year'])
               }),
 
-          isMultivalued(terminus)
-            ? h(InputBlock, {
-                name: 'latestStart',
-                label: 'Latest start',
-                disabled: autoparse,
-                value: terminus.getIn(['in', 'latestYear']),
-                onChange: this.handleChange.bind(this, ['in', 'latestYear'])
-              })
-            : h(Box),
-
-          h(Button, {
+          isMultivalued(terminus) && h(InputBlock, {
+            name: 'latestStart',
+            label: 'Latest start',
             disabled: autoparse,
-            onClick: () => onValueChange(toggleMultiValue(terminus))
-          }, 'Toggle range')
+            value: terminus.getIn(['in', 'latestYear']),
+            onChange: this.handleChange.bind(this, ['in', 'latestYear'])
+          }),
         ])
       ])
     )

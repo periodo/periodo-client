@@ -4,7 +4,8 @@ const h = require('react-hyperscript')
     , Autocomplete = require('react-autocomplete')
     , languages = require('../utils/languages')
     , scripts = require('../utils/scripts')
-    , { Button, Input, Flex } = require('axs-ui')
+    , { Input, Flex } = require('axs-ui')
+    , { PrimaryButton } = require('../ui')
 
 module.exports = ({
   id,
@@ -61,13 +62,15 @@ module.exports = ({
         }
       }),
 
-      h(Button, {
+      handleAddLabel && h(PrimaryButton, {
         ml: 1,
+        width: 32,
         onClick: handleAddLabel,
       }, '+'),
 
-      h(Button, {
+      handleRemoveLabel && h(PrimaryButton, {
         ml: 1,
+        width: 32,
         onClick: handleRemoveLabel,
       }, '-'),
     ])

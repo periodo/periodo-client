@@ -1,5 +1,14 @@
 "use strict";
 
-module.exports = {
-  InputBlock: require('./InputBlock')
+function addUIModules(mods) {
+  mods.forEach(mod => {
+    Object.assign(exports, mod);
+  })
 }
+
+addUIModules([
+  require('./InputBlock'),
+  require('./Debug'),
+  require('./FormElements'),
+  require('./Buttons'),
+])

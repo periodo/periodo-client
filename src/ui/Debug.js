@@ -2,5 +2,5 @@
 
 const h = require('react-hyperscript')
 
-module.exports = props =>
+exports.Debug = props =>
   h('pre', {}, JSON.stringify(props, true, '  '))

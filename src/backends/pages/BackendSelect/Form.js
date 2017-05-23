@@ -1,6 +1,7 @@
 const React = require('react')
     , h = require('react-hyperscript')
     , { Box, Button, Input, Label, Select, Textarea } = require('axs-ui')
+    , { PrimaryButton } = require('../../../ui')
 
 
 module.exports = React.createClass({
@@ -86,9 +87,9 @@ module.exports = React.createClass({
         ]),
 
         h('div', [
-          h(Button, {
+          h(PrimaryButton, {
             mt: 1,
-            type: 'button',
+            px: 2,
             onClick: () => handleSave(this.state),
             disabled: !this.isValidState()
           }, 'Add')
