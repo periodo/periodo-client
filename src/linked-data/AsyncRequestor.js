@@ -40,16 +40,16 @@ module.exports = function makeAsyncRequestor(Component) {
           if (curReq !== this.curReq) return;
 
           this.setState({
-            readyState: ReadyState.Error(err)
+            readyState: ReadyState.Failure(err)
           })
         })
     }
 
     render () {
       return h(Component, Object.assign({}, this.props, this.state, {
-        clearRequest: () => {
+        clearRequest: (cb) => {
           this.curReq += 1;
-          this.setState({ readyState: null })
+          this.setState({ readyState: null }, cb)
         },
 
         doRequest: this.doRequest.bind(this)

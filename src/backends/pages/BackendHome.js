@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { connect } = require('react-redux')
-    , { PeriodForm } = require('../../editors')
+    , { PeriodAuthorityForm } = require('../../editors')
 
 function mapStateToProps(state) {
   return {
@@ -16,7 +16,7 @@ class BackendHome extends React.Component {
     super();
 
     this.state = {
-      period: undefined
+      authority: undefined
     }
   }
 
@@ -24,10 +24,10 @@ class BackendHome extends React.Component {
     return (
       h('div', [
         h('h1', this.props.backend.metadata.label),
-        h(PeriodForm, {
-          period: this.state.period,
-          onValueChange: period => {
-            this.setState({ period })
+        h(PeriodAuthorityForm, {
+          authority: this.state.authority,
+          onValueChange: authority => {
+            this.setState({ authority })
           }
         }),
         // h('pre', JSON.stringify(props.backend.dataset, true, '  ')),

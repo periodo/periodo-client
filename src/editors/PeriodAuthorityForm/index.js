@@ -8,30 +8,32 @@ const h = require('react-hyperscript')
     , LDSourceForm = require('./LDSourceForm')
     , NonLDSourceForm = require('./NonLDSourceForm')
 
-function isLinkedData(collection) {
+function isLinkedData(authority) {
   return (
-    collection.hasIn(['source', 'id']) ||
-    collection.hasIn(['source', 'partOf', 'id'])
+    authority.hasIn(['source', 'id']) ||
+    authority.hasIn(['source', 'partOf', 'id'])
   )
 }
 
-const emptyCollection = Immutable.Map({
+const emptyAuthority = Immutable.Map({
   type: 'PeriodCollection',
   definitions: Immutable.Map()
 })
 
-module.exports = class PeriodCollectionForm extends React.Component {
+module.exports = class PeriodAuthorityForm extends React.Component {
   constructor(props) {
     super();
 
     this.state = {
-      isLinkedData: isLinkedData(props.collection)
+      isLinkedData: props.authority
+        ? isLinkedData(props.authority)
+        : true
     }
   }
 
   render() {
     const { isLinkedData } = this.state
-        , { collection=emptyCollection, onValueChange } = this.props
+        , { authority=emptyAuthority, onValueChange } = this.props
 
     return (
       h(Box, [
@@ -39,8 +41,9 @@ module.exports = class PeriodCollectionForm extends React.Component {
           h(Box, { width: .5 }, [
             h(Heading, { level: 2 }, 'Source'),
             h(isLinkedData ? LDSourceForm : NonLDSourceForm, {
+              source: authority.get('source', Immutable.Map()),
               onValueChange: source => {
-                onValueChange(collection.set('source', source))
+                onValueChange(authority.set('source', source))
               }
             })
           ]),
@@ -66,9 +69,9 @@ module.exports = class PeriodCollectionForm extends React.Component {
             helpText: 'Notes about importing this source',
             name: 'editorial-note',
             rows: 5,
-            value: collection.get('editorialNote', ''),
+            value: authority.get('editorialNote', ''),
             onChange: e => {
-              onValueChange(collection.set(e.target.value))
+              onValueChange(authority.set(e.target.value))
             }
           })
         ])

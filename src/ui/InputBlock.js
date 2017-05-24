@@ -16,7 +16,7 @@ const inputProps = [
 ]
 
 const FormControlBlock = FormComponent => RandomID(props =>
-  h(Box, R.omit(inputProps.concat('randomID', 'label'), props), [
+  h(Box, R.omit(inputProps.concat('randomID', 'label', 'helpText'), props), [
     h(Label, { htmlFor: props.randomID(props.name) }, props.label),
 
     props.helpText && h(Text, {

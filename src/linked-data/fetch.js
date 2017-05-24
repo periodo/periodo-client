@@ -37,7 +37,7 @@ module.exports = async function fetchLinkedData(url, opts={}) {
 
   // TODO: Add cache invalidation
   if (tryCache) {
-    resource = await db().resources.get(url)
+    resource = await db().linkedDataCache.get(url)
   }
 
   if (!resource) {

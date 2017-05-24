@@ -2,12 +2,13 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , Icon = require('react-geomicons')
+    , Immutable = require('immutable')
+    , Icon = require('react-geomicons').default
     , Spinner = require('respin')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
     , { Box, Heading, Text, Textarea } = require('axs-ui')
-    , fetchLD = require('../../linked-data/utils/source_ld_fetch')
-    , { InputBlock, PrimaryButton, DangerButton, Source } = require('../../ui')
+    , fetchLDSource = require('../../linked-data/utils/source_ld_fetch')
+    , { InputBlock, PrimaryButton, DangerButton, Source, Debug } = require('../../ui')
 
 
 // Given a url, check if URL is a valid LD source. If it is, return a LD URI
@@ -69,7 +70,7 @@ class LinkedDataSourceForm extends React.Component {
       h(Box, [
         h(Heading, { level: 3 }, 'Linked data source'),
 
-        h(Box, [
+        (!readyState || readyState._name !== 'Success') && h(Box, [
           ...HelpText,
 
           h(Textarea, {
@@ -80,11 +81,11 @@ class LinkedDataSourceForm extends React.Component {
           }),
 
           h(PrimaryButton, {
-            disabled: !!possibleSourceURL,
+            disabled: !possibleSourceURL,
             onClick: () => {
-              if (readyState) clearRequest();
-
-              doRequest(fetchLD, possibleSourceURL, { populateCache: false });
+              clearRequest(() => {
+                doRequest(fetchLDSource, possibleSourceURL);
+              })
             }
           }, h(Icon, { name: 'refresh' })),
         ]),
@@ -101,17 +102,21 @@ class LinkedDataSourceForm extends React.Component {
           },
 
           Success: resp => ([
-            h(Source, { data: resp }),
+            h(Source, { source: Immutable.fromJS(resp) }),
 
             h(Box, [
               h(Text, 'Incorrect source?'),
               h(Box, [
                 h(DangerButton, {
-                  onClick: this.props.onReset
+                  onClick: () => {
+                    this.setState({ urlInput: '' });
+                    clearRequest();
+                  }
                 }, '‹ Reset')
               ])
             ]),
 
+            /*
             h(InputBlock, {
               mt: 2,
               label: 'Locator',
@@ -123,6 +128,7 @@ class LinkedDataSourceForm extends React.Component {
                 individual period definitions as you create them.
               `
             }),
+            */
           ])
         }))
       ])
@@ -130,7 +136,6 @@ class LinkedDataSourceForm extends React.Component {
   }
 }
 
-module.exports = AsyncRequestor(LinkedDataSourceForm)
 
   /*
 const 
@@ -167,3 +172,4 @@ const
   }
 });
   */
+module.exports = AsyncRequestor(LinkedDataSourceForm)

@@ -53,7 +53,7 @@ function getFirstObjectLiteral(trips) {
 
 module.exports = function makeSourceRepr(store, entity) {
   const source = { id: entity }
-  
+
   ;[...sourceFields].forEach(([field, preds]) => {
     const triples = getFirstMatch(store, entity, preds)
 
@@ -66,7 +66,7 @@ module.exports = function makeSourceRepr(store, entity) {
 
     const agents = triples.map(triple => {
       const agent = { id: triple.object }
-          , nameTriples = getFirstMatch(agent.id, contributorFields.get('name'))
+          , nameTriples = getFirstMatch(store, agent.id, contributorFields.get('name'))
 
       if (nameTriples) {
         agent.name = getFirstObjectLiteral(nameTriples)

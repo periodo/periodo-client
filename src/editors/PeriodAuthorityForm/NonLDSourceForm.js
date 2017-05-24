@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , RandomID = require('../../utils/RandomID')
-    , { Box, Label, Heading, Input } = require('axs-ui')
+    , { Flex, Box, Label, Heading, Input } = require('axs-ui')
     , { InputBlock, TextareaBlock, DefaultButton } = require('../../ui')
 
 class NonLDSourceForm extends React.Component {
@@ -14,48 +14,18 @@ class NonLDSourceForm extends React.Component {
   }
 
   handleChange(e) {
-    const { name, value } = e.target
+    const { source, onValueChange } = this.props
+        , { name, value } = e.target
 
-    this.setState(prev => ({
-      data: value ? prev.data.set(name, value) : prev.data.delete(name)
-    }), this.handleSourceChange);
-  }
-
-  handleSourceChange() {
-    const source = this.state.data
-        .map(val => val instanceof Immutable.Iterable ? val.filter(v => v) : val)
-        .filter(val => val instanceof Immutable.Iterable ? val.size : val.length)
-
-    this.props.onSourceChange(source);
-  }
-
-  handleNameChange(type, idx, e) {
-    const value = e.target.value;
-
-    this.setState(prev => ({
-      data: prev.data.update(type, names => names.update(idx, name => name.set('name', value)))
-    }), this.handleSourceChange);
-  }
-
-  handleNameRemove(type, idx) {
-    let newState = this.state.data.get(type).delete(idx)
-
-    if (!newState.size) newState = newState.push('');
-
-    this.setState(prev => ({
-      data: prev.data.set(type, newState)
-    }), this.handleSourceChange);
-  }
-
-  handleNameAdd(type, idx) {
-    if (!this.state.data.get(type).get(idx)) return;
-
-    this.setState(prev => ({
-      data: prev.data.update(type, names => names.splice(idx + 1, 0, Immutable.Map({ name: '' })))
-    }), this.handleSourceChange)
+    onValueChange(
+      value
+        ? source.set(name, value)
+        : source.delete(name))
   }
 
   render() {
+    const { source, onValueChange } = this.props
+
     return (
       h(Box, [
         h(Heading, { level: 3 }, 'Non linked data source'),
@@ -64,7 +34,7 @@ class NonLDSourceForm extends React.Component {
           name: 'citation',
           label: 'Citation (required)',
           helpText: `Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.`,
-          value: this.state.data.get('citation'),
+          value: source.get('citation'),
           rows: 4,
           onChange: this.handleChange,
         }),
@@ -73,28 +43,28 @@ class NonLDSourceForm extends React.Component {
         h(InputBlock, {
           name: 'title',
           label: 'Title',
-          value: this.state.data.get('title'),
+          value: source.get('title'),
           onChange: this.handleChange
         }),
 
         h(InputBlock, {
           name: 'url',
           label: 'URL',
-          value: this.state.data.get('url'),
+          value: source.get('url'),
           onChange: this.handleChange
         }),
 
         h(InputBlock, {
           name: 'sameAs',
           label: 'Same as (read-only)',
-          value: this.state.data.get('sameAs'),
+          value: source.get('sameAs'),
           disabled: true
         }),
 
         h(InputBlock, {
           name: 'yearPublished',
           label: 'Year published',
-          value: this.state.data.get('yearPublished'),
+          value: source.get('yearPublished'),
           onChange: this.handleChange
         }),
 
@@ -102,28 +72,43 @@ class NonLDSourceForm extends React.Component {
         ['creators', 'contributors'].map(field =>
           h(Box, { key: field }, [
             h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
-            h(Box, this.state.data.get(field).map((name, i) =>
-              h(Box, { key: field + i }, [
+            h(Box, source.get(field, Immutable.fromJS([{ name: '' }])).map((agent, i) =>
+              h(Flex, { key: field + i }, [
                 h(Input, {
                   name: field,
                   id: this.props.randomID(field) + '-' + i,
-                  value: name.get('name'),
-                  onChange: this.handleNameChange.bind(this, field, i)
+                  value: agent.get('name'),
+                  onChange: e => {
+                    onValueChange(
+                      source.setIn([field, i, 'name'], e.target.value))
+                  }
                 }),
 
                 h(DefaultButton, {
                   size: 1,
+                  ml: 1,
                   fontWeight: 'bold',
-                  onClick: this.handleNameAdd.bind(this, field, i)
+                  onClick: () => {
+                    onValueChange(
+                      source.update(field,
+                        cs => cs.splice(i + 1, 0, Immutable.Map({ name: '' }))))
+                  }
                 }, '+'),
 
                 h(DefaultButton, {
                   size: 1,
+                  ml: 1,
                   fontWeight: 'bold',
-                  onClick: this.handleNameRemove.bind(this, field, i)
+                  onClick: () => {
+                    onValueChange(
+                      source.update(field,
+                        cs => cs.size === 1
+                          ? cs.clear().push(Immutable.Map({ name: '' }))
+                          : cs.delete(i)))
+                  }
                 },'-')
               ])
-            ))
+            ).toArray())
           ])
         )
       ])
