@@ -52,9 +52,24 @@ class Application extends React.Component {
   async handleRoute({ onBeforeRoute=noop, Component, params, queryParams }) {
     const { dispatch } = this.props
 
+    let redirectHash
+
+    const redirect = url => {
+      redirectHash = url;
+    }
+
+    this.setState({ loadingNewPage: true })
+
     try {
-      await onBeforeRoute(dispatch, params, queryParams);
-      this.setState({ activeComponent: h(Component) })
+      await onBeforeRoute(dispatch, params, queryParams, redirect);
+
+      if (!redirectHash) {
+        this.setState({ activeComponent: h(Component) })
+      } else {
+        setTimeout(() => {
+          window.location.hash = redirectHash;
+        }, 0)
+      }
     } catch (error) {
       this.setState(prev => ({
         errors: prev.errors.unshift(Immutable.Map({

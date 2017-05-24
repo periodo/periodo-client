@@ -2,7 +2,6 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , qs = require('querystring')
 
 module.exports = function routerKnower(Component) {
   return class RouterKnower extends React.Component {
@@ -12,16 +11,8 @@ module.exports = function routerKnower(Component) {
       window.location.hash = target;
     }
 
-    generateRoute(routeName, params, queryParams) {
-      const { reverse } = require('../../router')
-
-      let path = '#' + reverse(routeName, params)
-
-      if (queryParams) {
-        path += '?' + qs.encode(queryParams)
-      }
-
-      return path
+    generateRoute() {
+      return require('../../router').generateRoute(...arguments)
     }
 
     render() {

@@ -1,11 +1,28 @@
 "use strict";
 
-const url = require('url')
-    , resources = require('./modules').getApplicationResources()
+const qs = require('querystring')
+    , url = require('url')
 
-let resourceMap
+let resources
+  , resourceMap
+
+function populate() {
+  if (!resources) {
+    resources = require('./modules').getApplicationResources()
+  }
+
+  if (!resourceMap) {
+    resourceMap = {}
+
+    resources.forEach(r => {
+      resourceMap[r.name] = r.route;
+    })
+  }
+}
 
 function match(path) {
+  populate();
+
   const { pathname, query } = url.parse(path)
 
   for (const routeDef of resources) {
@@ -25,14 +42,9 @@ function match(path) {
   return null;
 }
 
-function reverse(name, params) {
-  if (!resourceMap) {
-    resourceMap = {}
 
-    resources.forEach(r => {
-      resourceMap[r.name] = r.route;
-    })
-  }
+function reverse(name, params) {
+  populate();
 
   const route = resourceMap[name]
 
@@ -50,7 +62,19 @@ function reverse(name, params) {
 }
 
 
+function generateRoute(routeName, params, queryParams) {
+  let path = '#' + reverse(routeName, params)
+
+  if (queryParams) {
+    path += '?' + qs.encode(queryParams)
+  }
+
+  return path
+}
+
+
 module.exports = {
   match,
   reverse,
+  generateRoute,
 }
