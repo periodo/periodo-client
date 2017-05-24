@@ -8,6 +8,9 @@ const h = require('react-hyperscript')
     , Application = require('./main/Application')
 
 
+global.CORS_PROXY_URL = 'https://ptgolden.org/cors-anywhere/'
+global.CORS_PROXY_ENABLED = true
+
 if (process.browser) {
   const store = createStore()
 
