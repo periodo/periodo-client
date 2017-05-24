@@ -11,4 +11,5 @@ addUIModules([
   require('./Debug'),
   require('./FormElements'),
   require('./Buttons'),
+  require('./Source'),
 ])
