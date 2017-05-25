@@ -63,7 +63,18 @@ function reverse(name, params) {
 
 
 function generateRoute(routeName, params, queryParams) {
-  let path = '#' + reverse(routeName, params)
+  const escapedParams = {}
+      , escapedQueryParams = {}
+
+  Object.keys(params || {}).forEach(k => {
+    escapedParams[k] = encodeURIComponent(params[k])
+  })
+
+  Object.keys(queryParams || {}).forEach(k => {
+    escapedQueryParams[k] = encodeURIComponent(queryParams[k])
+  })
+
+  let path = '#' + reverse(routeName, escapedParams)
 
   if (queryParams) {
     path += '?' + qs.encode(queryParams)

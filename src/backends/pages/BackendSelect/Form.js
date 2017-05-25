@@ -20,7 +20,7 @@ module.exports = class BackendForm extends React.Component {
 
   handleChange(e) {
     if (e.target.name === 'type') {
-      this.replaceState({ type: e.target.value });
+      this.setState({ type: e.target.value });
     } else {
       this.setState({ [e.target.name]: e.target.value });
     }

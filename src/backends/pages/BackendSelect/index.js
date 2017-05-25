@@ -50,9 +50,9 @@ const BackendSelect = props =>
 
     h(BackendForm, {
       handleSave: state => {
-        const { label, description } = state
+        const { label, description, type } = state
 
-        const backend = type === 'web'
+        const backend = type === 'Web'
             ? Backend.WebOf(state)
             : Backend.UnsavedIndexedDB()
 

@@ -35,7 +35,7 @@ function listAvailableBackends() {
 }
 
 async function fetchDataset(url) {
-  const resp = await fetch(url);
+  const resp = await fetch(url + 'd.jsonld');
 
   if (!resp.ok) {
     throw new Error(
@@ -66,13 +66,10 @@ function fetchBackend(backend, setAsActive=false) {
             }),
 
       Web: async url => {
-        let metadata = await db.remoteBackends
-          .where('url')
-          .equals(url)
-          .get()
+        let metadata = await db.remoteBackends.get(url)
 
         const isSavedLocally = !!metadata
-            , resp = fetchDataset(url)
+            , resp = await fetchDataset(url)
             , dataset = await resp.json()
 
         if (!isSavedLocally) {
