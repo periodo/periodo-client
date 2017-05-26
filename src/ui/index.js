@@ -12,4 +12,5 @@ addUIModules([
   require('./FormElements'),
   require('./Buttons'),
   require('./Source'),
+  require('./Alerts'),
 ])
