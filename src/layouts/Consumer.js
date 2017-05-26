@@ -10,7 +10,8 @@ module.exports = function makeConsumer(type, step, Component) {
       super();
 
       this.state = {
-        [type]: []
+        [type]: [],
+        finished: false,
       }
     }
 
@@ -42,7 +43,11 @@ module.exports = function makeConsumer(type, step, Component) {
             cb();
           }
         }))
-        .on('finish', flush)
+        .on('finish', () => {
+          flush();
+
+          this.setState({ finished: true })
+        })
     }
 
     render() {

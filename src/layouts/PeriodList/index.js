@@ -35,7 +35,7 @@ const ListRow = Hoverable(props =>
   ))
 )
 
-exports.renderer = Consumer('period', 500, props => {
+exports.renderer = Consumer('period', Infinity, props => {
   const start = 0
       , limit = 50
       , periods = props.period
@@ -46,7 +46,7 @@ exports.renderer = Consumer('period', 500, props => {
 
   return (
     h(Box, [
-      periods.length === 0
+      (periods.length === 0 && props.finished)
         ? 'No matched periods.'
         : `${start + 1}‒${start + shownPeriods.length} of ${periods.length}`,
 

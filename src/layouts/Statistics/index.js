@@ -11,7 +11,7 @@ exports.label = 'Statistics';
 
 exports.description = 'Simple stastics about the dataset.';
 
-exports.renderer = Consumer('period', 50, props =>
+exports.renderer = Consumer('period', Infinity, props =>
   h(Box, [
     h('h1', 'Statistics'),
     props.period && h('div', {}, props.period.length)
