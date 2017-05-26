@@ -55,13 +55,16 @@ module.exports = class EngineState {
     const streams = this.getDataStreams(spec)
         , opts = this.groupPropsFromSpec(spec)
 
-    return spec.map((group, i) =>
-      group.layouts.map((layout, j) => Object.assign({}, layout, {
-        layout: this.getLayout(layout.name),
-        stream: streams[i].pipe(PassThrough({ objectMode: true })),
-        derivedOpts: opts[i][j]
-      }))
-    )
+    return {
+      streams,
+      layoutProps: spec.map((group, i) =>
+        group.layouts.map((layout, j) => Object.assign({}, layout, {
+          layout: this.getLayout(layout.name),
+          stream: streams[i].pipe(PassThrough({ objectMode: true })),
+          derivedOpts: opts[i][j]
+        }))
+      )
+    }
   }
 
   getDataStreams(spec) {
@@ -81,7 +84,7 @@ module.exports = class EngineState {
         for (let j = 0; j < layouts.length; j++) {
           const { filterItems } = state.getLayout(layouts[j].name)
 
-          if (!filterItems) return;
+          if (!filterItems) continue;
 
           match = filterItems(getRecord, opts[i][j])
 

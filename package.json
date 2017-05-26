@@ -40,6 +40,7 @@
     "route-parser": "0.0.5",
     "spark-md5": "0.0.5",
     "stream-array": "^1.1.2",
+    "stream-consume": "^0.1.0",
     "through2": "^2.0.3",
     "union-type": "^0.3.3"
   },

@@ -2,8 +2,8 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
+    , { Box } = require('axs-ui')
     , { isReactComponent } = require('./utils')
-    , { LayoutContainer } = require('./ui')
 
 
 module.exports = class Layout extends React.Component {
@@ -62,7 +62,7 @@ module.exports = class Layout extends React.Component {
     const { renderer } = this.props.layout
 
     return (
-      h(LayoutContainer, this.props, [
+      h(Box, this.props, [
         isReactComponent(renderer)
           ? h(renderer, this.getChildProps())
           : h('div', { ref: 'container' }),
