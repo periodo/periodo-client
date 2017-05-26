@@ -35,7 +35,8 @@ class BackendHome extends React.Component {
         h(LayoutEngine, {
           dataset: getDefinitions(this.props.backend.dataset),
           layouts: {
-            statistics: require('../../layouts/Statistics')
+            statistics: require('../../layouts/Statistics'),
+            list: require('../../layouts/PeriodList'),
           },
           recordAccessors: {
             period: item => item,
@@ -44,7 +45,7 @@ class BackendHome extends React.Component {
             {
               layouts: [
                 { name: 'statistics' },
-                { name: 'statistics' },
+                { name: 'list' },
               ]
             }
           ],
