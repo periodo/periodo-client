@@ -1,6 +1,7 @@
 "use strict";
 
 const test = require('tape')
+    , R = require('ramda')
     , through = require('through2')
     , concat = require('concat-stream')
     , EngineState = require('../state')
@@ -119,7 +120,7 @@ test('Data streaming through engine state', async t => {
   }
 
   {
-    const streams = state.getLayoutProps([
+    const { layoutProps } = state.getLayoutProps([
       {
         layouts: [
           { name: 'noop' },
@@ -128,13 +129,13 @@ test('Data streaming through engine state', async t => {
       }
     ])
 
-    t.equal(streams.length, 1);
-    t.equal(streams[0].length, 2, 'should create passthrough streams for each layout in a group');
+    t.equal(layoutProps.length, 1);
+    t.equal(layoutProps[0].length, 2, 'should create passthrough streams for each layout in a group');
 
     let d1, d2
 
     await new Promise(resolve => {
-      streams[0][0].stream
+      layoutProps[0][0].stream
         .pipe(periodGetter())
         .pipe(concat(data => {
           d1 = data;
@@ -143,7 +144,7 @@ test('Data streaming through engine state', async t => {
     })
 
     await new Promise(resolve => {
-      streams[0][1].stream
+      layoutProps[0][1].stream
         .pipe(periodGetter())
         .pipe(concat(data => {
           d2 = data;
@@ -152,7 +153,7 @@ test('Data streaming through engine state', async t => {
     })
 
     t.notEqual(d1, d2, 'lists of items should not be strictly equal');
-    t.deepEqual(d1, d2, '...but should be deep equal');
+    t.ok(R.equals(d1, d2), '...but should be deep equal');
     t.equal(d1[0], d2[0], '...and have strictly equal elements');
   }
 })
