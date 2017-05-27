@@ -1,7 +1,7 @@
 "use strict";
 
 const Immutable = require('immutable')
-    , { getEarliestYear, getLatestYear } = require('periodo-utils/lib/items/terminus')
+    , { getEarliestYear, getLatestYear } = require('../../items').terminus
 
 module.exports = {
   label: {

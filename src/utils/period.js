@@ -3,6 +3,7 @@
 const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , diff = require('fast-diff')
+    , { getEarliestYear, getLatestYear } = require('../items').terminus
 
 function addError(map, label, err) {
   return map.update(label, Immutable.List(), list => list.push(err));
@@ -10,7 +11,6 @@ function addError(map, label, err) {
 
 
 function validate(period) {
-  const { getEarliestYear, getLatestYear } = require('periodo-utils/lib/items/terminus')
 
   let errors = Immutable.Map()
 

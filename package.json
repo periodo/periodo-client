@@ -26,7 +26,6 @@
     "location-hash-stream": "^2.0.0",
     "n3": "^0.2.7",
     "periodo-date-parser": "^1.0.0",
-    "periodo-utils": "^4.0.0",
     "pump": "^1.0.2",
     "react": "^15.0.1",
     "react-autocomplete": "^1.5.3",
