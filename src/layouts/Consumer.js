@@ -4,18 +4,18 @@ const h = require('react-hyperscript')
     , React = require('react')
     , through = require('through2')
 
-module.exports = function makeConsumer(type, step, Component) {
+module.exports = function makeConsumer(itemArrayKey, stepToRender, Component) {
   return class Consumer extends React.Component {
     constructor() {
       super();
 
       this.state = {
-        [type]: [],
+        [itemArrayKey]: [],
         finished: false,
       }
     }
 
-    componentDidMount() {
+    componentWillMount() {
       this.consumeStream();
     }
 
@@ -24,19 +24,19 @@ module.exports = function makeConsumer(type, step, Component) {
 
       const flush = () => {
         this.setState(prev => ({
-          [type]: prev[type].concat(items.splice(0, Infinity))
+          [itemArrayKey]: prev[itemArrayKey].concat(items.splice(0, Infinity))
         }))
       }
 
       let i = 0;
 
       this.props.stream
-        .pipe(through.obj((get, enc, cb) => {
-          items.push(get(type))
+        .pipe(through.obj((data, enc, cb) => {
+          items.push(data)
 
           i++
 
-          if (i % step === 0) {
+          if (i % stepToRender === 0) {
             flush();
             setTimeout(cb, 0);
           } else {

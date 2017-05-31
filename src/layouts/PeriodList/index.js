@@ -7,17 +7,12 @@ const h = require('react-hyperscript')
     , Hoverable = require('../../utils/Hoverable')
     , Consumer = require('../Consumer')
 
-exports.label = 'Period List';
 
-exports.description = 'Selectable list of periods.';
-
-/*
 exports.filterItems = function (getRecord, opts) {
-  const ids = opts.get('selectedPeriodIDs')
+  const ids = opts.selectedPeriodIDs || []
 
-  return period => ids.size ? ids.includes(period.get('id')) : true
+  return period => ids.length ? ids.includes(period.get('id')) : true
 }
-*/
 
 exports.defaultOpts = {
   limit: 20,
@@ -35,10 +30,10 @@ const ListRow = Hoverable(props =>
   ))
 )
 
-exports.renderer = Consumer('period', Infinity, props => {
-  const start = 0
+const PeriodList = Consumer('periods', Infinity, props => {
+  const { periods } = props
+      , start = 0
       , limit = 50
-      , periods = props.period
 
   const shownPeriods = periods.slice(0, 50)
 
@@ -86,6 +81,13 @@ exports.renderer = Consumer('period', Infinity, props => {
     ])
   )
 })
+
+exports.handler = {
+  label: 'Period List',
+  description: 'Selectable list of periods.',
+  Component: PeriodList
+}
+
 
 /*
     const { data, updateOpts, selectedPeriodIDs, start, limit, shownColumns } = this.props

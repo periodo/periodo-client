@@ -2,60 +2,121 @@
 
 const test = require('tape')
     , R = require('ramda')
-    , through = require('through2')
     , concat = require('concat-stream')
-    , EngineState = require('../state')
-    , example = require('./example_engine')
+    , fromArray = require('from2-array')
+    , parseEngineSpec = require('../state')
 
-function makeEngineState() {
-  return new EngineState(example.dataset, example.layouts, example.accessors)
+
+const dataset = [
+  { name: 'Neolithic', start: -5600, stop: -4001 },
+  { name: 'Copper age', start: -4250, stop: -2201, isNamedAfterMetal: true },
+  { name: 'Bronze age', start: -2200, stop: -801, isNamedAfterMetal: true },
+]
+
+function makeTestEngine() {
+  const createReadStream = () => fromArray.obj(dataset)
+
+  const layouts = {
+    noop: {
+      handler: {}
+    },
+
+    callTracker: {
+      deriveOpts() {
+        return { called: true }
+      },
+      handler: {}
+    },
+
+    datasetFilterer: {
+      filterItems(data) {
+        return data.isNamedAfterMetal
+      },
+      handler: {}
+    }
+  }
+
+  return spec => parseEngineSpec(layouts, createReadStream, spec);
 }
 
-test('Group processor', t => {
-  t.plan(3);
+test('Layout options', t => {
+  t.plan(4);
 
-  const state = makeEngineState()
+  const firstDerivedOpts = R.path(['groups', 0, 'layouts', 0, 'derivedOpts'])
 
-  t.deepEqual(
-    state.groupPropsFromSpec([
-      {
-        layouts: [
-          { name: 'noop' }
-        ]
-      }
-    ]),
-
-    [
-      [ undefined, {} ]
-    ])
+  const parseSpec = makeTestEngine()
 
   t.deepEqual(
-    state.groupPropsFromSpec([
-      {
-        layouts: [
-          { name: 'noop', opts: { foo: 'bar' } }
-        ]
-      }
-    ]),
+    firstDerivedOpts(parseSpec({
+      groups: [
+        {
+          layouts: [
+            { name: 'noop' }
+          ]
+        }
+      ]
+    })),
+    {},
+    'should default to passing an empty opts object')
 
-    [
-      [ { foo: 'bar' }, { foo: 'bar' } ]
-    ],
+  t.deepEqual(
+    firstDerivedOpts(parseSpec({
+      groups: [
+        {
+          layouts: [
+            {
+              name: 'noop',
+              opts: {
+                foo: 'bar'
+              }
+            }
+          ]
+        }
+      ]
+    })),
+    { foo: 'bar' },
     'should pass through opts as derivedOpts without a deriveOpts function')
 
   t.deepEqual(
-    state.groupPropsFromSpec([
-      {
-        layouts: [
-          { name: 'callTracker' }
-        ]
-      }
-    ]),
+    firstDerivedOpts(parseSpec({
+      groups: [
+        {
+          layouts: [
+            { name: 'callTracker' }
+          ]
+        }
+      ]
+    })),
+
+    { called: true },
+
+    'should call deriveOpts() function on layout handler')
+
+  t.deepEqual(
+    (parsed => [
+      parsed.groups[0].props,
+      parsed.groups[0].layouts[0].props,
+    ])(parseSpec({
+      groups: [
+        {
+          props: { a: 1 },
+          layouts: [
+            {
+              name: 'noop',
+              props: { b: 2 }
+            }
+          ]
+        }
+      ]
+    })),
 
     [
-      [ undefined, { called: true } ]
+      { a: 1 },
+      { b: 2 }
     ],
-    'should call deriveOpts() function on layout handler')
+
+    'should pass through props to groups and layouts')
+
 
   /*
   t.deepEqual(
@@ -73,20 +134,71 @@ test('Group processor', t => {
   */
 });
 
-function periodGetter() {
-  return through.obj(function (getRecord, enc, cb) {
-    this.push(getRecord('period'));
-    cb();
-  })
-}
-
 test('Data streaming through engine state', async t => {
-  t.plan(9);
+  t.plan(5);
 
+  const parseSpec = makeTestEngine()
+
+  {
+    const { streams } = parseSpec({ groups: [] })
+
+    t.equal(
+      streams.length,
+      1,
+      'should have one stream with an empty spec')
+
+    streams[0].pipe(concat(items => {
+      t.deepEqual(
+        items,
+        dataset,
+        'should pipe through all items from the initial stream')
+    }))
+  }
+
+  {
+    const { streams } = parseSpec({
+      groups: [
+        {
+          layouts: [
+            { name: 'datasetFilterer' }
+          ]
+        }
+      ]
+    })
+
+    t.equal(
+      streams.length,
+      2,
+      'should always have one more total streams than total groups')
+
+    streams[1].pipe(concat(items => {
+      t.equal(
+        items.length,
+        2,
+        'should filter items based on `filterItems` layout method')
+    }))
+  }
+
+  {
+    const { streams } = parseEngineSpec({}, () => fromArray.obj([1, 2, 3]), { groups: [] })
+
+    streams[0].pipe(concat(items => {
+      t.equal(
+        items.length,
+        3,
+        'should allow passing a function to create a read stream')
+    }))
+  }
+})
+
+/*
+test('sorts', t => {
   const state = makeEngineState()
 
   {
-    const streams = state.getDataStreams([])
+    const streams = state.getDataStreams([], {
+      sort: 'name',
+    })
 
     t.equal(streams.length, 1)
 
@@ -100,60 +212,5 @@ test('Data streaming through engine state', async t => {
       }))
   }
 
-  {
-    const streams = state.getDataStreams([
-      {
-        layouts: [
-          { name: 'datasetFilterer' }
-        ]
-      }
-    ])
-
-    t.equal(streams.length, 2)
-
-    streams[1]
-      .pipe(periodGetter())
-      .pipe(concat(items => {
-        t.equal(items.length, 2, 'should filter items based on `filterItems` layout method')
-      }))
-
-  }
-
-  {
-    const { layoutProps } = state.getLayoutProps([
-      {
-        layouts: [
-          { name: 'noop' },
-          { name: 'noop' },
-        ]
-      }
-    ])
-
-    t.equal(layoutProps.length, 1);
-    t.equal(layoutProps[0].length, 2, 'should create passthrough streams for each layout in a group');
-
-    let d1, d2
-
-    await new Promise(resolve => {
-      layoutProps[0][0].stream
-        .pipe(periodGetter())
-        .pipe(concat(data => {
-          d1 = data;
-          resolve();
-        }))
-    })
-
-    await new Promise(resolve => {
-      layoutProps[0][1].stream
-        .pipe(periodGetter())
-        .pipe(concat(data => {
-          d2 = data;
-          resolve();
-        }))
-    })
-
-    t.notEqual(d1, d2, 'lists of items should not be strictly equal');
-    t.ok(R.equals(d1, d2), '...but should be deep equal');
-    t.equal(d1[0], d2[0], '...and have strictly equal elements');
-  }
 })
+*/

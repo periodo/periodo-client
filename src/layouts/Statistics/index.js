@@ -7,13 +7,13 @@ const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
     , Consumer = require('../Consumer')
 
-exports.label = 'Statistics';
-
-exports.description = 'Simple stastics about the dataset.';
-
-exports.renderer = Consumer('period', Infinity, props =>
-  h(Box, [
-    h('h1', 'Statistics'),
-    props.period && h('div', {}, props.period.length)
-  ])
-)
+exports.handler = {
+  label: 'Statistics',
+  description: 'Simple stastics about the dataset.',
+  Component: Consumer('periods', Infinity, props =>
+    h(Box, [
+      h('h1', 'Statistics'),
+      h('div', {}, props.periods.length),
+    ])
+  )
+}

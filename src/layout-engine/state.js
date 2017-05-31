@@ -1,102 +1,86 @@
 "use strict";
 
-const through = require('through2')
-    , StreamArray = require('stream-array')
-    , { PassThrough } = require('stream')
+const R = require('ramda')
+    , through = require('through2')
+    , emptyObj = Object.freeze({})
+    , emptyArr = Object.freeze([])
 
-function identity(x) {
-  return x
+// We'll get three things:
+//
+//   1. The layout streams at each level, plus the one leftover stream that
+//      will be the result of all the filtering from all the blocks
+//
+//   2. The props for each of the groups
+//
+//   3. The props for each of the layouts, including each of their individual
+//      streams
+//
+//  (2) does not include the streams from (1). Groups are "dumb" containers:
+//  they do not have any awareness of the data that passes through them. They
+//  only know about props passed to them (i.e. `className`, `style`, or any
+//  style properties defined in the cxs library.
+
+function getLayout(registeredLayouts, name) {
+  const layout = registeredLayouts[name]
+
+  if (!layout) {
+    throw new Error(`No registered layout with name ${name}`)
+  }
+
+  return layout
 }
 
-module.exports = class EngineState {
-  constructor(dataset, layouts, recordAccessors) {
-    this.dataset = [...dataset]
-    this.layouts = layouts
-    this.recordsByType = {};
-    this.recordAccessors = recordAccessors;
+function makeFilterStream(filters) {
+  return through.obj(function (data, enc, cb) {
+    if (!filters.length || filters.some(fn => fn(data))) {
+      this.push(data)
+    }
 
-    Object.keys(recordAccessors).forEach(type => {
-      this.recordsByType[type] = [];
+    cb();
+  })
+}
+
+
+module.exports = function parseEngineSpec(registeredLayouts, createReadStream, spec) {
+  const _getLayout = R.memoize(R.curry(getLayout)(registeredLayouts))
+      , groups = []
+      , filtersByGroup = []
+
+  spec.groups.forEach((groupSpec, i) => {
+    const layouts = []
+
+    filtersByGroup[i] = []
+
+    ;(groupSpec.layouts || emptyArr).forEach((layoutSpec, j) => {
+      const layout = _getLayout(layoutSpec.name)
+          , { props=emptyObj, opts=emptyObj, } = layoutSpec
+          , { deriveOpts=R.identity, handler } = layout
+          , derivedOpts = deriveOpts(opts)
+
+      if (layout.filterItems) {
+        filtersByGroup[i].push(data => layout.filterItems(data, derivedOpts))
+      }
+
+      layouts[j] = {
+        handler,
+        derivedOpts,
+        props,
+      }
     })
-  }
 
-  getRecordForItem(index, type) {
-    const getter = this.recordAccessors[type]
-
-    if (!this.recordsByType[type][index]) {
-      this.recordsByType[type][index] = getter(this.dataset[index]);
+    groups[i] = {
+      layouts,
+      props: groupSpec.props || emptyObj,
     }
+  })
 
-    return this.recordsByType[type][index]
-  }
-
-  getLayout(name) {
-    const layout = this.layouts[name]
-
-    if (!layout) {
-      throw new Error(`No registered layout with name ${name}`)
-    }
-
-    return layout
-  }
-
-  groupPropsFromSpec(spec) {
-    return spec.reduce((acc, { layouts }) =>
-      acc.concat(layouts.map(({ name, opts }) => {
-        const { deriveOpts=identity } = this.getLayout(name)
-
-        return [opts, deriveOpts(opts) || {}]
-      })),
-      []
+  return {
+    groups,
+    streams: filtersByGroup.reduce(
+      (streams, filters) =>
+        streams.concat(
+          R.last(streams).pipe(makeFilterStream(filters))),
+      [createReadStream()]
     )
-  }
-
-  getLayoutProps(spec) {
-    const streams = this.getDataStreams(spec)
-        , opts = this.groupPropsFromSpec(spec)
-
-    return {
-      streams,
-      layoutProps: spec.map((group, i) =>
-        group.layouts.map((layout, j) => Object.assign({}, layout, {
-          layout: this.getLayout(layout.name),
-          stream: streams[i].pipe(PassThrough({ objectMode: true })),
-          derivedOpts: opts[i][j]
-        }))
-      )
-    }
-  }
-
-  getDataStreams(spec) {
-    const opts = this.groupPropsFromSpec(spec)
-
-    const initialStream = StreamArray(this.dataset.map((item, index) =>
-      this.getRecordForItem.bind(this, index)
-    ))
-
-    return spec.reduce((acc, { layouts }, i) => {
-      const lastStream = acc.slice(-1)[0]
-          , state = this
-
-      return acc.concat(lastStream.pipe(through.obj(function (getRecord, enc, cb) {
-        let match = null
-
-        for (let j = 0; j < layouts.length; j++) {
-          const { filterItems } = state.getLayout(layouts[j].name)
-
-          if (!filterItems) continue;
-
-          match = filterItems(getRecord, opts[i][j])
-
-          if (match) break;
-        }
-
-        if (match || match === null) {
-          this.push(getRecord);
-        }
-
-        cb();
-      })))
-    }, [initialStream])
   }
 }

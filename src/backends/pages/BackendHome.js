@@ -2,6 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
+    , fromArray = require('from2-array')
     , React = require('react')
     , { connect } = require('react-redux')
     , LayoutEngine = require('../../layout-engine/Engine')
@@ -33,7 +34,9 @@ class BackendHome extends React.Component {
       h('div', [
         h('h1', this.props.backend.metadata.label),
         h(LayoutEngine, {
-          dataset: getDefinitions(this.props.backend.dataset),
+          createReadStream: () =>
+            fromArray.obj(getDefinitions(this.props.backend.dataset)),
+
           layouts: {
             statistics: require('../../layouts/Statistics'),
             list: require('../../layouts/PeriodList'),
@@ -41,16 +44,15 @@ class BackendHome extends React.Component {
           recordAccessors: {
             period: item => item,
           },
-          spec: [
-            {
-              layouts: [
-                { name: 'statistics' },
-                { name: 'list' },
-              ]
-            }
-          ],
-          onError(err) {
-            throw err
+          spec: {
+            groups: [
+              {
+                layouts: [
+                  { name: 'statistics' },
+                  { name: 'list' },
+                ]
+              }
+            ],
           }
         }),
       ])
