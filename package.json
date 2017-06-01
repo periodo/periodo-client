@@ -28,6 +28,7 @@
     "n3": "^0.2.7",
     "periodo-date-parser": "^1.0.0",
     "pump": "^1.0.2",
+    "ramda": "^0.24.0",
     "react": "^15.0.1",
     "react-autocomplete": "^1.5.3",
     "react-dom": "^15.0.1",
