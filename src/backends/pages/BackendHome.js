@@ -25,8 +25,40 @@ class BackendHome extends React.Component {
     super();
 
     this.state = {
-      authority: undefined
+      spec: {
+        groups: [
+          {
+            layouts: [
+              { name: 'text' },
+            ]
+          },
+
+          {
+            layouts: [
+              { name: 'statistics' },
+              {
+                name: 'list',
+                props: {
+                  css: {
+                    minHeight: '500px',
+                  }
+                }
+              },
+            ]
+          }
+        ]
+      }
     }
+
+    this.updateLayoutOpts = this.updateLayoutOpts.bind(this);
+  }
+
+  updateLayoutOpts(i, j, fn) {
+    this.setState(prev => {
+      const spec = R.over(R.lensPath(['groups', i, 'layouts', j, 'opts']), fn, prev.spec)
+
+      return { spec }
+    })
   }
 
   render() {
@@ -40,20 +72,12 @@ class BackendHome extends React.Component {
           layouts: {
             statistics: require('../../layouts/Statistics'),
             list: require('../../layouts/PeriodList'),
+            text: require('../../layouts/TextSearch'),
           },
-          recordAccessors: {
-            period: item => item,
-          },
-          spec: {
-            groups: [
-              {
-                layouts: [
-                  { name: 'statistics' },
-                  { name: 'list' },
-                ]
-              }
-            ],
-          }
+
+          spec: this.state.spec,
+
+          updateLayoutOpts: this.updateLayoutOpts,
         }),
       ])
     )

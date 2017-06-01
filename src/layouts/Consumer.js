@@ -15,11 +15,15 @@ module.exports = function makeConsumer(itemArrayKey, stepToRender, Component) {
       }
     }
 
-    componentWillMount() {
-      this.consumeStream();
+    componentDidUpdate(prevProps) {
+      if (this.props.stream && prevProps.stream !== this.props.stream) {
+        this.consumeStream();
+      }
     }
 
     consumeStream() {
+      let i = 0;
+
       const items = []
 
       const flush = () => {
@@ -28,26 +32,31 @@ module.exports = function makeConsumer(itemArrayKey, stepToRender, Component) {
         }))
       }
 
-      let i = 0;
+      const consume = () => {
+        this.props.stream
+          .pipe(through.obj((data, enc, cb) => {
+            items.push(data)
 
-      this.props.stream
-        .pipe(through.obj((data, enc, cb) => {
-          items.push(data)
+            i++
 
-          i++
-
-          if (i % stepToRender === 0) {
+            if (i % stepToRender === 0) {
+              flush();
+              setTimeout(cb, 0);
+            } else {
+              cb();
+            }
+          }))
+          .on('finish', () => {
             flush();
-            setTimeout(cb, 0);
-          } else {
-            cb();
-          }
-        }))
-        .on('finish', () => {
-          flush();
+            this.setState({ finished: true })
+          })
+      }
 
-          this.setState({ finished: true })
-        })
+      this.setState({
+        [itemArrayKey]: [],
+        finished: false
+      }, consume)
+
     }
 
     render() {

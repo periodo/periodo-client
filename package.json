@@ -9,6 +9,7 @@
     "axs-ui": "^1.0.4",
     "concat-stream": "^1.6.0",
     "d3": "^3.5.16",
+    "debounce": "^1.0.2",
     "dexie": "^2.0.0-beta.10",
     "diff-match-patch": "^1.0.0",
     "fast-diff": "^1.0.1",

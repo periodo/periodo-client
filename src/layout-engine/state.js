@@ -46,41 +46,43 @@ module.exports = function parseEngineSpec(registeredLayouts, createReadStream, s
       , groups = []
       , filtersByGroup = []
 
-  spec.groups.forEach((groupSpec, i) => {
+  R.forEach(groupSpec => {
     const layouts = []
+        , filters = []
 
-    filtersByGroup[i] = []
-
-    ;(groupSpec.layouts || emptyArr).forEach((layoutSpec, j) => {
-      const layout = _getLayout(layoutSpec.name)
-          , { props=emptyObj, opts=emptyObj, } = layoutSpec
-          , { deriveOpts=R.identity, handler } = layout
+    R.forEach(layoutSpec => {
+      const { props=emptyObj, opts=emptyObj, name } = layoutSpec
+          , { deriveOpts=R.identity, handler, filterItems } = _getLayout(name)
           , derivedOpts = deriveOpts(opts)
 
-      if (layout.filterItems) {
-        filtersByGroup[i].push(data => layout.filterItems(data, derivedOpts))
+      if (filterItems) {
+        filters.push(data => filterItems(data, derivedOpts))
       }
 
-      layouts[j] = {
+      layouts.push({
+        name,
         handler,
         derivedOpts,
         props,
-      }
-    })
+      })
+    }, groupSpec.layouts || emptyArr)
 
-    groups[i] = {
+    filtersByGroup.push(filters)
+
+    groups.push({
       layouts,
       props: groupSpec.props || emptyObj,
-    }
-  })
+    })
+  }, spec.groups)
 
   return {
     groups,
-    streams: filtersByGroup.reduce(
-      (streams, filters) =>
-        streams.concat(
-          R.last(streams).pipe(makeFilterStream(filters))),
-      [createReadStream()]
-    )
+    getStreams() {
+      return filtersByGroup.reduce(
+        (streams, filters) =>
+          streams.concat(
+            R.last(streams).pipe(makeFilterStream(filters))),
+        [createReadStream()])
+    }
   }
 }

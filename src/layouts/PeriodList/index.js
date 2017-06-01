@@ -30,7 +30,7 @@ const ListRow = Hoverable(props =>
   ))
 )
 
-const PeriodList = Consumer('periods', Infinity, props => {
+const PeriodList = Consumer('periods', 1000, props => {
   const { periods } = props
       , start = 0
       , limit = 50

@@ -140,7 +140,9 @@ test('Data streaming through engine state', async t => {
   const parseSpec = makeTestEngine()
 
   {
-    const { streams } = parseSpec({ groups: [] })
+    const { getStreams } = parseSpec({ groups: [] })
+
+    const streams = getStreams()
 
     t.equal(
       streams.length,
@@ -156,7 +158,7 @@ test('Data streaming through engine state', async t => {
   }
 
   {
-    const { streams } = parseSpec({
+    const { getStreams } = parseSpec({
       groups: [
         {
           layouts: [
@@ -165,6 +167,8 @@ test('Data streaming through engine state', async t => {
         }
       ]
     })
+
+    const streams = getStreams()
 
     t.equal(
       streams.length,
@@ -180,7 +184,9 @@ test('Data streaming through engine state', async t => {
   }
 
   {
-    const { streams } = parseEngineSpec({}, () => fromArray.obj([1, 2, 3]), { groups: [] })
+    const { getStreams } = parseEngineSpec({}, () => fromArray.obj([1, 2, 3]), { groups: [] })
+
+    const streams = getStreams()
 
     streams[0].pipe(concat(items => {
       t.equal(
