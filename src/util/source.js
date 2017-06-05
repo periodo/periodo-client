@@ -19,8 +19,6 @@ const creators = R.pipe(
   x => x || []
 )
 
-console.log(creators);
-
 const title = oneOf(
   R.prop('title'),
   R.prop('citation'),
