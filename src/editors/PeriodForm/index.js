@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , LabelForm = require('./LabelForm')
-    , RandomID = require('../../utils/RandomID')
+    , { RandomID } = require('../../util').hoc
     , { Flex, Box, Label, Textarea } = require('axs-ui')
     , { InputBlock, Debug } = require('../../ui')
     , TemporalCoverageForm = require('./TemporalCoverageForm')

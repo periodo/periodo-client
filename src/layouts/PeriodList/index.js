@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , { Box } = require('axs-ui')
     , columns = require('./columns')
-    , Hoverable = require('../../utils/Hoverable')
+    , { Hoverable } = require('../../util/hoc')
     , Consumer = require('../Consumer')
 
 

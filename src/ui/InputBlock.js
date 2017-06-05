@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , RandomID = require('../utils/RandomID')
+    , { RandomID } = require('../util').hoc
     , { Box, Input, Textarea, Label, Text } = require('axs-ui')
 
 const inputProps = [

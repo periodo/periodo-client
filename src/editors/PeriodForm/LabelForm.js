@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
-    , RandomID = require('../../utils/RandomID')
+    , { RandomID } = require('../../util').hoc
     , { Box } = require('axs-ui')
 
 const defaultLabel = Immutable.Map({

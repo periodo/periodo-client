@@ -1,7 +1,7 @@
 "use strict";
 
 const Immutable = require('immutable')
-    , { getEarliestYear, getLatestYear } = require('../../items').terminus
+    , { getEarliestYear, getLatestYear } = require('../../util').terminus
 
 module.exports = {
   label: {

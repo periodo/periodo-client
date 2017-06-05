@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
-    , RandomID = require('../../utils/RandomID')
+    , { RandomID } = require('../../util').hoc
     , { Flex, Box, Label, Heading, Input } = require('axs-ui')
     , { InputBlock, TextareaBlock, DefaultButton } = require('../../ui')
 

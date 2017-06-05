@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , Ignorer = require('../Ignorer')
-    , { getAlternateLabels } = require('../../items/items/period')
+    , { alternateLabels } = require('../../util').period
 
 
 exports.filterItems = function (period, opts) {
@@ -14,7 +14,7 @@ exports.filterItems = function (period, opts) {
 
   return (
     regex.test(period.label) ||
-    getAlternateLabels(period).some(label => regex.test(label))
+    alternateLabels(period).some(label => regex.test(label))
   )
 }
 

@@ -3,7 +3,7 @@
 const R = require('ramda')
 
 module.exports = function makeRangeBins(periods, numBins, min, max) {
-  const { getEarliestYear, getLatestYear } = require('../../items/items/terminus')
+  const { getEarliestYear, getLatestYear } = require('../../util').terminus
       , termini = []
 
   let minYear = Infinity

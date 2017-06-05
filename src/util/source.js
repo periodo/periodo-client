@@ -5,7 +5,7 @@ const R = require('ramda')
     , contributorList = require('./contributor_list')
 
 function isLinkedData(source) {
-  const { match } = require('../utils/source_ld_fetch')
+  const { match } = require('../linked-data/utils/source_ld_fetch')
 
   // FIXME: immutable
   return !!match(source.get('id')) || !!match(source.getIn(['partOf', 'id'], ''));
