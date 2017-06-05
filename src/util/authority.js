@@ -1,3 +1,21 @@
+"use strict";
+
+const R = require('ramda')
+    , source = require('./source')
+    , terminusList = require('./terminus_list')
+
+function describe(authority) {
+  const definitions = R.values(authority.definitions || {})
+
+  return {
+    id: authority.id,
+    source: source.displayTitle(authority.source),
+    definitions: definitions.length,
+    earliest: terminusList.minYear(R.map(R.path(['start']))(definitions)),
+    latest: terminusList.maxYear(R.map(R.path(['stop']))(definitions)),
+  }
+}
+
 function validate(periodization) {
   const { isLinkedData } = require('./source')
       , source = periodization.get('source')
@@ -40,9 +58,5 @@ function asCSV(periodization) {
 }
 
 module.exports = {
-  describe,
-  validate,
-  asCSV,
-  asJSONLD,
-  asTurtle
+  describe
 }

@@ -1,49 +1,4 @@
-"use strict";
-
-const h = require('react-hyperscript')
-    , Immutable = require('immutable')
-    , diff = require('fast-diff')
-    , { getEarliestYear, getLatestYear } = require('../items').terminus
-
-function addError(map, label, err) {
-  return map.update(label, Immutable.List(), list => list.push(err));
-}
-
-
-function validate(period) {
-
-  let errors = Immutable.Map()
-
-  if (!period.get('label')) {
-    errors = addError(errors, 'label', 'This field is required.');
-  }
-
-  const periodPresent = type =>
-    period.get(type) &&
-    period.getIn([type, 'label']) &&
-    getEarliestYear(period.get(type)) !== null
-
-  const badTerminusRange = terminus =>
-    terminus.hasIn(['in', 'latestYear']) &&
-    getEarliestYear(terminus) > getLatestYear(terminus)
-
-  if (!periodPresent('start') || !periodPresent('stop')) {
-    errors = addError(errors, 'dates', 'A period must have start and stop dates.');
-  } else if (getLatestYear(period.get('stop')) < getEarliestYear(period.get('start'))) {
-    errors = addError(errors, 'dates', 'A period\'s stop must come after its start.');
-  } else {
-    if (badTerminusRange(period.get('start'))) {
-      errors = addError(errors, 'dates', 'Date range for period start has a beginning later than its end.')
-    }
-
-    if (badTerminusRange(period.get('stop'))) {
-      errors = addError(errors, 'dates', 'Date range for period stop has a beginning later than its end.')
-    }
-  }
-
-  return errors.size ? errors.toJS() : null;
-}
-
+const diff = require('fast-diff')
 
 function wrapTextLeaves(className, item) {
   return item instanceof Immutable.Iterable
@@ -105,8 +60,7 @@ function diffToNode([type, text]) {
   return h('span', { className, key }, text);
 }
 
-
 module.exports = {
-  validate,
   diffTree,
 }
+

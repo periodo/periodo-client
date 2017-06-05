@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { parse } = require('periodo-date-parser')
-    , { oneOf } = require('../utils')
+    , { oneOf } = require('./misc')
 
 const paths = {
   earliest: ['in', 'earliestYear'],
@@ -15,22 +15,22 @@ const isMultiPart = R.any(R.hasIn)([paths.earliest, paths.latest])
 // Terminus -> String
 function asString(terminus) {
   if (isMultiPart(terminus)) {
-    let earliest = getEarliestYear(terminus)
-      , latest = getLatestYear(terminus)
+    let earliest = earliestYear(terminus)
+      , latest = latestYear(terminus)
 
     if (earliest === null) earliest = '(unknown)';
     if (latest === null) latest = '(unknown)';
 
     return `range from ${earliest} to ${latest}`
   } else {
-    const value = getEarliestYear(terminus)
+    const value = earliestYear(terminus)
 
     return value === null ? null : ('' + value);
   }
 }
 
 // Terminus -> Int or Null
-function getEarliestYear(terminus) {
+function earliestYear(terminus) {
   let year
 
   year = oneOf(
@@ -45,7 +45,7 @@ function getEarliestYear(terminus) {
 }
 
 // Terminus -> Int or Null
-function getLatestYear(terminus) {
+function latestYear(terminus) {
   let year
 
   year = oneOf(
@@ -62,8 +62,8 @@ function getLatestYear(terminus) {
 // Terminus -> Bool
 function hasISOValue(terminus) {
   return (
-    getEarliestYear(terminus) !== null ||
-    getLatestYear(terminus) !== null
+    earliestYear(terminus) !== null ||
+    latestYear(terminus) !== null
   )
 }
 
@@ -92,8 +92,8 @@ function wasAutoparsed(terminus) {
 
 module.exports = {
   asString,
-  getEarliestYear,
-  getLatestYear,
+  earliestYear,
+  latestYear,
   hasISOValue,
   wasAutoparsed
 }

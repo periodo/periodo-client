@@ -2,7 +2,10 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , randomstr = require('./randomstr')
+
+function randomstr() {
+  return (Math.random() + '').slice(2, 12)
+}
 
 module.exports = function (Component) {
   return class RandomID extends React.Component {

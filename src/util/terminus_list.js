@@ -1,12 +1,11 @@
 "use strict";
 
-const R = require('ramda')
-    , { getEarliestYear, getLatestYear } = require('./terminus')
+const { earliestYear, latestYear } = require('./terminus')
 
 // Iterable<Terminus> -> Object({ label: String, iso: Int }) or Null
 function maxYear(termini) {
   const latest = termini.reduce((prev, terminus) => {
-    const iso = getLatestYear(terminus) || -Infinity
+    const iso = latestYear(terminus) || -Infinity
 
     return iso > prev.iso ? { terminus, iso } : prev
   }, { terminus: null, iso: -Infinity })
@@ -22,7 +21,7 @@ function maxYear(termini) {
 // Iterable<Terminus> -> Object({ label: String, iso: Int }) or Null
 function minYear(termini) {
   const earliest = termini.reduce((prev, terminus) => {
-    const iso = getEarliestYear(terminus) || Infinity
+    const iso = earliestYear(terminus) || Infinity
 
     return iso < prev.iso ? { terminus, iso } : prev
   }, { terminus: null, iso: Infinity })

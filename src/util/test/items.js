@@ -1,67 +1,67 @@
 "use strict";
 
 const test = require('tape')
+    , util = require('../')
 
-test('Period terminus helpers', t => {
+
+
+test('Period terminus utility functions', t => {
   t.plan(4)
 
-  const helpers = require('../items/terminus')
-      , termini = require('./fixtures/termini.json')
+  const termini = require('./fixtures/termini.json')
 
   t.deepEqual(
-    termini.map(helpers.getEarliestYear),
+    termini.map(util.terminus.earliestYear),
     [1200, 0, 501, -99, (new Date().getFullYear()), null],
     'should find smallest year in terminus'
   )
 
   t.deepEqual(
-    termini.map(helpers.getLatestYear),
+    termini.map(util.terminus.latestYear),
     [1200, 0, 600, -99, (new Date().getFullYear()), null],
     'should find largest year in terminus'
   )
 
   t.deepEqual(
-    termini.map(helpers.hasISOValue),
+    termini.map(util.terminus.hasISOValue),
     [true, true, true, true, true, false],
     'should detect whether a terminus has any ISO value'
   )
 
   t.deepEqual(
-    termini.map(helpers.wasAutoparsed),
+    termini.map(util.terminus.wasAutoparsed),
     [true, true, true, false, true, false],
     'should detect whether a terminus was autoparsed or not'
   )
 })
 
 
-test('Period terminus sequence helpers', t => {
+test('Period terminus sequence utility functions', t => {
   t.plan(2)
 
-  const helpers = require('../items/terminus_seq')
-      , termini = require('./fixtures/termini.json')
+  const termini = require('./fixtures/termini.json')
 
   t.deepEqual(
-    helpers.maxYear(termini),
+    util.terminusList.maxYear(termini),
     { label: 'present', iso: (new Date().getFullYear()) },
     'should be able to find the latest terminus in a group'
   )
 
 
   t.deepEqual(
-    helpers.minYear(termini),
+    util.terminusList.minYear(termini),
     { label: 'one hundred bee cee', iso: -99 },
     'should be able to find the earliest terminus in a group'
   )
 })
 
 
-test('Period collection helpers', t => {
+test('Period authority utility functions', t => {
   t.plan(1)
 
-  const helpers = require('../items/period_collection')
-      , data = require('./fixtures/period-collection.json')
+  const data = require('./fixtures/period-collection.json')
 
-  t.deepEqual(helpers.describe(data.periodCollections.p03377f), {
+  t.deepEqual(util.authority.describe(data.periodCollections.p03377f), {
     id: 'p03377f',
     source: 'Ruiz, Arturo. The archaeology of the Iberians. 1998.',
     definitions: 2,
@@ -76,10 +76,8 @@ test('Period collection helpers', t => {
   }, 'should describe a period collection')
 });
 
-test('Period collection sequence helpers', t => {
+test('Authority sequence utility functions', t => {
   t.plan(1);
-
-  const helpers = require('../items/period_collection_seq');
 
   const data = [
     {
@@ -127,7 +125,7 @@ test('Period collection sequence helpers', t => {
 
 
   t.deepEqual(
-    helpers.getSpatialCoverages(data),
+    util.authorityList.spatialCoverages(data),
     [
       {
         label: 'Middle East',
@@ -149,11 +147,10 @@ test('Period collection sequence helpers', t => {
 test('Multi label periods', t => {
   t.plan(3)
 
-  const helpers = require('../items/period');
   const multiLabelPeriod = require('./fixtures/multi-label-period.json');
 
   t.deepEqual(
-    helpers.getOriginalLabel(multiLabelPeriod),
+    util.period.originalLabel(multiLabelPeriod),
     {
       value: 'Progressive Era',
       language: 'eng',
@@ -162,7 +159,7 @@ test('Multi label periods', t => {
 
 
   t.deepEqual(
-    helpers.getAllLabels(multiLabelPeriod),
+    util.period.allLabels(multiLabelPeriod),
     [
       { value: 'Progressive Era', language: 'eng', script: 'latn' },
       { value: 'The Progressive Era', language: 'eng', script: 'latn' },
@@ -171,7 +168,7 @@ test('Multi label periods', t => {
 
 
   t.deepEqual(
-    helpers.getAlternateLabels(multiLabelPeriod),
+    util.period.alternateLabels(multiLabelPeriod),
     [
       { value: 'The Progressive Era', language: 'eng', script: 'latn' },
       { value: 'Ère progressiste', language: 'fra', script: 'latn' }
