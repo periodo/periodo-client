@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , BackendForm = require('./Form')
     , { Backend } = require('../../types')
     , { addBackend } = require('../../actions')
-    , routerKnower = require('../../../shared/components/router_knower')
+    , { RouterKnower } = require('../../../util').hoc
 
 function mapStateToProps(state) {
   return {
@@ -65,7 +65,7 @@ const BackendSelect = props =>
 
 
 module.exports = compose(
-  routerKnower,
+  RouterKnower,
   connect(mapStateToProps, { addBackend })
 )(BackendSelect)
 

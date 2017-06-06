@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , RouterKnower = require('../../shared/components/router_knower')
+    , { RouterKnower } = require('../../util').hoc
 
 const Header = props =>
   h('div .flex', [

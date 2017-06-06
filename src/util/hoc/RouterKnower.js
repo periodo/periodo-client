@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
 
-module.exports = function routerKnower(Component) {
+module.exports = function makeRouterKnower(Component) {
   return class RouterKnower extends React.Component {
     navigateToRoute() {
       const target = this.generateRoute(...arguments)
