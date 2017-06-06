@@ -5,10 +5,9 @@ const R = require('ramda')
     , contributorList = require('./contributor_list')
 
 function isLinkedData(source) {
-  const { match } = require('../linked-data/utils/source_ld_fetch')
+  const match = require('../linked-data/utils/source_ld_match')
 
-  // FIXME: immutable
-  return !!match(source.get('id')) || !!match(source.getIn(['partOf', 'id'], ''));
+  return !!match(R.path(['id'], source)) || !!match(R.path(['partOf', 'id'], source) || '');
 }
 
 const creators = R.pipe(
