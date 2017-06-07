@@ -19,7 +19,11 @@ module.exports = function backends(state=initialState(), action) {
 
   return readyStateCase(action, {
     Pending: () => state,
-    Failure: () => state,
+    Failure: err => {
+      throw err;
+
+      return state
+    },
     Success: () => moduleActionCase(action, {
       GetAllBackends() {
         return R.set(

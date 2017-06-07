@@ -95,9 +95,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
 
         h(Box, [
           h(PrimaryButton, {
-            onClick: () => this.props.validate(value, res => {
-              console.log(res)
-            })
+            onClick: () => this.props.validate(value, this.props.onValidated)
           }, 'Save'),
         ]),
       ])
