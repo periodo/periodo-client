@@ -32,8 +32,8 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
 
         hx`
         <ul>
-          <li>URLs of records in the <a href="https://worldcat.org">WorldCat</a> catalog</li>
-          <li>DOIs contained in the <a href="https://search.crossref.org/">CrossRef database</a></li>
+          <li>A URL of a record in the <a href="https://worldcat.org">WorldCat</a> catalog</li>
+          <li>A DOI contained in the <a href="https://search.crossref.org/">CrossRef database</a></li>
         </ul>
         `,
 
