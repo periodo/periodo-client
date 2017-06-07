@@ -15,7 +15,7 @@ const lenses = {
   editorialNote: R.lensProp('editorialNote'),
 }
 
-class PeriodAuthorityForm extends React.Component {
+module.exports = class AuthorityForm extends React.Component {
   constructor(props) {
     super();
 
@@ -27,7 +27,7 @@ class PeriodAuthorityForm extends React.Component {
   render() {
     const { showLDForm } = this.state
         , { value={}, onValueChange } = this.props
-        , cancel = onValueChange ? null : R.always(null)
+        , cancel = onValueChange ? false : R.always(null)
         , SourceForm = showLDForm ? LDSourceForm : NonLDSourceForm
 
     return (
@@ -94,5 +94,3 @@ class PeriodAuthorityForm extends React.Component {
     )
   }
 }
-
-module.exports = PeriodAuthorityForm;

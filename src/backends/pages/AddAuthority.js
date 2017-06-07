@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Box, Heading } = require('axs-ui')
-    , PeriodAuthorityForm = require('../../editors/PeriodAuthorityForm')
+    , AuthorityForm = require('../../editors/AuthorityForm')
 
 module.exports = class AddAuthority extends React.Component {
   constructor() {
@@ -18,7 +18,7 @@ module.exports = class AddAuthority extends React.Component {
     return (
       h(Box, [
         h(Heading, { level: 2 }, 'Add authority'),
-        h(PeriodAuthorityForm, {
+        h(AuthorityForm, {
           value: this.state.authority,
           onValueChange: authority => {
             this.setState({ authority })

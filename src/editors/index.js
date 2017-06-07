@@ -2,5 +2,5 @@
 
 module.exports = {
   PeriodForm: require('./PeriodForm'),
-  PeriodAuthorityForm: require('./PeriodAuthorityForm'),
+  AuthorityForm: require('./AuthorityForm'),
 }
