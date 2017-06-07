@@ -1,65 +1,64 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , Immutable = require('immutable')
+    , R = require('ramda')
+    , { oneOf } = require('../util/misc')
 
-function oneOf(data, ...paths) {
-  let result;
+const inOrPartOf = (field, source) =>
+  oneOf(
+    R.prop(field),
+    R.path(['partOf', field])
+  )(source)
 
-  for (let i = 0; i < paths.length; i++) {
-    result = data.getIn(paths[i]);
-    if (result) break;
-  }
-
-  return result;
-}
 
 function getFields(source) {
   return [
     {
       label: 'Title',
-      value: oneOf(source, ['title'], ['partOf', 'title'])
+      value: inOrPartOf('title', source),
     },
     {
       label: 'Citation',
-      value: oneOf(source, ['citation'], ['partOf', 'citation'])
+      value: inOrPartOf('citation', source),
     },
     {
       label: 'URL',
-      value: oneOf(source, ['id'], ['partOf', 'id'], ['url']),
+      value: inOrPartOf('id', source) || source.url,
       format: url => h('dd', {}, h('a', { href: url }, url))
     },
     {
       label: 'Year published',
-      value: oneOf(source, ['yearPublished'], ['partOf', 'yearPublished']) || 'unknown',
+      value: inOrPartOf('yearPublished', source) || 'unknown'
     },
     {
       label: 'Creators',
       value: (() => {
-        let val = oneOf(source, ['creators'], ['partOf', 'creators']);
+        const val = inOrPartOf('creators', source)
 
-        val = (val || Immutable.List()).toList().filter(c => c.get('name'));
-        return val.size ? val : null;
+        if (!val) return null;
+
+        return val.filter(c => c.name)
       })(),
-      format: creators => creators.map(c =>
-        h('dd', { key: c.get('name') }, c.get('name'))
+      format: creators => creators.map((c, i) =>
+        h('dd', { key: i + c.name }, c.name)
       )
     },
     {
       label: 'Contributors',
       value: (() => {
-        let val = oneOf(source, ['contributors'], ['partOf', 'contributors']);
+        const val = inOrPartOf('contributors', source)
 
-        val = (val || Immutable.List()).toList().filter(c => c.get('name'));
-        return val.size ? val : null;
+        if (!val) return null;
+
+        return val.filter(c => c.name)
       })(),
-      format: contributors => contributors.map(c =>
-        h('dd', { key: c.get('name') }, c.get('name'))
+      format: contributors => contributors.map((c, i) =>
+        h('dd', { key: i + c.name }, c.name)
       )
     },
     {
       label: 'Locator',
-      value: source.get('locator')
+      value: source.locator,
     }
   ]
 }

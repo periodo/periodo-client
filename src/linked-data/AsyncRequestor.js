@@ -4,43 +4,64 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { ReadyState } = require('../typed-actions/types')
 
+const emptyState = () => ({
+  readyState: null,
+  onNextCompletion: [],
+})
+
 module.exports = function makeAsyncRequestor(Component) {
   return class AsyncRequestor extends React.Component {
     constructor() {
       super();
 
-      this.state = {
-        readyState: null,
-      }
-
       this.curReq = 0;
+      this.state = emptyState()
+    }
+
+    onNextCompletion(fn) {
+      this.setState(prev => ({
+        onNextCompletion: [...prev.onNextCompletion, fn]
+      }))
     }
 
     doRequest(fetchFn, ...opts) {
       const { curReq } = this
+          , { readyState } = this.state
 
-      if (this.state.readyState) {
+      if (readyState) {
         throw new Error(
           'Cancel any pending requests before sending another.'
         );
       }
 
-      this.setState({ readyState: ReadyState.Pending() })
+      this.setState({
+        readyState: ReadyState.Pending()
+      })
 
       fetchFn(...opts).then(
         resp => {
           if (curReq !== this.curReq) return;
 
+          this.state.onNextCompletion.forEach(fn => {
+            fn(null, resp);
+          })
+
           this.setState({
-            readyState: ReadyState.Success(resp)
+            readyState: ReadyState.Success(resp),
+            onNextCompletion: [],
           })
         },
 
         err => {
           if (curReq !== this.curReq) return;
 
+          this.state.onNextCompletion.forEach(fn => {
+            fn(err)
+          })
+
           this.setState({
-            readyState: ReadyState.Failure(err)
+            readyState: ReadyState.Failure(err),
+            onNextCompletion: [],
           })
         })
     }
@@ -52,7 +73,8 @@ module.exports = function makeAsyncRequestor(Component) {
           this.setState({ readyState: null }, cb)
         },
 
-        doRequest: this.doRequest.bind(this)
+        doRequest: this.doRequest.bind(this),
+        onNextCompletion: this.onNextCompletion.bind(this),
       }));
     }
   }

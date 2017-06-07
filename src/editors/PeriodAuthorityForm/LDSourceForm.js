@@ -1,75 +1,63 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , React = require('react')
-    , Immutable = require('immutable')
+    , hx = require('hyperx')(h)
     , Icon = require('react-geomicons').default
     , Spinner = require('respin')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
     , { Box, Heading, Text, Textarea } = require('axs-ui')
-    , fetchLDSource = require('../../linked-data/utils/source_ld_fetch')
-    , toValidSourceURL = require('../../linked-data/utils/source_ld_match')
+    , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
+    , { PrimaryButton, DangerButton, Source } = require('../../ui')
 
 
-const HelpText = [
-  h(Text, 'Paste text in the block below that contains a URL from a site supported by PeriodO.'),
-  h(Text, 'Currently supported formats:'),
-  h('ul', [
-    h('li', [
-      'URLs from the ',
-      h('a', { href: 'http://worldcat.org' }, 'WorldCat'),
-      ' catalog.'
-    ]),
-
-    h('li', [
-      'URLs to the ',
-      h('a', { href: 'http://dx.doi.org' }, 'DOI lookup service'),
-      ' searchable with ',
-      h('a', { href: 'http://crossref.org' }, 'CrossRef')
-    ]),
-
-    h('li', [
-      'A DOI in the format doi:xxx.yyy (as included in many citation styles)'
-    ])
-  ])
-]
-
-class LinkedDataSourceForm extends React.Component {
+const LDInput = AsyncRequestor(class LDInput extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      urlInput: '',
+      input: ''
     }
   }
 
   render() {
-    const { doRequest, clearRequest, readyState } = this.props
-        , possibleSourceURL = toValidSourceURL(this.state.urlInput)
+    const { input } = this.state
+        , { doRequest, clearRequest, readyState, onNextCompletion, onValueChange } = this.props
+        , sourceMatch = match(input)
 
     return (
       h(Box, [
-        h(Heading, { level: 3 }, 'Linked data source'),
+        h(Text, 'Paste text in the block below that contains one of the following'),
 
-        (!readyState || readyState._name !== 'Success') && h(Box, [
-          ...HelpText,
+        hx`
+        <ul>
+          <li>URLs of records in the <a href="https://worldcat.org">WorldCat</a> catalog</li>
+          <li>DOIs contained in the <a href="https://search.crossref.org/">CrossRef database</a></li>
+        </ul>
+        `,
 
-          h(Textarea, {
-            rows: 6,
-            onChange: e => {
-              this.setState({ urlInput: e.target.value });
-            }
-          }),
+        h(Textarea, {
+          rows: 6,
+          onChange: e => {
+            this.setState({ input: e.target.value });
+          }
+        }),
 
-          h(PrimaryButton, {
-            disabled: !possibleSourceURL,
-            onClick: () => {
-              clearRequest(() => {
-                doRequest(fetchLDSource, possibleSourceURL);
+        h(PrimaryButton, {
+          disabled: sourceMatch === null,
+          onClick: () => {
+            clearRequest(() => {
+              onNextCompletion((err, value) => {
+                if (!err) {
+                  onValueChange(value)
+                }
               })
-            }
-          }, h(Icon, { name: 'refresh' })),
-        ]),
+
+              doRequest(fetchLD, sourceMatch);
+            })
+          }
+        }, h(Icon, { name: 'refresh' })),
 
         readyState && h(Box, {}, readyState.case({
           Pending: () => ([
@@ -82,75 +70,32 @@ class LinkedDataSourceForm extends React.Component {
             return h(Text, 'Failed to fetch source')
           },
 
-          Success: resp => ([
-            h(Source, { source: Immutable.fromJS(resp) }),
-
-            h(Box, [
-              h(Text, 'Incorrect source?'),
-              h(Box, [
-                h(DangerButton, {
-                  onClick: () => {
-                    this.setState({ urlInput: '' });
-                    clearRequest();
-                  }
-                }, '‹ Reset')
-              ])
-            ]),
-
-            /*
-            h(InputBlock, {
-              mt: 2,
-              label: 'Locator',
-              value: this.props.source.get('locator'),
-              onChange: this.props.onLocatorChange,
-              helpText: `
-                If all periods are defined on a single page within this source,
-                include that page number here. Otherwise, include a locator for
-                individual period definitions as you create them.
-              `
-            }),
-            */
-          ])
-        }))
+          _: R.always('null')
+        })),
       ])
     )
   }
-}
+})
 
+const LinkedDataSourceForm = ({ value, onValueChange }) =>
+  h(Box, [
+    h(Heading, { level: 3 }, 'Linked data source'),
 
-  /*
-const 
+    value
+      ? h(Box, [
+          h(Source, { source: value }),
+          h(Box, [
+            h(Text, 'Incorrect source?'),
+            h(Box, [
+              h(DangerButton, {
+                onClick: () => {
+                  onValueChange(null)
+                }
+              }, '‹ Reset')
+            ])
+          ]),
+        ])
+      : h(LDInput, { onValueChange })
+  ])
 
-  handleFetch(source) {
-    this.props.onSourceChange(source);
-  },
-
-  handleLocatorChange(e) {
-    var locator = e.target.value
-      , source = this.props.data
-      , newSource
-
-    newSource = source.has('partOf') ?
-      source.set('locator', locator) :
-      Immutable.Map({ partOf: source, locator })
-
-    if (!locator) newSource = newSource.get('partOf');
-
-    this.props.onSourceChange(newSource);
-  },
-
-  handleReset() {
-    this.setState({ fetchedSource: null }, () => this.props.onSourceChange(null));
-  },
-
-  render() {
-    return this.props.data ?
-      <AcceptData
-        onReset={this.handleReset}
-        source={this.props.data}
-        onLocatorChange={this.handleLocatorChange} /> :
-      <FetchData onFetch={this.handleFetch} />
-  }
-});
-  */
 module.exports = AsyncRequestor(LinkedDataSourceForm)

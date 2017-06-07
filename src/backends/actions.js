@@ -102,6 +102,10 @@ function fetchBackend(backend, setAsActive=false) {
     return {
       type: backend,
       metadata: BackendMetadata.BackendMetadataOf(metadata),
+      isEditable: backend.case({
+        IndexedDB: () => true,
+        _: () => false,
+      }),
       dataset,
       setAsActive,
     }

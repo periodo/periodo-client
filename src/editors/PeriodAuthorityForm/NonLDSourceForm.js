@@ -1,30 +1,38 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , React = require('react')
-    , Immutable = require('immutable')
     , { RandomID } = require('../../util').hoc
     , { Flex, Box, Label, Heading, Input } = require('axs-ui')
     , { InputBlock, TextareaBlock, DefaultButton } = require('../../ui')
 
-class NonLDSourceForm extends React.Component {
+const emptyCreator = { name: '' }
+
+module.exports = RandomID(class NonLDSourceForm extends React.Component {
   constructor() {
     super();
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(e) {
-    const { source, onValueChange } = this.props
+    const { onValueChange } = this.props
         , { name, value } = e.target
 
-    onValueChange(
-      value
-        ? source.set(name, value)
-        : source.delete(name))
+    if (!onValueChange) return;
+
+    const fn = value
+      ? R.assoc(name, value)
+      : R.omit(name)
+
+    onValueChange(fn(this.props.value))
   }
 
   render() {
-    const { source, onValueChange } = this.props
+    const { onValueChange } = this.props
+        , value = this.props.value || {}
+
+
 
     return (
       h(Box, [
@@ -34,7 +42,7 @@ class NonLDSourceForm extends React.Component {
           name: 'citation',
           label: 'Citation (required)',
           helpText: `Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.`,
-          value: source.get('citation'),
+          value: value.citation || '',
           rows: 4,
           onChange: this.handleChange,
         }),
@@ -43,44 +51,46 @@ class NonLDSourceForm extends React.Component {
         h(InputBlock, {
           name: 'title',
           label: 'Title',
-          value: source.get('title'),
+          value: value.title || '',
           onChange: this.handleChange
         }),
 
         h(InputBlock, {
           name: 'url',
           label: 'URL',
-          value: source.get('url'),
+          value: value.url || '',
           onChange: this.handleChange
         }),
 
         h(InputBlock, {
           name: 'sameAs',
           label: 'Same as (read-only)',
-          value: source.get('sameAs'),
+          value: value.sameAs || '',
           disabled: true
         }),
 
         h(InputBlock, {
           name: 'yearPublished',
           label: 'Year published',
-          value: source.get('yearPublished'),
+          value: value.yearPublished || '',
           onChange: this.handleChange
         }),
 
 
-        ['creators', 'contributors'].map(field =>
-          h(Box, { key: field }, [
+        ['creators', 'contributors'].map(field => {
+          const list = R.defaultTo(R.prop(field, value), [emptyCreator])
+
+          return h(Box, { key: field }, [
             h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
-            h(Box, source.get(field, Immutable.fromJS([{ name: '' }])).map((agent, i) =>
+            h(Box, list.map((agent, i) =>
               h(Flex, { key: field + i }, [
                 h(Input, {
                   name: field,
                   id: this.props.randomID(field) + '-' + i,
-                  value: agent.get('name'),
+                  value: agent.name || '',
                   onChange: e => {
                     onValueChange(
-                      source.setIn([field, i, 'name'], e.target.value))
+                      R.assocPath([field, i, 'name'], e.target.value, value))
                   }
                 }),
 
@@ -89,9 +99,11 @@ class NonLDSourceForm extends React.Component {
                   ml: 1,
                   fontWeight: 'bold',
                   onClick: () => {
-                    onValueChange(
-                      source.update(field,
-                        cs => cs.splice(i + 1, 0, Immutable.Map({ name: '' }))))
+                    onValueChange(R.over(
+                      R.lensProp(field),
+                      cs => (cs || []).splice(i + 1, 0, emptyCreator),
+                      value
+                    ))
                   }
                 }, '+'),
 
@@ -100,20 +112,20 @@ class NonLDSourceForm extends React.Component {
                   ml: 1,
                   fontWeight: 'bold',
                   onClick: () => {
-                    onValueChange(
-                      source.update(field,
-                        cs => cs.size === 1
-                          ? cs.clear().push(Immutable.Map({ name: '' }))
-                          : cs.delete(i)))
+                    onValueChange(R.over(
+                      R.lensProp(field),
+                      cs => (cs || []).length < 2
+                        ? [emptyCreator]
+                        : cs.splice(i, 1),
+                      value
+                    ))
                   }
                 },'-')
               ])
-            ).toArray())
+            ))
           ])
-        )
+        })
       ])
     )
   }
-}
-
-module.exports = RandomID(NonLDSourceForm);
+})

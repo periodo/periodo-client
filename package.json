@@ -18,6 +18,8 @@
     "filesaver.js": "^0.1.1",
     "from2-array": "0.0.4",
     "fuzzy": "^0.1.0",
+    "hyperx": "^2.3.0",
+    "identifiers-doi": "^0.2.1",
     "immpatch": "^0.2.0",
     "immutable": "^3.7.2",
     "iso-639-3": "^0.2.0",

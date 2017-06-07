@@ -70,6 +70,7 @@ const BackendAction = makeActionType('backend', {
     {
       type: Backend,
       setAsActive: Boolean,
+      isEditable: Boolean,
       metadata: BackendMetadata,
       dataset: isDataset,
     }

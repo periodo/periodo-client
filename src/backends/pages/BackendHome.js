@@ -5,11 +5,14 @@ const h = require('react-hyperscript')
     , fromArray = require('from2-array')
     , React = require('react')
     , { connect } = require('react-redux')
+    , { Box } = require('axs-ui')
+    , { DefaultButton } = require('../../ui')
+    , { RouterKnower } = require('../../util').hoc
     , LayoutEngine = require('../../layout-engine/Engine')
 
 function mapStateToProps(state) {
   return {
-    backend: state.backends.current
+    backend: state.backends.current,
   }
 }
 
@@ -62,12 +65,21 @@ class BackendHome extends React.Component {
   }
 
   render() {
+    const { backend, generateRoute } = this.props
+
     return (
       h('div', [
-        h('h1', this.props.backend.metadata.label),
+        h('h1', backend.metadata.label),
+        backend.isEditable && h(Box, [
+          h(DefaultButton, {
+            is: 'a',
+            href: generateRoute('local-backend-add-authority', { id: backend.type.id }),
+            display: 'inline-block',
+          }, 'Add collection'),
+        ]),
         h(LayoutEngine, {
           createReadStream: () =>
-            fromArray.obj(getDefinitions(this.props.backend.dataset)),
+            fromArray.obj(getDefinitions(backend.dataset)),
 
           layouts: {
             statistics: require('../../layouts/Statistics'),
@@ -84,4 +96,7 @@ class BackendHome extends React.Component {
   }
 }
 
-module.exports = connect(mapStateToProps)(BackendHome)
+module.exports = R.compose(
+  connect(mapStateToProps),
+  RouterKnower,
+)(BackendHome)

@@ -5,7 +5,7 @@ const R = require('ramda')
     , contributorList = require('./contributor_list')
 
 function isLinkedData(source) {
-  const match = require('../linked-data/utils/source_ld_match')
+  const { match } = require('../linked-data/utils/source_ld_match')
 
   return !!match(R.path(['id'], source)) || !!match(R.path(['partOf', 'id'], source) || '');
 }

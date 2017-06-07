@@ -30,13 +30,13 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       GetBackend() {
-        const { metadata, dataset, type } = getResponse(action)
+        const { metadata, dataset, isEditable, type } = getResponse(action)
 
         localStorage.currentBackend = Backend.serialize(type)
 
         return R.set(
           R.lensProp('current'),
-          { metadata, dataset },
+          { metadata, dataset, isEditable, type },
           state
         )
       }

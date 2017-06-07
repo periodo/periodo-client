@@ -26,6 +26,18 @@ module.exports = [
   },
 
   {
+    name: 'local-backend-add-authority',
+    path: '/backends/local/:id/add/',
+    onBeforeRoute(dispatch, params) {
+      const id = parseInt(params.id)
+          , backend = Backend.IndexedDB(id)
+
+      return dispatch(actions.fetchBackend(backend))
+    },
+    Component: require('./pages/AddAuthority')
+  },
+
+  {
     name: 'web-backend-home',
     path: '/backends/web/:url/',
     onBeforeRoute(dispatch, params) {

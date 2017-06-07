@@ -24,7 +24,7 @@ function validate(periodization) {
   if (!source) {
     errors.source = ['A source is required for a period collection.'];
   } else if (!isLinkedData(source)) {
-    if (!source.get('citation') && !source.get('title')) {
+    if (!source.citation && !source.title) {
       errors.source = ['Non linked data sources must have a citation or title.'];
     }
   }
