@@ -59,7 +59,7 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
           }
         }, h(Icon, { name: 'refresh' })),
 
-        readyState && h(Box, {}, readyState.case({
+        readyState && h(Box, { display: 'inline', ml: 1 }, readyState.case({
           Pending: () => ([
             h(Spinner)
           ]),

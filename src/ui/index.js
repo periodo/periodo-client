@@ -13,4 +13,5 @@ addUIModules([
   require('./Buttons'),
   require('./Source'),
   require('./Alerts'),
+  require('./Tabs'),
 ])

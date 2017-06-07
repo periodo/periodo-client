@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box, Heading } = require('axs-ui')
-    , { PrimaryButton, TextareaBlock, InputBlock } = require('../../ui')
+    , { Box } = require('axs-ui')
+    , { TextareaBlock, InputBlock, Tabs } = require('../../ui')
     , { isLinkedData } = require('../../util').source
     , LDSourceForm = require('./LDSourceForm')
     , NonLDSourceForm = require('./NonLDSourceForm')
@@ -20,7 +20,7 @@ module.exports = class AuthorityForm extends React.Component {
     super();
 
     this.state = {
-      showLDForm: isLinkedData(props.value)
+      showLDForm: !props.value.source || isLinkedData(props.value)
     }
   }
 
@@ -28,55 +28,54 @@ module.exports = class AuthorityForm extends React.Component {
     const { showLDForm } = this.state
         , { value={}, onValueChange } = this.props
         , cancel = onValueChange ? false : R.always(null)
-        , SourceForm = showLDForm ? LDSourceForm : NonLDSourceForm
+
+    const sourceFormElement = h(showLDForm ? LDSourceForm : NonLDSourceForm, {
+      value: value.source,
+      onValueChange: cancel || R.pipe(
+        R.set(lenses.source, R.__, value),
+        onValueChange
+      ),
+    })
 
     return (
       h(Box, [
-        h(Flex, [
-          h(Box, { width: .5 }, [
-            h(Heading, { level: 2 }, 'Source'),
-            h(SourceForm, {
-              value: value.source || null,
-              onValueChange: cancel || R.pipe(
-                R.set(lenses.source, R.__, value),
-                onValueChange
-              ),
-            }),
+        h(Tabs, {
+          tabs: [
+            {
+              key: 'ld',
+              label: 'Linked data source',
+              element: sourceFormElement,
+            },
+            {
+              key: 'non-ld',
+              label: 'Linked data source',
+              element: sourceFormElement,
+            }
+          ],
+          value: showLDForm ? 'ld' : 'non-ld',
+          onChange: val => {
+            this.setState({ showLDForm: val === 'ld' })
+          },
+        }),
 
-            h(InputBlock, {
-              mt: 2,
-              label: 'Locator',
-              disabled: !value.source,
-              value: (value.source || {}).locator || '',
-              onChange: cancel || R.pipe(
-                R.path(['target', 'value']),
-                R.assoc(lenses.locator, R.__, value),
-                onValueChange
-              ),
-              helpText: `
-                If all periods are defined on a single page within this source,
-                include that page number here. Otherwise, include a locator for
-                individual period definitions as you create them.
-              `
-              })
-          ]),
+        h(InputBlock, {
+          mt: 2,
+          label: 'Locator',
+          disabled: !value.source,
+          value: (value.source || {}).locator || '',
+          onChange: cancel || R.pipe(
+            R.path(['target', 'value']),
+            R.assoc(lenses.locator, R.__, value),
+            onValueChange
+          ),
+          helpText: `
+            If all periods are defined on a single page within this source,
+            include that page number here. Otherwise, include a locator for
+            individual period definitions as you create them.
+          `
+        }),
 
-          // FIXME: This is stupid
-          h(Box, { width: .5 }, [
-            h(PrimaryButton, {
-              onClick: () => {
-                this.setState(R.over(R.lensProp('showLDForm'), R.not))
-              }
-            }, [
-              'My source is ',
-              isLinkedData ? h('strong', ' not ') : '',
-              'linked data ›'
-            ])
-          ])
-        ]),
-
-        h(Box, { width: .33 }, [
-          h(Heading, { level: 2 }, 'About'),
+        h(Box, [
           h(TextareaBlock, {
             name: 'editorial-note',
             label: 'Editorial notes',
