@@ -16,9 +16,9 @@ function describe(authority) {
   }
 }
 
-function validate(periodization) {
+function validate(authority) {
   const { isLinkedData } = require('./source')
-      , source = periodization.get('source')
+      , source = authority.get('source')
       , errors = {}
 
   if (!source) {
@@ -32,10 +32,10 @@ function validate(periodization) {
   return Object.keys(errors).length ? null : errors;
 }
 
-function asCSV(periodization) {
+function asCSV(authority) {
   const { getEarliestYear, getLatestYear } = require('./terminus')
 
-  return d3.csv.format(periodization.get('definitions').map(period => {
+  return d3.csv.format(authority.get('definitions').map(period => {
     const start = period.get('start')
         , stop = period.get('stop')
 
