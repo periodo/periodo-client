@@ -3,9 +3,8 @@
 const h = require('react-hyperscript')
     , { Flex, Box } = require('axs-ui')
 
-const TabItem = ({ key, label, isSelected, isLast, onClick }) =>
+const TabItem = ({ label, isSelected, isLast, onClick }) =>
   h(Box, {
-    key,
     p: 2,
     center: true,
     border: 1,
@@ -30,27 +29,26 @@ const TabItem = ({ key, label, isSelected, isLast, onClick }) =>
 
 exports.Tabs = props =>
   h(Box, [
-
     h(Flex, {
       alignItems: 'center',
-    }, props.tabs.map(({ key, label }, i) =>
+    }, props.tabs.map(({ id, label }, i) =>
       h(TabItem, {
-        key,
+        key: id,
         label,
-        isSelected: props.value === key,
+        isSelected: props.value === id,
         isLast: i === props.tabs.length - 1,
-        onClick: () => props.onChange(key),
+        onClick: () => props.onChange(id),
       })
     )),
 
-    h(Box, props.tabs.map(({ key, element }) => 
+    h(Box, props.tabs.map(({ id, element }) => 
       h(Box, {
-        key,
+        key: id,
         p: 2,
         border: 1,
         borderTop: 0,
         borderColor: 'gray4',
-        display: props.value === key ? 'none' : 'block'
+        display: props.value === id ? 'none' : 'block'
       }, element)
     ))
   ])

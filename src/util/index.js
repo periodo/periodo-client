@@ -15,4 +15,5 @@ module.exports = {
   source: require('./source'),
   terminus: require('./terminus'),
   terminusList: require('./terminus_list'),
+  types: require('./types'),
 }

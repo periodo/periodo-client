@@ -16,22 +16,6 @@ function describe(authority) {
   }
 }
 
-function validate(authority) {
-  const { isLinkedData } = require('./source')
-      , source = authority.get('source')
-      , errors = {}
-
-  if (!source) {
-    errors.source = ['A source is required for a period collection.'];
-  } else if (!isLinkedData(source)) {
-    if (!source.citation && !source.title) {
-      errors.source = ['Non linked data sources must have a citation or title.'];
-    }
-  }
-
-  return Object.keys(errors).length ? null : errors;
-}
-
 function asCSV(authority) {
   const { getEarliestYear, getLatestYear } = require('./terminus')
 

@@ -10,9 +10,9 @@ function makeAlert(color) {
     rounded: true,
     fontSize: 4,
 
-    bg: config[`${color}2`],
-    color: config[`${color}9`],
-    borderColor: config[`${color}6`],
+    bg: `${color}2`,
+    color: `${color}9`,
+    borderColor: `${color}6`,
   })
 }
 

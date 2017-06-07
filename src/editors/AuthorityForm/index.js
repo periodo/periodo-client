@@ -4,8 +4,10 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box } = require('axs-ui')
-    , { TextareaBlock, InputBlock, Tabs } = require('../../ui')
+    , { TextareaBlock, InputBlock, Tabs, PrimaryButton, Errors } = require('../../ui')
     , { isLinkedData } = require('../../util').source
+    , Validated = require('../Validated')
+    , { validateAuthority } = require('../validate')
     , LDSourceForm = require('./LDSourceForm')
     , NonLDSourceForm = require('./NonLDSourceForm')
 
@@ -15,7 +17,7 @@ const lenses = {
   editorialNote: R.lensProp('editorialNote'),
 }
 
-module.exports = class AuthorityForm extends React.Component {
+module.exports = Validated(validateAuthority, class AuthorityForm extends React.Component {
   constructor(props) {
     super();
 
@@ -26,7 +28,7 @@ module.exports = class AuthorityForm extends React.Component {
 
   render() {
     const { showLDForm } = this.state
-        , { value={}, onValueChange } = this.props
+        , { value={}, onValueChange, errors } = this.props
         , cancel = onValueChange ? false : R.always(null)
 
     const sourceFormElement = h(showLDForm ? LDSourceForm : NonLDSourceForm, {
@@ -39,15 +41,17 @@ module.exports = class AuthorityForm extends React.Component {
 
     return (
       h(Box, [
+        errors.source && h(Errors, { mb: 2, errors: errors.source }),
+
         h(Tabs, {
           tabs: [
             {
-              key: 'ld',
+              id: 'ld',
               label: 'Linked data source',
               element: sourceFormElement,
             },
             {
-              key: 'non-ld',
+              id: 'non-ld',
               label: 'Linked data source',
               element: sourceFormElement,
             }
@@ -75,21 +79,28 @@ module.exports = class AuthorityForm extends React.Component {
           `
         }),
 
+        h(TextareaBlock, {
+          mt: 2,
+          name: 'editorial-note',
+          label: 'Editorial notes',
+          helpText: 'Notes about importing this source',
+          rows: 5,
+          value: value.editorialNote || '',
+          onChange: cancel || R.pipe(
+            R.path(['target', 'value']),
+            R.assoc(lenses.editorialNote, R.__, value),
+            onValueChange
+          )
+        }),
+
         h(Box, [
-          h(TextareaBlock, {
-            name: 'editorial-note',
-            label: 'Editorial notes',
-            helpText: 'Notes about importing this source',
-            rows: 5,
-            value: value.editorialNote || '',
-            onChange: cancel || R.pipe(
-              R.path(['target', 'value']),
-              R.assoc(lenses.editorialNote, R.__, value),
-              onValueChange
-            )
-          })
-        ])
+          h(PrimaryButton, {
+            onClick: () => this.props.validate(value, res => {
+              console.log(res)
+            })
+          }, 'Save'),
+        ]),
       ])
     )
   }
-}
+})
