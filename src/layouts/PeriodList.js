@@ -1,16 +1,16 @@
 "use strict";
 
-const Immutable = require('immutable')
-    , h = require('react-hyperscript')
-    , { getEarliestYear, getLatestYear } = require('../../util').terminus
-    , { authorityOf } = require('../../util/period')
-    , { displayTitle } = require('../../util/source')
-    , { RouterKnower } = require('../../util/hoc')
+const h = require('react-hyperscript')
+    , R = require('ramda')
+    , { earliestYear, latestYear } = require('../util').terminus
+    , { authorityOf } = require('../util/period')
+    , { displayTitle } = require('../util/source')
+    , { RouterKnower } = require('../util/hoc')
+    , { periodsWithAuthority } = require('../util/authority')
     , { Box } = require('axs-ui')
+    , List = require('./List')
 
-
-
-module.exports = {
+const columns = {
   label: {
     label: 'Label',
     getValue(period) {
@@ -37,16 +37,16 @@ module.exports = {
 
   start: {
     label: 'Start',
-    getValue(period) {
-      const start = period.get('start')
 
-      return start ? getEarliestYear(start) : '(not given)'
+    getValue(period) {
+      return earliestYear(period.start) || '(not given)'
     },
+
     sort(a, b, rev) {
       const mult = rev ? -1 : 1
 
-      a = getEarliestYear(a.get('start', Immutable.Map()));
-      b = getEarliestYear(b.get('start', Immutable.Map()));
+      a = earliestYear(a.start || {})
+      b = earliestYear(b.start || {})
 
       if (a === b) return 0;
       if (a == null) return -1;
@@ -59,15 +59,13 @@ module.exports = {
   stop: {
     label: 'Stop',
     getValue(period) {
-      const stop = period.get('stop')
-
-      return stop ? getEarliestYear(stop) : '(not given)'
+      return latestYear(period.stop) || '(not given)'
     },
     sort(a, b, rev) {
       const mult = rev ? -1 : 1
 
-      a = getLatestYear(a.get('stop', Immutable.Map()));
-      b = getLatestYear(b.get('stop', Immutable.Map()));
+      a = latestYear(a.stop || {})
+      b = latestYear(b.stop || {})
 
       if (a === b) return 0;
       if (a == null) return -1;
@@ -77,3 +75,19 @@ module.exports = {
     }
   }
 }
+
+const defaultOpts = {
+  limit: 20,
+  start: 0,
+  selected: [],
+  shownColumns: ['label', 'start', 'stop'],
+}
+
+
+exports.handler = List(
+  'Period List',
+  'Selectable list of periods.',
+  defaultOpts,
+  R.map(periodsWithAuthority),
+  columns,
+)

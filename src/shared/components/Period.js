@@ -1,33 +1,53 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , Immutable = require('immutable')
     , linkify = require('../../utils/linkify')
+    , { getOriginalLabel, getAlternateLabels } = require('../../util').period
+    , { groupByCode } = require('../../util').label
 
-
-const { groupByCode } = require('../../utils/label')
-
-
-const OriginalLabel = ({ value, language, script }) =>
-  h('div', [
-    h('dt', 'Original label'),
-    h('dd', `${value} (${language}-${script})`)
-  ])
-
-const AlternateLabels = ({ alternateLabels }) =>
-  alternateLabels.size > 0 && h('div', [
-    h('dt', 'Alternate labels'),
-    h('dd',
-      h('ul', groupByCode(alternateLabels)
-        .map((labels, code) => labels.map(label => Immutable.Map({ label, code })))
-        .toList()
-        .flatten(1)
-        .map(label =>
-          h('li', { key: label.hashCode() }, `${label.get('label')} (${label.get('code')})`)
-        )
+function Field({ label, value }) {
+  return (
+    h(Box, [
+      h(Box, { is: 'dt' }, label),
+      h(Box, { is: 'dd' }, !Array.isArray(value)
+        ? value
+        : h('ul', value.map(val =>
+            h('li', { key: val }, val)
+          ))
       )
+    ])
+  )
+}
+
+const fields = [
+  {
+    label: 'Original label',
+    getValue: R.pipe(
+      getOriginalLabel,
+      d => `${d.value} (${d.language}-${d.script})`)
+  },
+
+  {
+    label: 'Alternate labels',
+    getValue: R.pipe(
+      getAlternateLabels,
+      R.sortWith([
+        R.ascend(x => `${x.language}-${x.script}`),
+        R.ascend(R.prop('value')),
+      ])
+    ),
+    render: d => `${d.value} (${d.language}-${d.script})`
+  },
+  {
+    label: 'Alternate labels',
+    getValue: R.pipe(
+
     )
-  ])
+  }
+]
+
 
 const SpatialCoverage = ({ spatialCoverage, linkify }) =>
   spatialCoverage.size > 0 && h('div', [

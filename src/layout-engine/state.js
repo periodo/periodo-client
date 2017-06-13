@@ -52,7 +52,8 @@ module.exports = function parseEngineSpec(registeredLayouts, createReadStream, s
 
     R.forEach(layoutSpec => {
       const { props=emptyObj, opts=emptyObj, name } = layoutSpec
-          , { deriveOpts=R.identity, handler, filterItems } = _getLayout(name)
+          , { handler } = _getLayout(name)
+          , { deriveOpts=R.identity, filterItems } = handler
           , derivedOpts = deriveOpts(opts)
 
       if (filterItems) {

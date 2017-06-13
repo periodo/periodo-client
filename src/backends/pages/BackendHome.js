@@ -25,7 +25,6 @@ class BackendHome extends React.Component {
         groups: [
           {
             layouts: [
-              { name: 'statistics' },
               { name: 'list' },
             ]
           }
