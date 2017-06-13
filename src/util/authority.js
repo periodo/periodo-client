@@ -3,6 +3,14 @@
 const R = require('ramda')
     , source = require('./source')
     , terminusList = require('./terminus_list')
+    , { $$Authority } = require('./symbols')
+
+function periodsWithAuthority(authority) {
+  return R.map(
+    R.assoc($$Authority, authority),
+    R.values(authority.definitions)
+  )
+}
 
 function describe(authority) {
   const definitions = R.values(authority.definitions || {})
@@ -42,5 +50,6 @@ function asCSV(authority) {
 }
 
 module.exports = {
-  describe
+  describe,
+  periodsWithAuthority,
 }

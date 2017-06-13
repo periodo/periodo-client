@@ -1,11 +1,12 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , Immutable = require('immutable')
     , { Box } = require('axs-ui')
     , columns = require('./columns')
-    , { Hoverable } = require('../../util/hoc')
     , Consumer = require('../Consumer')
+    , { periodsWithAuthority } = require('../../util/authority')
 
 
 exports.filterItems = function (getRecord, opts) {
@@ -21,23 +22,37 @@ exports.defaultOpts = {
   shownColumns: Immutable.OrderedSet(['label', 'start', 'stop']),
 }
 
-const ListRow = Hoverable(props =>
+const ListRow = props =>
   h(Box, {
     is: 'tr',
-    bg: props.hovered ? '#e4e2e0' : undefined,
+    css: {
+      ':hover': {
+        backgroundColor: '#e4e2e0',
+      }
+    }
   }, props.columns.map(col =>
     h('td', { key: col.label }, col.getValue(props.period))
   ))
-)
 
-const PeriodList = Consumer('periods', 1000, props => {
-  const { periods } = props
+
+const next = (prev, items) => {
+  return R.transduce(
+    R.map(periodsWithAuthority),
+    R.concat,
+    prev || [],
+    items
+  )
+}
+
+
+const PeriodList = Consumer(next, Infinity, props => {
+  const periods = props.data
       , start = 0
       , limit = 50
 
-  const shownPeriods = periods.slice(0, 50)
+  const shownPeriods = periods.slice(start, limit)
 
-  const shownColumns = ['label', 'spatialCoverage']
+  const shownColumns = ['label', 'spatialCoverage', 'source']
 
   return (
     h(Box, [
@@ -55,8 +70,8 @@ const PeriodList = Consumer('periods', 1000, props => {
         ]),
 
 
-        shownPeriods.map(period => [
-          h('tbody', [
+        h('tbody',
+          shownPeriods.map(period => [
             h(ListRow, {
               key: period.id,
               period,
@@ -75,7 +90,7 @@ const PeriodList = Consumer('periods', 1000, props => {
               */
             })
           ])
-        ])
+        )
       ])
 
     ])

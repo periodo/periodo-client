@@ -8,20 +8,13 @@ const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
     , { DefaultButton } = require('../../ui')
     , { RouterKnower } = require('../../util').hoc
-    , LayoutEngine = require('../../layout-engine/Engine')
+    , PeriodoLayoutEngine = require('../../layouts/PeriodoLayoutEngine')
 
 function mapStateToProps(state) {
   return {
     backend: state.backends.current,
   }
 }
-
-const getDefinitions = R.pipe(
-  R.prop('periodCollections'),
-  R.map(R.pipe(R.prop('definitions'), R.values)),
-  R.values,
-  R.flatten,
-)
 
 class BackendHome extends React.Component {
   constructor() {
@@ -32,21 +25,8 @@ class BackendHome extends React.Component {
         groups: [
           {
             layouts: [
-              { name: 'text' },
-            ]
-          },
-
-          {
-            layouts: [
               { name: 'statistics' },
-              {
-                name: 'list',
-                props: {
-                  css: {
-                    minHeight: '500px',
-                  }
-                }
-              },
+              { name: 'list' },
             ]
           }
         ]
@@ -77,19 +57,11 @@ class BackendHome extends React.Component {
             display: 'inline-block',
           }, 'Add collection'),
         ]),
-        h(LayoutEngine, {
-          createReadStream: () =>
-            fromArray.obj(getDefinitions(backend.dataset)),
 
-          layouts: {
-            statistics: require('../../layouts/Statistics'),
-            list: require('../../layouts/PeriodList'),
-            text: require('../../layouts/TextSearch'),
-          },
-
+        h(PeriodoLayoutEngine, {
+          backend,
           spec: this.state.spec,
-
-          updateLayoutOpts: this.updateLayoutOpts,
+          updateLayoutOpts: this.updateLayoutOpts.bind(this)
         }),
       ])
     )

@@ -2,6 +2,7 @@
 
 const test = require('tape')
     , util = require('../')
+    , symbols = require('../symbols')
 
 
 
@@ -77,7 +78,7 @@ test('Period authority utility functions', t => {
 });
 
 test('Authority sequence utility functions', t => {
-  t.plan(1);
+  t.plan(4);
 
   const data = [
     {
@@ -122,6 +123,22 @@ test('Authority sequence utility functions', t => {
       ]
     },
   ];
+
+  t.equal(
+    util.authorityList.periods(data)[0][symbols.$$Authority],
+    data[0],
+    'should associate periods with collections via the $$Authority symbol.'
+  )
+
+  const a = util.authorityList.periods(data)
+      , b = util.authorityList.periods(data)
+
+  t.notEqual(a[0], b[0], 'periods should not be strictly equivalent')
+  t.equal(
+    util.period.periodWithAuthority(a[0]).period,
+    util.period.periodWithAuthority(b[0]).period,
+    'but should contain references that can use strict equivalence'
+  )
 
 
   t.deepEqual(

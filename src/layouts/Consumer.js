@@ -4,13 +4,13 @@ const h = require('react-hyperscript')
     , React = require('react')
     , through = require('through2')
 
-module.exports = function makeConsumer(itemArrayKey, stepToRender, Component) {
+module.exports = function makeConsumer(next, stepToRender, Component) {
   return class Consumer extends React.Component {
     constructor() {
       super();
 
       this.state = {
-        [itemArrayKey]: [],
+        data: next(undefined, []),
         finished: false,
       }
     }
@@ -27,14 +27,17 @@ module.exports = function makeConsumer(itemArrayKey, stepToRender, Component) {
       const items = []
 
       const flush = () => {
-        this.setState(prev => ({
-          [itemArrayKey]: prev[itemArrayKey].concat(items.splice(0, Infinity))
-        }))
+        this.setState(prev => {
+          return {
+            data: next(prev.data, items),
+          }
+        })
       }
 
       const consume = () => {
         this.props.stream
           .pipe(through.obj((data, enc, cb) => {
+
             items.push(data)
 
             i++
@@ -53,10 +56,9 @@ module.exports = function makeConsumer(itemArrayKey, stepToRender, Component) {
       }
 
       this.setState({
-        [itemArrayKey]: [],
+        data: next(undefined, []),
         finished: false
       }, consume)
-
     }
 
     render() {

@@ -1,11 +1,12 @@
 "use strict";
 
 const R = require('ramda')
+    , { periodsWithAuthority } = require('./authority')
 
 // Iterable<Authority> -> List<Period>
 //
 // Get all of the individual periods within the sequence of authorities.
-const periods = R.chain(R.prop('definitions'))
+const periods = R.chain(periodsWithAuthority)
 
 const spatialCoverageCounts = R.pipe(
   R.map(p => p.spatialCoverage.map(

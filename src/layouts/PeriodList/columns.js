@@ -1,7 +1,14 @@
 "use strict";
 
 const Immutable = require('immutable')
+    , h = require('react-hyperscript')
     , { getEarliestYear, getLatestYear } = require('../../util').terminus
+    , { authorityOf } = require('../../util/period')
+    , { displayTitle } = require('../../util/source')
+    , { RouterKnower } = require('../../util/hoc')
+    , { Box } = require('axs-ui')
+
+
 
 module.exports = {
   label: {
@@ -16,6 +23,16 @@ module.exports = {
     getValue(period) {
       return period.spatialCoverageDescription
     },
+  },
+
+  source: {
+    label: 'Source',
+    getValue(period) {
+      return h(RouterKnower(Box), [
+        displayTitle(authorityOf(period).source),
+        h('a', { href: '#' }, '(link)')
+      ])
+    }
   },
 
   start: {
