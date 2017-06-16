@@ -21,10 +21,9 @@ module.exports = function makeList(label, description, defaultOpts, xf, columns)
 
   const Component = Consumer(next, Infinity, props => {
     const items = props.data
-        , { start, limit } = props
+        , { start, limit, shownColumns } = props
 
     const shownItems = items.slice(start, limit)
-        , shownColumns = ['label', 'spatialCoverage', 'source']
 
     return (
       h(Box, [
@@ -52,9 +51,9 @@ module.exports = function makeList(label, description, defaultOpts, xf, columns)
                     backgroundColor: '#e4e2e0',
                   }
                 }
-              }, R.values(props.columns).map(
+              }, R.values(R.pick(shownColumns, columns)).map(
                 col =>
-                  h('td', { key: col.label }, col.getValue(item))
+                  h('td', { key: col.label }, col.getValue(item, props.backend))
               ))
             )
           )

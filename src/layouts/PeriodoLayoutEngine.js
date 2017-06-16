@@ -13,6 +13,7 @@ const PeriodoLayoutEngine = props =>
     layouts: {
       statistics: require('../layouts/Statistics'),
       list: require('../layouts/PeriodList'),
+      authorityList: require('../layouts/AuthorityList'),
       text: require('../layouts/TextSearch'),
     },
     spec: props.spec,
