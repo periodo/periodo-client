@@ -4,7 +4,6 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , LayoutEngine = require('../layout-engine/Engine')
     , fromArray = require('from2-array')
-    , { periodsWithAuthority } = require('../util/authority')
 
 const PeriodoLayoutEngine = props =>
   h(LayoutEngine, {
@@ -18,6 +17,9 @@ const PeriodoLayoutEngine = props =>
     },
     spec: props.spec,
     updateLayoutOpts: props.updateLayoutOpts,
+    extra: {
+      backend: props.backend,
+    }
   })
 
 module.exports = PeriodoLayoutEngine;

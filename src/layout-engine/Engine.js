@@ -12,11 +12,11 @@ const h = require('react-hyperscript')
 
 class Layout extends React.Component {
   render() {
-    const { layout, updateOpts, stream } = this.props
+    const { layout, updateOpts, stream, extra } = this.props
         , { handler, props, derivedOpts } = layout
         , { Component } = handler
 
-    return h(Box, props, h(Component, Object.assign({}, derivedOpts, {
+    return h(Box, props, h(Component, Object.assign({}, derivedOpts, extra, {
       updateOpts,
       stream
     })))
@@ -81,7 +81,8 @@ class LayoutEngine extends React.Component {
   }
 
   render() {
-    const { groups, layoutStreams } = this.state
+    const { extra } = this.props
+        , { groups, layoutStreams } = this.state
 
     return (
       h(Box, groups.map((group, i) =>
@@ -91,6 +92,7 @@ class LayoutEngine extends React.Component {
           h(Layout, {
             key: j + layout.name,
             layout,
+            extra,
             stream: R.path([i, j], layoutStreams),
             updateOpts: this.updateLayoutOpts(i, j)
           })
@@ -105,6 +107,7 @@ LayoutEngine.propTypes = {
   layouts: PropTypes.object.isRequired,
   spec: PropTypes.object,
   updateLayoutOpts: PropTypes.func.isRequired,
+  extra: PropTypes.object,
 }
 
 module.exports = LayoutEngine;
