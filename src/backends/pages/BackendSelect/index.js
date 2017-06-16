@@ -7,17 +7,12 @@ const h = require('react-hyperscript')
     , { Backend } = require('../../types')
     , { addBackend } = require('../../actions')
     , { RouterKnower } = require('../../../util').hoc
+    , { urlParam } = require('../../utils')
 
 function mapStateToProps(state) {
   return {
     backends: state.backends.available || []
   }
-}
-
-function getRouteParams(backend) {
-  return backend.type._name === 'IndexedDB'
-    ? ['local-backend-home', { id: backend.type.id }]
-    : ['web-backend-home', { url: backend.type.url }]
 }
 
 const BackendSelect = props =>
@@ -38,7 +33,9 @@ const BackendSelect = props =>
           h('td', backend.type._name),
           h('td', [
             h('a', {
-              href: props.generateRoute(...getRouteParams(backend))
+              href: props.generateRoute('backend-home', {
+                identifier: urlParam(backend.type)
+              })
             }, backend.metadata.label)
           ]),
           h('td', backend.metadata.description),

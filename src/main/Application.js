@@ -49,7 +49,7 @@ class Application extends React.Component {
     document.addEventListener('click', this.handlePageClick.bind(this));
   }
 
-  async handleRoute({ onBeforeRoute=noop, Component, params, queryParams }) {
+  async handleRoute({ onBeforeRoute=noop, Component, params, queryParams, pathname }) {
     const { dispatch } = this.props
 
     let redirectHash
@@ -61,10 +61,10 @@ class Application extends React.Component {
     this.setState({ loadingNewPage: true })
 
     try {
-      await onBeforeRoute(dispatch, params, queryParams, redirect);
+      await onBeforeRoute(dispatch, params, queryParams, redirect, pathname);
 
       if (!redirectHash) {
-        this.setState({ activeComponent: h(Component) })
+        this.setState({ activeComponent: h(Component, queryParams) })
       } else {
         setTimeout(() => {
           window.location.hash = redirectHash;

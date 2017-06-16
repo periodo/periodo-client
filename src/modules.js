@@ -25,7 +25,7 @@ const Resource = Type({ Resource: {
   // Don't really know how to make sure that this is a valid react component
   // (which could also be a purely functional component). Just check whether
   // it is defined, and it will explode if it doesn't render.
-  Component: x => !!x,
+  Component: x => x === undefined || !!x,
 }})
 
 // badly named method but I don't particularly care

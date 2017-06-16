@@ -23,7 +23,18 @@ function getCurrentBackend() {
   }
 }
 
+function urlParam(backend) {
+  return backend.case({
+    IndexedDB: id => `local-${id}`,
+    Web: url => `web-${url}`,
+    _: () => {
+      throw new Error('not yet')
+    }
+  })
+}
+
 module.exports = {
   getCurrentBackend,
   makeEmptyDataset,
+  urlParam,
 }

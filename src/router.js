@@ -23,7 +23,7 @@ function populate() {
 function match(path) {
   populate();
 
-  const { pathname, query } = url.parse(path)
+  const { pathname, query } = url.parse(path, true)
 
   for (const routeDef of resources) {
     const { route, onBeforeRoute, Component } = routeDef
@@ -32,6 +32,7 @@ function match(path) {
     if (_match) {
       return {
         params: _match,
+        pathname,
         queryParams: query,
         onBeforeRoute,
         Component,

@@ -3,6 +3,7 @@
 const url = require('url')
     , Type = require('union-type')
     , makeActionType = require('../typed-actions/make_type')
+    , { generateRoute } = require('../router')
 
 function isDataset(obj) {
   return (

@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { generateRoute } = require('../router')
-    , { getCurrentBackend } = require('../backends/utils')
+    , { getCurrentBackend, urlParam } = require('../backends/utils')
 
 module.exports = [
   {
@@ -14,13 +14,7 @@ module.exports = [
 
       redirect(!currentBackend
         ? generateRoute('backend-select')
-        : currentBackend.case({
-            IndexedDB: () => generateRoute('local-backend-home', currentBackend),
-            Web: () => generateRoute('web-backend-home', currentBackend),
-            _: () => {
-              throw new Error('not yet')
-            }
-          })
+        : generateRoute('backend-home', { identifier: urlParam(currentBackend) })
       )
     }
   }

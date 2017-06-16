@@ -25,7 +25,7 @@ class BackendHome extends React.Component {
         groups: [
           {
             layouts: [
-              { name: 'list' },
+              { name: 'authorityList' },
             ]
           }
         ]
@@ -52,7 +52,7 @@ class BackendHome extends React.Component {
         backend.isEditable && h(Box, [
           h(DefaultButton, {
             is: 'a',
-            href: generateRoute('local-backend-add-authority', { id: backend.type.id }),
+            href: generateRoute('backend-add-authority', { identifier: 'local-' + backend.type.id }),
             display: 'inline-block',
           }, 'Add collection'),
         ]),
