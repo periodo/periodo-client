@@ -1,5 +1,7 @@
 "use strict";
 
+const url = require('url')
+
 // Truncate a number to n left-most digits, rounding up for positive numbers
 // and down for negative numbers.
 //
@@ -22,8 +24,23 @@ function oneOf(...candidates) {
   }
 }
 
+function isURL(str) {
+  if (!(typeof str === 'string')) {
+    throw new Error('URL must be a string')
+  }
+
+  const { protocol, host } = url.parse(str)
+
+  if (!(protocol && host)) {
+    throw new Error(`Invalid URL: ${str}`);
+  }
+
+  return true;
+}
+
+
 module.exports = {
   truncateNumber,
   oneOf,
+  isURL,
 }
-

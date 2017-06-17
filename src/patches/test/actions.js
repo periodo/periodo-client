@@ -10,7 +10,7 @@ const test = require('blue-tape')
     , { getResponse, getReadyState } = require('../../typed-actions/utils')
     , patchActions = require('../actions')
     , { PatchDirection } = require('../types')
-    , makeMockStore = require('../../shared/mock_store')
+    , makeMockStore = require('../../shared/store_mock')
 
 
 test('Patch generation actions', async t => {
