@@ -146,7 +146,7 @@ module.exports = React.createClass({
                           height: '22px',
                           width: '80px',
                           marginLeft: '6px'
-                        }} src="lib/noun_433_cc.svg" />
+                        }} src="assets/noun_433_cc.svg" />
                       </a>
                     </td>
 
@@ -158,7 +158,7 @@ module.exports = React.createClass({
                               height: '22px',
                               width: '80px',
                               marginLeft: '6px'
-                            }} src="lib/noun_304_cc.svg" />
+                            }} src="assets/noun_304_cc.svg" />
                           </a>
                       }
                     </td>
