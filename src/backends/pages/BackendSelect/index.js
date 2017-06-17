@@ -3,10 +3,10 @@
 const h = require('react-hyperscript')
     , { compose } = require('redux')
     , { connect } = require('react-redux')
+    , { RouterKnower } = require('lib/util/hoc')
     , BackendForm = require('./Form')
     , { Backend } = require('../../types')
     , { addBackend } = require('../../actions')
-    , { RouterKnower } = require('../../../util').hoc
     , { urlParam } = require('../../utils')
 
 function mapStateToProps(state) {

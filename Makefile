@@ -6,6 +6,8 @@ PROJECT_NAME = periodo
 
 NPM_BIN = node_modules/.bin
 
+NODE_PATH_PREAMBLE = NODE_PATH="."
+
 BROWSERIFY_ENTRY = src/index.js
 CSS_ENTRY = style/main.css
 
@@ -52,11 +54,11 @@ serve:
 	python3 -m http.server 8020
 
 test:
-	npm test
+	$(NODE_PATH_PREAMBLE) npm test
 
 watch: node_modules | dist
 	$(NPM_BIN)/postcss $(POSTCSS_OPTS) $(CSS_ENTRY) -o $(CSS_BUNDLE)
-	$(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
+	$(NODE_PATH_PREAMBLE) $(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
 
 
 .PHONY: all zip clean serve watch test
@@ -73,7 +75,7 @@ node_modules: package.json
 	npm install
 
 $(VERSIONED_JS_BUNDLE): $(JS_FILES) | dist
-	NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
+	$(NODE_PATH_PREAMBLE) NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
 
 $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
 	$(NPM_BIN)/babili $< -o $@

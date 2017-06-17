@@ -3,9 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { RandomID } = require('../../util').hoc
+    , { RandomID } = require('lib/util/hoc')
     , { Flex, Box, Label, Heading, Input } = require('axs-ui')
-    , { InputBlock, TextareaBlock, DefaultButton } = require('../../ui')
+    , { InputBlock, TextareaBlock, DefaultButton } = require('lib/ui')
 
 const emptyCreator = { name: '' }
 

@@ -1,8 +1,8 @@
 "use strict";
 
 const R = require('ramda')
-    , { Result } = require('../util/types')
-    , terminus = require('../util/terminus')
+    , { Result } = require('lib/util/types')
+    , terminus = require('lib/util/terminus')
 
 function addError(obj, label, err) {
   return R.over(

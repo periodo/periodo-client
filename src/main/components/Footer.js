@@ -37,20 +37,20 @@ const Footer = ({ errors }) =>
       Logo({
         href: 'http://perio.do/',
         title: 'PeriodO project',
-        src: 'lib/periodo-logo.svg'
+        src: 'assets/periodo-logo.svg'
       }),
 
       Logo({
         href: 'http://imls.gov',
         title: 'Institute of Museum and Library Services',
-        src: 'lib/imls_logo_2c.svg',
+        src: 'assets/imls_logo_2c.svg',
         height: 112
       }),
 
       Logo({
         href: 'http://neh.gov',
         title: 'National Endowment for the Humanities',
-        src: 'lib/neh-logo.svg',
+        src: 'assets/neh-logo.svg',
         height: 78 }),
 
     ])

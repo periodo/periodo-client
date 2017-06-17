@@ -3,9 +3,9 @@
 const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , LabelForm = require('./LabelForm')
-    , { RandomID } = require('../../util').hoc
+    , { RandomID } = require('lib/util/hoc')
     , { Flex, Box, Label, Textarea } = require('axs-ui')
-    , { InputBlock, Debug } = require('../../ui')
+    , { InputBlock, Debug } = require('lib/ui')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
 
 const PeriodForm = ({

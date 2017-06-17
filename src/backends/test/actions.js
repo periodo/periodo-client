@@ -4,7 +4,7 @@ global.RETHROW_ERRORS = true;
 
 const test = require('blue-tape')
     , R = require('ramda')
-    , makeMockStore = require('../../shared/mock_store')
+    , makeMockStore = require('../../store_mock')
     , { ReadyState } = require('../../typed-actions/types')
     , actions = require('../actions')
     , { Backend, BackendMetadata } = require('../types')

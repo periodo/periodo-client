@@ -5,7 +5,7 @@ const test = require('tape')
 test('Period validation', t => {
   t.plan(5);
 
-  const utils = require('../utils/period');
+  const utils = require('lib/utils/period');
 
   const data = Immutable.fromJS({
     nothing: {},

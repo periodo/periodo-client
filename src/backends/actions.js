@@ -3,7 +3,7 @@
 const { formatPatch } = require('../patches/utils/patch')
     , { Backend, BackendAction, BackendMetadata } = require('./types')
     , { makeEmptyDataset } = require('./utils')
-    , { NotImplementedError } = require('../shared/errors')
+    , { NotImplementedError } = require('../errors')
     , { getResponse } = require('../typed-actions/utils')
 
 function makeBackend(typeConstructor) {

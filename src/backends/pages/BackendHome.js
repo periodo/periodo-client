@@ -6,8 +6,8 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { connect } = require('react-redux')
     , { Box } = require('axs-ui')
-    , { DefaultButton } = require('../../ui')
-    , { RouterKnower } = require('../../util').hoc
+    , { DefaultButton } = require('lib/ui')
+    , { RouterKnower } = require('lib/util/hoc')
     , PeriodoLayoutEngine = require('../../layouts/PeriodoLayoutEngine')
 
 function mapStateToProps(state) {

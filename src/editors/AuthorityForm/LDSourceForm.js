@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
     , { Box, Heading, Text, Textarea } = require('axs-ui')
     , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
-    , { PrimaryButton, DangerButton, Source } = require('../../ui')
+    , { PrimaryButton, DangerButton, Source } = require('lib/ui')
 
 
 const LDInput = AsyncRequestor(class LDInput extends React.Component {

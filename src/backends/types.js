@@ -3,28 +3,10 @@
 const url = require('url')
     , Type = require('union-type')
     , makeActionType = require('../typed-actions/make_type')
+    , { isDataset } = require('lib/util/dataset')
+    , { isURL } = require('lib/util/misc')
     , { generateRoute } = require('../router')
 
-function isDataset(obj) {
-  return (
-    typeof obj === 'object' &&
-    typeof obj.periodCollections === 'object'
-  )
-}
-
-function isURL(str) {
-  if (!(typeof str === 'string')) {
-    throw new Error('URL must be a string')
-  }
-
-  const { protocol, host } = url.parse(str)
-
-  if (!(protocol && host)) {
-    throw new Error(`Invalid URL: ${str}`);
-  }
-
-  return true;
-}
 
 const Backend = Type({
   Web: { url: isURL },

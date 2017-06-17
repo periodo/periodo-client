@@ -5,8 +5,8 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , TerminusInput = require('./TerminusInput')
     , { Label, Flex, Heading, Box } = require('axs-ui')
-    , { Checkbox } = require('../../ui')
-    , { wasAutoparsed } = require('../../util').terminus
+    , { Checkbox } = require('lib/ui')
+    , { wasAutoparsed } = require('lib/util/terminus')
 
 const emptyTerminus = Immutable.fromJS({
   label: '',

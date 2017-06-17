@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
     , { connect } = require('react-redux')
-    , { Source } = require('../../ui')
+    , { Source } = require('lib/ui')
 
 function mapStateToProps(state) {
   return {

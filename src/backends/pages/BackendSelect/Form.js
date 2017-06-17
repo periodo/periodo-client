@@ -3,7 +3,7 @@
 const React = require('react')
     , h = require('react-hyperscript')
     , { Box, Input, Label, Select, Textarea } = require('axs-ui')
-    , { PrimaryButton } = require('../../../ui')
+    , { PrimaryButton } = require('lib/ui')
 
 
 module.exports = class BackendForm extends React.Component {
