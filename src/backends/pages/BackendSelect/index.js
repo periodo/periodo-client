@@ -7,7 +7,6 @@ const h = require('react-hyperscript')
     , BackendForm = require('./Form')
     , { Backend } = require('../../types')
     , { addBackend } = require('../../actions')
-    , { urlParam } = require('../../utils')
 
 function mapStateToProps(state) {
   return {
@@ -34,7 +33,7 @@ const BackendSelect = props =>
           h('td', [
             h('a', {
               href: props.generateRoute('backend-home', {
-                identifier: urlParam(backend.type)
+                identifier: backend.type.asIdentifier(),
               })
             }, backend.metadata.label)
           ]),

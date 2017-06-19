@@ -1,11 +1,9 @@
 "use strict";
 
-const url = require('url')
-    , Type = require('union-type')
+const Type = require('union-type')
     , makeActionType = require('../typed-actions/make_type')
     , { isDataset } = require('lib/util/dataset')
     , { isURL } = require('lib/util/misc')
-    , { generateRoute } = require('../router')
 
 
 const Backend = Type({
@@ -16,6 +14,18 @@ const Backend = Type({
   Canonical: {},
 })
 
+
+Backend.prototype.asIdentifier = function () {
+  return this.case({
+    IndexedDB: id => `local-${id}`,
+    Web: url => `web-${url}`,
+    _: () => {
+      throw new Error('not yet')
+    }
+  })
+}
+
+// Static methods
 Backend.serialize = backend => JSON.stringify(backend)
 
 Backend.deserialize = str => {
@@ -23,6 +33,22 @@ Backend.deserialize = str => {
 
   return Backend[obj._name + 'Of'](obj)
 }
+
+Backend.fromIdentifier = identifier => {
+  const [type, id] = identifier.split('-')
+
+  switch (type) {
+    case 'web':
+      return Backend.Web(decodeURIComponent(id));
+
+    case 'local':
+      return Backend.IndexedDB(parseInt(id));
+
+    default:
+      throw new Error(`Unknown backend type: ${type}`)
+  }
+}
+
 
 const BackendMetadata = Type({
   BackendMetadata: {

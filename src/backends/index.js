@@ -6,23 +6,8 @@ const actions = require('./actions')
 const individualBackendPath = rest =>
   '/backends/:identifier' + rest
 
-const toBackend = ({ identifier }) => {
-  const [type, id] = identifier.split('-')
-
-  switch (type) {
-    case 'web':
-      return Backend.Web(decodeURIComponent(id));
-
-    case 'local':
-      return Backend.IndexedDB(parseInt(id));
-
-    default:
-      throw new Error(`Unknown backend type: ${type}`)
-  }
-}
-
 function fetchIndividualBackend(dispatch, params) {
-  const backend = toBackend(params)
+  const backend = Backend.fromIdentifier(params.identifier)
 
   return dispatch(actions.fetchBackend(backend))
 }

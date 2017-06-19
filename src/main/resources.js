@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { generateRoute } = require('../router')
-    , { getCurrentBackend, urlParam } = require('../backends/utils')
+    , { getCurrentBackend } = require('../backends/utils')
 
 module.exports = [
   {
@@ -14,7 +14,7 @@ module.exports = [
 
       redirect(!currentBackend
         ? generateRoute('backend-select')
-        : generateRoute('backend-home', { identifier: urlParam(currentBackend) })
+        : generateRoute('backend-home', { identifier: currentBackend.asIdentifier() })
       )
     }
   }
