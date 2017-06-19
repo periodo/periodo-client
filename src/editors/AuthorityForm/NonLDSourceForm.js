@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { RandomID } = require('lib/util/hoc')
     , { Flex, Box, Label, Heading, Input } = require('axs-ui')
-    , { InputBlock, TextareaBlock, DefaultButton } = require('lib/ui')
+    , { InputBlock, TextareaBlock, Button$Default } = require('lib/ui')
 
 const emptyCreator = { name: '' }
 
@@ -94,7 +94,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                   }
                 }),
 
-                h(DefaultButton, {
+                h(Button$Default, {
                   size: 1,
                   ml: 1,
                   fontWeight: 'bold',
@@ -107,7 +107,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                   }
                 }, '+'),
 
-                h(DefaultButton, {
+                h(Button$Default, {
                   size: 1,
                   ml: 1,
                   fontWeight: 'bold',

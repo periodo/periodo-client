@@ -3,7 +3,7 @@
 const React = require('react')
     , h = require('react-hyperscript')
     , { Box, Input, Label, Select, Textarea } = require('axs-ui')
-    , { PrimaryButton } = require('lib/ui')
+    , { Button$Primary } = require('lib/ui')
 
 
 module.exports = class BackendForm extends React.Component {
@@ -92,7 +92,7 @@ module.exports = class BackendForm extends React.Component {
         ]),
 
         h('div', [
-          h(PrimaryButton, {
+          h(Button$Primary, {
             mt: 1,
             px: 2,
             onClick: () => handleSave(this.state),

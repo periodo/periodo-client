@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , languages = require('lib/util/languages')
     , scripts = require('lib/util/scripts')
     , { Input, Flex } = require('axs-ui')
-    , { PrimaryButton } = require('lib/ui')
+    , { Button$Primary } = require('lib/ui')
 
 module.exports = ({
   id,
@@ -62,13 +62,13 @@ module.exports = ({
         }
       }),
 
-      handleAddLabel && h(PrimaryButton, {
+      handleAddLabel && h(Button$Primary, {
         ml: 1,
         width: 32,
         onClick: handleAddLabel,
       }, '+'),
 
-      handleRemoveLabel && h(PrimaryButton, {
+      handleRemoveLabel && h(Button$Primary, {
         ml: 1,
         width: 32,
         onClick: handleRemoveLabel,

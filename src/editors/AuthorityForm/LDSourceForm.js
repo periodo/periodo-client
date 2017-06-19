@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
     , { Box, Heading, Text, Textarea } = require('axs-ui')
     , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
-    , { PrimaryButton, DangerButton, Source } = require('lib/ui')
+    , { Button$Primary, Button$Danger, Source } = require('lib/ui')
 
 
 const LDInput = AsyncRequestor(class LDInput extends React.Component {
@@ -44,7 +44,7 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
           }
         }),
 
-        h(PrimaryButton, {
+        h(Button$Primary, {
           disabled: sourceMatch === null,
           onClick: () => {
             clearRequest(() => {
@@ -87,7 +87,7 @@ const LinkedDataSourceForm = ({ value, onValueChange }) =>
           h(Box, [
             h(Text, 'Incorrect source?'),
             h(Box, [
-              h(DangerButton, {
+              h(Button$Danger, {
                 onClick: () => {
                   onValueChange(null)
                 }

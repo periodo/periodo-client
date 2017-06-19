@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Box, Heading } = require('axs-ui')
-    , { SuccessAlert } = require('lib/ui')
+    , { Alert$Success } = require('lib/ui')
 
 module.exports = class SignIn extends React.Component {
   constructor() {
@@ -38,7 +38,7 @@ module.exports = class SignIn extends React.Component {
     return (
       h(Box, [
         h(Heading, { level: 1 }, 'Sign in'),
-        message && h(SuccessAlert, message),
+        message && h(Alert$Success, message),
         h('a', { onClick: this.initOrcidAuth.bind(this) }, [
           h('img', {
             src: 'https://orcid.org/sites/default/files/images/orcid_32x32.png',

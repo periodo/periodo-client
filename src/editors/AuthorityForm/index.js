@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box } = require('axs-ui')
-    , { TextareaBlock, InputBlock, Tabs, PrimaryButton, Errors } = require('lib/ui')
+    , { TextareaBlock, InputBlock, Tabs, Button$Primary, Errors } = require('lib/ui')
     , { isLinkedData } = require('lib/util/source')
     , Validated = require('../Validated')
     , { validateAuthority } = require('../validate')
@@ -94,7 +94,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
         }),
 
         h(Box, [
-          h(PrimaryButton, {
+          h(Button$Primary, {
             onClick: () => this.props.validate(value, this.props.onValidated)
           }, 'Save'),
         ]),

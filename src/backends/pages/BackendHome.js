@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { connect } = require('react-redux')
     , { Box } = require('axs-ui')
-    , { DefaultButton } = require('lib/ui')
+    , { Button$Default } = require('lib/ui')
     , { RouterKnower } = require('lib/util/hoc')
     , AuthorityLayout = require('../../layouts/authorities')
 
@@ -50,7 +50,7 @@ class BackendHome extends React.Component {
       h('div', [
         h('h1', backend.metadata.label),
         backend.isEditable && h(Box, [
-          h(DefaultButton, {
+          h(Button$Default, {
             is: 'a',
             href: generateRoute('backend-add-authority', { identifier: 'local-' + backend.type.id }),
             display: 'inline-block',
