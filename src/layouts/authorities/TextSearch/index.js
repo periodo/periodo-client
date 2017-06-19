@@ -2,8 +2,8 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , Ignorer = require('../Ignorer')
-    , { alternateLabels } = require('../../util').period
+    , Ignorer = require('lib/layout-engine/Ignorer')
+    , { alternateLabels } = require('lib/util/period')
 
 
 exports.filterItems = function (period, opts) {

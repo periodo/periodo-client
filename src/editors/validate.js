@@ -13,7 +13,7 @@ function addError(obj, label, err) {
 }
 
 function validateAuthority(authority) {
-  const { isLinkedData } = require('../util/source')
+  const { isLinkedData } = require('lib/util/source')
       , { source, definitions={} } = authority
 
   let errors = {}

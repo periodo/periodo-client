@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
     , { DefaultButton } = require('lib/ui')
     , { RouterKnower } = require('lib/util/hoc')
-    , PeriodoLayoutEngine = require('../../layouts/PeriodoLayoutEngine')
+    , AuthorityLayout = require('../../layouts/authorities')
 
 function mapStateToProps(state) {
   return {
@@ -57,7 +57,7 @@ class BackendHome extends React.Component {
           }, 'Add collection'),
         ]),
 
-        h(PeriodoLayoutEngine, {
+        h(AuthorityLayout, {
           backend,
           spec: this.state.spec,
           updateLayoutOpts: this.updateLayoutOpts.bind(this)

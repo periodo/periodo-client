@@ -2,10 +2,9 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { contributorList } = require('../util')
-    , makeList = require('./List')
-    , { generateRoute } = require('../router')
-    , { urlParam } = require('../backends/utils')
+    , contributorList = require('lib/util/contributor_list')
+    , makeList = require('lib/layout-engine/List')
+    , { generateRoute } = require('../../router')
 
 const columns = {
   authors: {
@@ -37,7 +36,7 @@ const columns = {
     label: 'Title',
     getValue(authority, backend) {
       const href = generateRoute('backend-view-authority', {
-        identifier: urlParam(backend.type)
+        identifier: backend.type.asIdentifier(),
       }, {
         id: authority.id
       })

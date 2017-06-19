@@ -2,13 +2,13 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { earliestYear, latestYear } = require('../util').terminus
-    , { authorityOf } = require('../util/period')
-    , { displayTitle } = require('../util/source')
-    , { RouterKnower } = require('../util/hoc')
-    , { periodsWithAuthority } = require('../util/authority')
+    , { earliestYear, latestYear } = require('lib/util/terminus')
+    , { authorityOf } = require('lib/util/period')
+    , { displayTitle } = require('lib/util/source')
+    , { RouterKnower } = require('lib/util/hoc')
+    , { periodsWithAuthority } = require('lib/util/authority')
     , { Box } = require('axs-ui')
-    , List = require('./List')
+    , List = require('lib/layout-engine/List')
 
 const columns = {
   label: {

@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , LayoutEngine = require('../layout-engine/Engine')
+    , LayoutEngine = require('lib/layout-engine/Engine')
     , fromArray = require('from2-array')
 
 const PeriodoLayoutEngine = props =>
@@ -11,10 +11,10 @@ const PeriodoLayoutEngine = props =>
       R.values(props.backend.dataset.periodCollections)
     ),
     layouts: {
-      statistics: require('../layouts/Statistics'),
-      list: require('../layouts/PeriodList'),
-      authorityList: require('../layouts/AuthorityList'),
-      text: require('../layouts/TextSearch'),
+      statistics: require('./Statistics'),
+      list: require('./PeriodList'),
+      authorityList: require('./AuthorityList'),
+      text: require('./TextSearch'),
     },
     spec: props.spec,
     updateLayoutOpts: props.updateLayoutOpts,

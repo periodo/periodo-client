@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Box, Text } = require('axs-ui')
-    , Consumer = require('../Consumer')
+    , Consumer = require('lib/layout-engine/Consumer')
 
 function itemKeySetReducer(sets, item) {
   Object.keys(item).forEach(key => {
