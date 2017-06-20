@@ -1,12 +1,13 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , { Flex, Box, Text } = require('axs-ui')
     , version = require('../../../package.json').version
     , href = `https://github.com/periodo/periodo-client/tree/v${version}`
 
 
 const Logo = ({ href, title, src, height=44 }) =>
-  h('div .mt2', [
+  h(Box, { mt: 2 }, [
     h('a', { href }, [
       h('img', { title, src, height })
     ])
@@ -14,7 +15,9 @@ const Logo = ({ href, title, src, height=44 }) =>
 
 
 const Footer = ({ errors }) =>
-  h('div .flex .justify-between', [
+  h(Flex, {
+    justifyContent: 'space-between'
+  }, [
     errors.size === 0 && h('div', ' '),
 
     errors.size > 0 && h('div', [
@@ -28,10 +31,21 @@ const Footer = ({ errors }) =>
       ).toArray())
     ]),
 
-    h('div .right-align', [
+    h(Box, {
+      css: {
+        textAlign: 'right',
+      }
+    }, [
       h('span', [
         'PeriodO client ',
-        h('a .blue .text-decoration-none', { href }, version)
+        h(Text, {
+          color: 'blue',
+          is: 'a',
+          href,
+          css: {
+            textDecoration: 'none'
+          }
+        }, version)
       ]),
 
       Logo({

@@ -1,16 +1,40 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , { Flex, Heading, Text } = require('axs-ui')
     , { RouterKnower } = require('lib/util/hoc')
 
 const Header = props =>
-  h('div .flex', [
-    h('h1 .m0 .blue .regular .h2', [
-      h('a .blue .text-decoration-none', { href: '/#/' }, 'PeriodO'),
+  h(Flex, {
+    alignItems: 'center',
+  }, [
+    h(Heading, {
+      level: 1,
+      m: 0,
+      mr: 2,
+      fontSize: 3,
+      css: {
+        fontWeight: 100
+      }
+    }, [
+      h(Text, {
+        is: 'a',
+        href: '#/',
+        color: 'blue',
+        css: {
+          textDecoration: 'none',
+        }
+      }, 'PeriodO')
     ]),
 
-    h('a .ml1 .blue .text-decoration-none', {
-      href: props.generateRoute('backend-select')
+    h(Text, {
+      is: 'a',
+      ml: 1,
+      color: 'blue',
+      href: props.generateRoute('backend-select'),
+      css: {
+        textDecoration: 'none',
+      }
     }, '[select backend]')
   ])
 

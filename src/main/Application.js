@@ -4,6 +4,7 @@ const React = require('react')
     , h = require('react-hyperscript')
     , through = require('through2')
     , Immutable = require('immutable')
+    , { Flex, Box, Text } = require('axs-ui')
     , NotFound = require('./components/NotFound')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
@@ -113,19 +114,48 @@ class Application extends React.Component {
   render() {
     const { activeComponent, errors } = this.state
 
-    return h('div .flex .flex-column', { style: { height: '100%' }}, [
-      h('header .flex-none .bg-silver .p2 .border-bottom', [
-        h('div .max-width-4 .mx-auto', [
-          h(Header)
-        ])
+    return h(Flex, {
+      flexDirection: 'column',
+      css: {
+        height: '100%',
+      }
+    }, [
+      h(Box, {
+        is: 'header',
+        bg: 'gray2',
+        p: 2,
+        css: {
+          flex: 0,
+          borderBottom: '1px solid #999',
+        }
+      }, [
+        h(Header)
       ]),
 
-      h('main .flex-grow .p2', [
+      h(Box, {
+        is: 'main',
+        p: 2,
+        css: {
+          flexGrow: 1,
+        }
+      }, [
         activeComponent
       ]),
 
-      h('footer .flex-none .bg-silver .p2 .border-top', [
-        h('div .max-width-4 .mx-auto', [
+      h(Box, {
+        bg: 'gray2',
+        p: 2,
+        css: {
+          flex: 0,
+          borderTop: '1px solid #999',
+        }
+      }, [
+        h(Box, {
+          mx: 'auto',
+          css: {
+            maxWidth: 4,
+          }
+        }, [
           h(Footer, { errors })
         ])
       ])
