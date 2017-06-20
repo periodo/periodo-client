@@ -35,14 +35,14 @@ module.exports = function backends(state=initialState(), action) {
 
       GetBackend() {
         const { metadata, dataset, isEditable, type } = getResponse(action)
+            , data = { metadata, dataset, isEditable, type }
 
         localStorage.currentBackend = Backend.serialize(type)
 
-        return R.set(
-          R.lensProp('current'),
-          { metadata, dataset, isEditable, type },
-          state
-        )
+        return R.pipe(
+          R.set(R.lensPath(['loaded', type.asIdentifier()]), data),
+          R.set(R.lensProp('current'), data)
+        )(state)
       }
     })
   })

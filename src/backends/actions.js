@@ -54,6 +54,11 @@ function fetchBackend(backend, setAsActive=false) {
   })
 
   return action.do(async (dispatch, getState, { db }) => {
+    const identifier = backend.asIdentifier()
+        , existing = getState().backends.loaded[identifier]
+
+    if (existing) return existing
+
     const [metadata, dataset] = await backend.case({
       IndexedDB: id =>
         db.localBackends.get(id)
@@ -107,7 +112,6 @@ function fetchBackend(backend, setAsActive=false) {
         _: () => false,
       }),
       dataset,
-      setAsActive,
     }
   })
 }
