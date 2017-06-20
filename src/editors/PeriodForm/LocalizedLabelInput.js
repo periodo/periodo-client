@@ -1,27 +1,29 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , Autocomplete = require('react-autocomplete')
     , languages = require('lib/util/languages')
     , scripts = require('lib/util/scripts')
-    , { Input, Flex } = require('axs-ui')
+    , { Input, Flex, Box } = require('axs-ui')
     , { Button$Primary } = require('lib/ui')
+
 
 module.exports = ({
   id,
-  label,
+  label={},
   onValueChange,
   handleAddLabel,
   handleRemoveLabel
 }) =>
-  h('div', [
+  h(Box, [
     h(Flex, { alignItems: 'center' }, [
       h(Autocomplete, {
-        value: label.get('language'),
+        value: label.language,
         items: languages.getSortedList(),
         getItemValue: language => language.name,
         onSelect: (str, val) => {
-          onValueChange(label.set('language', val.code))
+          onValueChange(R.assoc('language', val.code, label))
         },
         renderItem: language => h('div', language.name),
         inputProps: {
@@ -35,13 +37,13 @@ module.exports = ({
       }),
 
       h(Autocomplete, {
-        value: label.get('script'),
+        value: label.script,
         items: scripts.getSortedList(),
-        getItemValue: script => script.get('name'),
+        getItemValue: script => script.name,
         onSelect: (str, val) => {
-          onValueChange(label.set('script', val.get('code')))
+          onValueChange(R.assoc('script', val.code, label))
         },
-        renderItem: item => h('div', item.get('name')),
+        renderItem: item => h('div', item.name),
         inputProps: {
           style: {
             marginRight: '2px',
@@ -55,10 +57,10 @@ module.exports = ({
       h(Input, {
         id,
         type: 'text',
-        value: label.get('value'),
+        value: label.value,
         display: 'inline',
         onChange: e => {
-          onValueChange(label.set('value', e.target.value))
+          onValueChange(R.assoc('value', e.target.value, label))
         }
       }),
 

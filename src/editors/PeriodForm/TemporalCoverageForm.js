@@ -2,16 +2,15 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , Immutable = require('immutable')
     , TerminusInput = require('./TerminusInput')
     , { Label, Flex, Heading, Box } = require('axs-ui')
     , { Checkbox } = require('lib/ui')
     , { wasAutoparsed } = require('lib/util/terminus')
 
-const emptyTerminus = Immutable.fromJS({
+const emptyTerminus = {
   label: '',
   in: { year: '' }
-})
+}
 
 module.exports = class TemporalCoverageForm extends React.Component {
   constructor(props) {

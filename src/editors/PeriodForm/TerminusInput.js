@@ -1,60 +1,34 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , React = require('react')
-    , Immutable = require('immutable')
     , dateParser = require('periodo-date-parser')
-    , { Box, Button, Flex } = require('axs-ui')
+    , { Box, Flex } = require('axs-ui')
+    , { isMultipart } = require('lib/util/terminus')
     , { InputBlock, Checkbox } = require('lib/ui')
 
-const emptyTerminus = Immutable.fromJS({
+const emptyTerminus = {
   label: '',
   in: { year: '' }
-})
+}
+
+const toggleMultipart = terminus => isMultipart(terminus)
+  ? { year: R.path(['in', 'earliest'], terminus) || '' }
+  : { earliestYear: R.path(['in', 'year'], terminus) || '', latestYear: '' }
 
 function parse(label) {
   try {
-    return Immutable.fromJS(dateParser.parse(label))
+    return dateParser.parse(label)
   } catch (err) {
-    return emptyTerminus.set('label', label)
+    return Object.assign({}, emptyTerminus, { label })
   }
-}
-
-function isMultivalued(terminus) {
-  return terminus.hasIn(['in', 'earliestYear'])
-}
-
-function toggleMultiValue(terminus) {
-  return isMultivalued(terminus)
-    ? terminus.update(t => {
-        const earliest = t.getIn(['in', 'earliestYear'])
-
-        return t
-          .deleteIn(['in', 'earliestYear'])
-          .deleteIn(['in', 'latestYear'])
-          .setIn(['in', 'year'], earliest || '')
-      })
-    : terminus.update(t => {
-        const year = t.getIn(['in', 'year'])
-
-        return t
-          .deleteIn(['in', 'year'])
-          .setIn(['in', 'earliestYear'], year || '')
-          .setIn(['in', 'latestYear'], '')
-      })
 }
 
 module.exports = class TerminusInput extends React.Component {
-  handleChange(field, e) {
-    const { terminus=emptyTerminus, onValueChange } = this.props
-        , value = e.target.value
-
-    onValueChange(terminus.setIn([].concat(field), value))
-  }
-
   componentWillReceiveProps(nextProps) {
     if (!this.props.autoparse && nextProps.autoparse) {
-      this.props.onValueChange(parse(nextProps.terminus.get('label')))
+      this.props.onValueChange(parse(nextProps.terminus.labe))
     }
   }
 
@@ -69,17 +43,18 @@ module.exports = class TerminusInput extends React.Component {
             label: 'Label',
             width: .5,
             pr: 2,
-            onChange: !autoparse
-              ? this.handleChange.bind(this, 'label')
-              : e => onValueChange(parse(e.target.value))
+            value: terminus.label || '',
+            onChange: e => autoparse
+              ? onValueChange(parse(e.target.value))
+              : onValueChange(R.assoc('label', e.target.value, terminus))
           }),
 
           h(Box, { width: .5 }, [
             h(Checkbox, {
               disabled: autoparse,
-              checked: isMultivalued(terminus),
+              checked: isMultipart(terminus),
               onChange: () => {
-                onValueChange(toggleMultiValue(terminus))
+                onValueChange(toggleMultipart(terminus))
               },
             }),
             'Two part date',
@@ -87,15 +62,22 @@ module.exports = class TerminusInput extends React.Component {
         ]),
 
         h(Flex, [
-          isMultivalued(terminus)
+          isMultipart(terminus)
             ? h(InputBlock, {
                 name: 'earliest',
                 label: 'Earliest',
                 width: .5,
                 pr: 2,
                 disabled: autoparse,
-                value: terminus.getIn(['in', 'earliestYear']),
-                onChange: this.handleChange.bind(this, ['in', 'earliestYear'])
+                value: R.path(['in', 'earliestYear'], terminus) || '',
+                onChange: e => {
+                  onValueChange(
+                    R.assocPath(
+                      ['in', 'earliestYear'],
+                      e.target.value, terminus
+                    )
+                  )
+                }
               })
             : h(InputBlock, {
                 name: 'year',
@@ -103,17 +85,31 @@ module.exports = class TerminusInput extends React.Component {
                 width: .5,
                 pr: 2,
                 disabled: autoparse,
-                value: terminus.getIn(['in', 'year']),
-                onChange: this.handleChange.bind(this, ['in', 'year'])
+                value: R.path(['in', 'year'], terminus) || '',
+                onChange: e => {
+                  onValueChange(
+                    R.assocPath(
+                      ['in', 'year'],
+                      e.target.value, terminus
+                    )
+                  )
+                }
               }),
 
-          isMultivalued(terminus) && h(InputBlock, {
+          isMultipart(terminus) && h(InputBlock, {
             name: 'latest',
             label: 'Latest',
             width: .5,
             disabled: autoparse,
-            value: terminus.getIn(['in', 'latestYear']),
-            onChange: this.handleChange.bind(this, ['in', 'latestYear'])
+            value: R.path(['in', 'latestYear'], terminus) || '',
+              onChange: e => {
+                onValueChange(
+                  R.assocPath(
+                    ['in', 'latestYear'],
+                    e.target.value, terminus
+                  )
+                )
+              }
           }),
         ])
       ])

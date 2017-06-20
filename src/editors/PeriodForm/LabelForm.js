@@ -1,43 +1,44 @@
 "use strict"
 
 const h = require('react-hyperscript')
-    , Immutable = require('immutable')
+    , R = require('ramda')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
     , { RandomID } = require('lib/util/hoc')
-    , { Box } = require('axs-ui')
+    , { Box, Label } = require('axs-ui')
 
-const defaultLabel = Immutable.Map({
+const defaultLabel = Object.freeze({
   value: '',
   language: 'eng',
   script: 'latn'
 })
 
-const LabelForm = ({
-  randomID,
-  period,
-  onValueChange,
-}) =>
-  h(Box, [
-    h('div', [
-      h('label', { htmlFor: randomID('label') }, 'Label'),
+module.exports = RandomID(props => {
+  const { randomID, period, onValueChange } = props
+
+  return (
+    h(Box, [
+      h(Label, { htmlFor: randomID('label') }, 'Label'),
       h(LocalizedLabelInput, {
         id: randomID('label'),
-        label: period.get('originalLabel', defaultLabel),
+        label: period.originalLabel || defaultLabel,
         onValueChange: value => {
-          onValueChange(
-            period.set('originalLabel', value))
+          onValueChange(R.assoc('originalLabel', value, period))
         },
       }),
 
       h('label', { htmlFor: randomID('alt-labels') }, 'Alternate labels'),
-      period.get('alternateLabels', Immutable.List([defaultLabel])).map((label, i) =>
+      R.defaultTo([defaultLabel], period.alternateLabels).map((label, i) =>
         h(LocalizedLabelInput, {
           key: i,
           label,
           onValueChange: value => {
             onValueChange(
-              period.update('alternateLabels', labels =>
-                (labels || Immutable.List()).set(i, value)))
+              R.set(
+                R.lensPath(['alternateLabels', i]),
+                value,
+                period
+              )
+            )
           },
 
           handleAddLabel: () => {
@@ -55,16 +56,20 @@ const LabelForm = ({
           },
 
           handleRemoveLabel: () => {
-            if (!period.get('alternateLabels').size) return;
+            if (!period.alternateLabels.length) return;
 
             onValueChange(
-              period.get('alternateLabels').size === 1
-                ? period.setIn(['alternateLabels', 0, 'value'], '')
-                : period.update('alternateLabels', labels => labels.splice(i, 1)))
+              period.alternateLabels.length === 1
+                ? R.assocPath(['alternateLabels', 0, 'value'], '', period)
+                : R.over(
+                    R.lensProp('alternateLabels'),
+                    R.remove(i, 1),
+                    period
+                  )
+            )
           }
         })
       )
     ])
-  ])
-
-module.exports = RandomID(LabelForm)
+  )
+})
