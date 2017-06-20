@@ -1,9 +1,11 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , { Box } = require('axs-ui')
     , { connect } = require('react-redux')
     , { Source } = require('lib/ui')
+    , PeriodForm = require('../../editors/PeriodForm')
 
 function mapStateToProps(state) {
   return {
@@ -11,16 +13,33 @@ function mapStateToProps(state) {
   }
 }
 
-module.exports = connect(mapStateToProps)(props => {
-  const { backend, id } = props
-      , authority = backend.dataset.periodCollections[id]
+module.exports = connect(mapStateToProps)(class Authority extends React.Component {
+  constructor() {
+    super();
 
-  console.log(authority.source);
+    this.state = {
+      addingPeriod: false,
+      period: {},
+    }
+  }
 
-  return (
-    h(Box, [
-      h('h1', 'View authority'),
-      h(Source, { source: authority.source }),
-    ])
-  )
+  render() {
+    const { backend, id } = this.props
+        , { addingPeriod, period } = this.state
+        , authority = backend.dataset.periodCollections[id]
+
+    return (
+      h(Box, [
+        h('h1', 'View authority'),
+        h(Source, { source: authority.source }),
+
+        h(PeriodForm, {
+          value: period,
+          onValueChange: period => {
+            this.setState({ period })
+          }
+        })
+      ])
+    )
+  }
 })
