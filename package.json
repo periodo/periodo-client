@@ -41,7 +41,6 @@
     "redux": "^3.5.2",
     "redux-thunk": "^2.1.0",
     "respin": "^1.0.1",
-    "route-parser": "0.0.5",
     "spark-md5": "0.0.5",
     "stream-consume": "^0.1.0",
     "through2": "^2.0.3",

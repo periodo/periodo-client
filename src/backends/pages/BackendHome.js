@@ -52,7 +52,7 @@ class BackendHome extends React.Component {
         backend.isEditable && h(Box, [
           h(Button$Default, {
             is: 'a',
-            href: generateRoute('backend-add-authority', { identifier: 'local-' + backend.type.id }),
+            href: generateRoute('backend-new-authority', { backendID: 'local-' + backend.type.id }),
             display: 'inline-block',
           }, 'Add collection'),
         ]),

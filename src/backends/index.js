@@ -3,62 +3,43 @@
 const actions = require('./actions')
     , { Backend } = require('./types')
 
-const individualBackendPath = rest =>
-  '/backends/:identifier' + rest
+function fetchIndividualBackend(dispatch, params={}) {
+  if (!params.backendID) {
+    throw new Error('Missing `backendID` parameter.')
+  }
 
-function fetchIndividualBackend(dispatch, params) {
-  const backend = Backend.fromIdentifier(params.identifier)
+  const backend = Backend.fromIdentifier(params.backendID)
 
   return dispatch(actions.fetchBackend(backend))
 }
 
-exports.resources = [
-  {
-    name: 'backend-select',
-    path: '/backends/',
+exports.resources = {
+  'available-backends': {
     onBeforeRoute(dispatch) {
       return dispatch(actions.listAvailableBackends())
     },
     Component: require('./pages/BackendSelect')
   },
 
-  {
-    name: 'backend-default',
-    path: individualBackendPath('/'),
-    onBeforeRoute(dispatch, params, queryParams, redirect, pathname) {
-      return redirect(pathname + 'home')
-    }
-  },
-
-  {
-    name: 'backend-home',
-    path: individualBackendPath('/home'),
+  'backend': {
     onBeforeRoute: fetchIndividualBackend,
     Component: require('./pages/BackendHome')
   },
 
-  {
-    name: 'backend-add-authority',
-    path: individualBackendPath('/add-authority'),
+  'backend-new-authority': {
     onBeforeRoute: fetchIndividualBackend,
     Component: require('./pages/AddAuthority')
   },
 
-  {
-    name: 'backend-view-authority',
-    path: individualBackendPath('/authority'),
+  'backend-authority': {
     onBeforeRoute: fetchIndividualBackend,
     Component: require('./pages/Authority')
   },
 
-  {
-    name: 'backend-history',
-    path: individualBackendPath('/history'),
+  'backend-history': {
     onBeforeRoute: fetchIndividualBackend,
     Component: require('./pages/History'),
   },
-
-]
-
+}
 
 exports.reducer = require('./reducer')

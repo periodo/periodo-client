@@ -2,21 +2,17 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
-    , through = require('through2')
     , Immutable = require('immutable')
-    , { Flex, Box, Text } = require('axs-ui')
-    , NotFound = require('./components/NotFound')
+    , { Flex, Box } = require('axs-ui')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
-    , locationHashStream = require('location-hash-stream')
-    , { match } = require('../router')
+    , locationStream = require('location-hash-stream')()
+    , router = require('../router')
 
 const LEFT_CLICK = 1;
 
 const noop = () => null
-
-const locationStream = locationHashStream()
 
 class Application extends React.Component {
   constructor() {
@@ -30,45 +26,38 @@ class Application extends React.Component {
   }
 
   componentDidMount() {
-    if (!window.location.hash) {
-      window.location.hash = '#/'
-    }
+    const routeStream = router.createStream()
 
-    locationStream.pipe(through.obj(async (path, enc, cb) => {
-      const m = match(path.slice(1));
+    routeStream.on('data', this.mountResource.bind(this))
 
-      if (m) {
-        this.handleRoute.call(this, m);
-      } else {
-        // this.attemptRedirect(path);
-        this.setState({ activeComponent: h(NotFound) })
-      }
-
-      cb();
-    }))
+    locationStream.pipe(routeStream)
+    routeStream.write(window.location.hash || '#')
 
     document.addEventListener('click', this.handlePageClick.bind(this));
   }
 
-  async handleRoute({ onBeforeRoute=noop, Component, params, queryParams, pathname }) {
-    const { dispatch } = this.props
+  async mountResource(resource) {
+    const { onBeforeRoute=noop, Component, params } = resource
+        , { dispatch } = this.props
 
-    let redirectHash
+    let redirectTo
 
     const redirect = url => {
-      redirectHash = url;
+      redirectTo = url;
     }
 
     this.setState({ loadingNewPage: true })
 
     try {
-      await onBeforeRoute(dispatch, params, queryParams, redirect, pathname);
+      await onBeforeRoute(dispatch, params, redirect);
 
-      if (!redirectHash) {
-        this.setState({ activeComponent: h(Component, queryParams) })
+      if (!redirectTo) {
+        this.setState({
+          activeComponent: h(Component, params)
+        })
       } else {
         setTimeout(() => {
-          window.location.hash = redirectHash;
+          window.location.hash = redirectTo;
         }, 0)
       }
     } catch (error) {
@@ -162,48 +151,5 @@ class Application extends React.Component {
     ])
   }
 }
-
-/*
-  attemptRedirect(path) {
-    const matchKey = 'p0' + path
-
-    if (path.indexOf('/') !== -1) this.showNotFound();
-
-    getBackendAndStore('Canonical')
-      .then(({ store }) => {
-        if (store.hasIn(['periodCollections', matchKey])) {
-          const redirectURL = this.state.router.generate('period-collection-show', {
-            backendName: 'Canonical',
-            collectionID: encodeURIComponent(matchKey)
-          })
-
-          this.state.locationBar.update(redirectURL, { trigger: true })
-        } else {
-          let collectionID
-            , periodID
-
-          store.get('periodCollections').forEach(collection => {
-            if (collection.hasIn(['definitions', matchKey])) {
-              collectionID = collection.get('id');
-              periodID = matchKey;
-              return false;
-            }
-          });
-
-          if (collectionID) {
-            let redirectURL = this.state.router.generate('period-collection-show', {
-              backendName: 'Canonical',
-              collectionID
-            });
-
-            redirectURL += '?show_period=' + periodID;
-            this.state.locationBar.update(redirectURL, { trigger: true });
-          } else {
-            this.showNotFound();
-          }
-        }
-      })
-  },
-*/
 
 module.exports = connect()(Application)

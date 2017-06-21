@@ -1,92 +1,40 @@
 "use strict";
 
 const qs = require('querystring')
-    , url = require('url')
+    , through = require('through2')
+    , NotFound = require('./main/components/NotFound')
 
-let resources
-  , resourceMap
+function createStream() {
+  const resources = require('./modules').getApplicationResources()
 
-function populate() {
-  if (!resources) {
-    resources = require('./modules').getApplicationResources()
-  }
+  return through.obj(async (path, enc, cb) => {
+    if (path[0] === '#') path = path.slice(1)
+    if (path[0] === '/') path = path.slice(1)
 
-  if (!resourceMap) {
-    resourceMap = {}
+    const [ resourceName, encodedParams='' ] = path.split('?')
+        , params = qs.parse(encodedParams)
 
-    resources.forEach(r => {
-      resourceMap[r.name] = r.route;
-    })
-  }
-}
-
-function match(path) {
-  populate();
-
-  const { pathname, query } = url.parse(path, true)
-
-  for (const routeDef of resources) {
-    const { route, onBeforeRoute, Component } = routeDef
-        , _match = route.match(pathname)
-
-    if (_match) {
-      return {
-        params: _match,
-        pathname,
-        queryParams: query,
-        onBeforeRoute,
-        Component,
-      }
+    const resource = resources[resourceName] || {
+      Component: NotFound
     }
-  }
 
-  return null;
+    cb(null, Object.assign({ params }, resource))
+  })
 }
 
+function generateRoute(resourceName, params) {
+  const query = qs.encode(params)
 
-function reverse(name, params) {
-  populate();
+  let url = '#' + resourceName
 
-  const route = resourceMap[name]
-
-  if (!route) {
-    throw new Error(`No route with name ${name}`)
-  }
-
-  const url = route.reverse(params)
-
-  if (!url) {
-    throw new Error(`Could not generate route for ${name} with params ${JSON.stringify(params)}.`)
+  if (query) {
+    url = url + '?' + query
   }
 
   return url
 }
 
-
-function generateRoute(routeName, params, queryParams) {
-  const escapedParams = {}
-      , escapedQueryParams = {}
-
-  Object.keys(params || {}).forEach(k => {
-    escapedParams[k] = encodeURIComponent(params[k])
-  })
-
-  Object.keys(queryParams || {}).forEach(k => {
-    escapedQueryParams[k] = encodeURIComponent(queryParams[k])
-  })
-
-  let path = '#' + reverse(routeName, escapedParams)
-
-  if (queryParams) {
-    path += '?' + qs.encode(queryParams)
-  }
-
-  return path
-}
-
-
 module.exports = {
-  match,
-  reverse,
+  createStream,
   generateRoute,
 }

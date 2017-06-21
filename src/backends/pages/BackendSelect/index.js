@@ -32,8 +32,8 @@ const BackendSelect = props =>
           h('td', backend.type._name),
           h('td', [
             h('a', {
-              href: props.generateRoute('backend-home', {
-                identifier: backend.type.asIdentifier(),
+              href: props.generateRoute('backend', {
+                backendID: backend.type.asIdentifier(),
               })
             }, backend.metadata.label)
           ]),

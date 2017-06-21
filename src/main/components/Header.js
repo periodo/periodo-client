@@ -31,7 +31,7 @@ const Header = props =>
       is: 'a',
       ml: 1,
       color: 'blue',
-      href: props.generateRoute('backend-select'),
+      href: props.generateRoute('available-backends'),
       css: {
         textDecoration: 'none',
       }
