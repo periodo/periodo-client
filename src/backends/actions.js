@@ -1,6 +1,7 @@
 "use strict";
 
-const { formatPatch } = require('../patches/utils/patch')
+const R = require('ramda')
+    , { formatPatch } = require('../patches/utils/patch')
     , { Backend, BackendAction, BackendMetadata } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { getResponse } = require('../typed-actions/utils')
@@ -59,7 +60,7 @@ function fetchBackend(backend, setAsActive=false) {
 
   return action.do(async (dispatch, getState, { db }) => {
     const identifier = backend.asIdentifier()
-        , existing = getState().backends.loaded[identifier]
+        , existing = R.path(['backends', 'loaded', identifier], getState())
 
     if (existing) return existing
 

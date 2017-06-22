@@ -7,6 +7,7 @@ const test = require('blue-tape')
     , makeMockStore = require('../../store_mock')
     , { ReadyState } = require('../../typed-actions/types')
     , actions = require('../actions')
+    , reducer = require('../reducer')
     , { Backend, BackendMetadata } = require('../types')
     , { getReadyState, getResponse } = require('../../typed-actions/utils')
 
@@ -94,6 +95,8 @@ test('Adding Web backends', async t => {
 
 test('Updating backends', async t => {
   const store = makeMockStore()
+
+  store.replaceReducer(reducer);
 
   await store.dispatch(
     actions.addBackend(
