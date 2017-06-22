@@ -2,7 +2,6 @@
 
 const { formatPatch } = require('../patches/utils/patch')
     , { Backend, BackendAction, BackendMetadata } = require('./types')
-    , { makeEmptyDataset } = require('./utils')
     , { NotImplementedError } = require('../errors')
     , { getResponse } = require('../typed-actions/utils')
 
@@ -12,6 +11,11 @@ function makeBackend(typeConstructor) {
     metadata: BackendMetadata.BackendMetadataOf(obj)
   })
 }
+
+const emptyDataset = () => ({
+  periodCollections: {},
+  type: 'rdf:Bag'
+})
 
 function listAvailableBackends() {
   const action = BackendAction.GetAllBackends()
@@ -147,7 +151,7 @@ function addBackend(backend, label='', description='') {
 
     const backendObj = Object.assign({}, metadata, backend.case({
       Web: () => ({ url: backend.url }),
-      UnsavedIndexedDB: () => ({ dataset: makeEmptyDataset() }),
+      UnsavedIndexedDB: () => ({ dataset: emptyDataset() }),
       _: throwUnaddable
     }));
 

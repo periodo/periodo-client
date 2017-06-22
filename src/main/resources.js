@@ -5,15 +5,4 @@ const h = require('react-hyperscript')
     , { getCurrentBackend } = require('../backends/utils')
 
 module.exports = {
-  '': {
-    Component: h('div'),
-    onBeforeRoute(dispatch, params, redirect) {
-      const currentBackend = getCurrentBackend()
-
-      redirect(!currentBackend
-        ? generateRoute('available-backends')
-        : generateRoute('backend', { backendID: currentBackend.asIdentifier() })
-      )
-    }
-  }
 }
