@@ -2,21 +2,13 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , fromArray = require('from2-array')
     , React = require('react')
-    , { connect } = require('react-redux')
     , { Box } = require('axs-ui')
     , { Button$Default } = require('lib/ui')
     , { RouterKnower } = require('lib/util/hoc')
     , AuthorityLayout = require('../../layouts/authorities')
 
-function mapStateToProps(state) {
-  return {
-    backend: state.backends.current,
-  }
-}
-
-class BackendHome extends React.Component {
+module.exports = RouterKnower(class BackendHome extends React.Component {
   constructor() {
     super();
 
@@ -65,9 +57,4 @@ class BackendHome extends React.Component {
       ])
     )
   }
-}
-
-module.exports = R.compose(
-  connect(mapStateToProps),
-  RouterKnower,
-)(BackendHome)
+})

@@ -3,19 +3,12 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { connect } = require('react-redux')
     , { Box, Heading } = require('axs-ui')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , { updateLocalBackendDataset } = require('../actions')
     , AuthorityForm = require('../../editors/AuthorityForm')
 
-function mapStateToProps(state) {
-  return {
-    backend: state.backends.current,
-  }
-}
-
-module.exports = connect(mapStateToProps)(class AddAuthority extends React.Component {
+module.exports = class AddAuthority extends React.Component {
   constructor() {
     super();
 
@@ -52,4 +45,4 @@ module.exports = connect(mapStateToProps)(class AddAuthority extends React.Compo
       ])
     )
   }
-})
+}

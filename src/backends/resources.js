@@ -1,6 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , { connect } = require('react-redux')
     , actions = require('./actions')
     , { Backend } = require('./types')
     , { generateRoute } = require('../router')
@@ -13,6 +14,12 @@ function fetchIndividualBackend(dispatch, params={}) {
   const backend = Backend.fromIdentifier(params.backendID)
 
   return dispatch(actions.fetchBackend(backend))
+}
+
+function BackendAware(Component) {
+  return connect((state, props) => ({
+    backend: state.backends.loaded[props.backendID]
+  }))(Component)
 }
 
 module.exports = {
@@ -45,21 +52,21 @@ module.exports = {
 
   'backend': {
     onBeforeRoute: fetchIndividualBackend,
-    Component: require('./components/BackendHome')
+    Component: BackendAware(require('./components/BackendHome')),
   },
 
   'backend-new-authority': {
     onBeforeRoute: fetchIndividualBackend,
-    Component: require('./components/AddAuthority')
+    Component: BackendAware(require('./components/AddAuthority')),
   },
 
   'backend-authority': {
     onBeforeRoute: fetchIndividualBackend,
-    Component: require('./components/Authority')
+    Component: BackendAware(require('./components/Authority')),
   },
 
   'backend-history': {
     onBeforeRoute: fetchIndividualBackend,
-    Component: require('./components/History'),
+    Component: BackendAware(require('./components/History'),),
   },
 }

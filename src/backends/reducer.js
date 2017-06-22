@@ -6,7 +6,6 @@ const R = require('ramda')
       , moduleActionCase
       , readyStateCase
       } = require('../typed-actions/utils')
-    , { Backend } = require('./types')
 
 const initialState = () => ({
   available: null,
@@ -34,15 +33,12 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       GetBackend() {
-        const { metadata, dataset, isEditable, type } = getResponse(action)
-            , data = { metadata, dataset, isEditable, type }
+        const data = getResponse(action)
+            , identifier = data.type.asIdentifier()
 
-        localStorage.currentBackend = Backend.serialize(type)
+        // localStorage.currentBackend = Backend.serialize(type)
 
-        return R.pipe(
-          R.set(R.lensPath(['loaded', type.asIdentifier()]), data),
-          R.set(R.lensProp('current'), data)
-        )(state)
+        return R.set(R.lensPath(['loaded', identifier]), data, state)
       }
     })
   })

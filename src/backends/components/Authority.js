@@ -3,17 +3,10 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('axs-ui')
-    , { connect } = require('react-redux')
     , { Source } = require('lib/ui')
     , PeriodForm = require('../../editors/PeriodForm')
 
-function mapStateToProps(state) {
-  return {
-    backend: state.backends.current,
-  }
-}
-
-module.exports = connect(mapStateToProps)(class Authority extends React.Component {
+module.exports = class Authority extends React.Component {
   constructor() {
     super();
 
@@ -42,4 +35,4 @@ module.exports = connect(mapStateToProps)(class Authority extends React.Componen
       ])
     )
   }
-})
+}
