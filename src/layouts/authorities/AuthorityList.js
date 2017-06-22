@@ -36,8 +36,7 @@ const columns = {
     label: 'Title',
     getValue(authority, backend) {
       const href = generateRoute('backend-authority', {
-        identifier: backend.type.asIdentifier(),
-      }, {
+        backendID: backend.type.asIdentifier(),
         id: authority.id
       })
 
