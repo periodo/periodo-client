@@ -3,23 +3,9 @@
 const h = require('react-hyperscript')
     , { Flex, Box, Heading, Text } = require('axs-ui')
     , Spinner = require('respin')
-    , { Button } = require('lib/ui')
+    , { Button, DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
     , { RouterKnower } = require('lib/util/hoc')
     , MB = require('react-aria-menubutton')
-
-const MenuItem = props =>
-  h(MB.MenuItem, { value: props.value }, [
-    h(Box, Object.assign({
-      p: '12px',
-      css: {
-        minWidth: 100,
-        ':hover': {
-          cursor: 'pointer',
-          backgroundColor: '#eee',
-        }
-      }
-    }, props))
-  ])
 
 const Header = props =>
   h(Flex, {
@@ -59,39 +45,20 @@ const Header = props =>
       props.loadingNewPage && h(Spinner, { size: 22 }),
     ]),
 
-    h(Box, { css: { position: 'relative', userSelect: 'none', }}, [
-      h(MB.Wrapper, {
-        onSelection: val => {
-          if (val.startsWith('#')) {
-            window.location.hash = val;
-          }
+    h(DropdownMenu, {
+      onSelection: val => {
+        if (val.startsWith('#')) {
+          window.location.hash = val;
         }
-      }, [
-        h(MB.Button, {}, h(Button, { is: 'div', p: '12px' }, 'Menu ▼')),
-
-        h(MB.Menu, {}, h(Box, {
-          is: 'ul',
-          p: 0,
-          border: 1,
-          borderColor: '#ccc',
-          css: {
-            position: 'absolute',
-            right: 0,
-            whiteSpace: 'nowrap',
-            zIndex: 1,
-            background: 'white',
-          }
-        }, [
-          h(MenuItem, { value: '#open-backend' }, 'Open backend'),
-          h(MenuItem, { value: '#new-backend' }, 'New backend'),
-          h('hr', { style: { marginLeft: '8px', marginRight: '8px' }}),
-          h(MenuItem, { value: '#submitted-patches' }, 'View submitted patches'),
-          h('hr', { style: { marginLeft: '8px', marginRight: '8px' }}),
-          h(MenuItem, { value: '#help' }, 'Help'),
-        ]))
-      ]),
-    ]),
-
+      }
+    }, [
+      h(DropdownMenuItem, { value: '#open-backend' }, 'Open backend'),
+      h(DropdownMenuItem, { value: '#new-backend' }, 'New backend'),
+      h(DropdownMenuSeparator),
+      h(DropdownMenuItem, { value: '#submitted-patches' }, 'View submitted patches'),
+      h(DropdownMenuSeparator),
+      h(DropdownMenuItem, { value: '#help' }, 'Help'),
+    ])
   ])
 
 module.exports = RouterKnower(Header);
