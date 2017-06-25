@@ -10,7 +10,7 @@ const h = require('react-hyperscript')
 const MenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
     h(Box, Object.assign({
-      p: 1,
+      p: '12px',
       css: {
         minWidth: 100,
         ':hover': {
@@ -67,7 +67,7 @@ const Header = props =>
           }
         }
       }, [
-        h(MB.Button, {}, h(Button, { is: 'div' }, 'Menu ▼')),
+        h(MB.Button, {}, h(Button, { is: 'div', p: '12px' }, 'Menu ▼')),
 
         h(MB.Menu, {}, h(Box, {
           is: 'ul',
