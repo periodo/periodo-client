@@ -101,7 +101,7 @@ class Application extends React.Component {
 
 
   render() {
-    const { activeComponent, errors } = this.state
+    const { activeComponent, errors, loadingNewPage } = this.state
 
     return h(Flex, {
       flexDirection: 'column',
@@ -109,16 +109,16 @@ class Application extends React.Component {
         height: '100%',
       }
     }, [
+
       h(Box, {
         is: 'header',
         bg: 'gray2',
-        p: 2,
         css: {
           flex: 0,
           borderBottom: '1px solid #999',
         }
       }, [
-        h(Header)
+        h(Header, { loadingNewPage }),
       ]),
 
       h(Box, {
@@ -139,14 +139,7 @@ class Application extends React.Component {
           borderTop: '1px solid #999',
         }
       }, [
-        h(Box, {
-          mx: 'auto',
-          css: {
-            maxWidth: 4,
-          }
-        }, [
-          h(Footer, { errors })
-        ])
+        h(Footer, { errors })
       ])
     ])
   }

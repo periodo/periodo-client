@@ -33,6 +33,7 @@
     "pump": "^1.0.2",
     "ramda": "^0.24.0",
     "react": "^15.0.1",
+    "react-aria-menubutton": "^5.0.0",
     "react-autocomplete": "^1.5.9",
     "react-dom": "^15.0.1",
     "react-geomicons": "^2.1.0",
