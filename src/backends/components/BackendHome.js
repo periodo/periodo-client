@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box } = require('axs-ui')
-    , { Link, Breadcrumb, DropdownMenu, DropdownMenuItem } = require('lib/ui')
+    , { Flex, Box } = require('axs-ui')
+    , { Link, Breadcrumb, DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
     , { RouterKnower } = require('lib/util/hoc')
     , AuthorityLayout = require('../../layouts/authorities')
 
@@ -39,32 +39,9 @@ module.exports = RouterKnower(class BackendHome extends React.Component {
     const { backend, generateRoute } = this.props
 
     return (
-      h('div', [
-        h(Breadcrumb, [
-          h(Link, { href: '#open-backend' }, 'Backends'),
-          backend.metadata.label,
-        ]),
-
-
-        backend.isEditable && h(Box, { mb: 2 }, [
-          h(DropdownMenu, {
-            label: 'Backend',
-            onSelection: val => {
-              // TODO
-            }
-          }, [
-            h(DropdownMenuItem, {
-              css: {
-                minWidth: '200px',
-              },
-              value: generateRoute('backend-new-authority', { backendID: 'local-' + backend.type.id }),
-            }, 'Add authority'),
-
-            h(DropdownMenuItem, {
-              value: generateRoute('backend-history', { backendID: 'local-' + backend.type.id }),
-            }, 'History'),
-          ]),
-
+      h(Box, [
+        h(Box, [
+          /*
           h(DropdownMenu, {
             label: 'Layout',
             ml: 2,
@@ -82,9 +59,13 @@ module.exports = RouterKnower(class BackendHome extends React.Component {
             h(DropdownMenuItem, {
               value: 'reset',
             }, 'Reset'),
-          ]),
-        ]),
 
+            h(DropdownMenuItem, {
+              value: 'save',
+            }, 'Save'),
+          ]),
+          */
+        ]),
 
         h(AuthorityLayout, {
           backend,

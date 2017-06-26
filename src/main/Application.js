@@ -1,9 +1,11 @@
 "use strict";
 
 const React = require('react')
+    , R = require('ramda')
     , h = require('react-hyperscript')
     , Immutable = require('immutable')
     , { Flex, Box } = require('axs-ui')
+    , { DropdownMenu, Breadcrumb } = require('lib/ui')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
@@ -12,8 +14,6 @@ const React = require('react')
 
 const LEFT_CLICK = 1;
 
-const noop = () => null
-
 class Application extends React.Component {
   constructor() {
     super();
@@ -21,6 +21,8 @@ class Application extends React.Component {
     this.state = {
       loadingNewPage: true,
       activeComponent: null,
+      actions: null,
+      breadcrumb: null,
       errors: Immutable.List()
     }
   }
@@ -37,7 +39,7 @@ class Application extends React.Component {
   }
 
   async mountResource(resource) {
-    const { onBeforeRoute=noop, Component, params } = resource
+    const { onBeforeRoute=R.always({}), Component, params } = resource
         , { dispatch } = this.props
 
     let redirectTo
@@ -49,15 +51,27 @@ class Application extends React.Component {
     this.setState({ loadingNewPage: true })
 
     try {
-      await onBeforeRoute(dispatch, params, redirect);
+      const extraProps = await onBeforeRoute(dispatch, params, redirect)
+
+      const props = Object.assign({}, params, extraProps)
+
+      const actions = (resource.actions || R.always(null))(props)
+          , breadcrumb = (resource.breadcrumb || R.always(null))(props)
 
       if (!redirectTo) {
         if (document) {
-          document.title = 'PeriodO client: ' + resource.title;
+          try {
+            const title = resource.title(props)
+            document.title = 'PeriodO client | ' + title;
+          } catch (err) {
+            document.title = 'PeriodO client';
+          }
         }
 
         this.setState({
-          activeComponent: h(Component, params)
+          activeComponent: h(Component, params),
+          actions,
+          breadcrumb,
         })
       } else {
         setTimeout(() => {
@@ -105,7 +119,7 @@ class Application extends React.Component {
 
 
   render() {
-    const { activeComponent, errors, loadingNewPage } = this.state
+    const { activeComponent, errors, loadingNewPage, actions, breadcrumb } = this.state
 
     return h(Flex, {
       flexDirection: 'column',
@@ -132,7 +146,28 @@ class Application extends React.Component {
           flexGrow: 1,
         }
       }, [
-        activeComponent
+        h(Box, [
+          (actions || breadcrumb) && h(Flex, {
+            alignItems: 'center',
+            mb: 2,
+          }, [
+            actions && h(DropdownMenu, {
+              label: 'Actions'
+            }, actions),
+
+            breadcrumb && h(Breadcrumb, {
+              mb: 0,
+              ml: '-1px',
+              css: {
+                flexGrow: 1,
+                lineHeight: '20px',
+                border: '1px solid #bfc5ca',
+              }
+            }, breadcrumb),
+          ]),
+
+          activeComponent
+        ]),
       ]),
 
       h(Box, {

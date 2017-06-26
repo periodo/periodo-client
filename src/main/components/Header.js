@@ -49,11 +49,8 @@ const Header = props =>
       label: 'Menu',
       openLeft: true,
     }, [
-      h(DropdownMenuItem, { value: '#open-backend' }, 'Open backend'),
-      h(DropdownMenuItem, { value: '#new-backend' }, 'New backend'),
-      h(DropdownMenuSeparator),
-      h(DropdownMenuItem, { value: '#submitted-patches' }, 'View submitted patches'),
-      h(DropdownMenuSeparator),
+      h(DropdownMenuItem, { value: '#open-backend' }, 'Backends'),
+      h(DropdownMenuItem, { value: '#submitted-patches' }, 'Patches'),
       h(DropdownMenuItem, { value: '#help' }, 'Help'),
     ])
   ])

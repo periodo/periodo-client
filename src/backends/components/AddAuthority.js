@@ -23,16 +23,6 @@ module.exports = class AddAuthority extends React.Component {
 
     return (
       h(Box, [
-        h(Breadcrumb, [
-          h(Link, { route: 'open-backend' }, 'Backends'),
-          h(Link,
-            { route: 'backend', params: { backendID: backend.type.asIdentifier() }},
-            backend.metadata.label
-          ),
-
-          'Add authority'
-        ]),
-
         h(Heading, { level: 2 }, 'Add authority'),
         h(AuthorityForm, {
           value: this.state.authority,
