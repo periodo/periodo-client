@@ -41,16 +41,13 @@ const Header = props =>
       ]),
     ]),
 
-    h(Box, [
+    h(Box, { width: 22 }, [
       props.loadingNewPage && h(Spinner, { size: 22 }),
     ]),
 
     h(DropdownMenu, {
-      onSelection: val => {
-        if (val.startsWith('#')) {
-          window.location.hash = val;
-        }
-      }
+      label: 'Menu',
+      openLeft: true,
     }, [
       h(DropdownMenuItem, { value: '#open-backend' }, 'Open backend'),
       h(DropdownMenuItem, { value: '#new-backend' }, 'New backend'),
