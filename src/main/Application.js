@@ -52,6 +52,10 @@ class Application extends React.Component {
       await onBeforeRoute(dispatch, params, redirect);
 
       if (!redirectTo) {
+        if (document) {
+          document.title = 'PeriodO client: ' + resource.title;
+        }
+
         this.setState({
           activeComponent: h(Component, params)
         })

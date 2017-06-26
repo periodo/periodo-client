@@ -26,31 +26,22 @@ module.exports = {
   '': {
     Component: () => h('div'),
     onBeforeRoute(dispatch, params, redirect) {
-      let currentBackend
-
-      if (global.localStorage) {
-        try {
-          currentBackend = Backend.deserialize(currentBackend)
-        } catch (err) {
-          // Just ignore
-        }
-      }
-
-      redirect(!currentBackend
-        ? generateRoute('available-backends')
-        : generateRoute('backend', { backendID: currentBackend.asIdentifier() })
-      )
+      redirect(generateRoute('open-backend'))
     }
   },
 
-  'available-backends': {
-    onBeforeRoute(dispatch) {
-      return dispatch(actions.listAvailableBackends())
+  'open-backend': {
+    title: 'Select backend',
+    onBeforeRoute: async (dispatch) => {
+      const resp = await dispatch(actions.listAvailableBackends())
+
+      return resp;
     },
     Component: require('./components/BackendSelect')
   },
 
   'backend': {
+    title: 'View backend',
     onBeforeRoute: fetchIndividualBackend,
     Component: BackendAware(require('./components/BackendHome')),
   },
