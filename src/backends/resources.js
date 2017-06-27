@@ -22,12 +22,6 @@ async function fetchIndividualBackend(dispatch, params={}) {
   }
 }
 
-function BackendAware(Component) {
-  return connect((state, props) => ({
-    backend: state.backends.loaded[props.backendID]
-  }))(Component)
-}
-
 function backendActions(props) {
   const { backend } = props
 
@@ -45,10 +39,11 @@ function backendActions(props) {
     }, 'Edit backend'),
 
     h(DropdownMenuItem, {
-      value: Route('backend-delete', {
+      value: Route('backend-sync', {
         backendID: backend.type.asIdentifier()
       }),
-    }, 'Delete'),
+    }, 'Sync'),
+
 
     h(DropdownMenuSeparator),
   ]
@@ -87,6 +82,16 @@ function backendBreadcrumb(props, extra) {
   ]
 }
 
+const individualBackendPage = (title, Component) => ({
+  title: props => `Backend: ${props.backend.metadata.label} | ${title(props)}`,
+  actions: backendActions,
+  breadcrumb: props => backendBreadcrumb(props, title(props)),
+  onBeforeRoute: fetchIndividualBackend,
+  Component: connect((state, props) => ({
+    backend: state.backends.loaded[props.backendID]
+  }))(Component)
+})
+
 module.exports = {
   '': {
     Component: () => h('div'),
@@ -111,35 +116,50 @@ module.exports = {
     Component: require('./components/BackendSelect')
   },
 
-  'backend': {
-    title: props => `Backend: ${props.backend.metadata.label} | Home`,
-    actions: backendActions,
-    breadcrumb: props => backendBreadcrumb(props, 'Home'),
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/BackendHome')),
-  },
+  'backend': individualBackendPage(
+    () => 'Home',
+    require('./components/BackendHome')
+  ),
 
-  'backend-new-authority': {
-    title: props => `Backend: ${props.backend.metadata.label} | Add authority`,
-    actions: backendActions,
-    breadcrumb: props => backendBreadcrumb(props, 'Add authority'),
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/AddAuthority')),
-  },
+  'backend-new-authority': individualBackendPage(
+    () => 'Add authority',
+    require('./components/AddAuthority')
+  ),
 
-  'backend-authority': {
-    title: props => `Backend: ${props.backend.metadata.label} | View authority | ${props.id}`,
-    actions: backendActions,
-    breadcrumb: props => backendBreadcrumb(props, 'View authority'),
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/Authority')),
-  },
+  'backend-authority': individualBackendPage(
+    props => `View authority (${props.id})`,
+    require('./components/Authority')
+  ),
 
-  'backend-history': {
-    title: props => `Backend: ${props.backend.metadata.label} | History`,
-    actions: backendActions,
-    breadcrumb: props => backendBreadcrumb(props, 'History'),
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/History'),),
-  },
+  'backend-history': individualBackendPage(
+    () => 'History',
+    require('./components/History')
+  ),
+
+  'backend-edit': individualBackendPage(
+    () => 'Edit',
+    require('./components/EditBackend')
+  ),
+
+  'backend-download': individualBackendPage(
+    () => 'Download',
+    require('./components/DownloadBackend')
+  ),
+
+  'backend-sync': Object.assign(individualBackendPage(
+      () => 'Sync',
+      require('./components/SyncBackend')
+    ), {
+      onBeforeRoute: async (dispatch, params) => {
+        const props = await fetchIndividualBackend(dispatch, params)
+
+        await dispatch(actions.listAvailableBackends())
+
+        return props;
+      },
+      Component: connect((state, props) => ({
+        backend: state.backends.loaded[props.backendID],
+        availableBackends: state.backends.available,
+      }))(require('./components/SyncBackend')),
+  }),
 }
