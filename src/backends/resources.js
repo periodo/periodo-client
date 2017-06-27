@@ -87,7 +87,7 @@ module.exports = {
       h(DropdownMenuItem, { value: '#new-backend'}, 'Add backend')
     ],
     breadcrumb: () => [
-      'Open backend',
+      'Backends',
     ],
     onBeforeRoute: async (dispatch) => {
       const resp = await dispatch(actions.listAvailableBackends())

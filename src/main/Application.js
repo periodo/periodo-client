@@ -162,6 +162,7 @@ class Application extends React.Component {
                 flexGrow: 1,
                 lineHeight: '20px',
                 border: '1px solid #bfc5ca',
+                borderRadius: '0 2px 2px 0',
               }
             }, breadcrumb),
           ]),
