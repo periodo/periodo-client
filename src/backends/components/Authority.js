@@ -4,6 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('axs-ui')
     , { Source, Breadcrumb, Link } = require('lib/ui')
+    , { Route } = require('lib/router')
     , PeriodForm = require('../../editors/PeriodForm')
 
 module.exports = class Authority extends React.Component {
@@ -24,11 +25,12 @@ module.exports = class Authority extends React.Component {
     return (
       h(Box, [
         h(Breadcrumb, [
-          h(Link, { route: 'open-backend' }, 'Backends'),
-          h(Link,
-            { route: 'backend', params: { backendID: backend.type.asIdentifier() }},
-            backend.metadata.label
-          ),
+          h(Link, { href: Route('open-backend') }, 'Backends'),
+          h(Link, {
+            href: Route('backend', {
+              backendID: backend.type.asIdentifier(),
+            })
+          }, backend.metadata.label),
 
           'View authority'
         ]),

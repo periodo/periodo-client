@@ -3,11 +3,10 @@
 const h = require('react-hyperscript')
     , { Flex, Box, Heading, Text } = require('axs-ui')
     , Spinner = require('respin')
-    , { Button, DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
-    , { RouterKnower } = require('lib/util/hoc')
-    , MB = require('react-aria-menubutton')
+    , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
+    , { Route } = require('lib/router')
 
-const Header = props =>
+module.exports = props =>
   h(Flex, {
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -26,7 +25,7 @@ const Header = props =>
 
         h(Text, {
           is: 'a',
-          href: '#/',
+          href: '',
           color: 'blue',
           css: {
             textDecoration: 'none',
@@ -49,10 +48,8 @@ const Header = props =>
       label: 'Menu',
       openLeft: true,
     }, [
-      h(DropdownMenuItem, { value: '#open-backend' }, 'Backends'),
-      h(DropdownMenuItem, { value: '#submitted-patches' }, 'Patches'),
-      h(DropdownMenuItem, { value: '#help' }, 'Help'),
+      h(DropdownMenuItem, { value: Route('open-backend') }, 'Backends'),
+      h(DropdownMenuItem, { value: Route('submitted-patches') }, 'Patches'),
+      h(DropdownMenuItem, { value: Route('help') }, 'Help'),
     ])
   ])
-
-module.exports = RouterKnower(Header);

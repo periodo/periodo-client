@@ -3,12 +3,10 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box } = require('axs-ui')
-    , { Link, Breadcrumb, DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
-    , { RouterKnower } = require('lib/util/hoc')
+    , { Box } = require('axs-ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
-module.exports = RouterKnower(class BackendHome extends React.Component {
+module.exports = class BackendHome extends React.Component {
   constructor() {
     super();
 
@@ -36,7 +34,7 @@ module.exports = RouterKnower(class BackendHome extends React.Component {
   }
 
   render() {
-    const { backend, generateRoute } = this.props
+    const { backend } = this.props
 
     return (
       h(Box, [
@@ -75,4 +73,4 @@ module.exports = RouterKnower(class BackendHome extends React.Component {
       ])
     )
   }
-})
+}

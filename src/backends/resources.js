@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , { connect } = require('react-redux')
     , actions = require('./actions')
     , { Backend } = require('./types')
-    , { generateRoute } = require('../router')
+    , { Route } = require('lib/router')
     , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
     , { getResponse } = require('../typed-actions/utils')
 
@@ -33,15 +33,21 @@ function backendActions(props) {
 
   const editableBackendOptions = [
     h(DropdownMenuItem, {
-      value: generateRoute('backend-new-authority', { backendID: backend.type.asIdentifier() }),
+      value: Route('backend-new-authority', {
+        backendID: backend.type.asIdentifier()
+      }),
     }, 'Add authority'),
 
     h(DropdownMenuItem, {
-      value: generateRoute('backend-edit', { backendID: backend.type.asIdentifier() }),
+      value: Route('backend-edit', {
+        backendID: backend.type.asIdentifier()
+      }),
     }, 'Edit backend'),
 
     h(DropdownMenuItem, {
-      value: generateRoute('backend-delete', { backendID: backend.type.asIdentifier() }),
+      value: Route('backend-delete', {
+        backendID: backend.type.asIdentifier()
+      }),
     }, 'Delete'),
 
     h(DropdownMenuSeparator),
@@ -51,11 +57,15 @@ function backendActions(props) {
     ...(backend.isEditable ? editableBackendOptions : []),
 
     h(DropdownMenuItem, {
-      value: generateRoute('backend-download', { backendID: backend.type.asIdentifier() }),
+      value: Route('backend-download', {
+        backendID: backend.type.asIdentifier()
+      }),
     }, 'Download JSON'),
 
     h(DropdownMenuItem, {
-      value: generateRoute('backend-history', { backendID: backend.type.asIdentifier() }),
+      value: Route('backend-history', {
+        backendID: backend.type.asIdentifier()
+      }),
     }, 'History'),
   ]
 }
@@ -64,11 +74,15 @@ function backendBreadcrumb(props, extra) {
   const { backend } = props
 
   return [
-    h(Link, { href: '#open-backend' }, 'Backends'),
-    h(Link,
-      { route: 'backend', params: { backendID: backend.type.asIdentifier() }},
-      backend.metadata.label
-    ),
+    h(Link, {
+      href: Route('open-backend'),
+    }, 'Backends'),
+
+    h(Link, {
+      href: Route('backend', {
+        backendID: backend.type.asIdentifier()
+      })
+    }, backend.metadata.label),
     extra
   ]
 }
@@ -77,7 +91,7 @@ module.exports = {
   '': {
     Component: () => h('div'),
     onBeforeRoute(dispatch, params, redirect) {
-      redirect(generateRoute('open-backend'))
+      redirect(Route('open-backend'))
     }
   },
 

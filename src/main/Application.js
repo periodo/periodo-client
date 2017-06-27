@@ -3,16 +3,14 @@
 const React = require('react')
     , R = require('ramda')
     , h = require('react-hyperscript')
+    , through = require('through2')
     , Immutable = require('immutable')
     , { Flex, Box } = require('axs-ui')
     , { DropdownMenu, Breadcrumb } = require('lib/ui')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
-    , locationStream = require('location-hash-stream')()
-    , router = require('../router')
-
-const LEFT_CLICK = 1;
+    , router = require('lib/router')
 
 class Application extends React.Component {
   constructor() {
@@ -28,18 +26,34 @@ class Application extends React.Component {
   }
 
   componentDidMount() {
-    const routeStream = router.createStream()
+    global.PeriodO = {}
+    global.PeriodO.locationStream = through.obj()
 
-    routeStream.on('data', this.mountResource.bind(this))
+    window.onpopstate = () => {
+      global.PeriodO.locationStream.write({
+        path: window.location.search,
+      })
+    }
 
-    locationStream.pipe(routeStream)
-    routeStream.write(window.location.hash || '#')
-
-    document.addEventListener('click', this.handlePageClick.bind(this));
+    window.PeriodO.locationStream
+      .on('data', ({ path, pushState }) => {
+        this.setApplicationPath(path, pushState)
+      })
+      .on('error', e => {
+        throw e;
+      })
+      .write({
+        path: window.location.search
+      })
   }
 
-  async mountResource(resource) {
-    const { onBeforeRoute=R.always({}), Component, params } = resource
+  async setApplicationPath(path, pushState) {
+    if (path instanceof router.Route) {
+      path = path.url()
+    }
+
+    const resource = router.match(path)
+        , { onBeforeRoute=R.always({}), Component, params } = resource
         , { dispatch } = this.props
 
     let redirectTo
@@ -73,12 +87,19 @@ class Application extends React.Component {
           actions,
           breadcrumb,
         })
+
+        if (pushState) {
+          window.history.pushState(undefined, undefined, path);
+        }
+
       } else {
-        setTimeout(() => {
-          window.location.hash = redirectTo;
-        }, 0)
+        this.setApplicationPath(redirectTo);
       }
     } catch (error) {
+        if (pushState) {
+          window.history.pushState(undefined, undefined, path);
+        }
+
       this.setState(prev => ({
         errors: prev.errors.unshift(Immutable.Map({
           error,
@@ -91,32 +112,6 @@ class Application extends React.Component {
       this.setState({ loadingNewPage: false })
     }
   }
-
-  handlePageClick(e) {
-    let anchor = e.target
-
-    const root = location.protocol + '//' + location.host
-
-    do {
-      if (!anchor || anchor.nodeName === 'A') break;
-    } while ((anchor = anchor.parentNode));
-
-    if (anchor) {
-      const url = require('url')
-          , href = anchor.href
-          , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
-          , interceptClick = isLeftClick && href && href.indexOf(root) === 0
-          , redirect = !anchor.dataset.noRedirect && href !== root + '/'
-
-      if (interceptClick) {
-        e.preventDefault();
-        if (redirect) {
-          locationStream.write(url.parse(href).hash)
-        }
-      }
-    }
-  }
-
 
   render() {
     const { activeComponent, errors, loadingNewPage, actions, breadcrumb } = this.state

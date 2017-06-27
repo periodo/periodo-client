@@ -5,9 +5,10 @@ const h = require('react-hyperscript')
     , { earliestYear, latestYear } = require('lib/util/terminus')
     , { authorityOf } = require('lib/util/period')
     , { displayTitle } = require('lib/util/source')
-    , { RouterKnower } = require('lib/util/hoc')
     , { periodsWithAuthority } = require('lib/util/authority')
+    , { Link } = require('lib/ui')
     , { Box } = require('axs-ui')
+    , { Route } = require('lib/router')
     , List = require('lib/layout-engine/List')
 
 const columns = {
@@ -27,10 +28,15 @@ const columns = {
 
   source: {
     label: 'Source',
-    getValue(period) {
-      return h(RouterKnower(Box), [
+    getValue(period, backend) {
+      return h(Box, [
         displayTitle(authorityOf(period).source),
-        h('a', { href: '#' }, '(link)')
+        h(Link, {
+          href: Route('backend-authority', {
+            backendID: backend.type.asIdentifier(),
+            id: authorityOf(period).id
+          })
+        }, '(link)')
       ])
     }
   },
