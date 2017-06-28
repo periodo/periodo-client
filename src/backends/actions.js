@@ -252,7 +252,7 @@ function deleteBackend(storage) {
       // FIXME: nothing was deleted? Raise an error?
     }
 
-    return {}
+    return { storage }
   })
 }
 

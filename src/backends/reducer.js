@@ -12,16 +12,19 @@ const initialState = () => ({
   datasets: {},
 })
 
+const updateBackend = (backend, dataset, state) => {
+  const identifier = backend.asIdentifier()
+
+  return R.pipe(
+    R.set(R.lensPath(['available', identifier]), backend),
+    R.set(R.lensPath(['datasets', identifier]), dataset)
+  )(state)
+}
+
 module.exports = function backends(state=initialState(), action) {
   if (!isInModule(action, 'backend')) return state;
 
   return readyStateCase(action, {
-    Pending: () => state,
-    Failure: err => {
-      throw err;
-
-      return state
-    },
     Success: () => moduleActionCase(action, {
       CreateBackend() {
         return state;
@@ -40,13 +43,26 @@ module.exports = function backends(state=initialState(), action) {
 
       GetBackendDataset() {
         const { backend, dataset } = getResponse(action)
-            , identifier = backend.asIdentifier()
+
+        return updateBackend(backend, dataset, state)
+      },
+
+      UpdateBackend() {
+        const { backend, dataset } = getResponse(action)
+
+        return updateBackend(backend, dataset, state)
+      },
+
+      DeleteBackend() {
+        const { storage } = getResponse(action)
+            , removeBackend = R.omit([storage.identifier()])
 
         return R.pipe(
-          R.set(R.lensPath(['available', identifier]), backend),
-          R.set(R.lensPath(['datasets', identifier]), dataset),
+          R.over(R.lensProp('datasets'), removeBackend),
+          R.over(R.lensProp('available'), removeBackend)
         )(state)
       }
-    })
+    }),
+    _: () => state
   })
 }

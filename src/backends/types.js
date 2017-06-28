@@ -115,7 +115,9 @@ const BackendAction = makeActionType('backend', {
     {
       storage: BackendStorage,
     },
-    {}
+    {
+      storage: BackendStorage,
+    }
   ],
 })
 
