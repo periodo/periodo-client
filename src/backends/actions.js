@@ -93,6 +93,11 @@ function fetchBackend(storage, forceReload) {
             modified: resp.headers.get('Last-Modified'),
             accessed: Date.now()
           }
+        } else {
+          await db.remoteBackends
+            .where('url')
+            .equals(url)
+            .modify({ accessed: new Date() })
         }
 
         return [metadata, dataset]
