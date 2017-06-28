@@ -9,7 +9,11 @@ const h = require('react-hyperscript')
 
 function mapStateToProps(state) {
   return {
-    backends: R.values(state.backends.available)
+    backends: R.pipe(
+      R.values,
+      R.sortBy(R.path(['metadata', 'accessed'])),
+      R.reverse
+    )(state.backends.available)
   }
 }
 

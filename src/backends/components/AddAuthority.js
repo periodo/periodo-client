@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Box, Heading } = require('axs-ui')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
-    , { updateLocalBackendDataset } = require('../actions')
+    , { updateLocalDataset } = require('../actions')
     , AuthorityForm = require('../../editors/AuthorityForm')
 
 module.exports = class AddAuthority extends React.Component {
@@ -28,7 +28,7 @@ module.exports = class AddAuthority extends React.Component {
           onValidated: authority => {
             const id = generateID()
 
-            dispatch(updateLocalBackendDataset(
+            dispatch(updateLocalDataset(
               backend.storage,
               R.assocPath(
                 ['periodCollections', id],

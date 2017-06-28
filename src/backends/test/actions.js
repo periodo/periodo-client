@@ -123,7 +123,7 @@ test('Updating backends', async t => {
   store.clearActions();
 
   await store.dispatch(
-    actions.updateLocalBackendDataset(backend.storage, updatedDataset))
+    actions.updateLocalDataset(backend.storage, updatedDataset))
 
   t.equal(store.getActions().length, 6);
 

@@ -3,6 +3,7 @@
 const R = require('ramda')
     , { isInModule
       , getResponse
+      , getActionType
       , moduleActionCase
       , readyStateCase
       } = require('../typed-actions/utils')
@@ -48,13 +49,19 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       UpdateBackend() {
+        const { backend } = getResponse(action)
+
+        return R.set(R.lensPath(['available', backend.asIdentifier()]), backend, state)
+      },
+
+      UpdateLocalDataset() {
         const { backend, dataset } = getResponse(action)
 
         return updateBackend(backend, dataset, state)
       },
 
       DeleteBackend() {
-        const { storage } = getResponse(action)
+        const { storage } = getActionType(action)
             , removeBackend = R.omit([storage.identifier()])
 
         return R.pipe(

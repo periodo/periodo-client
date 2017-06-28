@@ -99,7 +99,7 @@ const BackendAction = makeActionType('backend', {
     }
   ],
 
-  UpdateBackend: [
+  UpdateLocalDataset: [
     {
       storage: BackendStorage,
       newDataset: isDataset
@@ -111,13 +111,21 @@ const BackendAction = makeActionType('backend', {
     }
   ],
 
+  UpdateBackend: [
+    {
+      storage: BackendStorage,
+      withObj: Object,
+    },
+    {
+      backend: Backend,
+    }
+  ],
+
   DeleteBackend: [
     {
       storage: BackendStorage,
     },
-    {
-      storage: BackendStorage,
-    }
+    {}
   ],
 })
 

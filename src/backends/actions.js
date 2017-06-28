@@ -179,8 +179,35 @@ function addBackend(storage, label='', description='') {
 }
 
 
-function updateLocalBackendDataset(storage, newDataset, message) {
-  const action = BackendAction.UpdateBackend(storage, newDataset)
+async function updateBackend(storage, withObj) {
+  const action = BackendAction.UpdateBackend(storage, withObj)
+
+  return action.do(async (dispatch, getState, { db }) => {
+    await storage.case({
+      IndexedDB: id => {
+        return db.localBackends
+          .where('id')
+          .equals(id)
+          .modify(Object.assign({}, withObj, { modified: new Date() }))
+      },
+
+      Web: url => {
+        return db.remoteBackends
+          .where('url')
+          .equals(url)
+          .modify(Object.assign({}, withObj, { modified: new Date() }))
+      },
+
+      _: () => null
+    })
+
+    return dispatch(fetchBackend(storage))
+  })
+}
+
+
+function updateLocalDataset(storage, newDataset, message) {
+  const action = BackendAction.UpdateLocalDataset(storage, newDataset)
 
   storage.case({
     IndexedDB: () => null,
@@ -257,7 +284,7 @@ function deleteBackend(storage) {
       // FIXME: nothing was deleted? Raise an error?
     }
 
-    return { storage }
+    return {}
   })
 }
 
@@ -266,6 +293,7 @@ module.exports = {
   listAvailableBackends,
   fetchBackend,
   addBackend,
-  updateLocalBackendDataset,
+  updateBackend,
+  updateLocalDataset,
   deleteBackend,
 }

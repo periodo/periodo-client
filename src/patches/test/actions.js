@@ -36,7 +36,7 @@ test('Patch generation actions', async t => {
   ].map(getResponse).map(resp => resp.backend.storage)
 
   await store.dispatch(
-    backendActions.updateLocalBackendDataset(
+    backendActions.updateLocalDataset(
       backendA,
       {
         type: 'rdf:Bag',
