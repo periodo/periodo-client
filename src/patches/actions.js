@@ -26,7 +26,7 @@ function generateDatasetPatch(
     ])
 
     // FIXME: Handle errors in responses?
-    const originID = getResponse(originReq).type.id
+    const originID = getResponse(originReq).backend.id
         , originDataset = getResponse(originReq).dataset
         , remoteDataset = getResponse(remoteReq).dataset
 

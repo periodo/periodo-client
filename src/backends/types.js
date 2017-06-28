@@ -5,17 +5,14 @@ const Type = require('union-type')
     , { isDataset } = require('lib/util/dataset')
     , { isURL } = require('lib/util/misc')
 
-
-const Backend = Type({
+const BackendStorage = Type({
   Web: { url: isURL },
-  IndexedDB: { id: Number },
-  UnsavedIndexedDB: {},
+  IndexedDB: { id: x => x === null || Number.isInteger(x) },
   Memory: {},
   Canonical: {},
 })
 
-
-Backend.prototype.asIdentifier = function () {
+BackendStorage.prototype.asIdentifier = function () {
   return this.case({
     IndexedDB: id => `local-${id}`,
     Web: url => `web-${url}`,
@@ -25,30 +22,20 @@ Backend.prototype.asIdentifier = function () {
   })
 }
 
-// Static methods
-Backend.serialize = backend => JSON.stringify(backend)
-
-Backend.deserialize = str => {
-  const obj = JSON.parse(str)
-
-  return Backend[obj._name + 'Of'](obj)
-}
-
-Backend.fromIdentifier = identifier => {
+BackendStorage.fromIdentifier = identifier => {
   const [type, id] = identifier.split('-')
 
   switch (type) {
     case 'web':
-      return Backend.Web(decodeURIComponent(id));
+      return BackendStorage.Web(decodeURIComponent(id));
 
     case 'local':
-      return Backend.IndexedDB(parseInt(id));
+      return BackendStorage.IndexedDB(parseInt(id));
 
     default:
       throw new Error(`Unknown backend type: ${type}`)
   }
 }
-
 
 const BackendMetadata = Type({
   BackendMetadata: {
@@ -60,55 +47,69 @@ const BackendMetadata = Type({
   }
 })
 
-const _BackendResp = Type({ _BackendResp: {
-  type: Backend,
-  metadata: BackendMetadata,
-}})
+const Backend = Type({
+  Backend: {
+    metadata: BackendMetadata,
+    storage: BackendStorage,
+  }
+})
+
+Backend.prototype.asIdentifier = function () {
+  return this.storage.asIdentifier();
+}
 
 const BackendAction = makeActionType('backend', {
   GetAllBackends: [
     {},
     {
-      //FIXME: This is not ideal
-      backends: Type.ListOf(x => _BackendResp._BackendRespOf(x))
+      backends: Type.ListOf(Backend),
     }
   ],
 
   GetBackend: [
-    { backend: Backend, setAsActive: Boolean },
     {
-      type: Backend,
-      isEditable: Boolean,
-      metadata: BackendMetadata,
+      storage: BackendStorage,
+    },
+    {
+      backend: Backend,
       dataset: isDataset,
     }
   ],
 
   CreateBackend: [
-    { backend: Backend, label: String, description: String, },
-    { backend: Backend, metadata: BackendMetadata, }
+    {
+      storage: BackendStorage,
+      label: String,
+      description: String,
+    },
+    {
+      backend: Backend,
+    }
   ],
 
   UpdateBackend: [
-    { backend: Backend, newDataset: isDataset },
+    {
+      storage: BackendStorage,
+      newDataset: isDataset
+    },
     {
       backend: Backend,
-      metadata: BackendMetadata,
       dataset: isDataset,
       patchData: Object,
     }
   ],
 
   DeleteBackend: [
-    { backend: Backend },
+    {
+      storage: BackendStorage,
+    },
     {}
   ],
-
-  UnsetCurrentBackend: [ {}, {} ],
 })
 
 module.exports = {
   Backend,
   BackendMetadata,
+  BackendStorage,
   BackendAction,
 }
