@@ -92,6 +92,11 @@ const individualBackendPage = (title, Component) => ({
   }))(Component)
 })
 
+const backendRootActions = props => [
+  h(DropdownMenuItem, { value: Route('open-backend') }, 'Open backend'),
+  h(DropdownMenuItem, { value: Route('new-backend') }, 'Add backend'),
+]
+
 module.exports = {
   '': {
     Component: () => h('div'),
@@ -102,11 +107,9 @@ module.exports = {
 
   'open-backend': {
     title: () => 'Select backend',
-    actions: () => [
-      h(DropdownMenuItem, { value: '#new-backend'}, 'Add backend')
-    ],
+    actions: backendRootActions,
     breadcrumb: () => [
-      'Backends',
+      'Open backend',
     ],
     onBeforeRoute: async (dispatch) => {
       const resp = await dispatch(actions.listAvailableBackends())
@@ -114,6 +117,15 @@ module.exports = {
       return resp;
     },
     Component: require('./components/BackendSelect')
+  },
+
+  'new-backend': {
+    title: () => 'Home',
+    actions: backendRootActions,
+    breadcrumb: () => [
+      'Add backend',
+    ],
+    Component: require('./components/AddBackend')
   },
 
   'backend': individualBackendPage(

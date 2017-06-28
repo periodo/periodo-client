@@ -1,14 +1,10 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { compose } = require('redux')
     , { connect } = require('react-redux')
-    , { Box } = require('axs-ui')
     , { Link } = require('lib/ui')
+    , { Box } = require('axs-ui')
     , { Route } = require('lib/router')
-    , BackendForm = require('./Form')
-    , { Backend } = require('../../types')
-    , { addBackend } = require('../../actions')
 
 function mapStateToProps(state) {
   return {
@@ -41,28 +37,9 @@ const BackendSelect = props =>
         ])
       ))
     ]),
-
-    h('h2', 'Add new backend'),
-
-    h(BackendForm, {
-      handleSave: state => {
-        const { label, description, type } = state
-
-        const backend = type === 'Web'
-            ? Backend.WebOf(state)
-            : Backend.UnsavedIndexedDB()
-
-        props.addBackend(backend, label, description).then(() => {
-          window.location.reload();
-        })
-      }
-    }),
   ])
 
-
-module.exports = compose(
-  connect(mapStateToProps, { addBackend })
-)(BackendSelect)
+module.exports = connect(mapStateToProps)(BackendSelect);
 
 
   /*
