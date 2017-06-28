@@ -1,9 +1,10 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , { connect } = require('react-redux')
     , actions = require('./actions')
-    , { Backend } = require('./types')
+    , { BackendStorage } = require('./types')
     , { Route } = require('lib/router')
     , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
     , { getResponse } = require('../typed-actions/utils')
@@ -13,13 +14,11 @@ async function fetchIndividualBackend(dispatch, params={}) {
     throw new Error('Missing `backendID` parameter.')
   }
 
-  const backend = Backend.fromIdentifier(params.backendID)
+  const storage = BackendStorage.fromIdentifier(params.backendID)
 
-  const result = await dispatch(actions.fetchBackend(backend))
+  const result = await dispatch(actions.fetchBackend(storage))
 
-  return {
-    backend: getResponse(result)
-  }
+  return getResponse(result)
 }
 
 function backendActions(props) {
@@ -28,19 +27,19 @@ function backendActions(props) {
   const editableBackendOptions = [
     h(DropdownMenuItem, {
       value: Route('backend-new-authority', {
-        backendID: backend.type.asIdentifier()
+        backendID: backend.asIdentifier()
       }),
     }, 'Add authority'),
 
     h(DropdownMenuItem, {
       value: Route('backend-edit', {
-        backendID: backend.type.asIdentifier()
+        backendID: backend.asIdentifier()
       }),
     }, 'Edit backend'),
 
     h(DropdownMenuItem, {
       value: Route('backend-sync', {
-        backendID: backend.type.asIdentifier()
+        backendID: backend.asIdentifier()
       }),
     }, 'Sync'),
 
@@ -49,17 +48,17 @@ function backendActions(props) {
   ]
 
   return [
-    ...(backend.isEditable ? editableBackendOptions : []),
+    ...(backend.isEditable() ? editableBackendOptions : []),
 
     h(DropdownMenuItem, {
       value: Route('backend-download', {
-        backendID: backend.type.asIdentifier()
+        backendID: backend.asIdentifier()
       }),
     }, 'Download JSON'),
 
     h(DropdownMenuItem, {
       value: Route('backend-history', {
-        backendID: backend.type.asIdentifier()
+        backendID: backend.asIdentifier()
       }),
     }, 'History'),
   ]
@@ -75,7 +74,7 @@ function backendBreadcrumb(props, extra) {
 
     h(Link, {
       href: Route('backend', {
-        backendID: backend.type.asIdentifier()
+        backendID: backend.asIdentifier()
       })
     }, backend.metadata.label),
     extra
@@ -88,7 +87,8 @@ const individualBackendPage = (title, Component) => ({
   breadcrumb: props => backendBreadcrumb(props, title(props)),
   onBeforeRoute: fetchIndividualBackend,
   Component: connect((state, props) => ({
-    backend: state.backends.loaded[props.backendID]
+    backend: state.backends.available[props.backendID],
+    dataset: state.backends.datasets[props.backendID],
   }))(Component)
 })
 
@@ -163,15 +163,15 @@ module.exports = {
       require('./components/SyncBackend')
     ), {
       onBeforeRoute: async (dispatch, params) => {
-        const props = await fetchIndividualBackend(dispatch, params)
+        const resp = await fetchIndividualBackend(dispatch, params)
 
         await dispatch(actions.listAvailableBackends())
 
-        return props;
+        return resp
       },
       Component: connect((state, props) => ({
-        backend: state.backends.loaded[props.backendID],
-        availableBackends: state.backends.available,
+        backend: state.backends.available[props.backendID],
+        availableBackends: R.values(state.backends.available),
       }))(require('./components/SyncBackend')),
   }),
 }

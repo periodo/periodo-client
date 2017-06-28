@@ -41,7 +41,7 @@ const columns = {
         authority.title,
         h(Link, {
           href: Route('backend-authority', {
-            backendID: backend.type.asIdentifier(),
+            backendID: backend.asIdentifier(),
             id: authority.id
           })
         }, 'LINK')

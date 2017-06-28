@@ -34,7 +34,7 @@ module.exports = class BackendHome extends React.Component {
   }
 
   render() {
-    const { backend } = this.props
+    const { backend, dataset } = this.props
 
     return (
       h(Box, [
@@ -67,6 +67,7 @@ module.exports = class BackendHome extends React.Component {
 
         h(AuthorityLayout, {
           backend,
+          dataset,
           spec: this.state.spec,
           updateLayoutOpts: this.updateLayoutOpts.bind(this)
         }),

@@ -8,9 +8,8 @@ const R = require('ramda')
       } = require('../typed-actions/utils')
 
 const initialState = () => ({
-  available: null,
-  current: null,
-  loaded: {},
+  available: {},
+  datasets: {},
 })
 
 module.exports = function backends(state=initialState(), action) {
@@ -29,20 +28,24 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       GetAllBackends() {
-        return R.set(
-          R.lensProp('available'),
-          getResponse(action).backends,
-          state
-        )
+        const { backends } = getResponse(action)
+
+        const backendObj = R.fromPairs(backends.map(backend => [
+          backend.asIdentifier(),
+          backend,
+        ]))
+
+        return R.set(R.lensProp('available'), backendObj, state)
       },
 
-      GetBackend() {
-        const data = getResponse(action)
-            , identifier = data.type.asIdentifier()
+      GetBackendDataset() {
+        const { backend, dataset } = getResponse(action)
+            , identifier = backend.asIdentifier()
 
-        // localStorage.currentBackend = Backend.serialize(type)
-
-        return R.set(R.lensPath(['loaded', identifier]), data, state)
+        return R.pipe(
+          R.set(R.lensPath(['available', identifier]), backend),
+          R.set(R.lensPath(['datasets', identifier]), dataset),
+        )(state)
       }
     })
   })

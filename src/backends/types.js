@@ -22,6 +22,14 @@ BackendStorage.prototype.asIdentifier = function () {
   })
 }
 
+BackendStorage.prototype.isEditable = function () {
+  return this.case({
+    IndexedDB: () => true,
+    Memory: () => true,
+    _: () => false,
+  })
+}
+
 BackendStorage.fromIdentifier = identifier => {
   const [type, id] = identifier.split('-')
 
@@ -58,6 +66,10 @@ Backend.prototype.asIdentifier = function () {
   return this.storage.asIdentifier();
 }
 
+Backend.prototype.isEditable = function () {
+  return this.storage.isEditable();
+}
+
 const BackendAction = makeActionType('backend', {
   GetAllBackends: [
     {},
@@ -66,7 +78,7 @@ const BackendAction = makeActionType('backend', {
     }
   ],
 
-  GetBackend: [
+  GetBackendDataset: [
     {
       storage: BackendStorage,
     },

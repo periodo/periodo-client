@@ -12,6 +12,7 @@ const emptyDataset = () => ({
   type: 'rdf:Bag'
 })
 
+
 function listAvailableBackends() {
   const action = BackendAction.GetAllBackends()
 
@@ -46,25 +47,36 @@ async function fetchDataset(url) {
   return resp;
 }
 
+
 function fetchBackend(storage, forceReload) {
-  const action = BackendAction.GetBackend(storage)
+  const action = BackendAction.GetBackendDataset(storage)
 
   return action.do(async (dispatch, getState, { db }) => {
     const identifier = storage.asIdentifier()
-        , existing = R.path(['backends', 'loaded', identifier], getState())
+        , existingDataset = R.path(['backends', 'datasets', identifier], getState())
 
-    if (existing && !forceReload) return existing
+    if (existingDataset && !forceReload) {
+      return {
+        backend: R.path(['backends', 'available', identifier], getState()),
+        dataset: existingDataset
+      }
+    }
 
     const [metadata, dataset] = await storage.case({
-      IndexedDB: id =>
-        db.localBackends.get(id)
-          .then(
-            backendObj => [backendObj, backendObj.dataset],
-            err => {
-              // FIXME: better error handlign
-              err;
-              throw new Error('No backend with params ... ');
-            }),
+      IndexedDB: async id => {
+        const ct = await db.localBackends
+          .where('id')
+          .equals(id)
+          .modify({ accessed: new Date() })
+
+        if (ct != 1) {
+          throw new Error(`No local backend with id ${id}`);
+        }
+
+        const backend = await db.localBackends.get(id)
+
+        return [backend, backend.dataset]
+      },
 
       Web: async url => {
         let metadata = await db.remoteBackends.get(url)
@@ -161,6 +173,7 @@ function addBackend(storage, label='', description='') {
   })
 }
 
+
 function updateLocalBackendDataset(storage, newDataset, message) {
   const action = BackendAction.UpdateBackend(storage, newDataset)
 
@@ -171,44 +184,43 @@ function updateLocalBackendDataset(storage, newDataset, message) {
     }
   })
 
-  return action.do((dispatch, getState, { db }) =>
-    db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
-      let backend, dataset
+  return action.do(async (dispatch, getState, { db }) => {
+    let backend, dataset
 
-      async function _refetch() {
-        const fetchAction = await dispatch(fetchBackend(storage, true))
-            , resp = getResponse(fetchAction)
+    async function _refetch() {
+      const fetchAction = await dispatch(fetchBackend(storage, true))
+          , resp = getResponse(fetchAction)
 
-        backend = resp.backend;
-        dataset = resp.dataset;
-      }
+      backend = resp.backend;
+      dataset = resp.dataset;
+    }
 
-      await _refetch()
+    await _refetch()
 
-      const patchData = formatPatch(dataset, newDataset, message)
+    const patchData = formatPatch(dataset, newDataset, message)
 
-      const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
-        dataset: newDataset,
-        modified: new Date().getTime()
-      })
+    const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
+      dataset: newDataset,
+      modified: new Date().getTime()
+    })
 
-      delete updatedBackend._name;
-      delete updatedBackend._keys;
+    delete updatedBackend._name;
+    delete updatedBackend._keys;
 
-      await db.localBackends.put(updatedBackend);
+    await db.localBackends.put(updatedBackend);
 
-      await db.localBackendPatches.add(Object.assign({
-        backendID: backend.id
-      }, patchData))
+    await db.localBackendPatches.add(Object.assign({
+      backendID: backend.id
+    }, patchData))
 
-      await _refetch()
+    await _refetch()
 
-      return {
-        backend,
-        dataset,
-        patchData
-      }
-    }))
+    return {
+      backend,
+      dataset,
+      patchData
+    }
+  })
 }
 
 
@@ -243,6 +255,7 @@ function deleteBackend(storage) {
     return {}
   })
 }
+
 
 module.exports = {
   listAvailableBackends,

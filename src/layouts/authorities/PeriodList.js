@@ -33,7 +33,7 @@ const columns = {
         displayTitle(authorityOf(period).source),
         h(Link, {
           href: Route('backend-authority', {
-            backendID: backend.type.asIdentifier(),
+            backendID: backend.asIdentifier(),
             id: authorityOf(period).id
           })
         }, '(link)')

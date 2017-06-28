@@ -16,8 +16,8 @@ module.exports = class Authority extends React.Component {
   }
 
   render() {
-    const { backend, id } = this.props
-        , authority = backend.dataset.periodCollections[id]
+    const { dataset, id } = this.props
+        , authority = dataset.periodCollections[id]
 
     return (
       h(Box, [

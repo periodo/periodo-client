@@ -18,7 +18,7 @@ module.exports = class AddAuthority extends React.Component {
   }
 
   render() {
-    const { dispatch, backend } = this.props
+    const { dispatch, backend, dataset } = this.props
 
     return (
       h(Box, [
@@ -29,11 +29,11 @@ module.exports = class AddAuthority extends React.Component {
             const id = generateID()
 
             dispatch(updateLocalBackendDataset(
-              backend.type,
+              backend.storage,
               R.assocPath(
                 ['periodCollections', id],
                 Object.assign({ id }, authority),
-                backend.dataset
+                dataset
               ),
               `Added period collection ${id}`
             ))
