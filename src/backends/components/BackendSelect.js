@@ -1,12 +1,10 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { compose } = require('redux')
     , { connect } = require('react-redux')
-    , { RouterKnower } = require('lib/util/hoc')
-    , BackendForm = require('./Form')
-    , { Backend } = require('../../types')
-    , { addBackend } = require('../../actions')
+    , { Link } = require('lib/ui')
+    , { Box } = require('axs-ui')
+    , { Route } = require('lib/router')
 
 function mapStateToProps(state) {
   return {
@@ -15,9 +13,7 @@ function mapStateToProps(state) {
 }
 
 const BackendSelect = props =>
-  h('div', [
-    h('h2', 'Existing backends'),
-
+  h(Box, [
     h('table', [
       h('thead', [
         h('tr', [
@@ -31,8 +27,8 @@ const BackendSelect = props =>
         h('tr', { key: backend.type._url || backend.type._id }, [
           h('td', backend.type._name),
           h('td', [
-            h('a', {
-              href: props.generateRoute('backend', {
+            h(Link, {
+              href: Route('backend', {
                 backendID: backend.type.asIdentifier(),
               })
             }, backend.metadata.label)
@@ -41,29 +37,9 @@ const BackendSelect = props =>
         ])
       ))
     ]),
-
-    h('h2', 'Add new backend'),
-
-    h(BackendForm, {
-      handleSave: state => {
-        const { label, description, type } = state
-
-        const backend = type === 'Web'
-            ? Backend.WebOf(state)
-            : Backend.UnsavedIndexedDB()
-
-        props.addBackend(backend, label, description).then(() => {
-          window.location.reload();
-        })
-      }
-    }),
   ])
 
-
-module.exports = compose(
-  RouterKnower,
-  connect(mapStateToProps, { addBackend })
-)(BackendSelect)
+module.exports = connect(mapStateToProps)(BackendSelect);
 
 
   /*

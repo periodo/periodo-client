@@ -24,6 +24,10 @@ module.exports = function backends(state=initialState(), action) {
       return state
     },
     Success: () => moduleActionCase(action, {
+      CreateBackend() {
+        return state;
+      },
+
       GetAllBackends() {
         return R.set(
           R.lensProp('available'),

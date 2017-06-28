@@ -7,13 +7,34 @@ const h = require('react-hyperscript')
 
 
 const Logo = ({ href, title, src, height=44 }) =>
-  h(Box, { mt: 2 }, [
+  h(Box, {}, [
     h('a', { href }, [
       h('img', { title, src, height })
     ])
   ])
 
+const Footer = () =>
+  h(Flex, {
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  }, [
+    h(Logo, {
+      href: 'http://imls.gov',
+      title: 'Institute of Museum and Library Services',
+      src: 'assets/imls_logo_2c.svg',
+      height: 80
+    }),
 
+    h(Logo, {
+      href: 'http://neh.gov',
+      title: 'National Endowment for the Humanities',
+      src: 'assets/neh-logo.svg',
+      height: 60
+    }),
+
+  ])
+
+/*
 const Footer = ({ errors }) =>
   h(Flex, {
     justifyContent: 'space-between'
@@ -31,29 +52,8 @@ const Footer = ({ errors }) =>
       ).toArray())
     ]),
 
-    h(Box, {
-      css: {
-        textAlign: 'right',
-      }
+    h(Flex, {
     }, [
-      h('span', [
-        'PeriodO client ',
-        h(Text, {
-          color: 'blue',
-          is: 'a',
-          href,
-          css: {
-            textDecoration: 'none'
-          }
-        }, version)
-      ]),
-
-      Logo({
-        href: 'http://perio.do/',
-        title: 'PeriodO project',
-        src: 'assets/periodo-logo.svg'
-      }),
-
       Logo({
         href: 'http://imls.gov',
         title: 'Institute of Museum and Library Services',
@@ -69,6 +69,7 @@ const Footer = ({ errors }) =>
 
     ])
   ])
+*/
 
 
 module.exports = Footer;

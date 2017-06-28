@@ -4,69 +4,174 @@ const h = require('react-hyperscript')
     , { connect } = require('react-redux')
     , actions = require('./actions')
     , { Backend } = require('./types')
-    , { generateRoute } = require('../router')
+    , { Route } = require('lib/router')
+    , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
+    , { getResponse } = require('../typed-actions/utils')
 
-function fetchIndividualBackend(dispatch, params={}) {
+async function fetchIndividualBackend(dispatch, params={}) {
   if (!params.backendID) {
     throw new Error('Missing `backendID` parameter.')
   }
 
   const backend = Backend.fromIdentifier(params.backendID)
 
-  return dispatch(actions.fetchBackend(backend))
+  const result = await dispatch(actions.fetchBackend(backend))
+
+  return {
+    backend: getResponse(result)
+  }
 }
 
-function BackendAware(Component) {
-  return connect((state, props) => ({
+function backendActions(props) {
+  const { backend } = props
+
+  const editableBackendOptions = [
+    h(DropdownMenuItem, {
+      value: Route('backend-new-authority', {
+        backendID: backend.type.asIdentifier()
+      }),
+    }, 'Add authority'),
+
+    h(DropdownMenuItem, {
+      value: Route('backend-edit', {
+        backendID: backend.type.asIdentifier()
+      }),
+    }, 'Edit backend'),
+
+    h(DropdownMenuItem, {
+      value: Route('backend-sync', {
+        backendID: backend.type.asIdentifier()
+      }),
+    }, 'Sync'),
+
+
+    h(DropdownMenuSeparator),
+  ]
+
+  return [
+    ...(backend.isEditable ? editableBackendOptions : []),
+
+    h(DropdownMenuItem, {
+      value: Route('backend-download', {
+        backendID: backend.type.asIdentifier()
+      }),
+    }, 'Download JSON'),
+
+    h(DropdownMenuItem, {
+      value: Route('backend-history', {
+        backendID: backend.type.asIdentifier()
+      }),
+    }, 'History'),
+  ]
+}
+
+function backendBreadcrumb(props, extra) {
+  const { backend } = props
+
+  return [
+    h(Link, {
+      href: Route('open-backend'),
+    }, 'Backends'),
+
+    h(Link, {
+      href: Route('backend', {
+        backendID: backend.type.asIdentifier()
+      })
+    }, backend.metadata.label),
+    extra
+  ]
+}
+
+const individualBackendPage = (title, Component) => ({
+  title: props => `Backend: ${props.backend.metadata.label} | ${title(props)}`,
+  actions: backendActions,
+  breadcrumb: props => backendBreadcrumb(props, title(props)),
+  onBeforeRoute: fetchIndividualBackend,
+  Component: connect((state, props) => ({
     backend: state.backends.loaded[props.backendID]
   }))(Component)
-}
+})
+
+const backendRootActions = props => [
+  h(DropdownMenuItem, { value: Route('open-backend') }, 'Open backend'),
+  h(DropdownMenuItem, { value: Route('new-backend') }, 'Add backend'),
+]
 
 module.exports = {
   '': {
     Component: () => h('div'),
     onBeforeRoute(dispatch, params, redirect) {
-      let currentBackend
-
-      if (global.localStorage) {
-        try {
-          currentBackend = Backend.deserialize(currentBackend)
-        } catch (err) {
-          // Just ignore
-        }
-      }
-
-      redirect(!currentBackend
-        ? generateRoute('available-backends')
-        : generateRoute('backend', { backendID: currentBackend.asIdentifier() })
-      )
+      redirect(Route('open-backend'))
     }
   },
 
-  'available-backends': {
-    onBeforeRoute(dispatch) {
-      return dispatch(actions.listAvailableBackends())
+  'open-backend': {
+    title: () => 'Select backend',
+    actions: backendRootActions,
+    breadcrumb: () => [
+      'Open backend',
+    ],
+    onBeforeRoute: async (dispatch) => {
+      const resp = await dispatch(actions.listAvailableBackends())
+
+      return resp;
     },
     Component: require('./components/BackendSelect')
   },
 
-  'backend': {
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/BackendHome')),
+  'new-backend': {
+    title: () => 'Home',
+    actions: backendRootActions,
+    breadcrumb: () => [
+      'Add backend',
+    ],
+    Component: require('./components/AddBackend')
   },
 
-  'backend-new-authority': {
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/AddAuthority')),
-  },
+  'backend': individualBackendPage(
+    () => 'Home',
+    require('./components/BackendHome')
+  ),
 
-  'backend-authority': {
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/Authority')),
-  },
+  'backend-new-authority': individualBackendPage(
+    () => 'Add authority',
+    require('./components/AddAuthority')
+  ),
 
-  'backend-history': {
-    onBeforeRoute: fetchIndividualBackend,
-    Component: BackendAware(require('./components/History'),),
-  },
+  'backend-authority': individualBackendPage(
+    props => `View authority (${props.id})`,
+    require('./components/Authority')
+  ),
+
+  'backend-history': individualBackendPage(
+    () => 'History',
+    require('./components/History')
+  ),
+
+  'backend-edit': individualBackendPage(
+    () => 'Edit',
+    require('./components/EditBackend')
+  ),
+
+  'backend-download': individualBackendPage(
+    () => 'Download',
+    require('./components/DownloadBackend')
+  ),
+
+  'backend-sync': Object.assign(individualBackendPage(
+      () => 'Sync',
+      require('./components/SyncBackend')
+    ), {
+      onBeforeRoute: async (dispatch, params) => {
+        const props = await fetchIndividualBackend(dispatch, params)
+
+        await dispatch(actions.listAvailableBackends())
+
+        return props;
+      },
+      Component: connect((state, props) => ({
+        backend: state.backends.loaded[props.backendID],
+        availableBackends: state.backends.available,
+      }))(require('./components/SyncBackend')),
+  }),
 }
