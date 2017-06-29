@@ -26,6 +26,7 @@
     "json-pointer": "^0.3.0",
     "json-stable-stringify": "^1.0.0",
     "jsonld": "^0.4.12",
+    "language-tags": "^1.0.5",
     "linkify-it": "^1.1.0",
     "location-hash-stream": "^2.0.0",
     "n3": "^0.2.7",
