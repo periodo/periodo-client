@@ -3,7 +3,27 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('axs-ui')
-    , { Source } = require('lib/ui')
+    , { Source, Button } = require('lib/ui')
+
+const ViewAuthority = props =>
+  h(Box, [
+    h(Button, {
+      onClick: props.toggleForm,
+    }, 'Add period'),
+
+    h(Button, {
+      onClick: props.toggleForm,
+    }, 'Edit authority'),
+    h(Source, { source: props.authority.source }),
+  ])
+
+const EditPeriod = props =>
+  h(Box, [
+    h('h1', 'Editor the preiod'),
+    h(Button, {
+      onClick: props.toggleForm,
+    }, 'Cancel'),
+  ])
 
 module.exports = class Authority extends React.Component {
   constructor() {
@@ -16,13 +36,19 @@ module.exports = class Authority extends React.Component {
   }
 
   render() {
-    const { dataset, id } = this.props
-        , authority = dataset.periodCollections[id]
+    const { addingPeriod } = this.state
+        , { authority, id } = this.props
 
-    return (
-      h(Box, [
-        h(Source, { source: authority.source }),
-      ])
-    )
+    const childProps = {
+      authority,
+      toggleForm: () => this.setState(prev => ({ addingPeriod: !prev.addingPeriod  })),
+      handleSavePeriod: period => {
+        period;
+      }
+    }
+
+    const Component = addingPeriod ? EditPeriod : ViewAuthority;
+
+    return h(Component, childProps)
   }
 }

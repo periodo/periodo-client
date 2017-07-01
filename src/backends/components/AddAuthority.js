@@ -7,13 +7,14 @@ const h = require('react-hyperscript')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , { updateLocalDataset } = require('../actions')
     , AuthorityForm = require('../../editors/AuthorityForm')
+    , { trigger } = require('lib/router')
 
 module.exports = class AddAuthority extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
-      authority: {}
+      authority: props.initialValue || {}
     }
   }
 
@@ -22,13 +23,12 @@ module.exports = class AddAuthority extends React.Component {
 
     return (
       h(Box, [
-        h(Heading, { level: 2 }, 'Add authority'),
         h(AuthorityForm, {
           value: this.state.authority,
-          onValidated: authority => {
+          onValidated: async authority => {
             const id = generateID()
 
-            dispatch(updateLocalDataset(
+            await dispatch(updateLocalDataset(
               backend.storage,
               R.assocPath(
                 ['periodCollections', id],
@@ -37,6 +37,10 @@ module.exports = class AddAuthority extends React.Component {
               ),
               `Added period collection ${id}`
             ))
+
+            trigger('backend', {
+              backendID: backend.asIdentifier()
+            })
           },
           onValueChange: authority => {
             this.setState({ authority })
