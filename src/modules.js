@@ -55,7 +55,7 @@ function makeResourceComponent(resource) {
 
       if (makeActionMenu) {
         menuChildren.push(h(DropdownMenu, {
-          label: 'Actions',
+          label: resource.actionMenuTitle || 'Actions',
         }, makeActionMenu(this.props)))
       }
 

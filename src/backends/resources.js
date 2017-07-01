@@ -3,8 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { connect } = require('react-redux')
-    , Route = require('lib/router')
+    , { Route } = require('lib/router')
     , { Link, DropdownMenuItem, DropdownMenuHeader, DropdownMenuSeparator } = require('lib/ui')
+    , { Text } = require('axs-ui')
     , actions = require('./actions')
     , { BackendStorage } = require('./types')
 
@@ -38,25 +39,23 @@ const backendBreadcrumb = (isAuthority, makeTitle) =>
       h(Link, { href: Route('open-backend'), }, 'Backends'),
       ...isAuthority
         ? [h(Link, { href: backendRoute(props)('browse') }), extra]
-        : [h(Text, backend.metadata.label + ' -- ' + extra)],
+        : [backend.metadata.label + ' -- ' + extra],
     ]
   }
 
 const backendRootActions = () =>
   [
-    h(DropdownMenuHeader, 'Backend list'),
     h(DropdownMenuItem, { value: Route('open-backend') }, 'Open backend'),
     h(DropdownMenuItem, { value: Route('new-backend') }, 'Add backend'),
   ]
 
 const individualBackendPage = (makeTitle, Component) => ({
   makeTitle: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
+  actionMenuTitle: 'Backend',
   makeActionMenu(props) {
     const route = backendRoute(props)
 
     return [
-      h(DropdownMenuHeader, 'Backend'),
-
       h(DropdownMenuItem, { value: route('browse') }, 'Browse'),
       h(DropdownMenuItem, { value: route('export') }, 'Export'),
       h(DropdownMenuItem, { value: route('history') }, 'History'),
@@ -82,6 +81,7 @@ const individualBackendPage = (makeTitle, Component) => ({
 
 const individualAuthorityPage = (makeTitle, Component) => ({
   title: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
+  actionMenuTitle: 'Authority',
   makeActionMenu() {
   },
   breadcrumb: backendBreadcrumb(true, makeTitle),
@@ -108,6 +108,7 @@ module.exports = {
   'open-backend': {
     makeTitle: () => 'Select backend',
     makeActionMenu: backendRootActions,
+    actionMenuTitle: 'Backend list',
     makeBreadcrumb: () => ['Open backend'],
     onBeforeRoute: async (dispatch) => {
       await dispatch(actions.listAvailableBackends())
@@ -124,8 +125,9 @@ module.exports = {
 
   'new-backend': {
     title: () => 'Home',
-    actions: backendRootActions,
-    breadcrumb: () => ['Add backend'],
+    makeActionMenu: backendRootActions,
+    actionMenuTitle: 'Backend list',
+    makeBreadcrumb: () => ['Add backend'],
     mapStateToProps: () => ({}),
     Component: require('./components/AddBackend')
   },
