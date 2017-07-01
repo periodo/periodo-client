@@ -28,7 +28,7 @@ async function _fetchLinkedData(url, type="text/turtle") {
 
 module.exports = async function fetchLinkedData(url, opts={}) {
   const {
-    tryCache=true,
+    tryCache=false,
     populateCache=false,
     resourceMimeType='text/turtle'
   } = opts
