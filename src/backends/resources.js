@@ -3,99 +3,99 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { connect } = require('react-redux')
+    , Route = require('lib/router')
+    , { Link, DropdownMenuItem, DropdownMenuHeader, DropdownMenuSeparator } = require('lib/ui')
     , actions = require('./actions')
     , { BackendStorage } = require('./types')
-    , { Route } = require('lib/router')
-    , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
-    , { getResponse } = require('../typed-actions/utils')
 
-async function fetchIndividualBackend(dispatch, params={}) {
-  if (!params.backendID) {
-    throw new Error('Missing `backendID` parameter.')
+const backendRoute = props => name =>
+  Route(`backend-${name}`, {
+    backendID: props.backend.asIdentifier()
+  })
+
+
+const fetchIndividualBackend = includeAuthority =>
+  async (dispatch, params={}) => {
+    if (!params.backendID) {
+      throw new Error('Missing `backendID` parameter.')
+    }
+
+    if (includeAuthority && !params.authorityID) {
+      throw new Error('Missing `authorityID` parameter.')
+    }
+
+    const storage = BackendStorage.fromIdentifier(params.backendID)
+
+    await dispatch(actions.fetchBackend(storage))
   }
 
-  const storage = BackendStorage.fromIdentifier(params.backendID)
+const backendBreadcrumb = (isAuthority, makeTitle) =>
+  props => {
+    const { backend } = props
+        , extra = makeTitle(props)
 
-  const result = await dispatch(actions.fetchBackend(storage))
+    return [
+      h(Link, { href: Route('open-backend'), }, 'Backends'),
+      ...isAuthority
+        ? [h(Link, { href: backendRoute(props)('browse') }), extra]
+        : [h(Text, backend.metadata.label + ' -- ' + extra)],
+    ]
+  }
 
-  return getResponse(result)
-}
-
-function backendActions(props) {
-  const { backend } = props
-
-  const editableBackendOptions = [
-    h(DropdownMenuItem, {
-      value: Route('backend-new-authority', {
-        backendID: backend.asIdentifier()
-      }),
-    }, 'Add authority'),
-
-    h(DropdownMenuItem, {
-      value: Route('backend-edit', {
-        backendID: backend.asIdentifier()
-      }),
-    }, 'Edit backend'),
-
-    h(DropdownMenuItem, {
-      value: Route('backend-sync', {
-        backendID: backend.asIdentifier()
-      }),
-    }, 'Sync'),
-
-
-    h(DropdownMenuSeparator),
+const backendRootActions = () =>
+  [
+    h(DropdownMenuHeader, 'Backend list'),
+    h(DropdownMenuItem, { value: Route('open-backend') }, 'Open backend'),
+    h(DropdownMenuItem, { value: Route('new-backend') }, 'Add backend'),
   ]
 
-  return [
-    ...(backend.isEditable() ? editableBackendOptions : []),
+const individualBackendPage = (makeTitle, Component) => ({
+  makeTitle: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
+  makeActionMenu(props) {
+    const route = backendRoute(props)
 
-    h(DropdownMenuItem, {
-      value: Route('backend-download', {
-        backendID: backend.asIdentifier()
-      }),
-    }, 'Download JSON'),
+    return [
+      h(DropdownMenuHeader, 'Backend'),
 
-    h(DropdownMenuItem, {
-      value: Route('backend-history', {
-        backendID: backend.asIdentifier()
-      }),
-    }, 'History'),
-  ]
-}
+      h(DropdownMenuItem, { value: route('browse') }, 'Browse'),
+      h(DropdownMenuItem, { value: route('export') }, 'Export'),
+      h(DropdownMenuItem, { value: route('history') }, 'History'),
+      ...(!props.backend.isEditable() ? [] : [
+        h(DropdownMenuSeparator),
 
-function backendBreadcrumb(props, extra) {
-  const { backend } = props
-
-  return [
-    h(Link, {
-      href: Route('open-backend'),
-    }, 'Backends'),
-
-    h(Link, {
-      href: Route('backend', {
-        backendID: backend.asIdentifier()
-      })
-    }, backend.metadata.label),
-    extra
-  ]
-}
-
-const individualBackendPage = (title, Component) => ({
-  title: props => `Backend: ${props.backend.metadata.label} | ${title(props)}`,
-  actions: backendActions,
-  breadcrumb: props => backendBreadcrumb(props, title(props)),
-  onBeforeRoute: fetchIndividualBackend,
-  Component: connect((state, props) => ({
-    backend: state.backends.available[props.backendID],
-    dataset: state.backends.datasets[props.backendID],
-  }))(Component)
+        h(DropdownMenuItem, { value: route('new-authority') }, 'Add authority'),
+        h(DropdownMenuItem, { value: route('edit') }, 'Edit backend'),
+        h(DropdownMenuItem, { value: route('sync') }, 'Sync'),
+      ])
+    ]
+  },
+  makeBreadcrumb: backendBreadcrumb(false, makeTitle),
+  onBeforeRoute: fetchIndividualBackend(false),
+  mapStateToProps(state, props) {
+    return {
+      backend: state.backends.available[props.params.backendID],
+      dataset: state.backends.datasets[props.params.backendID],
+    }
+  },
+  Component,
 })
 
-const backendRootActions = props => [
-  h(DropdownMenuItem, { value: Route('open-backend') }, 'Open backend'),
-  h(DropdownMenuItem, { value: Route('new-backend') }, 'Add backend'),
-]
+const individualAuthorityPage = (makeTitle, Component) => ({
+  title: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
+  makeActionMenu() {
+  },
+  breadcrumb: backendBreadcrumb(true, makeTitle),
+  onBeforeRoute: fetchIndividualBackend(true),
+  Component,
+  mapStateToProps(state, props) {
+    const dataset = state.backends.datasets[props.params.backendID]
+
+    return {
+      backend: state.backends.available[props.params.backendID],
+      authority: dataset.periodCollections[props.params.id],
+    }
+  },
+})
 
 module.exports = {
   '': {
@@ -106,25 +106,27 @@ module.exports = {
   },
 
   'open-backend': {
-    title: () => 'Select backend',
-    actions: backendRootActions,
-    breadcrumb: () => [
-      'Open backend',
-    ],
+    makeTitle: () => 'Select backend',
+    makeActionMenu: backendRootActions,
+    makeBreadcrumb: () => ['Open backend'],
     onBeforeRoute: async (dispatch) => {
-      const resp = await dispatch(actions.listAvailableBackends())
-
-      return resp;
+      await dispatch(actions.listAvailableBackends())
     },
+    mapStateToProps: state => ({
+      backends: R.pipe(
+        R.values,
+        R.sortBy(R.path(['metadata', 'accessed'])),
+        R.reverse
+      )(state.backends.available)
+    }),
     Component: require('./components/BackendSelect')
   },
 
   'new-backend': {
     title: () => 'Home',
     actions: backendRootActions,
-    breadcrumb: () => [
-      'Add backend',
-    ],
+    breadcrumb: () => ['Add backend'],
+    mapStateToProps: () => ({}),
     Component: require('./components/AddBackend')
   },
 
@@ -138,7 +140,7 @@ module.exports = {
     require('./components/AddAuthority')
   ),
 
-  'backend-authority': individualBackendPage(
+  'backend-authority': individualAuthorityPage(
     props => `View authority (${props.id})`,
     require('./components/Authority')
   ),

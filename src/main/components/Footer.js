@@ -1,9 +1,10 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Box, Text } = require('axs-ui')
-    , version = require('../../../package.json').version
-    , href = `https://github.com/periodo/periodo-client/tree/v${version}`
+    , { Flex, Box } = require('axs-ui')
+
+// , version = require('../../../package.json').version
+// , href = `https://github.com/periodo/periodo-client/tree/v${version}`
 
 
 const Logo = ({ href, title, src, height=44 }) =>
@@ -13,25 +14,28 @@ const Logo = ({ href, title, src, height=44 }) =>
     ])
   ])
 
-const Footer = () =>
-  h(Flex, {
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  }, [
-    h(Logo, {
-      href: 'http://imls.gov',
-      title: 'Institute of Museum and Library Services',
-      src: 'assets/imls_logo_2c.svg',
-      height: 80
-    }),
+const Footer = props =>
+  h(Box, Object.assign({
+    is: 'footer',
+  }, props), [
+    h(Flex, {
+      justifyContent: 'space-around',
+      alignItems: 'center',
+    }, [
+      h(Logo, {
+        href: 'http://imls.gov',
+        title: 'Institute of Museum and Library Services',
+        src: 'assets/imls_logo_2c.svg',
+        height: 80
+      }),
 
-    h(Logo, {
-      href: 'http://neh.gov',
-      title: 'National Endowment for the Humanities',
-      src: 'assets/neh-logo.svg',
-      height: 60
-    }),
-
+      h(Logo, {
+        href: 'http://neh.gov',
+        title: 'National Endowment for the Humanities',
+        src: 'assets/neh-logo.svg',
+        height: 60
+      }),
+    ])
   ])
 
 /*
