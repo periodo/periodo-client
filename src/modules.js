@@ -55,6 +55,8 @@ function makeResourceComponent(resource) {
 
       if (makeActionMenu) {
         menuChildren.push(h(DropdownMenu, {
+          id: 'action-menu',
+          focusMenu: true,
           label: resource.actionMenuTitle || 'Actions',
         }, makeActionMenu(this.props)))
       }
