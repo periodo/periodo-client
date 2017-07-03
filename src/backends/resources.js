@@ -14,6 +14,12 @@ const backendRoute = props => name =>
     backendID: props.backend.asIdentifier()
   })
 
+const authorityRoute = props => name =>
+  Route(`backend-authority-${name}`, {
+    backendID: props.backend.asIdentifier(),
+    authorityID: props.authority.id,
+  })
+
 
 const fetchIndividualBackend = includeAuthority =>
   async (dispatch, params={}) => {
@@ -38,8 +44,8 @@ const backendBreadcrumb = (isAuthority, makeTitle) =>
     return [
       h(Link, { href: Route('open-backend'), }, 'Backends'),
       ...isAuthority
-        ? [h(Link, { href: backendRoute(props)('browse') }), extra]
-        : [backend.metadata.label + ' -- ' + extra],
+        ? [h(Link, { href: backendRoute(props)('home') }, backend.metadata.label), extra]
+        : [backend.metadata.label, extra],
     ]
   }
 
@@ -56,7 +62,7 @@ const individualBackendPage = (makeTitle, Component) => ({
     const route = backendRoute(props)
 
     return [
-      h(DropdownMenuItem, { value: route('browse') }, 'Browse'),
+      h(DropdownMenuItem, { value: route('home') }, 'Home'),
       h(DropdownMenuItem, { value: route('export') }, 'Export'),
       h(DropdownMenuItem, { value: route('history') }, 'History'),
       ...(!props.backend.isEditable() ? [] : [
@@ -80,11 +86,19 @@ const individualBackendPage = (makeTitle, Component) => ({
 })
 
 const individualAuthorityPage = (makeTitle, Component) => ({
-  title: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
+  makeTitle: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
   actionMenuTitle: 'Authority',
-  makeActionMenu() {
+  makeActionMenu(props) {
+    const route = authorityRoute(props)
+
+    return [
+      h(DropdownMenuItem, { value: route('view') }, 'View authority'),
+      h(DropdownMenuItem, { value: route('history') }, 'History'),
+      h(DropdownMenuItem, { value: route('add-period') }, 'Add period'),
+      h(DropdownMenuItem, { value: route('edit') }, 'Edit authority'),
+    ]
   },
-  breadcrumb: backendBreadcrumb(true, makeTitle),
+  makeBreadcrumb: backendBreadcrumb(true, makeTitle),
   onBeforeRoute: fetchIndividualBackend(true),
   Component,
   mapStateToProps(state, props) {
@@ -92,7 +106,7 @@ const individualAuthorityPage = (makeTitle, Component) => ({
 
     return {
       backend: state.backends.available[props.params.backendID],
-      authority: dataset.periodCollections[props.params.id],
+      authority: dataset.periodCollections[props.params.authorityID],
     }
   },
 })
@@ -132,7 +146,8 @@ module.exports = {
     Component: require('./components/AddBackend')
   },
 
-  'backend': individualBackendPage(
+  /* Backend pages */
+  'backend-home': individualBackendPage(
     () => 'Home',
     require('./components/BackendHome')
   ),
@@ -140,11 +155,6 @@ module.exports = {
   'backend-new-authority': individualBackendPage(
     () => 'Add authority',
     require('./components/AddAuthority')
-  ),
-
-  'backend-authority': individualAuthorityPage(
-    props => `View authority (${props.id})`,
-    require('./components/Authority')
   ),
 
   'backend-history': individualBackendPage(
@@ -178,4 +188,25 @@ module.exports = {
         availableBackends: R.values(state.backends.available),
       }))(require('./components/SyncBackend')),
   }),
+
+  /* Authority pages */
+  'backend-authority-view': individualAuthorityPage(
+    props => `View authority (${props.authorityID})`,
+    require('./components/Authority')
+  ),
+
+  'backend-authority-history': individualAuthorityPage(
+    props => `View authority (${props.authorityID})`,
+    () => h('h1', 'History')
+  ),
+
+  'backend-authority-add-period': individualAuthorityPage(
+    props => `Add period`,
+    require('./components/AddPeriod')
+  ),
+
+  'backend-authority-edit': individualAuthorityPage(
+    props => `View authority (${props.authorityID})`,
+    () => h('h1', 'Edit authority')
+  ),
 }

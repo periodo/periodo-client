@@ -38,7 +38,7 @@ module.exports = class AddAuthority extends React.Component {
               `Added period collection ${id}`
             ))
 
-            trigger('backend', {
+            trigger('backend-home', {
               backendID: backend.asIdentifier()
             })
           },
