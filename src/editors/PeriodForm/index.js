@@ -24,7 +24,7 @@ module.exports = Validated(validatePeriod, props => {
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
 
   return (
-    h(Box, { border: 'black', p: 2 }, [
+    h(Box, { p: 2 }, [
       h(Flex, [
         h(Box, { width: .5, pr: 1 }, [
           h(LabelForm, {

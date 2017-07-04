@@ -33,7 +33,6 @@ function validateAuthority(authority) {
       type: 'PeriodCollection'
     })
   } else {
-    debugger;
     return Result.Err(errors)
   }
 }
