@@ -33,7 +33,7 @@ class Suggestor extends React.Component {
         , { onSelect } = this.props
 
     return (
-      h(Box, { mr: 1, css: { position: 'relative' }}, [
+      h(Box, { mr: '4px', css: { position: 'relative' }}, [
         h(DropdownMenuButton, {
           css: {
             minWidth: 60,
@@ -128,51 +128,56 @@ class Suggestor extends React.Component {
   }
 }
 
-module.exports = ({
-  id,
-  label={},
-  onValueChange,
-  handleAddLabel,
-  handleRemoveLabel
-}) =>
-  h(Box, [
-    h(Flex, { alignItems: 'center' }, [
-      h(Suggestor, {
-        items: languages,
-        value: label.language,
-        onSelect: val => {
-          onValueChange(R.assoc('language', val.code.toLowerCase(), label))
-        },
-      }),
+module.exports = props => {
+  const {
+    id,
+    label={},
+    onValueChange,
+    handleAddLabel,
+    handleRemoveLabel,
+  } = props
 
-      h(Suggestor, {
-        items: scripts,
-        value: label.script,
-        onSelect: val => {
-          onValueChange(R.assoc('script', val.code.toLowerCase(), label))
-        },
-      }),
+  return (
+    h(Box, R.omit(['id', 'label', 'onValueChange', 'handleAddLabel', 'handleRemoveLabel'], props), [
+      h(Flex, { alignItems: 'center' }, [
+        h(Suggestor, {
+          items: languages,
+          value: label.language,
+          onSelect: val => {
+            onValueChange(R.assoc('language', val.code.toLowerCase(), label))
+          },
+        }),
 
-      h(Input, {
-        id,
-        type: 'text',
-        value: label.value,
-        display: 'inline',
-        onChange: e => {
-          onValueChange(R.assoc('value', e.target.value, label))
-        }
-      }),
+        h(Suggestor, {
+          items: scripts,
+          value: label.script,
+          onSelect: val => {
+            onValueChange(R.assoc('script', val.code.toLowerCase(), label))
+          },
+        }),
 
-      handleAddLabel && h(Button$Primary, {
-        ml: 1,
-        width: 32,
-        onClick: handleAddLabel,
-      }, '+'),
+        h(Input, {
+          id,
+          type: 'text',
+          value: label.value,
+          display: 'inline',
+          onChange: e => {
+            onValueChange(R.assoc('value', e.target.value, label))
+          }
+        }),
 
-      handleRemoveLabel && h(Button$Primary, {
-        ml: 1,
-        width: 32,
-        onClick: handleRemoveLabel,
-      }, '-'),
+        handleAddLabel && h(Button$Primary, {
+          ml: 1,
+          width: 32,
+          onClick: handleAddLabel,
+        }, '+'),
+
+        handleRemoveLabel && h(Button$Primary, {
+          ml: 1,
+          width: 32,
+          onClick: handleRemoveLabel,
+        }, '-'),
+      ])
     ])
-  ])
+  )
+}

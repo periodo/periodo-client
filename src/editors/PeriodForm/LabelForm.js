@@ -26,11 +26,13 @@ module.exports = RandomID(props => {
         },
       }),
 
-      h('label', { htmlFor: randomID('alt-labels') }, 'Alternate labels'),
+      h(Label, { htmlFor: randomID('alt-labels') }, 'Alternate labels'),
+
       R.defaultTo([defaultLabel], period.alternateLabels).map((label, i) =>
         h(LocalizedLabelInput, {
           key: i + (label.newIdx || ''),
           label,
+          mb: 1,
           onValueChange: value => {
             onValueChange(
               R.set(
