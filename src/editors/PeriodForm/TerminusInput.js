@@ -14,8 +14,14 @@ const emptyTerminus = {
 }
 
 const toggleMultipart = terminus => isMultipart(terminus)
-  ? { year: R.path(['in', 'earliest'], terminus) || '' }
-  : { earliestYear: R.path(['in', 'year'], terminus) || '', latestYear: '' }
+  ? {
+      label: terminus.label,
+      in: { year: R.path(['in', 'earliest'], terminus) || '' }
+    }
+  : {
+      label: terminus.label,
+      in: { earliestYear: R.path(['in', 'year'], terminus) || '', latestYear: '' }
+    }
 
 function parse(label) {
   try {
