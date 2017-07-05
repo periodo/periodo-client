@@ -56,8 +56,8 @@ const VALID_PERIOD_FIELDS = [
 function validatePeriod(period) {
   let errors = {}
 
-  if (!period.label) {
-    errors = addError(errors, 'label', 'This field is required.');
+  if (!period.originalLabel) {
+    errors = addError(errors, 'label', 'A period must have a label');
   }
 
   const periodPresent = type =>
@@ -75,11 +75,11 @@ function validatePeriod(period) {
   } else if (terminus.latestYear(period.stop) < terminus.earliestYear(period.start)) {
     errors = addError(errors, 'dates', 'A period\'s stop must come after its start.');
   } else {
-    if (badTerminusRange(period.get('start'))) {
+    if (badTerminusRange(period.start)) {
       errors = addError(errors, 'dates', 'Date range for period start has a beginning later than its end.')
     }
 
-    if (badTerminusRange(period.get('stop'))) {
+    if (badTerminusRange(period.stop)) {
       errors = addError(errors, 'dates', 'Date range for period stop has a beginning later than its end.')
     }
   }

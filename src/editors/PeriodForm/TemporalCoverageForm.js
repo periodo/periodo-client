@@ -29,8 +29,6 @@ module.exports = class TemporalCoverageForm extends React.Component {
         , { start, stop, onValueChange } = this.props
 
     return h('div', [
-      h(Heading, { level: 3 }, 'Temporal coverage'),
-
       h(Box, { my: 1 }, [
         h(Label, [
           h(Checkbox, {

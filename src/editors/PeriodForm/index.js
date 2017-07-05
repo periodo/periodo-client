@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , LabelForm = require('./LabelForm')
-    , { Flex, Box } = require('axs-ui')
-    , { InputBlock, TextareaBlock } = require('lib/ui')
+    , { Flex, Box, Heading } = require('axs-ui')
+    , { InputBlock, TextareaBlock, Button$Primary, Errors } = require('lib/ui')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
     , Validated = require('../Validated')
     , { validatePeriod } = require('../validate')
@@ -18,7 +18,7 @@ const lenses = {
 }
 
 module.exports = Validated(validatePeriod, props => {
-  const { value={}, onValueChange=R.always(null) } = props
+  const { value={}, onValueChange=R.always(null), errors } = props
 
   const get = lens => R.view(lens, value) || ''
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
@@ -27,6 +27,8 @@ module.exports = Validated(validatePeriod, props => {
     h(Box, { p: 2 }, [
       h(Flex, [
         h(Box, { width: .5, pr: 1 }, [
+          errors.label && Errors({ errors: errors.label }),
+
           h(LabelForm, {
             period: value,
             onValueChange,
@@ -75,6 +77,10 @@ module.exports = Validated(validatePeriod, props => {
         ]),
 
         h(Box, { width: .5, pl: 1 }, [
+          h(Heading, { level: 3 }, 'Temporal coverage'),
+
+          errors.dates && Errors({ errors: errors.dates }),
+
           h(TemporalCoverageForm, {
             onValueChange: R.pipe(
               R.merge(value),
@@ -111,6 +117,16 @@ module.exports = Validated(validatePeriod, props => {
           value: get(lenses.editorialNote),
           onChange: e => set(lenses.editorialNote, e.target.value),
         })
+      ]),
+
+      h(Box, {
+        bg: 'gray1',
+        p: 2,
+        mt: 2,
+      }, [
+        h(Button$Primary, {
+          onClick: () => props.validate(value, props.onValidated)
+        }, 'Save'),
       ]),
     ])
   )
