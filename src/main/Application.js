@@ -93,8 +93,7 @@ class Application extends React.Component {
   render() {
     const { loadingNewPage, activeResource } = this.state
 
-    return h(Flex, {
-      flexDirection: 'column',
+    return h(Box, {
       css: {
         height: '100%',
       }
@@ -102,7 +101,7 @@ class Application extends React.Component {
       h(Header, {
         bg: 'gray2',
         css: {
-          flex: 0,
+          height: '56px',
           borderBottom: '1px solid #999',
         },
         showSpinner: loadingNewPage,
@@ -114,15 +113,28 @@ class Application extends React.Component {
         css: {
           flexGrow: 1,
         },
-      }, activeResource && h(activeResource.Component, {
-        params: activeResource.params,
-      })),
+      }, [
+        h(Box, {
+          css: {
+            minHeight: 'calc(100vh - 204px)',
+            margin: 'auto',
+            alignSelf: 'stretch',
+            flexGrow: 1,
+            width: '100%',
+            maxWidth: 1420,
+          }
+        }, [
+          activeResource && h(activeResource.Component, {
+            params: activeResource.params,
+          })
+        ])
+      ]),
 
       h(Footer, {
         bg: 'gray2',
         p: 2,
         css: {
-          flex: 0,
+          height: '116px',
           borderTop: '1px solid #999',
         }
       })

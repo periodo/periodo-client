@@ -80,7 +80,7 @@ function makeResourceComponent(resource) {
 
 
       return (
-        h(Box, [
+        h(Box, { css: { width: '100%', flexGrow: 1, }}, [
           menu,
           h(resource.Component, Object.assign({}, this.props)),
         ])
