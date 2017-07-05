@@ -99,24 +99,22 @@ class Application extends React.Component {
       }
     }, [
       h(Header, {
-        bg: 'gray2',
+        bg: 'gray1',
         css: {
           height: '56px',
-          borderBottom: '1px solid #999',
+          borderBottom: '1px solid #ccc',
         },
         showSpinner: loadingNewPage,
       }),
 
       h(Box, {
         is: 'main',
-        p: 2,
-        css: {
-          flexGrow: 1,
-        },
       }, [
         h(Box, {
+          bg: 'white',
+          p: 2,
           css: {
-            minHeight: 'calc(100vh - 204px)',
+            minHeight: 'calc(100vh - 56px - 116px)',
             margin: 'auto',
             alignSelf: 'stretch',
             flexGrow: 1,
@@ -131,11 +129,11 @@ class Application extends React.Component {
       ]),
 
       h(Footer, {
-        bg: 'gray2',
+        bg: 'gray1',
         p: 2,
         css: {
           height: '116px',
-          borderTop: '1px solid #999',
+          borderTop: '1px solid #ccc',
         }
       })
     ])
