@@ -35,6 +35,9 @@ class Suggestor extends React.Component {
     return (
       h(Box, { mr: 1, css: { position: 'relative' }}, [
         h(DropdownMenuButton, {
+          css: {
+            minWidth: 60,
+          },
           label: this.props.value,
           isOpen: editing,
           onClick: () => this.setState(prev => ({ editing: !prev.editing }))

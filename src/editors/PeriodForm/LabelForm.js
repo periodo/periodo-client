@@ -29,7 +29,7 @@ module.exports = RandomID(props => {
       h('label', { htmlFor: randomID('alt-labels') }, 'Alternate labels'),
       R.defaultTo([defaultLabel], period.alternateLabels).map((label, i) =>
         h(LocalizedLabelInput, {
-          key: i,
+          key: i + (label.newIdx || ''),
           label,
           onValueChange: value => {
             onValueChange(
@@ -42,17 +42,23 @@ module.exports = RandomID(props => {
           },
 
           handleAddLabel: () => {
-            let after = period.getIn(['alternateLabels', i])
+            let after = R.path(['alternateLabels', i], period)
 
             // Don't add another if this one is still empty
-            if (after && !after.get('value')) return;
+            if (after && !after.value) return;
 
-            after = after || defaultLabel()
+            after = R.pipe(
+              R.assoc('value', ''),
+              R.assoc('newIdx', Math.random())
+            )(after || defaultLabel)
+
 
             onValueChange(
-              period.update('alternateLabels', labels =>
-                labels.splice(i + 1, 0, after.set('value', ''))))
-
+              R.over(
+                R.lensProp('alternateLabels'),
+                R.insert(i + 1, after),
+                period
+              ))
           },
 
           handleRemoveLabel: () => {
