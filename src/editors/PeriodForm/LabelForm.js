@@ -4,7 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
     , { RandomID } = require('lib/util/hoc')
-    , { Box, Label } = require('axs-ui')
+    , { Box } = require('axs-ui')
+    , { Label } = require('lib/ui')
 
 const defaultLabel = Object.freeze({
   value: '',
@@ -17,7 +18,11 @@ module.exports = RandomID(props => {
 
   return (
     h(Box, [
-      h(Label, { htmlFor: randomID('label') }, 'Label'),
+      h(Label, {
+        htmlFor: randomID('label'),
+        isRequired: true,
+      }, 'Original label'),
+
       h(LocalizedLabelInput, {
         id: randomID('label'),
         label: period.originalLabel || defaultLabel,
@@ -26,7 +31,10 @@ module.exports = RandomID(props => {
         },
       }),
 
-      h(Label, { htmlFor: randomID('alt-labels') }, 'Alternate labels'),
+      h(Label, {
+        mt: 2,
+        htmlFor: randomID('alt-labels')
+      }, 'Alternate labels'),
 
       R.defaultTo([defaultLabel], period.alternateLabels).map((label, i) =>
         h(LocalizedLabelInput, {

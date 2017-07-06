@@ -3,19 +3,10 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , Autosuggest = require('react-autosuggest')
     , languages = require('lib/util/languages').getSortedList()
     , scripts = require('lib/util/scripts').getSortedList()
     , { Input, Flex, Box } = require('axs-ui')
-    , { DropdownMenuButton, DropdownMenuMenu, Button$Primary } = require('lib/ui')
-
-const getSuggestions = list => value => {
-  const input = value.trim()
-
-  return input.length
-    ? list.filter(x => x.name.includes(value))
-    : []
-}
+    , { Autosuggest, DropdownMenuButton, DropdownMenuMenu, Button } = require('lib/ui')
 
 class Suggestor extends React.Component {
   constructor() {
@@ -23,20 +14,22 @@ class Suggestor extends React.Component {
 
     this.state = {
       editing: false,
-      value: '',
-      suggestions: [],
     }
   }
 
   render() {
-    const { editing, value, suggestions } = this.state
-        , { onSelect } = this.props
+    const { editing,} = this.state
+        , { onSelect, items } = this.props
 
     return (
-      h(Box, { mr: '4px', css: { position: 'relative' }}, [
+      h(Box, { css: { position: 'relative' }}, [
         h(DropdownMenuButton, {
           css: {
+            position: 'relative',  // Fixes outline overlap for some reason
+
             minWidth: 60,
+            borderRadius: 0,
+            marginRight: '-1px',
           },
           label: this.props.value,
           isOpen: editing,
@@ -57,69 +50,14 @@ class Suggestor extends React.Component {
         }, [
           h(DropdownMenuMenu, { p: 1, width: 600, }, [
             h(Autosuggest, {
-              suggestions,
-              highlightFirstSuggestion: true,
-              focusInputOnSuggestionClick: false,
-              getSuggestionValue: R.prop('name'),
-              onSuggestionsFetchRequested: e => this.setState({
-                suggestions: getSuggestions(this.props.items)(e.value)
-              }),
-              onSuggestionsClearRequested: () => this.setState({
-                suggestions: [],
-              }),
-              onSuggestionSelected: (e, { suggestion }) => {
-                onSelect(suggestion);
-
-                this.setState({
-                  editing: false,
-                  suggestions: [],
-                  value: ''
-                })
+              onSelect: (...args) => {
+                onSelect(...args);
+                this.setState({ editing: false })
               },
-              theme: {
-                suggestionsList: {
-                  margin: 0,
-                  padding: 0,
-                  listStyleType: 'none',
-                },
-
-                suggestionsContainerOpen: {
-                  marginTop: '1em',
-                  background: 'white',
-                  height: 200,
-                  overflowY: 'scroll',
-                  zIndex: 1,
-                },
-              },
-
-              renderInputComponent: props => h(Input, props),
-
-              renderSuggestion: (item, { isHighlighted }) =>
-                h(Box, Object.assign({
-                  px: 1,
-                  py: '6px',
-                  border: 1,
-                  borderColor: 'transparent',
-                  css: {
-                    borderRadius: 1,
-                    ':hover': {
-                      cursor: 'pointer',
-                    }
-                  }
-                }, isHighlighted && { bg: 'gray2' }), [
-                  item.name
-                ]),
-
-              inputProps: {
-                value,
-                placeholder: 'Begin typing to search',
-                onChange: (e, { newValue }) => this.setState({ value: newValue }),
-                onBlur: () => this.setState({
-                  editing: false,
-                  suggestions: [],
-                  value: ''
-                })
-              }
+              items,
+              onBlur: () => this.setState({
+                editing: false,
+              })
             })
           ])
         ])
@@ -166,15 +104,17 @@ module.exports = props => {
           }
         }),
 
-        handleAddLabel && h(Button$Primary, {
-          ml: 1,
-          width: 32,
+        handleAddLabel && h(Button, {
+          width: 42,
+          ml: '-1px',
+          borderRadius: 0,
           onClick: handleAddLabel,
         }, '+'),
 
-        handleRemoveLabel && h(Button$Primary, {
-          ml: 1,
-          width: 32,
+        handleRemoveLabel && h(Button, {
+          width: 42,
+          ml: '-1px',
+          borderRadius: 0,
           onClick: handleRemoveLabel,
         }, '-'),
       ])
