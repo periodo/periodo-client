@@ -32,9 +32,9 @@ const columns = {
       return h(Box, [
         displayTitle(authorityOf(period).source),
         h(Link, {
-          href: Route('backend-authority', {
-            backendID: backend.type.asIdentifier(),
-            id: authorityOf(period).id
+          href: Route('backend-authority-view', {
+            backendID: backend.asIdentifier(),
+            authorityID: authorityOf(period).id
           })
         }, '(link)')
       ])

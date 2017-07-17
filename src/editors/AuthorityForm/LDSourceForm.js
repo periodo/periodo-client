@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
     , { Box, Heading, Text, Textarea } = require('axs-ui')
     , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
-    , { Button$Primary, Button$Danger, Source, Link } = require('lib/ui')
+    , { Button, Button$Primary, Button$Danger, Source, Link } = require('lib/ui')
 
 
 const LDInput = AsyncRequestor(class LDInput extends React.Component {
@@ -83,8 +83,6 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
 
 const LinkedDataSourceForm = ({ value, onValueChange }) =>
   h(Box, [
-    h(Heading, { level: 3 }, 'Linked data source'),
-
     value
       ? h(Box, [
           h(Source, { source: value }),

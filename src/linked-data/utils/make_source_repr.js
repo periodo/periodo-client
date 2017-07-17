@@ -41,7 +41,7 @@ const contributorFields = new Map()
 function getFirstMatch(store, subjectURI, predicateURIs) {
   for (const predicateURI of predicateURIs) {
     const match = store.find(subjectURI, predicateURI, null)
-    if (match) return match;
+    if (match.length) return match;
   }
 
   return null;

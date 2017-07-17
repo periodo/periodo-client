@@ -36,8 +36,6 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
 
     return (
       h(Box, [
-        h(Heading, { level: 3 }, 'Non linked data source'),
-
         h(TextareaBlock, {
           name: 'citation',
           label: 'Citation (required)',

@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box } = require('axs-ui')
+    , { Flex, Box, Text } = require('axs-ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
 module.exports = class BackendHome extends React.Component {
@@ -34,10 +34,28 @@ module.exports = class BackendHome extends React.Component {
   }
 
   render() {
-    const { backend } = this.props
+    const { backend, dataset } = this.props
 
     return (
       h(Box, [
+        h(Flex, {
+          justifyContent: 'space-around',
+          pb: 2,
+        }, [
+          h(Text, { mx: 1 }, [
+            'Created: ' + new Date(backend.metadata.created).toLocaleString(),
+          ]),
+
+          h(Text, { mx: 1 }, [
+            'Last modified: ' + new Date(backend.metadata.modified).toLocaleString(),
+          ]),
+
+          h(Text, { mx: 1 }, [
+            'Last accessed: ' + new Date(backend.metadata.accessed).toLocaleString(),
+          ]),
+
+        ]),
+
         h(Box, [
           /*
           h(DropdownMenu, {
@@ -67,6 +85,7 @@ module.exports = class BackendHome extends React.Component {
 
         h(AuthorityLayout, {
           backend,
+          dataset,
           spec: this.state.spec,
           updateLayoutOpts: this.updateLayoutOpts.bind(this)
         }),

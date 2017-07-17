@@ -1,12 +1,10 @@
 "use strict";
 
 const React = require('react')
-    , R = require('ramda')
     , h = require('react-hyperscript')
     , through = require('through2')
     , Immutable = require('immutable')
-    , { Flex, Box } = require('axs-ui')
-    , { DropdownMenu, Breadcrumb } = require('lib/ui')
+    , { Box, Flex } = require('axs-ui')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
@@ -18,9 +16,7 @@ class Application extends React.Component {
 
     this.state = {
       loadingNewPage: true,
-      activeComponent: null,
-      actions: null,
-      breadcrumb: null,
+      activeResource: null,
       errors: Immutable.List()
     }
   }
@@ -52,130 +48,94 @@ class Application extends React.Component {
       path = path.url()
     }
 
-    const resource = router.match(path)
-        , { onBeforeRoute=R.always({}), Component, params } = resource
-        , { dispatch } = this.props
-
     let redirectTo
 
-    const redirect = url => {
-      redirectTo = url;
-    }
+    const resource = router.match(path)
+        , { onBeforeRoute, params } = resource
+        , { dispatch } = this.props
+        , redirect = url => redirectTo = url
 
     this.setState({ loadingNewPage: true })
 
     try {
-      const extraProps = await onBeforeRoute(dispatch, params, redirect)
+      if (onBeforeRoute) {
+        await onBeforeRoute(dispatch, params, redirect)
+      }
 
-      const props = Object.assign({}, params, extraProps)
+      if (redirectTo) {
+        this.setApplicationPath(redirectTo);
+      } else {
+        this.setState({ activeResource: resource })
 
-      const actions = (resource.actions || R.always(null))(props)
-          , breadcrumb = (resource.breadcrumb || R.always(null))(props)
-
-      if (!redirectTo) {
-        if (document) {
-          try {
-            const title = resource.title(props)
-            document.title = 'PeriodO client | ' + title;
-          } catch (err) {
-            document.title = 'PeriodO client';
-          }
+        if (pushState) {
+          window.history.pushState(undefined, undefined, path);
+        }
+      }
+    } catch (err) {
+        if (pushState) {
+          window.history.pushState(undefined, undefined, path);
         }
 
         this.setState({
-          activeComponent: h(Component, params),
-          actions,
-          breadcrumb,
+          activeResource: {
+            Component: () => h('div', [
+              h('h1', 'Error while loading resource: ' + resource.params.page),
+              h('pre', {}, err.stack || err),
+            ])
+          }
         })
 
-        if (pushState) {
-          window.history.pushState(undefined, undefined, path);
-        }
-
-      } else {
-        this.setApplicationPath(redirectTo);
-      }
-    } catch (error) {
-        if (pushState) {
-          window.history.pushState(undefined, undefined, path);
-        }
-
-      this.setState(prev => ({
-        errors: prev.errors.unshift(Immutable.Map({
-          error,
-          time: new Date()
-        }))
-      }));
-
-      throw error;
     } finally {
       this.setState({ loadingNewPage: false })
     }
   }
 
   render() {
-    const { activeComponent, errors, loadingNewPage, actions, breadcrumb } = this.state
+    const { loadingNewPage, activeResource } = this.state
 
-    return h(Flex, {
-      flexDirection: 'column',
+    return h(Box, {
       css: {
         height: '100%',
       }
     }, [
-
-      h(Box, {
-        is: 'header',
-        bg: 'gray2',
+      h(Header, {
+        bg: 'gray1',
         css: {
-          flex: 0,
-          borderBottom: '1px solid #999',
-        }
-      }, [
-        h(Header, { loadingNewPage }),
-      ]),
+          height: '56px',
+          borderBottom: '1px solid #ccc',
+        },
+        showSpinner: loadingNewPage,
+      }),
 
       h(Box, {
         is: 'main',
-        p: 2,
-        css: {
-          flexGrow: 1,
-        }
       }, [
-        h(Box, [
-          (actions || breadcrumb) && h(Flex, {
-            alignItems: 'center',
-            mb: 2,
-          }, [
-            actions && h(DropdownMenu, {
-              label: 'Actions'
-            }, actions),
-
-            breadcrumb && h(Breadcrumb, {
-              mb: 0,
-              ml: '-1px',
-              css: {
-                flexGrow: 1,
-                lineHeight: '20px',
-                border: '1px solid #bfc5ca',
-                borderRadius: '0 2px 2px 0',
-              }
-            }, breadcrumb),
-          ]),
-
-          activeComponent
-        ]),
+        h(Box, {
+          bg: 'white',
+          p: 2,
+          css: {
+            minHeight: 'calc(100vh - 56px - 116px)',
+            margin: 'auto',
+            alignSelf: 'stretch',
+            flexGrow: 1,
+            width: '100%',
+            maxWidth: 1420,
+          }
+        }, [
+          activeResource && h(activeResource.Component, {
+            params: activeResource.params,
+          })
+        ])
       ]),
 
-      h(Box, {
-        bg: 'gray2',
+      h(Footer, {
+        bg: 'gray1',
         p: 2,
         css: {
-          flex: 0,
-          borderTop: '1px solid #999',
+          height: '116px',
+          borderTop: '1px solid #ccc',
         }
-      }, [
-        h(Footer, { errors })
-      ])
+      })
     ])
   }
 }

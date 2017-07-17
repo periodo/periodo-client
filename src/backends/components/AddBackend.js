@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
     , BackendForm = require('./BackendForm')
     , { addBackend } = require('../actions')
-    , { Backend } = require('../types')
+    , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('../../typed-actions/utils')
     , { Route, trigger } = require('lib/router')
 
@@ -15,11 +15,11 @@ const AddBackend = props =>
       handleSave: async state => {
         const { label, description, type } = state
 
-        const backend = type === 'Web'
-            ? Backend.WebOf(state)
-            : Backend.UnsavedIndexedDB()
+        const storage = type === 'Web'
+            ? BackendStorage.WebOf(state)
+            : BackendStorage.IndexedDB(null)
 
-        const resp = await props.addBackend(backend, label, description)
+        const resp = await props.addBackend(storage, label, description)
 
         handleCompletedAction(
           resp,

@@ -38,14 +38,15 @@ function match(text='') {
 // Identifier -> String
 function asURL(identifier) {
   return identifier.case({
-    Worldcat: id => `https://www.worldcat.org/oclc/${id}`,
+    //Worldcat: id => `https://www.worldcat.org/oclc/${id}`,
+    Worldcat: id => `http://experiment.worldcat.org/oclc/${id}.ttl`,
     Crossref: doi => `https://data.crossref.org/${doi}`,
   })
 }
 
 function getGraphSubject(identifier) {
   return identifier.case({
-    Worldcat: id => `https://www.worldcat.org/oclc/${id}`,
+    Worldcat: id => `http://www.worldcat.org/oclc/${id}`,
     Crossref: doi => `http://dx.doi.org/${doi}`,
   })
 }

@@ -40,9 +40,9 @@ const columns = {
       return h('div', [
         authority.title,
         h(Link, {
-          href: Route('backend-authority', {
-            backendID: backend.type.asIdentifier(),
-            id: authority.id
+          href: Route('backend-authority-view', {
+            backendID: backend.asIdentifier(),
+            authorityID: authority.id
           })
         }, 'LINK')
       ])

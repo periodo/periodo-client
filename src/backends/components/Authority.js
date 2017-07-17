@@ -1,28 +1,34 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , React = require('react')
-    , { Box } = require('axs-ui')
+    , { Box, Heading } = require('axs-ui')
     , { Source } = require('lib/ui')
+    , AuthorityLayout = require('../../layouts/authorities')
 
-module.exports = class Authority extends React.Component {
-  constructor() {
-    super();
+module.exports = ({ backend, authority }) =>
+  h(Box, [
+    h(Heading, { level: 2 }, 'Source'),
 
-    this.state = {
-      addingPeriod: false,
-      period: {},
-    }
-  }
+    h(Source, { source: authority.source }),
 
-  render() {
-    const { backend, id } = this.props
-        , authority = backend.dataset.periodCollections[id]
+    h(Heading, { level: 2 }, 'Periods'),
 
-    return (
-      h(Box, [
-        h(Source, { source: authority.source }),
-      ])
-    )
-  }
-}
+    h(AuthorityLayout, {
+      backend,
+      dataset: {
+        periodCollections: {
+          [authority.id]: authority
+        }
+      },
+      spec: {
+        groups: [
+          {
+            layouts: [
+              { name: 'list' },
+            ]
+          }
+        ]
+      },
+      updateLayoutOpts: () => null,
+    }),
+  ])
