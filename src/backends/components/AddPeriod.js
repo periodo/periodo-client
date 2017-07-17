@@ -19,27 +19,31 @@ module.exports = class AddPeriod extends React.Component {
   }
 
   render() {
-    const { dispatch, backend, dataset } = this.props
+    const { authority, dispatch, backend, dataset } = this.props
 
     return (
       h(Box, [
         h(PeriodForm, {
           value: this.state.period,
           onValidated: async period => {
-            const id = generateID()
+            const isEdit = !!period.id
+                , id = isEdit ? period.id : generateID()
 
             await dispatch(updateLocalDataset(
               backend.storage,
               R.assocPath(
-                ['periodCollections', id],
+                ['periodCollections', authority.id, 'definitions', id],
                 Object.assign({ id }, period),
                 dataset
               ),
-              `Added period collection ${id}`
+              isEdit
+                ? `Edited period ${id} in authority ${authority.id}`
+                : `Added period ${id} to authority ${authority.id}`
             ))
 
-            trigger('backend-home', {
-              backendID: backend.asIdentifier()
+            trigger('backend-authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
             })
           },
           onValueChange: period => {

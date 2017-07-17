@@ -3,6 +3,7 @@
 const R = require('ramda')
     , { Result } = require('lib/util/types')
     , terminus = require('lib/util/terminus')
+    , label = require('lib/util/label')
 
 function addError(obj, label, err) {
   return R.over(
@@ -66,9 +67,9 @@ function validatePeriod(period) {
     terminus.earliestYear(R.prop(type, period)) !== null &&
     terminus.latestYear(R.prop(type, period)) !== null
 
-  const badTerminusRange = terminus =>
-    terminus.isMultiPart(terminus) &&
-    terminus.earliestYear(terminus) > terminus.latestYear(terminus)
+  const badTerminusRange = t =>
+    terminus.isMultipart(t) &&
+    terminus.earliestYear(t) > terminus.latestYear(t)
 
   if (!periodPresent('start') || !periodPresent('stop')) {
     errors = addError(errors, 'dates', 'A period must have start and stop dates.');
@@ -96,6 +97,19 @@ function validatePeriod(period) {
         cleanedPeriod[field] = val;
       }
     })
+
+    // Clean up parsed terminus labels
+    delete cleanedPeriod.start._type;
+    delete cleanedPeriod.stop._type;
+
+    // Fix labels
+    cleanedPeriod.label = period.originalLabel.value;
+    cleanedPeriod.language = label.code(period.originalLabel);
+
+    cleanedPeriod.localizedLabels = label.groupByCode([].concat(
+      period.originalLabel,
+      period.alternateLabels.filter(l => l.value),
+    ))
 
     return Result.Ok(cleanedPeriod);
 

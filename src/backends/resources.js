@@ -106,6 +106,7 @@ const individualAuthorityPage = (makeTitle, Component) => ({
 
     return {
       backend: state.backends.available[props.params.backendID],
+      dataset: state.backends.datasets[props.params.backendID],
       authority: dataset.periodCollections[props.params.authorityID],
     }
   },
