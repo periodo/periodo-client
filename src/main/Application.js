@@ -108,7 +108,7 @@ class Application extends React.Component {
       { activeResourceOpts: nextOpts },
       () => {
         const nextQuerystring = Object.assign(
-          querystring.decode(window.location.search.slice(1)),
+          querystring.parse(window.location.search.slice(1)),
           { opts: JSON.stringify(nextOpts) }
         )
 
@@ -116,7 +116,7 @@ class Application extends React.Component {
           delete nextQuerystring.opts;
         }
 
-        const path = '?' + querystring.encode(nextQuerystring)
+        const path = '?' + querystring.stringify(nextQuerystring)
 
         window.history.replaceState(undefined, undefined, path);
       }
