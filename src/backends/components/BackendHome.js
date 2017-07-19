@@ -37,9 +37,14 @@ module.exports = class BackendHome extends React.Component {
             ml: 2,
             onSelection: val => {
               if (val === 'add group') {
-                updateOpts(opts => ({
-                  a: (opts.a || 0) + 1
-                }))
+                updateOpts(
+                  R.over(
+                    R.lensPath(['spec', 'groups']),
+                    R.append({
+                      layouts: [],
+                    })
+                  )
+                )
               }
 
               if (val === 'reset') {
