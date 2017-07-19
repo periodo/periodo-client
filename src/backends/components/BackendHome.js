@@ -4,37 +4,12 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Flex, Box, Text } = require('axs-ui')
+    , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
 module.exports = class BackendHome extends React.Component {
-  constructor() {
-    super();
-
-    this.state = {
-      spec: {
-        groups: [
-          {
-            layouts: [
-              { name: 'authorityList' },
-            ]
-          }
-        ]
-      }
-    }
-
-    this.updateLayoutOpts = this.updateLayoutOpts.bind(this);
-  }
-
-  updateLayoutOpts(i, j, fn) {
-    this.setState(prev => {
-      const spec = R.over(R.lensPath(['groups', i, 'layouts', j, 'opts']), fn, prev.spec)
-
-      return { spec }
-    })
-  }
-
   render() {
-    const { backend, dataset } = this.props
+    const { backend, dataset, updateOpts } = this.props
 
     return (
       h(Box, [
@@ -57,15 +32,19 @@ module.exports = class BackendHome extends React.Component {
         ]),
 
         h(Box, [
-          /*
           h(DropdownMenu, {
             label: 'Layout',
             ml: 2,
             onSelection: val => {
-              if (val === 'reset') {
-                this.setState({ spec: { groups: [] }});
+              if (val === 'add group') {
+                updateOpts(opts => ({
+                  a: (opts.a || 0) + 1
+                }))
               }
-              // TODO
+
+              if (val === 'reset') {
+                updateOpts(() => ({}));
+              }
             }
           }, [
             h(DropdownMenuItem, {
@@ -80,14 +59,16 @@ module.exports = class BackendHome extends React.Component {
               value: 'save',
             }, 'Save'),
           ]),
-          */
         ]),
+
+        h('pre', {
+        }, JSON.stringify(this.props.opts, true, '  ')),
 
         h(AuthorityLayout, {
           backend,
           dataset,
-          spec: this.state.spec,
-          updateLayoutOpts: this.updateLayoutOpts.bind(this)
+
+          spec: { groups: [] },
         }),
       ])
     )
