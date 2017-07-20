@@ -17,7 +17,7 @@ const PeriodoLayoutEngine = props =>
       text: require('./TextSearch'),
     },
     spec: props.spec,
-    updateLayoutOpts: props.updateLayoutOpts,
+    onSpecChange: props.onSpecChange,
     extra: {
       backend: props.backend,
     }

@@ -10,6 +10,7 @@ const h = require('react-hyperscript')
 module.exports = class BackendHome extends React.Component {
   render() {
     const { backend, dataset, updateOpts } = this.props
+        , { spec={ groups: [] } } = this.props.opts
 
     return (
       h(Box, [
@@ -66,14 +67,14 @@ module.exports = class BackendHome extends React.Component {
           ]),
         ]),
 
-        h('pre', {
-        }, JSON.stringify(this.props.opts, true, '  ')),
+        h('pre', JSON.stringify(spec, true, '  ')),
 
         h(AuthorityLayout, {
+          spec,
           backend,
           dataset,
-
-          spec: { groups: [] },
+          onSpecChange: spec =>
+            updateOpts(R.set(R.lensProp('spec'), spec))
         }),
       ])
     )
