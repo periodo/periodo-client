@@ -82,7 +82,7 @@ const columns = {
 }
 
 const defaultOpts = {
-  limit: 20,
+  limit: 25,
   start: 0,
   sortBy: 'label',
   selected: [],
