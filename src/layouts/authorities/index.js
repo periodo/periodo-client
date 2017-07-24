@@ -5,22 +5,39 @@ const h = require('react-hyperscript')
     , LayoutEngine = require('lib/layout-engine/Engine')
     , fromArray = require('from2-array')
 
-const PeriodoLayoutEngine = props =>
-  h(LayoutEngine, {
-    createReadStream: () => fromArray.obj(
-      R.values(props.dataset.periodCollections)
-    ),
-    layouts: {
-      statistics: require('./Statistics'),
-      list: require('./PeriodList'),
-      authorityList: require('./AuthorityList'),
-      text: require('./TextSearch'),
-    },
-    spec: props.spec,
-    onSpecChange: props.onSpecChange,
-    extra: {
-      backend: props.backend,
-    }
-  })
+const PeriodoLayoutEngine = ({
+  addAt,
+  backend,
+  dataset,
+  spec=[],
+  onSpecChange,
+}) => {
+  return (
+    h(LayoutEngine, {
+      layouts: {
+        statistics: require('./Statistics'),
+        list: require('./PeriodList'),
+        text: require('./TextSearch'),
+        authorityList: require('./AuthorityList'),
+      },
+
+      createReadStream: () =>
+        fromArray.obj(
+          R.pipe(
+            R.values,
+            R.map(authority => ({
+              authority,
+              definitions: authority.definitions,
+            }))
+          )(dataset.periodCollections)
+        ),
+      spec,
+      onSpecChange,
+
+      addAt,
+      extraProps: { backend },
+    })
+  )
+}
 
 module.exports = PeriodoLayoutEngine;

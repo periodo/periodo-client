@@ -7,10 +7,25 @@ const h = require('react-hyperscript')
     , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
+const specLength = R.path(['opts', 'spec', 'length'])
+
 module.exports = class BackendHome extends React.Component {
+  constructor() {
+    super();
+
+    this.state = { addAt: null }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (specLength(prevProps) !== specLength(this.props)) {
+      this.setState({ addAt: null })
+    }
+  }
+
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { spec={ groups: [] } } = this.props.opts
+        , { spec=[] } = this.props.opts
+        , { addAt } = this.state
 
     return (
       h(Box, [
@@ -38,14 +53,7 @@ module.exports = class BackendHome extends React.Component {
             ml: 2,
             onSelection: val => {
               if (val === 'add group') {
-                updateOpts(
-                  R.over(
-                    R.lensPath(['spec', 'groups']),
-                    R.append({
-                      layouts: [],
-                    })
-                  )
-                )
+                this.setState({ addAt: Infinity })
               }
 
               if (val === 'reset') {
@@ -67,12 +75,11 @@ module.exports = class BackendHome extends React.Component {
           ]),
         ]),
 
-        h('pre', JSON.stringify(spec, true, '  ')),
-
         h(AuthorityLayout, {
           spec,
           backend,
           dataset,
+          addAt,
           onSpecChange: spec =>
             updateOpts(R.set(R.lensProp('spec'), spec))
         }),

@@ -5,7 +5,6 @@ const h = require('react-hyperscript')
     , { earliestYear, latestYear } = require('lib/util/terminus')
     , { authorityOf } = require('lib/util/period')
     , { displayTitle } = require('lib/util/source')
-    , { periodsWithAuthority } = require('lib/util/authority')
     , { Link } = require('lib/ui')
     , { Box } = require('axs-ui')
     , { Route } = require('lib/router')
@@ -90,10 +89,12 @@ const defaultOpts = {
 }
 
 
-exports.handler = List(
+module.exports = List(
   'Period List',
   'Selectable list of periods.',
   defaultOpts,
-  R.map(periodsWithAuthority),
+  R.map(
+    R.pipe(R.prop('definitions'), R.values)
+  ),
   columns,
 )

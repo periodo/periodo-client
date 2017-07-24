@@ -20,9 +20,9 @@ const next = (prev, items) => {
   prev = prev || { authorities: new Set(), periods: new Set() }
 
   return R.transduce(
-    R.map(authority => ({
+    R.map(({ authority, definitions }) => ({
       authorities: authority.id,
-      periods: R.map(R.prop('id'), R.values(authority.definitions))
+      periods: Object.keys(definitions),
     })),
     itemKeySetReducer,
     prev,
@@ -30,10 +30,10 @@ const next = (prev, items) => {
   )
 }
 
-exports.handler = {
+module.exports = {
   label: 'Statistics',
   description: 'Simple stastics about the dataset.',
-  Component: Consumer(next, Infinity, props =>
+  Component: Consumer(next, 2, props =>
     h(Box, [
       h(Box, [
         h(Text, `There are ${props.data.periods.size} periods in ${props.data.authorities.size} authorities`)

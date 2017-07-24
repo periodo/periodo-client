@@ -58,10 +58,10 @@ const defaultOpts = {
 }
 
 
-exports.handler = makeList(
+module.exports = makeList(
   'Authority List',
   'Selectable list of period authorities.',
   defaultOpts,
-  R.map(R.identity),
+  R.map(R.prop('authority')),
   columns,
 )
