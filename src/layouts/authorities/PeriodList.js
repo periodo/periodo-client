@@ -47,17 +47,17 @@ const columns = {
       return earliestYear(period.start) || '(not given)'
     },
 
-    sort(a, b, rev) {
+    sort(rev, a, b) {
       const mult = rev ? -1 : 1
 
       a = earliestYear(a.start || {})
       b = earliestYear(b.start || {})
 
       if (a === b) return 0;
-      if (a == null) return -1;
-      if (b == null) return 1;
+      if (a == null) return 1;
+      if (b == null) return -1;
 
-      return mult * (a > b ? -1 : 1);
+      return mult * (a > b ? 1 : -1);
     }
   },
 
@@ -66,17 +66,17 @@ const columns = {
     getValue(period) {
       return latestYear(period.stop) || '(not given)'
     },
-    sort(a, b, rev) {
-      const mult = rev ? -1 : 1
+    sort(rev, a, b) {
+      const mult = rev ? 1 : -1
 
       a = latestYear(a.stop || {})
       b = latestYear(b.stop || {})
 
       if (a === b) return 0;
-      if (a == null) return -1;
-      if (b == null) return 1;
+      if (a == null) return 1;
+      if (b == null) return -1;
 
-      return mult * (a < b ? -1 : 1);
+      return mult * (a < b ? 1 : -1);
     }
   }
 }
@@ -84,6 +84,7 @@ const columns = {
 const defaultOpts = {
   limit: 20,
   start: 0,
+  sortBy: 'label',
   selected: [],
   shownColumns: ['label', 'start', 'stop'],
 }
