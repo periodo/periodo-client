@@ -24,7 +24,7 @@ module.exports = class BackendHome extends React.Component {
 
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { spec=[] } = this.props.opts
+        , { spec=[{ name: 'list' }] } = this.props.opts
         , { addAt } = this.state
 
     return (
@@ -57,7 +57,7 @@ module.exports = class BackendHome extends React.Component {
               }
 
               if (val === 'reset') {
-                updateOpts(() => ({}));
+                updateOpts(() => ({ spec: [] }));
               }
             }
           }, [
