@@ -3,22 +3,9 @@
 const h = require('react-hyperscript')
     , { Box, Heading } = require('axs-ui')
     , { Period, Source, Authority, Dataset, Patch } = require('lib/ui')
-    , { generateRoute } = require('../router')
-    , { getCurrentBackend } = require('../backends/utils')
     , example = require('./example-data')
 
 module.exports = {
-  '': {
-    Component: h('div'),
-    onBeforeRoute(dispatch, params, redirect) {
-      const currentBackend = getCurrentBackend()
-
-      redirect(!currentBackend
-        ? generateRoute('available-backends')
-        : generateRoute('backend', { backendID: currentBackend.asIdentifier() })
-      )
-    }
-  },
 
   'test-period': {
     Component: () => h(Box, [
