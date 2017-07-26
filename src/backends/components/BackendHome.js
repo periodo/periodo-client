@@ -3,38 +3,32 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box, Text } = require('axs-ui')
+    , { Flex, Box, Span, Text } = require('axs-ui')
+    , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
     , AuthorityLayout = require('../../layouts/authorities')
+
+const specLength = R.path(['opts', 'spec', 'layouts', 'length'])
 
 module.exports = class BackendHome extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      spec: {
-        groups: [
-          {
-            layouts: [
-              { name: 'authorityList' },
-            ]
-          }
-        ]
-      }
+      addAt: null,
+      editGrid: false,
     }
-
-    this.updateLayoutOpts = this.updateLayoutOpts.bind(this);
   }
 
-  updateLayoutOpts(i, j, fn) {
-    this.setState(prev => {
-      const spec = R.over(R.lensPath(['groups', i, 'layouts', j, 'opts']), fn, prev.spec)
-
-      return { spec }
-    })
+  componentDidUpdate(prevProps) {
+    if (specLength(prevProps) !== specLength(this.props)) {
+      this.setState({ addAt: null })
+    }
   }
 
   render() {
-    const { backend, dataset } = this.props
+    const { backend, dataset, updateOpts } = this.props
+        , { spec={ layouts: [{ name: 'list' }]} } = this.props.opts
+        , { addAt, editGrid } = this.state
 
     return (
       h(Box, [
@@ -57,15 +51,31 @@ module.exports = class BackendHome extends React.Component {
         ]),
 
         h(Box, [
-          /*
           h(DropdownMenu, {
             label: 'Layout',
             ml: 2,
             onSelection: val => {
-              if (val === 'reset') {
-                this.setState({ spec: { groups: [] }});
+              switch (val) {
+                case 'add group':
+                  this.setState({ addAt: Infinity })
+                  break;
+
+                case 'reset':
+                  updateOpts(() => ({ spec: { layouts: [] }}));
+                  break;
+
+                case 'edit-grid':
+                  this.setState(prev => ({ editGrid: !prev.editGrid }))
+                  break;
+
+                default:
+                  break;
               }
-              // TODO
+              if (val === 'add group') {
+              }
+
+              if (val === 'reset') {
+              }
             }
           }, [
             h(DropdownMenuItem, {
@@ -77,17 +87,26 @@ module.exports = class BackendHome extends React.Component {
             }, 'Reset'),
 
             h(DropdownMenuItem, {
+              value: 'edit-grid',
+            }, [
+              'Edit grid',
+              editGrid && h(Span, { css: { float: 'right' }}, '✔'),
+            ]),
+
+            h(DropdownMenuItem, {
               value: 'save',
             }, 'Save'),
           ]),
-          */
         ]),
 
         h(AuthorityLayout, {
+          spec,
           backend,
           dataset,
-          spec: this.state.spec,
-          updateLayoutOpts: this.updateLayoutOpts.bind(this)
+          addAt,
+          editGrid,
+          onSpecChange: spec =>
+            updateOpts(R.set(R.lensProp('spec'), spec))
         }),
       ])
     )

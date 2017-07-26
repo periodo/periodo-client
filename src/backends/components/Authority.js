@@ -1,34 +1,52 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box, Heading } = require('axs-ui')
+    , React = require('react')
+    , { Flex, Box, Heading } = require('axs-ui')
     , { Source } = require('lib/ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
-module.exports = ({ backend, authority }) =>
-  h(Box, [
-    h(Heading, { level: 2 }, 'Source'),
+function LayoutHaver(Component, defaultSpec={ layouts: [] }) {
+  return class LayoutHaver extends React.Component {
+    constructor() {
+      super()
 
-    h(Source, { source: authority.source }),
+      this.state = {
+        spec: defaultSpec
+      }
+    }
 
-    h(Heading, { level: 2 }, 'Periods'),
+    render() {
+      return h(Component, Object.assign({
+        onSpecChange: spec => this.setState({ spec })
+      }, this.props, this.state))
+    }
+  }
+}
 
-    h(AuthorityLayout, {
-      backend,
-      dataset: {
-        periodCollections: {
-          [authority.id]: authority
-        }
-      },
-      spec: {
-        groups: [
-          {
-            layouts: [
-              { name: 'list' },
-            ]
+module.exports = LayoutHaver(({ backend, authority, spec, onSpecChange }) =>
+  h(Flex, [
+    h(Box, { width: .5 }, [
+      h(Heading, { level: 2 }, 'Source'),
+
+      h(Source, { source: authority.source }),
+    ]),
+
+    h(Box, { width: .5 }, [
+      h(Heading, { level: 2 }, 'Periods'),
+
+      h(AuthorityLayout, {
+        backend,
+        dataset: {
+          periodCollections: {
+            [authority.id]: authority
           }
-        ]
-      },
-      updateLayoutOpts: () => null,
-    }),
-  ])
+        },
+        spec,
+        onSpecChange,
+      }),
+    ]),
+
+  ]),
+  { layouts: [{ name: 'list', opts: { limit: 25 } }] }
+)

@@ -4,12 +4,11 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { earliestYear, latestYear } = require('lib/util/terminus')
     , { authorityOf } = require('lib/util/period')
-    , { displayTitle } = require('lib/util/source')
-    , { periodsWithAuthority } = require('lib/util/authority')
+    , { yearPublished, displayTitle } = require('lib/util/source')
     , { Link } = require('lib/ui')
     , { Box } = require('axs-ui')
     , { Route } = require('lib/router')
-    , List = require('lib/layout-engine/List')
+    , makeListLayout = require('lib/layout-engine/List')
 
 const columns = {
   label: {
@@ -26,18 +25,10 @@ const columns = {
     },
   },
 
-  source: {
-    label: 'Source',
+  publicationDate: {
+    label: 'Publication date',
     getValue(period, backend) {
-      return h(Box, [
-        displayTitle(authorityOf(period).source),
-        h(Link, {
-          href: Route('backend-authority-view', {
-            backendID: backend.asIdentifier(),
-            authorityID: authorityOf(period).id
-          })
-        }, '(link)')
-      ])
+      return yearPublished(authorityOf(period).source)
     }
   },
 
@@ -45,55 +36,40 @@ const columns = {
     label: 'Start',
 
     getValue(period) {
-      return earliestYear(period.start) || '(not given)'
+      return earliestYear(period.start)
     },
 
-    sort(a, b, rev) {
-      const mult = rev ? -1 : 1
-
-      a = earliestYear(a.start || {})
-      b = earliestYear(b.start || {})
-
-      if (a === b) return 0;
-      if (a == null) return -1;
-      if (b == null) return 1;
-
-      return mult * (a > b ? -1 : 1);
-    }
   },
 
   stop: {
     label: 'Stop',
     getValue(period) {
-      return latestYear(period.stop) || '(not given)'
+      return latestYear(period.stop)
     },
-    sort(a, b, rev) {
-      const mult = rev ? -1 : 1
-
-      a = latestYear(a.stop || {})
-      b = latestYear(b.stop || {})
-
-      if (a === b) return 0;
-      if (a == null) return -1;
-      if (b == null) return 1;
-
-      return mult * (a < b ? -1 : 1);
-    }
   }
 }
 
-const defaultOpts = {
-  limit: 20,
-  start: 0,
-  selected: [],
-  shownColumns: ['label', 'start', 'stop'],
-}
+module.exports = makeListLayout({
+  label: 'Period List',
+  description: 'Selectable list of periods.',
 
+  makeItemRoute({ item, backend }) {
+    return Route('backend-period-view', {
+      backendID: backend.asIdentifier(),
+      authorityID: authorityOf(item).id,
+      periodID: item.id,
+    })
+  },
 
-exports.handler = List(
-  'Period List',
-  'Selectable list of periods.',
-  defaultOpts,
-  R.map(periodsWithAuthority),
+  defaultOpts: {
+    limit: 25,
+    start: 0,
+    sortBy: 'label',
+    selected: [],
+    shownColumns: ['start', 'stop', 'label', 'spatialCoverage', 'publicationDate'],
+  },
+  transducer: R.map(
+    R.pipe(R.prop('definitions'), R.values)
+  ),
   columns,
-)
+})

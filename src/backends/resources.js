@@ -21,7 +21,7 @@ const authorityRoute = props => name =>
   })
 
 
-const fetchIndividualBackend = includeAuthority =>
+const fetchIndividualBackend = (includeAuthority, includePeriod) =>
   async (dispatch, params={}) => {
     if (!params.backendID) {
       throw new Error('Missing `backendID` parameter.')
@@ -29,6 +29,10 @@ const fetchIndividualBackend = includeAuthority =>
 
     if (includeAuthority && !params.authorityID) {
       throw new Error('Missing `authorityID` parameter.')
+    }
+
+    if (includePeriod && !params.periodID) {
+      throw new Error('Missing `periodID` parameter.')
     }
 
     const storage = BackendStorage.fromIdentifier(params.backendID)
@@ -108,6 +112,25 @@ const individualAuthorityPage = (makeTitle, Component) => ({
       backend: state.backends.available[props.params.backendID],
       dataset: state.backends.datasets[props.params.backendID],
       authority: dataset.periodCollections[props.params.authorityID],
+    }
+  },
+})
+
+const individualPeriodPage = (makeTitle, Component) => ({
+  makeTitle: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
+  actionMenuTitle: 'Authority',
+  makeBreadcrumb: backendBreadcrumb(true, makeTitle),
+  onBeforeRoute: fetchIndividualBackend(true, true),
+  Component,
+  mapStateToProps(state, props) {
+    const dataset = state.backends.datasets[props.params.backendID]
+        , authority = dataset.periodCollections[props.params.authorityID]
+
+    return {
+      backend: state.backends.available[props.params.backendID],
+      dataset,
+      authority,
+      period: authority.definitions[props.params.periodID],
     }
   },
 })
@@ -210,4 +233,12 @@ module.exports = {
     props => `View authority (${props.authorityID})`,
     () => h('h1', 'Edit authority')
   ),
+
+  /* Period pages */
+
+  'backend-period-view': individualPeriodPage(
+    props => `View period (${props.period.id})`,
+    require('./components/PeriodView')
+  ),
+
 }

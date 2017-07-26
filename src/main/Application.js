@@ -2,6 +2,8 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
+    , R = require('ramda')
+    , querystring = require('querystring')
     , through = require('through2')
     , Immutable = require('immutable')
     , { Box, Flex } = require('axs-ui')
@@ -15,10 +17,14 @@ class Application extends React.Component {
     super();
 
     this.state = {
+      first: true,
       loadingNewPage: true,
       activeResource: null,
-      errors: Immutable.List()
+      activeResourceOpts: {},
+      errors: Immutable.List(),
     }
+
+    this.updateCurrentOpts = this.updateCurrentOpts.bind(this);
   }
 
   componentDidMount() {
@@ -65,7 +71,10 @@ class Application extends React.Component {
       if (redirectTo) {
         this.setApplicationPath(redirectTo);
       } else {
-        this.setState({ activeResource: resource })
+        this.setState({
+          activeResource: resource,
+          activeResourceOpts: JSON.parse(params.opts || '{}'),
+        })
 
         if (pushState) {
           window.history.pushState(undefined, undefined, path);
@@ -82,7 +91,8 @@ class Application extends React.Component {
               h('h1', 'Error while loading resource: ' + resource.params.page),
               h('pre', {}, err.stack || err),
             ])
-          }
+          },
+          activeResourceOpts: null,
         })
 
     } finally {
@@ -90,8 +100,31 @@ class Application extends React.Component {
     }
   }
 
+  updateCurrentOpts(fn) {
+    const { activeResourceOpts } = this.state
+        , nextOpts = fn(activeResourceOpts)
+
+    this.setState(
+      { activeResourceOpts: nextOpts },
+      () => {
+        const nextQuerystring = Object.assign(
+          querystring.parse(window.location.search.slice(1)),
+          { opts: JSON.stringify(nextOpts) }
+        )
+
+        if (!nextOpts || R.isEmpty(nextOpts)) {
+          delete nextQuerystring.opts;
+        }
+
+        const path = '?' + querystring.stringify(nextQuerystring)
+
+        window.history.replaceState(undefined, undefined, path);
+      }
+    )
+  }
+
   render() {
-    const { loadingNewPage, activeResource } = this.state
+    const { loadingNewPage, activeResource, activeResourceOpts } = this.state
 
     return h(Box, {
       css: {
@@ -124,6 +157,12 @@ class Application extends React.Component {
         }, [
           activeResource && h(activeResource.Component, {
             params: activeResource.params,
+            opts: activeResourceOpts
+              ? typeof activeResourceOpts === 'object'
+                ? activeResourceOpts
+                : JSON.parse(activeResourceOpts)
+              : {},
+            updateOpts: this.updateCurrentOpts,
           })
         ])
       ]),

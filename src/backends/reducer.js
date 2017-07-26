@@ -1,6 +1,7 @@
 "use strict";
 
 const R = require('ramda')
+    , { $$Authority } = require('lib/util/symbols')
     , { isInModule
       , getResponse
       , getActionType
@@ -18,8 +19,22 @@ const updateBackend = (backend, dataset, state) => {
 
   return R.pipe(
     R.set(R.lensPath(['available', identifier]), backend),
-    R.set(R.lensPath(['datasets', identifier]), dataset)
+    R.set(R.lensPath(['datasets', identifier]), addAuthoritySymbols(dataset))
   )(state)
+}
+
+function addAuthoritySymbols(dataset) {
+  return R.over(
+    R.lensProp('periodCollections'),
+    R.map(authority =>
+      R.over(
+        R.lensProp('definitions'),
+        R.map(R.assoc($$Authority, authority)),
+        authority
+      )
+    ),
+    dataset
+  )
 }
 
 module.exports = function backends(state=initialState(), action) {
