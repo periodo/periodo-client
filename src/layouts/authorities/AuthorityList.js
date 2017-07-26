@@ -4,7 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , contributorList = require('lib/util/contributor_list')
     , makeList = require('lib/layout-engine/List')
-    , { generateRoute } = require('../../router')
+    , { Link } = require('lib/ui')
+    , { Route } = require('lib/router')
 
 const columns = {
   authors: {
@@ -35,15 +36,15 @@ const columns = {
   title: {
     label: 'Title',
     getValue(authority, backend) {
-      const href = generateRoute('backend-authority', {
-        identifier: backend.type.asIdentifier(),
-      }, {
-        id: authority.id
-      })
 
       return h('div', [
         authority.title,
-        h('a', { href: href }, 'LINK')
+        h(Link, {
+          href: Route('backend-authority-view', {
+            backendID: backend.asIdentifier(),
+            authorityID: authority.id
+          })
+        }, 'LINK')
       ])
     }
   }

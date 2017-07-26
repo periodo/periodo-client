@@ -2,17 +2,13 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
+    , through = require('through2')
     , Immutable = require('immutable')
-    , { Flex, Box } = require('axs-ui')
+    , { Box, Flex } = require('axs-ui')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
-    , locationStream = require('location-hash-stream')()
-    , router = require('../router')
-
-const LEFT_CLICK = 1;
-
-const noop = () => null
+    , router = require('lib/router')
 
 class Application extends React.Component {
   constructor() {
@@ -20,134 +16,126 @@ class Application extends React.Component {
 
     this.state = {
       loadingNewPage: true,
-      activeComponent: null,
+      activeResource: null,
       errors: Immutable.List()
     }
   }
 
   componentDidMount() {
-    const routeStream = router.createStream()
+    global.PeriodO = {}
+    global.PeriodO.locationStream = through.obj()
 
-    routeStream.on('data', this.mountResource.bind(this))
+    window.onpopstate = () => {
+      global.PeriodO.locationStream.write({
+        path: window.location.search,
+      })
+    }
 
-    locationStream.pipe(routeStream)
-    routeStream.write(window.location.hash || '#')
-
-    document.addEventListener('click', this.handlePageClick.bind(this));
+    window.PeriodO.locationStream
+      .on('data', ({ path, pushState }) => {
+        this.setApplicationPath(path, pushState)
+      })
+      .on('error', e => {
+        throw e;
+      })
+      .write({
+        path: window.location.search
+      })
   }
 
-  async mountResource(resource) {
-    const { onBeforeRoute=noop, Component, params } = resource
-        , { dispatch } = this.props
+  async setApplicationPath(path, pushState) {
+    if (path instanceof router.Route) {
+      path = path.url()
+    }
 
     let redirectTo
 
-    const redirect = url => {
-      redirectTo = url;
-    }
+    const resource = router.match(path)
+        , { onBeforeRoute, params } = resource
+        , { dispatch } = this.props
+        , redirect = url => redirectTo = url
 
     this.setState({ loadingNewPage: true })
 
     try {
-      await onBeforeRoute(dispatch, params, redirect);
-
-      if (!redirectTo) {
-        this.setState({
-          activeComponent: h(Component, params)
-        })
-      } else {
-        setTimeout(() => {
-          window.location.hash = redirectTo;
-        }, 0)
+      if (onBeforeRoute) {
+        await onBeforeRoute(dispatch, params, redirect)
       }
-    } catch (error) {
-      this.setState(prev => ({
-        errors: prev.errors.unshift(Immutable.Map({
-          error,
-          time: new Date()
-        }))
-      }));
 
-      throw error;
+      if (redirectTo) {
+        this.setApplicationPath(redirectTo);
+      } else {
+        this.setState({ activeResource: resource })
+
+        if (pushState) {
+          window.history.pushState(undefined, undefined, path);
+        }
+      }
+    } catch (err) {
+        if (pushState) {
+          window.history.pushState(undefined, undefined, path);
+        }
+
+        this.setState({
+          activeResource: {
+            Component: () => h('div', [
+              h('h1', 'Error while loading resource: ' + resource.params.page),
+              h('pre', {}, err.stack || err),
+            ])
+          }
+        })
+
     } finally {
       this.setState({ loadingNewPage: false })
     }
   }
 
-  handlePageClick(e) {
-    let anchor = e.target
-
-    const root = location.protocol + '//' + location.host
-
-    do {
-      if (!anchor || anchor.nodeName === 'A') break;
-    } while ((anchor = anchor.parentNode));
-
-    if (anchor) {
-      const url = require('url')
-          , href = anchor.href
-          , isLeftClick = e.which === LEFT_CLICK && !e.shiftKey && !e.ctrlKey
-          , interceptClick = isLeftClick && href && href.indexOf(root) === 0
-          , redirect = !anchor.dataset.noRedirect && href !== root + '/'
-
-      if (interceptClick) {
-        e.preventDefault();
-        if (redirect) {
-          locationStream.write(url.parse(href).hash)
-        }
-      }
-    }
-  }
-
-
   render() {
-    const { activeComponent, errors } = this.state
+    const { loadingNewPage, activeResource } = this.state
 
-    return h(Flex, {
-      flexDirection: 'column',
+    return h(Box, {
       css: {
         height: '100%',
       }
     }, [
-      h(Box, {
-        is: 'header',
-        bg: 'gray2',
-        p: 2,
+      h(Header, {
+        bg: 'gray1',
         css: {
-          flex: 0,
-          borderBottom: '1px solid #999',
-        }
-      }, [
-        h(Header)
-      ]),
+          height: '56px',
+          borderBottom: '1px solid #ccc',
+        },
+        showSpinner: loadingNewPage,
+      }),
 
       h(Box, {
         is: 'main',
-        p: 2,
-        css: {
-          flexGrow: 1,
-        }
-      }, [
-        activeComponent
-      ]),
-
-      h(Box, {
-        bg: 'gray2',
-        p: 2,
-        css: {
-          flex: 0,
-          borderTop: '1px solid #999',
-        }
       }, [
         h(Box, {
-          mx: 'auto',
+          bg: 'white',
+          p: 2,
           css: {
-            maxWidth: 4,
+            minHeight: 'calc(100vh - 56px - 116px)',
+            margin: 'auto',
+            alignSelf: 'stretch',
+            flexGrow: 1,
+            width: '100%',
+            maxWidth: 1420,
           }
         }, [
-          h(Footer, { errors })
+          activeResource && h(activeResource.Component, {
+            params: activeResource.params,
+          })
         ])
-      ])
+      ]),
+
+      h(Footer, {
+        bg: 'gray1',
+        p: 2,
+        css: {
+          height: '116px',
+          borderTop: '1px solid #ccc',
+        }
+      })
     ])
   }
 }

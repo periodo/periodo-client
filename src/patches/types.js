@@ -2,7 +2,7 @@
 
 const Type = require('union-type')
     , makeActionType = require('../typed-actions/make_type')
-    , { Backend } = require('../backends/types')
+    , { BackendStorage } = require('../backends/types')
 
 const PatchDirection = Type({
   Push: {},
@@ -75,8 +75,8 @@ PatchType.prototype.getLabel = function () {
 const PatchAction = makeActionType('patch', {
   GenerateDatasetPatch: [
     {
-      origin: Backend,
-      remote: Backend,
+      origin: BackendStorage,
+      remote: BackendStorage,
       direction: PatchDirection
     },
     {

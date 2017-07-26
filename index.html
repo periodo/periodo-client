@@ -12,6 +12,21 @@
         font-size: 14px;
         font-family: sans-serif;
       }
+
+      html {
+        overflow-y: scroll;
+      }
+
+      [role="button"]:focus,
+      [role="menuitem"]:focus,
+      button:focus {
+        outline: 3px solid steelblue;
+      }
+
+      :focus {
+        z-index: 2;
+      }
+
     </style>
   </head>
 

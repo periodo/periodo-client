@@ -7,7 +7,8 @@ const test = require('blue-tape')
     , makeMockStore = require('../../store_mock')
     , { ReadyState } = require('../../typed-actions/types')
     , actions = require('../actions')
-    , { Backend, BackendMetadata } = require('../types')
+    , reducer = require('../reducer')
+    , { Backend, BackendMetadata, BackendStorage } = require('../types')
     , { getReadyState, getResponse } = require('../../typed-actions/utils')
 
 test('Listing backends', async t => {
@@ -29,22 +30,24 @@ test('Adding local backends', async t => {
   const store = makeMockStore()
 
   await store.dispatch(
-    actions.addBackend(Backend.UnsavedIndexedDB(), 'test backend', ''));
+    actions.addBackend(BackendStorage.IndexedDB(null), 'test backend', ''));
 
   const action = store.getActions()[1]
-      , timestamp = getResponse(action).metadata.created
-      , { id } = getResponse(action).backend
+      , timestamp = getResponse(action).backend.metadata.created
+      , { id } = getResponse(action).backend.storage
 
   t.deepEqual(
     getReadyState(action),
     ReadyState.Success({
-      backend: Backend.IndexedDB(id),
-      metadata: BackendMetadata.BackendMetadataOf({
-        label: 'test backend',
-        description: '',
-        created: timestamp,
-        modified: timestamp,
-        accessed: timestamp,
+      backend: Backend.BackendOf({
+        storage: BackendStorage.IndexedDB(id),
+        metadata: BackendMetadata.BackendMetadataOf({
+          label: 'test backend',
+          description: '',
+          created: timestamp,
+          modified: timestamp,
+          accessed: timestamp,
+        })
       })
     }),
     'should allow adding backends')
@@ -63,23 +66,25 @@ test('Adding Web backends', async t => {
 
   await store.dispatch(
     actions.addBackend(
-      Backend.Web('http://example.com/'),
+      BackendStorage.Web('http://example.com/'),
       'test backend',
       'Example PeriodO server'))
 
   const action = store.getActions()[1]
-      , timestamp = getResponse(action).metadata.created
+      , timestamp = getResponse(action).backend.metadata.created
 
     t.deepEqual(
       getReadyState(action),
       ReadyState.Success({
-        backend: Backend.Web('http://example.com/'),
-        metadata: BackendMetadata.BackendMetadataOf({
-          label: 'test backend',
-          description: 'Example PeriodO server',
-          created: timestamp,
-          modified: timestamp,
-          accessed: timestamp,
+        backend: Backend.BackendOf({
+          storage: BackendStorage.Web('http://example.com/'),
+          metadata: BackendMetadata.BackendMetadataOf({
+            label: 'test backend',
+            description: 'Example PeriodO server',
+            created: timestamp,
+            modified: timestamp,
+            accessed: timestamp,
+          }),
         }),
       }),
       'should allow adding Web backends'
@@ -95,9 +100,11 @@ test('Adding Web backends', async t => {
 test('Updating backends', async t => {
   const store = makeMockStore()
 
+  store.replaceReducer(reducer);
+
   await store.dispatch(
     actions.addBackend(
-      Backend.UnsavedIndexedDB(),
+      BackendStorage.IndexedDB(null),
       'test backend',
       ''
     ))
@@ -116,7 +123,7 @@ test('Updating backends', async t => {
   store.clearActions();
 
   await store.dispatch(
-    actions.updateLocalBackendDataset(backend, updatedDataset))
+    actions.updateLocalDataset(backend.storage, updatedDataset))
 
   t.equal(store.getActions().length, 6);
 
@@ -132,7 +139,7 @@ test('Updating backends', async t => {
   );
 
   await store.dispatch(
-    actions.deleteBackend(backend))
+    actions.deleteBackend(backend.storage))
 
   store.clearActions();
 

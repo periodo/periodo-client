@@ -5,7 +5,7 @@ global.RETHROW_ERRORS = true;
 const test = require('blue-tape')
     , R = require('ramda')
     , backendActions = require('../../backends/actions')
-    , { Backend } = require('../../backends/types')
+    , { BackendStorage } = require('../../backends/types')
     , { ReadyState } = require('../../typed-actions/types')
     , { getResponse, getReadyState } = require('../../typed-actions/utils')
     , patchActions = require('../actions')
@@ -18,14 +18,14 @@ test('Patch generation actions', async t => {
 
   await store.dispatch(
     backendActions.addBackend(
-      Backend.UnsavedIndexedDB(),
+      BackendStorage.IndexedDB(null),
       'origin',
       ''
     ))
 
   await store.dispatch(
     backendActions.addBackend(
-      Backend.UnsavedIndexedDB(),
+      BackendStorage.IndexedDB(null),
       'remote',
       ''
     ))
@@ -33,10 +33,10 @@ test('Patch generation actions', async t => {
   const [ backendA, backendB ] = [
     store.getActions()[1],
     store.getActions()[3],
-  ].map(getResponse).map(resp => resp.backend)
+  ].map(getResponse).map(resp => resp.backend.storage)
 
   await store.dispatch(
-    backendActions.updateLocalBackendDataset(
+    backendActions.updateLocalDataset(
       backendA,
       {
         type: 'rdf:Bag',

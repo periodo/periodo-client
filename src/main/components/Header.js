@@ -1,41 +1,60 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Heading, Text } = require('axs-ui')
-    , { RouterKnower } = require('lib/util/hoc')
+    , R = require('ramda')
+    , { Flex, Box, Heading, Text } = require('axs-ui')
+    , Spinner = require('respin')
+    , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
+    , { Route } = require('lib/router')
 
-const Header = props =>
-  h(Flex, {
-    alignItems: 'center',
-  }, [
-    h(Heading, {
-      level: 1,
-      m: 0,
-      mr: 2,
-      fontSize: 3,
-      css: {
-        fontWeight: 100
-      }
+module.exports = props =>
+  h(Box, Object.assign({
+    is: 'header',
+  }, R.omit(['showSpinner'], props)), [
+    h(Flex, {
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      p: 1,
     }, [
-      h(Text, {
-        is: 'a',
-        href: '#/',
-        color: 'blue',
-        css: {
-          textDecoration: 'none',
-        }
-      }, 'PeriodO')
-    ]),
+      h(Box, [
+        h(Heading, {
+          level: 1,
+          m: 0,
+          mr: 2,
+          fontSize: 3,
+          css: {
+            fontWeight: 100
+          }
+        }, [
 
-    h(Text, {
-      is: 'a',
-      ml: 1,
-      color: 'blue',
-      href: props.generateRoute('available-backends'),
-      css: {
-        textDecoration: 'none',
-      }
-    }, '[select backend]')
+          h(Text, {
+            is: 'a',
+            href: '',
+            color: 'blue',
+            css: {
+              textDecoration: 'none',
+            }
+          }, h(Text, {
+            is: 'img',
+            src: 'assets/periodo-logo.svg',
+            css: {
+              height: 32,
+            }
+          }))
+        ]),
+      ]),
+
+      h(Box, { width: 22 }, [
+        props.showSpinner && h(Spinner, { size: 22 }),
+      ]),
+
+      h(DropdownMenu, {
+        label: 'Menu',
+        openLeft: true,
+      }, [
+        h(DropdownMenuItem, { value: Route('open-backend') }, 'Backends'),
+        h(DropdownMenuItem, { value: Route('submitted-patches') }, 'Patches'),
+        h(DropdownMenuItem, { value: Route('help') }, 'Help'),
+      ])
+    ])
   ])
-
-module.exports = RouterKnower(Header);

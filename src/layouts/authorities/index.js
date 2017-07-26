@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
 const PeriodoLayoutEngine = props =>
   h(LayoutEngine, {
     createReadStream: () => fromArray.obj(
-      R.values(props.backend.dataset.periodCollections)
+      R.values(props.dataset.periodCollections)
     ),
     layouts: {
       statistics: require('./Statistics'),
