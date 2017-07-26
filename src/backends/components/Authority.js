@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Source } = require('lib/ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
-function LayoutHaver(Component, defaultSpec=[]) {
+function LayoutHaver(Component, defaultSpec={ layouts: [] }) {
   return class LayoutHaver extends React.Component {
     constructor() {
       super()
@@ -48,5 +48,5 @@ module.exports = LayoutHaver(({ backend, authority, spec, onSpecChange }) =>
     ]),
 
   ]),
-  [{ name: 'list', opts: { limit: 25 } }]
+  { layouts: [{ name: 'list', opts: { limit: 25 } }] }
 )

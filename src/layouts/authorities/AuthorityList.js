@@ -51,7 +51,7 @@ const columns = {
 }
 
 const defaultOpts = {
-  limit: 20,
+  limit: 25,
   start: 0,
   selected: [],
   shownColumns: ['title', 'authors', 'yearPublished', 'numDefinitions'],

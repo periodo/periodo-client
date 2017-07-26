@@ -9,6 +9,7 @@ const PeriodoLayoutEngine = ({
   addAt,
   backend,
   dataset,
+  editGrid,
   spec=[],
   onSpecChange,
 }) => {
@@ -35,6 +36,7 @@ const PeriodoLayoutEngine = ({
       onSpecChange,
 
       addAt,
+      editGrid,
       extraProps: { backend },
     })
   )
