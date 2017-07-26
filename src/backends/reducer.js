@@ -29,7 +29,7 @@ function addAuthoritySymbols(dataset) {
     R.map(authority =>
       R.over(
         R.lensProp('definitions'),
-        R.map(R.assoc($$Authority, authority.id)),
+        R.map(R.assoc($$Authority, authority)),
         authority
       )
     ),

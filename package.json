@@ -29,6 +29,7 @@
     "linkify-it": "^1.1.0",
     "location-hash-stream": "^2.0.0",
     "n3": "^0.2.7",
+    "natsort": "^1.0.6",
     "periodo-date-parser": "^1.0.0",
     "pump": "^1.0.2",
     "querystring-browser": "^1.0.4",
