@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
 
-module.exports = () =>
+module.exports = props =>
   h(Box, [
-    h('h1', 'History'),
+    h('pre', JSON.stringify({ patches: props.patches }, true, '  ')),
   ])

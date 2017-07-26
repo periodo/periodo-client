@@ -4,8 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { connect } = require('react-redux')
     , { Route } = require('lib/router')
-    , { Link, DropdownMenuItem, DropdownMenuHeader, DropdownMenuSeparator } = require('lib/ui')
-    , { Text } = require('axs-ui')
+    , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
     , actions = require('./actions')
     , { BackendStorage } = require('./types')
 
@@ -181,10 +180,30 @@ module.exports = {
     require('./components/AddAuthority')
   ),
 
-  'backend-history': individualBackendPage(
-    () => 'History',
-    require('./components/History')
-  ),
+  'backend-history': (() => {
+    const opts = individualBackendPage(
+      () => 'History',
+      require('./components/History')
+    )
+
+    return Object.assign({}, opts, {
+      onBeforeRoute: async (dispatch, params) => {
+        await opts.onBeforeRoute(dispatch, params);
+
+        const storage = BackendStorage.fromIdentifier(params.backendID)
+
+        await dispatch(actions.fetchBackendHistory(storage))
+      },
+
+      mapStateToProps(state, props) {
+        const ret = opts.mapStateToProps(state, props)
+
+        return Object.assign({}, ret, {
+          patches: state.backends.patches[props.params.backendID]
+        })
+      }
+    })
+  })(),
 
   'backend-edit': individualBackendPage(
     () => 'Edit',
@@ -225,7 +244,7 @@ module.exports = {
   ),
 
   'backend-authority-add-period': individualAuthorityPage(
-    props => `Add period`,
+    () => `Add period`,
     require('./components/AddPeriod')
   ),
 

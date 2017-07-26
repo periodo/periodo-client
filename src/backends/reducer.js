@@ -12,6 +12,7 @@ const R = require('ramda')
 const initialState = () => ({
   available: {},
   datasets: {},
+  patches: {}
 })
 
 const updateBackend = (backend, dataset, state) => {
@@ -61,6 +62,18 @@ module.exports = function backends(state=initialState(), action) {
         const { backend, dataset } = getResponse(action)
 
         return updateBackend(backend, dataset, state)
+      },
+
+      GetBackendHistory() {
+        const { $$ActionType }  = require('../typed-actions/symbols')
+            , { storage } = action[$$ActionType]
+            , { patches } = getResponse(action)
+
+        return R.set(
+          R.lensPath(['patches', storage.asIdentifier()]),
+          patches,
+          state
+        )
       },
 
       UpdateBackend() {
