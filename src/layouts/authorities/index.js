@@ -20,6 +20,7 @@ const PeriodoLayoutEngine = ({
         list: require('./PeriodList'),
         text: require('./TextSearch'),
         authorityList: require('./AuthorityList'),
+        test: require('./d3_test'),
       },
 
       createReadStream: () =>
