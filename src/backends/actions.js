@@ -130,10 +130,14 @@ function fetchBackendHistory(storage) {
     await dispatch(fetchBackend(storage, true))
 
     const patches =  await storage.case({
-      IndexedDB: id => db.localBackendPatches
-        .where('backendID')
-        .equals(id)
-        .toArray()
+      IndexedDB: async id => {
+        const patches = await db.localBackendPatches
+          .where('backendID')
+          .equals(id)
+          .toArray()
+
+        return patches.map(p => Object.assign({ creator: '(local)' }, p))
+      }
     })
 
     return { patches }

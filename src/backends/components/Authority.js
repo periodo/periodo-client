@@ -1,35 +1,23 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , React = require('react')
     , { Flex, Box, Heading } = require('axs-ui')
     , { Source } = require('lib/ui')
     , AuthorityLayout = require('../../layouts/authorities')
+    , LayoutHaver = require('lib/layout-engine/LayoutHaver')
 
-function LayoutHaver(Component, defaultSpec={ layouts: [] }) {
-  return class LayoutHaver extends React.Component {
-    constructor() {
-      super()
 
-      this.state = {
-        spec: defaultSpec
-      }
-    }
-
-    render() {
-      return h(Component, Object.assign({
-        onSpecChange: spec => this.setState({ spec })
-      }, this.props, this.state))
-    }
-  }
-}
-
-module.exports = LayoutHaver(({ backend, authority, spec, onSpecChange }) =>
+module.exports = LayoutHaver(({
+  backend,
+  authority,
+  spec={ layouts: [{ name: 'list' }]},
+  onSpecChange
+}) =>
   h(Flex, [
     h(Box, { width: .5 }, [
       h(Heading, { level: 2 }, 'Source'),
 
-      h(Source, { source: authority.source }),
+      h(Source, { value: authority.source }),
     ]),
 
     h(Box, { width: .5 }, [
@@ -47,6 +35,5 @@ module.exports = LayoutHaver(({ backend, authority, spec, onSpecChange }) =>
       }),
     ]),
 
-  ]),
-  { layouts: [{ name: 'list', opts: { limit: 25 } }] }
+  ])
 )
