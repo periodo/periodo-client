@@ -26,13 +26,12 @@ module.exports = {
           .attr('transform', `translate(${d.MARGIN,d.MARGIN})`)
 
       this.scale = {
-        x: d3.scale.linear().range([0, d.WIDTH]),
-        y: d3.scale.linear().range([d.HEIGHT, 0]),
+        x: d3.scaleLinear().range([0, d.WIDTH]),
+        y: d3.scaleLinear().range([d.HEIGHT, 0]),
       }
 
       this.axis = {
-        x: d3.svg.axis()
-          .orient('bottom')
+        x: d3.axisBottom()
           .scale(this.scale.x)
           .ticks(5)
       }
