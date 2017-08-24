@@ -88,6 +88,16 @@ const BackendAction = makeActionType('backend', {
     }
   ],
 
+  GetBackendHistory: [
+    {
+      storage: BackendStorage,
+    },
+    {
+      // TODO: make this "patch" type
+      patches: Type.ListOf(Object)
+    }
+  ],
+
   CreateBackend: [
     {
       storage: BackendStorage,

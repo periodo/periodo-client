@@ -123,6 +123,27 @@ function fetchBackend(storage, forceReload) {
   })
 }
 
+function fetchBackendHistory(storage) {
+  const action = BackendAction.GetBackendHistory(storage)
+
+  return action.do(async (dispatch, getState, { db }) => {
+    await dispatch(fetchBackend(storage, true))
+
+    const patches =  await storage.case({
+      IndexedDB: async id => {
+        const patches = await db.localBackendPatches
+          .where('backendID')
+          .equals(id)
+          .toArray()
+
+        return patches.map(p => Object.assign({ creator: '(local)' }, p))
+      }
+    })
+
+    return { patches }
+  })
+}
+
 
 function addBackend(storage, label='', description='') {
   const action = BackendAction.CreateBackend(storage, label, description)
@@ -292,6 +313,7 @@ function deleteBackend(storage) {
 module.exports = {
   listAvailableBackends,
   fetchBackend,
+  fetchBackendHistory,
   addBackend,
   updateBackend,
   updateLocalDataset,

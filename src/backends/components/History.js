@@ -1,9 +1,19 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , { Box } = require('axs-ui')
+    , PatchLayout = require('../../layouts/patches')
+    , LayoutHaver = require('lib/layout-engine/LayoutHaver')
 
-module.exports = () =>
+module.exports = LayoutHaver(({
+  patches,
+  spec={ layouts: [{ name: 'patch-list' }] },
+  onSpecChange,
+}) =>
   h(Box, [
-    h('h1', 'History'),
+    h(PatchLayout, { patches, spec, onSpecChange, }),
+
+    // h('pre', JSON.stringify(patches, true, '  ')),
   ])
+)
