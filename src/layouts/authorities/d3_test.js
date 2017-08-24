@@ -30,12 +30,6 @@ module.exports = {
         y: d3.scaleLinear().range([d.HEIGHT, 0]),
       }
 
-      this.axis = {
-        x: d3.axisBottom()
-          .scale(this.scale.x)
-          .ticks(5)
-      }
-
       this.axisG = {
         x: this.g.append('g')
           .attr('transform', `translate(0,${d.HEIGHT})`)
@@ -44,6 +38,38 @@ module.exports = {
       this.periodsG = this.g.append('g')
 
 
+    },
+
+    getXAxis() {
+      return d3.axisBottom()
+        .scale(this.scale.x)
+        .ticks(5)
+        .tickFormat(R.cond([
+          // Pre-late stone age: use SI notation for how many years ago it was,
+          // with 'a' as a suffix:
+          //
+          //   * ka (thousand years ago)
+          //   * Ma (million years ago)
+          //   * Ga (billion years ago)
+          //
+          [R.gt(-50000), R.pipe(
+            R.subtract(new Date().getFullYear()),
+            d3.format('.1s'),
+            R.flip(R.concat)('a')
+          )],
+
+          // Late stone age to ISO8601 year -1: Tack on 'BC'. Add commas
+          // for 10,000 to 50,000.
+          [R.gte(-1), R.pipe(
+            d => Math.abs(d),
+            R.ifElse(R.lte(10000), d3.format(','), R.toString),
+            R.flip(R.concat)('BC'),
+          )],
+
+          // Otherwise, just return the string. (e.g. 1243, 466, 1999). This
+          // would not make sense for far-future dates
+          [R.T, R.toString]
+        ]))
     },
 
     update(periods) {
@@ -67,7 +93,7 @@ module.exports = {
       this.scale.x.domain([min, max])
       this.scale.y.domain([0, periods.length])
 
-      this.axisG.x.transition().call(this.axis.x)
+      this.axisG.x.transition().call(this.getXAxis())
 
       this.periodsG.selectAll('rect')
         .data(periods)
