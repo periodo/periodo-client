@@ -127,18 +127,40 @@ function fetchBackendHistory(storage) {
   const action = BackendAction.GetBackendHistory(storage)
 
   return action.do(async (dispatch, getState, { db }) => {
-    await dispatch(fetchBackend(storage, true))
+    const datasetPromise = dispatch(fetchBackend(storage))
 
-    const patches =  await storage.case({
+    const patchesPromise =  storage.case({
       IndexedDB: async id => {
         const patches = await db.localBackendPatches
           .where('backendID')
           .equals(id)
           .toArray()
 
-        return patches.map(p => Object.assign({ creator: '(local)' }, p))
+        return patches.map(p => ({
+          author: '(local)',
+          time: p.created,
+          patch: p.forward,
+        }))
+      },
+
+      Web: async url => {
+        const resp = await fetchServerResource(url, 'patches/?merged=true&limit=250')
+            , data = await resp.json()
+
+        return data.map(p => ({
+          url: p.url,
+          author: p.created_by,
+          time: p.updated_at,
+          patch: p.text,
+        }))
+      },
+
+      _: () => {
+        throw new Error('not implemented');
       }
     })
+
+    const [,patches] = await Promise.all([datasetPromise, patchesPromise])
 
     return { patches }
   })
