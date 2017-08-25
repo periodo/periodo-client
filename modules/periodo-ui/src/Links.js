@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Text } = require('axs')
-    , { Route, trigger } = require('lib/router')
+    , { Route, trigger } = require('periodo-app/src/router')
 
 exports.Link = props => {
   const isInternal = props.href instanceof Route

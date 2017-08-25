@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box, Heading, Text } = require('axs-ui')
-    , { Link } = require('../ui')
+    , { Link } = require('periodo-ui')
 
 module.exports = ({ layouts, onSelect }) =>
   h(Box, [

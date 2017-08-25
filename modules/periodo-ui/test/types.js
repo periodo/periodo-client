@@ -1,7 +1,7 @@
 "use strict";
 
 const test = require('tape')
-    , { Value, Change, valueEquality } = require('../types')
+    , { Value, Change, valueEquality } = require('../src/types')
 
 test('anonymous value construction', t => {
   t.plan(9)

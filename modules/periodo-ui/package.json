@@ -1,0 +1,32 @@
+{
+  "name": "periodo-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tape": "^4.8.0"
+  },
+  "dependencies": {
+    "axs": "^2.0.0-1",
+    "axs-ui": "^1.0.4",
+    "diff-match-patch": "^1.0.0",
+    "fast-json-patch": "^2.0.4",
+    "language-tags": "^1.0.5",
+    "linkify-it": "^2.0.3",
+    "periodo-utils": "5.0.0-pre",
+    "ramda": "^0.24.1",
+    "react": "^15.6.1",
+    "react-aria-menubutton": "^5.0.2",
+    "react-autosuggest": "^9.3.2",
+    "react-dom": "^15.6.1",
+    "react-hyperscript": "^3.0.0",
+    "union-type": "^0.4.0"
+  }
+}

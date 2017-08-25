@@ -1,8 +1,8 @@
 "use strict";
 
 const test = require('tape')
-    , { Value } = require('../types')
-    , { extract, as } = require('../Field')
+    , { Value } = require('../src/types')
+    , { extract, as } = require('../src/Field')
 
 test('extract', t => {
   t.plan(7)

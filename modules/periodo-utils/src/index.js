@@ -13,6 +13,7 @@ module.exports = {
   period: require('./period'),
   scripts: require('./scripts'),
   source: require('./source'),
+  symbols: require('./symbols'),
   terminus: require('./terminus'),
   terminusList: require('./terminus_list'),
   types: require('./types'),

@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Box, Text } = require('axs-ui')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
-    , { Route, trigger } = require('lib/router')
+    , { Route, trigger } = require('periodo-app/src/router')
 
 exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [

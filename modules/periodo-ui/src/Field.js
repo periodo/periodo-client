@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Info, Warn } = require('./Misc')
     , { Value, Change, asValue } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
-    , { ensureArray } = require('../util/misc')
+    , { ensureArray } = require('periodo-utils').misc
 
 const extract = keyOrPath => R.pipe(
   R.pathOr([], ensureArray(keyOrPath)),

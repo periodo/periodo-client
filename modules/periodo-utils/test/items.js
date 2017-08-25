@@ -2,7 +2,7 @@
 
 const test = require('tape')
     , util = require('../')
-    , symbols = require('../symbols')
+    , { symbols } = util
 
 
 test('Period terminus utility functions', t => {

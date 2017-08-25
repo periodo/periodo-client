@@ -1,8 +1,8 @@
 "use strict";
 
 const test = require('tape')
-    , { Value, Change } = require('../types')
-    , { findChanges } = require('../Diff')
+    , { Value, Change } = require('../src/types')
+    , { findChanges } = require('../src/Diff')
 
 test('findChanges', t => {
   t.plan(11)

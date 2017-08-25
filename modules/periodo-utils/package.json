@@ -1,0 +1,24 @@
+{
+  "name": "periodo-utils",
+  "version": "5.0.0-pre",
+  "private": true,
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tape": "^4.8.0"
+  },
+  "dependencies": {
+    "fast-diff": "^1.1.1",
+    "periodo-date-parser": "^1.0.0",
+    "ramda": "^0.24.1",
+    "react": "^15.6.1",
+    "react-hyperscript": "^3.0.0",
+    "union-type": "^0.4.0"
+  }
+}
