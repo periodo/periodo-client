@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , { updateLocalDataset } = require('../actions')
     , AuthorityForm = require('../../editors/AuthorityForm')
-    , { trigger } = require('lib/router')
+    , { trigger } = require('periodo-router')
 
 module.exports = class AddAuthority extends React.Component {
   constructor(props) {

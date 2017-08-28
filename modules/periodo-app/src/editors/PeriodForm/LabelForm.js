@@ -3,9 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
-    , { RandomID } = require('lib/util/hoc')
+    , { RandomID } = require('periodo-utils/src/hoc')
     , { Box } = require('axs-ui')
-    , { Label } = require('lib/ui')
+    , { Label } = require('periodo-ui')
 
 const defaultLabel = Object.freeze({
   value: '',

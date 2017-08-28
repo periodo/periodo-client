@@ -1,9 +1,9 @@
 "use strict";
 
 const R = require('ramda')
-    , { Result } = require('lib/util/types')
-    , terminus = require('lib/util/terminus')
-    , label = require('lib/util/label')
+    , { Result } = require('periodo-utils/src/types')
+    , terminus = require('periodo-utils/src/terminus')
+    , label = require('periodo-utils/src/label')
 
 function addError(obj, label, err) {
   return R.over(
@@ -14,7 +14,7 @@ function addError(obj, label, err) {
 }
 
 function validateAuthority(authority) {
-  const { isLinkedData } = require('lib/util/source')
+  const { isLinkedData } = require('periodo-utils/src/source')
       , { source, definitions={} } = authority
 
   let errors = {}

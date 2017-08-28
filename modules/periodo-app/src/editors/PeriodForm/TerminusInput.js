@@ -5,8 +5,8 @@ const h = require('react-hyperscript')
     , React = require('react')
     , dateParser = require('periodo-date-parser')
     , { Box, Flex } = require('axs-ui')
-    , { isMultipart } = require('lib/util/terminus')
-    , { InputBlock, Checkbox } = require('lib/ui')
+    , { isMultipart } = require('periodo-utils/src/terminus')
+    , { InputBlock, Checkbox } = require('periodo-ui')
 
 const emptyTerminus = {
   label: '',

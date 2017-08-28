@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Box, Text } = require('axs-ui')
-    , { InputBlock, Label, Autosuggest, AriaButton } = require('lib/ui')
+    , { InputBlock, Label, Autosuggest, AriaButton } = require('periodo-ui')
     , countries = require('../../../assets/dbpedia_countries.json')
 
 module.exports = ({

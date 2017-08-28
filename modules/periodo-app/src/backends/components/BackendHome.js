@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Flex, Box, Span, Text } = require('axs-ui')
-    , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
+    , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
 const specLength = R.path(['opts', 'spec', 'layouts', 'length'])

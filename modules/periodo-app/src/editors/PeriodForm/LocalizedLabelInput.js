@@ -3,10 +3,10 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , languages = require('lib/util/languages').getSortedList()
-    , scripts = require('lib/util/scripts').getSortedList()
+    , languages = require('periodo-utils/src/languages').getSortedList()
+    , scripts = require('periodo-utils/src/scripts').getSortedList()
     , { Input, Flex, Box } = require('axs-ui')
-    , { Autosuggest, DropdownMenuButton, DropdownMenuMenu, Button } = require('lib/ui')
+    , { Autosuggest, DropdownMenuButton, DropdownMenuMenu, Button } = require('periodo-ui')
 
 class Suggestor extends React.Component {
   constructor() {

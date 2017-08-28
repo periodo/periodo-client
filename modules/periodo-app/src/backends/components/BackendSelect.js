@@ -3,9 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { connect } = require('react-redux')
-    , { Link } = require('lib/ui')
+    , { Link } = require('periodo-ui')
     , { Box } = require('axs-ui')
-    , { Route } = require('lib/router')
+    , { Route } = require('periodo-router')
 
 module.exports = props =>
   h(Box, [

@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box, Heading } = require('axs-ui')
-    , { Period, Source, Authority, Dataset, Patch } = require('lib/ui')
+    , { Period, Source, Authority, Dataset, Patch } = require('periodo-ui')
     , example = require('./example-data')
 
 module.exports = {

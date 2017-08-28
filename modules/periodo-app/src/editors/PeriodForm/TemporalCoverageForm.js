@@ -4,8 +4,8 @@ const h = require('react-hyperscript')
     , React = require('react')
     , TerminusInput = require('./TerminusInput')
     , { Label, Flex, Heading, Box } = require('axs-ui')
-    , { Checkbox } = require('lib/ui')
-    , { wasAutoparsed } = require('lib/util/terminus')
+    , { Checkbox } = require('periodo-ui')
+    , { wasAutoparsed } = require('periodo-utils/src/terminus')
 
 const emptyTerminus = {
   label: '',

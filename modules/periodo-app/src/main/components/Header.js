@@ -4,8 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Flex, Box, Heading, Text } = require('axs-ui')
     , Spinner = require('respin')
-    , { DropdownMenu, DropdownMenuItem } = require('lib/ui')
-    , { Route } = require('lib/router')
+    , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
+    , { Route } = require('periodo-router')
 
 module.exports = props =>
   h(Box, Object.assign({

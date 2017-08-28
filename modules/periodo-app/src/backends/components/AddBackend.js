@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { addBackend } = require('../actions')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { Route, trigger } = require('lib/router')
+    , { Route, trigger } = require('periodo-router')
 
 const AddBackend = props =>
   h(Box, [

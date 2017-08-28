@@ -2,8 +2,8 @@
 
 const d3 = require('d3')
     , R = require('ramda')
-    , DOMLayout = require('lib/layout-engine/D3Layout')
-    , { earliestYear, latestYear } = require('lib/util/terminus')
+    , DOMLayout = require('org-layout-engine/D3Layout')
+    , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
 const d = {
   MARGIN: 30,

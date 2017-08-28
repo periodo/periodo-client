@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , LayoutEngine = require('lib/layout-engine/Engine')
-    , makeList = require('lib/layout-engine/List')
+    , LayoutEngine = require('org-layout-engine/Engine')
+    , makeList = require('org-layout-engine/List')
     , fromArray = require('from2-array')
 
 const PatchList = makeList({

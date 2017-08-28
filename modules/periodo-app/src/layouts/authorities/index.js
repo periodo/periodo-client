@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , LayoutEngine = require('lib/layout-engine/Engine')
+    , LayoutEngine = require('org-layout-engine/Engine')
     , fromArray = require('from2-array')
 
 const PeriodoLayoutEngine = ({

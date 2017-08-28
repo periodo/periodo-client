@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { connect } = require('react-redux')
-    , { Route } = require('lib/router')
-    , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('lib/ui')
+    , { Route } = require('periodo-router')
+    , { Link, DropdownMenuItem, DropdownMenuSeparator } = require('periodo-ui')
     , actions = require('./actions')
     , { BackendStorage } = require('./types')
 

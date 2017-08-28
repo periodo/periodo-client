@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Box, Heading } = require('axs-ui')
-    , { Alert$Success } = require('lib/ui')
+    , { Alert$Success } = require('periodo-ui')
 
 module.exports = class SignIn extends React.Component {
   constructor() {

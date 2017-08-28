@@ -2,13 +2,13 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { earliestYear, latestYear } = require('lib/util/terminus')
-    , { authorityOf } = require('lib/util/period')
-    , { yearPublished, displayTitle } = require('lib/util/source')
-    , { Link } = require('lib/ui')
+    , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
+    , { authorityOf } = require('periodo-utils/src/period')
+    , { yearPublished, displayTitle } = require('periodo-utils/src/source')
+    , { Link } = require('periodo-ui')
     , { Box } = require('axs-ui')
-    , { Route } = require('lib/router')
-    , makeListLayout = require('lib/layout-engine/List')
+    , { Route } = require('periodo-router')
+    , makeListLayout = require('org-layout-engine/List')
 
 const columns = {
   label: {

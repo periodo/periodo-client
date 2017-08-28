@@ -2,12 +2,12 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , contributorList = require('lib/util/contributor_list')
-    , source = require('lib/util/source')
-    , makeListLayout = require('lib/layout-engine/List')
+    , contributorList = require('periodo-utils/src/contributor_list')
+    , source = require('periodo-utils/src/source')
+    , makeListLayout = require('org-layout-engine/List')
     , { Span } = require('axs-ui')
-    , { Link } = require('lib/ui')
-    , { Route } = require('lib/router')
+    , { Link } = require('periodo-ui')
+    , { Route } = require('periodo-router')
 
 const columns = {
   authors: {

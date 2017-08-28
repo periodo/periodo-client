@@ -2,8 +2,8 @@
 
 const Type = require('union-type')
     , makeActionType = require('../typed-actions/make_type')
-    , { isDataset } = require('lib/util/dataset')
-    , { isURL } = require('lib/util/misc')
+    , { isDataset } = require('periodo-utils/src/dataset')
+    , { isURL } = require('periodo-utils/src/misc')
 
 const BackendStorage = Type({
   Web: { url: isURL },

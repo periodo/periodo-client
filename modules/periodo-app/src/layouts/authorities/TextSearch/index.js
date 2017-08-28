@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , through = require('through2')
-    , { alternateLabels } = require('lib/util/period')
+    , { alternateLabels } = require('periodo-utils/src/period')
 
 
 module.exports = {

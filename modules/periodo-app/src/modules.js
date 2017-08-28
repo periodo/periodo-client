@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { combineReducers } = require('redux')
     , { connect } = require('react-redux')
     , { Box, Flex } = require('axs-ui')
-    , { Breadcrumb, DropdownMenu } = require('lib/ui')
+    , { Breadcrumb, DropdownMenu } = require('periodo-ui')
     , modules = new Map()
 
 

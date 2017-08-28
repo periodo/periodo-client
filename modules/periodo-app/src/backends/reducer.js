@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { $$Authority } = require('lib/util/symbols')
+    , { $$Authority } = require('periodo-utils/src/symbols')
     , { isInModule
       , getResponse
       , getActionType

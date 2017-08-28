@@ -2,9 +2,9 @@
 
 const h = require('react-hyperscript')
     , { Flex, Box, Heading } = require('axs-ui')
-    , { Source } = require('lib/ui')
+    , { Source } = require('periodo-ui')
     , AuthorityLayout = require('../../layouts/authorities')
-    , LayoutHaver = require('lib/layout-engine/LayoutHaver')
+    , LayoutHaver = require('org-layout-engine/LayoutHaver')
 
 
 module.exports = LayoutHaver(({

@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box } = require('axs-ui')
-    , { Period } = require('lib/ui')
+    , { Period } = require('periodo-ui')
 
 module.exports = ({ period }) =>
   h(Box, [

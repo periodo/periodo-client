@@ -10,7 +10,7 @@ const React = require('react')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , { connect } = require('react-redux')
-    , router = require('lib/router')
+    , router = require('periodo-router')
 
 class Application extends React.Component {
   constructor() {

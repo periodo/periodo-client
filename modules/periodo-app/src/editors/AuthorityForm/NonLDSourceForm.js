@@ -3,9 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { RandomID } = require('lib/util/hoc')
+    , { RandomID } = require('periodo-utils/src/hoc')
     , { Flex, Box, Label, Heading, Input } = require('axs-ui')
-    , { InputBlock, TextareaBlock, Button$Default } = require('lib/ui')
+    , { InputBlock, TextareaBlock, Button$Default } = require('periodo-ui')
 
 const emptyCreator = { name: '' }
 
