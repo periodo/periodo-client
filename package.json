@@ -68,11 +68,8 @@
       "envify"
     ]
   },
-  "browser": {
-    "querystring": "querystring-browser"
-  },
   "scripts": {
-    "test": "NODE_PATH=. tape ./src/**/test/*.js ./lib/**/test/*.js",
+    "test": "tape ./modules/**/test/*.js",
     "start": "serve -p 8000"
   }
 }

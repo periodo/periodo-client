@@ -6,11 +6,9 @@ PROJECT_NAME = periodo
 
 NPM_BIN = node_modules/.bin
 
-NODE_PATH_PREAMBLE = NODE_PATH="."
+BROWSERIFY_ENTRY = modules/periodo-app/src/index.js
 
-BROWSERIFY_ENTRY = src/index.js
-
-VERSION := $(shell grep version package.json | cut -d \" -f 4)
+VERSION := $(shell grep version modules/periodo-app/package.json | cut -d \" -f 4)
 
 JS_BUNDLE := dist/$(PROJECT_NAME).js
 VERSIONED_JS_BUNDLE := $(JS_BUNDLE:.js=-$(VERSION).js)
@@ -26,7 +24,7 @@ ZIPPED_FILES := $(MINIFIED_VERSIONED_JS_BUNDLE) \
 	       README.md
 
 
-JS_FILES := $(shell find src/ -type f -name *js -o -name *jsx)
+JS_FILES := $(shell git ls-tree -r --name-only HEAD modules/ | grep '\.js')
 
 
 ###################
@@ -47,6 +45,7 @@ test:
 	$(NODE_PATH_PREAMBLE) npm test
 
 watch: node_modules | dist
+	lerna bootstrap
 	$(NODE_PATH_PREAMBLE) $(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
 
 
@@ -62,6 +61,7 @@ dist:
 
 node_modules: package.json
 	npm install
+	lerna bootstrap
 
 $(VERSIONED_JS_BUNDLE): $(JS_FILES) | dist
 	$(NODE_PATH_PREAMBLE) NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
