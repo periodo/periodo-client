@@ -26,6 +26,8 @@ ZIPPED_FILES := $(MINIFIED_VERSIONED_JS_BUNDLE) \
 
 JS_FILES := $(shell find . -name *.js -not -path */node_modules/*)
 
+PACKAGE_JSON_FILES := $(shell find . -name package.json -not -path */node_modules/*)
+
 
 ###################
 #  Phony targets  #
@@ -36,7 +38,9 @@ all: node_modules $(MINIFIED_VERSIONED_JS_BUNDLE)
 zip: $(VERSIONED_ZIPFILE)
 
 clean:
-	@rm -rf dist
+	rm -rf dist
+	rm -rf node_modules
+	lerna clean --yes
 
 serve:
 	python3 -m http.server 8020
@@ -45,11 +49,11 @@ test:
 	$(NODE_PATH_PREAMBLE) npm test
 
 watch: node_modules | dist
-	lerna bootstrap
-	$(NODE_PATH_PREAMBLE) $(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
+	$(NPM_BIN)/watchify $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
 
 
 .PHONY: all zip clean serve watch test
+
 
 
 #############
@@ -59,12 +63,12 @@ watch: node_modules | dist
 dist:
 	mkdir -p $@
 
-node_modules: package.json
+node_modules: $(PACKAGE_JSON_FILES)
 	npm install
-	lerna bootstrap
+	lerna bootstrap --hoist
 
 $(VERSIONED_JS_BUNDLE): $(JS_FILES) | dist
-	$(NODE_PATH_PREAMBLE) NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
+	NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
 
 $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
 	$(NPM_BIN)/babili $< -o $@
