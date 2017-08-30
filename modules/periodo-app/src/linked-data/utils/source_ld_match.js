@@ -1,6 +1,7 @@
 "use strict";
 
-const doi = require('identifiers-doi')
+const R = require('ramda')
+    , doi = require('identifiers-doi')
     , Type = require('union-type')
     , N3Store = require('n3/lib/N3Store')
     , fetchLinkedData = require('../fetch')
@@ -35,6 +36,12 @@ function match(text='') {
   return null
 }
 
+
+function isLinkedData(source) {
+  return !!match(R.path(['id'], source)) || !!match(R.path(['partOf', 'id'], source) || '');
+}
+
+
 // Identifier -> String
 function asURL(identifier) {
   return identifier.case({
@@ -66,4 +73,5 @@ module.exports = {
   match,
   asURL,
   fetchLD,
+  isLinkedData
 }

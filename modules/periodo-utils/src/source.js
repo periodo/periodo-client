@@ -4,12 +4,6 @@ const R = require('ramda')
     , { oneOf } = require('./misc')
     , contributorList = require('./contributor_list')
 
-function isLinkedData(source) {
-  const { match } = require('../../src/linked-data/utils/source_ld_match')
-
-  return !!match(R.path(['id'], source)) || !!match(R.path(['partOf', 'id'], source) || '');
-}
-
 const creators = R.pipe(
   oneOf(
     R.prop('creators'),
@@ -77,5 +71,4 @@ module.exports = {
   contributors,
   title,
   yearPublished,
-  isLinkedData,
 }

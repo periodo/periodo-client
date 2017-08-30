@@ -4,6 +4,7 @@ const R = require('ramda')
     , { Result } = require('periodo-utils/src/types')
     , terminus = require('periodo-utils/src/terminus')
     , label = require('periodo-utils/src/label')
+    , { isLinkedData } = require('../linked-data/utils/source_ld_match')
 
 function addError(obj, label, err) {
   return R.over(
