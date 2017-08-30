@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , makeListLayout = require('org-layout-engine/List')
     , { Span } = require('axs-ui')
     , { Link } = require('periodo-ui')
-    , { Route } = require('periodo-router')
+    , { Route } = require('org-shell')
 
 const columns = {
   authors: {

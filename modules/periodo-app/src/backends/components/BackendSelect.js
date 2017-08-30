@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { connect } = require('react-redux')
     , { Link } = require('periodo-ui')
     , { Box } = require('axs-ui')
-    , { Route } = require('periodo-router')
+    , { Route } = require('org-shell')
 
 module.exports = props =>
   h(Box, [

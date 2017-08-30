@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , { updateLocalDataset } = require('../actions')
     , PeriodForm = require('../../editors/PeriodForm')
-    , { trigger } = require('periodo-router')
+    , { trigger } = require('org-shell')
 
 module.exports = class AddPeriod extends React.Component {
   constructor(props) {

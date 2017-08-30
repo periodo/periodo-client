@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { yearPublished, displayTitle } = require('periodo-utils/src/source')
     , { Link } = require('periodo-ui')
     , { Box } = require('axs-ui')
-    , { Route } = require('periodo-router')
+    , { Route } = require('org-shell')
     , makeListLayout = require('org-layout-engine/List')
 
 const columns = {

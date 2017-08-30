@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { Flex, Box, Heading, Text } = require('axs-ui')
     , Spinner = require('respin')
     , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
-    , { Route } = require('periodo-router')
+    , { Route } = require('org-shell')
 
 module.exports = props =>
   h(Box, Object.assign({

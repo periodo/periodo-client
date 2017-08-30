@@ -1,23 +1,21 @@
 {
-  "name": "org-layout-engine",
+  "name": "org-shell",
   "version": "1.0.0",
   "private": true,
   "description": "",
   "main": "src/index.js",
   "keywords": [],
-  "author": "",
   "license": "CC0",
+  "browser": {
+    "querystring": "querystring-browser"
+  },
   "dependencies": {
-    "axs-ui": "^1.0.4",
-    "debounce": "^1.0.2",
-    "natsort": "^1.0.6",
-    "periodo-ui": "^1.0.0",
-    "periodo-utils": "5.0.0-pre",
     "prop-types": "^15.5.10",
+    "querystring-browser": "^1.0.4",
     "ramda": "^0.24.1",
     "react": "^15.6.1",
-    "react-hyperscript": "^3.0.0",
-    "stream-consume": "^0.1.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
     "through2": "^2.0.3"
   }
 }
