@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Box, Text } = require('axs-ui')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
-    , { Route, trigger } = require('periodo-app/src/router')
+    , { Route, LocationStreamAware } = require('org-shell')
 
 exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
@@ -77,7 +77,7 @@ exports.DropdownMenuMenu = props =>
   }, R.omit(['openLeft', 'css'], props)), props.children)
 
 
-exports.DropdownMenu = class DropdownMenu extends React.Component {
+exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Component {
   constructor() {
     super();
 
@@ -88,7 +88,7 @@ exports.DropdownMenu = class DropdownMenu extends React.Component {
 
   render() {
     const { isOpen } = this.state
-        , { children, closeOnSelection, label, onSelection, openLeft, id } = this.props
+        , { children, closeOnSelection, label, onSelection, openLeft, id, locationStream } = this.props
 
     return (
       h(Box, Object.assign({
@@ -103,7 +103,7 @@ exports.DropdownMenu = class DropdownMenu extends React.Component {
           closeOnSelection,
           onSelection: (val, e) => {
             if (val instanceof Route) {
-              trigger(val);
+              locationStream.write({ route: val });
             } else {
               onSelection(val, e)
             }
@@ -137,7 +137,7 @@ exports.DropdownMenu = class DropdownMenu extends React.Component {
       ])
     )
   }
-}
+})
 
 
 exports.DropdownMenuSeparator = () =>
