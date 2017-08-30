@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
 
 const noop = () => null
 
-module.exports = function makeD3Layout(proto) {
+module.exports = function makeDOMLayout(proto) {
   proto = Object.assign({
     init: noop,
     update: noop,
@@ -17,7 +17,7 @@ module.exports = function makeD3Layout(proto) {
     }
   }, proto)
 
-  class D3Layout extends React.Component {
+  class DOMLayout extends React.Component {
     constructor() {
       super();
 
@@ -57,5 +57,5 @@ module.exports = function makeD3Layout(proto) {
     }
   }
 
-  return Consumer(proto.next, proto.steps, D3Layout)
+  return Consumer(proto.next, proto.steps, DOMLayout)
 }
