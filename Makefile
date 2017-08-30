@@ -24,7 +24,7 @@ ZIPPED_FILES := $(MINIFIED_VERSIONED_JS_BUNDLE) \
 	       README.md
 
 
-JS_FILES := $(shell git ls-tree -r --name-only HEAD modules/ | grep '\.js')
+JS_FILES := $(shell find . -name *.js -not -path */node_modules/*)
 
 
 ###################
