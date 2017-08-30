@@ -3,11 +3,10 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , LayoutEngine = require('org-layout-engine/Engine')
-    , makeList = require('org-layout-engine/List')
+    , { LayoutEngine, makeListLayout } = require('org-layout-engine')
     , fromArray = require('from2-array')
 
-const PatchList = makeList({
+const PatchList = makeListLayout({
   label: 'Patch list',
   description: 'List of patches',
   columns: {

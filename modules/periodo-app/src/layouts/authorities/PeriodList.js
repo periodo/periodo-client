@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , { Link } = require('periodo-ui')
     , { Box } = require('axs-ui')
     , { Route } = require('org-shell')
-    , makeListLayout = require('org-layout-engine/List')
+    , { makeListLayout } = require('org-layout-engine')
 
 const columns = {
   label: {

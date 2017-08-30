@@ -2,7 +2,7 @@
 
 const d3 = require('d3')
     , R = require('ramda')
-    , DOMLayout = require('org-layout-engine/D3Layout')
+    , { DOMLayout } = require('org-layout-engine')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
 const d = {
