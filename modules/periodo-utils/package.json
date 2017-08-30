@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "fast-diff": "^1.1.1",
+    "iso-639-3": "^1.0.1",
     "periodo-date-parser": "^1.0.0",
     "ramda": "^0.24.1",
     "react": "^15.6.1",
