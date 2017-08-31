@@ -60,3 +60,47 @@ Current modules deal with:
 We rely heavily on the [`union-type`](https://www.npmjs.com/package/union-type) package to manage control flow. This is true generally throughout the application, but especially in our use of Redux.
 
 Redux actions cannot be plain objects. Rather, they must be instances of the `ActionRequest` type defined in `src/typed-actions/types.js`. You should not create such object manually, but rather with the `makeActionType` function defined in `src/typed-actions/make_type.js`. This function will declare a new `union-type` record, with two differences. First, a namespace for the type must be declared. Second, each member of the type will have *two* specifications. The first is the format for an action request, and the second is the format for an action response. See the `BackendAction` type in `src/backends/types.js` for an example. 
+
+## Code guidelines
+
+### Modules
+
+Split code into a separate npm package when it becomes apparent that it would usefully be shared across current modules boundaries. We manage several packages within this repository using [Lerna](https://lernajs.io). They are located in the `modules/` folder.
+
+Mark your new package "private" in its `package.json` if you do not want to publish it on npm. Prefer naming new packages with a `periodo-` prefix if it has logic specific to PeriodO, or `org-` if it does not. `org-` prefixed packages may be moved into a separate repository in the future.
+
+Export the entire API from the package index and document all exported functions in a README.md document at the package root.
+
+### Higher order components
+
+When making higher order components, always export higher order functions that return a function that returns a component.
+
+Bad:
+
+```js
+module.exports = function (optA, optB, Component) {
+  class Wrapper extends React.Component {
+    render() {
+      return h(Component, Object.assign({}, this.props, this.state))
+    }
+  }
+
+  return Wrapper;
+}
+```
+
+Good:
+
+```js
+module.exports = function (optA, optB) {
+  return Component => {
+    class Wrapper extends React.Component {
+      render() {
+        return h(Component, Object.assign({}, this.props, this.state))
+      }
+    }
+
+    return Wrapper;
+  }
+}
+```
