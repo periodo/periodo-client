@@ -1,9 +1,11 @@
 module.exports = {
-  Chooser: require('./Chooser'),
-  Consumer: require('./Consumer'),
-  Engine: require('./Engine'),
+  LayoutEngine: require('./LayoutEngine'),
+  UpdatableSpec: require('./UpdatableSpec'),
 
-  DOMLayout: require('./DOMLayout'),
-  LayoutHaver: require('./LayoutHaver'),
-  List: require('./List'),
+
+  BlockChooser: require('./BlockChooser'),
+  Consumer: require('./Consumer'),
+
+  DOMBlock: require('./DOMBlock'),
+  ListBlock: require('./ListBlock'),
 }

@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , through = require('through2')
     , consume = require('stream-consume')
     , { Flex, Box, Heading, Span, Input } = require('axs-ui')
-    , LayoutChooser = require('./Chooser')
+    , BlockChooser = require('./BlockChooser')
 
 class LayoutEngine extends React.Component {
   constructor() {
@@ -28,7 +28,7 @@ class LayoutEngine extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.spec !== nextProps.spec) {
-      const updateStreams = this.props.spec.layouts.length !== nextProps.spec.layouts.length
+      const updateStreams = this.props.spec.blocks.length !== nextProps.spec.blocks.length
 
       this.processSpec(nextProps.spec)
 
@@ -37,12 +37,12 @@ class LayoutEngine extends React.Component {
   }
 
   processSpec(spec) {
-    const { layouts } = this.props
+    const { blocks } = this.props
 
     this.setState({
       processedSpec: R.pipe(
         R.over(
-          R.lensProp('layouts'),
+          R.lensProp('blocks'),
           R.map(({ name, opts, gridRow='auto', gridColumn='auto' }) => {
             const {
               Component=() => h(Box, { bg: 'red4' }, `No such layout: ${name}`),
@@ -50,7 +50,7 @@ class LayoutEngine extends React.Component {
               makeOutputStream=through.obj,
               processOpts=R.defaultTo({}, R.identity),
               defaultOpts={}
-            } = (layouts[name] || {})
+            } = (blocks[name] || {})
 
             return {
               name,
@@ -94,7 +94,7 @@ class LayoutEngine extends React.Component {
     const { createReadStream } = this.props
 
     this.setState(prev => {
-      const _streams = prev.processedSpec.layouts.reduce((_streams, { layout, processedOpts }) => {
+      const _streams = prev.processedSpec.blocks.reduce((_streams, { layout, processedOpts }) => {
         const lastOutput = (R.last(_streams) || { output: createReadStream() }).output
             , input = lastOutput.pipe(layout.makeInputStream())
             , output = input.pipe(layout.makeOutputStream(processedOpts))
@@ -113,12 +113,12 @@ class LayoutEngine extends React.Component {
   }
 
   render() {
-    const { editGrid, addAt, extraProps, layouts, spec, onSpecChange } = this.props
+    const { editGrid, addAt, extraProps, blocks, spec, onSpecChange } = this.props
         , { processedSpec, streams, _streams } = this.state
 
     if (!processedSpec) return null;
 
-    const children = processedSpec.layouts.map(({
+    const children = processedSpec.blocks.map(({
       name,
       layout,
       gridRow,
@@ -180,7 +180,7 @@ class LayoutEngine extends React.Component {
                 onChange: e => {
                   onSpecChange(
                     R.set(
-                      R.lensPath(['layouts', i, 'gridColumn']),
+                      R.lensPath(['blocks', i, 'gridColumn']),
                       e.target.value,
                       spec
                     )
@@ -206,7 +206,7 @@ class LayoutEngine extends React.Component {
                 onChange: e => {
                   onSpecChange(
                     R.set(
-                      R.lensPath(['layouts', i, 'gridRow']),
+                      R.lensPath(['blocks', i, 'gridRow']),
                       e.target.value,
                       spec
                     )
@@ -228,7 +228,7 @@ class LayoutEngine extends React.Component {
           stream: streams[i].input,
           updateOpts: fn => onSpecChange(
             R.over(
-              R.lensPath(['layouts', i, 'opts']),
+              R.lensPath(['blocks', i, 'opts']),
               R.pipe(
                 R.merge(defaultOpts || {}),
                 fn
@@ -252,11 +252,11 @@ class LayoutEngine extends React.Component {
     if (addAt != null) {
       children.splice(addAt, 0, h(LayoutChooser, {
         key: `add-at-${addAt}`,
-        layouts,
+        blocks,
         onSelect: name => {
           onSpecChange(
             R.over(
-              R.lensProp('layouts'),
+              R.lensProp('blocks'),
               R.insert(addAt, { name }),
               spec
             )
@@ -368,7 +368,7 @@ module.exports = Object.assign(LayoutEngine, {
   propTypes: {
     addAt: PropTypes.number,
     extra: PropTypes.object,
-    layouts: PropTypes.objectOf(PropTypes.shape({
+    blocks: PropTypes.objectOf(PropTypes.shape({
       label: PropTypes.string.isRequired,
       description: PropTypes.string.isRequired,
       Component: PropTypes.any.isRequired,
@@ -377,7 +377,7 @@ module.exports = Object.assign(LayoutEngine, {
       processOpts: PropTypes.func,
     })).isRequired,
     spec: PropTypes.shape({
-      layouts: PropTypes.array.isRequired,
+      blocks: PropTypes.array.isRequired,
       gridTemplateColumns: PropTypes.string,
       gridTemplateRows: PropTypes.string,
       gridGap: PropTypes.string,
