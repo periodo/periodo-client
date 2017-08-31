@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('axs-ui')
     , PatchLayout = require('../../layouts/patches')
-    , { LayoutHaver } = require('org-layout-engine')
+    , { LayoutHaver } = require('org-layouts')
 
 module.exports = LayoutHaver(({
   patches,

@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { LayoutEngine, makeListLayout } = require('org-layout-engine')
+    , { LayoutEngine, makeListLayout } = require('org-layouts')
     , fromArray = require('from2-array')
 
 const PatchList = makeListLayout({

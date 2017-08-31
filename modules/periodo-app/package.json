@@ -18,7 +18,7 @@
     "json-stable-stringify": "^1.0.1",
     "jsonld": "^0.4.12",
     "n3": "^0.11.1",
-    "org-layout-engine": "^1.0.0",
+    "org-layouts": "^1.0.0",
     "org-shell": "^1.0.0",
     "periodo-date-parser": "^1.0.0",
     "periodo-ui": "^1.0.0",
