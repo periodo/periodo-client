@@ -1,14 +1,11 @@
 "use strict";
 
-const h = require('react-hyperscript')
-    , R = require('ramda')
+const R = require('ramda')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
     , { authorityOf } = require('periodo-utils/src/period')
-    , { yearPublished, displayTitle } = require('periodo-utils/src/source')
-    , { Link } = require('periodo-ui')
-    , { Box } = require('axs-ui')
+    , { yearPublished } = require('periodo-utils/src/source')
     , { Route } = require('org-shell')
-    , { makeListLayout } = require('org-layouts')
+    , { ListLayout } = require('org-layouts')
 
 const columns = {
   label: {
@@ -27,7 +24,7 @@ const columns = {
 
   publicationDate: {
     label: 'Publication date',
-    getValue(period, backend) {
+    getValue(period) {
       return yearPublished(authorityOf(period).source)
     }
   },
@@ -49,7 +46,7 @@ const columns = {
   }
 }
 
-module.exports = makeListLayout({
+module.exports = ListLayout({
   label: 'Period List',
   description: 'Selectable list of periods.',
 

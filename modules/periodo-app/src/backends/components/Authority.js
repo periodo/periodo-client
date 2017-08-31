@@ -3,16 +3,18 @@
 const h = require('react-hyperscript')
     , { Flex, Box, Heading } = require('axs-ui')
     , { Source } = require('periodo-ui')
-    , AuthorityLayout = require('../../layouts/authorities')
-    , { LayoutHaver } = require('org-layouts')
+    , AuthorityLayoutEngine = require('../../layouts/authorities')
+    , { TransientSpecEditor } = require('org-layouts')
 
+const defaultSpec = {
+  blocks: [
+    { name: 'list' }
+  ]
+}
 
-module.exports = LayoutHaver(({
-  backend,
-  authority,
-  spec={ layouts: [{ name: 'list' }]},
-  onSpecChange
-}) =>
+const AuthorityLayout = TransientSpecEditor(defaultSpec)(AuthorityLayoutEngine)
+
+module.exports = ({ backend, authority }) =>
   h(Flex, [
     h(Box, { width: .5 }, [
       h(Heading, { level: 2 }, 'Source'),
@@ -30,10 +32,6 @@ module.exports = LayoutHaver(({
             [authority.id]: authority
           }
         },
-        spec,
-        onSpecChange,
       }),
     ]),
-
   ])
-)

@@ -12,35 +12,32 @@ const PeriodoLayoutEngine = ({
   editGrid,
   spec=[],
   onSpecChange,
-}) => {
-  return (
-    h(LayoutEngine, {
-      layouts: {
-        statistics: require('./Statistics'),
-        list: require('./PeriodList'),
-        text: require('./TextSearch'),
-        authorityList: require('./AuthorityList'),
-        test: require('./d3_test'),
-      },
+}) =>
+  h(LayoutEngine, {
+    blocks: {
+      statistics: require('./Statistics'),
+      list: require('./PeriodList'),
+      text: require('./TextSearch'),
+      authorityList: require('./AuthorityList'),
+      test: require('./d3_test'),
+    },
 
-      createReadStream: () =>
-        fromArray.obj(
-          R.pipe(
-            R.values,
-            R.map(authority => ({
-              authority,
-              definitions: authority.definitions,
-            }))
-          )(dataset.periodCollections)
-        ),
-      spec,
-      onSpecChange,
+    createReadStream: () =>
+      fromArray.obj(
+        R.pipe(
+          R.values,
+          R.map(authority => ({
+            authority,
+            definitions: authority.definitions,
+          }))
+        )(dataset.periodCollections)
+      ),
+    spec,
+    onSpecChange,
 
-      addAt,
-      editGrid,
-      extraProps: { backend },
-    })
-  )
-}
+    addAt,
+    editGrid,
+    extraProps: { backend },
+  })
 
 module.exports = PeriodoLayoutEngine;

@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Box, Text } = require('axs-ui')
-    , { Consumer } = require('org-layouts')
+    , { StreamConsumingBlock } = require('org-layouts')
 
 function itemKeySetReducer(sets, item) {
   Object.keys(item).forEach(key => {
@@ -33,7 +33,7 @@ const next = (prev, items) => {
 module.exports = {
   label: 'Statistics',
   description: 'Simple stastics about the dataset.',
-  Component: Consumer(next, 2, props =>
+  Component: StreamConsumingBlock(next, 2)(props =>
     h(Box, [
       h(Box, [
         h(Text, `There are ${props.data.periods.size} periods in ${props.data.authorities.size} authorities`)

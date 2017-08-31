@@ -1,19 +1,21 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , React = require('react')
     , { Box } = require('axs-ui')
-    , PatchLayout = require('../../layouts/patches')
-    , { LayoutHaver } = require('org-layouts')
+    , PatchLayoutEngine = require('../../layouts/patches')
+    , { TransientSpecEditor } = require('org-layouts')
 
-module.exports = LayoutHaver(({
-  patches,
-  spec={ layouts: [{ name: 'patch-list' }] },
-  onSpecChange,
-}) =>
+const defaultSpec = {
+  blocks: [
+    { name: 'list' }
+  ]
+}
+
+const PatchLayout = TransientSpecEditor(defaultSpec)(PatchLayoutEngine)
+
+module.exports = ({ patches }) =>
   h(Box, [
-    h(PatchLayout, { patches, spec, onSpecChange, }),
+    h(PatchLayout, { patches }),
 
     // h('pre', JSON.stringify(patches, true, '  ')),
   ])
-)

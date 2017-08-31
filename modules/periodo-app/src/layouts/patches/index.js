@@ -1,12 +1,10 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , React = require('react')
-    , { LayoutEngine, makeListLayout } = require('org-layouts')
+    , { LayoutEngine, ListBlock } = require('org-layouts')
     , fromArray = require('from2-array')
 
-const PatchList = makeListLayout({
+const PatchList = ListBlock({
   label: 'Patch list',
   description: 'List of patches',
   columns: {
@@ -24,7 +22,7 @@ const PatchList = makeListLayout({
 
 module.exports = ({ spec, onSpecChange, patches }) =>
   h(LayoutEngine, Object.assign({
-    layouts: {
+    blocks: {
       'patch-list': PatchList,
     },
     createReadStream: () => fromArray.obj(patches),
