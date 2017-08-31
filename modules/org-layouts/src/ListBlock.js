@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , { colors } = require('axs-ui').config
     , { Button, DropdownMenu, DropdownMenuItem, Link } = require('periodo-ui')
     , Icon = require('react-geomicons').default
-    , Consumer = require('./Consumer')
+    , StreamConsumingBlock = require('./StreamConsumingBlock')
     , concat = [].concat.bind([])
 
 const ListHeader = ({
@@ -419,6 +419,6 @@ module.exports = function makeList(opts) {
     description,
     processOpts: withDefaults,
     defaultOpts,
-    Component: Consumer(next, Infinity, List)
+    Component: StreamConsumingBlock(next, Infinity)(List)
   }
 }

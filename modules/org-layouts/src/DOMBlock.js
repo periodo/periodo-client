@@ -2,60 +2,62 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , Consumer = require('./Consumer')
+    , StreamConsumingBlock = require('./StreamConsumingBlock')
 
 const noop = () => null
 
-module.exports = function makeDOMLayout(proto) {
-  proto = Object.assign({
+module.exports = function DOMBlock(obj) {
+  const next = obj.next || ((prev=[], items) => prev.concat(items))
+      , steps = obj.steps || Infinity
+
+  const proto = Object.assign({
     init: noop,
     update: noop,
     destroy: noop,
-    steps: Infinity,
-    next(prev=[], items) {
-      return prev.concat(items)
-    }
-  }, proto)
+  }, obj)
 
   class DOMLayout extends React.Component {
     constructor() {
       super();
 
-      this.reset = () => {
-        if (this.layoutObj) {
-          this.layoutObj.destroy();
-          this.reactEl.removeChild(this.container)
-        }
-
-        this.container = document.createElement('div')
-        this.reactEl.appendChild(this.container);
-        this.layoutObj = Object.create(proto)
-        this.layoutObj.init(this.container)
+      this.state = {
+        streamCount: 0
       }
     }
 
     componentDidMount() {
-      this.reset();
+      this.blockEl = document.createElement('div')
+
+      this.instance = Object.create(proto)
+      this.instance.init(this.blockEl)
+
+      this.rootEl.appendChild(this.blockEl)
     }
 
     componentWillReceiveProps(nextProps) {
       if (this.props.stream !== nextProps.stream) {
-        this.reset();
+        this.setState(prev => ({ streamCount: prev.streamCount + 1 }))
       }
     }
 
     componentDidUpdate(prevProps) {
       if (this.props.started && this.props.data !== prevProps.data) {
-        this.layoutObj.update(this.props.data)
+        this.layoutObj.update(this.props.data, this.state.streamCount)
       }
+    }
+
+    componentWillUnmount() {
+      this.instance.destroy();
     }
 
     render() {
       return h('div', {
-        ref: el => this.reactEl = el
+        ref: el => this._rootEl = el
       })
     }
   }
 
-  return Consumer(proto.next, proto.steps, DOMLayout)
+  return Object.assign({}, obj, {
+    Component: StreamConsumingBlock(next, steps)(DOMLayout)
+  })
 }

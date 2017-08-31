@@ -1,11 +1,10 @@
 module.exports = {
   LayoutEngine: require('./LayoutEngine'),
-  UpdatableSpec: require('./UpdatableSpec'),
-
+  TransientSpecEditor: require('./TransientSpecEditor'),
 
   BlockChooser: require('./BlockChooser'),
-  Consumer: require('./Consumer'),
 
+  StreamConsumingBlock: require('./StreamConsumingBlock'),
   DOMBlock: require('./DOMBlock'),
   ListBlock: require('./ListBlock'),
 }
