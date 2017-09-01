@@ -81,7 +81,7 @@ function getApplicationResources() {
      Object.assign(
        {},
        acc,
-       R.map(resource => ({
+       R.map(resource => Object.assign({}, resource, {
          Component: makeResourceComponent(resource),
          onBeforeRoute: resource.onBeforeRoute,
        }), resources),

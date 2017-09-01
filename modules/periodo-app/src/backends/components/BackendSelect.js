@@ -28,7 +28,7 @@ module.exports = props =>
           })),
           h('td', [
             h(Link, {
-              href: Route('backend-home', {
+              route: Route('backend-home', {
                 backendID: backend.asIdentifier(),
               })
             }, backend.metadata.label)

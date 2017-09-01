@@ -45,9 +45,9 @@ const backendBreadcrumb = (isAuthority, makeTitle) =>
         , extra = makeTitle(props)
 
     return [
-      h(Link, { href: Route('open-backend'), }, 'Backends'),
+      h(Link, { route: Route('open-backend'), }, 'Backends'),
       ...isAuthority
-        ? [h(Link, { href: backendRoute(props)('home') }, backend.metadata.label), extra]
+        ? [h(Link, { route: backendRoute(props)('home') }, backend.metadata.label), extra]
         : [backend.metadata.label, extra],
     ]
   }

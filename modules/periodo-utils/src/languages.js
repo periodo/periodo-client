@@ -6,7 +6,7 @@ let languages
 
 function getSortedList() {
   if (!languages) {
-    languages = R.toPairs(require('iso-639-3').all())
+    languages = R.toPairs(require('iso-639-3'))
       .map(([code, val]) => Object.assign({ code }, val))
       .sort((b, a) => {
         if (a.name === 'English') {

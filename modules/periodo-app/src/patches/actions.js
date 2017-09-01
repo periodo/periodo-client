@@ -11,7 +11,7 @@ const { fetchBackend } = require('../backends/actions')
 function generateDatasetPatch(
   originBackend,
   remoteBackend,
-  direction=PatchDirection.Push()
+  direction=PatchDirection.Push
 ) {
   const action = PatchAction.GenerateDatasetPatch(
     originBackend,

@@ -252,7 +252,7 @@ class LayoutEngine extends React.Component {
     )
 
     if (addAt != null) {
-      children.splice(addAt, 0, h(LayoutChooser, {
+      children.splice(addAt, 0, h(BlockChooser, {
         key: `add-at-${addAt}`,
         blocks,
         onSelect: name => {

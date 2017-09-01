@@ -2,7 +2,7 @@
 "use strict";
 
 const React = require('react')
-    , h = React.createElement
+    , h = require('react-hyperscript')
     , R = require('ramda')
     , PropTypes = require('prop-types')
     , { Provider, connect } = require('react-redux')
@@ -60,6 +60,8 @@ function transformResources(resources, baseTitle) {
       Component: WrappedResourceComponent
     })
   })
+
+  return wrappedResources;
 }
 
 module.exports = function makeORGShell({
@@ -68,9 +70,12 @@ module.exports = function makeORGShell({
   NotFoundComponent=NotFound,
   baseTitle='',
 }, Component) {
-  const locationStream = through.obj()
 
-  const _resources = transformResources(resources, baseTitle)
+  // FIXME: Do checks on resources and createStore
+
+  const store = createStore()
+      , locationStream = through.obj()
+      , _resources = transformResources(resources, baseTitle)
 
   const getResourceComponent = name =>
     _resources[name] || { Component: NotFoundComponent }
@@ -90,8 +95,8 @@ module.exports = function makeORGShell({
       this.updateCurrentOpts = this.updateCurrentOpts.bind(this);
 
       locationStream
-        .on('data', ({ path, route, pushState }) => {
-          this.setApplicationRoute(path || route, pushState)
+        .on('data', ({ route, pushState }) => {
+          this.setApplicationRoute(route, pushState)
         })
         .on('error', e => {
           throw e;
@@ -103,34 +108,37 @@ module.exports = function makeORGShell({
     }
 
     componentDidMount() {
-      window.onpopstate = () => {
+      const loadCurrentWindowPath = () => {
         locationStream.write({
-          path: window.location.search,
+          route: Route.fromPath(window.location.search),
         })
       }
 
-      locationStream.write({
-        path: window.location.search
-      })
+      window.onpopstate = loadCurrentWindowPath;
+
+      loadCurrentWindowPath();
     }
 
-    async setApplicationRoute(route, pushState) {
+    async setApplicationRoute(route, pushState=true) {
       if (typeof route === 'string') route = Route.fromPath(route)
 
       let redirectTo
 
       const { resourceName, params } = route
           , path = route.asURL()
-          , resource = getResourceComponent(resourceName)
+
+      // FIXME: Mixing resource object and augmenting "params" seems bad. I
+      // know I did it for a reason at some point, but that reason may have
+      // been impatience and delirium. It's worth revisiting at some point.
+      const resource = Object.assign({ params }, getResourceComponent(resourceName))
           , { onBeforeRoute } = resource
-          , { dispatch } = this.props
           , redirect = url => redirectTo = url
 
       this.setState({ loadingNewResource: true })
 
       try {
         if (onBeforeRoute) {
-          await onBeforeRoute(dispatch, params, redirect)
+          await onBeforeRoute(store.dispatch, params, redirect)
         }
 
         if (redirectTo) {
@@ -153,7 +161,7 @@ module.exports = function makeORGShell({
           this.setState({
             activeResource: {
               Component: () => h('div', null, [
-                h('h1', null, 'Error while loading resource: ' + resource.params.page),
+                h('h1', null, `Error while loading resource \`${resourceName}\``),
                 h('pre', null, err.stack || err),
               ])
             },
@@ -192,25 +200,19 @@ module.exports = function makeORGShell({
       const { loadingNewResource, errors, activeResource, activeResourceOpts } = this.state
 
       return (
-        h(Provider, { store: createStore() }, [
+        h(Provider, { store },
           h(Component, {
             loadingNewResource,
             errors,
-          }, [
-            activeResource && h(activeResource.Component, {
+          }, activeResource && h(activeResource.Component, {
               params: activeResource.params,
               opts: activeResourceOpts,
               updateOpts: this.updateCurrentOpts,
             })
-          ])
-        ])
+          )
+        )
       )
     }
-  }
-
-  ORGShell.propTypes = {
-    store: PropTypes.function.isRequired,
-    resources: PropTypes.object.isRequired,
   }
 
   ORGShell.childContextTypes = {

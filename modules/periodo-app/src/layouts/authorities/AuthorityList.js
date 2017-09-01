@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , contributorList = require('periodo-utils/src/contributor_list')
     , source = require('periodo-utils/src/source')
-    , { makeListLayout } = require('org-layouts')
+    , { ListBlock } = require('org-layouts')
     , { Span } = require('axs-ui')
     , { Link } = require('periodo-ui')
     , { Route } = require('org-shell')
@@ -49,7 +49,7 @@ const columns = {
   }
 }
 
-module.exports = makeListLayout({
+module.exports = ListBlock({
   label: 'Authority List',
   description: 'Selectable list of period authorities.',
   makeItemRoute({ item, backend }) {

@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
     , AuthorityLayout = require('../../layouts/authorities')
 
-const specLength = R.path(['opts', 'spec', 'layouts', 'length'])
+const specLength = R.path(['opts', 'spec', 'blocks', 'length'])
 
 module.exports = class BackendHome extends React.Component {
   constructor() {
@@ -27,7 +27,7 @@ module.exports = class BackendHome extends React.Component {
 
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { spec={ layouts: [{ name: 'list' }]} } = this.props.opts
+        , { spec={ blocks: [{ name: 'list' }]} } = this.props.opts
         , { addAt, editGrid } = this.state
 
     return (
@@ -61,7 +61,7 @@ module.exports = class BackendHome extends React.Component {
                   break;
 
                 case 'reset':
-                  updateOpts(() => ({ spec: { layouts: [] }}));
+                  updateOpts(() => ({ spec: { blocks: [] }}));
                   break;
 
                 case 'edit-grid':

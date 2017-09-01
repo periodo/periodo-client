@@ -2,7 +2,7 @@
 
 const d3 = require('d3')
     , R = require('ramda')
-    , { DOMLayout } = require('org-layouts')
+    , { DOMBlock } = require('org-layouts')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
 const d = {
@@ -11,7 +11,7 @@ const d = {
   WIDTH: 500,
 }
 
-module.exports = DOMLayout({
+module.exports = DOMBlock({
   label: 'D3 test',
   description: 'd3 component with init/update/destroy methods',
   next(prev=[], items) {

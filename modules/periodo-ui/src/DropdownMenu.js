@@ -97,7 +97,7 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
           display: 'inline-block',
           userSelect: 'none',
         }
-      }, R.omit(['closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu',], this.props)), [
+      }, R.omit(['locationStream', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu',], this.props)), [
         h(MB.Wrapper, {
           onMenuToggle: e => { this.setState(e) },
           closeOnSelection,

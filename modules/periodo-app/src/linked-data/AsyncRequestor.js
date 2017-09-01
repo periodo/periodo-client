@@ -35,7 +35,7 @@ module.exports = function makeAsyncRequestor(Component) {
       }
 
       this.setState({
-        readyState: ReadyState.Pending()
+        readyState: ReadyState.Pending
       })
 
       fetchFn(...opts).then(

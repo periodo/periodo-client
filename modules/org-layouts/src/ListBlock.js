@@ -166,7 +166,7 @@ function LinkedRowNumbering(props) {
           color: 'white',
         }
       },
-      href: props.makeItemRoute(props)
+      route: props.makeItemRoute(props)
     }, props.number)
   )
 }

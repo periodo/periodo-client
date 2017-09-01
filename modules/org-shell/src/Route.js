@@ -6,14 +6,16 @@ const qs = require('querystring')
 function Route(resourceName, params) {
   if (!(this instanceof Route)) return new Route(resourceName, params);
 
-  this.resourceName = resourceName;
-  this.params = params;
+  this.resourceName = resourceName || '';
+  this.params = params || {};
 }
 
 Route.fromPath = path => {
+  if (path[0] === '?') path = path.slice(1)
+
   const parsed = qs.parse(path)
 
-  return new Route(parsed.name, R.omit(['name'], parsed))
+  return new Route(parsed.page || '', R.omit(['page'], parsed))
 }
 
 Route.prototype.asURL = function () {
@@ -27,3 +29,5 @@ Route.prototype.asURL = function () {
 
   return url
 }
+
+module.exports = Route;

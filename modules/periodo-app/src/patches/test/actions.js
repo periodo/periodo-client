@@ -70,7 +70,7 @@ test('Patch generation actions', async t => {
     patchActions.generateDatasetPatch(
       backendA,
       backendB,
-      PatchDirection.Pull()))
+      PatchDirection.Pull))
 
   t.deepEqual(
     getReadyState(R.last(store.getActions())),

@@ -14,7 +14,7 @@ const emptyDataset = () => ({
 
 
 function listAvailableBackends() {
-  const action = BackendAction.GetAllBackends()
+  const action = BackendAction.GetAllBackends
 
   return action.do(async (dispatch, getState, { db }) => {
     const backends = []

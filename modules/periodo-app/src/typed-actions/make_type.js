@@ -16,7 +16,7 @@ function makeAsyncActionCreator(type, fn) {
       readyState,
     }))
 
-    update(ReadyState.Pending());
+    update(ReadyState.Pending);
 
     try {
       const resp = await fn(dispatch, ...args)

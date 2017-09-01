@@ -48,6 +48,15 @@ module.exports = function makeStreamConsumingBlock(next, stepToRender) {
 
         let i = 0;
 
+        const flush = () => {
+          start();
+
+          this.setState(prev => ({
+            started: true,
+            data: next(prev.data, items.splice(0), this.props),
+          }))
+        }
+
         this.setState(emptyState(next, this.props), () =>
           stream
             .pipe(through.obj((data, enc, cb) => {
@@ -67,14 +76,6 @@ module.exports = function makeStreamConsumingBlock(next, stepToRender) {
             })
         )
 
-        function flush() {
-          start();
-
-          this.setState(prev => ({
-            started: true,
-            data: next(prev.data, items.splice(0), this.props),
-          }))
-        }
       }
 
       render() {

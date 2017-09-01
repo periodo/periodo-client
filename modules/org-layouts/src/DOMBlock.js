@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
 
 const noop = () => null
 
-module.exports = function DOMBlock(obj) {
+module.exports = function makeDOMBlock(obj) {
   const next = obj.next || ((prev=[], items) => prev.concat(items))
       , steps = obj.steps || Infinity
 
@@ -16,7 +16,7 @@ module.exports = function DOMBlock(obj) {
     destroy: noop,
   }, obj)
 
-  class DOMLayout extends React.Component {
+  class DOMBlock extends React.Component {
     constructor() {
       super();
 
@@ -58,6 +58,6 @@ module.exports = function DOMBlock(obj) {
   }
 
   return Object.assign({}, obj, {
-    Component: StreamConsumingBlock(next, steps)(DOMLayout)
+    Component: StreamConsumingBlock(next, steps)(DOMBlock)
   })
 }
