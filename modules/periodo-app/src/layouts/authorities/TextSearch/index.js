@@ -38,8 +38,12 @@ module.exports = {
         type: 'text',
         value: props.text || '',
         onChange: e => {
-          props.updateOpts(R.assoc('text', e.target.value))
-          props.invalidate();
+          const text = e.target.value
+
+          props.updateOpts(R.assoc('text', text))
+          if (text.slice(-1) !== '|') {
+            props.invalidate();
+          }
         }
       }),
     ])
