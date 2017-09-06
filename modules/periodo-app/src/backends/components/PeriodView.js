@@ -6,5 +6,5 @@ const h = require('react-hyperscript')
 
 module.exports = ({ period }) =>
   h(Box, [
-    h('pre', JSON.stringify(period, true, '  '))
+    h(Period, { value: period }),
   ])
