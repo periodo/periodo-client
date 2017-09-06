@@ -25,8 +25,8 @@ module.exports = function makeStreamConsumingBlock(next, stepToRender) {
         this.consumeInputStream()
       }
 
-      componentWillReceiveProps(nextProps) {
-        if (this.props.stream !== nextProps.stream) {
+      componentDidUpdate(prevProps) {
+        if (this.props.stream !== prevProps.stream) {
           this.consumeInputStream()
         }
       }
@@ -34,7 +34,7 @@ module.exports = function makeStreamConsumingBlock(next, stepToRender) {
       shouldComponentUpdate(nextProps, nextState) {
         // If there is a new stream coming which has not yet started, then wait
         // to render again.
-        if (!nextState.started && !nextState.finished) {
+        if (!nextState.started) {
           return false
         }
 

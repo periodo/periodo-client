@@ -18,7 +18,7 @@ class LayoutEngine extends React.Component {
       streams: [],
     }
 
-    this.debouncedResetStreams = debounce(this.resetStreams.bind(this), 256)
+    this.debouncedResetStreams = debounce(this.resetStreams.bind(this), 512)
   }
 
   componentDidMount() {

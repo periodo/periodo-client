@@ -31,7 +31,7 @@ module.exports = function makeDOMBlock(obj) {
       this.instance = Object.create(proto)
       this.instance.init(this.blockEl)
 
-      this.rootEl.appendChild(this.blockEl)
+      this._rootEl.appendChild(this.blockEl)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -42,7 +42,8 @@ module.exports = function makeDOMBlock(obj) {
 
     componentDidUpdate(prevProps) {
       if (this.props.started && this.props.data !== prevProps.data) {
-        this.layoutObj.update(this.props.data, this.state.streamCount)
+        if (!this.props.finished && !this.props.data.length) return
+        this.instance.update(this.props.data, this.state.streamCount)
       }
     }
 
