@@ -7,9 +7,9 @@ const h = require('react-hyperscript')
     , { addBackend } = require('../actions')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { Route, trigger } = require('org-shell')
+    , { Route, LocationStreamAware } = require('org-shell')
 
-const AddBackend = props =>
+const AddBackend = LocationStreamAware(props =>
   h(Box, [
     h(BackendForm, {
       handleSave: async state => {
@@ -23,7 +23,7 @@ const AddBackend = props =>
 
         handleCompletedAction(
           resp,
-          () => trigger(Route('open-backend')),
+          () => props.locationStream.write({ route: Route('open-backend') }),
           err => {
             alert('Error saving backend');
             console.error(err);
@@ -32,5 +32,6 @@ const AddBackend = props =>
       }
     }),
   ])
+)
 
 module.exports = connect(undefined, { addBackend })(AddBackend)
