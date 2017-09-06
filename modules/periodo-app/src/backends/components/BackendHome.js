@@ -9,6 +9,36 @@ const h = require('react-hyperscript')
 
 const specLength = R.path(['opts', 'spec', 'blocks', 'length'])
 
+const defaultSpec = {
+  gridGap: '1em 2.5em',
+  gridTemplateColumns: '1fr 1fr',
+  blocks: [
+    {
+      name: 'humans',
+      gridColumn: '2/3',
+      gridRow: '1/2',
+    },
+
+    {
+      name: 'text',
+      gridColumn: '1/2',
+      gridRow: '1/2',
+    },
+
+    {
+      name: 'list',
+      gridColumn: '1/2',
+      gridRow: '2/3',
+    },
+
+    {
+      name: 'test',
+      gridColumn: '2/3',
+      gridRow: '2/3',
+    },
+  ]
+}
+
 module.exports = class BackendHome extends React.Component {
   constructor() {
     super();
@@ -27,7 +57,7 @@ module.exports = class BackendHome extends React.Component {
 
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { spec={ blocks: [{ name: 'list' }]} } = this.props.opts
+        , { spec=defaultSpec } = this.props.opts
         , { addAt, editGrid } = this.state
 
     return (
@@ -50,10 +80,9 @@ module.exports = class BackendHome extends React.Component {
 
         ]),
 
-        h(Box, [
+        h(Flex, { pb: 2 }, [
           h(DropdownMenu, {
             label: 'Layout',
-            ml: 2,
             onSelection: val => {
               switch (val) {
                 case 'add group':
@@ -99,15 +128,17 @@ module.exports = class BackendHome extends React.Component {
           ]),
         ]),
 
-        h(AuthorityLayout, {
-          spec,
-          backend,
-          dataset,
-          addAt,
-          editGrid,
-          onSpecChange: spec =>
-            updateOpts(R.set(R.lensProp('spec'), spec))
-        }),
+        h(Box, { pt: 2 }, [
+          h(AuthorityLayout, {
+            spec,
+            backend,
+            dataset,
+            addAt,
+            editGrid,
+            onSpecChange: spec =>
+              updateOpts(R.set(R.lensProp('spec'), spec))
+          }),
+        ]),
       ])
     )
   }
