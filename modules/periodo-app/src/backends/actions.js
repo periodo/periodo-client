@@ -1,6 +1,7 @@
 "use strict";
 
 const R = require('ramda')
+    , url = require('url')
     , { formatPatch } = require('../patches/utils/patch')
     , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
@@ -34,8 +35,12 @@ function listAvailableBackends() {
   })
 }
 
-async function fetchDataset(url) {
-  const resp = await fetch(url + 'd.jsonld');
+function ensureTrailingSlash(url) {
+  return url.slice(-1) === '/' ? url : url + '/';
+}
+
+async function fetchDataset(baseURL) {
+  const resp = await fetch(url.resolve(ensureTrailingSlash(baseURL), 'd.jsonld'))
 
   if (!resp.ok) {
     throw new Error(
