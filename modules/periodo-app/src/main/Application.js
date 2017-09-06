@@ -53,5 +53,6 @@ const PeriodoApplication = props => (
 
 module.exports = ORGShell({
   createStore,
-  resources: getApplicationResources()
+  resources: getApplicationResources(),
+  baseTitle: 'PeriodO',
 }, PeriodoApplication)

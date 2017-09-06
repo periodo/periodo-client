@@ -22,7 +22,7 @@ function transformResources(resources, baseTitle) {
 
     let WrappedResourceComponent = class WrappedResourceComponent extends React.Component {
       componentDidMount() {
-        let title
+        let title = '';
 
         const { makeTitle } = resource
 
