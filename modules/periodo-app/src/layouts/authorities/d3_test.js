@@ -6,14 +6,17 @@ const d3 = require('d3')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
 const d = {
-  MARGIN: 30,
+  MARGIN: 20,
   HEIGHT: 500,
   WIDTH: 500,
 }
 
+const MIN_HEIGHT = 420
+
 module.exports = DOMBlock({
   label: 'D3 test',
   description: 'd3 component with init/update/destroy methods',
+  steps: 1000,
   next(prev=[], items) {
     return prev.concat(...items.map(authority =>
       R.values(authority.definitions)
@@ -21,26 +24,47 @@ module.exports = DOMBlock({
   },
 
   init(el) {
+    this.el = el;
+
     this.svg = d3.select(el)
       .append('svg')
-        .attr('width', d.WIDTH + 2 * d.MARGIN)
-        .attr('height', d.HEIGHT + 2 * d.MARGIN)
+      .attr('height', MIN_HEIGHT)
 
     this.g = this.svg
       .append('g')
         .attr('transform', `translate(${d.MARGIN,d.MARGIN})`)
 
+    this.periodsGBackground = this.g.append('rect')
+    this.periodsG = this.g.append('g')
+  },
+
+  setDimensions() {
+    const { width, height } = this.el.getBoundingClientRect()
+
+    this.svg
+      .attr('width', width + 2 * d.MARGIN)
+      .attr('height', height + 2 * d.MARGIN)
+
     this.scale = {
-      x: d3.scaleLinear().range([0, d.WIDTH]),
-      y: d3.scaleLinear().range([d.HEIGHT, 0]),
+      x: d3.scaleLinear().range([0, width - 2 * d.MARGIN]),
+      y: d3.scaleLinear().range([height, 0]),
     }
+
+    this.periodsGBackground
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', width - 2 * d.MARGIN)
+      .attr('height', height)
+      .attr('fill', '#f9f9f9')
 
     this.axisG = {
       x: this.g.append('g')
-        .attr('transform', `translate(0,${d.HEIGHT})`)
+        .attr('transform', `translate(0,${height})`)
     }
 
-    this.periodsG = this.g.append('g')
+    this.rendered = true;
+
+
   },
 
   getXAxis() {
@@ -80,6 +104,8 @@ module.exports = DOMBlock({
 
     const _periods = []
 
+    if (!this.rendered) this.setDimensions()
+
     periods = R.sortBy(p => earliestYear(p.start), periods)
 
     periods.forEach(period => {
@@ -95,31 +121,62 @@ module.exports = DOMBlock({
     this.scale.x.domain([min, max])
     this.scale.y.domain([0, periods.length])
 
-    this.axisG.x.transition().call(this.getXAxis())
+    this.axisG.x.transition().duration(256).call(this.getXAxis())
 
-    const rects = this.periodG
+    const rects = this.periodsG
       .selectAll('rect')
       .data(periods, d => d.id)
 
     rects.exit()
-      .remove()
+      .transition()
+        .duration(250)
+        .ease(d3.easeSin)
+        .style('opacity', 0)
+      .transition()
+        .remove()
+
+    const width = (d, i) => {
+      let w = this.scale.x(_periods[i][1]) - this.scale.x(_periods[i][0])
+
+      if (w < 1) w = 1;
+
+      return w;
+    }
+
+    const height = () => {
+      const h = this.scale.y(periods.length - .85)
+
+      return h >= 1 ? h : 1;
+    }
+
+    const x = (d, i) => this.scale.x(_periods[i][0])
+        , y = (d, i) => this.scale.y(i + 1)
+
+    const t = d3.transition()
+      .duration(400)
+      .ease(d3.easeSin)
+
+    rects
+      .transition(t)
+      .attr('x', x)
+      .attr('y', y)
+      .attr('width', width)
+      .attr('height', height)
 
     rects.enter()
       .append('rect')
-      .attr('x', (d, i) => this.scale.x(_periods[i][0]))
-      .attr('y', () => this.scale.y(1))
-      .attr('width', (d, i) => this.scale.x(_periods[i][1]) - this.scale.x(_periods[i][0]))
-      .attr('fill', 'blue')
+      .attr('x', x)
+      .attr('y', y)
+      .attr('width', width)
+      .attr('fill', d3.schemeCategory10[0])
+      .attr('height', height)
+      .style('opacity', 0)
+      .transition()
+        .delay(this.notFirst ? 350 : 0)
+        .duration(500)
+        .ease(d3.easeSin)
+      .style('opacity', 1)
 
-    rects.transition()
-      .duration(100)
-      .attr('y', (d, i) => this.scale.y(i + 1))
-      .attr('height', () => {
-        let h = d.HEIGHT / periods.length - 1
-
-        if (h < 1) h = 1
-
-        return h
-      })
+    this.notFirst = true;
   },
 })
