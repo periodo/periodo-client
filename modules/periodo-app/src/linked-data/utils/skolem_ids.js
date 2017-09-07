@@ -1,7 +1,5 @@
 "use strict";
 
-const Immutable = require('immutable')
-
 function isSkolemID(id) {
   return (
     typeof id === 'string' &&

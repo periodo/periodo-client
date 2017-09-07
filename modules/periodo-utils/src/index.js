@@ -5,7 +5,6 @@ module.exports = {
   authorityList: require('./authority_list'),
   contributor: require('./contributor'),
   contributorList: require('./contributor_list'),
-  diffs: require('./diffs'),
   hoc: require('./hoc'),
   label: require('./label'),
   languages: require('./languages'),

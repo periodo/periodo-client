@@ -2,7 +2,6 @@
 
 const test = require('blue-tape')
     , R = require('ramda')
-    , Immutable = require('immutable')
     , { PatchType } = require('../types')
 
 test('Formatting and hashing patches', async t => {
@@ -177,7 +176,7 @@ test('Skolem ID utils', t => {
 
   const { replaceIDs } = require('../../linked-data/utils/skolem_ids')
 
-  const oldRecord = Immutable.fromJS({
+  const oldRecord = {
     a: 'http://example.com/.well-known/genid/abc123',
     b: [
       'c', 'http://example.com/.well-known/genid/def456'
@@ -187,14 +186,14 @@ test('Skolem ID utils', t => {
         f: 'http://example.com/.well-known/genid/ghi789'
       }
     }
-  });
+  }
 
-  const skolemMap = Immutable.Map({
+  const skolemMap = {
     'http://example.com/.well-known/genid/abc123': 'id1',
     'http://example.com/.well-known/genid/def456': 'id2',
     'http://example.com/.well-known/genid/jkl012': 'id3',
     'http://example.com/.well-known/genid/ghi789': 'id4'
-  });
+  }
 
   t.deepEqual(replaceIDs(oldRecord, skolemMap).toJS(), {
     a: 'id1',

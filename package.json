@@ -25,7 +25,7 @@
     ]
   },
   "scripts": {
-    "test": "tape ./modules/**/test/*.js",
+    "test": "tape $(find modules -path */test/*.js -not -path */node_modules/*)",
     "start": "serve -p 8000"
   }
 }
