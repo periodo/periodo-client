@@ -36,7 +36,7 @@ module.exports = props =>
             }
           }, h(Text, {
             is: 'img',
-            src: 'assets/periodo-logo.svg',
+            src: 'images/periodo-logo.svg',
             css: {
               height: 32,
             }

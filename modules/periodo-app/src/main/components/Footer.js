@@ -25,14 +25,14 @@ const Footer = props =>
       h(Logo, {
         href: 'http://imls.gov',
         title: 'Institute of Museum and Library Services',
-        src: 'assets/imls_logo_2c.svg',
+        src: 'images/imls_logo_2c.svg',
         height: 80
       }),
 
       h(Logo, {
         href: 'http://neh.gov',
         title: 'National Endowment for the Humanities',
-        src: 'assets/neh-logo.svg',
+        src: 'images/neh-logo.svg',
         height: 60
       }),
     ])
@@ -61,14 +61,14 @@ const Footer = ({ errors }) =>
       Logo({
         href: 'http://imls.gov',
         title: 'Institute of Museum and Library Services',
-        src: 'assets/imls_logo_2c.svg',
+        src: 'images/imls_logo_2c.svg',
         height: 112
       }),
 
       Logo({
         href: 'http://neh.gov',
         title: 'National Endowment for the Humanities',
-        src: 'assets/neh-logo.svg',
+        src: 'images/neh-logo.svg',
         height: 78 }),
 
     ])
