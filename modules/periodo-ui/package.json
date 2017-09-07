@@ -21,7 +21,7 @@
     "language-tags": "^1.0.5",
     "linkify-it": "^2.0.3",
     "org-shell": "^1.0.0",
-    "periodo-utils": "5.0.0-pre",
+    "periodo-utils": "^5.0.0-pre2",
     "ramda": "^0.24.1",
     "react": "^15.6.1",
     "react-aria-menubutton": "^5.0.2",
