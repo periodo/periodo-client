@@ -37,7 +37,7 @@ module.exports = {
       cb();
     })
   },
-  Component: ({ cutoff='homo-sapiens', updateOpts}) =>
+  Component: ({ cutoff='homo-sapiens', updateOpts }) =>
     h(Box, [
       h(Box, [
         h('label', [
@@ -46,7 +46,7 @@ module.exports = {
             name: 'cutoff',
             value: 'none',
             checked: cutoff === 'none',
-            onChange: () => null,
+            onChange: () => updateOpts({ cutoff: 'none' }, true)
           }),
           'No cutoff',
         ]),
@@ -59,7 +59,7 @@ module.exports = {
             name: 'cutoff',
             value: 'homo-sapiens',
             checked: cutoff === 'homo-sapiens',
-            onChange: () => null,
+            onChange: () => updateOpts({ cutoff: 'homo-sapiens' }, true)
           }),
 
           'Post-',

@@ -226,19 +226,24 @@ class LayoutEngine extends React.Component {
         h(layout.Component, Object.assign({
           opts,
           stream: streams[i].input,
-          updateOpts: x => onSpecChange(
-            R.over(
-              R.lensPath(['blocks', i, 'opts']),
-              R.pipe(
-                R.merge(defaultOpts || {}),
-                obj => typeof x === 'object'
-                  ? Object.assign({}, obj, x)
-                  : x(obj)
-              ),
-              spec
+          updateOpts: (x, invalidate) => {
+            onSpecChange(
+              R.over(
+                R.lensPath(['blocks', i, 'opts']),
+                R.pipe(
+                  R.merge(defaultOpts || {}),
+                  obj => typeof x === 'object'
+                    ? Object.assign({}, obj, x)
+                    : x(obj)
+                ),
+                spec
+              )
             )
-          ),
-          invalidate: () => this.debouncedResetStreams(i),
+
+            if (invalidate) {
+              this.debouncedResetStreams(i)
+            }
+          },
         }, processedOpts, extraProps)),
 
         h(() => {

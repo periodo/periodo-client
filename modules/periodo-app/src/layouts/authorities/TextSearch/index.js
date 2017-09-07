@@ -39,11 +39,9 @@ module.exports = {
         value: props.text || '',
         onChange: e => {
           const text = e.target.value
+              , invalidate = text.slice(-1) !== '|'
 
-          props.updateOpts(R.assoc('text', text))
-          if (text.slice(-1) !== '|') {
-            props.invalidate();
-          }
+          props.updateOpts({ text }, invalidate)
         }
       }),
     ])
