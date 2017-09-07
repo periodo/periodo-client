@@ -6,9 +6,9 @@ const h = require('react-hyperscript')
     , Icon = require('react-geomicons').default
     , Spinner = require('respin')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
-    , { Box, Heading, Text, Textarea } = require('axs-ui')
+    , { Box, Text, Textarea } = require('axs-ui')
     , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
-    , { Button, Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
+    , { Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
 
 
 const LDInput = AsyncRequestor(class LDInput extends React.Component {
@@ -69,6 +69,7 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
           ]),
 
           Failure: err => {
+            // eslint-disable-next-line no-console
             console.error(err);
 
             return h(Text, 'Failed to fetch source')

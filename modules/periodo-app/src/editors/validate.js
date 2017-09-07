@@ -15,8 +15,7 @@ function addError(obj, label, err) {
 }
 
 function validateAuthority(authority) {
-  const { isLinkedData } = require('periodo-utils/src/source')
-      , { source, definitions={} } = authority
+  const { source, definitions={} } = authority
 
   let errors = {}
 

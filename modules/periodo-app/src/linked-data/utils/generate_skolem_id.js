@@ -1,11 +1,11 @@
 "use strict";
 
-var url = require('url')
+const url = require('url')
 
 module.exports = function (protocol=location.protocol, host=location.host, length=32) {
-  var hexstr = '';
+  let hexstr = '';
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     hexstr += Math.floor(Math.random() * 16).toString(16);
   }
 

@@ -3,7 +3,7 @@
 const { $$ActionType, $$ReadyState } = require('./symbols')
     , { isUnionTypeRecord } = require('./utils')
 
-const unionTypeMiddleware = store => next => action => {
+const unionTypeMiddleware = () => next => action => {
   if (action.constructor === Object) {
     if (!isUnionTypeRecord(action)) {
       throw new Error('Actions should be called by creating a union type record.')

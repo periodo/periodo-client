@@ -9,11 +9,11 @@
 // few of the helper functions?
 
 module.exports = function (file) {
-  var reader = new FileReader()
+  const reader = new FileReader()
 
   return new Promise((resolve, reject) => {
     reader.onload = upload => {
-      var data
+      let data
 
       try {
         data = JSON.parse(upload.target.result);

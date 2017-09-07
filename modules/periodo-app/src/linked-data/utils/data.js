@@ -33,7 +33,7 @@ function replaceBlankNodes(ttl) {
   const regex = /^(_:b\d+) ([\s\S]+?)\.$/gm
       , nodes = {}
 
-  const strippedTtl = ttl.replace(regex, (match, nodeName, nodeValue) => {
+  let strippedTtl = ttl.replace(regex, (match, nodeName, nodeValue) => {
     nodes[nodeName] = nodeValue;
     return '';
   });

@@ -24,6 +24,7 @@ function makeAsyncActionCreator(type, fn) {
       try {
         type.validateResponse(resp);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(
           `ERROR: Invalid response given to success condition for action ${type._name}`);
         throw e;

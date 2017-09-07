@@ -1,18 +1,18 @@
 "use strict";
 
-var N3Store = require('n3/lib/N3Store')
-  , N3Util = require('n3/lib/N3Util')
+const N3Store = require('n3/lib/N3Store')
+    , N3Util = require('n3/lib/N3Util')
 
 // Returns a promise that resolves to an object whose keys are the given
 // ORCIDs, and whose values are names resolved to them.
 module.exports = function (orcids) {
-  var ld = require('../linked_data_cache')
-    , store = N3Store()
+  const ld = require('../linked_data_cache')
+      , store = N3Store()
 
   return Promise.all(orcids.map(orcid => ld.get(orcid)))
     .then(orcidLDEntities => orcidLDEntities
       .reduce((acc, { url, triples, prefixes }) => {
-        var fullName = ''
+        let fullName = ''
           , givenName
           , familyName
 

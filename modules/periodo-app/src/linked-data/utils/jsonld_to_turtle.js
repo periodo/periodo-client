@@ -1,7 +1,7 @@
 "use strict";
 
-var jsonld = require('jsonld')
-  , N3Writer = require('n3/lib/N3Writer')
+const jsonld = require('jsonld')
+    , N3Writer = require('n3/lib/N3Writer')
 
 const PREFIXES = {
   skos: 'http://www.w3.org/2004/02/skos/core#',
@@ -15,8 +15,8 @@ const PREFIXES = {
 }
 
 function addPrefix(uri) {
-  for (var prefix in PREFIXES) {
-    let prefixedURI = PREFIXES[prefix]
+  for (const prefix in PREFIXES) {
+    const prefixedURI = PREFIXES[prefix]
 
     if (!PREFIXES.hasOwnProperty(prefix)) continue;
 
@@ -29,7 +29,7 @@ function addPrefix(uri) {
 }
 
 function processStatement(statement) {
-  var val;
+  let val;
 
   if (statement.type !== 'literal') return statement.value;
 
@@ -48,11 +48,9 @@ function processStatement(statement) {
 module.exports = function (jsonldData) {
   return new Promise((resolve, reject) => {
     jsonld.toRDF(jsonldData, (err, dataset) => {
-      var writer
+      const writer = N3Writer(PREFIXES);
 
       if (err) reject(err);
-
-      writer = N3Writer(PREFIXES);
 
       dataset['@default'].forEach(triple => writer.addTriple({
         subject: processStatement(triple.subject),

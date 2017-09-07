@@ -1,8 +1,6 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , { connect } = require('react-redux')
     , { Link } = require('periodo-ui')
     , { Box } = require('axs-ui')
     , { Route } = require('org-shell')

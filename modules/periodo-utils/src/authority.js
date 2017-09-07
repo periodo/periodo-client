@@ -1,6 +1,7 @@
 "use strict";
 
-const R = require('ramda')
+const d3 = require('d3')
+    , R = require('ramda')
     , source = require('./source')
     , terminusList = require('./terminus_list')
     , { $$Authority } = require('./symbols')
@@ -39,10 +40,7 @@ function asCSV(authority) {
       'stop_label': stop.get('label'),
       'earliest_stop': getEarliestYear(stop),
       'latest_stop': getLatestYear(stop),
-      'spatialCoverages': (
-        period.get('spatialCoverage', Immutable.List())
-          .map(sc => sc.get('id'))
-          .join('|')),
+      'spatialCoverages': (period.spatialCoverage || []).map(sc => sc.id).join('|'),
       'note': period.get('note'),
       'editorial_note': period.get('editorialNote')
     }
@@ -50,6 +48,7 @@ function asCSV(authority) {
 }
 
 module.exports = {
+  asCSV,
   describe,
   periodsWithAuthority,
 }

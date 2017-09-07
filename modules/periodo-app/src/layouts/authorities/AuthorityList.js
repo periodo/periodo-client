@@ -6,7 +6,6 @@ const h = require('react-hyperscript')
     , source = require('periodo-utils/src/source')
     , { ListBlock } = require('org-layouts')
     , { Span } = require('axs-ui')
-    , { Link } = require('periodo-ui')
     , { Route } = require('org-shell')
 
 const columns = {
@@ -42,7 +41,7 @@ const columns = {
 
   title: {
     label: 'Title',
-    getValue(authority, backend) {
+    getValue(authority) {
 
       return source.title(authority.source)
     }

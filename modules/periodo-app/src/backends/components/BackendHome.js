@@ -100,11 +100,6 @@ module.exports = class BackendHome extends React.Component {
                 default:
                   break;
               }
-              if (val === 'add group') {
-              }
-
-              if (val === 'reset') {
-              }
             }
           }, [
             h(DropdownMenuItem, {

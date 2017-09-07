@@ -19,7 +19,7 @@ class MockLocalStorage {
   }
 }
 
-module.exports = function (initialData) {
+module.exports = function () {
   const mockStorage = {
     indexedDB: new FDBFactory(),
     IDBKeyRange: require('fake-indexeddb/lib/FDBKeyRange'),

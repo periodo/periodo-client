@@ -5,6 +5,7 @@
 const R = require('ramda')
     , pointer = require('json-pointer')
     , { describePatch, hashPatch } = require('../utils/patch')
+    , { replaceIDs } = require('../../linked-data/utils/skolem_ids')
 
 
 // Return a tuple representing the type of change, which will be in the form:
@@ -34,6 +35,7 @@ function groupByChangeType(patches) {
 }
 
 
+// FIXME: this doesn't work!
 function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
   return require('../db').backendIDMaps
     .where('[fromBackendName+toBackendName]')
@@ -94,16 +96,18 @@ async function filterByHash(patches, keepMatched, hashMatchFn) {
 }
 
 function getOrcids(patches) {
-  return patches
-    .map(patch => Immutable.List.of(patch.get('created_by'))
-      .concat(patch.get('comments', Immutable.List())
-        .map(comment => comment.get('author'))))
-    .flatten(1)
-    .toSet()
+  return R.pipe(
+    R.chain(patch => [].concat(
+      patch.created_by,
+      patch.comments.map(comment => comment.author)
+    )),
+    R.uniq
+  )(patches)
 }
 
 
 module.exports = {
+  replaceMappedIDs,
   groupByChangeType,
   filterByHash,
   getOrcids

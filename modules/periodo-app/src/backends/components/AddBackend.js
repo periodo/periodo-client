@@ -26,6 +26,7 @@ const AddBackend = LocationStreamAware(props =>
           () => props.locationStream.write({ route: Route('open-backend') }),
           err => {
             alert('Error saving backend');
+            // eslint-disable-next-line no-console
             console.error(err);
           }
         )
