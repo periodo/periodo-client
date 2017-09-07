@@ -35,6 +35,9 @@ PACKAGE_JSON_FILES := $(shell find . -name package.json -not -path */node_module
 
 zip: $(VERSIONED_ZIPFILE)
 
+release: $(VERSIONED_ZIPFILE)
+	./bin/release.js
+
 watch: node_modules | dist
 	$(WATCHIFY) $(BROWSERIFY_ENTRY) -o $(JS_BUNDLE) -dv
 serve:
@@ -42,6 +45,7 @@ serve:
 
 test:
 	npm test
+
 
 
 # The rest of em
@@ -75,4 +79,4 @@ clean:
 
 
 
-.PHONY: zip clean serve watch test
+.PHONY: zip release watch serve test clean

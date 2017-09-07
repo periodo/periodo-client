@@ -9,12 +9,11 @@ var fs = require('fs')
 
 
 const BASE_URL = 'https://api.github.com/repos/periodo/periodo-client'
-    , VERSION = require('../package.json').version
+    , VERSION = require('../modules/periodo-app/package.json').version
     , ZIPFILE_NAME = `periodo-${VERSION}.zip`
     , VERSION_ZIPFILE = path.join(__dirname, '..', 'dist', ZIPFILE_NAME)
-    , TAG = 'v' + VERSION
+    , TAG = 'periodo-app@' + VERSION
     , TOKEN = fs.readFileSync(`${process.env.HOME}/.githubtoken`, { encoding: 'utf-8' }).trim()
-
 
 Promise.all([tagExists(), releaseDoesNotExist(), releaseZipExists()])
   .then(postRelease)
