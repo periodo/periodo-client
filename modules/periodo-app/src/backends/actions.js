@@ -39,12 +39,17 @@ function ensureTrailingSlash(url) {
   return url.slice(-1) === '/' ? url : url + '/';
 }
 
-async function fetchDataset(baseURL) {
-  const resp = await fetch(url.resolve(ensureTrailingSlash(baseURL), 'd.jsonld'))
+async function fetchServerResource(baseURL, resourceName) {
+  const resolvedURL = url.resolve(ensureTrailingSlash(baseURL), resourceName)
+
+  const headers = new Headers()
+  headers.append('Accept', 'application/json')
+
+  const resp = await fetch(resolvedURL, { headers })
 
   if (!resp.ok) {
     throw new Error(
-    `Failed to fetch backend at ${url}.` +
+    `Failed to fetch resource at ${url}.` +
     '\n' +
     `${resp.status} ${resp.statusText}`)
   }
@@ -87,7 +92,7 @@ function fetchBackend(storage, forceReload) {
         let metadata = await db.remoteBackends.get(url)
 
         const isSavedLocally = !!metadata
-            , resp = await fetchDataset(url)
+            , resp = await fetchServerResource(url, 'd.jsonld')
             , dataset = await resp.json()
 
         if (!isSavedLocally) {
