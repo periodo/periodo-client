@@ -1,0 +1,24 @@
+{
+  "name": "org-layouts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "src/index.js",
+  "keywords": [],
+  "author": "",
+  "license": "CC0",
+  "dependencies": {
+    "axs-ui": "^1.0.4",
+    "debounce": "^1.0.2",
+    "natsort": "^1.0.6",
+    "periodo-ui": "^1.0.0",
+    "periodo-utils": "5.0.0-pre",
+    "prop-types": "^15.5.10",
+    "ramda": "^0.24.1",
+    "react": "^15.6.1",
+    "react-geomicons": "^2.1.0",
+    "react-hyperscript": "^3.0.0",
+    "stream-consume": "^0.1.0",
+    "through2": "^2.0.3"
+  }
+}

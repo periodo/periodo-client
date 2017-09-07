@@ -1,0 +1,26 @@
+{
+  "name": "periodo-date-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "parser.js",
+  "scripts": {
+    "prepublish": "npm run compile",
+    "compile": "pegjs --allowed-start-rules start,gregorianyear,bpyear,iso8601year -o parser.js grammar.pegjs",
+    "test": "npm run compile && tape tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/periodo/periodo-date-parser.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/periodo/periodo-date-parser/issues"
+  },
+  "homepage": "https://github.com/periodo/periodo-date-parser#readme",
+  "devDependencies": {
+    "pegjs": "^0.10.0",
+    "tape": "^4.6.3"
+  }
+}
