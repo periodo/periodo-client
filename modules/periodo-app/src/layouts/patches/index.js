@@ -8,15 +8,15 @@ const PatchList = ListBlock({
   label: 'Patch list',
   description: 'List of patches',
   columns: {
-    created: {
-      label: 'Created',
-      getValue: x => x.created,
-    },
-
     creator: {
       label: 'Creator',
-      getValue: x => x.creator,
-    }
+      getValue: x => x.author,
+    },
+
+    created: {
+      label: 'Created',
+      getValue: x => new Date(x.time).toLocaleString(),
+    },
   },
 })
 

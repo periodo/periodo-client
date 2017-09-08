@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
 
 const defaultSpec = {
   blocks: [
-    { name: 'list' }
+    { name: 'patch-list' }
   ]
 }
 
