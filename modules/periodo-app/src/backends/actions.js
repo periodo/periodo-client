@@ -1,11 +1,14 @@
 "use strict";
 
 const R = require('ramda')
+    , N3 = require('n3')
     , url = require('url')
+    , ns = require('../linked-data/ns')
     , { formatPatch } = require('../patches/utils/patch')
     , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { getResponse } = require('../typed-actions/utils')
+    , fetchLinkedData = require('../linked-data/fetch')
 
 
 const emptyDataset = () => ({
@@ -170,7 +173,36 @@ function fetchBackendHistory(storage) {
       }
     })
 
-    const [,patches] = await Promise.all([datasetPromise, patchesPromise])
+    const [, patches ] = await Promise.all([ datasetPromise, patchesPromise ])
+
+    const agents = new Set(patches
+      .map(p => p.author)
+      .filter(author => author.includes('://orcid.org/')))
+
+    const resources = await Promise.all([...agents].map(orcid => fetchLinkedData(db, orcid, {
+      tryCache: true,
+      populateCache: true,
+    })))
+
+    const store = N3.Store()
+    resources.forEach(({ triples }) => store.addTriples(triples))
+
+    const labelsByOrcid = new Map(resources.map(({ url }) =>
+      [url, N3.Util.getLiteralValue(store.getObjectsByIRI(url, ns.rdfs + 'label')[0])]
+    ))
+
+    patches.forEach(p => {
+      if (labelsByOrcid.has(p.author)) {
+        p.author = {
+          url: p.author,
+          label: labelsByOrcid.get(p.author)
+        }
+      } else {
+        p.author = {
+          label: p.author,
+        }
+      }
+    })
 
     return { patches }
   })

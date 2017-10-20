@@ -1,7 +1,6 @@
 "use strict";
 
-const db = require('../db')
-    , formatURL = require('./utils/format_url')
+const formatURL = require('./utils/format_url')
 
 async function _fetchLinkedData(url, type="text/turtle") {
   // TODO: Validate the type here... or base it off of the extension on the URL
@@ -26,7 +25,7 @@ async function _fetchLinkedData(url, type="text/turtle") {
   return { triples, prefixes }
 }
 
-module.exports = async function fetchLinkedData(url, opts={}) {
+module.exports = async function fetchLinkedData(db, url, opts={}) {
   const {
     tryCache=false,
     populateCache=false,
@@ -37,13 +36,17 @@ module.exports = async function fetchLinkedData(url, opts={}) {
 
   // TODO: Add cache invalidation
   if (tryCache) {
-    resource = await db().linkedDataCache.get(url)
+    resource = await db.linkedDataCache.get(url)
   }
 
   if (!resource) {
     resource = await _fetchLinkedData(url, resourceMimeType)
+    resource = {
+      url,
+      triples: resource.triples,
+    }
     if (populateCache) {
-      await db().linkedDataCache.put(resource)
+      await db.linkedDataCache.put(resource)
     }
   }
 

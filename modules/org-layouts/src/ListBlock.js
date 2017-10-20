@@ -394,7 +394,7 @@ module.exports = function makeList(opts) {
                       py: 0,
                       css: {
                       }
-                    }, col.getValue(item, this.props.backend))
+                    }, (col.render || R.identity)(col.getValue(item, this.props.backend)))
                   ))
                 )
               )

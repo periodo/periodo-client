@@ -6,5 +6,6 @@ module.exports = {
   xsd: 'http://www.w3.org/2001/XMLSchema#',
   owl: 'http://www.w3.org/2002/07/owl#',
   bibo: 'http://purl.org/ontology/bibo/',
-  periodo: 'http://n2t.net/ark:/99152/p0v#'
+  periodo: 'http://n2t.net/ark:/99152/p0v#',
+  rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
 }
