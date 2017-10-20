@@ -38,38 +38,39 @@ const contributorFields = new Map()
 // Given a store and a subject URI, iterate through the candidate predicate
 // URIs, and return the triples of the first predicate which matches the pattern
 // s-p-? in the store.
-function getFirstMatch(store, subjectURI, predicateURIs) {
+function matchFromPredicateList(store, subjectURI, predicateURIs) {
   for (const predicateURI of predicateURIs) {
-    const match = store.find(subjectURI, predicateURI, null)
-    if (match.length) return match;
+    const match = store.getTriplesByIRI(subjectURI, predicateURI, null);
+
+    if (match.length) return match
   }
 
   return null;
 }
 
-function getFirstObjectLiteral(trips) {
-  return getLiteralValue(trips[0].object)
+function firstObjectLiteral(triples) {
+  return getLiteralValue(triples[0].object)
 }
 
 module.exports = function makeSourceRepr(store, entity) {
   const source = { id: entity }
 
-  ;[...sourceFields].forEach(([field, preds]) => {
-    const triples = getFirstMatch(store, entity, preds)
+  Array.from(sourceFields).forEach(([field, preds]) => {
+    const triples = matchFromPredicateList(store, entity, preds)
 
     if (!triples) return;
 
     if (field !== 'creators' && field !== 'contributors') {
-      source[field] = getFirstObjectLiteral(triples)
+      source[field] = firstObjectLiteral(triples)
       return
     }
 
     const agents = triples.map(triple => {
       const agent = { id: triple.object }
-          , nameTriples = getFirstMatch(store, agent.id, contributorFields.get('name'))
+          , nameTriples = matchFromPredicateList(store, agent.id, contributorFields.get('name'))
 
       if (nameTriples) {
-        agent.name = getFirstObjectLiteral(nameTriples)
+        agent.name = firstObjectLiteral(nameTriples)
       }
 
       return agent;
