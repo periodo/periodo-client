@@ -1,9 +1,8 @@
 {
   "name": "periodo-client",
-  "version": "2.4.2",
+  "version": "3.0.0-pre",
   "author": "Patrick Golden",
   "description": "Client for browsing and editing PeriodO data.",
-  "private": true,
   "devDependencies": {
     "babili": "0.0.12",
     "blue-tape": "^0.2.0",
@@ -25,6 +24,7 @@
     ]
   },
   "scripts": {
+    "prepack": "make clean && make",
     "test": "tape $(find modules -path */test/*.js -not -path */node_modules/*)",
     "start": "serve -p 8000"
   }
