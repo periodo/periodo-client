@@ -1,5 +1,5 @@
 *
-!images
+!images/*
 !index.html
 !*.js
 !LICENSE-3RD-PARTY
