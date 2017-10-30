@@ -7,16 +7,15 @@ BIN := node_modules/.bin
 DEVELOPMENT_JS_BUNDLE := $(JS_BASE_NAME).js
 PRODUCTION_JS_BUNDLE := $(subst .js,-$(VERSION).min.js,$(DEVELOPMENT_JS_BUNDLE))
 
-JS_FILES := $(shell find modules -name *.js -not -path */node_modules/*)
+JS_FILES := $(shell find modules -name '*.js' -not -path */node_modules/*)
 PACKAGE_JSON_FILES := $(shell find . -name package.json -not -path */node_modules/*)
 
 production: $(PRODUCTION_JS_BUNDLE)
-	echo $<
 	sed -e 's/JS-FILENAME/$</' index.TEMPLATE.html > index.html
 
 watch: node_modules
 	sed -e 's/JS-FILENAME/$(DEVELOPMENT_JS_BUNDLE)/' index.TEMPLATE.html > index.html
-	$(BIN)/budo $(ENTRY) -o $(DEVELOPMENT_JS_BUNDLE) -dv
+	$(BIN)/watchify $(ENTRY) -o $(DEVELOPMENT_JS_BUNDLE) -dv
 
 test:
 	npm test
