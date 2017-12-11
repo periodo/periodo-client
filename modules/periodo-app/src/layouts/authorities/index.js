@@ -10,8 +10,9 @@ const PeriodoLayoutEngine = ({
   backend,
   dataset,
   editGrid,
-  spec=[],
-  onSpecChange,
+  layout,
+  blockOpts,
+  onBlockOptsChange,
 }) =>
   h(LayoutEngine, {
     blocks: {
@@ -22,7 +23,6 @@ const PeriodoLayoutEngine = ({
       test: require('./d3_test'),
       humans: require('./HumanTimeCheckmark'),
     },
-
     createReadStream: () =>
       fromArray.obj(
         R.pipe(
@@ -33,8 +33,10 @@ const PeriodoLayoutEngine = ({
           }))
         )(dataset.periodCollections)
       ),
-    spec,
-    onSpecChange,
+
+    layout,
+    blockOpts,
+    onBlockOptsChange,
 
     addAt,
     editGrid,

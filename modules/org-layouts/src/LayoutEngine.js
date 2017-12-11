@@ -5,99 +5,77 @@ const h = require('react-hyperscript')
     , React = require('react')
     , PropTypes = require('prop-types')
     , debounce = require('debounce')
-    , through = require('through2')
     , consume = require('stream-consume')
-    , { Flex, Box, Heading, Span, Input } = require('axs-ui')
-    , BlockChooser = require('./BlockChooser')
+    , { Box } = require('axs-ui')
+    , processLayout = require('./process_layout')
 
-class LayoutEngine extends React.Component {
+const DEFAULT_STREAM_RESET_DELAY = 256
+
+class LayoutRenderer extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      streams: [],
+      streams: null
     }
 
-    this.debouncedResetStreams = debounce(this.resetStreams.bind(this), 512)
+    this.reset = this.reset.bind(this);
+    this.resetStreams = this.resetStreams.bind(this);
+
   }
 
   componentDidMount() {
-    this.processSpec(this.props.spec);
-    this.resetStreams()
+    this.reset(this.props)
+    this.updateProcessedOpts(this.props.blockOpts)
+    this.resetStreams();
+    this._resetStreams = this.resetStreams;
+    this.resetStreams = debounce(
+      this.resetStreams,
+      this.props.streamResetDelay || DEFAULT_STREAM_RESET_DELAY
+    )
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.spec !== nextProps.spec) {
-      const updateStreams = this.props.spec.blocks.length !== nextProps.spec.blocks.length
+    const reset = (
+      this.props.layout !== nextProps.layout ||
+      this.props.blocks !== nextProps.blocks ||
+      this.props.extraProps !== nextProps.extraProps ||
+      this.props.createReadStream !== nextProps.createReadStream
+    )
 
-      this.processSpec(nextProps.spec)
+    if (reset) {
+      this.reset(nextProps)
+      this.resetStreams()
+    }
 
-      if (updateStreams) this.resetStreams();
+    if (this.props.blockOpts !== nextProps.blockOpts) {
+      this.updateProcessedOpts(nextProps.blockOpts)
     }
   }
 
-  processSpec(spec) {
-    const { blocks } = this.props
-
+  reset(props) {
     this.setState({
-      processedSpec: R.pipe(
-        R.over(
-          R.lensProp('blocks'),
-          R.map(({ name, opts, gridRow='auto', gridColumn='auto' }) => {
-            const {
-              Component=() => h(Box, { bg: 'red4' }, `No such layout: ${name}`),
-              makeInputStream=through.obj,
-              makeOutputStream=through.obj,
-              processOpts=R.defaultTo({}, R.identity),
-              defaultOpts={}
-            } = (blocks[name] || {})
-
-            return {
-              name,
-              opts,
-              gridRow,
-              gridColumn,
-              layout: {
-                Component,
-                makeInputStream,
-                makeOutputStream,
-                processOpts,
-              },
-              processedOpts: processOpts(opts),
-              defaultOpts,
-            }
-          })
-        ),
-        R.over(
-          R.lensProp('gridGap'),
-          R.defaultTo('')
-        ),
-
-        R.over(
-          R.lensProp('gridTemplateColumns'),
-          R.defaultTo('')
-        ),
-
-        R.over(
-          R.lensProp('gridTemplateRows'),
-          R.defaultTo('')
-        ),
-      )(spec)
+      processedLayout: processLayout(props.blocks, props.layout),
     })
   }
 
-  debouncedResetStreams(startFrom=0) {
-    this.resetStreams(startFrom);
+  updateProcessedOpts(opts={}) {
+    this.setState(prev => {
+      const processedOpts = prev.processedLayout.blocks.map(block =>
+        block.block.processOpts(
+          Object.assign({}, block.baseOpts, opts[block.id])))
+
+      return { processedOpts }
+    })
   }
 
   resetStreams(startFrom=0) {
-    const { createReadStream } = this.props
-
     this.setState(prev => {
-      const _streams = prev.processedSpec.blocks.reduce((_streams, { layout, processedOpts }) => {
-        const lastOutput = (R.last(_streams) || { output: createReadStream() }).output
-            , input = lastOutput.pipe(layout.makeInputStream())
-            , output = input.pipe(layout.makeOutputStream(processedOpts))
+      const _streams = prev.processedLayout.blocks.reduce((_streams, { block }, i) => {
+        const processedOpts = prev.processedOpts[i]
+            , lastOutput = (R.last(_streams) || { output: this.props.createReadStream() }).output
+            , input = lastOutput.pipe(block.makeInputStream())
+            , output = input.pipe(block.makeOutputStream(processedOpts))
 
         return [..._streams, { input, output }]
       }, [])
@@ -113,19 +91,19 @@ class LayoutEngine extends React.Component {
   }
 
   render() {
-    const { editGrid, addAt, extraProps, blocks, spec, onSpecChange } = this.props
-        , { processedSpec, streams, _streams } = this.state
+    const { extraProps, blockOpts, onBlockOptsChange } = this.props
+        , { processedLayout, processedOpts, streams, _streams } = this.state
 
-    if (!processedSpec) return null;
+    if (!processedLayout || !streams || !processedOpts) return null
 
-    const children = processedSpec.blocks.map(({
+    const children = processedLayout.blocks.map(({
+      id,
       name,
-      layout,
+      opts,
+      block: { Component },
       gridRow,
       gridColumn,
-      opts,
-      processedOpts,
-      defaultOpts
+      baseOpts,
     }, i) =>
       h(Box, {
         key: `${i}-${name}`,
@@ -134,121 +112,41 @@ class LayoutEngine extends React.Component {
           gridRow,
           gridColumn,
         },
-        css: Object.assign({
+        css: {
           minWidth: 0,
           minHeight: 0,
           overflow: 'hidden',
-        }, editGrid && {
-          position: 'relative',
-          minHeight: '8em',
-        })
+        },
       }, [
-        editGrid && (
-          h(Box, {
-            bg: 'yellow1',
-            border: 1,
-            borderColor: 'gray4',
-            css: {
-              boxShadow: '1px 1px 6px #999',
-              position: 'absolute',
-              borderRadius: '2px',
-              top: 4,
-              right: 4,
-              zIndex: 2,
-            }
-          }, h(Box, { m: 1 }, [
-            h(Box, {
-              fontSize: 4,
-              pb: '2px',
-              css: {
-                borderBottom: '1px solid #666',
-              },
-            }, 'Grid placement'),
-
-            h(Flex, { my: 1 }, [
-              h(Span, {
-                mr: 2,
-                css: {
-                  lineHeight: '1.5em',
-                  fontWeight: 'bold',
-                  flexGrow: 1,
-                }
-              }, 'grid-column:'),
-              h(Input, {
-                width: 100,
-                value: gridColumn,
-                onChange: e => {
-                  onSpecChange(
-                    R.set(
-                      R.lensPath(['blocks', i, 'gridColumn']),
-                      e.target.value,
-                      spec
-                    )
-                  )
-                },
-                bg: 'white',
-                p: '2px',
-                mr: '6px',
-              }),
-            ]),
-
-            h(Flex, { my: 1 }, [
-              h(Span, {
-                mr: 2,
-                css: {
-                  lineHeight: '1.5em',
-                  fontWeight: 'bold',
-                  flexGrow: 1,
-                }
-              }, 'grid-row:'),
-              h(Input, {
-                value: gridRow,
-                onChange: e => {
-                  onSpecChange(
-                    R.set(
-                      R.lensPath(['blocks', i, 'gridRow']),
-                      e.target.value,
-                      spec
-                    )
-                  )
-                },
-                width: 100,
-                bg: 'white',
-                p: '2px',
-                min: 1,
-                max: 2,
-                mr: '6px',
-              }),
-            ]),
-          ]))
-        ),
-
-        h(layout.Component, Object.assign({
+        h(Component, Object.assign({
           opts,
           stream: streams[i].input,
           updateOpts: (x, invalidate) => {
-            onSpecChange(
-              R.over(
-                R.lensPath(['blocks', i, 'opts']),
-                R.pipe(
-                  R.merge(defaultOpts || {}),
-                  obj => typeof x === 'object'
-                    ? Object.assign({}, obj, x)
-                    : x(obj)
-                ),
-                spec
-              )
-            )
+            const base = Object.assign({}, baseOpts, blockOpts[id])
+
+            const updated = typeof x === 'object'
+              ? Object.assign({}, base, x)
+              : x(base)
+
+            const changed = {}
+
+            for (const k in updated) {
+              if (updated[k] && baseOpts[k] !== updated[k]) {
+                changed[k] = updated[k]
+              }
+            }
+
+            onBlockOptsChange(Object.assign({}, blockOpts, { [id]: changed }))
 
             if (invalidate) {
-              this.debouncedResetStreams(i)
+              this.resetStreams(i)
             }
           },
-        }, processedOpts, extraProps)),
+        }, processedOpts[i], extraProps)),
 
         h(() => {
-          // Consume the output stream after the layout has had a chance to
-          // attach itself
+          // Consume the output stream after the block has had a chance to
+          // attach itself to the DOM
           consume(_streams[i].output)
 
           return null;
@@ -256,124 +154,21 @@ class LayoutEngine extends React.Component {
       ])
     )
 
-    if (addAt != null) {
-      children.splice(addAt, 0, h(BlockChooser, {
-        key: `add-at-${addAt}`,
-        blocks,
-        onSelect: name => {
-          onSpecChange(
-            R.over(
-              R.lensProp('blocks'),
-              R.insert(addAt, { name }),
-              spec
-            )
-          )
-        }
-      }))
-    }
-
-    return h('div', [
-      editGrid && h(Box, {
-        p: 2,
-        my: 2,
-        bg: 'yellow1',
-        borderColor: 'gray4',
-        css: {
-          boxShadow: '1px 1px 6px #999',
-          borderRadius: '2px',
-        }
-      }, [
-        h(Heading, {
-          level: 2,
-          mb: 2,
-          css: {
-            borderBottom: '1px solid #666',
-          },
-        }, 'CSS Grid'),
-
-        h(Box, {
-          css: {
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
-            alignItems: 'center',
-            gridGap: '1em 12px',
-          },
-        }, [
-
-          h(Span, 'grid-template-columns'),
-          h(Input, {
-            bg: 'white',
-            value: processedSpec.gridTemplateColumns,
-            onChange: e => {
-              onSpecChange(
-                R.set(
-                  R.lensProp('gridTemplateColumns'),
-                  e.target.value,
-                  spec
-                )
-              )
-            },
-            css: {
-              width: 256,
-            }
-          }),
-
-          h(Span, 'grid-template-rows'),
-          h(Input, {
-            bg: 'white',
-            value: processedSpec.gridTemplateRows,
-            onChange: e => {
-              onSpecChange(
-                R.set(
-                  R.lensProp('gridTemplateRows'),
-                  e.target.value,
-                  spec
-                )
-              )
-            },
-            css: {
-              width: 256,
-            }
-          }),
-
-          h(Span, 'grid-gap'),
-          h(Input, {
-            bg: 'white',
-            value: processedSpec.gridGap,
-            onChange: e => {
-              onSpecChange(
-                R.set(
-                  R.lensProp('gridGap'),
-                  e.target.value,
-                  spec
-                )
-              )
-            },
-            css: {
-              width: 256,
-            }
-          }),
-        ]),
-      ]),
-
+    return (
       h(Box, {
-        css: {
-          display: 'grid',
-        },
-
+        css: { display: 'grid' },
         style: {
-          gridTemplateColumns: processedSpec.gridTemplateColumns,
-          gridTemplateRows: processedSpec.gridTemplateRows,
-          gridGap: processedSpec.gridGap,
+          gridTemplateColumns: processedLayout.gridTemplateColumns,
+          gridTemplateRows: processedLayout.gridTemplateRows,
+          gridGap: processedLayout.gridGap,
         },
-      }, children),
-    ])
+      }, children)
+    )
   }
 }
 
-module.exports = Object.assign(LayoutEngine, {
+module.exports = Object.assign(LayoutRenderer, {
   propTypes: {
-    addAt: PropTypes.number,
     extra: PropTypes.object,
     blocks: PropTypes.objectOf(PropTypes.shape({
       label: PropTypes.string.isRequired,
@@ -383,13 +178,13 @@ module.exports = Object.assign(LayoutEngine, {
       makeOutputStream: PropTypes.func,
       processOpts: PropTypes.func,
     })).isRequired,
-    spec: PropTypes.shape({
-      blocks: PropTypes.array.isRequired,
-      gridTemplateColumns: PropTypes.string,
-      gridTemplateRows: PropTypes.string,
-      gridGap: PropTypes.string,
-    }).isRequired,
-    onSpecChange: PropTypes.func.isRequired,
+    layout: PropTypes.string.isRequired,
+    blockOpts: PropTypes.oneOfType([
+      PropTypes.array,
+      PropTypes.object
+    ]).isRequired,
+    onBlockOptsChange: PropTypes.func.isRequired,
     createReadStream: PropTypes.func.isRequired,
+    streamResetDelay: PropTypes.number,
   }
 })

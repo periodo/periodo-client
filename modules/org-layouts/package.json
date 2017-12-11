@@ -7,6 +7,9 @@
   "keywords": [],
   "author": "",
   "license": "CC0",
+  "browser": {
+    "querystring": "querystring-browser"
+  },
   "dependencies": {
     "axs-ui": "^1.0.4",
     "debounce": "^1.0.2",
@@ -14,6 +17,7 @@
     "periodo-ui": "^1.0.0",
     "periodo-utils": "^5.0.0-pre2",
     "prop-types": "^15.5.10",
+    "querystring-browser": "^1.0.4",
     "ramda": "^0.24.1",
     "react": "^15.6.1",
     "react-geomicons": "^2.1.0",

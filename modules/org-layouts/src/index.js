@@ -7,4 +7,6 @@ module.exports = {
   StreamConsumingBlock: require('./StreamConsumingBlock'),
   DOMBlock: require('./DOMBlock'),
   ListBlock: require('./ListBlock'),
+
+  parseSpec: require('./parser'),
 }

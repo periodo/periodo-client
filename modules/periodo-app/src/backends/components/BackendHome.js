@@ -4,12 +4,9 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Flex, Box, Text } = require('axs-ui')
-    , { parseSpec } = require('org-layouts')
     , AuthorityLayout = require('../../layouts/authorities')
 
-const specLength = R.path(['opts', 'spec', 'blocks', 'length'])
-
-const defaultSpec = parseSpec(`
+const defaultLayout = `
 grid-gap = 1em 2.5em
 grid-template-columns = 1fr 1fr
 
@@ -33,26 +30,23 @@ limit = 10
 name = test
 grid-column = 2/3
 grid-row = 2/3
-`)
+`
 
 module.exports = class BackendHome extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      addAt: null,
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (specLength(prevProps) !== specLength(this.props)) {
-      this.setState({ addAt: null })
+      layout: defaultLayout,
+      editingLayout: defaultLayout,
+      showEdit: false,
     }
   }
 
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { spec=defaultSpec } = this.props.opts
+        , { Layout={} } = this.props.opts
+        , { layout } = this.state
 
     return (
       h(Box, [
@@ -60,6 +54,13 @@ module.exports = class BackendHome extends React.Component {
           justifyContent: 'space-around',
           pb: 2,
         }, [
+          h(Text, { mx: 1 }, [
+            h('button', {
+              onClick: () => this.setState(prev => ({ showEdit: !prev.showEdit })),
+            }, 'Edit layout'),
+
+          ]),
+
           h(Text, { mx: 1 }, [
             'Created: ' + new Date(backend.metadata.created).toLocaleString(),
           ]),
@@ -71,17 +72,33 @@ module.exports = class BackendHome extends React.Component {
           h(Text, { mx: 1 }, [
             'Last accessed: ' + new Date(backend.metadata.accessed).toLocaleString(),
           ]),
+        ]),
 
+        this.state.showEdit && h(Box, { pt: 2 }, [
+          h(Box, [
+            h('textarea', {
+              style: { width: '100%' },
+              rows: 25,
+              value: this.state.editingLayout,
+              onChange: e => this.setState({ editingLayout: e.target.value }),
+            }),
+          ]),
+          h(Box, [
+            h('button', {
+              disabled: this.state.layout === this.state.editingLayout,
+              onClick: () => this.setState({ layout: this.state.editingLayout })
+            }, 'Update')
+          ]),
         ]),
 
         h(Box, { pt: 2 }, [
           h(AuthorityLayout, {
-            spec,
+            layout,
             backend,
             dataset,
-            onSpecChange: (spec, updatedBlock, updatedOpts) => {
-              updateOpts(R.set(R.lensProp('spec'), spec))
-            }
+            blockOpts: Layout,
+            onBlockOptsChange: updatedOpts =>
+              updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
           }),
         ]),
       ])
