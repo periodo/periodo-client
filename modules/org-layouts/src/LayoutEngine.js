@@ -37,10 +37,9 @@ class LayoutRenderer extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const reset = (
-      this.props.layout !== nextProps.layout ||
-      this.props.blocks !== nextProps.blocks ||
-      this.props.extraProps !== nextProps.extraProps ||
-      this.props.createReadStream !== nextProps.createReadStream
+      !R.equals(this.props.layout, nextProps.layout) ||
+      !R.equals(this.props.blocks, nextProps.blocks) ||
+      !R.equals(this.props.extraProps, nextProps.extraProps)
     )
 
     if (reset) {
