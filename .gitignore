@@ -2,5 +2,5 @@
 node_modules/
 modules/**/node_modules/
 dist/*
-*.js
+/periodo-client*.js
 index.html
