@@ -39,7 +39,8 @@ class LayoutRenderer extends React.Component {
     const reset = (
       !R.equals(this.props.layout, nextProps.layout) ||
       !R.equals(this.props.blocks, nextProps.blocks) ||
-      !R.equals(this.props.extraProps, nextProps.extraProps)
+      !R.equals(this.props.extraProps, nextProps.extraProps) ||
+      (R.isEmpty(nextProps.blockOpts) && !R.isEmpty(this.props.blockOpts))
     )
 
     if (reset) {
@@ -130,12 +131,20 @@ class LayoutRenderer extends React.Component {
             const changed = {}
 
             for (const k in updated) {
-              if (updated[k] && baseOpts[k] !== updated[k]) {
+              if (
+                updated[k] != undefined &&
+                baseOpts[k] !== updated[k] &&
+                (baseOpts[k] || updated[k])
+              ) {
                 changed[k] = updated[k]
               }
             }
 
-            onBlockOptsChange(Object.assign({}, blockOpts, { [id]: changed }))
+            onBlockOptsChange(
+              R.isEmpty(changed)
+                ? R.dissoc(id, blockOpts)
+                : Object.assign({}, blockOpts,{ [id]: changed })
+            )
 
             if (invalidate) {
               this.resetStreams(i)

@@ -30,7 +30,7 @@ limit = 10
 name = test
 grid-column = 2/3
 grid-row = 2/3
-`
+`.trim()
 
 module.exports = class BackendHome extends React.Component {
   constructor() {
@@ -55,13 +55,6 @@ module.exports = class BackendHome extends React.Component {
           pb: 2,
         }, [
           h(Text, { mx: 1 }, [
-            h('button', {
-              onClick: () => this.setState(prev => ({ showEdit: !prev.showEdit })),
-            }, 'Edit layout'),
-
-          ]),
-
-          h(Text, { mx: 1 }, [
             'Created: ' + new Date(backend.metadata.created).toLocaleString(),
           ]),
 
@@ -74,22 +67,48 @@ module.exports = class BackendHome extends React.Component {
           ]),
         ]),
 
+        h(Flex, [
+          h(Text, { mx: 1 }, [
+            h('button', {
+              onClick: () => this.setState(prev => ({ showEdit: !prev.showEdit })),
+            }, 'Edit layout'),
+          ]),
+
+          h(Text, { mx: 1 }, [
+            h('button', {
+              onClick: () => updateOpts(R.dissoc('Layout'))
+            }, 'Reset layout'),
+          ]),
+        ]),
+
         this.state.showEdit && h(Box, { pt: 2 }, [
-          h(Box, [
+          h(Box, {
+            style: {
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gridGap: '1em',
+            }
+          }, [
             h('textarea', {
-              style: { width: '100%' },
               rows: 25,
               value: this.state.editingLayout,
               onChange: e => this.setState({ editingLayout: e.target.value }),
             }),
+
+            h(Box, 'asdf'),
           ]),
-          h(Box, [
+          h(Box, { pt: 2 }, [
             h('button', {
               disabled: this.state.layout === this.state.editingLayout,
               onClick: () => this.setState({ layout: this.state.editingLayout })
             }, 'Update')
           ]),
         ]),
+
+        h(Box, {
+          is: 'hr',
+          mt: 2,
+        }),
 
         h(Box, { pt: 2 }, [
           h(AuthorityLayout, {
@@ -98,7 +117,9 @@ module.exports = class BackendHome extends React.Component {
             dataset,
             blockOpts: Layout,
             onBlockOptsChange: updatedOpts =>
-              updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
+              R.isEmpty(updatedOpts)
+                ? updateOpts(R.dissoc('Layout'))
+                : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
           }),
         ]),
       ])
