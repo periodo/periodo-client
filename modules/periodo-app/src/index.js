@@ -1,5 +1,11 @@
 "use strict";
 
+const PropTypes = require('prop-types')
+
+Object.defineProperty(require('react'), 'PropTypes', {
+  get: () => PropTypes
+})
+
 const h = require('react-hyperscript')
     , ReactDOM = require('react-dom')
     , fastclick = require('fastclick')
