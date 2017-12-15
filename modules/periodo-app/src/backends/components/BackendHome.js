@@ -3,8 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box, Text } = require('axs-ui')
+    , { Flex, Box, Text, Heading } = require('axs-ui')
     , AuthorityLayout = require('../../layouts/authorities')
+    , blocks = require('../../layouts/authorities/blocks')
 
 const defaultLayout = `
 grid-gap = 1em 2.5em
@@ -31,6 +32,27 @@ type = timespan-visualization
 grid-column = 2/3
 grid-row = 2/3
 `.trim()
+
+const BlockDefinitions = ({ blocks }) =>
+  h(Box, { is: 'ul' }, Object.values(R.mapObjIndexed(({ label, description }, key) =>
+    h(Box, {
+      key,
+      is: 'li',
+      mb: 2,
+    }, [
+      h(Heading, { level: 3 }, label),
+      h(Box, { my: 1 }, [
+        'Type: ',
+        h(Text, {
+          is: 'code',
+          color: 'pink5',
+          bg: 'gray2',
+          px: '3px',
+        }, key)
+      ]),
+      h(Box, { is: 'p', my: 1 }, description),
+    ])
+  , blocks)))
 
 module.exports = class BackendHome extends React.Component {
   constructor() {
@@ -86,7 +108,7 @@ module.exports = class BackendHome extends React.Component {
             style: {
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gridGap: '1em',
+              gridGap: '.66em',
             }
           }, [
             h('textarea', {
@@ -95,8 +117,9 @@ module.exports = class BackendHome extends React.Component {
               onChange: e => this.setState({ editingLayout: e.target.value }),
             }),
 
-            h(Box, 'asdf'),
+            h(BlockDefinitions, { blocks }),
           ]),
+
           h(Box, { pt: 2 }, [
             h('button', {
               disabled: this.state.layout === this.state.editingLayout,
