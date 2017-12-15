@@ -1,11 +1,12 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { LayoutEngine, ListBlock } = require('org-layouts')
+    , R = require('ramda')
+    , { LayoutRenderer, blocks } = require('org-layouts')
     , fromArray = require('from2-array')
     , { Link } = require('periodo-ui')
 
-const PatchList = ListBlock({
+const PatchList = blocks.List({
   label: 'Patch list',
   description: 'List of patches',
   columns: {
@@ -24,13 +25,11 @@ const PatchList = ListBlock({
   },
 })
 
-module.exports = ({ spec, onSpecChange, patches }) =>
-  h(LayoutEngine, Object.assign({
+module.exports = props =>
+  h(LayoutRenderer, R.omit(['patches'], Object.assign({}, props, {
     blocks: {
       'patch-list': PatchList,
     },
-    createReadStream: () => fromArray.obj(patches),
+    createReadStream: () => fromArray.obj(props.patches),
     extraProps: {},
-    spec,
-    onSpecChange,
-  }))
+  })))

@@ -1,18 +1,40 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , { Flex, Box, Heading } = require('axs-ui')
     , { Source } = require('periodo-ui')
-    , AuthorityLayoutEngine = require('../../layouts/authorities')
-    , { TransientSpecEditor } = require('org-layouts')
+    , AuthorityLayoutRenderer = require('../../layouts/authorities')
 
-const defaultSpec = {
-  blocks: [
-    { name: 'list' }
-  ]
+const layout = `
+[]
+type = period-list
+`
+
+class AuthorityLayout extends React.Component {
+  constructor() {
+    super()
+    this.state = { blockOpts: {} }
+  }
+
+  render() {
+    const { backend, authority } = this.props
+
+    return (
+      h(AuthorityLayoutRenderer, {
+        layout,
+        backend,
+        dataset: {
+          periodCollections: {
+            [authority.id]: authority
+          }
+        },
+        blockOpts: this.state.blockOpts,
+        onBlockOptsChange: blockOpts => this.setState({ blockOpts })
+      })
+    )
+  }
 }
-
-const AuthorityLayout = TransientSpecEditor(defaultSpec)(AuthorityLayoutEngine)
 
 module.exports = ({ backend, authority }) =>
   h(Flex, [
@@ -25,13 +47,6 @@ module.exports = ({ backend, authority }) =>
     h(Box, { width: .5 }, [
       h(Heading, { level: 2 }, 'Periods'),
 
-      h(AuthorityLayout, {
-        backend,
-        dataset: {
-          periodCollections: {
-            [authority.id]: authority
-          }
-        },
-      }),
+      h(AuthorityLayout, { backend, authority })
     ]),
   ])

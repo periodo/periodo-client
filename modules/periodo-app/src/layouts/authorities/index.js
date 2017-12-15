@@ -2,20 +2,13 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { LayoutEngine } = require('org-layouts')
+    , PropTypes = require('prop-types')
+    , { LayoutRenderer } = require('org-layouts')
     , fromArray = require('from2-array')
     , blocks = require('./blocks')
 
-const PeriodoLayoutEngine = ({
-  addAt,
-  backend,
-  dataset,
-  editGrid,
-  layout,
-  blockOpts,
-  onBlockOptsChange,
-}) =>
-  h(LayoutEngine, {
+const PeriodoLayoutRenderer = props =>
+  h(LayoutRenderer, R.omit(['dataset', 'backend'], Object.assign({}, props, {
     blocks,
     createReadStream: () =>
       fromArray.obj(
@@ -25,15 +18,16 @@ const PeriodoLayoutEngine = ({
             authority,
             definitions: authority.definitions,
           }))
-        )(dataset.periodCollections)
+        )(props.dataset.periodCollections)
       ),
-    layout,
-    blockOpts,
-    onBlockOptsChange,
+    extraProps: { backend: props.backend },
+  })))
 
-    addAt,
-    editGrid,
-    extraProps: { backend },
-  })
+PeriodoLayoutRenderer.propTypes = {
+  dataset: PropTypes.shape({
+    periodCollections: PropTypes.object.isRequired,
+  }),
+  backend: PropTypes.object.isRequired,
+}
 
-module.exports = PeriodoLayoutEngine;
+module.exports = PeriodoLayoutRenderer;

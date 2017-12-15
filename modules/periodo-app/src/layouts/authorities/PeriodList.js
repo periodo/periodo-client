@@ -5,7 +5,7 @@ const R = require('ramda')
     , { authorityOf } = require('periodo-utils/src/period')
     , { yearPublished } = require('periodo-utils/src/source')
     , { Route } = require('org-shell')
-    , { ListBlock } = require('org-layouts')
+    , { blocks } = require('org-layouts')
 
 const columns = {
   label: {
@@ -46,7 +46,7 @@ const columns = {
   }
 }
 
-module.exports = ListBlock({
+module.exports = blocks.List({
   label: 'Period List',
   description: 'Selectable list of periods.',
 

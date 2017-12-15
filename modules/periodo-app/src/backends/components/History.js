@@ -1,21 +1,37 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , { Box } = require('axs-ui')
-    , PatchLayoutEngine = require('../../layouts/patches')
-    , { TransientSpecEditor } = require('org-layouts')
+    , PatchLayoutRenderer = require('../../layouts/patches')
 
-const defaultSpec = {
-  blocks: [
-    { name: 'patch-list' }
-  ]
+const layout = `
+[]
+type = patch-list
+`
+
+class PatchHistory extends React.Component {
+  constructor() {
+    super();
+
+    this.state = { blockOpts: {} }
+  }
+
+  render() {
+    const { patches } = this.props
+
+    return (
+      h(Box, [
+        h(PatchLayoutRenderer, {
+          patches,
+          layout,
+          blockOpts: this.state.blockOpts,
+          onBlockOptsChange: blockOpts => this.setState({ blockOpts }),
+        }),
+        // h('pre', JSON.stringify(patches, true, '  ')),
+      ])
+    )
+  }
 }
 
-const PatchLayout = TransientSpecEditor(defaultSpec)(PatchLayoutEngine)
-
-module.exports = ({ patches }) =>
-  h(Box, [
-    h(PatchLayout, { patches }),
-
-    // h('pre', JSON.stringify(patches, true, '  ')),
-  ])
+module.exports = PatchHistory

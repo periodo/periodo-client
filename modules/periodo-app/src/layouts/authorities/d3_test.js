@@ -2,7 +2,7 @@
 
 const d3 = require('d3')
     , R = require('ramda')
-    , { DOMBlock } = require('org-layouts')
+    , { blocks } = require('org-layouts')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
 const d = {
@@ -13,7 +13,7 @@ const d = {
 
 const MIN_HEIGHT = 420
 
-module.exports = DOMBlock({
+module.exports = blocks.DOM({
   label: 'D3 test',
   description: 'd3 component with init/update/destroy methods',
   steps: 1000,
