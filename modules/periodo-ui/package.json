@@ -23,10 +23,10 @@
     "org-shell": "^1.0.0",
     "periodo-utils": "^5.0.0-pre2",
     "ramda": "^0.24.1",
-    "react": "^15.6.1",
+    "react": "^16.2.0",
     "react-aria-menubutton": "^5.0.2",
     "react-autosuggest": "^9.3.2",
-    "react-dom": "^15.6.1",
+    "react-dom": "^16.2.0",
     "react-hyperscript": "^3.0.0",
     "union-type": "^0.4.0"
   }
