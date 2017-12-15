@@ -11,23 +11,23 @@ grid-gap = 1em 2.5em
 grid-template-columns = 1fr 1fr
 
 [HumanTime]
-name = humans
+type = time-cutoff
 grid-column = 2/3
 grid-row = 1/2
 
 [Search]
-name = text
+type = text-search
 grid-column = 1/2
 grid-row = 1/2
 
 [PeriodList]
-name = list
+type = period-list
 grid-column = 1/2
 grid-row = 2/3
 limit = 10
 
 [Timeline]
-name = test
+type = timespan-visualization
 grid-column = 2/3
 grid-row = 2/3
 `.trim()

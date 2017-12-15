@@ -13,18 +13,18 @@ module.exports = function processLayout(blockDefs, layoutString) {
   return R.pipe(
       R.over(
         R.lensProp('blocks'),
-        R.map(({ id, name, opts, gridRow='auto', gridColumn='auto' }) => {
+        R.map(({ id, type, opts, gridRow='auto', gridColumn='auto' }) => {
           const {
-            Component=() => h(Box, { bg: 'red4' }, `No such layout: ${name}`),
+            Component=() => h(Box, { bg: 'red4' }, `No such block type: ${type}`),
             makeInputStream=through.obj,
             makeOutputStream=through.obj,
             processOpts=R.defaultTo({}, R.identity),
             defaultOpts={}
-          } = (blockDefs[name] || {})
+          } = (blockDefs[type] || {})
 
           return {
             id,
-            name,
+            type,
             opts,
             gridRow,
             gridColumn,

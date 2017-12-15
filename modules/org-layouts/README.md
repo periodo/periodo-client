@@ -125,8 +125,8 @@ const { TransientSpecEditor } = require('org-layouts')
 
 const initialSpec = {
   blocks: [
-    { name: 'labelFilter' },
-    { name: 'counter' },
+    { type: 'labelFilter' },
+    { type: 'counter' },
   ]
 }
 

@@ -20,7 +20,7 @@ function camelCase(str) {
 }
 
 const BLOCK_WHITELIST = [
-  'name',
+  'type',
   'gridRow',
   'gridColumn'
 ]
@@ -109,8 +109,8 @@ equals sign, followed by a sequence of characters
   }
 
   layout.blocks.forEach((block, id) => {
-    if (!block.name) {
-      throw new Error(`Invalid block definition in \`[${id}]\`. A \`name\` property is required.`)
+    if (!block.type) {
+      throw new Error(`Invalid block definition in \`[${id}]\`. A \`type\` property is required.`)
     }
   })
 

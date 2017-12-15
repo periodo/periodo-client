@@ -98,7 +98,7 @@ class LayoutRenderer extends React.Component {
 
     const children = processedLayout.blocks.map(({
       id,
-      name,
+      type,
       opts,
       block: { Component },
       gridRow,
@@ -106,7 +106,7 @@ class LayoutRenderer extends React.Component {
       baseOpts,
     }, i) =>
       h(Box, {
-        key: `${i}-${name}`,
+        key: `${i}-${type}`,
         mt: 1,
         style: {
           gridRow,

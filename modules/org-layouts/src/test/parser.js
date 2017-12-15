@@ -12,11 +12,11 @@ test('Parsing specification', async t => {
   prop2 = bar
 
   [Block1]
-  name = List
+  type = List
   grid-column = 1/2
 
   [Block2]
-  name = Graph
+  type = Graph
   grid-column = 2/3
   block-prop = baz
   `
@@ -29,13 +29,13 @@ test('Parsing specification', async t => {
     blocks: [
       {
         id: 'Block1',
-        name: 'List',
+        type: 'List',
         gridColumn: '1/2',
       },
 
       {
         id: 'Block2',
-        name: 'Graph',
+        type: 'Graph',
         gridColumn: '2/3',
         opts: {
           blockProp: 'baz',
@@ -46,12 +46,12 @@ test('Parsing specification', async t => {
 
   t.deepEqual(parse(`
     []
-    name = test
+    type = test
   `), {
     blocks: [
       {
         id: '0',
-        name: 'test',
+        type: 'test',
       }
     ]
   }, 'should allow blank block names')

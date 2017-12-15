@@ -4,6 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { LayoutEngine } = require('org-layouts')
     , fromArray = require('from2-array')
+    , blocks = require('./blocks')
 
 const PeriodoLayoutEngine = ({
   addAt,
@@ -15,14 +16,7 @@ const PeriodoLayoutEngine = ({
   onBlockOptsChange,
 }) =>
   h(LayoutEngine, {
-    blocks: {
-      statistics: require('./Statistics'),
-      list: require('./PeriodList'),
-      text: require('./TextSearch'),
-      authorityList: require('./AuthorityList'),
-      test: require('./d3_test'),
-      humans: require('./HumanTimeCheckmark'),
-    },
+    blocks,
     createReadStream: () =>
       fromArray.obj(
         R.pipe(
@@ -33,7 +27,6 @@ const PeriodoLayoutEngine = ({
           }))
         )(dataset.periodCollections)
       ),
-
     layout,
     blockOpts,
     onBlockOptsChange,
