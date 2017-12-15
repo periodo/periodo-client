@@ -1,12 +1,10 @@
 module.exports = {
-  LayoutEngine: require('./LayoutEngine'),
-  TransientSpecEditor: require('./TransientSpecEditor'),
+  LayoutRenderer: require('./LayoutRenderer'),
+  LayoutEditor: require('./LayoutEditor'),
 
-  BlockChooser: require('./BlockChooser'),
-
-  StreamConsumingBlock: require('./StreamConsumingBlock'),
-  DOMBlock: require('./DOMBlock'),
-  ListBlock: require('./ListBlock'),
-
-  parseSpec: require('./parser'),
+  blocks: {
+    StreamConsuming: require('./StreamConsumingBlock'),
+    DOM: require('./DOMBlock'),
+    List: require('./ListBlock'),
+  }
 }

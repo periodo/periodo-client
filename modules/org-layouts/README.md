@@ -46,18 +46,18 @@ const periods = [
 ]
 ```
 
-Next, we'll define two different blocks. One will count the periods that are streamed through it, and the other will be a simple text input that will filter periods base on their labels.
+Next, we'll define two different blocks. One will count the periods that are streamed through it, and the other will be a simple text input that will filter periods based on their labels.
 
 ```js
 const through = require('through2')
-    , { DOMBlock } = require('org-layouts')
+    , { blocks } = require('org-layouts')
 
 const blocks = {
   // Helper functions are available to create blocks based on some simple
-  // semantics. `DOMBlock` creates a block that passes a DOM element to an
+  // semantics. `blocks.DOM` creates a block that passes a DOM element to an
   // `init()` function, and a list of consumed items from a stream to an
   // `update()` function.
-  counter: DOMBlock({
+  counter: blocks.DOM({
     init(el) {
       this.el = el;
     },
@@ -102,16 +102,15 @@ const blocks = {
 Now that we have a function to create a read stream, and a couple blocks that are capable of rendering the items in that stream, we can create a layout engine. We'll export a higher order component that takes an initial specification for a layout, and then allows it to be edited.
 
 ```js
-const { LayoutEngine } = require('org-layouts')
+const { LayoutRenderer } = require('org-layouts')
     , fromArray = require('from2-array')
+    , periodBlocks = require('./period_blocks')
 
-module.exports = function PeriodLayoutEngine({ spec, onSpecChange }) {
+module.exports = function PeriodLayoutRenderer(props) {
   return (
-    h(LayoutEngine, {
-      blocks,
+    h(LayoutRender, Object.assign({}, props, {
+      blocks: periodBlocks,
       createReadStream: () => fromArray(periods),
-      spec,
-      onSpecChange,
     })
   )
 }
@@ -120,22 +119,34 @@ module.exports = function PeriodLayoutEngine({ spec, onSpecChange }) {
 This component could now be used to create a layout like so:
 
 ```js
-const { TransientSpecEditor } = require('org-layouts')
-    , PeriodLayoutEngine = require('./PeriodLayoutEngine')
+const PeriodLayoutRenderer = require('./PeriodSearch')
 
-const initialSpec = {
-  blocks: [
-    { type: 'labelFilter' },
-    { type: 'counter' },
-  ]
-}
+const searchLayout = `
+[]
+type = label-filter
 
-function PeriodComponent() {
-  return (
-    h('div', [
-      h('h1', 'Search for periods'),
-      h(TransientSpecEditor(initialSpec)(PeriodLayoutEngine)),
-    ])
-  )
+[]
+type = counter
+`
+
+
+module.exports = class PeriodSearch extends React.Component {
+  constructor() {
+    this.state = { blockOpts: {} }
+  }
+
+  render() {
+    return (
+      h('div', [
+        h('h1', 'Search for periods'),
+        h(PeriodLayoutRenderer, {
+          layout: searchLayout,
+          periods: this.props.periods,
+          blockOpts: this.state.blockOpts,
+          onBlockOptsChange: blockOpts => this.setState({ blockOpts })
+        })
+      ])
+    )
+  }
 }
 ```
