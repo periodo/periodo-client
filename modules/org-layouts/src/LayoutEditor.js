@@ -27,42 +27,34 @@ const BlockDefinitions = ({ blocks }) =>
   , blocks)))
 
 class LayoutEditor extends React.Component {
-  componentDidMount() {
-  }
-
-  componentWillUnmount() {
-  }
-
   render() {
-    const { blocks } = this.props
+    const { blocks, value, onChange } = this.props
 
     return (
-      h(Box, { pt: 2 }, [
-        h(Box, {
+      h(Box, {
+        style: {
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gridGap: '.66em',
+        }
+      }, [
+        h('textarea', {
           style: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gridGap: '.66em',
-          }
-        }, [
-          h('textarea', {
-            onSelect: e => {
-              console.log(e);
-            },
-            rows: 25,
-            value: this.state.editingLayout,
-            onChange: e => this.setState({ editingLayout: e.target.value }),
-          }),
+            padding: '.7em',
+          },
+          onSelect: e => {
+            /*
+             * TODO: Allow moving along grid tracks
+            const { selectionStart, selectionEnd } = e.target
+            console.log(selectionStart, selectionEnd);
+            */
+          },
+          rows: 25,
+          value,
+          onChange,
+        }),
 
-          h(BlockDefinitions, { blocks }),
-        ]),
-
-        h(Box, { pt: 2 }, [
-          h('button', {
-            disabled: this.state.layout === this.state.editingLayout,
-            onClick: () => this.setState({ layout: this.state.editingLayout })
-          }, 'Update')
-        ]),
+        h(BlockDefinitions, { blocks }),
       ])
     )
   }

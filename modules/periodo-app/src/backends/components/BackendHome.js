@@ -84,7 +84,20 @@ module.exports = class BackendHome extends React.Component {
           ]),
         ]),
 
-        this.state.showEdit && h(LayoutEditor, { blocks }),
+        this.state.showEdit && h(Box, { pt: 2 }, [
+          h(LayoutEditor, {
+            blocks,
+            value: this.state.editingLayout,
+            onChange: e => this.setState({ editingLayout: e.target.value }),
+          }),
+
+          h(Box, { pt: 2 }, [
+            h('button', {
+              disabled: this.state.layout === this.state.editingLayout,
+              onClick: () => this.setState({ layout: this.state.editingLayout })
+            }, 'Update')
+          ]),
+        ]),
 
         h(Box, {
           is: 'hr',
