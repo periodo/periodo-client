@@ -7,9 +7,9 @@ const h = require('react-hyperscript')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , { updateLocalDataset } = require('../actions')
     , PeriodForm = require('../../editors/PeriodForm')
-    , { trigger } = require('org-shell')
+    , { LocationStreamAware, Route } = require('org-shell')
 
-module.exports = class AddPeriod extends React.Component {
+module.exports = LocationStreamAware(class AddPeriod extends React.Component {
   constructor(props) {
     super(props);
 
@@ -19,7 +19,7 @@ module.exports = class AddPeriod extends React.Component {
   }
 
   render() {
-    const { authority, dispatch, backend, dataset } = this.props
+    const { authority, dispatch, backend, dataset, locationStream } = this.props
 
     return (
       h(Box, [
@@ -41,9 +41,11 @@ module.exports = class AddPeriod extends React.Component {
                 : `Added period ${id} to authority ${authority.id}`
             ))
 
-            trigger('backend-authority-view', {
-              backendID: backend.asIdentifier(),
-              authorityID: authority.id,
+            locationStream.write({
+              route: Route('backend-authority-view', {
+                backendID: backend.asIdentifier(),
+                authorityID: authority.id,
+              })
             })
           },
           onValueChange: period => {
@@ -53,4 +55,4 @@ module.exports = class AddPeriod extends React.Component {
       ])
     )
   }
-}
+})
