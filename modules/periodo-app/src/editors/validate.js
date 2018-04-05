@@ -108,7 +108,7 @@ function validatePeriod(period) {
 
     cleanedPeriod.localizedLabels = label.groupByCode([].concat(
       period.originalLabel,
-      period.alternateLabels.filter(l => l.value),
+      (period.alternateLabels || []).filter(l => l.value),
     ))
 
     return Result.Ok(cleanedPeriod);
