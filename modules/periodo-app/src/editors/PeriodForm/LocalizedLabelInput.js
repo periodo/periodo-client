@@ -18,19 +18,19 @@ class Suggestor extends React.Component {
 
   render() {
     const { editing,} = this.state
-        , { onSelect, getSuggestions } = this.props
+        , { onSelect, getSuggestions, buttonCSS } = this.props
 
     return (
       h(Box, { css: { position: 'relative' }}, [
         h(DropdownMenuButton, {
-          css: {
+          css: Object.assign({
             position: 'relative',  // Fixes outline overlap for some reason
 
             whiteSpace: 'nowrap',
             minWidth: 60,
             borderRadius: 0,
             marginRight: '-1px',
-          },
+          }, buttonCSS),
           label: this.props.value,
           isOpen: editing,
           onClick: () => this.setState(prev => ({ editing: !prev.editing }))
@@ -66,14 +66,14 @@ class Suggestor extends React.Component {
   }
 }
 
-module.exports = props => {
+module.exports = function LocalizedLabelInput(props) {
   const {
     id,
     label,
     languageTag,
     onValueChange,
-    handleAddLabel,
-    handleRemoveLabel,
+    addLabelAfter,
+    removeLabelAt,
   } = props
 
   let tag = tags(languageTag || 'en')
@@ -82,14 +82,25 @@ module.exports = props => {
     tag = tags('en')
   }
 
-  const lang = tag.language().format()
+  const lang = tag.language()
+      , langTag = lang.format()
+      , langDefaultScriptTag = lang.script() && lang.script().format()
 
-  let script = (tag.script() || tag.language().script())
+  const script = (tag.script() || lang.script())
+      , scriptTag = script ? script.format() : ''
 
-  script = script ? script.format() : ''
+  const isDefaultScript = scriptTag && scriptTag === langDefaultScriptTag
 
   return (
-    h(Box, R.omit(['id', 'label', 'languageTag', 'onValueChange', 'handleAddLabel', 'handleRemoveLabel'], props), [
+    h(Box, R.omit([
+      'id',
+      'label',
+      'languageTag',
+      'onValueChange',
+      'addLabelAfter',
+      'removeLabelAt',
+      'removeLabelAt',
+    ], props), [
       h(Flex, { alignItems: 'center' }, [
         h(Suggestor, {
           getSuggestions: search =>
@@ -101,7 +112,7 @@ module.exports = props => {
                   : acc,
                 []
               ),
-          value: lang,
+          value: lang.descriptions()[0],
           onSelect: ({ subtag }) =>
             onValueChange({
               label,
@@ -110,6 +121,9 @@ module.exports = props => {
         }),
 
         h(Suggestor, {
+          buttonCSS: isDefaultScript && {
+            color: '#999',
+          },
           getSuggestions: search =>
             tags
               .search(search)
@@ -119,18 +133,13 @@ module.exports = props => {
                   : acc,
                 []
               ),
-          value: script || '(select script)',
+          value: script ? script.descriptions()[0] : '(select script)',
           onSelect: ({ subtag }) => {
-            // Skip if this is the default script of the current language
-            if (tag.language().script() && (
-              subtag.format() === tag.language().script().format()
-            )) {
-              return
-            }
-
             onValueChange({
               label,
-              languageTag: `${lang}-${subtag.format()}`
+              languageTag: langDefaultScriptTag === subtag.format()
+                ? langTag
+              : `${lang}-${subtag.format()}`
             })
           },
         }),
@@ -141,22 +150,25 @@ module.exports = props => {
           value: label,
           display: 'inline',
           onChange: e => {
-            onValueChange(R.assoc('value', e.target.value, label))
+            onValueChange({
+              label: e.target.value,
+              languageTag
+            })
           }
         }),
 
-        handleAddLabel && h(Button, {
+        addLabelAfter && h(Button, {
           width: 42,
           ml: '-1px',
           borderRadius: 0,
-          onClick: handleAddLabel,
+          onClick: addLabelAfter,
         }, '+'),
 
-        handleRemoveLabel && h(Button, {
+        removeLabelAt && h(Button, {
           width: 42,
           ml: '-1px',
           borderRadius: 0,
-          onClick: handleRemoveLabel,
+          onClick: removeLabelAt,
         }, '-'),
       ])
     ])

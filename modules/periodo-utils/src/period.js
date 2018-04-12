@@ -8,10 +8,7 @@ function originalLabel(period) {
 
   if(!label || !languageTag) return null;
 
-  return {
-    value: label,
-    languageTag
-  }
+  return { label, languageTag }
 }
 
 const allLabels = period =>
@@ -20,7 +17,7 @@ const allLabels = period =>
     R.pipe(
       R.propOr({}, 'localizedLabels'),
       R.mapObjIndexed((labels, languageTag) =>
-        labels.map(label => ({ value: label, languageTag }))),
+        labels.map(label => ({ label, languageTag }))),
       R.values,
       R.unnest
     )(period)
