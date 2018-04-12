@@ -186,24 +186,23 @@ test('Multi label periods', t => {
     util.period.originalLabel(multiLabelPeriod),
     {
       value: 'Progressive Era',
-      language: 'eng',
-      script: 'latn'
+      languageTag: 'en',
     }, 'should get original label from a period');
 
 
   t.deepEqual(
     util.period.allLabels(multiLabelPeriod),
     [
-      { value: 'Progressive Era', language: 'eng', script: 'latn' },
-      { value: 'The Progressive Era', language: 'eng', script: 'latn' },
-      { value: 'Ère progressiste', language: 'fra', script: 'latn' },
+      { value: 'Progressive Era', languageTag: 'en' },
+      { value: 'The Progressive Era', languageTag: 'en' },
+      { value: 'Ère progressiste', languageTag: 'fr' },
     ], 'should get all labels from a period');
 
 
   t.deepEqual(
     util.period.alternateLabels(multiLabelPeriod),
     [
-      { value: 'The Progressive Era', language: 'eng', script: 'latn' },
-      { value: 'Ère progressiste', language: 'fra', script: 'latn' }
+      { value: 'The Progressive Era', languageTag: 'en' },
+      { value: 'Ère progressiste', languageTag: 'fr' },
     ], 'should get only alternate labels from a period')
 });

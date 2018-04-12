@@ -3,27 +3,28 @@
 const R = require('ramda')
     , { $$Authority } = require('./symbols')
 
-function parseLang(langSpec) {
-  const [ language, script ] = langSpec.split('-')
-
-  return { language, script }
-}
-
 function originalLabel(period) {
-  const { label, language } = period
+  const { label, languageTag } = period
 
-  if(!label || !language) return null;
+  if(!label || !languageTag) return null;
 
-  return Object.assign({ value: label }, parseLang(language))
+  return {
+    value: label,
+    languageTag
+  }
 }
 
-const allLabels = R.pipe(
-  R.propOr({}, 'localizedLabels'),
-  R.mapObjIndexed((labels, isoCode) => labels.map(label =>
-    Object.assign({ value: label }, parseLang(isoCode)))),
-  R.values,
-  R.unnest
-)
+const allLabels = period =>
+  [].concat(
+    originalLabel(period),
+    R.pipe(
+      R.propOr({}, 'localizedLabels'),
+      R.mapObjIndexed((labels, languageTag) =>
+        labels.map(label => ({ value: label, languageTag }))),
+      R.values,
+      R.unnest
+    )(period)
+  )
 
 function alternateLabels(period) {
   return R.without([originalLabel(period)], allLabels(period))

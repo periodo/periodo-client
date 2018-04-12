@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , Autosuggest = require('react-autosuggest')
     , { Box, Input } = require('axs-ui')
 
-const getSuggestions = list => value => {
+const _getSuggestions = list => value => {
   const input = value.trim()
 
   return input.length
@@ -26,10 +26,11 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
 
   render() {
     const { value, suggestions } = this.state
-        , { onSelect, items } = this.props
+        , { onSelect, items, getSuggestions=_getSuggestions(items) } = this.props
 
     const autoSuggestProps = R.omit([
       'onSelect',
+      'getSuggestions',
       'items',
       'onBlur',
       'inputProps',
@@ -43,7 +44,8 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
         focusInputOnSuggestionClick: false,
         getSuggestionValue: R.prop('name'),
         onSuggestionsFetchRequested: e => this.setState({
-          suggestions: getSuggestions(items)(e.value)
+          suggestions: getSuggestions(e.value),
+          value: e.value,
         }),
         onSuggestionsClearRequested: () => this.setState({
           suggestions: [],

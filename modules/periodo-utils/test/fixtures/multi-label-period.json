@@ -1,12 +1,11 @@
 {
   "label": "Progressive Era",
-  "language": "eng-latn",
+  "languageTag": "en",
   "localizedLabels": {
-    "eng-latn": [
-      "Progressive Era",
+    "en": [
       "The Progressive Era"
     ],
-    "fra-latn": [
+    "fr": [
       "Ère progressiste"
     ]
   }

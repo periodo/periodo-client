@@ -2,6 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
+    , tags = require('language-tags')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
     , { RandomID } = require('periodo-utils/src/hoc')
     , { Box } = require('axs-ui')
@@ -9,9 +10,30 @@ const h = require('react-hyperscript')
 
 const defaultLabel = Object.freeze({
   value: '',
-  language: 'eng',
-  script: 'latn'
+  languageTag: 'en',
 })
+
+const lexvoURL = 'http://lexvo.org/id'
+
+function lexvoLanguageURL(tag) {
+  if (tag.length === 2) {
+    return `${lexvoURL}/iso639-1/${tag}`
+  }
+
+  if (tag.length === 3) {
+    return `${lexvoURL}/iso639-3/${tag}`
+  }
+
+  return null
+}
+
+function lexvoScriptURL(tag) {
+  if (tag) {
+    return `${lexvoURL}/script/${tag}`
+  }
+
+  return null
+}
 
 module.exports = RandomID(props => {
   const { randomID, period, onValueChange } = props
@@ -25,9 +47,25 @@ module.exports = RandomID(props => {
 
       h(LocalizedLabelInput, {
         id: randomID('label'),
-        label: period.originalLabel || defaultLabel,
-        onValueChange: value => {
-          onValueChange(R.assoc('originalLabel', value, period))
+        label: period.label || '',
+        languageTag: period.languageTag || 'en',
+        onValueChange: ({ label, languageTag }) => {
+          const tag = tags(languageTag)
+              , language = lexvoLanguageURL(tag.language().format())
+              , script = lexvoScriptURL(tag.script())
+
+          onValueChange(
+            R.pipe(
+              R.assoc('label', label),
+              R.assoc('languageTag', languageTag),
+              language
+                ? R.assoc('language', language)
+                : R.dissoc('language'),
+              script
+                ? R.assoc('script', script)
+                : R.dissoc('script')
+            )(period)
+          )
         },
       }),
 

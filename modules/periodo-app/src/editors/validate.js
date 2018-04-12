@@ -57,7 +57,7 @@ const VALID_PERIOD_FIELDS = [
 function validatePeriod(period) {
   let errors = {}
 
-  if (!period.originalLabel) {
+  if (!period.label) {
     errors = addError(errors, 'label', 'A period must have a label');
   }
 
@@ -101,10 +101,6 @@ function validatePeriod(period) {
     // Clean up parsed terminus labels
     delete cleanedPeriod.start._type;
     delete cleanedPeriod.stop._type;
-
-    // Fix labels
-    cleanedPeriod.label = period.originalLabel.value;
-    cleanedPeriod.language = label.code(period.originalLabel);
 
     cleanedPeriod.localizedLabels = label.groupByCode([].concat(
       period.originalLabel,

@@ -3,8 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , languages = require('periodo-utils/src/languages').getSortedList()
-    , scripts = require('periodo-utils/src/scripts').getSortedList()
+    , tags = require('language-tags')
     , { Input, Flex, Box } = require('axs-ui')
     , { Autosuggest, DropdownMenuButton, DropdownMenuMenu, Button } = require('periodo-ui')
 
@@ -19,7 +18,7 @@ class Suggestor extends React.Component {
 
   render() {
     const { editing,} = this.state
-        , { onSelect, items } = this.props
+        , { onSelect, getSuggestions } = this.props
 
     return (
       h(Box, { css: { position: 'relative' }}, [
@@ -27,6 +26,7 @@ class Suggestor extends React.Component {
           css: {
             position: 'relative',  // Fixes outline overlap for some reason
 
+            whiteSpace: 'nowrap',
             minWidth: 60,
             borderRadius: 0,
             marginRight: '-1px',
@@ -50,11 +50,11 @@ class Suggestor extends React.Component {
         }, [
           h(DropdownMenuMenu, { p: 1, width: 600, }, [
             h(Autosuggest, {
+              getSuggestions,
               onSelect: (...args) => {
                 onSelect(...args);
                 this.setState({ editing: false })
               },
-              items,
               onBlur: () => this.setState({
                 editing: false,
               })
@@ -69,35 +69,76 @@ class Suggestor extends React.Component {
 module.exports = props => {
   const {
     id,
-    label={},
+    label,
+    languageTag,
     onValueChange,
     handleAddLabel,
     handleRemoveLabel,
   } = props
 
+  let tag = tags(languageTag || 'en')
+
+  if (!tag.valid()) {
+    tag = tags('en')
+  }
+
+  const lang = tag.language().format()
+
+  let script = (tag.script() || tag.language().script())
+
+  script = script ? script.format() : ''
+
   return (
-    h(Box, R.omit(['id', 'label', 'onValueChange', 'handleAddLabel', 'handleRemoveLabel'], props), [
+    h(Box, R.omit(['id', 'label', 'languageTag', 'onValueChange', 'handleAddLabel', 'handleRemoveLabel'], props), [
       h(Flex, { alignItems: 'center' }, [
         h(Suggestor, {
-          items: languages,
-          value: label.language,
-          onSelect: val => {
-            onValueChange(R.assoc('language', val.code.toLowerCase(), label))
-          },
+          getSuggestions: search =>
+            tags
+              .search(search)
+              .reduce((acc=[], subtag) =>
+                subtag.type() === 'language'
+                  ? [...acc, { subtag, name: subtag.descriptions()[0] }]
+                  : acc,
+                []
+              ),
+          value: lang,
+          onSelect: ({ subtag }) =>
+            onValueChange({
+              label,
+              languageTag: subtag.format()
+            })
         }),
 
         h(Suggestor, {
-          items: scripts,
-          value: label.script,
-          onSelect: val => {
-            onValueChange(R.assoc('script', val.code.toLowerCase(), label))
+          getSuggestions: search =>
+            tags
+              .search(search)
+              .reduce((acc=[], subtag) =>
+                subtag.type() === 'script'
+                  ? [...acc, { subtag, name: subtag.descriptions()[0] }]
+                  : acc,
+                []
+              ),
+          value: script || '(select script)',
+          onSelect: ({ subtag }) => {
+            // Skip if this is the default script of the current language
+            if (tag.language().script() && (
+              subtag.format() === tag.language().script().format()
+            )) {
+              return
+            }
+
+            onValueChange({
+              label,
+              languageTag: `${lang}-${subtag.format()}`
+            })
           },
         }),
 
         h(Input, {
           id,
           type: 'text',
-          value: label.value,
+          value: label,
           display: 'inline',
           onChange: e => {
             onValueChange(R.assoc('value', e.target.value, label))
