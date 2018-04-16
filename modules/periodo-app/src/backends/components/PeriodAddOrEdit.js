@@ -4,22 +4,29 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box } = require('axs-ui')
-    , generateID = require('../../linked-data/utils/generate_skolem_id')
+    , { RandomID} = require('periodo-utils').hoc
     , { updateLocalDataset } = require('../actions')
     , PeriodForm = require('../../editors/PeriodForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
-module.exports = LocationStreamAware(class AddPeriod extends React.Component {
+class AddPeriod extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      period: props.initialValue || {}
+      period: props.period || {}
     }
   }
 
   render() {
-    const { authority, dispatch, backend, dataset, locationStream } = this.props
+    const {
+      authority,
+      dispatch,
+      backend,
+      dataset,
+      locationStream,
+      randomID
+    } = this.props
 
     return (
       h(Box, [
@@ -27,7 +34,7 @@ module.exports = LocationStreamAware(class AddPeriod extends React.Component {
           value: this.state.period,
           onValidated: async period => {
             const isEdit = !!period.id
-                , id = isEdit ? period.id : generateID()
+                , id = isEdit ? period.id : randomID('period')
 
             await dispatch(updateLocalDataset(
               backend.storage,
@@ -55,4 +62,6 @@ module.exports = LocationStreamAware(class AddPeriod extends React.Component {
       ])
     )
   }
-})
+}
+
+module.exports = RandomID(LocationStreamAware(AddPeriod))

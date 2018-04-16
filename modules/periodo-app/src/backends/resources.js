@@ -259,7 +259,7 @@ module.exports = {
 
   'authority-add-period': individualAuthorityPage(
     () => `Add period`,
-    require('./components/AddPeriod')
+    require('./components/PeriodAddOrEdit')
   ),
 
   'authority-edit': individualAuthorityPage(
@@ -276,7 +276,7 @@ module.exports = {
 
   'period-edit': individualPeriodPage(
     props => `View period (${props.period.id})`,
-    require('./components/PeriodEdit')
+    require('./components/PeriodAddOrEdit')
   ),
 
 }
