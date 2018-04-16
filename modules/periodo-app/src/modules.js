@@ -50,7 +50,7 @@ function makeResourceComponent(resource) {
         ml: '-1px',
         css: {
           flexGrow: 1,
-          lineHeight: '20px',
+          lineHeight: '17px',
           border: '1px solid #bfc5ca',
           borderRadius: '0 2px 2px 0',
         }

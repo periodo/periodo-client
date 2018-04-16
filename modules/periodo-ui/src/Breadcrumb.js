@@ -14,12 +14,17 @@ exports.Breadcrumb = props =>
     css: {
       listStyleType: 'none',
     }
-  }, props), [].concat(props.children || []).map((el, i) =>
+  }, props), [].concat(props.children || []).map((el, i, arr) =>
     h(Box, {
       is: 'li',
       key: i,
       css: {
         display: 'inline-block',
+        // TODO: Make this resize w/ flexbox
+        maxWidth: `${100 / arr.length}%`,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
         textDecoration: 'none',
         ':not(:first-of-type)': {
           '::before': {
