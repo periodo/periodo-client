@@ -48,7 +48,9 @@ function processStatement(statement) {
 module.exports = function (jsonldData) {
   return new Promise((resolve, reject) => {
     jsonld.toRDF(jsonldData, (err, dataset) => {
-      const writer = N3Writer(PREFIXES);
+      const writer = N3Writer()
+
+      writer.addPrefixes(PREFIXES)
 
       if (err) reject(err);
 

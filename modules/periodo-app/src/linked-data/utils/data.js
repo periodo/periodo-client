@@ -1,11 +1,7 @@
 "use strict"
 
 function asJSONLD(data) {
-  const json = data.toJS()
-
-  json['@context'] = require('../context');
-
-  return json;
+  return Object.assign({ '@context': require('../context') }, data)
 }
 
 function prefixLines(text, prefix) {

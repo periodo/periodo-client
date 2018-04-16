@@ -113,10 +113,11 @@ const individualAuthorityPage = (makeTitle, Component) => ({
     const route = authorityRoute(props)
 
     return [
-      h(DropdownMenuItem, { value: route('view') }, 'View authority'),
+      h(DropdownMenuItem, { value: route('view') }, 'Details'),
+      h(DropdownMenuItem, { value: route('export') }, 'Export'),
       h(DropdownMenuItem, { value: route('history') }, 'History'),
+      h(DropdownMenuItem, { value: route('edit') }, 'Edit'),
       h(DropdownMenuItem, { value: route('add-period') }, 'Add period'),
-      h(DropdownMenuItem, { value: route('edit') }, 'Edit authority'),
     ]
   },
   makeBreadcrumb: backendBreadcrumb(makeTitle),
@@ -134,12 +135,13 @@ const individualAuthorityPage = (makeTitle, Component) => ({
 })
 
 const individualPeriodPage = (makeTitle, Component) => ({
-  actionMenuTitle: 'Authority',
+  actionMenuTitle: 'Period',
   makeActionMenu(props) {
     const route = periodRoute(props)
 
     return [
-      h(DropdownMenuItem, { value: route('edit') }, 'Edit period'),
+      h(DropdownMenuItem, { value: route('edit') }, 'Edit'),
+      h(DropdownMenuItem, { value: route('export') }, 'Export'),
     ]
   },
   makeBreadcrumb: backendBreadcrumb(makeTitle),
@@ -262,6 +264,12 @@ module.exports = {
     require('./components/Authority')
   ),
 
+  'authority-export': individualAuthorityPage(
+    props => `Export authority (${utils.authority.displayTitle(props.authority)})`,
+    require('./components/Export')
+  ),
+
+
   'authority-history': individualAuthorityPage(
     props => `View authority (${props.authorityID})`,
     () => h('h1', 'History')
@@ -287,6 +295,11 @@ module.exports = {
   'period-edit': individualPeriodPage(
     props => `Edit period (${props.period.label})`,
     require('./components/PeriodAddOrEdit')
+  ),
+
+  'period-export': individualPeriodPage(
+    props => `Export period (${props.period.label})`,
+    require('./components/Export')
   ),
 
 }
