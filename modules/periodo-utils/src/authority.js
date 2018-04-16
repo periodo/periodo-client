@@ -13,12 +13,16 @@ function periodsWithAuthority(authority) {
   )
 }
 
+function displayTitle(authority) {
+  return source.displayTitle(authority.source)
+}
+
 function describe(authority) {
   const definitions = R.values(authority.definitions || {})
 
   return {
     id: authority.id,
-    source: source.displayTitle(authority.source),
+    source: displayTitle(authority),
     definitions: definitions.length,
     earliest: terminusList.minYear(R.map(R.path(['start']))(definitions)),
     latest: terminusList.maxYear(R.map(R.path(['stop']))(definitions)),
@@ -49,6 +53,7 @@ function asCSV(authority) {
 
 module.exports = {
   asCSV,
+  displayTitle,
   describe,
   periodsWithAuthority,
 }
