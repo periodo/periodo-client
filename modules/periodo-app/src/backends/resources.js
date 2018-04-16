@@ -14,9 +14,16 @@ const backendRoute = props => name =>
   })
 
 const authorityRoute = props => name =>
-  Route(`backend-authority-${name}`, {
+  Route(`authority-${name}`, {
     backendID: props.backend.asIdentifier(),
     authorityID: props.authority.id,
+  })
+
+const periodRoute = props => name =>
+  Route(`period-${name}`, {
+    backendID: props.backend.asIdentifier(),
+    authorityID: props.authority.id,
+    periodID: props.period.id,
   })
 
 
@@ -118,6 +125,13 @@ const individualAuthorityPage = (makeTitle, Component) => ({
 const individualPeriodPage = (makeTitle, Component) => ({
   makeTitle: props => `Backend: ${props.backend.metadata.label} | ${makeTitle(props)}`,
   actionMenuTitle: 'Authority',
+  makeActionMenu(props) {
+    const route = periodRoute(props)
+
+    return [
+      h(DropdownMenuItem, { value: route('edit') }, 'Edit period'),
+    ]
+  },
   makeBreadcrumb: backendBreadcrumb(true, makeTitle),
   onBeforeRoute: fetchIndividualBackend(true, true),
   Component,
@@ -233,31 +247,36 @@ module.exports = {
   }),
 
   /* Authority pages */
-  'backend-authority-view': individualAuthorityPage(
+  'authority-view': individualAuthorityPage(
     props => `View authority (${props.authorityID})`,
     require('./components/Authority')
   ),
 
-  'backend-authority-history': individualAuthorityPage(
+  'authority-history': individualAuthorityPage(
     props => `View authority (${props.authorityID})`,
     () => h('h1', 'History')
   ),
 
-  'backend-authority-add-period': individualAuthorityPage(
+  'authority-add-period': individualAuthorityPage(
     () => `Add period`,
     require('./components/AddPeriod')
   ),
 
-  'backend-authority-edit': individualAuthorityPage(
+  'authority-edit': individualAuthorityPage(
     props => `View authority (${props.authorityID})`,
     () => h('h1', 'Edit authority')
   ),
 
   /* Period pages */
 
-  'backend-period-view': individualPeriodPage(
+  'period-view': individualPeriodPage(
     props => `View period (${props.period.id})`,
     require('./components/PeriodView')
+  ),
+
+  'period-edit': individualPeriodPage(
+    props => `View period (${props.period.id})`,
+    require('./components/PeriodEdit')
   ),
 
 }

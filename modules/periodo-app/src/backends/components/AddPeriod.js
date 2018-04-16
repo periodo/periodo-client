@@ -42,7 +42,7 @@ module.exports = LocationStreamAware(class AddPeriod extends React.Component {
             ))
 
             locationStream.write({
-              route: Route('backend-authority-view', {
+              route: Route('authority-view', {
                 backendID: backend.asIdentifier(),
                 authorityID: authority.id,
               })

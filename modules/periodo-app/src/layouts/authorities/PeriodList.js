@@ -51,7 +51,7 @@ module.exports = blocks.List({
   description: 'Selectable list of periods.',
 
   makeItemRoute({ item, backend }) {
-    return Route('backend-period-view', {
+    return Route('period-view', {
       backendID: backend.asIdentifier(),
       authorityID: authorityOf(item).id,
       periodID: item.id,

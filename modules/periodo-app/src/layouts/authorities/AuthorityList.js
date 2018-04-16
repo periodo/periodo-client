@@ -52,7 +52,7 @@ module.exports = blocks.List({
   label: 'Authority List',
   description: 'Selectable list of period authorities.',
   makeItemRoute({ item, backend }) {
-    return Route('backend-authority-view', {
+    return Route('authority-view', {
       backendID: backend.asIdentifier(),
       authorityID: item.id,
     })
