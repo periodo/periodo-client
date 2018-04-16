@@ -45,6 +45,7 @@ const VALID_PERIOD_FIELDS = [
   'source',
   'label',
   'language',
+  'languageTag',
   'localizedLabels',
   'spatialCoverage',
   'spatialCoverageDescription',
@@ -101,11 +102,6 @@ function validatePeriod(period) {
     // Clean up parsed terminus labels
     delete cleanedPeriod.start._type;
     delete cleanedPeriod.stop._type;
-
-    cleanedPeriod.localizedLabels = label.groupByCode([].concat(
-      period.originalLabel,
-      (period.alternateLabels || []).filter(l => l.value),
-    ))
 
     return Result.Ok(cleanedPeriod);
 

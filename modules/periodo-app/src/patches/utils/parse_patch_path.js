@@ -1,5 +1,7 @@
 "use strict";
 
+const pointer = require('json-pointer')
+
 function fmt(collectionID=null, periodID=null, attribute=null) {
   return { collectionID, periodID, attribute }
 }
@@ -18,6 +20,8 @@ const periodAttributes = {
   url: false,
   sameAs: false,
   label: false,
+  language: false,
+  languageTag: false,
   note: false,
   editorialNote: false,
   spatialCoverageDescription: false,
@@ -55,8 +59,10 @@ function parse(label) {
 
   advance();
 
-  const collectionID = tok
+  let collectionID = tok
   if (!collectionID) nope();
+
+  collectionID = pointer.unescape(collectionID)
 
   advance();
 
@@ -69,8 +75,10 @@ function parse(label) {
 
   advance()
 
-  const periodID = tok
+  let periodID = tok
   if (!periodID) nope();
+
+  periodID = pointer.unescape(periodID)
 
   advance();
 
