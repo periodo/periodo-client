@@ -23,15 +23,15 @@ function listAvailableBackends() {
   return action.do(async (dispatch, getState, { db }) => {
     const backends = []
 
-    const addBackend = typeConstructor => item =>
+    const makeBackend = typeConstructor => item =>
       backends.push(Backend.BackendOf({
         storage: typeConstructor(item),
         metadata: BackendMetadata.BackendMetadataOf(item)
       }))
 
     await Promise.all([
-      db.localBackends.each(addBackend(BackendStorage.IndexedDBOf)),
-      db.remoteBackends.each(addBackend(BackendStorage.WebOf)),
+      db.localBackends.each(makeBackend(BackendStorage.IndexedDBOf)),
+      db.remoteBackends.each(makeBackend(BackendStorage.WebOf)),
     ])
 
     return { backends }
@@ -264,8 +264,21 @@ function addBackend(storage, label='', description='') {
 }
 
 
-async function updateBackend(storage, withObj) {
+function updateBackend(storage, withObj) {
   const action = BackendAction.UpdateBackend(storage, withObj)
+
+  const updated = {
+    modified: new Date()
+  }
+
+  // Only allow editing "label" and "description"
+  if (withObj.label) {
+    updated.label = withObj.label
+  }
+
+  if (withObj.description) {
+    updated.description = withObj.description
+  }
 
   return action.do(async (dispatch, getState, { db }) => {
     await storage.case({
@@ -273,20 +286,23 @@ async function updateBackend(storage, withObj) {
         return db.localBackends
           .where('id')
           .equals(id)
-          .modify(Object.assign({}, withObj, { modified: new Date() }))
+          .modify(updated)
       },
 
       Web: url => {
         return db.remoteBackends
           .where('url')
           .equals(url)
-          .modify(Object.assign({}, withObj, { modified: new Date() }))
+          .modify(updated)
       },
 
       _: () => null
     })
 
-    return dispatch(fetchBackend(storage))
+    const fetchAction = await dispatch(fetchBackend(storage, true))
+        , { backend } = getResponse(fetchAction)
+
+    return { backend }
   })
 }
 

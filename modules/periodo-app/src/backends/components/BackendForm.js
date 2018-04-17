@@ -2,16 +2,29 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
-    , { Box, Input, Label, Select, Textarea } = require('axs-ui')
-    , { Button$Primary } = require('periodo-ui')
+    , { Flex, Box, Input, Label, Select, Textarea } = require('axs-ui')
+    , { Button$Primary, Button$Danger } = require('periodo-ui')
 
 
 module.exports = class BackendForm extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
-    this.state = {
-      type: 'IndexedDB',
+    if (props.backend) {
+      this.editing = true;
+    }
+
+    if (this.editing) {
+      this.state = {
+        type: props.backend.storage._name,
+        label: props.backend.metadata.label,
+        description: props.backend.metadata.description,
+        url: props.backend.metadata.url,
+      }
+    } else {
+      this.state = {
+        type: 'IndexedDB',
+      }
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -39,7 +52,7 @@ module.exports = class BackendForm extends React.Component {
   }
 
   render() {
-    const { handleSave } = this.props
+    const { handleSave, handleDelete } = this.props
         , { label, description, url, type } = this.state
 
     return (
@@ -50,6 +63,7 @@ module.exports = class BackendForm extends React.Component {
           h(Select, {
             id: 'type',
             name: 'type',
+            disabled: !!this.editing,
             value: type,
             onChange: this.handleChange,
           }, [
@@ -91,13 +105,18 @@ module.exports = class BackendForm extends React.Component {
 
         ]),
 
-        h('div', [
+        h(Flex, {
+          mt: 2,
+          justifyContent: 'space-between',
+        }, [
           h(Button$Primary, {
-            mt: 1,
-            px: 2,
-            onClick: () => handleSave(this.state),
+            onClick: this.isValidState() ? (() => handleSave(this.state)) : () => null,
             disabled: !this.isValidState()
-          }, 'Add')
+          }, this.editing ? 'Update' : 'Add'),
+
+          this.editing && h(Button$Danger, {
+            onClick: () => handleDelete(),
+          }, 'Delete')
         ])
       ])
     )

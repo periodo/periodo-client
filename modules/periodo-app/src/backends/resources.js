@@ -81,6 +81,9 @@ const backendRootActions = () =>
 const individualBackendPage = (makeTitle, Component) => ({
   actionMenuTitle: 'Backend',
   makeActionMenu(props) {
+    // FIXME: Hack :(. Needs to be this way for the time being to delete backends.
+    if (!props.backend) return []
+
     const route = backendRoute(props)
 
     return [

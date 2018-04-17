@@ -90,7 +90,7 @@ module.exports = function backends(state=initialState(), action) {
 
       DeleteBackend() {
         const { storage } = getActionType(action)
-            , removeBackend = R.omit([storage.identifier()])
+            , removeBackend = R.omit([storage.asIdentifier()])
 
         return R.pipe(
           R.over(R.lensProp('datasets'), removeBackend),

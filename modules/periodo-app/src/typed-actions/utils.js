@@ -70,6 +70,7 @@ module.exports = {
   isUnionTypeRecord,
   getModule,
   getReadyState,
+  getActionType,
   isInModule,
   readyStateCase,
   moduleActionCase,
