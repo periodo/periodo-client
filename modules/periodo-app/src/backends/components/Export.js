@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Type = require('union-type')
-    , { Flex, Text, Box, Heading } = require('axs-ui')
+    , { Flex, Span, Box, Heading } = require('axs-ui')
     , { asJSONLD, asTurtle } = require('../../linked-data/utils/data')
 
 const ReadyState = Type({
@@ -66,7 +66,7 @@ class ExportData extends React.Component {
         my: 2,
         alignItems: 'center',
       }, [
-        h(Text, {
+        h(Span, {
           key: 1,
           css: { fontWeight: 'bold' },
           mr: 2,
