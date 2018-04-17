@@ -108,15 +108,16 @@ module.exports = function makeORGShell({
     }
 
     componentDidMount() {
-      const loadCurrentWindowPath = () => {
+      const loadCurrentWindowPath = pushState => {
         locationStream.write({
           route: Route.fromPath(window.location.search),
+          pushState,
         })
       }
 
-      window.onpopstate = loadCurrentWindowPath;
+      window.onpopstate = loadCurrentWindowPath.bind(null, false);
 
-      loadCurrentWindowPath();
+      loadCurrentWindowPath(true);
     }
 
     async setApplicationRoute(route, pushState=true) {
