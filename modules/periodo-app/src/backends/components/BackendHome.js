@@ -22,8 +22,8 @@ type = text-search
 grid-column = 1/2
 grid-row = 1/2
 
-[PeriodList]
-type = period-list
+[AuthorityList]
+type = authority-list
 grid-column = 1/2
 grid-row = 2/3
 limit = 10
@@ -32,6 +32,12 @@ limit = 10
 type = timespan-visualization
 grid-column = 2/3
 grid-row = 2/3
+
+[PeriodList]
+type = period-list
+grid-column = 1/3
+grid-row = 3/4
+limit = 25
 `.trim()
 
 
