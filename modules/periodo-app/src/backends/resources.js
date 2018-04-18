@@ -53,13 +53,8 @@ const backendBreadcrumb = makeTitle => props => {
 
   const crumbs = [
     h(Link, { route: Route('open-backend'), }, 'Backends'),
+    h(Link, { route: backendRoute(props)('home') }, backend.metadata.label),
   ]
-
-  if (authority || period) {
-    crumbs.push(
-      h(Link, { route: backendRoute(props)('home') }, backend.metadata.label)
-    )
-  }
 
   if (period) {
     crumbs.push(
@@ -200,18 +195,18 @@ module.exports = {
 
   /* Backend pages */
   'backend-home': individualBackendPage(
-    props => `Home (${props.backend.metadata.label})`,
+    props => `Home`,
     require('./components/BackendHome')
   ),
 
   'backend-new-authority': individualBackendPage(
-    props => `Add authority (${props.backend.metadata.label})`,
+    props => `Add authority`,
     require('./components/AddAuthority')
   ),
 
   'backend-history': (() => {
     const opts = individualBackendPage(
-    props => `History (${props.backend.metadata.label})`,
+    props => `History`,
       require('./components/History')
     )
 
@@ -249,16 +244,20 @@ module.exports = {
       require('./components/SyncBackend')
     ), {
       onBeforeRoute: async (dispatch, params) => {
-        const resp = await fetchIndividualBackend(dispatch, params)
+        const resp = await fetchIndividualBackend()(dispatch, params)
 
         await dispatch(actions.listAvailableBackends())
 
         return resp
       },
-      Component: connect((state, props) => ({
-        backend: state.backends.available[props.backendID],
-        availableBackends: R.values(state.backends.available),
-      }))(require('./components/SyncBackend')),
+      mapStateToProps(state, props) {
+        return {
+          backend: state.backends.available[props.params.backendID],
+          dataset: state.backends.datasets[props.params.backendID],
+          availableBackends: R.values(state.backends.available),
+        }
+      },
+      Component: require('./components/SyncBackend'),
   }),
 
   /* Authority pages */
