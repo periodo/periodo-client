@@ -147,6 +147,7 @@ module.exports = function makeORGShell({
         } else {
           this.setState({
             activeResource: resource,
+            activeResourceName: resourceName,
             activeResourceOpts: JSON.parse(params.opts || '{}'),
           })
 
@@ -160,6 +161,7 @@ module.exports = function makeORGShell({
           }
 
           this.setState({
+            activeResourceName: resourceName,
             activeResource: {
               Component: () => h('div', null, [
                 h('h1', null, `Error while loading resource \`${resourceName}\``),
@@ -198,12 +200,13 @@ module.exports = function makeORGShell({
     }
 
     render() {
-      const { loadingNewResource, errors, activeResource, activeResourceOpts } = this.state
+      const { loadingNewResource, errors, activeResource, activeResourceName, activeResourceOpts } = this.state
 
       return (
         h(Provider, { store },
           h(Component, {
             loadingNewResource,
+            activeResourceName,
             errors,
           }, activeResource && h(activeResource.Component, {
               params: activeResource.params,
