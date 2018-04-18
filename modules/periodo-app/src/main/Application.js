@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { ORGShell } = require('org-shell')
-    , { Box } = require('axs-ui')
+    , { Box, Heading } = require('axs-ui')
     , createStore = require('../store')
     , { getApplicationResources } = require('../modules')
     , Footer = require('./components/Footer')
@@ -54,7 +54,7 @@ class PeriodoApplication extends React.Component {
           is: 'main',
         }, [
           h(Box, {
-            bg: 'white',
+            bg: this.state.error ? 'red' : 'white',
             p: 2,
             css: {
               minHeight: 'calc(100vh - 56px - 116px)',
@@ -66,7 +66,27 @@ class PeriodoApplication extends React.Component {
             }
           }, this.state.error
               ? h(Box, [
-                  'ERROR',
+                  h(Heading, {
+                    level: '2',
+                    color: 'red8',
+                    css: { 'letterSpacing': '4px' },
+                  }, 'OOPSIE!!!'),
+                  h(Heading, {
+                    level: '4',
+                    mt: 2,
+                  }, 'Error stack'),
+                  h(Box, {
+                    is: 'pre',
+                    css: { whiteSpace: 'pre-line' },
+                  }, this.state.error.err.stack),
+                  h(Heading, {
+                    level: '4',
+                    mt: 2,
+                  }, 'Component stack'),
+                  h(Box, {
+                    is: 'pre',
+                    css: { whiteSpace: 'pre-line' },
+                  }, this.state.error.info.componentStack.trim())
                 ])
               : this.props.children)
         ]),
