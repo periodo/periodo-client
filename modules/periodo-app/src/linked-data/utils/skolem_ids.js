@@ -1,5 +1,7 @@
 "use strict";
 
+const R = require('ramda')
+
 function isSkolemID(id) {
   return (
     typeof id === 'string' &&
@@ -7,33 +9,19 @@ function isSkolemID(id) {
   )
 }
 
-// For Immutable iterable `data`, replace all keys in `map` with their
+// For object or array `data`, replace all keys/vals in `map` with their
 // corresponding values.
 function replaceIDs(data, map) {
-  function mapper(key, val) {
-    let newKey
-      , newVal
+  const mapper = ([key, val]) => [
+    map[key] || key,
+    typeof val === 'string'
+      ? map[val] || val
+      : replaceIDs(val, map)
+  ]
 
-    if (map.has(val)) {
-      newVal = map.get(val);
-    } else if (val instanceof Immutable.Iterable) {
-      newVal = replaceIDs(val, map);
-    } else {
-      newVal = val;
-    }
-
-    if (map.has(key)) {
-      newKey = map.get(key);
-    } else {
-      newKey = key;
-    }
-
-    return [newKey, newVal]
-  }
-
-  return Immutable.Iterable.isKeyed(data)
-    ? data.mapEntries(([key, val]) => mapper(key, val))
-    : data.map(val => mapper(null, val)[1])
+  return Array.isArray(data)
+    ? data.map(val => mapper([null, val])[1])
+    : R.fromPairs(R.map(mapper, Object.entries(data)))
 }
 
 module.exports = { isSkolemID, replaceIDs }

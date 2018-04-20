@@ -6,6 +6,21 @@ const { fetchBackend } = require('../backends/actions')
     , { filterByHash } = require('./utils/patch_collection')
     , { PatchDirection, PatchAction } = require('./types')
 
+function prefixMatch(a, b) {
+  var prefix = ''
+
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) {
+      prefix += a[i];
+    } else {
+      break;
+    }
+  }
+
+  return prefix;
+}
+
+
 
 // push means going from a->b; pull from b->a
 function generateDatasetPatch(

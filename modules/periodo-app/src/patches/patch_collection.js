@@ -3,37 +3,37 @@
 /* eslint camelcase:0 */
 
 const R = require('ramda')
-    , pointer = require('json-pointer')
-    , { describePatch, hashPatch } = require('../utils/patch')
-    , { replaceIDs } = require('../../linked-data/utils/skolem_ids')
-
-
-// Return a tuple representing the type of change, which will be in the form:
-// [type, operation, ...identifiers]. If this patch does not effect any periods
-// or period collections, return null.
-function getChangeType(patch) {
-  const { type, collectionID, periodID, attribute } = describePatch(patch)
-
-  return [type._name].concat(
-    periodID
-      ? attribute ? [collectionID, periodID] : [collectionID]
-      : attribute ? [collectionID] : []
-  ).map(pointer.unescape)
-}
-
+    , { PatchType } = require('./types')
+    , { hashPatch } = require('./patch')
+    , { replaceIDs } = require('../linked-data/utils/skolem_ids')
 
 function groupByChangeType(patches) {
-  return patches.reduce((acc, patch) => {
-    const changePath = getChangeType(patch);
+  let ret = {}
 
-    return !changePath ? acc : R.over(
-      R.lensPath(changePath),
-      ps => (ps || []).concat(patch),
-      acc
+  patches.forEach(patch => {
+    const type = PatchType.fromPatch(patch)
+
+    const authorityID = a => [type._name, a]
+        , periodID = (a, b) => [type._name, a, b]
+        , topLevel = () => [type._name]
+
+    const path = type.case({
+      AddPeriod: authorityID,
+      RemovePeriod: authorityID,
+      ChangePeriod: periodID,
+      ChangeAuthority: authorityID,
+      _: topLevel
+    })
+
+    ret = R.over(
+      R.lensPath(path),
+      (arr=[]) => [...arr, patch],
+      ret
     )
-  }, {});
-}
+  })
 
+  return ret
+}
 
 // FIXME: this doesn't work!
 function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
@@ -56,7 +56,7 @@ async function filterByHash(patches, keepMatched, hashMatchFn) {
       , patchesByHash = new Map()
 
   patches.forEach(patch => {
-    const parsed = describePatch(patch)
+    const parsed = PatchType.fromPatch(patch)
 
     const affectsWholeEntity = (
       (parsed.collectionID || parsed.periodID) &&

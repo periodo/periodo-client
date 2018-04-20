@@ -5,7 +5,7 @@ const test = require('blue-tape')
     , { PatchType } = require('../types')
 
 test('Formatting and hashing patches', async t => {
-  const { formatPatch } = require('../utils/patch');
+  const { formatPatch } = require('../patch');
 
   const initialData = R.clone(require('./fixtures/period-collection.json'));
 
@@ -46,8 +46,9 @@ test('Formatting and hashing patches', async t => {
     'Changed editorialNote of period p03377fkhrv in collection p03377f.');
 })
 
+
 test('Patch utils', async t => {
-  const { makePatch } = require('../utils/patch')
+  const { makePatch } = require('../patch')
       , data = R.clone(require('./fixtures/period-collection.json'))
 
   const samplePatches = {
@@ -71,7 +72,7 @@ test('Patch utils', async t => {
     'should not detect any changes between two identical datasets'
   );
 
-  const { groupByChangeType } = require('../utils/patch_collection')
+  const { groupByChangeType } = require('../patch_collection')
       , patches = R.values(samplePatches)
 
   t.deepEqual(groupByChangeType(patches), {
@@ -128,46 +129,32 @@ test('Patch utils', async t => {
     }
   ], 'should use "add" operation for complex values instead of "replace"');
 
+  const samples = [
+    samplePatches.addPeriod,
+    samplePatches.removePeriod,
+    samplePatches.changePeriod,
+  ]
 
-  const { describePatch, parsePatchPath } = require('../utils/patch')
+  t.deepEquals(samples.map(PatchType.fromPatch), [
+    PatchType.AddPeriod('a', 'b'),
+    PatchType.RemovePeriod('a', 'b'),
+    PatchType.ChangePeriod('a', 'b', 'note'),
+  ])
 
-  t.deepEqual([
-    describePatch(samplePatches.addPeriod),
-    describePatch(samplePatches.removePeriod),
-    describePatch(samplePatches.changePeriod),
-  ], [
-    {
-      type: PatchType.AddPeriod('a', 'b'),
-      label: 'Added period b in collection a.',
-      collectionID: 'a',
-      periodID: 'b',
-      attribute: null,
-    },
-    {
-      type: PatchType.RemovePeriod('a', 'b'),
-      label: 'Removed period b in collection a.',
-      collectionID: 'a',
-      periodID: 'b',
-      attribute: null,
-    },
-    {
-      type: PatchType.ChangePeriod('a', 'b', 'note'),
-      label: 'Changed note of period b in collection a.',
-      collectionID: 'a',
-      periodID: 'b',
-      attribute: 'note',
-    },
-  ], 'should describe patches in a semantically useful way');
+  t.deepEquals(samples.map(PatchType.fromPatch).map(t => t.getLabel()), [
+    'Added period b in collection a.',
+    'Removed period b in collection a.',
+    'Changed note of period b in collection a.',
+  ], 'should describe patches in English')
 
 
-  t.throws(
-    () => parsePatchPath({
+  t.deepEquals(
+    PatchType.fromPatch({ 
       op: 'add',
-      path: '/periodCollections/a/definitions/b/madeUpField'
+      path: '/nonsense',
     }),
-    new Error('Invalid field for a period: madeUpField'),
-    'Should throw when attempting to parse invalid patch path.'
-  );
+    PatchType.Unknown
+  )
 });
 
 // TODO: Move this to linked-data module
@@ -195,7 +182,7 @@ test('Skolem ID utils', t => {
     'http://example.com/.well-known/genid/ghi789': 'id4'
   }
 
-  t.deepEqual(replaceIDs(oldRecord, skolemMap).toJS(), {
+  t.deepEqual(replaceIDs(oldRecord, skolemMap), {
     a: 'id1',
     b: [
       'c', 'id2'
@@ -210,7 +197,7 @@ test('Skolem ID utils', t => {
 });
 
 test('Patch collection hash filtering', async t => {
-  const { filterByHash } = require('../utils/patch_collection');
+  const { filterByHash } = require('../patch_collection');
 
   const patches = [
     { op: 'add', path: '/periodCollections/a/definitions/aa/note' },

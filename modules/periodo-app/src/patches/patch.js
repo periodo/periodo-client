@@ -4,8 +4,7 @@ const jsonpatch = require('fast-json-patch')
     , pointer = require('json-pointer')
     , md5 = require('spark-md5')
     , stringify = require('json-stable-stringify')
-    , parse = require('./parse_patch_path')
-    , { PatchType } = require('../types')
+    , { PatchType } = require('./types')
 
 
 /* Generate a JSON Patch to transform
@@ -20,12 +19,12 @@ function makePatch(before, after) {
   return jsonpatch.compare(before, after)
     .reduce(({ patches=[], replaced=[] }, patch) => {
       const { path, op } = patch
-          , { collectionID, periodID, attribute } = describePatch(patch)
+          , { collectionID, periodID, attribute } = PatchType.fromPatch(patch)
 
       const isSimpleAttributeChange = (
         (op === 'add' || op === 'remove') &&
-        path.split('/').slice(-1)[0] === attribute
-      );
+        path.endsWith(`/${attribute}`)
+      )
 
       if (!attribute || isSimpleAttributeChange) {
         return { patches: patches.concat(patch), replaced }
@@ -37,7 +36,7 @@ function makePatch(before, after) {
           : ['periodCollections', collectionID, attribute]
       )
 
-      return replaced.indexOf(attributePointer) !== -1
+      return replaced.includes(attributePointer)
         ? { patches, replaced }
         : {
           patches: patches.concat({
@@ -51,31 +50,9 @@ function makePatch(before, after) {
     .patches
 }
 
-function titleCase(word) {
-  return word[0].toUpperCase() + word.slice(1)
-}
-
-
-function describePatch({ path, op }) {
-  // FIXME Ignore if top-level change
-
-  const parsed = parse(path);
-
-  const { collectionID, periodID, attribute } = parsed
-      , opLabel = titleCase(!attribute ? op : 'Change')
-      , target = periodID ? 'Period' : 'PeriodCollection'
-      , type = PatchType[`${opLabel}${target}Of`](parsed)
-
-  // TODO Move this stuff to general i18n
-  const label = type.getLabel();
-
-  return { type, label, collectionID, periodID, attribute }
-}
-
-
 function getAffected(patches) {
   return [].concat(patches).reduce(({ periods, collections }, patch) => {
-    const { collectionID, periodID } = describePatch(patch)
+    const { collectionID, periodID } = PatchType.fromPatch(patch)
 
     return {
       periods: periods.concat(periodID || []),
@@ -94,7 +71,7 @@ function formatPatch(oldData, newData, message) {
     , affected = getAffected(forward)
 
   const description = forward
-    .map(patch => describePatch(patch).label)
+    .map(patch => PatchType.fromPatch(patch).getLabel())
     .join('\n');
 
   message = message
@@ -117,6 +94,5 @@ module.exports = {
   makePatch,
   formatPatch,
   hashPatch,
-  describePatch,
   getAffected,
 }

@@ -1,8 +1,12 @@
 "use strict";
 
-const Type = require('union-type')
+const R = require('ramda')
+    , Type = require('union-type')
+    , pointer = require('json-pointer')
     , makeActionType = require('../typed-actions/make_type')
     , { BackendStorage } = require('../backends/types')
+
+const $$type = Symbol('patch-type')
 
 const PatchDirection = Type({
   Push: {},
@@ -10,18 +14,19 @@ const PatchDirection = Type({
 })
 
 const PatchType = Type({
-  Sync: {},
-  Multiple: {},
+  Unknown: {},
 
-  AddPeriodCollection: {
+  ChangeContext: {},
+
+  AddAuthority: {
     collectionID: String
   },
-  RemovePeriodCollection: {
+  RemoveAuthority: {
     collectionID: String
   },
-  ChangePeriodCollection: {
+  ChangeAuthority: {
+    collectionID: String,
     attribute: String,
-    collectionID: String
   },
 
   AddPeriod: {
@@ -37,7 +42,67 @@ const PatchType = Type({
     periodID: String,
     attribute: String,
   },
+
 })
+
+PatchType.fromPatch = function fromPath(patch) {
+  if (patch[$$type]) return patch[$$type]
+  
+  const { path, op } = patch
+
+  let tok
+
+  const pathElements = path.split('/').slice(1)
+      , advance = () => (tok = pathElements.shift())
+
+  if (!advance()) {
+    return patch[$$type] = PatchType.Unknown
+  }
+
+  if (tok === '@context') {
+    return patch[$$type] = PatchType.ChangeContext
+  }
+
+  if (tok !== 'periodCollections') {
+    return patch[$$type] = PatchType.Unknown
+  }
+
+  // Move on from periodCollections
+  if (!advance()) {
+    return patch[$$type] = PatchType.Unknown
+  }
+
+  const authorityID = pointer.unescape(tok)
+
+  if (!advance()) {
+    return patch[$$type] = R.cond([
+      [R.equals('add'), () => PatchType.AddAuthority(authorityID)],
+      [R.equals('remove'), () => PatchType.RemoveAuthority(authorityID)],
+      [R.T, () => PatchType.Unknown]
+    ])(op)
+  }
+
+  if (tok !== 'definitions') {
+    return patch[$$type] = PatchType.ChangeAuthority(authorityID, tok)
+  }
+
+  // Move on to period definition
+  if (!advance()) {
+    return patch[$$type] = PatchType.Unknown
+  }
+
+  const periodID = pointer.unescape(tok)
+
+  if (!advance()) {
+    return patch[$$type] = R.cond([
+      [R.equals('add'), () => PatchType.AddPeriod(authorityID, periodID)],
+      [R.equals('remove'), () => PatchType.RemovePeriod(authorityID, periodID)],
+      [R.T, () => PatchType.Unknown]
+    ])(op)
+  }
+
+  return patch[$$type] = PatchType.ChangePeriod(authorityID, periodID, tok)
+}
 
 function fmt(type) {
   let [verb] = type._name.match(/([A-Z][a-z]+)/)
@@ -68,6 +133,7 @@ PatchType.prototype.getLabel = function () {
   return this.case({
     Sync: 'Synchronization',
     Multiple: 'Multiple changes',
+    Unknown: 'Unknown change',
     _: () => fmt(this)
   })
 }
