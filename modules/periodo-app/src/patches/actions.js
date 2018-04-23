@@ -7,9 +7,9 @@ const { fetchBackend } = require('../backends/actions')
     , { PatchDirection, PatchAction } = require('./types')
 
 function prefixMatch(a, b) {
-  var prefix = ''
+  let prefix = ''
 
-  for (var i = 0; i < a.length; i++) {
+  for (let i = 0; i < a.length; i++) {
     if (a[i] === b[i]) {
       prefix += a[i];
     } else {
