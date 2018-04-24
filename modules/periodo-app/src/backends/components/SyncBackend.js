@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Flex, Box, Heading } = require('axs-ui')
-    , { Button$Primary, InputBlock, Patch, Authority } = require('periodo-ui')
+    , { Button$Primary, InputBlock, Patch, Authority, Period } = require('periodo-ui')
     , { period, authority, dataset } = require('periodo-utils')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('../../typed-actions/utils')
@@ -71,69 +71,79 @@ function PeriodCell(props) {
       , checked = !!(selectAll || explicitlySelected)
 
   return (
-    h(Flex, { alignItems: 'center' }, [
-
-      h(Box, {
-        is: 'input',
-        mx: 1,
-        type: 'checkbox',
-        checked,
-        onChange: () => setState(prev => {
-          if (explicitlySelected) {
-            return {
-              selectedPeriods: R.dissocPath([patchID, period.id], prev.selectedPeriods)
+    h(Box, [
+      h(Flex, { alignItems: 'center' }, [
+        h(Box, {
+          is: 'input',
+          mx: 1,
+          type: 'checkbox',
+          checked,
+          onChange: () => setState(prev => {
+            if (explicitlySelected) {
+              return {
+                selectedPeriods: R.dissocPath([patchID, period.id], prev.selectedPeriods)
+              }
             }
-          }
 
-          // Deselect *only* this period, keep all others selected
-          if (selectAll) {
-            return {
-              selectedPeriods: R.assoc(patchID, R.pipe(
-                R.prop('definitions'),
-                R.dissoc(period.id),
-                R.map(R.T)
-              )(authority))(prev.selectedPeriods)
+            // Deselect *only* this period, keep all others selected
+            if (selectAll) {
+              return {
+                selectedPeriods: R.assoc(patchID, R.pipe(
+                  R.prop('definitions'),
+                  R.dissoc(period.id),
+                  R.map(R.T)
+                )(authority))(prev.selectedPeriods)
+              }
             }
-          }
 
-          // Select this period, *along with* the authority
-          if (deferToAuthority) {
+            // Select this period, *along with* the authority
+            if (deferToAuthority) {
+              return {
+                selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
+                selectedAuthorities: R.assoc(patchID, true, prev.selectedAuthorities)
+              }
+            }
+
+            // Else, just add the damned period
             return {
               selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
-              selectedAuthorities: R.assoc(patchID, true, prev.selectedAuthorities)
+            }
+          })
+        }),
+
+
+        h(Indicator, {
+          label: type.case({
+            AddAuthority: () => 'New',
+            RemoveAuthority: () => 'Removed',
+            AddPeriod: () => 'New',
+            ChangePeriod: () => 'Changed',
+            RemovePeriod: () => 'Removed',
+            _: () => null,
+          })
+        }),
+        h(Box, {
+          onClick: () => setState({
+            expandedPeriods: addOrRemove(expandedPeriods, period.id)
+          }),
+          p: '4px',
+          css: {
+            width: '100%',
+            cursor: 'pointer',
+            ':hover': {
+              backgroundColor: '#eee',
             }
           }
+        }, period.label)
+      ]),
 
-          // Else, just add the damned period
-          return {
-            selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
-          }
-        })
+      expandedPeriods.has(period.id) && type.case({
+        AddAuthority: () => h(Period, { bg: 'green0', value: period }),
+        AddPeriod: () => h(Period, { bg: 'green0', value: period }),
+        RemoveAuthority: () => h(Period, { bg: 'red0', value: period }),
+        RemovePeriod: () => h(Period, { bg: 'red0', value: period }),
+        _: () => null,
       }),
-
-
-      h(Indicator, {
-        label: type.case({
-          AddAuthority: () => 'New',
-          RemoveAuthority: () => 'Removed',
-          AddPeriod: () => 'New',
-          ChangePeriod: () => 'Changed',
-          RemovePeriod: () => 'Removed',
-        })
-      }),
-      h(Box, {
-        onClick: () => setState({
-          expandedPeriods: addOrRemove(expandedPeriods, period.id)
-        }),
-        p: '4px',
-        css: {
-          width: '100%',
-          cursor: 'pointer',
-          ':hover': {
-            backgroundColor: '#eee',
-          }
-        }
-      }, period.label)
     ])
   )
 }
