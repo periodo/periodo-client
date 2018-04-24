@@ -52,7 +52,8 @@ function AuthorityRow(props) {
     id,
     type,
     patch,
-    selected,
+    selectedPeriods,
+    selectedAuthorities,
     viewedAllPeriods,
     expandedAuthorities,
     expandedPeriods,
@@ -60,6 +61,8 @@ function AuthorityRow(props) {
     localDataset,
     remoteDataset,
   } = props
+
+  const patchID = id
 
   const periodList = [].concat(type.case({
     AddAuthority: R.pipe(
@@ -97,9 +100,11 @@ function AuthorityRow(props) {
             is: 'input',
             mx: 1,
             type: 'checkbox',
-            checked: selected.has(id),
+            checked: patchID in selectedAuthorities,
             onChange: () => setState({
-              selected: addOrRemove(selected, id)
+              selectedAuthorities: (patchID in selectedAuthorities)
+                ? R.omit([patchID], selectedAuthorities)
+                : Object.assign({ [patchID]: true }, selectedAuthorities)
             })
           }),
 
@@ -112,7 +117,7 @@ function AuthorityRow(props) {
 
           h(Box, {
             onClick: () => setState({
-              expandedAuthorities: addOrRemove(expandedAuthorities, id)
+              expandedAuthorities: addOrRemove(expandedAuthorities, patchID)
             }),
             p: '8px 4px',
             css: {
@@ -132,7 +137,7 @@ function AuthorityRow(props) {
             _: () => "this shouldn't happen",
           })),
         ]),
-        expandedAuthorities.has(id) && NewAuthority({ patch }),
+        expandedAuthorities.has(patchID) && NewAuthority({ patch }),
       ]),
 
       h(Box, {
@@ -144,15 +149,20 @@ function AuthorityRow(props) {
         }
       }, R.pipe(
         R.map(period => (
-          h(Flex, { alignItems: 'center' }, [
+          h(Flex, { key: period.id, alignItems: 'center' }, [
 
           h(Box, {
             is: 'input',
             mx: 1,
             type: 'checkbox',
-            checked: selected.has(null),
+            checked: (
+              R.path([patchID, period.id], selectedPeriods) ||
+              (!R.path([patchID], selectedPeriods) && patchID in selectedAuthorities)
+            ),
             onChange: () => setState({
-              selected: addOrRemove(selected, null)
+              selectedPeriods: (period.id in selectedPeriods)
+                ? R.omit([period.id], selectedPeriods)
+                : Object.assign({ [period.id]: true }, selectedPeriods)
             })
           }),
 
@@ -167,7 +177,6 @@ function AuthorityRow(props) {
               })
             }),
             h(Box, {
-              key: period.id,
               onClick: () => setState({
                 expandedPeriods: addOrRemove(expandedPeriods, id)
               }),
@@ -240,7 +249,7 @@ class Compare extends React.Component {
     const allPatches = makePatch(sourceDataset, Object.assign({}, sourceDataset, {
       periodCollections: remoteDataset.periodCollections
     })).map((p, i) => ({
-      id: i,
+      id: `patch-${i}`,
       patch: p,
       type: PatchType.fromPatch(p),
     }))
@@ -250,7 +259,8 @@ class Compare extends React.Component {
       remoteDataset,
       allPatches,
       expandedAuthorities: new Set(),
-      selected: new Set(),
+      selectedPeriods: {},
+      selectedAuthorities: {}
     }
   }
 
@@ -287,10 +297,15 @@ class Compare extends React.Component {
     )(...arguments)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { onChange=R.T } = this.props
 
-    if (this.props.selected !== prevProps.selected) {
+    const updateSelection = (
+      this.state.selectedPeriods !== prevState.selectedPeriods ||
+      this.state.selectedAuthorities !== prevState.selectedAuthoritiest
+    )
+
+    if (updateSelection) {
       onChange(this.getPatchFromSelection())
     }
   }
