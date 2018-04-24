@@ -14,7 +14,7 @@ const h = require('react-hyperscript')
 
 function NewAuthority({ patch }) {
   return (
-    h(Authority, { px: 1, bg: 'green0', value: patch.value })
+    h(Authority, { p: 1, bg: 'green0', value: patch.value })
   )
 }
 
@@ -138,10 +138,10 @@ function PeriodCell(props) {
       ]),
 
       expandedPeriods.has(period.id) && type.case({
-        AddAuthority: () => h(Period, { bg: 'green0', value: period }),
-        AddPeriod: () => h(Period, { bg: 'green0', value: period }),
-        RemoveAuthority: () => h(Period, { bg: 'red0', value: period }),
-        RemovePeriod: () => h(Period, { bg: 'red0', value: period }),
+        AddAuthority: () => h(Period, { p: 1, bg: 'green0', value: period }),
+        AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
+        RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
+        RemovePeriod: () => h(Period, { p: 1, bg: 'red0', value: period }),
         _: () => null,
       }),
     ])
@@ -400,6 +400,7 @@ class Compare extends React.Component {
         h(Box, {
           is: 'table',
           css: {
+            width: '100%',
             borderCollapse: 'collapse',
           }
         }, [
