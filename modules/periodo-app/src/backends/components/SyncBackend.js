@@ -18,6 +18,23 @@ function NewAuthority({ patch }) {
   )
 }
 
+const colors = {
+  "New": "limegreen",
+  "Changed": "yellow",
+  "Removed": "red",
+}
+
+function Indicator({ label }) {
+  return h('span', {
+    style: {
+      fontWeight: 'bold',
+      color: colors[label] || 'black',
+      width: 108,
+      textAlign: 'center',
+    }
+  }, label)
+}
+
 function addOrRemove(items, key) {
   const set = new Set(items)
 
@@ -168,7 +185,7 @@ class Compare extends React.Component {
                 h(Flex, {
                   alignItems: 'center',
                 }, [
-                  h(Box, {
+                  type._name.endsWith('Authority') && h(Box, {
                     is: 'input',
                     mx: 1,
                     type: 'checkbox',
@@ -178,14 +195,12 @@ class Compare extends React.Component {
                     })
                   }),
 
-                  h('span', {
-                    style: {
-                      fontWeight: 'bold',
-                      color: 'limegreen',
-                      width: 108,
-                      textAlign: 'center',
-                    }
-                  }, 'New'),
+                  type.case({
+                    AddAuthority: () => h(Indicator, { label: 'New' }),
+                    ChangeAuthority: () => h(Indicator, { label: 'Changed' }),
+                    RemoveAuthority: () => h(Indicator, { label: 'Removed' }),
+                    _: () => null,
+                  }),
 
                   h(Box, {
                     onClick: () => this.setState({
