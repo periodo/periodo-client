@@ -47,6 +47,167 @@ function addOrRemove(items, key) {
   return set
 }
 
+function AuthorityRow(props) {
+  const {
+    id,
+    type,
+    patch,
+    selected,
+    viewedAllPeriods,
+    expandedAuthorities,
+    expandedPeriods,
+    setState,
+    localDataset,
+    remoteDataset,
+  } = props
+
+  const periodList = [].concat(type.case({
+    AddAuthority: R.pipe(
+      dataset.getAuthority(remoteDataset),
+      R.prop('definitions'),
+      R.values
+    ),
+    ChangeAuthority: R.always([]),
+    RemoveAuthority: R.pipe(
+      dataset.getAuthority(localDataset),
+      R.prop('definitions'),
+      R.values
+    ),
+    AddPeriod: dataset.getPeriod(remoteDataset),
+    ChangePeriod: dataset.getPeriod(localDataset),
+    RemovePeriod: dataset.getPeriod(localDataset),
+  }))
+
+  return (
+    h(Box, {
+      is: 'tr',
+      css: { verticalAlign: 'top' },
+    }, [
+      h(Box, {
+        is: 'td',
+        css: {
+          border: '1px solid #ccc',
+          borderRight: 'none',
+        }
+      }, [
+        h(Flex, {
+          alignItems: 'center',
+        }, [
+          type._name.endsWith('Authority') && h(Box, {
+            is: 'input',
+            mx: 1,
+            type: 'checkbox',
+            checked: selected.has(id),
+            onChange: () => setState({
+              selected: addOrRemove(selected, id)
+            })
+          }),
+
+          type.case({
+            AddAuthority: () => h(Indicator, { label: 'New' }),
+            ChangeAuthority: () => h(Indicator, { label: 'Changed' }),
+            RemoveAuthority: () => h(Indicator, { label: 'Removed' }),
+            _: () => null,
+          }),
+
+          h(Box, {
+            onClick: () => setState({
+              expandedAuthorities: addOrRemove(expandedAuthorities, id)
+            }),
+            p: '8px 4px',
+            css: {
+              width: '100%',
+              cursor: 'pointer',
+              ':hover': {
+                backgroundColor: '#eee',
+              }
+            }
+          }, type.case({
+            AddAuthority: props.getRemoteAuthorityLabel,
+            ChangeAuthority: props.getLocalAuthorityLabel,
+            RemoteAuthority: props.getLocalAuthorityLabel,
+            AddPeriod: props.getRemoteAuthorityLabel,
+            ChangePeriod: props.getLocalAuthorityLabel,
+            RemovePeriod: props.getLocalAuthorityLabel,
+            _: () => "this shouldn't happen",
+          })),
+        ]),
+        expandedAuthorities.has(id) && NewAuthority({ patch }),
+      ]),
+
+      h(Box, {
+        is: 'td',
+        css: {
+          padding: '4px 0',
+          border: '1px solid #ccc',
+          borderLeft: 'none',
+        }
+      }, R.pipe(
+        R.map(period => (
+          h(Flex, { alignItems: 'center' }, [
+
+          h(Box, {
+            is: 'input',
+            mx: 1,
+            type: 'checkbox',
+            checked: selected.has(null),
+            onChange: () => setState({
+              selected: addOrRemove(selected, null)
+            })
+          }),
+
+
+            h(Indicator, {
+              label: type.case({
+                AddAuthority: () => 'New',
+                RemoveAuthority: () => 'Removed',
+                AddPeriod: () => 'New',
+                ChangePeriod: () => 'Changed',
+                RemovePeriod: () => 'Removed',
+              })
+            }),
+            h(Box, {
+              key: period.id,
+              onClick: () => setState({
+                expandedPeriods: addOrRemove(expandedPeriods, id)
+              }),
+              p: '4px',
+              css: {
+                width: '100%',
+                cursor: 'pointer',
+                ':hover': {
+                  backgroundColor: '#eee',
+                }
+              }
+            }, period.label)
+          ])
+        )),
+        R.ifElse(
+          list => list.length > 5 && !viewedAllPeriods.has(id),
+          list => [
+            list.slice(0, 5),
+            h(Box, {
+              key: 'view-more',
+              is: 'a',
+              href: '',
+              mt: 1,
+              display: 'inline-block',
+              color: 'blue',
+              onClick: e => {
+                e.preventDefault();
+                setState({
+                  viewedAllPeriods: addOrRemove(viewedAllPeriods, id)
+                })
+              }
+            }, `View ${list.length - 5} more`)
+          ],
+          R.identity
+        )
+      )(periodList)),
+    ])
+  )
+}
+
 class Compare extends React.Component {
   constructor() {
     super();
@@ -79,7 +240,7 @@ class Compare extends React.Component {
     const allPatches = makePatch(sourceDataset, Object.assign({}, sourceDataset, {
       periodCollections: remoteDataset.periodCollections
     })).map((p, i) => ({
-      key: i,
+      id: i,
       patch: p,
       type: PatchType.fromPatch(p),
     }))
@@ -135,7 +296,7 @@ class Compare extends React.Component {
   }
 
   render() {
-    const { allPatches, filteredTypes, viewedAllPeriods, expandedAuthorities, selected } = this.state
+    const { allPatches, filteredTypes } = this.state
 
     const filteredPatches =
       filteredTypes.length
@@ -169,97 +330,19 @@ class Compare extends React.Component {
               h('th', 'Period'),
             ])
           ]),
-          h('tbody', filteredPatches.map(({ patch, type, key }) =>
-            h(Box, {
-              is: 'tr',
-              css: { verticalAlign: 'top' },
-              key,
-            }, [
-              h(Box, {
-                is: 'td',
-                css: {
-                  border: '1px solid #ccc',
-                  borderRight: 'none',
-                }
-              }, [
-                h(Flex, {
-                  alignItems: 'center',
-                }, [
-                  type._name.endsWith('Authority') && h(Box, {
-                    is: 'input',
-                    mx: 1,
-                    type: 'checkbox',
-                    checked: selected.has(key),
-                    onChange: () => this.setState({
-                      selected: addOrRemove(selected, key)
-                    })
-                  }),
-
-                  type.case({
-                    AddAuthority: () => h(Indicator, { label: 'New' }),
-                    ChangeAuthority: () => h(Indicator, { label: 'Changed' }),
-                    RemoveAuthority: () => h(Indicator, { label: 'Removed' }),
-                    _: () => null,
-                  }),
-
-                  h(Box, {
-                    onClick: () => this.setState({
-                      expandedAuthorities: addOrRemove(expandedAuthorities, key)
-                    }),
-                    p: '8px 4px',
-                    css: {
-                      width: '100%',
-                      cursor: 'pointer',
-                      ':hover': {
-                        backgroundColor: '#eee',
-                      }
-                    }
-                  }, type.case({
-                    AddAuthority: this.getRemoteAuthorityLabel,
-                    ChangeAuthority: this.getLocalAuthorityLabel,
-                    RemoteAuthority: this.getLocalAuthorityLabel,
-                    AddPeriod: this.getRemoteAuthorityLabel,
-                    ChangePeriod: this.getLocalAuthorityLabel,
-                    RemovePeriod: this.getLocalAuthorityLabel,
-                    _: () => "this shouldn't happen",
-                  })),
-                ]),
-                expandedAuthorities.has(key) && NewAuthority({ patch }),
-              ]),
-
-              h(Box, {
-                is: 'td',
-                css: {
-                  padding: '4px 0',
-                  border: '1px solid #ccc',
-                  borderLeft: 'none',
-                }
-              }, R.pipe(
-                R.path(['value', 'definitions']),
-                R.values,
-                R.map((period, i) => h(Box, { key: i, }, period.label)),
-                R.ifElse(
-                  list => list.length > 5 && !viewedAllPeriods.has(key),
-                  list => [
-                    list.slice(0, 5),
-                    h(Box, {
-                      is: 'a',
-                      href: '',
-                      mt: 1,
-                      display: 'inline-block',
-                      color: 'blue',
-                      onClick: e => {
-                        e.preventDefault();
-                        this.setState({
-                          viewedAllPeriods: addOrRemove(viewedAllPeriods, key)
-                        })
-                      }
-                    }, `View ${list.length - 5} more`)
-                  ],
-                  R.identity
-                )
-              )(patch)),
-            ])
+          h('tbody', filteredPatches.map(patch =>
+            h(AuthorityRow, Object.assign(
+              {
+                key: patch.id,
+                setState: this.setState.bind(this),
+                getLocalAuthorityLabel: this.getLocalAuthorityLabel,
+                getLocalPeriodLabel: this.getLocalPeriodLabel,
+                getRemoteAuthorityLabel: this.getRemoteAuthorityLabel,
+                getRemotePeriodLabel: this.getRemotePeriodLabel,
+              },
+              this.state,
+              patch,
+            ))
           ))
         ])
 
