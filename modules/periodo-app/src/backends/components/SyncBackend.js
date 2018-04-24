@@ -47,6 +47,97 @@ function addOrRemove(items, key) {
   return set
 }
 
+function PeriodCell(props) {
+  const {
+    patchID,
+    setState,
+    type,
+    period,
+    authority,
+    expandedPeriods,
+    selectedPeriods,
+    selectedAuthorities,
+  } = props
+
+  const deferToAuthority = type._name === 'AddAuthority'
+
+  const selectAll = (
+    deferToAuthority &&
+    patchID in selectedAuthorities &&
+    !R.has(patchID, selectedPeriods)
+  )
+
+  const explicitlySelected = R.path([patchID, period.id], selectedPeriods)
+      , checked = !!(selectAll || explicitlySelected)
+
+  return (
+    h(Flex, { alignItems: 'center' }, [
+
+      h(Box, {
+        is: 'input',
+        mx: 1,
+        type: 'checkbox',
+        checked,
+        onChange: () => setState(prev => {
+          if (explicitlySelected) {
+            return {
+              selectedPeriods: R.dissocPath([patchID, period.id], prev.selectedPeriods)
+            }
+          }
+
+          // Deselect *only* this period, keep all others selected
+          if (selectAll) {
+            return {
+              selectedPeriods: R.assoc(patchID, R.pipe(
+                R.prop('definitions'),
+                R.dissoc(period.id),
+                R.map(R.T)
+              )(authority))(prev.selectedPeriods)
+            }
+          }
+
+          // Select this period, *along with* the authority
+          if (deferToAuthority) {
+            return {
+              selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
+              selectedAuthorities: R.assoc(patchID, true, prev.selectedAuthorities)
+            }
+          }
+
+          // Else, just add the damned period
+          return {
+            selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
+          }
+        })
+      }),
+
+
+      h(Indicator, {
+        label: type.case({
+          AddAuthority: () => 'New',
+          RemoveAuthority: () => 'Removed',
+          AddPeriod: () => 'New',
+          ChangePeriod: () => 'Changed',
+          RemovePeriod: () => 'Removed',
+        })
+      }),
+      h(Box, {
+        onClick: () => setState({
+          expandedPeriods: addOrRemove(expandedPeriods, period.id)
+        }),
+        p: '4px',
+        css: {
+          width: '100%',
+          cursor: 'pointer',
+          ':hover': {
+            backgroundColor: '#eee',
+          }
+        }
+      }, period.label)
+    ])
+  )
+}
+
 function AuthorityRow(props) {
   const {
     id,
@@ -56,7 +147,6 @@ function AuthorityRow(props) {
     selectedAuthorities,
     viewedAllPeriods,
     expandedAuthorities,
-    expandedPeriods,
     setState,
     localDataset,
     remoteDataset,
@@ -64,22 +154,24 @@ function AuthorityRow(props) {
 
   const patchID = id
 
+  const authority = type.case({
+    AddAuthority: dataset.getAuthority(remoteDataset),
+    ChangeAuthority: dataset.getAuthority(localDataset),
+    RemoveAuthority: dataset.getAuthority(localDataset),
+    AddPeriod: dataset.getAuthority(remoteDataset),
+    ChangePeriod: dataset.getAuthority(localDataset),
+    RemovePeriod: dataset.getAuthority(localDataset),
+    _: R.always(null),
+  })
+
   const periodList = [].concat(type.case({
-    AddAuthority: R.pipe(
-      dataset.getAuthority(remoteDataset),
-      R.prop('definitions'),
-      R.values
-    ),
-    ChangeAuthority: R.always([]),
-    RemoveAuthority: R.pipe(
-      dataset.getAuthority(localDataset),
-      R.prop('definitions'),
-      R.values
-    ),
-    AddPeriod: dataset.getPeriod(remoteDataset),
-    ChangePeriod: dataset.getPeriod(localDataset),
-    RemovePeriod: dataset.getPeriod(localDataset),
-  }))
+    AddAuthority: () => R.pipe(R.prop('definitions'), R.values),
+    ChangeAuthority: () => R.always([]),
+    RemoveAuthority: () => R.pipe(R.prop('definitions'), R.values),
+    AddPeriod: (_, id) => R.path(['definitions', id]),
+    ChangePeriod: (_, id) => R.path(['definitions', id]),
+    RemovePeriod: (_, id) => R.path(['definitions', id]),
+  })(authority))
 
   return (
     h(Box, {
@@ -103,8 +195,11 @@ function AuthorityRow(props) {
             checked: patchID in selectedAuthorities,
             onChange: () => setState({
               selectedAuthorities: (patchID in selectedAuthorities)
-                ? R.omit([patchID], selectedAuthorities)
-                : Object.assign({ [patchID]: true }, selectedAuthorities)
+                ? R.dissoc(patchID, selectedAuthorities)
+                : Object.assign({ [patchID]: true }, selectedAuthorities),
+              selectedPeriods: (patchID in selectedPeriods)
+                ? R.dissoc(patchID, selectedPeriods)
+                : selectedPeriods
             })
           }),
 
@@ -148,49 +243,12 @@ function AuthorityRow(props) {
           borderLeft: 'none',
         }
       }, R.pipe(
-        R.map(period => (
-          h(Flex, { key: period.id, alignItems: 'center' }, [
-
-          h(Box, {
-            is: 'input',
-            mx: 1,
-            type: 'checkbox',
-            checked: (
-              R.path([patchID, period.id], selectedPeriods) ||
-              (!R.path([patchID], selectedPeriods) && patchID in selectedAuthorities)
-            ),
-            onChange: () => setState({
-              selectedPeriods: (period.id in selectedPeriods)
-                ? R.omit([period.id], selectedPeriods)
-                : Object.assign({ [period.id]: true }, selectedPeriods)
-            })
-          }),
-
-
-            h(Indicator, {
-              label: type.case({
-                AddAuthority: () => 'New',
-                RemoveAuthority: () => 'Removed',
-                AddPeriod: () => 'New',
-                ChangePeriod: () => 'Changed',
-                RemovePeriod: () => 'Removed',
-              })
-            }),
-            h(Box, {
-              onClick: () => setState({
-                expandedPeriods: addOrRemove(expandedPeriods, id)
-              }),
-              p: '4px',
-              css: {
-                width: '100%',
-                cursor: 'pointer',
-                ':hover': {
-                  backgroundColor: '#eee',
-                }
-              }
-            }, period.label)
-          ])
-        )),
+        R.map(period => h(PeriodCell, Object.assign({
+          key: period.id,
+          authority,
+          period,
+          patchID,
+        }, props))),
         R.ifElse(
           list => list.length > 5 && !viewedAllPeriods.has(id),
           list => [
