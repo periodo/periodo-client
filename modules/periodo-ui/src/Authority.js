@@ -37,6 +37,10 @@ const AUTHORITY_FIELDS = [
     values: extract('sameAs'),
     component: LinkValue,
   },
+]
+
+const AUTHORITY_WITH_PERIODS_FIELDS = [
+  ...AUTHORITY_FIELDS,
   { label: 'Period definitions',
     values: extractIndexedValues('definitions'),
     component: props => h(
@@ -50,3 +54,4 @@ const AUTHORITY_FIELDS = [
 ]
 
 exports.Authority = FieldList(AUTHORITY_FIELDS)
+exports.AuthorityWithPeriods = FieldList(AUTHORITY_WITH_PERIODS_FIELDS)

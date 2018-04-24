@@ -5,6 +5,7 @@ module.exports = {
   authorityList: require('./authority_list'),
   contributor: require('./contributor'),
   contributorList: require('./contributor_list'),
+  dataset: require('./dataset'),
   hoc: require('./hoc'),
   label: require('./label'),
   misc: require('./misc'),

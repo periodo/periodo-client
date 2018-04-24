@@ -98,11 +98,15 @@ function EntityValue(props) {
 
 function IntervalValue(props) {
   const { value } = props
+
   return h(
     Annotated,
     R.merge(
       R.omit([ 'value' ], props),
-      { value: value.label, annotations: [ asYearOrRange(value.in) ]}
+      {
+        value: value.label,
+        annotations: value.in ? [ asYearOrRange(value.in) ] : [ 'MISSING INTEGER VALUE' ]
+      }
     )
   )
 }

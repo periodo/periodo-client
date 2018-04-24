@@ -123,8 +123,8 @@ function fmt(type) {
   }
 
   message += periodID
-    ? `period ${periodID} in collection ${collectionID}.`
-    : `period collection ${collectionID}.`
+    ? `period ${periodID} in authority ${collectionID}.`
+    : `authority ${collectionID}.`
 
   return message;
 }

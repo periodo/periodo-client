@@ -6,7 +6,7 @@ const R = require('ramda')
 function originalLabel(period) {
   const { label, languageTag } = period
 
-  if(!label || !languageTag) return null;
+  if (!label || !languageTag) return null;
 
   return { label, languageTag }
 }
