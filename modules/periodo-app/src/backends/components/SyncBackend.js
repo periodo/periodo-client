@@ -56,19 +56,22 @@ function PeriodCell(props) {
     authority,
     expandedPeriods,
     selectedPeriods,
-    selectedAuthorities,
+    selectedPatches,
   } = props
 
   const deferToAuthority = type._name === 'AddAuthority'
 
   const selectAll = (
     deferToAuthority &&
-    patchID in selectedAuthorities &&
+    patchID in selectedPatches &&
     !R.has(patchID, selectedPeriods)
   )
 
-  const explicitlySelected = R.path([patchID, period.id], selectedPeriods)
-      , checked = !!(selectAll || explicitlySelected)
+  const explicitlySelected = deferToAuthority
+    ? R.path([patchID, period.id], selectedPeriods)
+    : patchID in selectedPatches
+
+  const checked = !!(selectAll || explicitlySelected)
 
   return (
     h(Box, [
@@ -79,13 +82,20 @@ function PeriodCell(props) {
           type: 'checkbox',
           checked,
           onChange: () => setState(prev => {
-            if (explicitlySelected) {
+            // In the simple case, where the period is not a "subperiod" of a
+            // patch adding an authority, just toggle whether this patch is
+            // selected.
+            if (!deferToAuthority) {
               return {
-                selectedPeriods: R.dissocPath([patchID, period.id], prev.selectedPeriods)
+                selectedPatches: patchID in prev.selectedPatches
+                  ? R.dissoc(patchID, prev.selectedPeriods)
+                  : R.assoc(patchID, true, prev.selectedPeriods)
               }
             }
 
-            // Deselect *only* this period, keep all others selected
+            // If only the authority has been selected, by default,
+            // everything is checked. By unchecking one period, every period
+            // *but* this one will be selected.
             if (selectAll) {
               return {
                 selectedPeriods: R.assoc(patchID, R.pipe(
@@ -96,17 +106,19 @@ function PeriodCell(props) {
               }
             }
 
-            // Select this period, *along with* the authority
-            if (deferToAuthority) {
+            // If this one has been explicitly selected, unselect it.
+            if (explicitlySelected) {
               return {
-                selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
-                selectedAuthorities: R.assoc(patchID, true, prev.selectedAuthorities)
+                selectedPeriods: R.dissocPath([patchID, period.id], prev.selectedPeriods)
               }
             }
 
-            // Else, just add the damned period
+            // Otherwise, neither the authority, nor the period has been
+            // selected. In that case, select both the period and the
+            // authority.
             return {
               selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
+              selectedPatches: R.assoc(patchID, true, prev.selectedPatches)
             }
           })
         }),
@@ -154,7 +166,7 @@ function AuthorityRow(props) {
     type,
     patch,
     selectedPeriods,
-    selectedAuthorities,
+    selectedPatches,
     viewedAllPeriods,
     expandedAuthorities,
     setState,
@@ -202,11 +214,11 @@ function AuthorityRow(props) {
             is: 'input',
             mx: 1,
             type: 'checkbox',
-            checked: patchID in selectedAuthorities,
+            checked: patchID in selectedPatches,
             onChange: () => setState({
-              selectedAuthorities: (patchID in selectedAuthorities)
-                ? R.dissoc(patchID, selectedAuthorities)
-                : Object.assign({ [patchID]: true }, selectedAuthorities),
+              selectedPatches: (patchID in selectedPatches)
+                ? R.dissoc(patchID, selectedPatches)
+                : Object.assign({ [patchID]: true }, selectedPatches),
               selectedPeriods: (patchID in selectedPeriods)
                 ? R.dissoc(patchID, selectedPeriods)
                 : selectedPeriods
@@ -304,6 +316,14 @@ class Compare extends React.Component {
     this.getRemotePeriodLabel = this.getRemotePeriodLabel.bind(this);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      this.state !== nextState ||
+      this.props.sourceDataset !== nextProps.sourceDataset ||
+      this.props.remoteDataset !== nextProps.remoteDataset
+    )
+  }
+
   static getDerivedStateFromProps(nextProps, nextState) {
     const update = (
       nextProps.sourceDataset !== nextState.sourceDataset ||
@@ -328,11 +348,31 @@ class Compare extends React.Component {
       allPatches,
       expandedAuthorities: new Set(),
       selectedPeriods: {},
-      selectedAuthorities: {}
+      selectedPatches: {}
     }
   }
 
   getPatchFromSelection() {
+    const { allPatches, selectedPeriods, selectedPatches } = this.state
+
+    return allPatches
+      .filter(patch => patch.id in selectedPatches)
+      .map(({ type, patch, id }) => {
+        if (type._name !== 'AddAuthority') return patch;
+        if (!(id in selectedPeriods)) return patch;
+
+        return R.over(
+          R.lensPath(['value', 'definitions']),
+          R.pipe(
+            Object.entries,
+            R.filter(([periodID]) => selectedPeriods[id][periodID]),
+            R.fromPairs
+          ),
+          patch
+        )
+
+        return newPatch
+      })
   }
 
   getRemoteAuthorityLabel() {
@@ -370,7 +410,7 @@ class Compare extends React.Component {
 
     const updateSelection = (
       this.state.selectedPeriods !== prevState.selectedPeriods ||
-      this.state.selectedAuthorities !== prevState.selectedAuthoritiest
+      this.state.selectedPatches !== prevState.selectedPatches
     )
 
     if (updateSelection) {
@@ -450,9 +490,11 @@ class SyncBackend extends React.Component {
       remoteBackend: null,
       remoteDataset: null,
       url: window.location.origin,
+      currentPatch: null,
     }
 
-    this.fetchBackend = this.fetchBackend.bind(this)
+    this.fetchBackend = this.fetchBackend.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   async fetchBackend(storage) {
