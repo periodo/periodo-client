@@ -55,6 +55,7 @@ function PeriodCell(props) {
     setState,
     period,
     authority,
+    expandAll,
     expandedPeriods,
     selectedPeriods,
     selectedPatches,
@@ -150,7 +151,7 @@ function PeriodCell(props) {
         }, period.label)
       ]),
 
-      expandedPeriods.has(period.id) && patch.type.case({
+      (expandAll || expandedPeriods.has(period.id)) && patch.type.case({
         AddAuthority: () => h(Period, { p: 1, bg: 'green0', value: period }),
         AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
         RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
@@ -170,6 +171,7 @@ function AuthorityRow(props) {
     selectedPeriods,
     selectedPatches,
     viewedAllPeriods,
+    expandAll,
     expandedAuthorities,
     setState,
   } = props
@@ -251,7 +253,7 @@ function AuthorityRow(props) {
             }
           }, util.authority.displayTitle(authority))
         ]),
-        expandedAuthorities.has(patchID) && h(Authority, Object.assign({
+        (expandAll || expandedAuthorities.has(patchID)) && h(Authority, Object.assign({
           p: 1,
           value: authority,
         }, authorityPatches.length && authorityPatches[0].type.case({
@@ -277,7 +279,7 @@ function AuthorityRow(props) {
           authority,
         }, props))),
         R.ifElse(
-          list => list.length > 5 && !viewedAllPeriods.has(authority.id),
+          list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
           list => [
             list.slice(0, 5),
             h(Box, {
@@ -308,6 +310,7 @@ class Compare extends React.Component {
 
     this.state = {
       filteredTypes: [],
+      expandAll: false,
       expandedAuthorities: new Set(),
       expandedPeriods: new Set(),
       viewedAllPeriods: new Set(),
@@ -406,7 +409,7 @@ class Compare extends React.Component {
   }
 
   render() {
-    const { allPatches, filteredTypes } = this.state
+    const { allPatches, filteredTypes, expandAll } = this.state
         , editing = !!this.props.onChange
 
     const filteredPatches =
@@ -443,6 +446,30 @@ class Compare extends React.Component {
           )
         ]),
         h('hr'),
+
+        h(Box, {
+          is: 'a',
+          href: '',
+          color: 'blue',
+          onClick: e => {
+            e.preventDefault();
+
+            this.setState(prev => {
+              if (prev.expandAll) {
+                return {
+                  expandAll: false,
+                  expandedPeriods: new Set(),
+                  expandedAuthorities: new Set(),
+                  viewedAllPeriods: new Set(),
+                }
+              } else {
+                return {
+                  expandAll: true,
+                }
+              }
+            })
+          }
+        }, expandAll ? 'Collapse all' : 'Expand all'),
 
         h(Box, {
           is: 'table',
