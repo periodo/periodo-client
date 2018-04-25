@@ -47,6 +47,7 @@ function addOrRemove(items, key) {
 function PeriodCell(props) {
   const {
     patchID,
+    editing,
     setState,
     type,
     period,
@@ -73,7 +74,7 @@ function PeriodCell(props) {
   return (
     h(Box, [
       h(Flex, { alignItems: 'center' }, [
-        h(Box, {
+        editing && h(Box, {
           is: 'input',
           mx: 1,
           type: 'checkbox',
@@ -162,6 +163,7 @@ function AuthorityRow(props) {
     id,
     type,
     patch,
+    editing,
     selectedPeriods,
     selectedPatches,
     viewedAllPeriods,
@@ -207,7 +209,7 @@ function AuthorityRow(props) {
         h(Flex, {
           alignItems: 'center',
         }, [
-          type._name.endsWith('Authority') && h(Box, {
+          editing && type._name.endsWith('Authority') && h(Box, {
             is: 'input',
             mx: 1,
             type: 'checkbox',
@@ -401,7 +403,9 @@ class Compare extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { onChange=R.T } = this.props
+    const { onChange } = this.props
+
+    if (!onChange) return;
 
     const updateSelection = (
       this.state.selectedPeriods !== prevState.selectedPeriods ||
@@ -415,6 +419,7 @@ class Compare extends React.Component {
 
   render() {
     const { allPatches, filteredTypes } = this.state
+        , editing = !!this.props.onChange
 
     const filteredPatches =
       filteredTypes.length
@@ -453,6 +458,7 @@ class Compare extends React.Component {
             h(AuthorityRow, Object.assign(
               {
                 key: patch.id,
+                editing,
                 setState: this.setState.bind(this),
                 getLocalAuthorityLabel: this.getLocalAuthorityLabel,
                 getLocalPeriodLabel: this.getLocalPeriodLabel,
