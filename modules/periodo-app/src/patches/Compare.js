@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Flex, Box } = require('axs-ui')
     , { Authority, Period } = require('periodo-ui')
-    , { period, authority, dataset } = require('periodo-utils')
+    , util = require('periodo-utils')
     , { makePatch } = require('./patch')
     , { PatchType } = require('./types')
 
@@ -174,14 +174,16 @@ function AuthorityRow(props) {
   } = props
 
   const patchID = id
+      , fromRemote = util.dataset.getAuthority(remoteDataset)
+      , fromLocal = util.dataset.getAuthority(localDataset)
 
   const authority = type.case({
-    AddAuthority: dataset.getAuthority(remoteDataset),
-    ChangeAuthority: dataset.getAuthority(localDataset),
-    RemoveAuthority: dataset.getAuthority(localDataset),
-    AddPeriod: dataset.getAuthority(remoteDataset),
-    ChangePeriod: dataset.getAuthority(localDataset),
-    RemovePeriod: dataset.getAuthority(localDataset),
+    AddAuthority: fromRemote,
+    ChangeAuthority: fromLocal,
+    RemoveAuthority: fromLocal,
+    AddPeriod: fromRemote,
+    ChangePeriod: fromLocal,
+    RemovePeriod: fromLocal,
     _: R.always(null),
   })
 
@@ -192,6 +194,7 @@ function AuthorityRow(props) {
     AddPeriod: (_, id) => R.path(['definitions', id]),
     ChangePeriod: (_, id) => R.path(['definitions', id]),
     RemovePeriod: (_, id) => R.path(['definitions', id]),
+    _: R.always(null),
   })(authority))
 
   return (
@@ -374,30 +377,30 @@ class Compare extends React.Component {
 
   getRemoteAuthorityLabel() {
     return R.pipe(
-      dataset.getAuthority(this.props.remoteDataset),
-      authority.displayTitle
+      util.dataset.getAuthority(this.props.remoteDataset),
+      util.authority.displayTitle
     )(...arguments)
   }
 
   getRemotePeriodLabel() {
     return R.pipe(
-      dataset.getPeriod(this.props.remoteDataset),
-      period.originalLabel,
+      util.dataset.getPeriod(this.props.remoteDataset),
+      util.period.originalLabel,
       R.prop('language')
     )(...arguments)
   }
 
   getLocalAuthorityLabel() {
     return R.pipe(
-      dataset.getAuthority(this.props.remoteDataset),
-      authority.displayTitle
+      util.dataset.getAuthority(this.props.remoteDataset),
+      util.authority.displayTitle
     )(...arguments)
   }
 
   getLocalPeriodLabel() {
     return R.pipe(
-      dataset.getPeriod(this.props.localDataset),
-      period.originalLabel,
+      util.dataset.getPeriod(this.props.localDataset),
+      util.period.originalLabel,
       R.prop('language')
     )(...arguments)
   }
@@ -472,12 +475,6 @@ class Compare extends React.Component {
         ])
 
       ])
-      /*
-      h(Patch, {
-        data: sourceDataset,
-        patch,
-      })
-      */
     )
   }
 }
