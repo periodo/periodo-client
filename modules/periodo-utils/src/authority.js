@@ -13,6 +13,10 @@ function periodsWithAuthority(authority) {
   )
 }
 
+function periods(authority) {
+  return R.values(authority.definitions)
+}
+
 function displayTitle(authority) {
   return source.displayTitle(authority.source)
 }
@@ -55,5 +59,6 @@ module.exports = {
   asCSV,
   displayTitle,
   describe,
+  periods,
   periodsWithAuthority,
 }

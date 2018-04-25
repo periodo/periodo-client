@@ -1,19 +1,23 @@
 "use strict";
 
+// TODO: Still no support for showing/selecting multiple changes to the same
+// item. I believe periods with multiple edits will show up twice as changed,
+// and only the first change for an authority will be selectable
+
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
+    , Type = require('union-type')
     , { Flex, Box } = require('axs-ui')
     , { Authority, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
     , { PatchType } = require('./types')
 
-function NewAuthority({ patch }) {
-  return (
-    h(Authority, { p: 1, bg: 'green0', value: patch.value })
-  )
-}
+const Side = Type({
+  Local: {},
+  Remote: {},
+})
 
 const colors = {
   "New": "limegreen",
@@ -46,10 +50,9 @@ function addOrRemove(items, key) {
 
 function PeriodCell(props) {
   const {
-    patchID,
+    patch,
     editing,
     setState,
-    type,
     period,
     authority,
     expandedPeriods,
@@ -57,17 +60,17 @@ function PeriodCell(props) {
     selectedPatches,
   } = props
 
-  const deferToAuthority = type._name === 'AddAuthority'
+  const deferToAuthority = patch.type._name === 'AddAuthority'
 
   const selectAll = (
     deferToAuthority &&
-    patchID in selectedPatches &&
-    !R.has(patchID, selectedPeriods)
+    patch.id in selectedPatches &&
+    !R.has(patch.id, selectedPeriods)
   )
 
   const explicitlySelected = deferToAuthority
-    ? R.path([patchID, period.id], selectedPeriods)
-    : patchID in selectedPatches
+    ? R.path([patch.id, period.id], selectedPeriods)
+    : patch.id in selectedPatches
 
   const checked = !!(selectAll || explicitlySelected)
 
@@ -85,9 +88,9 @@ function PeriodCell(props) {
             // selected.
             if (!deferToAuthority) {
               return {
-                selectedPatches: patchID in prev.selectedPatches
-                  ? R.dissoc(patchID, prev.selectedPeriods)
-                  : R.assoc(patchID, true, prev.selectedPeriods)
+                selectedPatches: patch.id in prev.selectedPatches
+                  ? R.dissoc(patch.id, prev.selectedPeriods)
+                  : R.assoc(patch.id, true, prev.selectedPeriods)
               }
             }
 
@@ -96,7 +99,7 @@ function PeriodCell(props) {
             // *but* this one will be selected.
             if (selectAll) {
               return {
-                selectedPeriods: R.assoc(patchID, R.pipe(
+                selectedPeriods: R.assoc(patch.id, R.pipe(
                   R.prop('definitions'),
                   R.dissoc(period.id),
                   R.map(R.T)
@@ -107,7 +110,7 @@ function PeriodCell(props) {
             // If this one has been explicitly selected, unselect it.
             if (explicitlySelected) {
               return {
-                selectedPeriods: R.dissocPath([patchID, period.id], prev.selectedPeriods)
+                selectedPeriods: R.dissocPath([patch.id, period.id], prev.selectedPeriods)
               }
             }
 
@@ -115,15 +118,15 @@ function PeriodCell(props) {
             // selected. In that case, select both the period and the
             // authority.
             return {
-              selectedPeriods: R.assocPath([patchID, period.id], true, prev.selectedPeriods),
-              selectedPatches: R.assoc(patchID, true, prev.selectedPatches)
+              selectedPeriods: R.assocPath([patch.id, period.id], true, prev.selectedPeriods),
+              selectedPatches: R.assoc(patch.id, true, prev.selectedPatches)
             }
           })
         }),
 
 
         h(Indicator, {
-          label: type.case({
+          label: patch.type.case({
             AddAuthority: () => 'New',
             RemoveAuthority: () => 'Removed',
             AddPeriod: () => 'New',
@@ -147,7 +150,7 @@ function PeriodCell(props) {
         }, period.label)
       ]),
 
-      expandedPeriods.has(period.id) && type.case({
+      expandedPeriods.has(period.id) && patch.type.case({
         AddAuthority: () => h(Period, { p: 1, bg: 'green0', value: period }),
         AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
         RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
@@ -160,42 +163,42 @@ function PeriodCell(props) {
 
 function AuthorityRow(props) {
   const {
-    id,
-    type,
-    patch,
+    patches,
     editing,
+    getAuthority,
+    getPeriod,
     selectedPeriods,
     selectedPatches,
     viewedAllPeriods,
     expandedAuthorities,
     setState,
-    localDataset,
-    remoteDataset,
   } = props
 
-  const patchID = id
-      , fromRemote = util.dataset.getAuthority(remoteDataset)
-      , fromLocal = util.dataset.getAuthority(localDataset)
-
-  const authority = type.case({
-    AddAuthority: fromRemote,
-    ChangeAuthority: fromLocal,
-    RemoveAuthority: fromLocal,
-    AddPeriod: fromRemote,
-    ChangePeriod: fromLocal,
-    RemovePeriod: fromLocal,
-    _: R.always(null),
+  const authority = patches[0].type.case({
+    AddAuthority: getAuthority(Side.Remote),
+    _: getAuthority(Side.Local),
   })
 
-  const periodList = [].concat(type.case({
-    AddAuthority: () => R.pipe(R.prop('definitions'), R.values),
-    ChangeAuthority: () => R.always([]),
-    RemoveAuthority: () => R.pipe(R.prop('definitions'), R.values),
-    AddPeriod: (_, id) => R.path(['definitions', id]),
-    ChangePeriod: (_, id) => R.path(['definitions', id]),
-    RemovePeriod: (_, id) => R.path(['definitions', id]),
-    _: R.always(null),
-  })(authority))
+  const periods = R.chain(patch => {
+    const periods = [].concat(patch.type.case({
+      AddAuthority: () => util.authority.periods(authority),
+      RemoveAuthority: () => util.authority.periods(authority),
+      ChangeAuthority: R.always([]),
+      AddPeriod: getPeriod(Side.Remote),
+      _: getPeriod(Side.Local),
+    }))
+
+    return periods.map(period => ({
+      period,
+      authority,
+      patch,
+    }))
+  }, patches)
+
+  const authorityPatches = patches
+    .filter(({ type }) => type._name.endsWith('Authority'))
+
+  const patchID = authorityPatches.map(p => p.id).toString()
 
   return (
     h(Box, {
@@ -212,11 +215,11 @@ function AuthorityRow(props) {
         h(Flex, {
           alignItems: 'center',
         }, [
-          editing && type._name.endsWith('Authority') && h(Box, {
+          editing && authorityPatches.length && h(Box, {
             is: 'input',
             mx: 1,
             type: 'checkbox',
-            checked: patchID in selectedPatches,
+            checked: (patchID in selectedPatches),
             onChange: () => setState({
               selectedPatches: (patchID in selectedPatches)
                 ? R.dissoc(patchID, selectedPatches)
@@ -227,7 +230,7 @@ function AuthorityRow(props) {
             })
           }),
 
-          type.case({
+          authorityPatches.length && authorityPatches[0].type.case({
             AddAuthority: () => h(Indicator, { label: 'New' }),
             ChangeAuthority: () => h(Indicator, { label: 'Changed' }),
             RemoveAuthority: () => h(Indicator, { label: 'Removed' }),
@@ -246,17 +249,17 @@ function AuthorityRow(props) {
                 backgroundColor: '#eee',
               }
             }
-          }, type.case({
-            AddAuthority: props.getRemoteAuthorityLabel,
-            ChangeAuthority: props.getLocalAuthorityLabel,
-            RemoteAuthority: props.getLocalAuthorityLabel,
-            AddPeriod: props.getRemoteAuthorityLabel,
-            ChangePeriod: props.getLocalAuthorityLabel,
-            RemovePeriod: props.getLocalAuthorityLabel,
-            _: () => "this shouldn't happen",
-          })),
+          }, util.authority.displayTitle(authority))
         ]),
-        expandedAuthorities.has(patchID) && NewAuthority({ patch }),
+        expandedAuthorities.has(patchID) && h(Authority, Object.assign({
+          p: 1,
+          value: authority,
+        }, authorityPatches.length && authorityPatches[0].type.case({
+          AddAuthority: () => ({ bg: 'green0' }),
+          ChangeAuthority: () => ({ /* FIXME: compare to remote */ }),
+          RemoveAuthority: () => ({ bg: 'red0' }),
+          _: () => ({})
+        })))
       ]),
 
       h(Box, {
@@ -267,14 +270,14 @@ function AuthorityRow(props) {
           borderLeft: 'none',
         }
       }, R.pipe(
-        R.map(period => h(PeriodCell, Object.assign({
+        R.map(({ period, patch, authority }) => h(PeriodCell, Object.assign({
           key: period.id,
-          authority,
           period,
-          patchID,
+          patch,
+          authority,
         }, props))),
         R.ifElse(
-          list => list.length > 5 && !viewedAllPeriods.has(id),
+          list => list.length > 5 && !viewedAllPeriods.has(authority.id),
           list => [
             list.slice(0, 5),
             h(Box, {
@@ -287,14 +290,14 @@ function AuthorityRow(props) {
               onClick: e => {
                 e.preventDefault();
                 setState({
-                  viewedAllPeriods: addOrRemove(viewedAllPeriods, id)
+                  viewedAllPeriods: addOrRemove(viewedAllPeriods, authority.id)
                 })
               }
             }, `View ${list.length - 5} more`)
           ],
           R.identity
         )
-      )(periodList)),
+      )(periods)),
     ])
   )
 }
@@ -312,10 +315,8 @@ class Compare extends React.Component {
     }
 
     this.getPatchFromSelection = this.getPatchFromSelection.bind(this);
-    this.getLocalAuthorityLabel = this.getLocalAuthorityLabel.bind(this);
-    this.getLocalPeriodLabel = this.getLocalPeriodLabel.bind(this);
-    this.getRemoteAuthorityLabel = this.getRemoteAuthorityLabel.bind(this);
-    this.getRemotePeriodLabel = this.getRemotePeriodLabel.bind(this);
+    this.getPeriod = this.getPeriod.bind(this);
+    this.getAuthority = this.getAuthority.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -375,34 +376,18 @@ class Compare extends React.Component {
       })
   }
 
-  getRemoteAuthorityLabel() {
-    return R.pipe(
-      util.dataset.getAuthority(this.props.remoteDataset),
-      util.authority.displayTitle
-    )(...arguments)
+  getAuthority(side, ...args) {
+    return util.dataset.getAuthority(side.case({
+      Local: () => this.props.localDataset,
+      Remote: () => this.props.remoteDataset,
+    }))(...args)
   }
 
-  getRemotePeriodLabel() {
-    return R.pipe(
-      util.dataset.getPeriod(this.props.remoteDataset),
-      util.period.originalLabel,
-      R.prop('language')
-    )(...arguments)
-  }
-
-  getLocalAuthorityLabel() {
-    return R.pipe(
-      util.dataset.getAuthority(this.props.remoteDataset),
-      util.authority.displayTitle
-    )(...arguments)
-  }
-
-  getLocalPeriodLabel() {
-    return R.pipe(
-      util.dataset.getPeriod(this.props.localDataset),
-      util.period.originalLabel,
-      R.prop('language')
-    )(...arguments)
+  getPeriod(side, ...args) {
+    return util.dataset.getPeriod(side.case({
+      Local: () => this.props.localDataset,
+      Remote: () => this.props.remoteDataset,
+    }))(...args)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -431,6 +416,25 @@ class Compare extends React.Component {
 
     const countsByType = R.countBy(p => p.type._name, allPatches)
 
+    // First, separate out all patches that have to do with periods and
+    // authorities. They'll be treated specially
+    const [ itemPatches, other ] = R.partition(
+      ({ type }) => type.case({
+        AddAuthority: R.T,
+        ChangeAuthority: R.T,
+        RemoveAuthority: R.T,
+        AddPeriod: R.T,
+        ChangePeriod: R.T,
+        RemovePeriod: R.T,
+        _: R.F,
+      }),
+      filteredPatches
+    )
+
+    // Then, partition by authority, so that changes to periods in the same
+    // authority can be grouped together
+    const byAuthority = R.groupBy(R.path(['type', 'collectionID']), itemPatches)
+
     return (
       h(Box, [
         h(Box, [
@@ -457,20 +461,15 @@ class Compare extends React.Component {
               h('th', 'Period'),
             ])
           ]),
-          h('tbody', filteredPatches.map(patch =>
-            h(AuthorityRow, Object.assign(
-              {
-                key: patch.id,
-                editing,
-                setState: this.setState.bind(this),
-                getLocalAuthorityLabel: this.getLocalAuthorityLabel,
-                getLocalPeriodLabel: this.getLocalPeriodLabel,
-                getRemoteAuthorityLabel: this.getRemoteAuthorityLabel,
-                getRemotePeriodLabel: this.getRemotePeriodLabel,
-              },
-              this.state,
-              patch,
-            ))
+          h('tbody', Object.entries(byAuthority).map(([authorityID, patches]) =>
+            h(AuthorityRow, Object.assign({
+              key: authorityID,
+              editing,
+              setState: this.setState.bind(this),
+              getAuthority: this.getAuthority,
+              getPeriod: this.getPeriod,
+              patches,
+            }, this.state))
           ))
         ])
 
