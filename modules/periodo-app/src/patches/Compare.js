@@ -183,7 +183,7 @@ function AuthorityRow(props) {
 
   const periods = R.chain(patch => {
     const periods = [].concat(patch.type.case({
-      AddAuthority: () => util.authority.periods(authority),
+      AddAuthority: () => util.authority.periods(patch.patch.value),
       RemoveAuthority: () => util.authority.periods(authority),
       ChangeAuthority: R.always([]),
       AddPeriod: getPeriod(Side.Remote),
@@ -308,14 +308,7 @@ class Compare extends React.Component {
   constructor() {
     super();
 
-    this.state = {
-      filteredTypes: [],
-      expandAll: false,
-      expandedAuthorities: new Set(),
-      expandedPeriods: new Set(),
-      viewedAllPeriods: new Set(),
-      checkedAuthorities: new Set(),
-    }
+    this.state = {}
 
     this.getPatchFromSelection = this.getPatchFromSelection.bind(this);
     this.getPeriod = this.getPeriod.bind(this);
@@ -326,35 +319,46 @@ class Compare extends React.Component {
     return (
       this.state !== nextState ||
       this.props.sourceDataset !== nextProps.sourceDataset ||
-      this.props.remoteDataset !== nextProps.remoteDataset
+      this.props.remoteDataset !== nextProps.remoteDataset ||
+      this.props.patch !== nextProps.patch
+
     )
   }
 
   static getDerivedStateFromProps(nextProps, nextState) {
     const update = (
       nextProps.sourceDataset !== nextState.sourceDataset ||
-      nextProps.remoteDataset !== nextState.remoteDataset
+      nextProps.remoteDataset !== nextState.remoteDataset ||
+      nextProps.patch !== nextState.explicitPatch
     )
 
     if (!update) return null
 
-    const { sourceDataset, remoteDataset } = nextProps
+    const { sourceDataset, remoteDataset, patch } = nextProps
 
-    const allPatches = makePatch(sourceDataset, Object.assign({}, sourceDataset, {
+    let allPatches = patch ? patch : makePatch(sourceDataset, Object.assign({}, sourceDataset, {
       periodCollections: remoteDataset.periodCollections
-    })).map((p, i) => ({
+    }))
+
+    allPatches = allPatches.map((p, i) => ({
       id: `patch-${i}`,
       patch: p,
       type: PatchType.fromPatch(p),
-    })).slice(0,2)
+    }))
 
     return {
+      allPatches,
+      explicitPatch: patch,
       sourceDataset,
       remoteDataset,
-      allPatches,
-      expandedAuthorities: new Set(),
       selectedPeriods: {},
-      selectedPatches: {}
+      selectedPatches: {},
+      filteredTypes: [],
+      expandAll: false,
+      expandedAuthorities: new Set(),
+      expandedPeriods: new Set(),
+      viewedAllPeriods: new Set(),
+      checkedAuthorities: new Set(),
     }
   }
 

@@ -1,12 +1,15 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , React = require('react')
+    , jsonpatch = require('fast-json-patch')
     , { Box, Heading } = require('axs-ui')
     , { Button$Primary, InputBlock } = require('periodo-ui')
+    , { LocationStreamAware, Route } = require('org-shell')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { fetchBackend } = require('../actions')
+    , { fetchBackend, updateLocalDataset } = require('../actions')
     , Compare = require('../../patches/Compare')
 
 class SyncBackend extends React.Component {
@@ -44,11 +47,59 @@ class SyncBackend extends React.Component {
 
   }
 
+  async acceptPatch() {
+    const { dispatch, backend, dataset, locationStream } = this.props
+        , { currentPatch } = this.state
+
+    // FIXME? this could throw if patch is invalid... But how could the patch
+    // be invalid?
+    const newDataset = jsonpatch.applyPatch(
+      R.clone(dataset),
+      R.clone(currentPatch),
+    ).newDocument
+
+    const action = await dispatch(updateLocalDataset(
+      backend.storage,
+      newDataset,
+      'Sync' // FIXME: better message
+    ))
+
+    handleCompletedAction(action,
+      () => {
+        locationStream.write({
+          route: Route('backend-home', {
+            backendID: backend.asIdentifier()
+          })
+        })
+      },
+      err => {
+        throw err;
+      }
+    )
+  }
+
   handleChange(patch) {
     this.setState({ currentPatch: patch })
   }
 
   render() {
+    if (this.state.confirm) {
+      return h(Box, [
+        h(Compare, {
+          sourceDataset: this.props.dataset,
+          remoteDataset: this.state.remoteDataset,
+          patch: this.state.currentPatch,
+        }),
+
+        h(Button$Primary, {
+          disabled: !this.state.currentPatch.length,
+          onClick: () => {
+            this.acceptPatch()
+          }
+        }, 'Accept changes'),
+      ])
+    }
+
     if (this.state.remoteBackend) {
       return h(Box, [
         h(Compare, {
@@ -56,6 +107,11 @@ class SyncBackend extends React.Component {
           remoteDataset: this.state.remoteDataset,
           onChange: this.handleChange,
         }),
+
+        h(Button$Primary, {
+          disabled: !this.state.currentPatch.length,
+          onClick: () => this.setState({ confirm: true }),
+        }, 'Continue'),
 
         h('pre', {}, JSON.stringify(this.state.currentPatch, true, '  ')),
       ])
@@ -73,10 +129,10 @@ class SyncBackend extends React.Component {
 
         h(Button$Primary, {
           onClick: () => this.fetchBackend(BackendStorage.Web(this.state.url)),
-        }, 'Continue')
+        }, 'Sync')
       ])
     )
   }
 }
 
-module.exports = SyncBackend;
+module.exports = LocationStreamAware(SyncBackend);
