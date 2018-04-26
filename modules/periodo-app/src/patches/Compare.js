@@ -84,14 +84,16 @@ function PeriodCell(props) {
           type: 'checkbox',
           checked,
           onChange: () => setState(prev => {
+            debugger;
+
             // In the simple case, where the period is not a "subperiod" of a
             // patch adding an authority, just toggle whether this patch is
             // selected.
             if (!deferToAuthority) {
               return {
                 selectedPatches: patch.id in prev.selectedPatches
-                  ? R.dissoc(patch.id, prev.selectedPeriods)
-                  : R.assoc(patch.id, true, prev.selectedPeriods)
+                  ? R.dissoc(patch.id, prev.selectedPatches)
+                  : R.assoc(patch.id, true, prev.selectedPatches)
               }
             }
 
@@ -176,9 +178,19 @@ function AuthorityRow(props) {
     setState,
   } = props
 
+  const remoteAuthority = getAuthority(Side.Remote)
+      , localAuthority = getAuthority(Side.Local)
+      , remotePeriod = getPeriod(Side.Remote)
+      , localPeriod = getPeriod(Side.Local)
+
   const authority = patches[0].type.case({
-    AddAuthority: getAuthority(Side.Remote),
-    _: getAuthority(Side.Local),
+    AddAuthority: remoteAuthority,
+    ChangeAuthority: localAuthority,
+    RemoveAuthority: localAuthority,
+    AddPeriod: localAuthority,
+    ChangePeriod: localAuthority,
+    RemovePeriod: localAuthority,
+    _: R.F,
   })
 
   const periods = R.chain(patch => {
@@ -186,8 +198,10 @@ function AuthorityRow(props) {
       AddAuthority: () => util.authority.periods(patch.patch.value),
       RemoveAuthority: () => util.authority.periods(authority),
       ChangeAuthority: R.always([]),
-      AddPeriod: getPeriod(Side.Remote),
-      _: getPeriod(Side.Local),
+      AddPeriod: remotePeriod,
+      ChangePeriod: localPeriod,
+      RemovePeriod: localPeriod,
+      _: R.F,
     }))
 
     return periods.map(period => ({
@@ -217,7 +231,7 @@ function AuthorityRow(props) {
         h(Flex, {
           alignItems: 'center',
         }, [
-          editing && authorityPatches.length && h(Box, {
+          editing && authorityPatches.length > 0 && h(Box, {
             is: 'input',
             mx: 1,
             type: 'checkbox',
@@ -232,7 +246,7 @@ function AuthorityRow(props) {
             })
           }),
 
-          authorityPatches.length && authorityPatches[0].type.case({
+          authorityPatches.length > 0 && authorityPatches[0].type.case({
             AddAuthority: () => h(Indicator, { label: 'New' }),
             ChangeAuthority: () => h(Indicator, { label: 'Changed' }),
             RemoveAuthority: () => h(Indicator, { label: 'Removed' }),
@@ -241,7 +255,7 @@ function AuthorityRow(props) {
 
           h(Box, {
             onClick: () => setState({
-              expandedAuthorities: addOrRemove(expandedAuthorities, patchID)
+              expandedAuthorities: addOrRemove(expandedAuthorities, authority.id)
             }),
             p: '8px 4px',
             css: {
@@ -253,7 +267,7 @@ function AuthorityRow(props) {
             }
           }, util.authority.displayTitle(authority))
         ]),
-        (expandAll || expandedAuthorities.has(patchID)) && h(Authority, Object.assign({
+        (expandAll || expandedAuthorities.has(authority.id)) && h(Authority, Object.assign({
           p: 1,
           value: authority,
         }, authorityPatches.length && authorityPatches[0].type.case({
@@ -318,7 +332,7 @@ class Compare extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.state !== nextState ||
-      this.props.sourceDataset !== nextProps.sourceDataset ||
+      this.props.localDataset !== nextProps.localDataset ||
       this.props.remoteDataset !== nextProps.remoteDataset ||
       this.props.patch !== nextProps.patch
 
@@ -327,16 +341,16 @@ class Compare extends React.Component {
 
   static getDerivedStateFromProps(nextProps, nextState) {
     const update = (
-      nextProps.sourceDataset !== nextState.sourceDataset ||
+      nextProps.localDataset !== nextState.localDataset ||
       nextProps.remoteDataset !== nextState.remoteDataset ||
       nextProps.patch !== nextState.explicitPatch
     )
 
     if (!update) return null
 
-    const { sourceDataset, remoteDataset, patch } = nextProps
+    const { localDataset, remoteDataset, patch } = nextProps
 
-    let allPatches = patch ? patch : makePatch(sourceDataset, Object.assign({}, sourceDataset, {
+    let allPatches = patch ? patch : makePatch(localDataset, Object.assign({}, localDataset, {
       periodCollections: remoteDataset.periodCollections
     }))
 
@@ -349,7 +363,7 @@ class Compare extends React.Component {
     return {
       allPatches,
       explicitPatch: patch,
-      sourceDataset,
+      localDataset,
       remoteDataset,
       selectedPeriods: {},
       selectedPatches: {},

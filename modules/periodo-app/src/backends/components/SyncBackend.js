@@ -86,7 +86,7 @@ class SyncBackend extends React.Component {
     if (this.state.confirm) {
       return h(Box, [
         h(Compare, {
-          sourceDataset: this.props.dataset,
+          localDataset: this.props.dataset,
           remoteDataset: this.state.remoteDataset,
           patch: this.state.currentPatch,
         }),
@@ -103,7 +103,7 @@ class SyncBackend extends React.Component {
     if (this.state.remoteBackend) {
       return h(Box, [
         h(Compare, {
-          sourceDataset: this.props.dataset,
+          localDataset: this.props.dataset,
           remoteDataset: this.state.remoteDataset,
           onChange: this.handleChange,
         }),
