@@ -23,6 +23,7 @@ module.exports = props =>
             Web: () => 'Web',
             IndexedDB: () => 'Local',
             Memory: () => 'Memory',
+            Canonical: () => 'Web',
           })),
           h('td', [
             h(Link, {

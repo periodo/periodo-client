@@ -20,6 +20,6 @@
     "ramda": "^0.24.1",
     "react": "^16.2.0",
     "react-hyperscript": "github:periodo/react-hyperscript",
-    "union-type": "^0.4.0"
+    "union-type": "github:ptgolden/union-type"
   }
 }
