@@ -112,8 +112,6 @@ class SyncBackend extends React.Component {
           disabled: !this.state.currentPatch.length,
           onClick: () => this.setState({ confirm: true }),
         }, 'Continue'),
-
-        h('pre', {}, JSON.stringify(this.state.currentPatch, true, '  ')),
       ])
     }
 
