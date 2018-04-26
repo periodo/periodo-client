@@ -56,6 +56,7 @@ function PeriodCell(props) {
     period,
     authority,
     expandAll,
+    selectAll,
     expandedPeriods,
     selectedPeriods,
     selectedPatches,
@@ -63,7 +64,7 @@ function PeriodCell(props) {
 
   const deferToAuthority = patch.type._name === 'AddAuthority'
 
-  const selectAll = (
+  const selectAllPeriods = (
     deferToAuthority &&
     patch.id in selectedPatches &&
     !R.has(patch.id, selectedPeriods)
@@ -73,7 +74,7 @@ function PeriodCell(props) {
     ? R.path([patch.id, period.id], selectedPeriods)
     : patch.id in selectedPatches
 
-  const checked = !!(selectAll || explicitlySelected)
+  const checked = selectAll || !!(selectAllPeriods || explicitlySelected)
 
   return (
     h(Box, [
@@ -100,7 +101,7 @@ function PeriodCell(props) {
             // If only the authority has been selected, by default,
             // everything is checked. By unchecking one period, every period
             // *but* this one will be selected.
-            if (selectAll) {
+            if (selectAllPeriods) {
               return {
                 selectedPeriods: R.assoc(patch.id, R.pipe(
                   R.prop('definitions'),
@@ -174,6 +175,7 @@ function AuthorityRow(props) {
     selectedPatches,
     viewedAllPeriods,
     expandAll,
+    selectAll,
     expandedAuthorities,
     setState,
   } = props
@@ -235,7 +237,7 @@ function AuthorityRow(props) {
             is: 'input',
             mx: 1,
             type: 'checkbox',
-            checked: (patchID in selectedPatches),
+            checked: selectAll || (patchID in selectedPatches),
             onChange: () => setState({
               selectedPatches: (patchID in selectedPatches)
                 ? R.dissoc(patchID, selectedPatches)
@@ -369,6 +371,7 @@ class Compare extends React.Component {
       selectedPatches: {},
       filteredTypes: [],
       expandAll: false,
+      selectAll: false,
       expandedAuthorities: new Set(),
       expandedPeriods: new Set(),
       viewedAllPeriods: new Set(),
@@ -377,10 +380,10 @@ class Compare extends React.Component {
   }
 
   getPatchFromSelection() {
-    const { allPatches, selectedPeriods, selectedPatches } = this.state
+    const { selectAll, allPatches, selectedPeriods, selectedPatches } = this.state
 
     return allPatches
-      .filter(patch => patch.id in selectedPatches)
+      .filter(patch => selectAll ? true : patch.id in selectedPatches)
       .map(({ type, patch, id }) => {
         if (type._name !== 'AddAuthority') return patch;
         if (!(id in selectedPeriods)) return patch;
@@ -418,7 +421,9 @@ class Compare extends React.Component {
 
     const updateSelection = (
       this.state.selectedPeriods !== prevState.selectedPeriods ||
-      this.state.selectedPatches !== prevState.selectedPatches
+      this.state.selectedPatches !== prevState.selectedPatches ||
+      this.state.selectAll !== prevState.selectAll
+
     )
 
     if (updateSelection) {
@@ -428,6 +433,7 @@ class Compare extends React.Component {
 
   render() {
     const { allPatches, filteredTypes, expandAll } = this.state
+        , { selectAll } = this.props
         , editing = !!this.props.onChange
 
     const filteredPatches =
@@ -488,6 +494,29 @@ class Compare extends React.Component {
             })
           }
         }, expandAll ? 'Collapse all' : 'Expand all'),
+
+        h(Box, {
+          is: 'a',
+          href: '',
+          color: 'blue',
+          onClick: e => {
+            e.preventDefault();
+
+            this.setState(prev => {
+              if (prev.selectAll) {
+                return {
+                  selectAll: false,
+                  selectedPatches: new Set(),
+                  selectedPeriods: new Set(),
+                }
+              } else {
+                return {
+                  selectAll: true,
+                }
+              }
+            })
+          }
+        }, selectAll ? 'Unselect all' : 'Select all'),
 
         h(Box, {
           is: 'table',
