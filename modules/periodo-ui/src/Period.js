@@ -82,7 +82,7 @@ const PERIOD_FIELDS = [
   },
   {
     label: 'Language',
-    values: extract('language'),
+    values: extract('languageTag'),
     component: LanguageTagValue,
     required: true,
   },
