@@ -1,7 +1,7 @@
 "use strict";
 
 const Dexie = require('dexie')
-    , DB_NAME = '__PERIODO'
+    , DB_NAME = '_PERIODO'
 
 
 module.exports = function periodoDB(dexieOpts) {
@@ -19,7 +19,7 @@ module.exports = function periodoDB(dexieOpts) {
 
     // Patches derived from changes in IDB backends
     localBackendPatches: `
-      ++,
+      ++id,
       backendID,
       created,
       *changeType,
