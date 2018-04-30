@@ -138,8 +138,10 @@ module.exports = function makeORGShell({
       this.setState({ loadingNewResource: true })
 
       try {
+        let activeResourceExtraProps = {}
+
         if (onBeforeRoute) {
-          await onBeforeRoute(store.dispatch, params, redirect)
+          activeResourceExtraProps = await onBeforeRoute(store.dispatch, params, redirect)
         }
 
         if (redirectTo) {
@@ -149,6 +151,7 @@ module.exports = function makeORGShell({
             activeResource: resource,
             activeResourceName: resourceName,
             activeResourceOpts: JSON.parse(params.opts || '{}'),
+            activeResourceExtraProps,
           })
 
           if (pushState) {
@@ -200,7 +203,14 @@ module.exports = function makeORGShell({
     }
 
     render() {
-      const { loadingNewResource, errors, activeResource, activeResourceName, activeResourceOpts } = this.state
+      const {
+        loadingNewResource,
+        errors,
+        activeResource,
+        activeResourceName,
+        activeResourceOpts,
+        activeResourceExtraProps,
+      } = this.state
 
       return (
         h(Provider, { store },
@@ -212,6 +222,7 @@ module.exports = function makeORGShell({
               params: activeResource.params,
               opts: activeResourceOpts,
               updateOpts: this.updateCurrentOpts,
+              extra: activeResourceExtraProps,
             })
           )
         )
