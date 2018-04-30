@@ -76,6 +76,10 @@ module.exports = function backends(state=initialState(), action) {
         )
       },
 
+      GetBackendPatch() {
+        return state
+      },
+
       UpdateBackend() {
         const { backend } = getResponse(action)
 

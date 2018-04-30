@@ -98,6 +98,18 @@ const BackendAction = makeActionType('backend', {
     }
   ],
 
+  GetBackendPatch: [
+    {
+      storage: BackendStorage,
+      patchID: String,
+    },
+    {
+      dataset: isDataset,
+      prevDataset: isDataset,
+      patch: Object,
+    }
+  ],
+
   CreateBackend: [
     {
       storage: BackendStorage,

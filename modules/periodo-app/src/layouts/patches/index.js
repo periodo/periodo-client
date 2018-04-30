@@ -3,12 +3,19 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { LayoutRenderer, blocks } = require('org-layouts')
+    , { Route } = require('org-shell')
     , fromArray = require('from2-array')
     , { Link } = require('periodo-ui')
 
 const PatchList = blocks.List({
   label: 'Patch list',
   description: 'List of patches',
+  makeItemRoute({ item, backend }) {
+    return Route('backend-patch', {
+      backendID: backend.asIdentifier(),
+      patchID: item.id.toString(),
+    })
+  },
   columns: {
     creator: {
       label: 'Creator',
@@ -26,10 +33,10 @@ const PatchList = blocks.List({
 })
 
 module.exports = props =>
-  h(LayoutRenderer, R.omit(['patches'], Object.assign({}, props, {
+  h(LayoutRenderer, R.omit(['patches', 'backend'], Object.assign({}, props, {
     blocks: {
       'patch-list': PatchList,
     },
     createReadStream: () => fromArray.obj(props.patches),
-    extraProps: {},
+    extraProps: { backend: props.backend },
   })))

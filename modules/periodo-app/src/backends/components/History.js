@@ -18,17 +18,17 @@ class PatchHistory extends React.Component {
   }
 
   render() {
-    const { patches } = this.props
+    const { patches, backend } = this.props
 
     return (
       h(Box, [
         h(PatchLayoutRenderer, {
+          backend,
           patches,
           layout,
           blockOpts: this.state.blockOpts,
           onBlockOptsChange: blockOpts => this.setState({ blockOpts }),
         }),
-        // h('pre', JSON.stringify(patches, true, '  ')),
       ])
     )
   }

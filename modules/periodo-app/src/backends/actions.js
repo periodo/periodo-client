@@ -4,6 +4,8 @@ const R = require('ramda')
     , N3 = require('n3')
     , url = require('url')
     , ns = require('../linked-data/ns')
+    , jsonpatch = require('fast-json-patch')
+    , { Route } = require('org-shell')
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
@@ -136,6 +138,55 @@ function fetchBackend(storage, forceReload) {
   })
 }
 
+function fetchBackendPatch(storage, patchID) {
+  const action = BackendAction.GetBackendPatch(storage, patchID)
+
+  return action.do(async (dispatch, getState, { db }) => {
+    const ret = await storage.case({
+      IndexedDB: async backendID => {
+        const patch = await db.localBackendPatches.get(parseInt(patchID))
+
+        if (!patch) {
+          throw new Error(`No such patch: ${patchID}`)
+        }
+
+        if (!patch.backendID === backendID) {
+          throw new Error(`Patch ${patchID} is not a part of backend ${backendID}`)
+        }
+
+        const prevPatches = await db.localBackendPatches
+          .where('backendID')
+          .equals(backendID)
+          .until(p => p.created === patch.created)
+          .toArray()
+
+        const prevDataset = emptyDataset()
+
+        let postDataset = emptyDataset()
+
+        prevPatches.forEach(patch => {
+          const toApply = jsonpatch.deepClone(patch.forward)
+          jsonpatch.applyPatch(prevDataset, toApply);
+          jsonpatch.applyPatch(postDataset, toApply);
+        })
+
+        postDataset = jsonpatch.deepClone(postDataset)
+        jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch.forward))
+
+        return {
+          dataset: postDataset,
+          prevDataset,
+          patch,
+        }
+      },
+      _: R.T,
+    })
+
+    return ret;
+  })
+}
+
+
 function fetchBackendHistory(storage) {
   const action = BackendAction.GetBackendHistory(storage)
 
@@ -150,6 +201,7 @@ function fetchBackendHistory(storage) {
           .toArray()
 
         return patches.map(p => ({
+          id: p.id,
           author: '(local)',
           time: p.created,
           patch: p.forward,
@@ -394,6 +446,7 @@ module.exports = {
   listAvailableBackends,
   fetchBackend,
   fetchBackendHistory,
+  fetchBackendPatch,
   addBackend,
   updateBackend,
   updateLocalDataset,

@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
     , utils = require('periodo-utils')
     , actions = require('./actions')
     , { BackendStorage } = require('./types')
+    , { handleCompletedAction } = require('../typed-actions/utils')
 
 const backendRoute = props => name =>
   Route(`backend-${name}`, {
@@ -217,6 +218,36 @@ module.exports = {
         const storage = BackendStorage.fromIdentifier(params.backendID)
 
         await dispatch(actions.fetchBackendHistory(storage))
+      },
+
+      mapStateToProps(state, props) {
+        const ret = opts.mapStateToProps(state, props)
+
+        return Object.assign({}, ret, {
+          patches: state.backends.patches[props.params.backendID]
+        })
+      }
+    })
+  })(),
+
+  'backend-patch': (() => {
+    const opts = individualBackendPage(
+      props => `History`,
+      require('./components/BackendPatch')
+    )
+
+    return Object.assign({}, opts, {
+      onBeforeRoute: async (dispatch, params) => {
+        await opts.onBeforeRoute(dispatch, params);
+
+        const storage = BackendStorage.fromIdentifier(params.backendID)
+
+        await dispatch(actions.fetchBackendHistory(storage))
+        const patches = await dispatch(actions.fetchBackendPatch(storage, params.patchID))
+
+        return handleCompletedAction(patches,
+          R.identity,
+          err => { throw err })
       },
 
       mapStateToProps(state, props) {
