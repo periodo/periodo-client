@@ -40,7 +40,7 @@ function validateAuthority(authority) {
 
 const VALID_PERIOD_FIELDS = [
   'id',
-  'ul',
+  'url',
   'sameAs',
   'source',
   'label',
