@@ -54,8 +54,8 @@ class SyncBackend extends React.Component {
     // FIXME? this could throw if patch is invalid... But how could the patch
     // be invalid?
     const newDataset = jsonpatch.applyPatch(
-      R.clone(dataset),
-      R.clone(currentPatch),
+      JSON.parse(JSON.stringify(dataset)),
+      JSON.parse(JSON.stringify(currentPatch)),
     ).newDocument
 
     const action = await dispatch(updateLocalDataset(
