@@ -21,7 +21,7 @@ const Side = Type({
 
 const colors = {
   "New": "limegreen",
-  "Changed": "yellow",
+  "Changed": "goldenrod",
   "Removed": "red",
 }
 
@@ -50,17 +50,21 @@ function addOrRemove(items, key) {
 
 function PeriodCell(props) {
   const {
-    patch,
+    patches,
     editing,
     setState,
     period,
     authority,
     expandAll,
     selectAll,
+    localPeriod,
+    remotePeriod,
     expandedPeriods,
     selectedPeriods,
     selectedPatches,
   } = props
+
+  const patch = patches[0]
 
   const deferToAuthority = patch.type._name === 'AddAuthority'
 
@@ -85,8 +89,6 @@ function PeriodCell(props) {
           type: 'checkbox',
           checked,
           onChange: () => setState(prev => {
-            debugger;
-
             // In the simple case, where the period is not a "subperiod" of a
             // patch adding an authority, just toggle whether this patch is
             // selected.
@@ -157,6 +159,11 @@ function PeriodCell(props) {
       (expandAll || expandedPeriods.has(period.id)) && patch.type.case({
         AddAuthority: () => h(Period, { p: 1, bg: 'green0', value: period }),
         AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
+        ChangePeriod: () => h(Period, {
+          p: 1,
+          value: localPeriod(authority.id, period.id),
+          compare: remotePeriod(authority.id, period.id),
+        }),
         RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
         RemovePeriod: () => h(Period, { p: 1, bg: 'red0', value: period }),
         _: () => null,
@@ -195,23 +202,32 @@ function AuthorityRow(props) {
     _: R.F,
   })
 
-  const periods = R.chain(patch => {
-    const periods = [].concat(patch.type.case({
-      AddAuthority: () => util.authority.periods(patch.patch.value),
-      RemoveAuthority: () => util.authority.periods(authority),
-      ChangeAuthority: R.always([]),
-      AddPeriod: remotePeriod,
-      ChangePeriod: localPeriod,
-      RemovePeriod: localPeriod,
-      _: R.F,
-    }))
+  const periods = R.pipe(
+    R.chain(patch => {
+      const periods = [].concat(patch.type.case({
+        AddAuthority: () => util.authority.periods(patch.patch.value),
+        RemoveAuthority: () => util.authority.periods(authority),
+        ChangeAuthority: R.always([]),
+        AddPeriod: remotePeriod,
+        ChangePeriod: localPeriod,
+        RemovePeriod: localPeriod,
+        _: R.F,
+      }))
 
-    return periods.map(period => ({
-      period,
-      authority,
-      patch,
+      return periods.map(period => ({
+        period,
+        authority,
+        patch,
+      }))
+    }),
+    R.groupBy(R.path(['period', 'id'])),
+    R.values,
+    R.map(p => ({
+      period: p[0].period,
+      authority: p[0].authority,
+      patches: p.map(R.prop('patch'))
     }))
-  }, patches)
+  )(patches)
 
   const authorityPatches = patches
     .filter(({ type }) => type._name.endsWith('Authority'))
@@ -293,6 +309,8 @@ function AuthorityRow(props) {
           period,
           patch,
           authority,
+          localPeriod,
+          remotePeriod,
         }, props))),
         R.ifElse(
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
