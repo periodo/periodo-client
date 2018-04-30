@@ -343,7 +343,7 @@ function updateLocalDataset(storage, newDataset, message) {
     await db.localBackends.put(updatedBackend);
 
     await db.localBackendPatches.add(Object.assign({
-      backendID: backend.id
+      backendID: backend.storage.id
     }, patchData))
 
     await _refetch()
