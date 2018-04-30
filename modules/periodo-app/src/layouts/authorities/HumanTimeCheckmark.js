@@ -27,7 +27,7 @@ module.exports = {
         return earliestStart != null && earliestStart > earliest
       })(definitions)
 
-      if (!R.isEmpty(matchedDefinitions)) {
+      if (R.isEmpty(definitions) || !R.isEmpty(matchedDefinitions)) {
         this.push({
           authority,
           definitions: matchedDefinitions,
