@@ -10,58 +10,28 @@ const React = require('react')
     , through = require('through2')
     , Route = require('./Route')
 
-
 const NotFound = () => h('h1', null, 'Not Found')
 
-function transformResources(resources, baseTitle) {
-  const wrappedResources = {}
+function makeTitledComponent({ baseTitle, makeTitle, Component }) {
+  return class TitledComponent extends React.Component {
+    componentDidCatch() {
+      let title = '';
 
-  Object.keys(resources).forEach(name => {
-    const resource = resources[name]
-        , { Component } = resource
+      if (baseTitle) title += baseTitle;
 
-    let WrappedResourceComponent = class WrappedResourceComponent extends React.Component {
-      componentDidMount() {
-        let title = '';
-
-        const { makeTitle } = resource
-
-        if (baseTitle) {
-          title += baseTitle;
-        }
-
-        if (makeTitle) {
-          try {
-            const resourceTitle = makeTitle(this.props)
-
-            if (title) title += ' | ';
-            title += resourceTitle;
-          } catch (err) {
-            /* eslint-disable no-console */
-            console.warn(`Error when making resource title for resource ${name}`)
-          }
-        }
-
-        if (title) document.title = title || '';
+      if (makeTitle) {
+        const resourceTitle = makeTitle(this.props);
+        if (title) title += ' | ';
+        title += resourceTitle;
       }
 
-      render() {
-        return h(Component, Object.assign({}, this.props))
-      }
+      if (title) document.title = title;
     }
 
-    if (resource.mapStateToProps) {
-      WrappedResourceComponent = connect(resource.mapStateToProps)(WrappedResourceComponent)
+    render() {
+      return h(Component, this.props)
     }
-
-    WrappedResourceComponent.displayName = `ORGShellResource(${name})`
-
-    wrappedResources[name] = Object.assign({}, resource, {
-      Component: WrappedResourceComponent
-    })
-  })
-
-  return wrappedResources;
+  }
 }
 
 module.exports = function makeORGShell({
@@ -70,16 +40,13 @@ module.exports = function makeORGShell({
   NotFoundComponent=NotFound,
   baseTitle='',
 }, Component) {
-
-  // FIXME: Do checks on resources and createStore
-
   const store = createStore()
       , locationStream = through.obj()
-      , _resources = transformResources(resources, baseTitle)
 
-  const getResourceComponent = name =>
-    _resources[name] || { Component: NotFoundComponent }
-
+  resources = R.map(resource =>
+    R.merge(resource, ({ Component: makeTitledComponent(resource) })),
+    resources
+  )
 
   class ORGShell extends React.Component {
     constructor() {
@@ -131,8 +98,12 @@ module.exports = function makeORGShell({
       // FIXME: Mixing resource object and augmenting "params" seems bad. I
       // know I did it for a reason at some point, but that reason may have
       // been impatience and delirium. It's worth revisiting at some point.
-      const resource = Object.assign({ params }, getResourceComponent(resourceName))
-          , { onBeforeRoute } = resource
+      const resource = Object.assign(
+        { params },
+        resources[resourceName] || { Component: NotFoundComponent }
+      )
+
+      const { onBeforeRoute } = resource
           , redirect = url => redirectTo = url
 
       this.setState({ loadingNewResource: true })
