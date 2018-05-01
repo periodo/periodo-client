@@ -50,12 +50,18 @@ module.exports = function backends(state=initialState(), action) {
       GetAllBackends() {
         const { backends } = getResponse(action)
 
-        const backendObj = R.fromPairs(backends.map(backend => [
+        const availableBackends = R.fromPairs(backends.map(backend => [
           backend.asIdentifier(),
           backend,
         ]))
 
-        return R.set(R.lensProp('available'), backendObj, state)
+        // Don't just set `available`, since anonymous Web backends might be
+        // contained in there. Instead, just merge.
+        return R.over(
+          R.lensProp('available'),
+          R.flip(R.merge)(availableBackends),
+          state
+        )
       },
 
       GetBackendDataset() {
