@@ -35,7 +35,7 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
                 Object.assign({ id }, authority),
                 dataset
               ),
-              `Added period collection ${id}`
+              `Added authority ${id}`
             ))
 
             locationStream.write({

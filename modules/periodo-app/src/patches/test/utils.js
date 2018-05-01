@@ -43,7 +43,7 @@ test('Formatting and hashing patches', async t => {
 
   t.equal(
     patch.message,
-    'Changed editorialNote of period p03377fkhrv in collection p03377f.');
+    'Changed editorialNote of period p03377fkhrv in authority p03377f.');
 })
 
 
@@ -142,9 +142,9 @@ test('Patch utils', async t => {
   ])
 
   t.deepEquals(samples.map(PatchType.fromPatch).map(t => t.getLabel()), [
-    'Added period b in collection a.',
-    'Removed period b in collection a.',
-    'Changed note of period b in collection a.',
+    'Added period b in authority a.',
+    'Removed period b in authority a.',
+    'Changed note of period b in authority a.',
   ], 'should describe patches in English')
 
 

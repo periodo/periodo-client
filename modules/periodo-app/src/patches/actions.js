@@ -2,8 +2,8 @@
 
 const { fetchBackend } = require('../backends/actions')
     , { getResponse } = require('../typed-actions/utils')
-    , { makePatch } = require('./utils/patch')
-    , { filterByHash } = require('./utils/patch_collection')
+    , { makePatch } = require('./patch')
+    , { filterByHash } = require('./patch_collection')
     , { PatchDirection, PatchAction } = require('./types')
 
 function prefixMatch(a, b) {
