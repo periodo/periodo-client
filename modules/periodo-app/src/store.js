@@ -1,14 +1,15 @@
 "use strict";
 
-const { createStore, applyMiddleware, compose } = require('redux')
+const { createStore, applyMiddleware, compose, combineReducers } = require('redux')
     , thunk = require('redux-thunk').default
     , unionTypeMiddleware = require('./typed-actions/middleware')
     , periodoDB = require('./db')
-    , { getApplicationReducer } = require('./modules')
 
 module.exports = function () {
   return createStore(
-    getApplicationReducer(),
+    combineReducers({
+      backends: require('./backends/reducer')
+    }),
     compose(
       applyMiddleware(thunk.withExtraArgument({ db: periodoDB() }), unionTypeMiddleware),
       window.devToolsExtension ? window.devToolsExtension() : a => a

@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { ORGShell } = require('org-shell')
     , { Box, Heading } = require('axs-ui')
     , createStore = require('../store')
-    , { getApplicationResources } = require('../modules')
+    , resources = require('../resources')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
 
@@ -19,7 +19,9 @@ class PeriodoApplication extends React.Component {
   }
 
   static getDerivedStateFromProps(nextProps, nextState) {
-    const state = { resourceName: nextProps.activeResourceName }
+    const state = {
+      resourceName: nextProps.activeResourceName
+    }
 
     if (nextProps.activeResourceName !== nextState.resourceName) {
       return Object.assign({ error: null }, state)
@@ -106,6 +108,6 @@ class PeriodoApplication extends React.Component {
 
 module.exports = ORGShell({
   createStore,
-  resources: getApplicationResources(),
+  resources,
   baseTitle: 'PeriodO',
 }, PeriodoApplication)
