@@ -14,20 +14,21 @@ class PeriodoApplication extends React.Component {
     super()
 
     this.state = {
-      error: null
+      error: null,
+      activeResource: null,
     }
   }
 
   static getDerivedStateFromProps(nextProps, nextState) {
-    const state = {
-      resourceName: nextProps.activeResourceName
+    if (nextProps.activeResource !== nextState.activeResource) {
+      return {
+        error: null,
+        activeResource: nextProps.activeResource,
+        prevActiveResource: nextState.activeResource,
+      }
     }
 
-    if (nextProps.activeResourceName !== nextState.resourceName) {
-      return Object.assign({ error: null }, state)
-    }
-
-    return state;
+    return null;
   }
 
   componentDidCatch(err, info) {
@@ -49,7 +50,7 @@ class PeriodoApplication extends React.Component {
             height: '56px',
             borderBottom: '1px solid #ccc',
           },
-          showSpinner: this.props.loadingNewResource,
+          showSpinner: this.props.loading,
         }),
 
         h(Box, {
