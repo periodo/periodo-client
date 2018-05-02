@@ -4,9 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Route } = require('org-shell')
     , actions = require('./backends/actions')
-		, { connect } = require('react-redux')
-		, { Flex, Box, Heading } = require('axs-ui')
-		, { Link } = require('periodo-ui')
+    , { Flex, Box, Heading } = require('axs-ui')
+    , { Link } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction, getResponse } = require('./typed-actions/utils')
 
@@ -22,6 +21,10 @@ async function throwIfUnsuccessful(promise) {
   })
 }
 
+function hasEditableBackend({ backend }) {
+  return backend.isEditable()
+}
+
 const Home = {
   label: 'Home',
   parent: null,
@@ -29,11 +32,13 @@ const Home = {
     '': {
       Component: () => h('div'),
       onBeforeRoute(dispatch, params, redirect) {
-        redirect(new Route('backends'))
+        redirect(new Route('open-backend'))
       }
     },
+    /*
     help: {
     },
+    */
     'open-backend': {
       label: 'Backend list',
       Component: require('./backends/components/BackendSelect'),
@@ -48,8 +53,14 @@ const Home = {
         )(state.backends.available)
       }),
     },
+    'add-backend': {
+      label: 'Add backend',
+      Component: require('./backends/components/AddBackend'),
+    },
+    /*
     'review-patches': {
     }
+    */
   }
 }
 
@@ -61,56 +72,36 @@ const Backend = {
       label: 'Browse',
       Component: require('./backends/components/BackendHome'),
     },
+    'backend-edit': {
+      label: 'Configure',
+      Component: require('./backends/components/EditBackend'),
+    },
     'backend-add-authority': {
       label: 'Add authority',
       Component: require('./backends/components/AddAuthority'),
-    },
-    'backend-edit': {
-      label: 'Edit',
-      Component: require('./backends/components/EditBackend'),
+      showInMenu: hasEditableBackend,
     },
     'backend-sync': {
       label: 'Sync',
       Component: require('./backends/components/SyncBackend'),
+      showInMenu: hasEditableBackend,
       async onBeforeRoute(dispatch) {
         await dispatch(actions.listAvailableBackends())
       }
     },
     'backend-history': {
       label: 'History',
-      component: require('./backends/components/History'),
+      Component: require('./backends/components/History'),
       async onBeforeRoute(dispatch, params) {
         const storage = BackendStorage.fromIdentifier(params.backendID)
         await dispatch(actions.fetchBackendHistory(storage))
       },
       mapStateToProps(state, props) {
-        return R.merge(props, {
+        return {
           patches: state.backends.patches[props.params.backendID]
-        })
+        }
       },
     },
-    'backend-patch': {
-      label: 'View patch',
-      component: require('./backends/components/History'),
-      async onBeforeRoute(dispatch, params) {
-        requireParam('patchID')
-
-        const storage = BackendStorage.fromIdentifier(params.backendID)
-
-        await throwIfUnsuccessful(
-          dispatch(actions.fetchBackendHistory(storage)))
-
-        const patchReq = await throwIfUnsuccessful(
-          dispatch(actions.fetchBackendPatch(storage, params.patchID)))
-
-        return getResponse(patchReq)
-      },
-      mapStateToProps(state, props) {
-        return R.merge(props, {
-          patches: state.backends.patches[props.params.backendID]
-        })
-      }
-    }
   },
   async onBeforeRoute(dispatch, params) {
     requireParam(params, 'backendID');
@@ -128,22 +119,48 @@ const Backend = {
   }
 }
 
+const BackendPatch = {
+  label: 'Backend patch',
+  parent: Backend,
+  resources: {
+    'backend-patch': {
+      label: 'View patch',
+      Component: require('./backends/components/BackendPatch'),
+      showInMenu: hasEditableBackend,
+    }
+  },
+  async onBeforeRoute(dispatch, params) {
+    requireParam(params, 'patchID')
+
+    const storage = BackendStorage.fromIdentifier(params.backendID)
+
+    await throwIfUnsuccessful(
+      dispatch(actions.fetchBackendHistory(storage)))
+
+    const patchReq = await throwIfUnsuccessful(
+      dispatch(actions.fetchBackendPatch(storage, params.patchID)))
+
+    return patchReq
+  },
+  mapStateToProps(state, props) {
+    return {
+      patches: state.backends.patches[props.params.backendID]
+    }
+  }
+}
+
 const Authority = {
   label: 'Authority',
   parent: Backend,
   resources: {
     'authority-view': {
-      label: 'View authority',
+      label: 'View',
       Component: require('./backends/components/Authority'),
     },
-    'authority-export': {
-      label: 'Export authority',
-      Component: require('./backends/components/Export'),
-    },
 
-    'authority-history': {
-      label: 'Authority history',
-      Component: () => h('h1', 'History')
+    'authority-edit': {
+      label: 'Edit',
+      Component: () => h('h1', 'Edit authority'),
     },
 
     'authority-add-period': {
@@ -151,9 +168,14 @@ const Authority = {
       Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
-    'authority-edit': {
-      label: 'Edit authority',
-      Component: () => h('h1', 'Edit authority'),
+    'authority-export': {
+      label: 'Export',
+      Component: require('./backends/components/Export'),
+    },
+
+    'authority-history': {
+      label: 'History',
+      Component: () => h('h1', 'History')
     },
   },
   onBeforeRoute(dispatch, params) {
@@ -171,18 +193,23 @@ const Period = {
   parent: Authority,
   resources: {
     'period-view': {
-      label: 'View period',
+      label: 'View',
       Component: require('./backends/components/PeriodView')
     },
 
     'period-edit': {
-      label: 'Edit period',
+      label: 'Edit',
       Component: require('./backends/components/PeriodAddOrEdit')
     },
 
     'period-export': {
-      label: 'Export period',
+      label: 'Export',
       Component: require('./backends/components/Export'),
+    },
+
+    'period-history': {
+      label: 'History',
+      Component: () => h('h1', 'History')
     },
   },
   onBeforeRoute(dispatch, params) {
@@ -213,38 +240,13 @@ function getParents(group) {
 }
 
 function makeResourceComponent(resource, group) {
-  let Resource = props => {
+  const Resource = props => {
     return (
       h(Box, { css: { width: '100%', flexGrow: 1, }}, [
-        h(Flex, {
-          border: 2,
-          p: 2,
-          mb: 2,
-        }, group.parents.concat(group).map((group, i) =>
-          h(Box, {
-            key: i,
-            css: { minWidth: 200 },
-          }, [
-            h(Heading, { key: 'heading' + '-i', level: 5 }, group.name),
-          ].concat(R.values(R.mapObjIndexed((resource, routeName) =>
-            h(Link, {
-              display: 'block',
-              key: routeName,
-              route: Route(routeName, props.params),
-              css: Object.assign({}, routeName === props.activeResourceName && {
-                backgroundColor: '#ccc',
-              }),
-            }, routeName),
-            group.resources
-          ))))
-        )),
-
         h(resource.Component, props),
       ])
     )
   }
-
-  Resource = connect(resource.mapStateToProps)(Resource)
 
   Resource.displayName = `Resource:${resource.name}`
 
@@ -271,6 +273,7 @@ function registerGroups(groups) {
       const resourceKey = `Resource:${key}`
 
       resource.name = key;
+      resource.hierarchy = parents.concat(group, resource)
 
       if (resource.mapStateToProps) {
         defineName(resource.mapStateToProps, `${resourceKey}:mapStateToProps`)
@@ -290,7 +293,7 @@ function registerGroups(groups) {
           }
         ),
         R.map(R.filter(R.identity))
-      )(parents.concat(group, resource))
+      )(resource.hierarchy)
 
       resource.onBeforeRoute = async (...args) => {
         const ret = {}
@@ -305,8 +308,9 @@ function registerGroups(groups) {
 
       resource.mapStateToProps = (state, ownProps) =>
         aggregated.mapStateToProps.reduce(
-          (props, fn) => R.merge(props, fn(state, props)),
-          ownProps)
+          (props, fn) => R.merge(props, fn(state, R.merge(ownProps, props))),
+          {}
+        )
       defineName(resource.mapStateToProps, `${resourceKey}:combinedMapStateToProps`)
 
     }, group.resources)
@@ -321,18 +325,20 @@ module.exports = []
 registerGroups({
   Home,
   Backend,
+  BackendPatch,
   Authority,
+  // AuthorityPatch,
   Period,
+  // PeriodPatch,
 })
 
 module.exports = module.exports.reduce((acc, group) =>
   R.merge(
     acc,
-    R.map(resource => ({
+    R.map(resource => R.merge(resource, ({
       Component: makeResourceComponent(resource, group),
-      onBeforeRoute: resource.onBeforeRoute,
       makeTitle: () => `${group.label} | ${resource.label}`,
-    }), group.resources)
+    })), group.resources)
   ),
   {}
 )
