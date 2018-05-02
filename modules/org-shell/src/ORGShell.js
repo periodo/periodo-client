@@ -130,7 +130,7 @@ module.exports = function makeORGShell({
             activeResource: resource,
             activeParams: params,
             activeOpts: opts,
-            activeExtraProps: extraProps,
+            activeExtra: extraProps,
           })
 
           if (pushState) {
@@ -151,7 +151,7 @@ module.exports = function makeORGShell({
             },
             activeParams: null,
             activeOpts: null,
-            activeExtraProps: null,
+            activeExtra: null,
           })
 
       } finally {
