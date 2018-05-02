@@ -195,10 +195,11 @@ module.exports = function makeORGShell({
         updateOpts: this.updateCurrentOpts,
       }
 
-      const outerOpts = {
+      const outerOpts = R.merge(innerOpts, {
+        store,
         loading,
         activeResource,
-      }
+      })
 
       return (
         h(Provider, { store },
