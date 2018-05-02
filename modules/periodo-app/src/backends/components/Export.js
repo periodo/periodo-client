@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
 const ReadyState = Type({
   Pending: {},
   Success: [String],
-  Error: [String],
+  Failure: [String],
 })
 
 class ExportData extends React.Component {
