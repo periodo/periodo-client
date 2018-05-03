@@ -147,6 +147,8 @@ const PatchAction = makeActionType('patch', {
     },
     {
       patch: Object,
+      localDataset: Object,
+      remoteDataset: Object,
     }
   ]
 })

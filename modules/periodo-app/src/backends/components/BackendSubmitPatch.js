@@ -58,7 +58,7 @@ class SubmitPatch extends React.Component {
       child = h(SelectChanges, {
         direction: PatchDirection.Push,
         dispatch: this.props.dispatch,
-        localDataset: this.props.dataset,
+        localBackend: this.props.backend,
         handleSelectPatch: (selectedPatch, compareComponent) => {
           this.setState({
             selectedPatch,

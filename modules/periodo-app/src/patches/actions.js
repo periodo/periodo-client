@@ -24,25 +24,25 @@ function prefixMatch(a, b) {
 
 // push means going from a->b; pull from b->a
 function generateDatasetPatch(
-  originBackend,
+  localBackend,
   remoteBackend,
-  direction=PatchDirection.Push
+  direction
 ) {
   const action = PatchAction.GenerateDatasetPatch(
-    originBackend,
+    localBackend,
     remoteBackend,
     direction
   )
 
   return action.do(async (dispatch, getState, { db }) => {
-    const [originReq, remoteReq] = await Promise.all([
-      dispatch(fetchBackend(originBackend)),
+    const [localReq, remoteReq] = await Promise.all([
+      dispatch(fetchBackend(localBackend)),
       dispatch(fetchBackend(remoteBackend)),
     ])
 
     // FIXME: Handle errors in responses?
-    const originID = getResponse(originReq).backend.id
-        , originDataset = getResponse(originReq).dataset
+    const localID = getResponse(localReq).backend.storage.id
+        , localDataset = getResponse(localReq).dataset
         , remoteDataset = getResponse(remoteReq).dataset
 
     const hashObjectStore = direction.case({
@@ -53,20 +53,22 @@ function generateDatasetPatch(
     const filterHashes = hashes =>
       db.localBackendPatches
         .where(hashObjectStore)
-        .anyOf(hashes.toArray())
-        .and(({ backendID }) => backendID === originID)
+        .anyOf(hashes)
+        .and(({ backendID }) => backendID === localID)
         .uniqueKeys()
 
-    // if PUSH, make remote look like origin.
-    // if PULL, make origin look like remote.
     const rawPatch = direction.case({
-      Push: () => makePatch(remoteDataset, originDataset),
-      Pull: () => makePatch(originDataset, remoteDataset)
+      Push: () => makePatch(remoteDataset, localDataset),
+      Pull: () => makePatch(localDataset, remoteDataset)
     })
 
     const patch = await filterByHash(rawPatch, direction, filterHashes)
 
-    return { patch }
+    return {
+      patch,
+      localDataset,
+      remoteDataset,
+    }
   })
 }
 

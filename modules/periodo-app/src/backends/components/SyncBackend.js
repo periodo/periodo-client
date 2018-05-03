@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
     , { LocationStreamAware, Route } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
     , { updateLocalDataset } = require('../actions')
+    , { PatchDirection } = require('../../patches/types')
     , SelectChanges = require('../../patches/SelectChanges')
 
 
@@ -67,8 +68,9 @@ class SyncBackend extends React.Component {
       ])
     } else {
       child = h(SelectChanges, {
+        direction: PatchDirection.Pull,
         dispatch: this.props.dispatch,
-        localDataset: this.props.dataset,
+        localBackend: this.props.backend,
         handleSelectPatch: (selectedPatch, compareComponent) => {
           this.setState({ selectedPatch, compareComponent })
         }

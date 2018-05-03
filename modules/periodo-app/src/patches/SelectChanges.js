@@ -6,9 +6,8 @@ const h = require('react-hyperscript')
     , { Button$Primary, InputBlock } = require('periodo-ui')
     , { BackendStorage } = require('../backends/types')
     , { handleCompletedAction } = require('../typed-actions/utils')
-    , { fetchBackend } = require('../backends/actions')
+    , { generateDatasetPatch } = require('./actions')
     , Compare = require('./Compare')
-    , { PatchDirection } = require('./types')
 
 class SelectChanges extends React.Component {
   constructor() {
@@ -22,24 +21,23 @@ class SelectChanges extends React.Component {
       currentPatch: [],
     }
 
-    this.fetchBackend = this.fetchBackend.bind(this);
+    this.generatePatch = this.generatePatch.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  async fetchBackend(storage) {
-    const { dispatch } = this.props
+  async generatePatch(remoteBackend) {
+    const { dispatch, localBackend, direction } = this.props
 
-    const action = await dispatch(fetchBackend(storage, true))
+    const patchReq = await dispatch(generateDatasetPatch(
+      localBackend.storage,
+      remoteBackend,
+      direction
+    ))
 
-    handleCompletedAction(action,
-      ({ backend, dataset }) => {
-        this.setState({
-          remoteBackend: backend,
-          remoteDataset: dataset,
-        })
-      },
+    handleCompletedAction(patchReq,
+      ({ patch, localDataset, remoteDataset }) => this.setState({ patch, localDataset, remoteDataset }),
       err => {
-        this.setState({ fetchErr: err })
+        throw err;
       }
     )
   }
@@ -49,36 +47,29 @@ class SelectChanges extends React.Component {
   }
 
   render() {
-    const {
-      localDataset,
-      handleSelectPatch,
-      direction=PatchDirection.Pull
-    } = this.props
+    const { direction, handleSelectPatch } = this.props
+        , { patch, localDataset, remoteDataset } = this.state
 
-    const {
-      remoteDataset,
-    } = this.state
-
-    const compareOpts = direction.case({
-      Push: () => ({
-        remoteDataset: localDataset,
-        localDataset: remoteDataset,
-      }),
-      Pull: () => ({
-        localDataset,
-        remoteDataset,
-      })
-    })
-
-    if (remoteDataset) {
+    if (patch) {
       return h(Box, [
-        h(Compare, Object.assign({ onChange: this.handleChange }, compareOpts)),
+        h(Compare, {
+          onChange: this.handleChange,
+          localDataset,
+          remoteDataset,
+          direction,
+          patch
+        }),
 
         h(Button$Primary, {
           disabled: !this.state.currentPatch.length,
           onClick: () => handleSelectPatch(
             this.state.currentPatch,
-            h(Compare, Object.assign({ patch: this.state.currentPatch }, compareOpts))
+            h(Compare, {
+              localDataset,
+              remoteDataset,
+              direction,
+              patch: this.state.currentPatch,
+            }),
           ),
         }, 'Continue'),
       ])
@@ -94,7 +85,7 @@ class SelectChanges extends React.Component {
         }),
 
         h(Button$Primary, {
-          onClick: () => this.fetchBackend(BackendStorage.Web(this.state.url)),
+          onClick: () => this.generatePatch(BackendStorage.Web(this.state.url)),
         }, 'Compare')
       ])
     )

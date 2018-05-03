@@ -82,9 +82,10 @@ async function filterByHash(patches, keepMatched, hashMatchFn) {
     }
   })
 
-  const matchingHashes = await patchesByHash.size
+  const matchingHashes = await (patchesByHash.size
     ? hashMatchFn([...patchesByHash.keys()].sort())
     : []
+  )
 
   return [...patchesByHash]
     .filter(([hash]) =>

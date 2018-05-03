@@ -15,8 +15,8 @@ const h = require('react-hyperscript')
     , { PatchType } = require('./types')
 
 const Side = Type({
-  Local: {},
-  Remote: {},
+  Unpatched: {},
+  Patched: {},
 })
 
 const colors = {
@@ -57,8 +57,8 @@ function PeriodCell(props) {
     authority,
     expandAll,
     selectAll,
-    localPeriod,
-    remotePeriod,
+    unpatchedPeriod,
+    patchedPeriod,
     expandedPeriods,
     selectedPeriods,
     selectedPatches,
@@ -161,8 +161,8 @@ function PeriodCell(props) {
         AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
         ChangePeriod: () => h(Period, {
           p: 1,
-          value: localPeriod(authority.id, period.id),
-          compare: remotePeriod(authority.id, period.id),
+          value: unpatchedPeriod(authority.id, period.id),
+          compare: patchedPeriod(authority.id, period.id),
         }),
         RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
         RemovePeriod: () => h(Period, { p: 1, bg: 'red0', value: period }),
@@ -187,18 +187,20 @@ function AuthorityRow(props) {
     setState,
   } = props
 
-  const remoteAuthority = getAuthority(Side.Remote)
-      , localAuthority = getAuthority(Side.Local)
-      , remotePeriod = getPeriod(Side.Remote)
-      , localPeriod = getPeriod(Side.Local)
+
+
+  const patchedAuthority = getAuthority(Side.Patched)
+      , unpatchedAuthority = getAuthority(Side.Unpatched)
+      , patchedPeriod = getPeriod(Side.Patched)
+      , unpatchedPeriod = getPeriod(Side.Unpatched)
 
   const authority = patches[0].type.case({
-    AddAuthority: remoteAuthority,
-    ChangeAuthority: localAuthority,
-    RemoveAuthority: localAuthority,
-    AddPeriod: localAuthority,
-    ChangePeriod: localAuthority,
-    RemovePeriod: localAuthority,
+    AddAuthority: patchedAuthority,
+    ChangeAuthority: unpatchedAuthority,
+    RemoveAuthority: unpatchedAuthority,
+    AddPeriod: unpatchedAuthority,
+    ChangePeriod: unpatchedAuthority,
+    RemovePeriod: unpatchedAuthority,
     _: R.F,
   })
 
@@ -208,9 +210,9 @@ function AuthorityRow(props) {
         AddAuthority: () => util.authority.periods(patch.patch.value),
         RemoveAuthority: () => util.authority.periods(authority),
         ChangeAuthority: R.always([]),
-        AddPeriod: remotePeriod,
-        ChangePeriod: localPeriod,
-        RemovePeriod: localPeriod,
+        AddPeriod: patchedPeriod,
+        ChangePeriod: unpatchedPeriod,
+        RemovePeriod: unpatchedPeriod,
         _: R.F,
       }))
 
@@ -309,8 +311,8 @@ function AuthorityRow(props) {
           period,
           patch,
           authority,
-          localPeriod,
-          remotePeriod,
+          unpatchedPeriod,
+          patchedPeriod,
         }, props))),
         R.ifElse(
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
@@ -368,11 +370,18 @@ class Compare extends React.Component {
 
     if (!update) return null
 
-    const { localDataset, remoteDataset, patch } = nextProps
+    const { direction, localDataset, remoteDataset, patch } = nextProps
 
-    let allPatches = patch ? patch : makePatch(localDataset, Object.assign({}, localDataset, {
-      periodCollections: remoteDataset.periodCollections
-    }))
+    const [ unpatchedDataset, patchedDataset ] = direction.case({
+      Push: () => [ remoteDataset, localDataset ],
+      Pull: () => [ localDataset, remoteDataset ],
+    })
+
+    let allPatches = patch
+
+    if (!allPatches) {
+      allPatches = makePatch(unpatchedDataset, patchedDataset)
+    }
 
     allPatches = allPatches.map((p, i) => ({
       id: `patch-${i}`,
@@ -383,6 +392,8 @@ class Compare extends React.Component {
     return {
       allPatches,
       explicitPatch: patch,
+      unpatchedDataset,
+      patchedDataset,
       localDataset,
       remoteDataset,
       selectedPeriods: {},
@@ -420,15 +431,15 @@ class Compare extends React.Component {
 
   getAuthority(side, ...args) {
     return util.dataset.getAuthority(side.case({
-      Local: () => this.props.localDataset,
-      Remote: () => this.props.remoteDataset,
+      Unpatched: () => this.state.unpatchedDataset,
+      Patched: () => this.state.patchedDataset,
     }))(...args)
   }
 
   getPeriod(side, ...args) {
     return util.dataset.getPeriod(side.case({
-      Local: () => this.props.localDataset,
-      Remote: () => this.props.remoteDataset,
+      Unpatched: () => this.state.unpatchedDataset,
+      Patched: () => this.state.patchedDataset,
     }))(...args)
   }
 
