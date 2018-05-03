@@ -2,16 +2,16 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , jsonpatch = require('fast-json-patch')
     , { Box, Heading } = require('axs-ui')
     , { Button$Primary } = require('periodo-ui')
     , { LocationStreamAware, Route } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { updateLocalDataset } = require('../actions')
+    , { submitPatch } = require('../actions')
+    , { PatchDirection } = require('../../patches/types')
     , SelectChanges = require('../../patches/SelectChanges')
 
 
-class SyncBackend extends React.Component {
+class SubmitPatch extends React.Component {
   constructor() {
     super()
 
@@ -22,21 +22,10 @@ class SyncBackend extends React.Component {
   }
 
   async acceptPatch() {
-    const { dispatch, backend, dataset, locationStream } = this.props
-        , { selectedPatch } = this.state
+    const { dispatch, locationStream, backend } = this.props
+        , { selectedPatch, remoteBackend } = this.state
 
-    // FIXME? this could throw if patch is invalid... But how could the patch
-    // be invalid?
-    const newDataset = jsonpatch.applyPatch(
-      JSON.parse(JSON.stringify(dataset)),
-      JSON.parse(JSON.stringify(selectedPatch)),
-    ).newDocument
-
-    const action = await dispatch(updateLocalDataset(
-      backend.storage,
-      newDataset,
-      'Sync' // FIXME: better message
-    ))
+    const action = await dispatch(submitPatch(remoteBackend, selectedPatch))
 
     handleCompletedAction(action,
       () => {
@@ -61,27 +50,31 @@ class SyncBackend extends React.Component {
 
         h(Button$Primary, {
           onClick: () => {
-            this.acceptPatch()
+            this.submitPatch()
           }
-        }, 'Accept changes'),
+        }, 'Submit patch'),
       ])
     } else {
       child = h(SelectChanges, {
+        direction: PatchDirection.Push,
         dispatch: this.props.dispatch,
         localDataset: this.props.dataset,
         handleSelectPatch: (selectedPatch, compareComponent) => {
-          this.setState({ selectedPatch, compareComponent })
+          this.setState({
+            selectedPatch,
+            compareComponent,
+          })
         }
       })
     }
 
     return (
       h(Box, [
-        h(Heading, { level: 2 }, 'Sync backend'),
+        h(Heading, { level: 2 }, 'Submit patch'),
         child,
       ])
     )
   }
 }
 
-module.exports = LocationStreamAware(SyncBackend);
+module.exports = LocationStreamAware(SubmitPatch);

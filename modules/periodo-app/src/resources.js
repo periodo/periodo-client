@@ -89,6 +89,14 @@ const Backend = {
         await dispatch(actions.listAvailableBackends())
       }
     },
+    'backend-submit-patch': {
+      label: 'Submit patch',
+      Component: require('./backends/components/BackendSubmitPatch'),
+      showInMenu: hasEditableBackend,
+      async onBeforeRoute(dispatch) {
+        await dispatch(actions.listAvailableBackends())
+      }
+    },
     'backend-history': {
       label: 'History',
       Component: require('./backends/components/History'),
