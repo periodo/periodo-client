@@ -160,11 +160,13 @@ const Authority = {
 
     'authority-edit': {
       label: 'Edit',
+      showInMenu: hasEditableBackend,
       Component: () => h('h1', 'Edit authority'),
     },
 
     'authority-add-period': {
       label: 'Add period',
+      showInMenu: hasEditableBackend,
       Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
@@ -199,6 +201,7 @@ const Period = {
 
     'period-edit': {
       label: 'Edit',
+      showInMenu: hasEditableBackend,
       Component: require('./backends/components/PeriodAddOrEdit')
     },
 
