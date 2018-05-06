@@ -23,6 +23,8 @@ module.exports = function periodoDB(dexieOpts) {
       modified: new Date(),
       accessed: new Date(),
     })
+
+    db.settings.add({})
   })
 
   db.open()

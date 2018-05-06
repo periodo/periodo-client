@@ -11,7 +11,7 @@ module.exports = function dbVersion2(db) {
 
     remoteBackends: 'url',
 
-    settings: `key`,
+    settings: `++id`,
 
     // Patches derived from changes in IDB backends
     localBackendPatches: `
