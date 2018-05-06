@@ -8,7 +8,8 @@ const { createStore, applyMiddleware, compose, combineReducers } = require('redu
 module.exports = function () {
   return createStore(
     combineReducers({
-      backends: require('./backends/reducer')
+      backends: require('./backends/reducer'),
+      auth: require('./auth/reducer'),
     }),
     compose(
       applyMiddleware(thunk.withExtraArgument({ db: periodoDB() }), unionTypeMiddleware),

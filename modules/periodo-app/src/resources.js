@@ -4,6 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Route } = require('org-shell')
     , actions = require('./backends/actions')
+    , authActions = require('./auth/actions')
     , { Flex, Box, Heading } = require('axs-ui')
     , { Link } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
@@ -57,10 +58,22 @@ const Home = {
       label: 'Add backend',
       Component: require('./backends/components/AddBackend'),
     },
+    'settings': {
+      label: 'Settings',
+      Component: require('./auth/components/Settings'),
+    },
     /*
     'review-patches': {
     }
     */
+  },
+  async onBeforeRoute(dispatch) {
+    await dispatch(authActions.getApplicationSettings())
+  },
+  mapStateToProps(state) {
+    return {
+      settings: state.auth.settings,
+    }
   }
 }
 
