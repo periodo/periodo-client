@@ -2,12 +2,7 @@
 
 const R = require('ramda')
     , { $$Authority } = require('periodo-utils/src/symbols')
-    , { isInModule
-      , getResponse
-      , getActionType
-      , moduleActionCase
-      , readyStateCase
-      } = require('../typed-actions/utils')
+    , { isInModule, moduleActionCase, readyStateCase } = require('../typed-actions/utils')
 
 const initialState = () => ({
   available: {},
@@ -42,13 +37,13 @@ module.exports = function backends(state=initialState(), action) {
   if (!isInModule(action, 'backend')) return state;
 
   return readyStateCase(action, {
-    Success: () => moduleActionCase(action, {
+    Success: resp => moduleActionCase(action, {
       CreateBackend() {
         return state;
       },
 
       GetAllBackends() {
-        const { backends } = getResponse(action)
+        const { backends } = resp
 
         const availableBackends = R.fromPairs(backends.map(backend => [
           backend.asIdentifier(),
@@ -65,15 +60,13 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       GetBackendDataset() {
-        const { backend, dataset } = getResponse(action)
+        const { backend, dataset } = resp
 
         return updateBackend(backend, dataset, state)
       },
 
-      GetBackendHistory() {
-        const { $$ActionType }  = require('../typed-actions/symbols')
-            , { storage } = action[$$ActionType]
-            , { patches } = getResponse(action)
+      GetBackendHistory(storage) {
+        const { patches } = resp
 
         return R.set(
           R.lensPath(['patches', storage.asIdentifier()]),
@@ -87,20 +80,19 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       UpdateBackend() {
-        const { backend } = getResponse(action)
+        const { backend } = resp
 
         return R.set(R.lensPath(['available', backend.asIdentifier()]), backend, state)
       },
 
       UpdateLocalDataset() {
-        const { backend, dataset } = getResponse(action)
+        const { backend, dataset } = resp
 
         return updateBackend(backend, dataset, state)
       },
 
-      DeleteBackend() {
-        const { storage } = getActionType(action)
-            , removeBackend = R.omit([storage.asIdentifier()])
+      DeleteBackend(storage) {
+        const removeBackend = R.omit([storage.asIdentifier()])
 
         return R.pipe(
           R.over(R.lensProp('datasets'), removeBackend),
