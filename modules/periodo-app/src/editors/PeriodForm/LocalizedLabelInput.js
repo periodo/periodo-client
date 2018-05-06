@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , tags = require('language-tags')
-    , { Input, Flex, Box } = require('axs-ui')
+    , { Input, Flex, Box } = require('periodo-ui')
     , { Autosuggest, DropdownMenuButton, DropdownMenuMenu, Button } = require('periodo-ui')
 
 class Suggestor extends React.Component {

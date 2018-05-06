@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , Icon = require('react-geomicons').default
     , Spinner = require('respin')
     , AsyncRequestor = require('../../linked-data/AsyncRequestor')
-    , { Box, Text, Textarea } = require('axs-ui')
+    , { Box, Text, Textarea } = require('periodo-ui')
     , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
     , { Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
 

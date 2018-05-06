@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box } = require('axs-ui')
+    , { Flex, Box } = require('periodo-ui')
     , { TextareaBlock, InputBlock, Tabs, Button$Primary, Errors } = require('periodo-ui')
     , { isLinkedData } = require('../../linked-data/utils/source_ld_match')
     , Validated = require('../Validated')

@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Box } = require('axs-ui')
+    , { Flex, Box } = require('periodo-ui')
 
 // , version = require('../../../package.json').version
 // , href = `https://github.com/periodo/periodo-client/tree/v${version}`

@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box, Text } = require('axs-ui')
+    , { Flex, Box, Text } = require('periodo-ui')
     , { LayoutEditor } = require('org-layouts')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , blocks = require('../../layouts/authorities/blocks')

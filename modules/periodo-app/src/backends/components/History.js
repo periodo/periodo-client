@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , PatchLayoutRenderer = require('../../layouts/patches')
 
 const layout = `

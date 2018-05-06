@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Type = require('union-type')
-    , { Flex, Span, Box, Heading } = require('axs-ui')
+    , { Flex, Span, Box, Heading } = require('periodo-ui')
     , { asJSONLD, asTurtle } = require('../../linked-data/utils/data')
 
 const ReadyState = Type({

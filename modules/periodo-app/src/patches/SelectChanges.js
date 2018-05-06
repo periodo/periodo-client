@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , { Button$Primary, InputBlock } = require('periodo-ui')
     , { BackendStorage } = require('../backends/types')
     , { handleCompletedAction } = require('../typed-actions/utils')

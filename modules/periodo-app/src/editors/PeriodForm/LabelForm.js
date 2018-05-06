@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
     , { alternateLabels } = require('periodo-utils/src/period')
     , { RandomID } = require('periodo-utils/src/hoc')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , { Label } = require('periodo-ui')
 
 const defaultLabel = () => ({

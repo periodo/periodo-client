@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box, Heading } = require('axs-ui')
+    , { Box, Heading } = require('periodo-ui')
     , { Period, Source, Authority, Dataset, Patch } = require('periodo-ui')
     , example = require('./example-data')
 

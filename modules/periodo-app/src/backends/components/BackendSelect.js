@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Link } = require('periodo-ui')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , { Route } = require('org-shell')
 
 module.exports = props =>

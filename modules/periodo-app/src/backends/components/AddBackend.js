@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { connect } = require('react-redux')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , BackendForm = require('./BackendForm')
     , { addBackend } = require('../actions')
     , { BackendStorage } = require('../types')

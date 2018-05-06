@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Flex, Box, Heading, Text } = require('axs-ui')
+    , { Flex, Box, Heading, Text } = require('periodo-ui')
     , Spinner = require('respin')
     , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
     , { Route } = require('org-shell')

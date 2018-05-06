@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Flex, Box, Heading } = require('axs-ui')
+    , { Flex, Box, Heading } = require('periodo-ui')
     , { Source } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
 

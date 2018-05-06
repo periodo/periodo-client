@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , contributorList = require('periodo-utils/src/contributor_list')
     , source = require('periodo-utils/src/source')
     , { blocks } = require('org-layouts')
-    , { Span } = require('axs-ui')
+    , { Span } = require('periodo-ui')
     , { Route } = require('org-shell')
 
 const columns = {

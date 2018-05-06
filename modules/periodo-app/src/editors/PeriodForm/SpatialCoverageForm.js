@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box, Text } = require('axs-ui')
+    , { Box, Text } = require('periodo-ui')
     , { InputBlock, Label, Autosuggest, AriaButton } = require('periodo-ui')
     , countries = require('periodo-utils/assets/dbpedia_countries.json')
 

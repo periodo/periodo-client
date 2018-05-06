@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { updateApplicationSettings } = require('../actions')
-    , { Box, Span, Heading, Alert$Success } = require('axs-ui')
+    , { Box, Span, Heading, Alert$Success } = require('periodo-ui')
     , { Link } = require('periodo-ui')
 
 class SignIn extends React.Component {

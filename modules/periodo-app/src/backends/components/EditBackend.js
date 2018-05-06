@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , { Route, LocationStreamAware } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
     , { updateBackend, deleteBackend } = require('../actions')

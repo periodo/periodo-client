@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , LabelForm = require('./LabelForm')
-    , { Flex, Box, Heading } = require('axs-ui')
+    , { Flex, Box, Heading } = require('periodo-ui')
     , { InputBlock, TextareaBlock, Button$Primary, Errors } = require('periodo-ui')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
     , SpatialCoverageForm = require('./SpatialCoverageForm')

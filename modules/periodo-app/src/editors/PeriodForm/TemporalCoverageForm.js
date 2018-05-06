@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , TerminusInput = require('./TerminusInput')
-    , { Label, Flex, Heading, Box } = require('axs-ui')
+    , { Label, Flex, Heading, Box } = require('periodo-ui')
     , { Checkbox } = require('periodo-ui')
     , { wasAutoparsed } = require('periodo-utils/src/terminus')
 

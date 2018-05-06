@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box, Heading } = require('axs-ui')
+    , { Box, Heading } = require('periodo-ui')
     , { Button$Primary } = require('periodo-ui')
     , { LocationStreamAware, Route } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')

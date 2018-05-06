@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box, Text } = require('axs-ui')
+    , { Box, Text } = require('periodo-ui')
     , { blocks } = require('org-layouts')
 
 function itemKeySetReducer(sets, item) {

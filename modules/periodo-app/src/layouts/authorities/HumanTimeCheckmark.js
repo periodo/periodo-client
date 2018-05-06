@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , through = require('through2')
-    , { Box } = require('axs')
+    , { Box } = require('periodo-ui')
     , { terminus: { earliestYear} } = require('periodo-utils')
 
 module.exports = {

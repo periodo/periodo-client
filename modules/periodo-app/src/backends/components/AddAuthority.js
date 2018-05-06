@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , { updateLocalDataset } = require('../actions')
     , AuthorityForm = require('../../editors/AuthorityForm')

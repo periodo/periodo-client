@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , { RandomID} = require('periodo-utils').hoc
     , { updateLocalDataset } = require('../actions')
     , PeriodForm = require('../../editors/PeriodForm')

@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , { Period } = require('periodo-ui')
 
 module.exports = ({ period }) =>

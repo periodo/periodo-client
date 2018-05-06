@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , dateParser = require('periodo-date-parser')
-    , { Box, Flex } = require('axs-ui')
+    , { Box, Flex } = require('periodo-ui')
     , { isMultipart } = require('periodo-utils/src/terminus')
     , { InputBlock, Checkbox } = require('periodo-ui')
 
