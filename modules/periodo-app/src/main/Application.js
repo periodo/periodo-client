@@ -107,28 +107,34 @@ class Menu extends React.Component {
 
     return (
       h(Flex, {
-        border: 2,
-        p: 2,
-        mb: 2,
+        mb: 3,
+        py: 2,
+        px: 3,
+        bg: 'gray.0',
+        border: 1,
+        borderColor: 'gray.4',
       }, groups.map(({ label, routes, ghost }, i) =>
         h(Box, {
           key: i,
           minWidth: 200,
-          css: Object.assign({},
-            ghost && {
-              opacity: .5,
-            }
-          )
+          px: 2,
+          py: 1,
+          css: Object.assign({
+            '& [data-active="true"]::before': {
+              content: '"▸"',
+              position: 'absolute',
+              marginLeft: '-11px',
+              color: 'orangered',
+            },
+          }, ghost && { opacity: .5 })
         }, [
           h(Heading, { key: 'heading' + '-i', level: 5 }, label),
         ].concat(routes.map(({ route, label }) =>
           h(Link, {
             display: 'block',
+            ['data-active']: route.resourceName === active.resource.name,
             key: route.resourceName,
             route,
-            css: Object.assign({}, route.resourceName === active.resource.name && {
-              backgroundColor: '#ccc',
-            }),
           }, label)
         )))
       ))
@@ -181,7 +187,7 @@ class PeriodoApplication extends React.Component {
 
           h(Box, {
             bg: this.state.error ? 'red.0' : 'white',
-            p: 2,
+            p: 3,
             m: '0 auto',
             width: '100%',
             maxWidth: 1420,
