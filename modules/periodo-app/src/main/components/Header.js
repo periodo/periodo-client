@@ -8,10 +8,9 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
 
 module.exports = props =>
-  h(Box, Object.assign({
-    is: 'header',
-  }, R.omit(['showSpinner'], props)), [
+  h(Box.withComponent('header'), R.omit(['showSpinner'], props), [
     h(Flex, {
+      height: '100%',
       alignItems: 'center',
       justifyContent: 'space-around',
       p: 1,
@@ -22,24 +21,13 @@ module.exports = props =>
           m: 0,
           mr: 2,
           fontSize: 3,
-          css: {
-            fontWeight: 100
-          }
         }, [
 
-          h(Text, {
-            is: 'a',
+          h('a', {
             href: '',
-            color: 'blue',
-            css: {
-              textDecoration: 'none',
-            }
-          }, h(Text, {
-            is: 'img',
+          }, h('img', {
             src: 'images/periodo-logo.svg',
-            css: {
-              height: 32,
-            }
+            height: 32,
           }))
         ]),
       ]),
@@ -48,13 +36,6 @@ module.exports = props =>
         props.showSpinner && h(Spinner, { size: 22 }),
       ]),
 
-      h(DropdownMenu, {
-        label: 'Menu',
-        openLeft: true,
-      }, [
-        h(DropdownMenuItem, { value: Route('open-backend') }, 'Backends'),
-        h(DropdownMenuItem, { value: Route('submitted-patches') }, 'Patches'),
-        h(DropdownMenuItem, { value: Route('help') }, 'Help'),
-      ])
+      h(Box, ' '),
     ])
   ])

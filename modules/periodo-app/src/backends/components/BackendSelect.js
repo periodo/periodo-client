@@ -5,40 +5,27 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { Route } = require('org-shell')
 
+const Table = Box.withComponent('table').extend`
+  width: 100%;
+  border-spacing: 4px 0;
+
+  & tbody td {
+    padding: 4px 0;
+  }
+
+  & th {
+    font-weight: bold;
+  }
+`
+
 module.exports = props =>
-  h(Box, {
-    is: 'table',
-    css: {
-      width: '100%',
-      borderSpacing: '4px 0',
-    }
-  }, [
+  h(Table, [
     h('thead', [
       h('tr', [
-        h(Box, {
-          is: 'td',
-          css: {
-            fontWeight: 'bold',
-          },
-        }, 'Type'),
-        h(Box, {
-          is: 'td',
-          css: {
-            fontWeight: 'bold',
-          },
-        }, 'Label'),
-        h(Box, {
-          is: 'td',
-          css: {
-            fontWeight: 'bold',
-          },
-        }, 'Description'),
-        h(Box, {
-          is: 'td',
-          css: {
-            fontWeight: 'bold',
-          },
-        }, 'Last opened'),
+        h('th', 'Type'),
+        h('th', 'Label'),
+        h('th', 'Description'),
+        h('th', 'Last opened'),
       ])
     ]),
 
@@ -58,10 +45,7 @@ module.exports = props =>
           }, backend.metadata.label)
         ]),
         h('td', backend.metadata.description),
-        h(Box, {
-          is: 'td',
-          padding: '4px 0',
-        }, new Date(backend.metadata.accessed).toLocaleDateString()),
+        h('td', {}, new Date(backend.metadata.accessed).toLocaleDateString()),
       ])
     ))
   ])

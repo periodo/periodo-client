@@ -98,7 +98,7 @@ module.exports = function Settings(props) {
 
   return (
     h(Box, [
-      h('h1', 'Settings'),
+      h(Heading, { level: 1 }, 'Settings'),
       h(SignIn, {
         dispatch,
         oauthName,

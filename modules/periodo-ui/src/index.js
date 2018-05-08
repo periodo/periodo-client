@@ -9,6 +9,8 @@ function addUIModules(mods) {
   })
 }
 
+exports.theme = require('./theme')
+
 addUIModules([
   require('./InputBlock'),
   require('./Debug'),
@@ -25,4 +27,5 @@ addUIModules([
   require('./Breadcrumb'),
   require('./Links'),
   require('./Autosuggest'),
+  require('./Base'),
 ])

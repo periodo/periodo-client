@@ -4,13 +4,16 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { ORGShell, Route } = require('org-shell')
-    , { Flex, Box, Heading } = require('periodo-ui')
+    , { Flex, Pre, Box, Grid, Heading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { connect } = require('react-redux')
+    , { ThemeProvider, injectGlobal } = require('styled-components')
     , createStore = require('../store')
     , resources = require('../resources')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
+
+require('./global_css')
 
 function getRouteGroups(resource, params, props) {
   try {
@@ -108,8 +111,8 @@ class Menu extends React.Component {
       }, groups.map(({ label, routes, ghost }, i) =>
         h(Box, {
           key: i,
-          css: Object.assign(
-            { minWidth: 200 },
+          minWidth: 200,
+          css: Object.assign({},
             ghost && {
               opacity: .5,
             }
@@ -163,57 +166,40 @@ class PeriodoApplication extends React.Component {
 
   render() {
     return (
-      h(Box, {
-        css: {
-          height: '100%',
-        }
-      }, [
-        h(Header, {
-          bg: 'gray1',
-          css: {
-            height: '56px',
-            borderBottom: '1px solid #ccc',
-          },
-          showSpinner: this.props.loading,
-        }),
-
-        h(Box, {
-          is: 'main',
+      h(ThemeProvider, { theme }, [
+        h(Grid, {
+          minHeight: '100vh',
+          gridTemplateRows: '56px 1fr 116px',
         }, [
+          h(Header, {
+            bg: 'gray.1',
+            borderBottom: '1px solid #ccc',
+            showSpinner: this.props.loading,
+          }),
+
           h(Box, {
-            bg: this.state.error ? 'red' : 'white',
+            bg: this.state.error ? 'red.0' : 'white',
             p: 2,
-            css: {
-              minHeight: 'calc(100vh - 56px - 116px)',
-              margin: 'auto',
-              alignSelf: 'stretch',
-              flexGrow: 1,
-              width: '100%',
-              maxWidth: 1420,
-            }
+            m: '0 auto',
+            width: '100%',
+            maxWidth: 1420,
           }, this.state.error
               ? h(Box, [
                   h(Heading, {
                     level: '2',
-                    color: 'red8',
+                    color: 'red.4',
                     css: { 'letterSpacing': '4px' },
                   }, 'OOPSIE!!!'),
                   h(Heading, {
                     level: '4',
                     mt: 2,
                   }, 'Error stack'),
-                  h(Box, {
-                    is: 'pre',
-                    css: { whiteSpace: 'pre-line' },
-                  }, this.state.error.err.stack),
+                  h(Pre, this.state.error.err.stack),
                   h(Heading, {
                     level: '4',
                     mt: 2,
                   }, 'Component stack'),
-                  h(Box, {
-                    is: 'pre',
-                    css: { whiteSpace: 'pre-line' },
-                  }, this.state.error.info.componentStack.trim())
+                  h(Pre, this.state.error.info.componentStack.trim()),
                 ])
               : h(Box, [
                   this.state.activeResource && h(Menu, {
@@ -224,17 +210,14 @@ class PeriodoApplication extends React.Component {
                   }),
                   ...[].concat(this.props.children)
               ])
-          )
-        ]),
+          ),
 
-        h(Footer, {
-          bg: 'gray1',
-          p: 2,
-          css: {
-            height: '116px',
+          h(Footer, {
+            bg: 'gray.1',
+            p: 2,
             borderTop: '1px solid #ccc',
-          }
-        })
+          })
+        ])
       ])
     )
   }

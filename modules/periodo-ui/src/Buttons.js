@@ -2,53 +2,43 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { config, Box, Button } = require('axs-ui')
+    , sys = require('system-components').default
+    , { themeGet } = require('styled-system')
+    , { Box } = require('./Base')
 
 function makeButton(color, startShade=5, extra) {
-  const shade = n => (config.colors[`${color}${startShade + n}`] || 'black')
-      , gradient = (m, n) => `linear-gradient(to bottom, ${shade(m)},${shade(n)})`
+  const shade = n => `${color}.${startShade + n}`
 
-  const activeStyle = {
-    backgroundImage: gradient(1, 2),
-  }
+  const gradient = (m, n) => props => `
+    linear-gradient(
+      to bottom,
+      ${themeGet('colors.' + shade(m))(props)} 0%,
+      ${themeGet('colors.' + shade(n))(props)} 85%
+    )`
 
-  const disabledStyle = {
-    opacity: .4,
-  }
-
-  return props => {
-    const style = {
-      border: `1px solid ${shade(4)}`,
-      backgroundImage: gradient(0, 1)
-    }
-
-    Object.assign(style, extra)
-
-    if (props.active) {
-      Object.assign(style, activeStyle)
-    }
-
-    if (props.is && props.is !== 'button') {
-      props = R.omit(['active'], props)
-    }
-
-    if (props.disabled) Object.assign(style, disabledStyle)
-
-
-    return h(Button, Object.assign({}, props, {
-      css: Object.assign({
-        ':disabled': disabledStyle,
-        ':active:not(:disabled)': activeStyle,
-        ':hover:not(:disabled)': {
-          border: '1px solid ' + shade(7),
-          cursor: 'pointer',
-        },
-        ':hover:disabled': {
-          cursor: 'not-allowed',
-        },
-      }, style, props.css),
-    }))
-  }
+  return sys({
+    is: 'button',
+    px: 3,
+    py: 2,
+    m: 0,
+    border: 1,
+    borderColor: shade(3),
+    borderRadius: '4px',
+    color: 'white',
+    fontWeight: 'bold',
+  }, 'position', 
+    props => Object.assign({
+      cursor: 'pointer',
+      backgroundImage: gradient(0, 1)(props),
+      ':hover': {
+        backgroundImage: gradient(1, 2)(props),
+      },
+      ':disabled': {
+        cursor: 'not-allowed',
+        opacity: .4,
+      }
+    }, extra),
+  )
 }
 
 
