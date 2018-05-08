@@ -73,7 +73,7 @@ module.exports = class BackendForm extends React.Component {
         ]),
 
         h('div', [
-          h(Label, { mt: 1, htmlFor: 'label' }, 'Label'),
+          h(Label, { mt: 3, htmlFor: 'label' }, 'Label'),
 
           h(Input, {
             id: 'label',
@@ -83,7 +83,7 @@ module.exports = class BackendForm extends React.Component {
             onChange: this.handleChange
           }),
 
-          type === 'Web' && h(Label, { mt: 1, htmlFor: 'url' }, 'URL'),
+          type === 'Web' && h(Label, { mt: 3, htmlFor: 'url' }, 'URL'),
 
           type === 'Web' && h(Input, {
             id: 'url',
@@ -93,7 +93,7 @@ module.exports = class BackendForm extends React.Component {
             onChange: this.handleChange
           }),
 
-          h(Label, { mt: 1, htmlFor: 'description' }, 'Description'),
+          h(Label, { mt: 3, htmlFor: 'description' }, 'Description'),
 
           h(Textarea, {
             rows: 4,
@@ -106,7 +106,7 @@ module.exports = class BackendForm extends React.Component {
         ]),
 
         h(Flex, {
-          mt: 2,
+          mt: 3,
           justifyContent: 'space-between',
         }, [
           h(Button$Primary, {
