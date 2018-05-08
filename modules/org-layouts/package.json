@@ -11,7 +11,6 @@
     "querystring": "querystring-browser"
   },
   "dependencies": {
-    "axs-ui": "^1.0.4",
     "debounce": "^1.0.2",
     "natsort": "^1.0.6",
     "periodo-ui": "^1.0.0",

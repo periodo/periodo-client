@@ -1,18 +1,16 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Text } = require('axs')
+    , { Text } = require('./Base')
     , { Link } = require('org-shell')
+    , sys = require('system-components').default
 
-exports.Link = Link(props =>
-  h(Text, Object.assign({}, props, {
-    is: 'a',
-    color: 'blue',
-    _css: {
-      textDecoration: 'none',
-      ':hover': {
-        textDecoration: 'underline'
-      }
-    }
-  }), props.children)
-)
+exports.Link = Link(sys({
+  is: 'a',
+  color: 'blue.4',
+}, 'space', 'display', {
+  textDecoration: 'none',
+  ':hover': {
+    textDecoration: 'underline'
+  }
+}))

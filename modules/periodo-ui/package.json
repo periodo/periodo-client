@@ -14,8 +14,6 @@
     "tape": "^4.8.0"
   },
   "dependencies": {
-    "axs": "^1.0.6",
-    "axs-ui": "^1.0.4",
     "clean-tag": "^1.0.4",
     "diff-match-patch": "^1.0.0",
     "fast-json-patch": "^2.0.4",

@@ -1,18 +1,18 @@
 "use strict";
 
-const { Box } = require('axs-ui')
+const { Box } = require('./Base')
     , extend = require('./extend')
 
 function makeAlert(color) {
   return extend(Box, {
     p: 2,
     border: 2,
-    rounded: true,
+    borderRadius: '2px',
     fontSize: 4,
 
-    bg: `${color}2`,
-    color: `${color}9`,
-    borderColor: `${color}6`,
+    bg: `${color}.2`,
+    color: `${color}.9`,
+    borderColor: `${color}.6`,
   })
 }
 

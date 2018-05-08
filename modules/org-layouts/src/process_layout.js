@@ -3,7 +3,6 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , through = require('through2')
-    , { Box } = require('axs-ui')
     , parseLayout = require('./parser')
 
 // Take an object full of definitions of blocks, and the specification of a
@@ -15,7 +14,11 @@ module.exports = function processLayout(blockDefs, layoutString) {
         R.lensProp('blocks'),
         R.map(({ id, type, opts, gridRow='auto', gridColumn='auto' }) => {
           const {
-            Component=() => h(Box, { bg: 'red4' }, `No such block type: ${type}`),
+            Component=() => h('div', {
+              style: {
+                backgroundColor: 'red'
+              },
+            }, `No such block type: ${type}`),
             makeInputStream=through.obj,
             makeOutputStream=through.obj,
             processOpts=R.defaultTo({}, R.identity),

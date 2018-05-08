@@ -23,6 +23,7 @@ const fns = [
 
   ss.alignSelf,
   ss.flexGrow,
+  ss.textAlign,
 ]
 
 const Box = styled(tag)([], [

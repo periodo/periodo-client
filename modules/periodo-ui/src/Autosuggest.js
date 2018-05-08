@@ -4,7 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , Autosuggest = require('react-autosuggest')
-    , { Box, Input } = require('axs-ui')
+    , { Box } = require('./Base')
+    , { Input } = require('./FormElements')
 
 const _getSuggestions = list => value => {
   const input = value.trim()

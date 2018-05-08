@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Box } = require('axs-ui')
+    , { Flex, Box } = require('./Base')
 
 const TabItem = ({ label, isSelected, isLast, onClick }) =>
   h(Box, {

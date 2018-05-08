@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box } = require('axs')
+    , { Box } = require('./Base')
 
 exports.Breadcrumb = props =>
   h(Box, Object.assign({

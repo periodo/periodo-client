@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , tags = require('language-tags')
-    , { Box } = require('axs-ui')
+    , { Box } = require('./Base')
     , { Span, Pre, Italic, ExternalLink } = require('./Misc')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { Value } = require('./types')

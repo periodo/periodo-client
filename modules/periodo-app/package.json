@@ -6,7 +6,6 @@
   "main": "src/index.js",
   "license": "CC0",
   "dependencies": {
-    "axs-ui": "^1.0.4",
     "d3": "^4.10.0",
     "dexie": "^1.5.1",
     "diff-match-patch": "^1.0.0",

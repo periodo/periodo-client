@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , PropTypes = require('prop-types')
     , debounce = require('debounce')
     , consume = require('stream-consume')
-    , { Box } = require('axs-ui')
+    , { Box } = require('periodo-ui')
     , processLayout = require('./process_layout')
 
 const DEFAULT_STREAM_RESET_DELAY = 256

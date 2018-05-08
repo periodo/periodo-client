@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , R = require('ramda')
-    , { Box, Text } = require('axs-ui')
+    , { Box, Text } = require('./Base')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
     , { Route, LocationStreamAware } = require('org-shell')
@@ -12,7 +12,7 @@ exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
     h(Box, Object.assign({
       p: '10px 12px',
-      _css: {
+      css: {
         minWidth: 200,
         ':hover': {
           cursor: 'pointer',
@@ -39,24 +39,20 @@ exports.DropdownMenuHeader = props =>
   ])
 
 
-exports.DropdownMenuButton = props =>
-  h(Button, Object.assign({
-    pr: '12px',
-    css: Object.assign({
+exports.DropdownMenuButton = Button.extend([], [
+  props => ({
+    paddingRight: '16px',
+    opacity: props.isOpen ? .8 : 1,
+    ':after': {
+      content: '"▼"',
       opacity: props.isOpen ? .8 : 1,
-    }, props.css),
-  }, R.omit(['isOpen', 'label', 'css'], props)), h(Text, {
-    css: {
-      ':after': {
-        content: '"▼"',
-        opacity: props.isOpen ? .8 : 1,
-        fontSize: '11px',
-        position: 'relative',
-        left: '5px',
-        bottom: '1px',
-      }
+      fontSize: '11px',
+      position: 'relative',
+      left: '5px',
+      bottom: '1px',
     }
-  }, props.label || 'Menu'))
+  })
+])
 
 
 exports.DropdownMenuMenu = props =>
@@ -92,7 +88,7 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
 
     return (
       h(Box, Object.assign({
-        _css: {
+        css: {
           position: 'relative',
           display: 'inline-block',
           userSelect: 'none',
@@ -122,10 +118,9 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
           }, h(exports.DropdownMenuButton, {
             is: 'div',
             p: '10px 20px 10px 11px',
-            label,
             isOpen,
             active: isOpen,
-          })),
+          }, label || 'Menu')),
 
           h(MB.Menu, {}, [
             h(exports.DropdownMenuMenu, {

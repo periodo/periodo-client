@@ -31,10 +31,9 @@ class Suggestor extends React.Component {
             borderRadius: 0,
             marginRight: '-1px',
           }, buttonCSS),
-          label: this.props.value,
           isOpen: editing,
           onClick: () => this.setState(prev => ({ editing: !prev.editing }))
-        }),
+        }, this.props.value),
 
         editing && h('div', {
           ref: el => {

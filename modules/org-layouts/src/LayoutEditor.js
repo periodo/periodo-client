@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, Heading, Text } = require('axs-ui')
+    , { Box, Heading, Text } = require('periodo-ui')
 
 const BlockDefinitions = ({ blocks }) =>
   h(Box, { is: 'ul' }, Object.values(R.mapObjIndexed(({ label, description }, key) =>

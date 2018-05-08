@@ -4,8 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , natsort = require('natsort')
-    , { Flex, Box, Text, Select } = require('axs-ui')
-    , { colors } = require('axs-ui').config
+    , { Flex, Box, Text, Select } = require('periodo-ui')
+    , { colors } = require('periodo-ui').theme
     , { Button, DropdownMenu, DropdownMenuItem, Link } = require('periodo-ui')
     , Icon = require('react-geomicons').default
     , StreamConsumingBlock = require('./StreamConsumingBlock')
@@ -26,19 +26,26 @@ const ListHeader = ({
   updateOpts,
 }) =>
   h(Flex, {
-    bg: 'gray1',
+    bg: 'gray.1',
     p: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
   }, [
-    h(Box, { css: { textAlign: 'left', width: '33%'} }, [
+    h(Box, {
+      textAlign: 'left',
+      flexGrow: 1,
+    }, [
       !hide && h(Text, {
         mx: 2,
       }, `${start + 1}‒${start + shownItems.length} of ${items.length}`),
     ]),
 
-    h(Flex, { css: { justifyContent: 'center', width: '33%'} }, [
+    h(Flex, {
+      justifyContent: 'center',
+      flexGrow: 1,
+    }, [
       h(Button, {
+        borderRadius: 0,
         disabled: start === 0,
         onClick: firstPage,
       }, h(Icon, {
@@ -53,6 +60,7 @@ const ListHeader = ({
       })),
 
       h(Button, {
+        borderRadius: 0,
         disabled: start === 0,
         onClick: prevPage,
       }, h(Icon, {
@@ -69,6 +77,7 @@ const ListHeader = ({
       h(Select, {
         bg: '#fafafa',
         value: limit,
+        minWidth: '60px',
         onChange: e => {
           updateOpts(R.set(
             R.lensProp('limit'),
@@ -80,6 +89,7 @@ const ListHeader = ({
       )),
 
       h(Button, {
+        borderRadius: 0,
         disabled: start + shownItems.length >= items.length,
         onClick: nextPage,
       }, h(Icon, {
@@ -94,7 +104,7 @@ const ListHeader = ({
       })),
 
       h(Button, {
-        css: { borderRadius: 0 },
+        borderRadius: 0,
         disabled: start + shownItems.length >= items.length,
         onClick: lastPage,
       }, h(Icon, {
@@ -109,14 +119,18 @@ const ListHeader = ({
       })),
     ]),
 
-    h(Box, { css: { textAlign: 'right', width: '33%'} }, [
+    h(Box, {
+      textAlign: 'right',
+      flexGrow: 1,
+    }, [
       h(DropdownMenu, {
         closeOnSelection: false,
         openLeft: true,
         label: 'Columns',
       }, Object.keys(columns).map(key =>
         h(DropdownMenuItem, {
-          key
+          key,
+          textAlign: 'left',
         }, [
           h('input', {
             type: 'checkbox',
@@ -323,10 +337,8 @@ module.exports = function makeList(opts) {
             }, [
               h(Box, {
                 is: 'tr',
-                bg: 'gray1',
-                css: {
-                  textAlign: 'left',
-                }
+                bg: 'gray.1',
+                textAlign: 'left',
               }, [
                 h(Box, {
                   is: 'th',

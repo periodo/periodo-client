@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box } = require('axs-ui')
+    , { Box } = require('./Base')
     , { PrimitiveValue, show } = require('./Value')
     , { Info, Warn } = require('./Misc')
     , { Value, Change, asValue } = require('./types')

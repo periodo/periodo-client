@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , sys = require('system-components').default
     , { themeGet } = require('styled-system')
-    , { Box, Input, Label } = require('axs-ui')
+    , { Box } = require('./Base')
     , { Alert$Error } = require('./Alerts')
 
 const disabled = props => ({
@@ -23,7 +23,7 @@ exports.Select = sys({
   border: 1,
   borderColor: 'gray.4',
   width: '100%',
-}, disabled)
+}, 'minWidth', 'maxWidth', disabled)
 
 exports.Textarea = sys({
   is: 'textarea',
@@ -32,7 +32,8 @@ exports.Textarea = sys({
   border: 1,
   borderColor: 'gray.4',
   width: '100%',
-}, disabled)
+  fontFamily: 'sans-serif',
+}, 'minWidth', 'maxWidth', disabled)
 
 exports.Input = sys({
   is: 'input',
@@ -41,7 +42,7 @@ exports.Input = sys({
   border: 1,
   borderColor: 'gray.4',
   width: '100%',
-}, disabled)
+}, 'minWidth', 'maxWidth', disabled)
 
 exports.Checkbox = props => h('input', Object.assign({
   type: 'checkbox',

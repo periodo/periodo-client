@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { Box } = require('axs-ui')
+    , { Box } = require('./Base')
 
 const Span = p => Box(R.merge(p, { is: 'span' }))
 
