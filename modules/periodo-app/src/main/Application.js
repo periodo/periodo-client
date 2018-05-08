@@ -16,8 +16,10 @@ const h = require('react-hyperscript')
 require('./global_css')
 
 function getRouteGroups(resource, params, props) {
+  const hierarchy = resource.hierarchy || resources[''].hierarchy
+
   try {
-    return resource.hierarchy.slice(0, -1).map(group => ({
+    return hierarchy.slice(0, -1).map(group => ({
       label: group.label,
       routes: Object.entries(group.resources).reduce(
         (acc, [routeName, resource]) =>
