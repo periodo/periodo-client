@@ -2,10 +2,46 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
+    , sys = require('system-components').default
+    , { themeGet } = require('styled-system')
     , { Box, Input, Label } = require('axs-ui')
     , { Alert$Error } = require('./Alerts')
 
-exports.Input = Input
+const disabled = props => ({
+  ':disabled': {
+    cursor: 'not-allowed',
+    backgroundColor: themeGet('colors.gray.3')(props),
+    color: 'gray.9',
+  }
+})
+
+exports.Select = sys({
+  is: 'select',
+  p: 2,
+  bg: 'white',
+  borderRadius: '2px',
+  border: 1,
+  borderColor: 'gray.4',
+  width: '100%',
+}, disabled)
+
+exports.Textarea = sys({
+  is: 'textarea',
+  p: 2,
+  borderRadius: '2px',
+  border: 1,
+  borderColor: 'gray.4',
+  width: '100%',
+}, disabled)
+
+exports.Input = sys({
+  is: 'input',
+  p: 2,
+  borderRadius: '2px',
+  border: 1,
+  borderColor: 'gray.4',
+  width: '100%',
+}, disabled)
 
 exports.Checkbox = props => h('input', Object.assign({
   type: 'checkbox',
@@ -20,20 +56,19 @@ exports.Errors = props =>
     ))
   )
 
-exports.Label = props =>
-  h(Label, Object.assign({
-    fontSize: 4,
-    color: 'black',
-    mb: '4px',
-    css: Object.assign({
-      ':hover': {
-        cursor: 'pointer',
-      },
-      fontWeight: 'bold',
-    }, props.css, props.isRequired && {
-      ':after': {
-        content: '" \x2a        "',
-        color: 'red',
-      }
-    })
-  }, R.omit(['css', 'isRequired'], props)), props.children)
+exports.Label = sys({
+  is: 'label',
+  fontSize: 2,
+  color: 'black',
+  display: 'inline-block',
+  mb: 1,
+  fontWeight: 'bold',
+}, props => ({
+  ':hover': {
+    cursor: 'pointer',
+  },
+  ':after': !props.isRequired ? {} : {
+    content: '" \x2a        "',
+    color: 'red',
+  }
+}))

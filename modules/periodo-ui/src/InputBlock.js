@@ -4,8 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , sys = require('system-components').default
     , { RandomID } = require('periodo-utils').hoc
-    , { Box, Textarea, Text } = require('axs-ui')
-    , { Label } = require('./FormElements')
+    , { Box, Text } = require('./Base')
+    , { Label, Input, Textarea } = require('./FormElements')
 
 const inputProps = [
   'name',
@@ -16,10 +16,6 @@ const inputProps = [
 
   'rows',
 ]
-
-const Input = sys({
-  is: 'input',
-})
 
 const FormControlBlock = FormComponent => RandomID(props =>
   h(Box, R.omit(inputProps.concat('randomID', 'label', 'helpText'), props), [
@@ -34,16 +30,8 @@ const FormControlBlock = FormComponent => RandomID(props =>
 
     h(FormComponent, Object.assign(R.pick(inputProps, props), {
       id: props.randomID(props.name),
-      css: {
-        ':disabled': {
-          backgroundColor: '#ddd',
-          cursor: 'not-allowed',
-        }
-      }
     }))
   ]))
-
-exports.Input = Input
 
 exports.InputBlock = FormControlBlock(Input)
 

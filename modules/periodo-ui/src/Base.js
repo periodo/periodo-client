@@ -12,6 +12,7 @@ const fns = [
   ss.space,
   ss.color,
   ss.borders,
+  ss.borderColor,
 
   ss.width,
   ss.height,
@@ -68,10 +69,10 @@ const tagsForLevel = {
 
 const sizeForLevel = {
   1: '2.2rem',
-  2: '2rem',
-  3: '1.6rem',
-  4: '1.2rem',
-  5: '1.0rem',
+  2: '1.7rem',
+  3: '1.5rem',
+  4: '1.1rem',
+  5: '0.9rem',
   6: '0.8rem',
 }
 
@@ -89,13 +90,15 @@ const Heading = styled(_Heading)([], [
   })
 ])
 
+const ResourceTitle = props => h(Heading, Object.assign({
+  level: 2,
+  mb: 3,
+}, props))
 
 
-const Label = Box
-const Select = Box
+
 const Span = Box
 const Text = Box
-const Textarea = Box
 
 module.exports = {
   Box,
@@ -103,9 +106,7 @@ module.exports = {
   Grid,
   Pre,
   Heading,
-  Label,
-  Select,
+  ResourceTitle,
   Span,
   Text,
-  Textarea,
 }
