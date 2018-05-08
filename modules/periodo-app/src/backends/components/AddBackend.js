@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { connect } = require('react-redux')
-    , { Box } = require('periodo-ui')
+    , { Box, ResourceTitle } = require('periodo-ui')
     , BackendForm = require('./BackendForm')
     , { addBackend } = require('../actions')
     , { BackendStorage } = require('../types')
@@ -11,6 +11,7 @@ const h = require('react-hyperscript')
 
 const AddBackend = LocationStreamAware(props =>
   h(Box, [
+    h(ResourceTitle, 'Add backend'),
     h(BackendForm, {
       handleSave: async state => {
         const { label, description, type } = state

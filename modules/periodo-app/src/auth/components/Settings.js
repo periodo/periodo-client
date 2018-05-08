@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { updateApplicationSettings } = require('../actions')
-    , { Box, Span, Heading, Alert$Success } = require('periodo-ui')
+    , { Box, Span, ResourceTitle, Alert$Success } = require('periodo-ui')
     , { Link } = require('periodo-ui')
 
 class SignIn extends React.Component {
@@ -98,7 +98,7 @@ module.exports = function Settings(props) {
 
   return (
     h(Box, [
-      h(Heading, { level: 1 }, 'Settings'),
+      h(ResourceTitle, 'Settings'),
       h(SignIn, {
         dispatch,
         oauthName,
