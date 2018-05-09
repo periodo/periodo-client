@@ -7,6 +7,7 @@ const h = require('react-hyperscript')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
     , { Route, LocationStreamAware } = require('org-shell')
+    , { blacklist } = require('./util')
 
 exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
@@ -53,6 +54,8 @@ exports.DropdownMenuButton = Button.extend([], [
     }
   })
 ])
+
+exports.DropdownMenuButton.defaultProps.blacklist = blacklist('isOpen')
 
 
 exports.DropdownMenuMenu = props =>

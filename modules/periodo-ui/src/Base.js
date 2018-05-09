@@ -22,7 +22,7 @@ const fns = [
   ss.minHeight,
 
   ss.alignSelf,
-  ss.flexGrow,
+  ss.flex,
   ss.textAlign,
 ]
 

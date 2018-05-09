@@ -33,7 +33,7 @@ const ListHeader = ({
   }, [
     h(Box, {
       textAlign: 'left',
-      flexGrow: 1,
+      flex: '1 1 auto',
     }, [
       !hide && h(Text, {
         mx: 2,
@@ -42,7 +42,7 @@ const ListHeader = ({
 
     h(Flex, {
       justifyContent: 'center',
-      flexGrow: 1,
+      flex: '1 1 auto',
     }, [
       h(Button, {
         borderRadius: 0,
@@ -121,7 +121,7 @@ const ListHeader = ({
 
     h(Box, {
       textAlign: 'right',
-      flexGrow: 1,
+      flex: '1 1 auto',
     }, [
       h(DropdownMenu, {
         closeOnSelection: false,
