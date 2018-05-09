@@ -2,11 +2,11 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box, Heading } = require('periodo-ui')
+    , { Box, Heading, ResourceTitle, InfoText, Link } = require('periodo-ui')
     , { Button$Primary } = require('periodo-ui')
     , { LocationStreamAware, Route } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { submitPatch } = require('../actions')
+    , { submitPatch } = require('../../patches/actions')
     , { PatchDirection } = require('../../patches/types')
     , SelectChanges = require('../../patches/SelectChanges')
 
@@ -25,7 +25,7 @@ class SubmitPatch extends React.Component {
     const { dispatch, locationStream, backend } = this.props
         , { selectedPatch, remoteBackend } = this.state
 
-    const action = await dispatch(submitPatch(remoteBackend, selectedPatch))
+    const action = await dispatch(submitPatch(backend.storage, selectedPatch))
 
     handleCompletedAction(action,
       () => {
@@ -42,7 +42,11 @@ class SubmitPatch extends React.Component {
   }
 
   render() {
+    const { settings } = this.props
+
     let child
+
+    console.log(this.props.settings)
 
     if (this.state.selectedPatch) {
       child = h(Box, [
@@ -50,27 +54,39 @@ class SubmitPatch extends React.Component {
 
         h(Button$Primary, {
           onClick: () => {
-            this.submitPatch()
+            this.acceptPatch()
           }
         }, 'Submit patch'),
       ])
     } else {
-      child = h(SelectChanges, {
-        direction: PatchDirection.Push,
-        dispatch: this.props.dispatch,
-        localBackend: this.props.backend,
-        handleSelectPatch: (selectedPatch, compareComponent) => {
-          this.setState({
-            selectedPatch,
-            compareComponent,
-          })
-        }
-      })
+      child = h(Box, [
+        h(Box, { mb: 3 }, [
+          h(InfoText, { mb: 3 },
+            settings.oauthName
+              ? `Submitting patches as ${settings.oauthName}`
+              : [
+                  'You are not currently logged in, so you are unable to submit a patch. ',
+                  h(Link, { route: Route('settings') }, 'Log in'),
+                ]
+          )
+        ]),
+        h(SelectChanges, {
+          direction: PatchDirection.Push,
+          dispatch: this.props.dispatch,
+          localBackend: this.props.backend,
+          handleSelectPatch: (selectedPatch, compareComponent) => {
+            this.setState({
+              selectedPatch,
+              compareComponent,
+            })
+          }
+        })
+      ])
     }
 
     return (
       h(Box, [
-        h(Heading, { level: 2 }, 'Submit patch'),
+        h(ResourceTitle, 'Submit patch'),
         child,
       ])
     )

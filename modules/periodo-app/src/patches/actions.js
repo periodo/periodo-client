@@ -72,8 +72,43 @@ function generateDatasetPatch(
   })
 }
 
+function submitPatch(storage, patch) {
+  const action = PatchAction.SubmitPatch(storage, patch)
+
+  return action.do(async (dispatch, getState, { db }) => {
+    const resp = await fetch('d.jsonld', {
+      body: JSON.stringify(patch),
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getState().auth.settings.oauthToken}`
+      }
+    })
+
+    if (resp.status === 401) {
+      throw new Error('Bad authentication credentials. Sign out and sign back in.')
+    }
+    if (!resp.ok) {
+      const err = new Error('Error submitting patch')
+      err.resp = resp;
+      throw err;
+    }
+
+    const patchURL = resp.headers.get('Location')
+
+    await db.patchSubmissions.put({
+      patchURL,
+      backendID: storage.id,
+      resolved: false,
+    })
+
+    return { patchURL }
+  })
+}
+
 module.exports = {
-  generateDatasetPatch
+  generateDatasetPatch,
+  submitPatch,
 }
 
 /*

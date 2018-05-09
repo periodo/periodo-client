@@ -150,6 +150,15 @@ const PatchAction = makeActionType('patch', {
       localDataset: Object,
       remoteDataset: Object,
     }
+  ],
+  SubmitPatch: [
+    {
+      backend: BackendStorage,
+      patch: Object,
+    },
+    {
+      patchURL: String,
+    }
   ]
 })
 
