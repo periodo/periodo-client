@@ -1,9 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , styled = require('styled-components').default
-    , { themeGet } = require('styled-components')
     , ss = require('styled-system')
     , tag = require('clean-tag').default
 
@@ -13,6 +11,8 @@ const fns = [
   ss.color,
   ss.borders,
   ss.borderColor,
+
+  ss.fontWeight,
 
   ss.width,
   ss.height,
@@ -98,8 +98,13 @@ const ResourceTitle = props => h(Heading, Object.assign({
 
 
 
-const Span = Box
-const Text = Box
+const Span = styled(tag.span)([], [
+  ...fns,
+])
+
+const Text = styled(tag.p)([], [
+  ...fns,
+])
 
 module.exports = {
   Box,

@@ -14,3 +14,14 @@ exports.Link = Link(sys({
     textDecoration: 'underline'
   }
 }))
+
+exports.ExternalLink = Link(sys({
+  is: 'a',
+  color: 'blue.4',
+  target: '_blank',
+}, 'space', 'display', {
+  textDecoration: 'none',
+  ':hover': {
+    textDecoration: 'underline'
+  }
+}))

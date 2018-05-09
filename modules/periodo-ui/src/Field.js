@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Box } = require('./Base')
     , { PrimitiveValue, show } = require('./Value')
-    , { Info, Warn } = require('./Misc')
+    , { InfoText, WarnText } = require('./Typography')
     , { Value, Change, asValue } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
     , { ensureArray } = require('periodo-utils').misc
@@ -88,7 +88,7 @@ const compareValues = ({
 
   return (
     { warnings: check(immutable)(required)(values)(compare.values)
-    , summary: summarizeChanges ? h(Info, {}, formatCounts(counts)) : null
+    , summary: summarizeChanges ? h(InfoText, {}, formatCounts(counts)) : null
     , items: showChanges(component)(filteredChanges)
     }
   )
@@ -112,7 +112,7 @@ function Warnings(props) {
   return h(
     Box,
     R.omit([ 'warnings' ], props),
-    R.map(warning => h(Warn, {}, `Warning: ${warning}`), warnings)
+    R.map(warning => h(WarnText, {}, `Warning: ${warning}`), warnings)
   )
 }
 
@@ -130,18 +130,18 @@ function Field(props) {
     R.mergeAll(
       [
         R.omit([ 'value', 'compare' ], props),
-        { mt: 1 },
+        { mt: 2 },
         hide ? { css: {display: 'none'} } : {},
       ]
     ),
     [
-      h(Box, { is: 'dt', bold: true }, label),
+      h(Box, { is: 'dt', fontWeight: 'bold', }, label),
 
       warnings.length ? h(Warnings, { warnings }) : null,
 
       summary,
 
-      ...wrap({ is: 'dd', ml: 1 })(items)
+      ...wrap({ is: 'dd', ml: 3 })(items)
     ]
   )
 }

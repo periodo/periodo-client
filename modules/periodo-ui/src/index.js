@@ -25,6 +25,7 @@ addUIModules([
   require('./Patch'),
   require('./DropdownMenu'),
   require('./Breadcrumb'),
+  require('./Typography'),
   require('./Links'),
   require('./Autosuggest'),
   require('./Base'),
