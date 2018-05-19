@@ -5,12 +5,14 @@ const R = require('ramda')
     , url = require('url')
     , ns = require('../linked-data/ns')
     , jsonpatch = require('fast-json-patch')
+    , jsonld = require('jsonld')
     , { Route } = require('org-shell')
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { getResponse } = require('../typed-actions/utils')
-    , fetchLinkedData = require('../linked-data/fetch')
+    , { fetchORCIDs } = require('../linked-data/actions')
+    , parseJSONLD = require('../linked-data/utils/parse_jsonld')
 
 
 const emptyDataset = () => ({
@@ -202,22 +204,57 @@ function fetchBackendHistory(storage) {
 
         return patches.map(p => ({
           id: p.id,
-          author: '(local)',
+          submittedBy: '(local)',
+          mergedBy: '(local)',
           time: p.created,
           patch: p.forward,
         }))
       },
 
       Web: async url => {
-        const resp = await fetchServerResource(url, 'patches/?merged=true&limit=250')
+        const resp = await fetchServerResource(url, 'history.jsonld')
             , data = await resp.json()
+            , store = N3.Store()
 
-        return data.map(p => ({
-          url: p.url,
-          author: p.created_by,
-          time: p.updated_at,
-          patch: p.text,
+        const { triples, prefixes } = await parseJSONLD(data)
+
+        store.addPrefixes({
+          'prov': 'http://www.w3.org/ns/prov#'
+        })
+        store.addTriples(triples);
+
+        const changes = await Promise.all(store.getSubjects('prov:generated').map(async url => {
+          const framed = await jsonld.promises.frame(data, {
+            '@context': R.omit(['@base'], data['@context']),
+            '@id': url,
+          })
+
+          const patch = framed['history'][0]
+
+          const roles = R.pipe(
+            R.groupBy(r => r.role.split('#')[1] + 'By'),
+            R.map(r => r[0]['prov:agent']['@id'].replace('http://', 'https://'))
+          )(patch.roles || [])
+
+          let [patchURL, sourceDatasetURL] =
+            ('url' in patch.used[0]) ? patch.used : patch.used.reverse()
+
+          patchURL = patchURL.url.split('p0')[1]
+          sourceDatasetURL = sourceDatasetURL['@id'].split('p0')[1]
+
+          return R.merge(roles, {
+            url,
+            patchURL,
+            sourceDatasetURL,
+            time: R.pipe(
+              () => store.getObjects(url, 'prov:startedAtTime'),
+              R.head,
+              N3.Util.getLiteralValue,
+            )(),
+          })
         }))
+
+        return R.sortBy(R.prop('time'), changes);
       },
 
       _: () => {
@@ -227,33 +264,23 @@ function fetchBackendHistory(storage) {
 
     const [, patches ] = await Promise.all([ datasetPromise, patchesPromise ])
 
-    const agents = new Set(patches
-      .map(p => p.author)
-      .filter(author => author.includes('://orcid.org/')))
+    const orcids = [...new Set(R.pipe(
+      R.chain(p => [p.submittedBy, p.mergedBy, p.updatedBy].filter(R.identity)),
+      R.filter(R.contains('://orcid.org/'))
+    )(patches))]
 
-    const resources = await Promise.all([...agents].map(orcid => fetchLinkedData(db, orcid, {
-      tryCache: true,
-      populateCache: true,
-    })))
+    await dispatch(fetchORCIDs(orcids))
 
-    const store = N3.Store()
-    resources.forEach(({ triples }) => store.addTriples(triples))
-
-    const labelsByOrcid = new Map(resources.map(({ url }) =>
-      [url, N3.Util.getLiteralValue(store.getObjectsByIRI(url, ns.rdfs + 'label')[0])]
-    ))
+    const { nameByORCID } = getState().linkedData
 
     patches.forEach(p => {
-      if (labelsByOrcid.has(p.author)) {
-        p.author = {
-          url: p.author,
-          label: labelsByOrcid.get(p.author)
-        }
-      } else {
-        p.author = {
-          label: p.author,
-        }
-      }
+      ['submittedBy', 'mergedBy', 'updatedBy'].forEach(attr => {
+        if (!p[attr]) return;
+
+        p[attr] = nameByORCID[p[attr]]
+          ? { url: p[attr], label: nameByORCID[p[attr]] }
+          : { label: p[attr] }
+      })
     })
 
     return { patches }

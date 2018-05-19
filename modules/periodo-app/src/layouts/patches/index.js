@@ -13,16 +13,18 @@ const PatchList = blocks.List({
   makeItemRoute({ item, backend }) {
     return Route('backend-patch', {
       backendID: backend.asIdentifier(),
-      patchID: item.id.toString(),
+      patchID: 'id' in item
+        ? item.id.toString()
+        : item.url
     })
   },
   columns: {
     creator: {
       label: 'Creator',
-      getValue: x => x.author,
+      getValue: x => x.submittedBy || {},
       render: ({ url, label }) => url
         ? h(Link, { href: url }, label)
-        : h('span', label)
+        : h('span', label || '(undefined)')
     },
 
     created: {

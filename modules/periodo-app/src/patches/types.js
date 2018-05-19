@@ -139,6 +139,13 @@ PatchType.prototype.getLabel = function () {
 }
 
 const PatchAction = makeActionType('patch', {
+  GetOpenServerPatches: [
+    {
+    },
+    {
+      patches: Object,
+    }
+  ],
   GenerateDatasetPatch: [
     {
       origin: BackendStorage,

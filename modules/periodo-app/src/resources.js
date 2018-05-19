@@ -5,6 +5,8 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
     , actions = require('./backends/actions')
     , authActions = require('./auth/actions')
+    , patchActions = require('./patches/actions')
+    , ldActions = require('./linked-data/actions')
     , { Flex, Box, Heading } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
@@ -58,6 +60,21 @@ const Home = {
       label: 'Add backend',
       Component: require('./backends/components/AddBackend'),
     },
+    'review-patches': {
+      label: 'Review patches',
+      Component: require('./patches/Review'),
+      async onBeforeRoute(dispatch) {
+        const { patches } = await throwIfUnsuccessful(
+          dispatch(patchActions.getOpenServerPatches()))
+
+
+        await dispatch(ldActions.fetchORCIDs(
+          patches.map(R.prop('created_by'))
+        ))
+
+        return { patchRequests: patches }
+      }
+    },
     'settings': {
       label: 'Settings',
       Component: require('./auth/components/Settings'),
@@ -110,12 +127,25 @@ const Backend = {
         await dispatch(actions.listAvailableBackends())
       }
     },
+    'backend-patch-submissions': {
+      label: 'Review submitted patches',
+      Component: require('./backends/components/ReviewSubmittedPatches'),
+      showInMenu: hasEditableBackend,
+      async onBeforeRoute(dispatch) {
+        /*
+        const storage = BackendStorage.fromIdentifier(params.backendID)
+        await dispatch(actions.getPatchesSubmittedFromBackend(storage))
+        */
+      }
+    },
     'backend-history': {
       label: 'History',
       Component: require('./backends/components/History'),
       async onBeforeRoute(dispatch, params) {
         const storage = BackendStorage.fromIdentifier(params.backendID)
-        await dispatch(actions.fetchBackendHistory(storage))
+
+        const changes = await throwIfUnsuccessful(
+          dispatch(actions.fetchBackendHistory(storage)))
       },
       mapStateToProps(state, props) {
         return {

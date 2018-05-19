@@ -106,9 +106,22 @@ function submitPatch(storage, patch) {
   })
 }
 
+function getOpenServerPatches() {
+  const action = PatchAction.GetOpenServerPatches
+
+  return action.do(async () => {
+    const resp = await fetch('/patches.json?open=true')
+
+    return {
+      patches: await resp.json()
+    }
+  })
+}
+
 module.exports = {
   generateDatasetPatch,
   submitPatch,
+  getOpenServerPatches,
 }
 
 /*
