@@ -3,9 +3,6 @@
 const R = require('ramda')
     , doi = require('identifiers-doi')
     , Type = require('union-type')
-    , N3Store = require('n3/lib/N3Store')
-    , fetchLinkedData = require('../fetch')
-    , makeSourceRepr = require('./make_source_repr')
 
 const worldcatUrlRegex = /worldcat.org\/.*?oclc\/(\d+).*/i
 
@@ -51,27 +48,20 @@ function asURL(identifier) {
   })
 }
 
-function getGraphSubject(identifier) {
+function getGraphSubject(url) {
+  const identifier = match(url)
+
+  if (!identifier) return null
+
   return identifier.case({
     Worldcat: id => `http://www.worldcat.org/oclc/${id}`,
     Crossref: doi => `http://dx.doi.org/${doi}`,
   })
 }
 
-async function fetchLD(identifier, opts={ tryCache: false }) {
-  const store = N3Store()
-
-  const { triples, prefixes } = await fetchLinkedData(asURL(identifier), opts)
-
-  store.addPrefixes(prefixes);
-  store.addTriples(triples);
-
-  return makeSourceRepr(store, getGraphSubject(identifier))
-}
-
 module.exports = {
   match,
   asURL,
-  fetchLD,
+  getGraphSubject,
   isLinkedData
 }

@@ -10,6 +10,7 @@ module.exports = function () {
     combineReducers({
       backends: require('./backends/reducer'),
       auth: require('./auth/reducer'),
+      linkedData: require('./linked-data/reducer'),
     }),
     compose(
       applyMiddleware(thunk.withExtraArgument({ db: periodoDB() }), unionTypeMiddleware),
