@@ -87,7 +87,7 @@ module.exports = function makeORGShell({
     componentDidMount() {
       const loadCurrentWindowPath = pushState => {
         locationStream.write({
-          route: Route.fromPath(window.location.search),
+          route: Route.fromPath(window.location.search + window.location.hash),
           pushState,
         })
       }

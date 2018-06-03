@@ -17,7 +17,7 @@ Route.fromPath = path => {
   const [ params, opts ] = path.split('#')
 
   const parsedParams = qs.parse(params)
-      , parsedOpts = qs.parse(opts)
+      , parsedOpts = R.map(JSON.parse, qs.parse(opts))
 
   return new Route(
     parsedParams.page || '',
@@ -28,7 +28,7 @@ Route.fromPath = path => {
 
 Route.prototype.asURL = function () {
   const params = qs.encode(this.params)
-      , opts = qs.encode(this.opts)
+      , opts = qs.encode(R.map(JSON.stringify, this.opts))
 
   let url = '?page=' + this.resourceName
 
