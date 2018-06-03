@@ -29,7 +29,7 @@ module.exports = function makeDOMBlock(obj) {
       this.blockEl = document.createElement('div')
 
       this.instance = Object.create(proto)
-      this.instance.init(this.blockEl)
+      this.instance.init(this.blockEl, this.props)
 
       this._rootEl.appendChild(this.blockEl)
     }
@@ -43,7 +43,7 @@ module.exports = function makeDOMBlock(obj) {
     componentDidUpdate(prevProps) {
       if (this.props.started && this.props.data !== prevProps.data) {
         if (!this.props.finished && !this.props.data.length) return
-        this.instance.update(this.props.data, this.state.streamCount)
+        this.instance.update(this.props.data, this.props, this.state.streamCount)
       }
     }
 
