@@ -6,4 +6,5 @@ module.exports = {
   'authority-list': require('./AuthorityList'),
   'time-cutoff': require('./HumanTimeCheckmark'),
   'timespan-visualization': require('./d3_test'),
+  'facets': require('./Facets')
 }

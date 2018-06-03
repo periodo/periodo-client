@@ -9,6 +9,33 @@ const h = require('react-hyperscript')
     , blocks = require('../../layouts/authorities/blocks')
 
 const defaultLayout = `
+grid-template-columns = 2fr 1fr
+grid-template-rows = repeat(4, auto)
+grid-gap = 1em 1.66em
+
+[TextSearch]
+type = text-search
+grid-column = 2/3
+grid-row = 1/2
+
+[Facets]
+type = facets
+grid-column = 2/3
+grid-row = 3/4
+
+[TimeRange]
+type = timespan-visualization
+grid-column = 2/3
+grid-row = 2/3
+height = 160
+
+[PeriodList]
+type = period-list
+grid-column = 1/2
+grid-row = 1/5
+`
+
+const _defaultLayout = `
 grid-gap = 1em 2.5em
 grid-template-columns = 1fr 1fr
 
