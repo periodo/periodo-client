@@ -79,6 +79,7 @@ module.exports = function makeStreamConsumingBlock(next, stepToRender) {
       }
 
       render() {
+        if (!this.state.started) return null
         return h(Component, Object.assign({}, this.state, this.props, {
           consumeStream: this.consumeInputStream,
           updateData: fn => this.setState(prev => ({ data: fn(prev.data) })),
