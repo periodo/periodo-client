@@ -378,7 +378,7 @@ module.exports = function makeList(opts) {
                   key: item.id,
                   m: 0,
                   css: {
-                    height: 24,
+                    height: '24px',
                     ':hover': {
                       backgroundColor: '#e4e2e0',
                     }
