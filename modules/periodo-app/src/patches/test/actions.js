@@ -35,20 +35,25 @@ test('Patch generation actions', async t => {
     store.getActions()[3],
   ].map(getResponse).map(resp => resp.backend.storage)
 
-  await store.dispatch(
-    backendActions.updateLocalDataset(
-      backendA,
-      {
-        type: 'rdf:Bag',
-        periodCollections: {
-          fakeID: {
-            id: 'fakeID'
-          }
-        }
-      }))
+  const newData = {
+    type: 'rdf:Bag',
+    periodCollections: {
+      fakeID: {
+        id: 'fakeID'
+      }
+    }
+  }
+
+  const emptyData = {
+    type: 'rdf:Bag',
+    periodCollections: {}
+  }
 
   await store.dispatch(
-    patchActions.generateDatasetPatch(backendA, backendB))
+    backendActions.updateLocalDataset(backendA, newData))
+
+  await store.dispatch(
+    patchActions.generateDatasetPatch(backendA, backendB, PatchDirection.Push))
 
   t.deepEqual(
     getReadyState(R.last(store.getActions())),
@@ -60,8 +65,10 @@ test('Patch generation actions', async t => {
           value: {
             id: 'fakeID'
           }
-        }
-      ]
+        },
+      ],
+      localDataset: newData,
+      remoteDataset: emptyData,
     }),
     'should patch additions'
   )
@@ -75,7 +82,9 @@ test('Patch generation actions', async t => {
   t.deepEqual(
     getReadyState(R.last(store.getActions())),
     ReadyState.Success({
-      patch: []
+      patch: [],
+      localDataset: newData,
+      remoteDataset: emptyData,
     }),
     'should ignore "deletions" of items that simply aren\'t present in both source/origin'
   )
