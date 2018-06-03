@@ -28,7 +28,6 @@ module.exports = function processLayout(blockDefs, layoutString) {
           return {
             id,
             type,
-            opts,
             gridRow,
             gridColumn,
             block: {
@@ -37,8 +36,7 @@ module.exports = function processLayout(blockDefs, layoutString) {
               makeOutputStream,
               processOpts,
             },
-            baseOpts: Object.assign({}, defaultOpts, opts),
-            defaultOpts,
+            defaultOpts: Object.assign({}, defaultOpts, opts),
           }
         })
       ),

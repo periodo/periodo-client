@@ -28,6 +28,7 @@ const BLOCK_WHITELIST = [
 const LAYOUT_WHITELIST = [
   'gridGap',
   'gridTemplateColumns',
+  'gridTemplateRows',
 ]
 
 module.exports = function parse(string, opts={}) {

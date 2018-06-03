@@ -9,7 +9,86 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , processLayout = require('./process_layout')
 
-const DEFAULT_STREAM_RESET_DELAY = 256
+const DEFAULT_STREAM_RESET_DELAY = 333
+
+class LayoutBlock extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.stream !== this.props.stream) return true;
+
+    const monitored = ['extraProps', 'processedOpts', 'passedOpts', 'defaultOpts']
+        , changed = []
+
+    for (const key of monitored) {
+      if (!R.equals(this.props[key], nextProps[key])) {
+        changed.push(key)
+      }
+    }
+
+    if (changed.length) return true;
+
+    return false;
+  }
+
+  render() {
+    const {
+      stream,
+      gridRow,
+      gridColumn,
+      defaultOpts,
+      passedOpts,
+      processedOpts,
+      extraProps,
+      block: { Component },
+      onOptsChange,
+    } = this.props
+
+    const opts = Object.assign({}, defaultOpts, passedOpts)
+
+    const updateOpts = (fn, invalidate) => {
+      const updated = typeof fn === 'object'
+        ? Object.assign({}, opts, fn)
+        : fn(opts)
+
+      const newOpts = {}
+
+      for (const k in updated) {
+        const addToNewOpts = (
+          updated[k] != undefined &&
+          defaultOpts[k] !== updated[k] &&
+          !!(defaultOpts[k] || updated[k])
+        )
+
+        if (addToNewOpts) {
+          newOpts[k] = updated[k]
+        }
+      }
+
+      onOptsChange(newOpts)
+
+      if (invalidate) {
+        this.props.reset();
+      }
+    }
+
+    return (
+      h('div', {
+        style: {
+          gridRow,
+          gridColumn,
+          minWidth: 0,
+          minHeight: 0,
+          overflow: 'hidden',
+        },
+      }, [
+        h(Component, Object.assign({
+          opts,
+          stream,
+          updateOpts,
+        }, processedOpts, extraProps)),
+      ])
+    )
+  }
+}
 
 class LayoutRenderer extends React.Component {
   constructor() {
@@ -45,7 +124,7 @@ class LayoutRenderer extends React.Component {
 
     if (reset) {
       this.reset(nextProps)
-      this.resetStreams()
+      this._resetStreams()
     }
 
     if (this.props.blockOpts !== nextProps.blockOpts) {
@@ -94,73 +173,32 @@ class LayoutRenderer extends React.Component {
     const { extraProps, blockOpts, onBlockOptsChange } = this.props
         , { processedLayout, processedOpts, streams, _streams } = this.state
 
+    const currentOpts = () => this.props.blockOpts
+
     if (!processedLayout || !streams || !processedOpts) return null
 
-    const children = processedLayout.blocks.map(({
-      id,
-      type,
-      opts,
-      block: { Component },
-      gridRow,
-      gridColumn,
-      baseOpts,
-    }, i) =>
-      h(Box, {
-        key: `${i}-${type}`,
-        mt: 1,
-        style: {
-          gridRow,
-          gridColumn,
+    const children = processedLayout.blocks.map((block, i) => [
+      h(LayoutBlock, Object.assign({
+        key: `${i}-${block.type}`,
+        stream: streams[i].input,
+        extraProps,
+        processedOpts: processedOpts[i],
+        passedOpts: blockOpts[block.id],
+        onOptsChange(newOpts) {
+          onBlockOptsChange(
+            R.isEmpty(newOpts)
+              ? R.dissoc(block.id, currentOpts())
+              : R.merge(currentOpts(), { [block.id]: newOpts })
+          )
         },
-        css: {
-          minWidth: 0,
-          minHeight: 0,
-          overflow: 'hidden',
-        },
-      }, [
-        h(Component, Object.assign({
-          opts,
-          stream: streams[i].input,
-          updateOpts: (x, invalidate) => {
-            const base = Object.assign({}, baseOpts, blockOpts[id])
+        reset: this.resetStreams.bind(this, i),
+      }, block)),
 
-            const updated = typeof x === 'object'
-              ? Object.assign({}, base, x)
-              : x(base)
-
-            const changed = {}
-
-            for (const k in updated) {
-              if (
-                updated[k] != undefined &&
-                baseOpts[k] !== updated[k] &&
-                (baseOpts[k] || updated[k])
-              ) {
-                changed[k] = updated[k]
-              }
-            }
-
-            onBlockOptsChange(
-              R.isEmpty(changed)
-                ? R.dissoc(id, blockOpts)
-                : Object.assign({}, blockOpts,{ [id]: changed })
-            )
-
-            if (invalidate) {
-              this.resetStreams(i)
-            }
-          },
-        }, processedOpts[i], extraProps)),
-
-        h(() => {
-          // Consume the output stream after the block has had a chance to
-          // attach itself to the DOM
-          consume(_streams[i].output)
-
-          return null;
-        }),
-      ])
-    )
+      h(() => {
+        consume(_streams[i].output);
+        return null;
+      }, { key: `stream-consume-${i}` }),
+    ])
 
     return (
       h(Box, {
