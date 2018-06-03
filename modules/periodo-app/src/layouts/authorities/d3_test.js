@@ -23,12 +23,12 @@ module.exports = blocks.DOM({
     ))
   },
 
-  init(el) {
+  init(el, props) {
     this.el = el;
 
     this.svg = d3.select(el)
       .append('svg')
-      .attr('height', MIN_HEIGHT)
+      .attr('height', 'height' in props ? props.height : MIN_HEIGHT)
 
     this.g = this.svg
       .append('g')
