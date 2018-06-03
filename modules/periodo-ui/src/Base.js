@@ -11,8 +11,10 @@ const fns = [
   ss.color,
   ss.borders,
   ss.borderColor,
+  ss.borderRadius,
 
   ss.fontWeight,
+  ss.fontSize,
 
   ss.width,
   ss.height,
