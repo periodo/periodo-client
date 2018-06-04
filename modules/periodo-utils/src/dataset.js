@@ -5,16 +5,16 @@ const R = require('ramda')
 function isDataset(obj) {
   return (
     typeof obj === 'object' &&
-    typeof obj.periodCollections === 'object'
+    typeof obj.authorities === 'object'
   )
 }
 
-function getAuthority(obj, collectionID) {
-  return R.path(['periodCollections', collectionID], obj)
+function getAuthority(obj, authorityID) {
+  return R.path(['authorities', authorityID], obj)
 }
 
-function getPeriod(obj, collectionID, periodID) {
-  return R.path(['periodCollections', collectionID, 'definitions', periodID], obj)
+function getPeriod(obj, authorityID, periodID) {
+  return R.path(['authorities', authorityID, 'periods', periodID], obj)
 }
 
 module.exports = {

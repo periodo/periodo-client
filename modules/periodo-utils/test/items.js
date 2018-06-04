@@ -76,12 +76,12 @@ test('Period terminus sequence utility functions', t => {
 test('Period authority utility functions', t => {
   t.plan(1)
 
-  const data = require('./fixtures/period-collection.json')
+  const data = require('./fixtures/authority.json')
 
-  t.deepEqual(util.authority.describe(data.periodCollections.p03377f), {
+  t.deepEqual(util.authority.describe(data.authorities.p03377f), {
     id: 'p03377f',
     source: 'Ruiz, Arturo. The archaeology of the Iberians. 1998.',
-    definitions: 2,
+    periods: 2,
     earliest: {
       iso: -799,
       label: '800 B.C.'
@@ -90,7 +90,7 @@ test('Period authority utility functions', t => {
       iso: -205,
       label: '206 B.C.'
     }
-  }, 'should describe a period collection')
+  }, 'should describe an authority')
 });
 
 test('Authority sequence utility functions', t => {
@@ -98,7 +98,7 @@ test('Authority sequence utility functions', t => {
 
   const data = [
     {
-      definitions: [
+      periods: [
         {
           spatialCoverageDescription: 'Middle East',
           spatialCoverage: [
@@ -108,7 +108,7 @@ test('Authority sequence utility functions', t => {
       ]
     },
     {
-      definitions: [
+      periods: [
         {
           spatialCoverageDescription: 'Middle East',
           spatialCoverage: [
@@ -118,7 +118,7 @@ test('Authority sequence utility functions', t => {
       ]
     },
     {
-      definitions: [
+      periods: [
         {
           spatialCoverageDescription: 'Middle East',
           spatialCoverage: [
@@ -129,7 +129,7 @@ test('Authority sequence utility functions', t => {
       ]
     },
     {
-      definitions: [
+      periods: [
         {
           spatialCoverageDescription: 'Middle East 2',
           spatialCoverage: [
@@ -143,7 +143,7 @@ test('Authority sequence utility functions', t => {
   t.equal(
     util.authorityList.periods(data)[0][symbols.$$Authority],
     data[0],
-    'should associate periods with collections via the $$Authority symbol.'
+    'should associate periods with authorities via the $$Authority symbol.'
   )
 
   const a = util.authorityList.periods(data)

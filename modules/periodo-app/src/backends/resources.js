@@ -128,7 +128,7 @@ const individualAuthorityPage = (makeTitle, Component) => ({
     return {
       backend: state.backends.available[props.params.backendID],
       dataset: state.backends.datasets[props.params.backendID],
-      authority: dataset.periodCollections[props.params.authorityID],
+      authority: dataset.authorities[props.params.authorityID],
     }
   },
 })
@@ -148,13 +148,13 @@ const individualPeriodPage = (makeTitle, Component) => ({
   Component,
   mapStateToProps(state, props) {
     const dataset = state.backends.datasets[props.params.backendID]
-        , authority = dataset.periodCollections[props.params.authorityID]
+        , authority = dataset.authorities[props.params.authorityID]
 
     return {
       backend: state.backends.available[props.params.backendID],
       dataset,
       authority,
-      period: authority.definitions[props.params.periodID],
+      period: authority.periods[props.params.periodID],
     }
   },
 })

@@ -15,12 +15,12 @@ function addError(obj, label, err) {
 }
 
 function validateAuthority(authority) {
-  const { source, definitions={} } = authority
+  const { source, periods={} } = authority
 
   let errors = {}
 
   if (!source || R.equals(source, {})) {
-    errors = addError(errors, 'source', 'A source is required for a period collection.')
+    errors = addError(errors, 'source', 'A source is required for an authority.')
   } else if (!isLinkedData(source)) {
     if (!source.citation && !source.title) {
       errors = addError(errors, 'source', 'Non linked data sources must have a citation or title.')
@@ -30,7 +30,7 @@ function validateAuthority(authority) {
   if (R.equals(errors, {})) {
     return Result.Ok({
       source,
-      definitions,
+      periods,
       type: 'Authority'
     })
   } else {

@@ -1,7 +1,7 @@
 {
-  "periodCollections": {
+  "authorities": {
     "p03377f": {
-      "definitions": {
+      "periods": {
         "p03377fkhrv": {
           "id": "p03377fkhrv",
           "label": "Iron Age",

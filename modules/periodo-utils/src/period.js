@@ -33,7 +33,7 @@ function authorityOf(period) {
 
 function periodWithAuthority(period) {
   return {
-    period: R.path([$$Authority, 'definitions', period.id], period),
+    period: R.path([$$Authority, 'periods', period.id], period),
     authority: authorityOf(period),
   }
 }

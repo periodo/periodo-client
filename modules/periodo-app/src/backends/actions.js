@@ -16,7 +16,7 @@ const R = require('ramda')
 
 
 const emptyDataset = () => ({
-  periodCollections: {},
+  authorities: {},
   type: 'rdf:Bag'
 })
 

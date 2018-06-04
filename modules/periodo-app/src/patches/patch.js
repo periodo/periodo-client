@@ -13,13 +13,13 @@ const jsonpatch = require('fast-json-patch')
  * into another. `jsonpatch.compare()` generates the deepest possible
  * differences. This algorithm generates patches at (potentially) shallower
  * levels in order to make patches that are more semantically useful for
- * tracking changes to periods and period collections.
+ * tracking changes to periods and authorities.
  */
 function makePatch(before, after) {
   return jsonpatch.compare(before, after)
     .reduce(({ patches=[], replaced=[] }, patch) => {
       const { path, op } = patch
-          , { collectionID, periodID, attribute } = PatchType.fromPatch(patch)
+          , { authorityID, periodID, attribute } = PatchType.fromPatch(patch)
 
       const isSimpleAttributeChange = (
         (op === 'add' || op === 'remove') &&
@@ -32,8 +32,8 @@ function makePatch(before, after) {
 
       const attributePointer = pointer.compile(
         periodID
-          ? ['periodCollections', collectionID, 'definitions', periodID, attribute]
-          : ['periodCollections', collectionID, attribute]
+          ? ['authorities', authorityID, 'periods', periodID, attribute]
+          : ['authorities', authorityID, attribute]
       )
 
       return replaced.includes(attributePointer)
@@ -51,14 +51,14 @@ function makePatch(before, after) {
 }
 
 function getAffected(patches) {
-  return [].concat(patches).reduce(({ periods, collections }, patch) => {
-    const { collectionID, periodID } = PatchType.fromPatch(patch)
+  return [].concat(patches).reduce(({ periods, authorities }, patch) => {
+    const { authorityID, periodID } = PatchType.fromPatch(patch)
 
     return {
       periods: periods.concat(periodID || []),
-      collections: collections.concat(collectionID || [])
+      authorities: authorities.concat(authorityID || [])
     }
-  }, { collections: [], periods: [] })
+  }, { authorities: [], periods: [] })
 }
 
 
@@ -85,7 +85,7 @@ function formatPatch(oldData, newData, message) {
     forwardHashes: forward.map(hashPatch),
     backwardHashes: backward.map(hashPatch),
     created: new Date().getTime(),
-    affectedCollections: affected.collections,
+    affectedAuthorities: affected.authorities,
     affectedPeriods: affected.periods
   }
 }

@@ -39,7 +39,7 @@ class AddPeriod extends React.Component {
             await dispatch(updateLocalDataset(
               backend.storage,
               R.assocPath(
-                ['periodCollections', authority.id, 'definitions', id],
+                ['authorities', authority.id, 'periods', id],
                 Object.assign({ id }, period),
                 dataset
               ),

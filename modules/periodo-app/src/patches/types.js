@@ -19,26 +19,26 @@ const PatchType = Type({
   ChangeContext: {},
 
   AddAuthority: {
-    collectionID: String
+    authorityID: String
   },
   RemoveAuthority: {
-    collectionID: String
+    authorityID: String
   },
   ChangeAuthority: {
-    collectionID: String,
+    authorityID: String,
     attribute: String,
   },
 
   AddPeriod: {
-    collectionID: String,
+    authorityID: String,
     periodID: String,
   },
   RemovePeriod: {
-    collectionID: String,
+    authorityID: String,
     periodID: String,
   },
   ChangePeriod: {
-    collectionID: String,
+    authorityID: String,
     periodID: String,
     attribute: String,
   },
@@ -63,11 +63,11 @@ PatchType.fromPatch = function fromPath(patch) {
     return patch[$$type] = PatchType.ChangeContext
   }
 
-  if (tok !== 'periodCollections') {
+  if (tok !== 'authorities') {
     return patch[$$type] = PatchType.Unknown
   }
 
-  // Move on from periodCollections
+  // Move on from authorities
   if (!advance()) {
     return patch[$$type] = PatchType.Unknown
   }
@@ -82,7 +82,7 @@ PatchType.fromPatch = function fromPath(patch) {
     ])(op)
   }
 
-  if (tok !== 'definitions') {
+  if (tok !== 'periods') {
     return patch[$$type] = PatchType.ChangeAuthority(authorityID, tok)
   }
 
@@ -108,7 +108,7 @@ function fmt(type) {
   let [verb] = type._name.match(/([A-Z][a-z]+)/)
     , message = ''
 
-  const { collectionID, periodID, attribute } = type
+  const { authorityID, periodID, attribute } = type
 
   if (verb.slice(-1) !== 'e') {
     verb += 'e';
@@ -123,8 +123,8 @@ function fmt(type) {
   }
 
   message += periodID
-    ? `period ${periodID} in authority ${collectionID}.`
-    : `authority ${collectionID}.`
+    ? `period ${periodID} in authority ${authorityID}.`
+    : `authority ${authorityID}.`
 
   return message;
 }

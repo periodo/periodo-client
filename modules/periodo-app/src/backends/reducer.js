@@ -21,10 +21,10 @@ const updateBackend = (backend, dataset, state) => {
 
 function addAuthoritySymbols(dataset) {
   return R.over(
-    R.lensProp('periodCollections'),
+    R.lensProp('authorities'),
     R.map(authority =>
       R.over(
-        R.lensProp('definitions'),
+        R.lensProp('periods'),
         R.map(R.assoc($$Authority, authority)),
         authority
       )

@@ -66,7 +66,7 @@ module.exports = blocks.List({
     shownColumns: ['start', 'stop', 'label', 'spatialCoverage', 'publicationDate'],
   },
   transducer: R.map(
-    R.pipe(R.prop('definitions'), R.values)
+    R.pipe(R.prop('periods'), R.values)
   ),
   columns,
 })

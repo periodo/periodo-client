@@ -15,16 +15,16 @@ module.exports = {
 
     if (!text) return through.obj()
 
-    return through.obj(function ({ authority, definitions }, enc, cb) {
-      const matchedDefinitions = R.filter(period =>
+    return through.obj(function ({ authority, periods }, enc, cb) {
+      const matchedPeriods = R.filter(period =>
         regex.test(period.label) ||
         alternateLabels(period).some(label => regex.test(label.value))
-      )(definitions)
+      )(periods)
 
-      if (!R.isEmpty(matchedDefinitions)) {
+      if (!R.isEmpty(matchedPeriods)) {
         this.push({
           authority,
-          definitions: matchedDefinitions,
+          periods: matchedPeriods,
         })
       }
 

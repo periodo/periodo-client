@@ -59,12 +59,12 @@ async function filterByHash(patches, keepMatched, hashMatchFn) {
     const parsed = PatchType.fromPatch(patch)
 
     const affectsWholeEntity = (
-      (parsed.collectionID || parsed.periodID) &&
+      (parsed.authorityID || parsed.periodID) &&
       !parsed.attribute
     )
 
     if (affectsWholeEntity) {
-      // These are patches that add a new period or period collection. They will
+      // These are patches that add a new period or authority. They will
       // automatically be added without checking hashes.
       if (patch.op === 'add') {
         additions.push(patch)
@@ -73,9 +73,9 @@ async function filterByHash(patches, keepMatched, hashMatchFn) {
         throw new Error('Invalid patch');
       }
 
-      // Otherwise, these are patches that "remove" a new period or period
-      // collection. This is the result of a patch not being in the target
-      // dataset. We just remove them from consideration
+      // Otherwise, these are patches that "remove" a new period or authority
+      // This is the result of a patch not being in the target dataset. We just
+      // remove them from consideration
 
     } else {
       patchesByHash.set(hashPatch(patch), patch);

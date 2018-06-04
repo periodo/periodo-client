@@ -9,6 +9,7 @@ module.exports = function periodoDB(dexieOpts) {
   require('./version-01')(db)
   require('./version-02')(db)
   require('./version-03')(db)
+  require('./version-04')(db)
 
   db.on('populate', function () {
     if (!process.env.NO_DEFAULT_BACKEND) {

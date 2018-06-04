@@ -236,7 +236,7 @@ const Authority = {
   },
   mapStateToProps(state, props) {
     return {
-      authority: props.dataset.periodCollections[props.params.authorityID]
+      authority: props.dataset.authorities[props.params.authorityID]
     }
   }
 }
@@ -271,7 +271,7 @@ const Period = {
   },
   mapStateToProps(state, props) {
     return {
-      period: props.authority.definitions[props.params.periodID]
+      period: props.authority.periods[props.params.periodID]
     }
   }
 }

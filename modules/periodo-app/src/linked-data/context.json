@@ -3,7 +3,7 @@
   "Authority": "http://www.w3.org/2004/02/skos/core#ConceptScheme",
   "Period": "http://www.w3.org/2004/02/skos/core#Concept",
   "abstract": "http://purl.org/dc/terms/abstract",
-  "collection": {
+  "authority": {
     "@id": "http://www.w3.org/2004/02/skos/core#inScheme",
     "@type": "@id"
   },
@@ -19,7 +19,7 @@
     "@id": "http://purl.org/dc/terms/date",
     "@type": "http://www.w3.org/2001/XMLSchema#date"
   },
-  "definitions": {
+  "periods": {
     "@container": "@index",
     "@reverse": "http://www.w3.org/2004/02/skos/core#inScheme"
   },
@@ -51,7 +51,7 @@
     "@id": "http://purl.org/dc/terms/isPartOf",
     "@type": "@id"
   },
-  "periodCollections": {
+  "authorities": {
     "@container": "@index",
     "@id": "http://www.w3.org/2000/01/rdf-schema#member"
   },
