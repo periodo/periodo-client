@@ -13,7 +13,7 @@ const period =
 
 , minimalAltered:
   { id: 'test-minimal-period'
-  , type: 'PeriodDefinition'
+  , type: 'Period'
   , label: '后汉'
   , language: 'cmn-Hans'
   , localizedLabels: {'cmn-Hans': [ '后汉' ]}
@@ -24,7 +24,7 @@ const period =
 
 , maximal:
   { id: 'test-maximal-period'
-  , type: 'PeriodDefinition'
+  , type: 'Period'
   , label: 'Later Han Dynasty'
   , language: 'en-Latn'
   , localizedLabels:
@@ -141,7 +141,7 @@ const authority =
 
 , minimalAltered:
     { id: 'test-minimal-authority'
-    , type: 'PeriodCollection'
+    , type: 'Authority'
     , source: source.minimalAltered
     }
 
@@ -158,7 +158,7 @@ const authority =
 
 , maximalAltered:
     { id: 'test-maximal-authority'
-    , type: 'PeriodCollection'
+    , type: 'Authority'
     , source: source.maximalAltered
     , editorialNote: 'whoop it up!!!'
     , sameAs: 'http://linked-data-is-ok.org/bizbaz'
@@ -194,8 +194,8 @@ const dataset =
         }
     , '@context':
         { '@base': 'http://n2t.net/ark:/99152/'
-        , PeriodCollection: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
-        , PeriodDefinition: 'http://www.w3.org/2004/02/skos/core#Concept'
+        , Authority: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
+        , Period: 'http://www.w3.org/2004/02/skos/core#Concept'
         , abstract: 'http://purl.org/dc/terms/abstract'
         , collection:
             { '@id': 'http://www.w3.org/2004/02/skos/core#inScheme'
@@ -292,8 +292,8 @@ const dataset =
         }
     , '@context':
         { '@base': 'http://n2t.net/ark:/99152/'
-        , PeriodCollection: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
-        , PeriodDefinition: 'http://www.w3.org/2004/02/skos/core#Concept'
+        , Authority: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
+        , Period: 'http://www.w3.org/2004/02/skos/core#Concept'
         , abstract: 'http://purl.org/dc/terms/abstract'
         , collection:
             { '@id': 'http://www.w3.org/2004/02/skos/core#inScheme'

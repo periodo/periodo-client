@@ -27,7 +27,7 @@
             },
             "label": "550 B.C."
           },
-          "type": "PeriodDefinition"
+          "type": "Period"
         },
         "p03377ft59d": {
           "localizedLabels": {
@@ -61,7 +61,7 @@
             },
             "label": "206 B.C."
           },
-          "type": "PeriodDefinition"
+          "type": "Period"
         }
       },
       "id": "p03377f",
@@ -82,7 +82,7 @@
         "title": "The archaeology of the Iberians",
         "yearPublished": 1998
       },
-      "type": "PeriodCollection"
+      "type": "Authority"
     }
   }
 }

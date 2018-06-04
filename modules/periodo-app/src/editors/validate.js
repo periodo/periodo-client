@@ -31,7 +31,7 @@ function validateAuthority(authority) {
     return Result.Ok({
       source,
       definitions,
-      type: 'PeriodCollection'
+      type: 'Authority'
     })
   } else {
     return Result.Err(errors)
@@ -88,7 +88,7 @@ function validatePeriod(period) {
 
   if (R.equals(errors, {})) {
     const cleanedPeriod = {
-      type: 'PeriodDefinition',
+      type: 'Period',
     }
 
     VALID_PERIOD_FIELDS.forEach(field => {
