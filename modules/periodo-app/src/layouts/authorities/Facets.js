@@ -161,13 +161,13 @@ module.exports = {
       return period => vals.includes(getter(period))
     })
 
-    return through.obj(function ({ authority, definitions }, enc, cb) {
-      const matchedDefinitions = R.filter(period => fns.every(fn => fn(period)), definitions)
+    return through.obj(function ({ authority, periods }, enc, cb) {
+      const matchedPeriods = R.filter(period => fns.every(fn => fn(period)), periods)
 
-      if (!R.isEmpty(matchedDefinitions)) {
+      if (!R.isEmpty(matchedPeriods)) {
         this.push({
           authority,
-          definitions: matchedDefinitions,
+          periods: matchedPeriods,
         })
       }
 
@@ -177,7 +177,7 @@ module.exports = {
   Component: StreamConsuming(
     (prev=[], items, props={}) => {
       return R.transduce(
-        R.map(R.pipe(R.prop('definitions'), R.values)),
+        R.map(R.pipe(R.prop('periods'), R.values)),
         concat,
         prev,
         items

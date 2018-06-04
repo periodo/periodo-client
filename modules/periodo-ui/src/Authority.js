@@ -41,8 +41,8 @@ const AUTHORITY_FIELDS = [
 
 const AUTHORITY_WITH_PERIODS_FIELDS = [
   ...AUTHORITY_FIELDS,
-  { label: 'Period definitions',
-    values: extractIndexedValues('definitions'),
+  { label: 'Periods',
+    values: extractIndexedValues('periods'),
     component: props => h(
       Period,
       R.merge(props,

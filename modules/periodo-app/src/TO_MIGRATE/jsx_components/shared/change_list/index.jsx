@@ -95,9 +95,9 @@ function formatPeriodAddition(addition) {
   })
 }
 
-function formatPeriodEdit(patches, collectionID, periodID, sourceStore, destStore) {
+function formatPeriodEdit(patches, authorityID, periodID, sourceStore, destStore) {
   var periodDiff = require('../../../utils/period_diff')
-    , periodPath = ['periodCollections', collectionID, 'definitions', periodID]
+    , periodPath = ['periodCollections', authorityID, 'definitions', periodID]
     , oldPeriod = sourceStore.getIn(periodPath)
     , newPeriod = destStore.getIn(periodPath)
 
@@ -152,8 +152,8 @@ module.exports = React.createClass({
     if (grouped.has('addPeriod')) {
       groupedChanges = groupedChanges.push(Immutable.Map({
         header: 'New periods',
-        groups: grouped.get('addPeriod').map((additions, collectionID) => {
-          var sourcePath = ['periodCollections', collectionID, 'source']
+        groups: grouped.get('addPeriod').map((additions, authorityID) => {
+          var sourcePath = ['periodCollections', authorityID, 'source']
             , source = this.props.sourceStore.getIn(sourcePath)
 
           return Immutable.Map({
@@ -167,15 +167,15 @@ module.exports = React.createClass({
     if (grouped.has('editPeriod')) {
       groupedChanges = groupedChanges.push(Immutable.Map({
         header: 'Edited periods',
-        groups: grouped.get('editPeriod').map((periods, collectionID) => {
-          var sourcePath = ['periodCollections', collectionID, 'source']
+        groups: grouped.get('editPeriod').map((periods, authorityID) => {
+          var sourcePath = ['periodCollections', authorityID, 'source']
             , source = this.props.sourceStore.getIn(sourcePath)
 
           return Immutable.Map({
             header: <h3>In source: { getDisplayTitle(source) }</h3>,
             changes: periods.map((patches, periodID) => (
               formatPeriodEdit(
-                patches, collectionID, periodID,
+                patches, authorityID, periodID,
                 this.props.sourceStore, this.props.destStore)
             ))
           })

@@ -20,9 +20,9 @@ const next = (prev, items) => {
   prev = prev || { authorities: new Set(), periods: new Set() }
 
   return R.transduce(
-    R.map(({ authority, definitions }) => ({
+    R.map(({ authority, periods }) => ({
       authorities: authority.id,
-      periods: Object.keys(definitions),
+      periods: Object.keys(periods),
     })),
     itemKeySetReducer,
     prev,

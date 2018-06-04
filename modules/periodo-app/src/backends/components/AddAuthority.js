@@ -31,7 +31,7 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
             await dispatch(updateLocalDataset(
               backend.storage,
               R.assocPath(
-                ['periodCollections', id],
+                ['authorities', id],
                 Object.assign({ id }, authority),
                 dataset
               ),

@@ -7,12 +7,12 @@ const test = require('blue-tape')
 test('Formatting and hashing patches', async t => {
   const { formatPatch } = require('../patch');
 
-  const initialData = R.clone(require('./fixtures/period-collection.json'));
+  const initialData = R.clone(require('./fixtures/authority.json'));
 
   const path = [
-    'periodCollections',
+    'authorities',
     'p03377f',
-    'definitions',
+    'periods',
     'p03377fkhrv',
     'editorialNote'
   ]
@@ -36,9 +36,13 @@ test('Formatting and hashing patches', async t => {
     }
   ]);
 
-  t.deepEqual(patch.forwardHashes, ['dcb4af6ca8ac2bd84e61fea381d9fff5']);
-  t.deepEqual(patch.backwardHashes, ['3fea72233374c67d98f6208e823480aa']);
-  t.deepEqual(patch.affectedCollections, ['p03377f']);
+  // Hash of '{"op":"add","path":"/authorities/p03377f/periods/p03377fkhrv/editorialNote","value":"This is an editorial note."}'
+  t.deepEqual(patch.forwardHashes, ['74ef216d2a904a8bcca5569f65956133']);
+
+  // Hash of '{"op":"remove","path":"/authorities/p03377f/periods/p03377fkhrv/editorialNote"}'
+  t.deepEqual(patch.backwardHashes, ['5736c4b2aa8e19d190136510e8f0dd31']);
+
+  t.deepEqual(patch.affectedAuthorities, ['p03377f']);
   t.deepEqual(patch.affectedPeriods, ['p03377fkhrv']);
 
   t.equal(
@@ -49,20 +53,20 @@ test('Formatting and hashing patches', async t => {
 
 test('Patch utils', async t => {
   const { makePatch } = require('../patch')
-      , data = R.clone(require('./fixtures/period-collection.json'))
+      , data = R.clone(require('./fixtures/authority.json'))
 
   const samplePatches = {
     addPeriod: {
       op: 'add',
-      path: '/periodCollections/a/definitions/b'
+      path: '/authorities/a/periods/b'
     },
     removePeriod: {
       op: 'remove',
-      path: '/periodCollections/a/definitions/b'
+      path: '/authorities/a/periods/b'
     },
     changePeriod: {
       op: 'add',
-      path: '/periodCollections/a/definitions/b/note'
+      path: '/authorities/a/periods/b/note'
     }
   }
 
@@ -90,7 +94,7 @@ test('Patch utils', async t => {
   }, 'should group patches together');
 
 
-  const attrPath = ['periodCollections', 'p03377f', 'source']
+  const attrPath = ['authorities', 'p03377f', 'source']
       , newData = R.assocPath(attrPath.concat('yearPublished'), '1900', data)
       , patch = makePatch(data, newData)
 
@@ -104,9 +108,9 @@ test('Patch utils', async t => {
 
 
   const attrPath2 = [
-    'periodCollections',
+    'authorities',
     'p03377f',
-    'definitions',
+    'periods',
     'p03377fkhrv',
     'spatialCoverage'
   ]
@@ -200,14 +204,14 @@ test('Patch collection hash filtering', async t => {
   const { filterByHash } = require('../patch_collection');
 
   const patches = [
-    { op: 'add', path: '/periodCollections/a/definitions/aa/note' },
-    { op: 'remove', path: '/periodCollections/b' },
-    { op: 'add', path: '/periodCollections/c' }
+    { op: 'add', path: '/authorities/a/periods/aa/note' },
+    { op: 'remove', path: '/authorities/b' },
+    { op: 'add', path: '/authorities/c' }
   ]
 
   const matcher = hashes => {
-    // Hash of '{"op":"add","path":"/periodCollections/a/definitions/aa/note"}'
-    const expectedHash = '0af819ad2546c595c88eaad3672d4e78'
+    // Hash of '{"op":"add","path":"/authorities/a/periods/aa/note"}'
+    const expectedHash = 'acbf17d2f121127d02a6afeef294b07d'
 
     t.deepEqual(hashes, [expectedHash]);
 

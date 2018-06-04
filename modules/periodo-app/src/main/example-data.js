@@ -13,7 +13,7 @@ const period =
 
 , minimalAltered:
   { id: 'test-minimal-period'
-  , type: 'PeriodDefinition'
+  , type: 'Period'
   , label: '后汉'
   , language: 'cmn-Hans'
   , localizedLabels: {'cmn-Hans': [ '后汉' ]}
@@ -24,7 +24,7 @@ const period =
 
 , maximal:
   { id: 'test-maximal-period'
-  , type: 'PeriodDefinition'
+  , type: 'Period'
   , label: 'Later Han Dynasty'
   , language: 'en-Latn'
   , localizedLabels:
@@ -141,7 +141,7 @@ const authority =
 
 , minimalAltered:
     { id: 'test-minimal-authority'
-    , type: 'PeriodCollection'
+    , type: 'Authority'
     , source: source.minimalAltered
     }
 
@@ -150,7 +150,7 @@ const authority =
     , source: source.maximal
     , editorialNote: 'whoop whoop'
     , sameAs: 'http://linked-data-is-cool.org/bizbaz'
-    , definitions:
+    , periods:
       { minimal: period.minimal
       , maximal: period.maximal
       }
@@ -158,11 +158,11 @@ const authority =
 
 , maximalAltered:
     { id: 'test-maximal-authority'
-    , type: 'PeriodCollection'
+    , type: 'Authority'
     , source: source.maximalAltered
     , editorialNote: 'whoop it up!!!'
     , sameAs: 'http://linked-data-is-ok.org/bizbaz'
-    , definitions:
+    , periods:
       { minimal: period.minimal // unchanged
       , maximal: period.maximalAltered
       }
@@ -174,30 +174,30 @@ const dataset =
 { minimal:
     { id: 'test-minimal-dataset'
     , type: 'rdf:Bag'
-    , periodCollections: {}
+    , authorities: {}
     , '@context': {}
     }
 
 , minimalAltered:
     { id: 'test-minimal-dataset'
     , type: 'rdf:Bag'
-    , periodCollections: {minimal: authority.minimal}
+    , authorities: {minimal: authority.minimal}
     , '@context': {}
     }
 
 , maximal:
     { id: 'test-maximal-dataset'
     , type: 'Bag'
-    , periodCollections:
+    , authorities:
         { maximal: authority.maximal
         , minimal: authority.minimal
         }
     , '@context':
         { '@base': 'http://n2t.net/ark:/99152/'
-        , PeriodCollection: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
-        , PeriodDefinition: 'http://www.w3.org/2004/02/skos/core#Concept'
+        , Authority: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
+        , Period: 'http://www.w3.org/2004/02/skos/core#Concept'
         , abstract: 'http://purl.org/dc/terms/abstract'
-        , collection:
+        , authority:
             { '@id': 'http://www.w3.org/2004/02/skos/core#inScheme'
             , '@type': '@id'
             }
@@ -213,7 +213,7 @@ const dataset =
             { '@id': 'http://purl.org/dc/terms/date'
             , '@type': 'http://www.w3.org/2001/XMLSchema#date'
             }
-        , definitions:
+        , periods:
             { '@container': '@index'
             , '@reverse': 'http://www.w3.org/2004/02/skos/core#inScheme'
             }
@@ -245,7 +245,7 @@ const dataset =
             { '@id': 'http://purl.org/dc/terms/isPartOf'
             , '@type': '@id'
             }
-        , periodCollections:
+        , authorities:
             { '@container': '@index'
             , '@id': 'http://www.w3.org/2000/01/rdf-schema#member'
             }
@@ -286,16 +286,16 @@ const dataset =
 , maximalAltered:
     { id: 'test-maximal-dataset'
     , type: 'rdf:Bag'
-    , periodCollections:
+    , authorities:
         { minimal: authority.minimal
         , maximal: authority.maximalAltered
         }
     , '@context':
         { '@base': 'http://n2t.net/ark:/99152/'
-        , PeriodCollection: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
-        , PeriodDefinition: 'http://www.w3.org/2004/02/skos/core#Concept'
+        , Authority: 'http://www.w3.org/2004/02/skos/core#ConceptScheme'
+        , Period: 'http://www.w3.org/2004/02/skos/core#Concept'
         , abstract: 'http://purl.org/dc/terms/abstract'
-        , collection:
+        , authority:
             { '@id': 'http://www.w3.org/2004/02/skos/core#inScheme'
             , '@type': '@id'
             }
@@ -311,7 +311,7 @@ const dataset =
             { '@id': 'http://purl.org/dc/terms/date'
             , '@type': 'http://www.w3.org/2001/XMLSchema#date'
             }
-        , definitions:
+        , periods:
             { '@container': '@index'
             , '@reverse': 'http://www.w3.org/2004/02/skos/core#inScheme'
             }
@@ -343,7 +343,7 @@ const dataset =
             { '@id': 'http://purl.org/dc/terms/isPartOf'
             , '@type': '@id'
             }
-        , periodCollections:
+        , authorities:
             { '@container': '@index'
             , '@id': 'http://www.w3.org/2000/01/rdf-schema#member'
             }

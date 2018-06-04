@@ -7,6 +7,7 @@ const R = require('ramda')
     , jsonpatch = require('fast-json-patch')
     , jsonld = require('jsonld')
     , { Route } = require('org-shell')
+    , { normalizeDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
@@ -16,7 +17,7 @@ const R = require('ramda')
 
 
 const emptyDataset = () => ({
-  periodCollections: {},
+  authorities: {},
   type: 'rdf:Bag'
 })
 
@@ -135,7 +136,7 @@ function fetchBackend(storage, forceReload) {
         storage,
         metadata: BackendMetadata.BackendMetadataOf(metadata)
       }),
-      dataset,
+      dataset: normalizeDataset(dataset),
     }
   })
 }

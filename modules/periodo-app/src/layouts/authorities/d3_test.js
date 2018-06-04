@@ -19,7 +19,7 @@ module.exports = blocks.DOM({
   steps: 1000,
   next(prev=[], items) {
     return prev.concat(...items.map(authority =>
-      R.values(authority.definitions)
+      R.values(authority.periods)
     ))
   },
 

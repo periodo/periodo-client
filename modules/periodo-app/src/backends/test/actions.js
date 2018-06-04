@@ -113,9 +113,9 @@ test('Updating backends', async t => {
 
   const updatedDataset = {
     type: 'rdf:Bag',
-    periodCollections: {
-      'collection1': {
-        id: 'collection1'
+    authorities: {
+      'authority1': {
+        id: 'authority1'
       }
     }
   }
@@ -131,8 +131,8 @@ test('Updating backends', async t => {
     getResponse(store.getActions()[5]).patchData.forward, [
       {
         op: 'add',
-        path: '/periodCollections/collection1',
-        value: { id: 'collection1' }
+        path: '/authorities/authority1',
+        value: { id: 'authority1' }
       }
     ],
     'Should generate patch data for an updated dataset'

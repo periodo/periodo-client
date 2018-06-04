@@ -16,16 +16,16 @@ const PeriodoLayoutRenderer = props =>
           R.values,
           R.map(authority => ({
             authority,
-            definitions: authority.definitions,
+            periods: authority.periods,
           }))
-        )(props.dataset.periodCollections)
+        )(props.dataset.authorities)
       ),
     extraProps: { backend: props.backend },
   })))
 
 PeriodoLayoutRenderer.propTypes = {
   dataset: PropTypes.shape({
-    periodCollections: PropTypes.object.isRequired,
+    authorities: PropTypes.object.isRequired,
   }),
   backend: PropTypes.object.isRequired,
 }

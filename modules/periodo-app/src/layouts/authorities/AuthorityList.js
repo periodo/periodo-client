@@ -32,10 +32,10 @@ const columns = {
     }
   },
 
-  numDefinitions: {
-    label: 'Num. of definitions',
+  numPeriods: {
+    label: 'Num. of periods',
     getValue(authority) {
-      return Object.keys(authority.definitions).length
+      return Object.keys(authority.periods).length
     }
   },
 
@@ -61,7 +61,7 @@ module.exports = blocks.List({
     limit: 25,
     start: 0,
     selected: [],
-    shownColumns: ['title', 'authors', 'yearPublished', 'numDefinitions'],
+    shownColumns: ['title', 'authors', 'yearPublished', 'numPeriods'],
   },
   transducer: R.map(R.prop('authority')),
   columns,

@@ -78,7 +78,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
               helpText: `
                 If all periods are defined on a single page within this source,
                 include that page number here. Otherwise, include a locator for
-                individual period definitions as you create them.
+                individual periods as you create them.
               `
             }),
 

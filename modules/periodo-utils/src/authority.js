@@ -9,12 +9,12 @@ const d3 = require('d3')
 function periodsWithAuthority(authority) {
   return R.map(
     R.assoc($$Authority, authority),
-    R.values(authority.definitions)
+    R.values(authority.periods)
   )
 }
 
 function periods(authority) {
-  return R.values(authority.definitions)
+  return R.values(authority.periods)
 }
 
 function displayTitle(authority) {
@@ -22,21 +22,21 @@ function displayTitle(authority) {
 }
 
 function describe(authority) {
-  const definitions = R.values(authority.definitions || {})
+  const periods = R.values(authority.periods || {})
 
   return {
     id: authority.id,
     source: displayTitle(authority),
-    definitions: definitions.length,
-    earliest: terminusList.minYear(R.map(R.path(['start']))(definitions)),
-    latest: terminusList.maxYear(R.map(R.path(['stop']))(definitions)),
+    periods: periods.length,
+    earliest: terminusList.minYear(R.map(R.path(['start']))(periods)),
+    latest: terminusList.maxYear(R.map(R.path(['stop']))(periods)),
   }
 }
 
 function asCSV(authority) {
   const { getEarliestYear, getLatestYear } = require('./terminus')
 
-  return d3.csv.format(authority.get('definitions').map(period => {
+  return d3.csv.format(authority.get('periods').map(period => {
     const start = period.get('start')
         , stop = period.get('stop')
 

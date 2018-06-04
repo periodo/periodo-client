@@ -29,7 +29,7 @@ const DATASET_FIELDS = [
     hidden: true
   },
   { label: 'Authorities',
-    values: extractIndexedValues('periodCollections'),
+    values: extractIndexedValues('authorities'),
     component: props => h(
       Authority,
       R.merge(props,

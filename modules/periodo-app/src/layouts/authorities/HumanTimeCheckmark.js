@@ -18,19 +18,19 @@ module.exports = {
       earliest = -400001
     }
 
-    return through.obj(function ({ authority, definitions }, enc, cb) {
-      const matchedDefinitions = R.filter(period => {
+    return through.obj(function ({ authority, periods }, enc, cb) {
+      const matchedPeriods = R.filter(period => {
         if (!period.start) return false;
 
         const earliestStart = earliestYear(period.start)
 
         return earliestStart != null && earliestStart > earliest
-      })(definitions)
+      })(periods)
 
-      if (R.isEmpty(definitions) || !R.isEmpty(matchedDefinitions)) {
+      if (R.isEmpty(periods) || !R.isEmpty(matchedPeriods)) {
         this.push({
           authority,
-          definitions: matchedDefinitions,
+          periods: matchedPeriods,
         })
       }
 

@@ -37,7 +37,7 @@ test('Patch generation actions', async t => {
 
   const newData = {
     type: 'rdf:Bag',
-    periodCollections: {
+    authorities: {
       fakeID: {
         id: 'fakeID'
       }
@@ -46,7 +46,7 @@ test('Patch generation actions', async t => {
 
   const emptyData = {
     type: 'rdf:Bag',
-    periodCollections: {}
+    authorities: {}
   }
 
   await store.dispatch(
@@ -61,7 +61,7 @@ test('Patch generation actions', async t => {
       patch: [
         {
           op: 'add',
-          path: '/periodCollections/fakeID',
+          path: '/authorities/fakeID',
           value: {
             id: 'fakeID'
           }

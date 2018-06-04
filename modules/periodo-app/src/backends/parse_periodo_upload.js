@@ -2,7 +2,7 @@
 
 // Read a File object representing a PeriodO dataset. Return a promise that
 // resolves to the dataset as an object if successful, else reject with the
-// reason for failure. A valid PeriodO dataset must have a periodCollection
+// reason for failure. A valid PeriodO dataset must have a `authorities`
 // key at the very least.
 //
 // TODO: make a better check for validity of dataset. Maybe run it through a
@@ -20,7 +20,7 @@ module.exports = function (file) {
 
         if (typeof data !== 'object') {
           throw new Error(`${file.name} is not a JSON document.`);
-        } else if (!data.periodCollections) {
+        } else if (!data.authorities) {
           throw new Error(`${file.name} does not seem to be a valid PeriodO dataset.`);
         }
       } catch (err) {

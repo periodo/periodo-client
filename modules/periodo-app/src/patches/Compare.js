@@ -106,7 +106,7 @@ function PeriodCell(props) {
             if (selectAllPeriods) {
               return {
                 selectedPeriods: R.assoc(patch.id, R.pipe(
-                  R.prop('definitions'),
+                  R.prop('periods'),
                   R.dissoc(period.id),
                   R.map(R.T)
                 )(authority))(prev.selectedPeriods)
@@ -418,7 +418,7 @@ class Compare extends React.Component {
         if (!(id in selectedPeriods)) return patch;
 
         return R.over(
-          R.lensPath(['value', 'definitions']),
+          R.lensPath(['value', 'periods']),
           R.pipe(
             Object.entries,
             R.filter(([periodID]) => selectedPeriods[id][periodID]),
@@ -489,7 +489,7 @@ class Compare extends React.Component {
 
     // Then, partition by authority, so that changes to periods in the same
     // authority can be grouped together
-    const byAuthority = R.groupBy(R.path(['type', 'collectionID']), itemPatches)
+    const byAuthority = R.groupBy(R.path(['type', 'authorityID']), itemPatches)
 
     return (
       h(Box, [

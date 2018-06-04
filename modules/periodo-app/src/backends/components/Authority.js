@@ -25,7 +25,7 @@ class AuthorityLayout extends React.Component {
         layout,
         backend,
         dataset: {
-          periodCollections: {
+          authorities: {
             [authority.id]: authority
           }
         },
