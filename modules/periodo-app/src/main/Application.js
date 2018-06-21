@@ -58,7 +58,7 @@ class Menu extends React.Component {
       const mappedProps = (
         nextProps.activeResource.mapStateToProps ||
         R.T
-      )(nextProps.storeState, { params: nextProps.params })
+      )(nextProps.storeState, { extra: nextProps.extra, params: nextProps.params })
 
       return {
         active: {
@@ -215,6 +215,7 @@ class PeriodoApplication extends React.Component {
                     activeResource: this.state.activeResource,
                     prevResource: this.state.prevResource,
                     params: this.props.params,
+                    extra: this.props.extra,
                   }),
                   ...[].concat(this.props.children)
               ])
