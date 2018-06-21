@@ -11,8 +11,8 @@ const dmp = new DMP()
 const colors = {insert: '#e4ffee', delete: '#ffeef0'}
 
 const styles =
-  { [DMP.DIFF_INSERT]: { backgroundColor: colors.insert }
-  , [DMP.DIFF_DELETE]: { backgroundColor: colors.delete }
+  { [DMP.DIFF_INSERT]: { bg: colors.insert }
+  , [DMP.DIFF_DELETE]: { bg: colors.delete }
   }
 
 const format = ([operation, string]) => h(
@@ -79,9 +79,9 @@ const showChanges = component => R.map(
     Mutation:
       (value, compare) => h(component, { value, compare }),
     Addition:
-      value => h(component, { value, backgroundColor: colors.insert }),
+      value => h(component, { value, bg: colors.insert }),
     Deletion:
-      value => h(component, { value, backgroundColor: colors.delete }),
+      value => h(component, { value, bg: colors.delete }),
   })
 )
 
