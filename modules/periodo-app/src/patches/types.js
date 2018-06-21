@@ -139,6 +139,17 @@ PatchType.prototype.getLabel = function () {
 }
 
 const PatchAction = makeActionType('patch', {
+  GetLocalPatch: [
+    {
+      patchURL: String,
+    },
+    {
+      patch: Object,
+      fromDataset: Object,
+      toDataset: Object,
+      patchText: Object,
+    }
+  ],
   GetOpenServerPatches: [
     {
     },

@@ -1,6 +1,7 @@
 "use strict";
 
-const { fetchBackend } = require('../backends/actions')
+const jsonpatch = require('fast-json-patch')
+    , { fetchBackend } = require('../backends/actions')
     , { getResponse } = require('../typed-actions/utils')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
@@ -106,6 +107,47 @@ function submitPatch(storage, patch) {
   })
 }
 
+function getLocalPatch(patchURL) {
+  const action = PatchAction.GetLocalPatch(patchURL)
+
+  return action.do(async () => {
+    const patchResp = await fetch(patchURL)
+
+    if (!patchResp.ok) throw new Error('Could not fetch patch')
+
+    const patch = await patchResp.json()
+
+
+    const [ fromDatasetResp, patchTextResp ] = await Promise.all([
+      fetch(patch.created_from),
+      fetch(patch.text),
+    ])
+
+    if (!fromDatasetResp.ok) {
+      throw new Error('Could not fetch source dataset')
+    }
+
+    if (!patchTextResp.ok) {
+      throw new Error('Could not fetch patch text')
+    }
+
+    const fromDataset = await fromDatasetResp.json()
+        , patchText = await patchTextResp.json()
+
+    const toDataset = jsonpatch.applyPatch(
+      jsonpatch.deepClone(fromDataset),
+      jsonpatch.deepClone(patchText)
+    ).newDocument
+
+    return {
+      patch,
+      fromDataset,
+      toDataset,
+      patchText,
+    }
+  })
+}
+
 function getOpenServerPatches() {
   const action = PatchAction.GetOpenServerPatches
 
@@ -121,6 +163,7 @@ function getOpenServerPatches() {
 module.exports = {
   generateDatasetPatch,
   submitPatch,
+  getLocalPatch,
   getOpenServerPatches,
 }
 

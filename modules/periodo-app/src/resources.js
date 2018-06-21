@@ -60,9 +60,9 @@ const Home = {
       label: 'Add backend',
       Component: require('./backends/components/AddBackend'),
     },
-    'review-patches': {
+    'open-patches': {
       label: 'Review patches',
-      Component: require('./patches/Review'),
+      Component: require('./patches/OpenPatches'),
       async onBeforeRoute(dispatch) {
         const { patches } = await throwIfUnsuccessful(
           dispatch(patchActions.getOpenServerPatches()))
@@ -73,16 +73,30 @@ const Home = {
         ))
 
         return { patchRequests: patches }
+      },
+      mapStateToProps: (state, ownProps) => {
+        const { nameByORCID } = state.linkedData
+
+        const urlize = url => ({
+          label: nameByORCID[url],
+          url,
+        })
+
+        return {
+          patchRequests: R.map(
+            R.pipe(
+              R.over(R.lensProp('created_by'), urlize),
+              R.over(R.lensProp('updated_by'), urlize),
+            ),
+            ownProps.extra.patchRequests
+          )
+        }
       }
     },
     'settings': {
       label: 'Settings',
       Component: require('./auth/components/Settings'),
     },
-    /*
-    'review-patches': {
-    }
-    */
   },
   async onBeforeRoute(dispatch) {
     await dispatch(authActions.getApplicationSettings())
@@ -91,6 +105,28 @@ const Home = {
     return {
       settings: state.auth.settings,
     }
+  }
+}
+
+const ReviewPatch = {
+  label: 'Review patch',
+  parent: Home,
+  resources: {
+    'review-patch': {
+      label: 'Review patch',
+      Component: require('./patches/Review'),
+    }
+  },
+  async onBeforeRoute(dispatch, params) {
+    requireParam(params, 'patchURL')
+
+    const patch = await throwIfUnsuccessful(
+      dispatch(patchActions.getLocalPatch(decodeURIComponent(params.patchURL))))
+
+    return { patch }
+  },
+  mapStateToProps(state, props) {
+    return Object.assign({}, props.extra.patch)
   }
 }
 
@@ -360,11 +396,13 @@ function registerGroups(groups) {
       }
       defineName(resource.onBeforeRoute, `${resourceKey}:combinedOnBeforeRoute`)
 
-      resource.mapStateToProps = (state, ownProps) =>
-        aggregated.mapStateToProps.reduce(
+      resource.mapStateToProps = (state, ownProps) => {
+        return aggregated.mapStateToProps.reduce(
           (props, fn) => R.merge(props, fn(state, R.merge(ownProps, props))),
           {}
         )
+      }
+
       defineName(resource.mapStateToProps, `${resourceKey}:combinedMapStateToProps`)
 
     }, group.resources)
@@ -378,6 +416,7 @@ module.exports = []
 
 registerGroups({
   Home,
+  ReviewPatch,
   Backend,
   BackendPatch,
   Authority,

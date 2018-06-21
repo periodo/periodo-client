@@ -1,17 +1,20 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box, Text } = require('periodo-ui')
+    , { Box, Text, Link } = require('periodo-ui')
+    , { Route } = require('org-shell')
+    , Compare = require('./Compare')
+    , { PatchDirection } = require('./types')
 
 function ReviewPatches(props) {
-  const { patchRequests } = props.extra
-
   return (
     h(Box, [
-      h(Text, `${patchRequests.length} open patch requests`),
-      h('ul', patchRequests.map(req =>
-        h('li', JSON.stringify(req))
-      ))
+      h(Compare, {
+        localDataset: props.fromDataset,
+        remoteDataset: props.toDataset,
+        patch: props.patchText,
+        direction: PatchDirection.Pull,
+      })
     ])
   )
 }
