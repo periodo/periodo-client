@@ -8,7 +8,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , Type = require('union-type')
-    , { Flex, Box } = require('periodo-ui')
+    , { saveAs } = require('file-saver')
+    , { Flex, Box, Link } = require('periodo-ui')
     , { Authority, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
@@ -493,6 +494,20 @@ class Compare extends React.Component {
 
     return (
       h(Box, [
+        h(Box, [
+          h(Link, {
+            href: ' ',
+            onClick(e) {
+              e.preventDefault();
+              const patch = new Blob([
+                JSON.stringify(allPatches.map(p => p.patch), true, '  ')
+              ], { type: 'application/json' })
+
+              saveAs(patch, 'patch.jsonpatch')
+            }
+          }, 'Download patch'),
+        ]),
+
         h(Box, [
           Object.entries(countsByType).map(([label, count]) =>
             h(Box, { key: label }, `${label} (${count})`)
