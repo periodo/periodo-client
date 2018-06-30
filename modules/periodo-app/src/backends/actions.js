@@ -3,16 +3,16 @@
 const R = require('ramda')
     , N3 = require('n3')
     , url = require('url')
-    , ns = require('../linked-data/ns')
+    , ns = require('lov-ns')
     , jsonpatch = require('fast-json-patch')
-    , jsonld = require('jsonld')
-    , { Route } = require('org-shell')
     , { normalizeDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { getResponse } = require('../typed-actions/utils')
     , { fetchORCIDs } = require('../linked-data/actions')
+    , { rdfListToArray } = require('../linked-data/utils/n3')
+    , { getPatchRepr } = require('../linked-data/utils/patch')
     , parseJSONLD = require('../linked-data/utils/parse_jsonld')
 
 
@@ -20,7 +20,6 @@ const emptyDataset = () => ({
   authorities: {},
   type: 'rdf:Bag'
 })
-
 
 function listAvailableBackends() {
   const action = BackendAction.GetAllBackends
@@ -182,6 +181,42 @@ function fetchBackendPatch(storage, patchID) {
           patch,
         }
       },
+      Web: async () => {
+        const headers = new Headers()
+        headers.append('Accept', 'application/json')
+
+        const resp = await fetch(patchID + '?inline-context', { headers })
+            , data = await resp.json()
+            , store = N3.Store()
+
+        const { triples } = await parseJSONLD(data)
+
+        store.addPrefixes({
+          dcterms: ns.dcterms,
+          prov: ns.prov,
+          foaf: ns.foaf,
+        })
+        store.addTriples(triples);
+
+        const patchData = getPatchRepr(store, patchID)
+
+        const [ prevDatasetReq, patchReq ] = await Promise.all([
+          fetch(patchData.sourceDatasetURL, { headers }),
+          fetch(patchData.patchURL),
+        ])
+
+        const prevDataset = await prevDatasetReq.json()
+            , patch = await patchReq.json()
+
+        const postDataset = jsonpatch.deepClone(prevDataset)
+        jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch))
+
+        return {
+          dataset: normalizeDataset(postDataset),
+          prevDataset: normalizeDataset(prevDataset),
+          patch,
+        }
+      },
       _: R.T,
     })
 
@@ -213,47 +248,23 @@ function fetchBackendHistory(storage) {
       },
 
       Web: async url => {
-        const resp = await fetchServerResource(url, 'history.jsonld')
+        const resp = await fetchServerResource(url, 'history.jsonld?inline-context')
             , data = await resp.json()
             , store = N3.Store()
 
-        const { triples, prefixes } = await parseJSONLD(data)
+        const { triples } = await parseJSONLD(data)
 
         store.addPrefixes({
-          'prov': 'http://www.w3.org/ns/prov#'
+          dcterms: ns.dcterms,
+          prov: ns.prov,
+          foaf: ns.foaf,
         })
         store.addTriples(triples);
 
-        const changes = await Promise.all(store.getSubjects('prov:generated').map(async url => {
-          const framed = await jsonld.promises.frame(data, {
-            '@context': R.omit(['@base'], data['@context']),
-            '@id': url,
-          })
+        const [ changeList ] = store.getObjects(null, 'dcterms:provenance')
 
-          const patch = framed['history'][0]
-
-          const roles = R.pipe(
-            R.groupBy(r => r.role.split('#')[1] + 'By'),
-            R.map(r => r[0]['prov:agent']['@id'].replace('http://', 'https://'))
-          )(patch.roles || [])
-
-          let [patchURL, sourceDatasetURL] =
-            ('url' in patch.used[0]) ? patch.used : patch.used.reverse()
-
-          patchURL = patchURL.url.split('p0')[1]
-          sourceDatasetURL = sourceDatasetURL['@id'].split('p0')[1]
-
-          return R.merge(roles, {
-            url,
-            patchURL,
-            sourceDatasetURL,
-            time: R.pipe(
-              () => store.getObjects(url, 'prov:startedAtTime'),
-              R.head,
-              N3.Util.getLiteralValue,
-            )(),
-          })
-        }))
+        const changes = rdfListToArray(store, changeList)
+          .map(getPatchRepr.bind(null, store))
 
         return R.sortBy(R.prop('time'), changes);
       },

@@ -18,6 +18,7 @@
     "json-stable-stringify": "^1.0.1",
     "jsonld": "^0.4.12",
     "language-tags": "^1.0.5",
+    "lov-ns": "^1.1.1",
     "n3": "^0.11.1",
     "org-layouts": "^1.0.0",
     "org-shell": "^1.0.0",
