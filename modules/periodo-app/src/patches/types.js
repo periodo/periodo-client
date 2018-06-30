@@ -129,10 +129,21 @@ function fmt(type) {
   return message;
 }
 
-PatchType.prototype.getLabel = function () {
+PatchType.prototype.getLabel = function (minimal) {
+  if (minimal) {
+    return this.case({
+      Unknown: () => 'Unknown change',
+      ChangeContext: () => 'Changed context',
+      AddAuthority: () => 'Added authority',
+      RemoveAuthority: () => 'Removed authority',
+      ChangeAuthority: () => 'Changed authority',
+      AddPeriod: () => 'Added period',
+      RemovePeriod: () => 'Removed period',
+      ChangePeriod: () => 'Changed period',
+    })
+  }
+
   return this.case({
-    Sync: 'Synchronization',
-    Multiple: 'Multiple changes',
     Unknown: 'Unknown change',
     _: () => fmt(this)
   })

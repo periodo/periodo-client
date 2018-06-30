@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Type = require('union-type')
     , { saveAs } = require('file-saver')
-    , { Flex, Box, Link } = require('periodo-ui')
+    , { Flex, Box, Link, Heading } = require('periodo-ui')
     , { Authority, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
@@ -471,7 +471,7 @@ class Compare extends React.Component {
         ? allPatches.filter(p => filteredTypes.contains(p.type._name))
         : allPatches
 
-    const countsByType = R.countBy(p => p.type._name, allPatches)
+    const countsByType = R.countBy(p => p.type.getLabel(true), allPatches)
 
     // First, separate out all patches that have to do with periods and
     // authorities. They'll be treated specially
@@ -494,28 +494,42 @@ class Compare extends React.Component {
 
     return (
       h(Box, [
-        h(Box, [
-          h(Link, {
-            href: ' ',
-            onClick(e) {
-              e.preventDefault();
-              const patch = new Blob([
-                JSON.stringify(allPatches.map(p => p.patch), true, '  ')
-              ], { type: 'application/json' })
+        h(Flex, {
+          p: 3,
+          mb: 3,
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          bg: 'gray.0',
+          border: 1,
+          borderColor: 'gray.4',
+        }, [
+          h(Box, [
+            h(Heading, { level: 4, }, 'Patch summary'),
+            h(Box, { is: 'ul', ml: 3 }, [
+              Object.entries(countsByType).map(([label, count]) =>
+                h(Box, { is: 'li', key: label }, `${label} (${count})`)
+              )
+            ])
+          ]),
 
-              saveAs(patch, 'patch.jsonpatch')
-            }
-          }, 'Download patch'),
+          h(Box, [
+            h(Link, {
+              fontSize: 16,
+              fontWeight: 'bold',
+              href: ' ',
+              onClick(e) {
+                e.preventDefault();
+                const patch = new Blob([
+                  JSON.stringify(allPatches.map(p => p.patch), true, '  ')
+                ], { type: 'application/json' })
+
+                saveAs(patch, 'patch.jsonpatch')
+              }
+            }, 'Download patch'),
+          ]),
         ]),
 
-        h(Box, [
-          Object.entries(countsByType).map(([label, count]) =>
-            h(Box, { key: label }, `${label} (${count})`)
-          )
-        ]),
-        h('hr'),
-
-        h(Box, {
+        editing && h(Box, {
           is: 'a',
           href: '',
           color: 'blue',
@@ -539,7 +553,7 @@ class Compare extends React.Component {
           }
         }, expandAll ? 'Collapse all' : 'Expand all'),
 
-        h(Box, {
+        editing && h(Box, {
           is: 'a',
           href: '',
           color: 'blue',
