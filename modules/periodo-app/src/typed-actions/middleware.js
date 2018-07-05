@@ -1,25 +1,36 @@
 "use strict";
 
-const { $$ActionType, $$ReadyState } = require('./symbols')
-    , { isUnionTypeRecord } = require('./utils')
+const R = require('ramda')
+    , { isTypedRequest } = require('./utils')
+    , { ActionRequest, ReadyState } = require('./types')
 
-const unionTypeMiddleware = () => next => action => {
-  if (action.constructor === Object) {
-    if (!isUnionTypeRecord(action)) {
-      throw new Error('Actions should be called by creating a union type record.')
-    }
 
-    // FIXME: require doing the makeActionType thing everywhere
-    const nextAction = {
-      [$$ActionType]: action.type,
-      [$$ReadyState]: action.readyState,
-      type: action.type._name,
-      requestID: action.requestID,
-      readyState: action.readyState._name,
-    }
-
-    return next(nextAction);
+const enforceTypedAsyncActions = (wrapExec=[]) => ({ dispatch }) => next => action => {
+  if (!action.readyState && !isTypedRequest(action)) {
+    throw new Error('Actions should be called by creating a union type record.')
   }
+
+  if (isTypedRequest(action)) {
+    const req = action
+
+    const update = readyState => dispatch({
+      type: req,
+      readyState,
+    })
+
+    update(ReadyState.Pending)
+
+    return Promise.resolve(req.case({
+      [req._name]: (...args) => R.pipe(...[R.identity, ...wrapExec])(req.exec(...args)),
+      _: R.T,
+    }))
+      .then(respData => {
+        update(ReadyState.Success(action.responseOf(respData)))
+      })
+      .catch(err => update(ReadyState.Failure(err)))
+  }
+
+  return next(action)
 }
 
-module.exports = unionTypeMiddleware;
+module.exports = enforceTypedAsyncActions;

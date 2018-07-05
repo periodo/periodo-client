@@ -2,5 +2,6 @@
 
 module.exports = {
   $$ActionType: Symbol('ActionType'),
-  $$ReadyState: Symbol('ReadyState')
+  $$ReadyState: Symbol('ReadyState'),
+  $$TypedRequest: Symbol('TypedRequest'),
 }

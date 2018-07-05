@@ -1,6 +1,10 @@
 "use strict";
 
-const { $$ActionType, $$ReadyState } = require('./symbols')
+const { $$ActionType, $$ReadyState, $$TypedRequest } = require('./symbols')
+
+function isTypedRequest(obj) {
+  return (typeof obj === 'object') && $$TypedRequest in obj
+}
 
 function isUnionTypeRecord(obj) {
   return (
@@ -67,6 +71,7 @@ function handleCompletedAction(action, onSuccess, onError) {
 }
 
 module.exports = {
+  isTypedRequest,
   isUnionTypeRecord,
   getModule,
   getReadyState,
