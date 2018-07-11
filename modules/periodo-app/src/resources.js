@@ -3,14 +3,13 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Route } = require('org-shell')
-    , actions = require('./backends/actions')
-    , authActions = require('./auth/actions')
-    , patchActions = require('./patches/actions')
-    , ldActions = require('./linked-data/actions')
-    , { Flex, Box, Heading } = require('periodo-ui')
-    , { Link } = require('periodo-ui')
+    , BackendAction = require('./backends/actions')
+    , AuthAction = require('./auth/actions')
+    , PatchAction = require('./patches/actions')
+    , LinkedDataAction = require('./linked-data/actions')
+    , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
-    , { handleCompletedAction, getResponse } = require('./typed-actions/utils')
+    , { handleCompletedAction } = require('./typed-actions/utils')
 
 function requireParam(params, key, msg) {
   if (key in params) return;
@@ -46,7 +45,7 @@ const Home = {
       label: 'Backend list',
       Component: require('./backends/components/BackendSelect'),
       async onBeforeRoute(dispatch) {
-        await dispatch(actions.listAvailableBackends())
+        await dispatch(BackendAction.GetAllBackends)
       },
       mapStateToProps: state => ({
         backends: R.pipe(
@@ -65,10 +64,11 @@ const Home = {
       Component: require('./patches/OpenPatches'),
       async onBeforeRoute(dispatch) {
         const { patches } = await throwIfUnsuccessful(
-          dispatch(patchActions.getOpenServerPatches()))
+          dispatch(PatchAction.GetOpenServerPatches)
+        )
 
 
-        await dispatch(ldActions.fetchORCIDs(
+        await dispatch(LinkedDataAction.FetchORCIDs(
           patches.map(R.prop('created_by'))
         ))
 
@@ -99,7 +99,7 @@ const Home = {
     },
   },
   async onBeforeRoute(dispatch) {
-    await dispatch(authActions.getApplicationSettings())
+    await dispatch(AuthAction.GetAllSettings)
   },
   mapStateToProps(state) {
     return {
@@ -121,7 +121,9 @@ const ReviewPatch = {
     requireParam(params, 'patchURL')
 
     const patch = await throwIfUnsuccessful(
-      dispatch(patchActions.getLocalPatch(decodeURIComponent(params.patchURL))))
+      dispatch(PatchAction.GetLocalPatch(
+        decodeURIComponent(params.patchURL)))
+      )
 
     return { patch }
   },
@@ -152,7 +154,7 @@ const Backend = {
       Component: require('./backends/components/SyncBackend'),
       showInMenu: hasEditableBackend,
       async onBeforeRoute(dispatch) {
-        await dispatch(actions.listAvailableBackends())
+        await dispatch(BackendAction.GetAllBackends)
       }
     },
     'backend-submit-patch': {
@@ -160,7 +162,7 @@ const Backend = {
       Component: require('./backends/components/BackendSubmitPatch'),
       showInMenu: hasEditableBackend,
       async onBeforeRoute(dispatch) {
-        await dispatch(actions.listAvailableBackends())
+        await dispatch(BackendAction.GetAllBackends)
       }
     },
     'backend-patch-submissions': {
@@ -181,7 +183,7 @@ const Backend = {
         const storage = BackendStorage.fromIdentifier(params.backendID)
 
         const changes = await throwIfUnsuccessful(
-          dispatch(actions.fetchBackendHistory(storage)))
+          dispatch(BackendAction.GetBackendHistory(storage)))
       },
       mapStateToProps(state, props) {
         return {
@@ -196,7 +198,7 @@ const Backend = {
     const storage = BackendStorage.fromIdentifier(params.backendID)
 
     await throwIfUnsuccessful(
-      dispatch(actions.fetchBackend(storage)))
+      dispatch(BackendAction.GetBackendDataset(storage, false)))
   },
   mapStateToProps(state, props) {
     return {
@@ -222,10 +224,10 @@ const BackendPatch = {
     const storage = BackendStorage.fromIdentifier(params.backendID)
 
     await throwIfUnsuccessful(
-      dispatch(actions.fetchBackendHistory(storage)))
+      dispatch(BackendAction.GetBackendHistory(storage)))
 
     const patchReq = await throwIfUnsuccessful(
-      dispatch(actions.fetchBackendPatch(storage, params.patchID)))
+      dispatch(BackendAction.GetBackendPatch(storage, params.patchID)))
 
     return patchReq
   },

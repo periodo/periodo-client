@@ -3,8 +3,6 @@
 const R = require('ramda')
     , Type = require('union-type')
     , pointer = require('json-pointer')
-    , makeActionType = require('../typed-actions/make_type')
-    , { BackendStorage } = require('../backends/types')
 
 const $$type = Symbol('patch-type')
 
@@ -149,50 +147,7 @@ PatchType.prototype.getLabel = function (minimal) {
   })
 }
 
-const PatchAction = makeActionType('patch', {
-  GetLocalPatch: [
-    {
-      patchURL: String,
-    },
-    {
-      patch: Object,
-      fromDataset: Object,
-      toDataset: Object,
-      patchText: Object,
-    }
-  ],
-  GetOpenServerPatches: [
-    {
-    },
-    {
-      patches: Object,
-    }
-  ],
-  GenerateDatasetPatch: [
-    {
-      origin: BackendStorage,
-      remote: BackendStorage,
-      direction: PatchDirection
-    },
-    {
-      patch: Object,
-      localDataset: Object,
-      remoteDataset: Object,
-    }
-  ],
-  SubmitPatch: [
-    {
-      backend: BackendStorage,
-      patch: Object,
-    },
-    {
-      patchURL: String,
-    }
-  ]
-})
-
 module.exports = {
   PatchDirection,
-  PatchAction,
   PatchType,
 }

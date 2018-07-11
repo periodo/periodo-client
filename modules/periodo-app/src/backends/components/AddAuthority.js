@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('periodo-ui')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
-    , { updateLocalDataset } = require('../actions')
+    , BackendAction = require('../actions')
     , AuthorityForm = require('../../editors/AuthorityForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
@@ -28,7 +28,7 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
           onValidated: async authority => {
             const id = generateID()
 
-            await dispatch(updateLocalDataset(
+            await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
               R.assocPath(
                 ['authorities', id],

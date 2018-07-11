@@ -1,12 +1,35 @@
 "use strict";
 
 const N3 = require('n3')
-    , { LinkedDataAction } = require('./types')
-    , { getResponse } = require('../typed-actions/utils')
+    , { makeTypedAction, getResponse } = require('../typed-actions')
+    , { isURL } = require('periodo-utils/src/misc')
     , makeSourceRepr = require('./utils/make_source_repr')
     , { getGraphSubject } = require('./utils/source_ld_match')
 
 const CORS_PROXY = 'https://ptgolden.org/cors-anywhere/'
+
+const LinkedDataAction = module.exports = makeTypedAction({
+  FetchLinkedData: {
+    exec: fetchLinkedData,
+    request: {
+      url: isURL,
+      opts: Object,
+    },
+    response: {
+      triples: Array,
+      prefixes: Object,
+    }
+  },
+  FetchORCIDs: {
+    exec: fetchORCIDs,
+    request: {
+      orcids: Array,
+    },
+    response: {
+      nameByORCID: Object,
+    }
+  },
+})
 
 async function _fetchLinkedData(url, type="text/turtle") {
   // TODO: Validate the type here... or base it off of the extension on the URL
@@ -32,9 +55,7 @@ async function _fetchLinkedData(url, type="text/turtle") {
 }
 
 function fetchLinkedData(url, opts={}) {
-  const action = LinkedDataAction.FetchLinkedData(url, opts)
-
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const {
       tryCache=false,
       populateCache=false,
@@ -61,15 +82,13 @@ function fetchLinkedData(url, opts={}) {
     }
 
     return { triples: resource.triples, prefixes: resource.prefixes }
-  })
+  }
 }
 
 function fetchORCIDs(orcids, opts) {
-  const action = LinkedDataAction.FetchORCIDs(orcids)
-
-  return action.do(async (dispatch) => {
+  return async (dispatch) => {
     const reqs = await Promise.all(orcids.map(url =>
-      dispatch(fetchLinkedData(url, Object.assign({
+      dispatch(LinkedDataAction.FetchLinkedData(url, Object.assign({
         tryCache: true,
         populateCache: true
       }, opts)))
@@ -97,13 +116,11 @@ function fetchORCIDs(orcids, opts) {
     })
 
     return { nameByORCID }
-  })
+  }
 }
 
 function fetchSource(url, opts) {
-  const action = LinkedDataAction.FetchSource(url)
-
-  return action.do(async dispatch => {
+  return async dispatch => {
     const store = N3.Store()
 
     const ldReq = await dispatch(fetchLinkedData(url, opts))
@@ -115,12 +132,5 @@ function fetchSource(url, opts) {
     const source = makeSourceRepr(store, getGraphSubject(url))
 
     return { source }
-  })
-}
-
-
-module.exports = {
-  fetchLinkedData,
-  fetchORCIDs,
-  fetchSource,
+  }
 }

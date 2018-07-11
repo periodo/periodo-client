@@ -2,7 +2,7 @@
 
 const { createStore, applyMiddleware, compose, combineReducers } = require('redux')
     , thunk = require('redux-thunk').default
-    , unionTypeMiddleware = require('./typed-actions/middleware')
+    , { typedAsyncActionMiddleware } = require('./typed-actions')
     , periodoDB = require('./db')
 
 module.exports = function () {
@@ -13,7 +13,7 @@ module.exports = function () {
       linkedData: require('./linked-data/reducer'),
     }),
     compose(
-      applyMiddleware(thunk.withExtraArgument({ db: periodoDB() }), unionTypeMiddleware),
+      applyMiddleware(typedAsyncActionMiddleware({ db: periodoDB() })),
       window.devToolsExtension ? window.devToolsExtension() : a => a
     )
   )

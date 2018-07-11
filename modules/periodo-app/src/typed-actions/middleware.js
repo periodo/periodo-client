@@ -5,7 +5,7 @@ const R = require('ramda')
     , { ActionRequest, ReadyState } = require('./types')
 
 
-const enforceTypedAsyncActions = (wrapExec=[]) => ({ dispatch }) => next => action => {
+const enforceTypedAsyncActions = extraArgs => ({ dispatch, getState }) => next => action => {
   if (!action.readyState && !isTypedRequest(action)) {
     throw new Error('Actions should be called by creating a union type record.')
   }
@@ -21,13 +21,23 @@ const enforceTypedAsyncActions = (wrapExec=[]) => ({ dispatch }) => next => acti
     update(ReadyState.Pending)
 
     return Promise.resolve(req.case({
-      [req._name]: (...args) => R.pipe(...[R.identity, ...wrapExec])(req.exec(...args)),
+      [req._name]: (...args) => {
+        let ret = req.exec(...args)
+
+        if (typeof ret === 'function') {
+          ret = ret(dispatch, getState, extraArgs)
+        }
+
+        return ret;
+      },
       _: R.T,
     }))
-      .then(respData => {
-        update(ReadyState.Success(action.responseOf(respData)))
+      .then(respData => update(ReadyState.Success(action.responseOf(respData))))
+      .catch(err => {
+        update(ReadyState.Failure(err))
+
+        throw err;
       })
-      .catch(err => update(ReadyState.Failure(err)))
   }
 
   return next(action)

@@ -6,22 +6,26 @@ const test = require('blue-tape')
     , R = require('ramda')
     , makeMockStore = require('../../store_mock')
     , { ReadyState } = require('../../typed-actions/types')
-    , actions = require('../actions')
+    , BackendAction = require('../actions')
     , reducer = require('../reducer')
     , { Backend, BackendMetadata, BackendStorage } = require('../types')
-    , { getReadyState, getResponse } = require('../../typed-actions/utils')
+    , { getResponse } = require('../../typed-actions')
 
 test('Listing backends', async t => {
   const store = makeMockStore()
 
-  await store.dispatch(
-    actions.listAvailableBackends())
+  const action = BackendAction.GetAllBackends
+
+  await store.dispatch(action)
 
   t.deepEqual(
-    getReadyState(store.getActions()[1]),
-    ReadyState.Success({
-      backends: []
-    }),
+    store.getActions()[1],
+    {
+      type: action,
+      readyState: ReadyState.Success(action.responseOf({
+        backends: []
+      })),
+    },
     'should return an empty array when no backends are present'
   );
 })
@@ -29,16 +33,21 @@ test('Listing backends', async t => {
 test('Adding local backends', async t => {
   const store = makeMockStore()
 
-  await store.dispatch(
-    actions.addBackend(BackendStorage.IndexedDB(null), 'test backend', ''));
+  const actionType = BackendAction.CreateBackend(
+    BackendStorage.IndexedDB(null),
+    'test backend',
+    ''
+  )
+
+  await store.dispatch(actionType)
 
   const action = store.getActions()[1]
       , timestamp = getResponse(action).backend.metadata.created
       , { id } = getResponse(action).backend.storage
 
-  t.deepEqual(
-    getReadyState(action),
-    ReadyState.Success({
+  t.deepEqual(action, {
+    type: actionType,
+    readyState: ReadyState.Success(actionType.responseOf({
       backend: Backend.BackendOf({
         storage: BackendStorage.IndexedDB(id),
         metadata: BackendMetadata.BackendMetadataOf({
@@ -49,12 +58,10 @@ test('Adding local backends', async t => {
           accessed: timestamp,
         })
       })
-    }),
-    'should allow adding backends')
+    })),
+  }, 'should allow adding backends')
 
-
-  await store.dispatch(
-    actions.listAvailableBackends())
+  await store.dispatch(BackendAction.GetAllBackends)
 
   t.equal(4, store.getActions().length);
   t.equal(1, getResponse(store.getActions()[3]).backends.length, 'should list 1 available backend after adding');
@@ -64,18 +71,20 @@ test('Adding local backends', async t => {
 test('Adding Web backends', async t => {
   const store = makeMockStore()
 
-  await store.dispatch(
-    actions.addBackend(
+  const actionType = BackendAction.CreateBackend(
       BackendStorage.Web('http://example.com/'),
       'test backend',
-      'Example PeriodO server'))
+      'Example PeriodO server'
+  )
+
+  await store.dispatch(actionType)
 
   const action = store.getActions()[1]
       , timestamp = getResponse(action).backend.metadata.created
 
-    t.deepEqual(
-      getReadyState(action),
-      ReadyState.Success({
+    t.deepEqual(action, {
+      type: actionType,
+      readyState: ReadyState.Success(actionType.responseOf({
         backend: Backend.BackendOf({
           storage: BackendStorage.Web('http://example.com/'),
           metadata: BackendMetadata.BackendMetadataOf({
@@ -86,28 +95,26 @@ test('Adding Web backends', async t => {
             accessed: timestamp,
           }),
         }),
-      }),
-      'should allow adding Web backends'
-    );
+      })),
+    }, 'should allow adding Web backends')
 
-  await store.dispatch(
-    actions.listAvailableBackends())
+  await store.dispatch(BackendAction.GetAllBackends)
 
   t.equal(1, getResponse(store.getActions()[3]).backends.length, 'should list 1 available backend after adding');
 })
-
 
 test('Updating backends', async t => {
   const store = makeMockStore()
 
   store.replaceReducer(reducer);
 
-  await store.dispatch(
-    actions.addBackend(
-      BackendStorage.IndexedDB(null),
-      'test backend',
-      ''
-    ))
+  const actionType = BackendAction.CreateBackend(
+    BackendStorage.IndexedDB(null),
+    'test backend',
+    ''
+  )
+
+  await store.dispatch(actionType)
 
   const { backend } = getResponse(store.getActions()[1])
 
@@ -122,8 +129,11 @@ test('Updating backends', async t => {
 
   store.clearActions();
 
-  await store.dispatch(
-    actions.updateLocalDataset(backend.storage, updatedDataset))
+  await store.dispatch(BackendAction.UpdateLocalDataset(
+    backend.storage,
+    updatedDataset,
+    '',
+  ))
 
   t.equal(store.getActions().length, 6);
 
@@ -138,17 +148,17 @@ test('Updating backends', async t => {
     'Should generate patch data for an updated dataset'
   );
 
-  await store.dispatch(
-    actions.deleteBackend(backend.storage))
+  await store.dispatch(BackendAction.DeleteBackend(backend.storage))
 
   store.clearActions();
 
-  await store.dispatch(
-    actions.listAvailableBackends())
+  const actionType2 = BackendAction.GetAllBackends
+
+  await store.dispatch(actionType2)
 
   t.deepEqual(
     getResponse(R.last(store.getActions())),
-    { backends: [] },
+    actionType2.responseOf({ backends: [] }),
     'should list 0 available backends after deleting'
   );
 });

@@ -3,7 +3,7 @@
 const FDBFactory = require('fake-indexeddb/lib/FDBFactory')
     , thunk = require('redux-thunk').default
     , configureMockStore = require('redux-mock-store').default
-    , unionTypeMiddleware = require('./typed-actions/middleware')
+    , { typedAsyncActionMiddleware } = require('./typed-actions')
 
 class MockLocalStorage {
   constructor() {
@@ -27,7 +27,6 @@ module.exports = function () {
   }
 
   return configureMockStore([
-    thunk.withExtraArgument({ db: require('./db')(mockStorage) }),
-    unionTypeMiddleware,
+    typedAsyncActionMiddleware({ db: require('./db')(mockStorage) }),
   ])()
 }

@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { $$Authority } = require('periodo-utils/src/symbols')
-    , { isInModule, moduleActionCase, readyStateCase } = require('../typed-actions/utils')
+    , BackendAction = require('./actions')
 
 const initialState = () => ({
   available: {},
@@ -34,10 +34,10 @@ function addAuthoritySymbols(dataset) {
 }
 
 module.exports = function backends(state=initialState(), action) {
-  if (!isInModule(action, 'backend')) return state;
+  if (!BackendAction.prototype.isPrototypeOf(action.type)) return state;
 
-  return readyStateCase(action, {
-    Success: resp => moduleActionCase(action, {
+  return action.readyState.case({
+    Success: resp => action.type.case({
       CreateBackend() {
         return state;
       },

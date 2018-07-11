@@ -1,17 +1,17 @@
 "use strict";
 
 const R = require('ramda')
-    , { isInModule, moduleActionCase, readyStateCase } = require('../typed-actions/utils')
+    , AuthAction = require('./actions')
 
 const initialState = () => ({
   settings: {},
 })
 
 module.exports = function auth(state=initialState(), action) {
-  if (!isInModule(action, 'auth')) return state;
+  if (!AuthAction.prototype.isPrototypeOf(action.type)) return state
 
-  return readyStateCase(action, {
-    Success: resp => moduleActionCase(action, {
+  return action.readyState.case({
+    Success: resp => action.type.case({
       GetAllSettings() {
         const { settings } = resp
 

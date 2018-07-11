@@ -1,10 +1,9 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { connect } = require('react-redux')
     , { Box, ResourceTitle } = require('periodo-ui')
     , BackendForm = require('./BackendForm')
-    , { addBackend } = require('../actions')
+    , BackendAction = require('../actions')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('../../typed-actions/utils')
     , { Route, LocationStreamAware } = require('org-shell')
@@ -14,13 +13,14 @@ const AddBackend = LocationStreamAware(props =>
     h(ResourceTitle, 'Add backend'),
     h(BackendForm, {
       handleSave: async state => {
-        const { label, description, type } = state
+        const { label, description='', type } = state
 
         const storage = type === 'Web'
             ? BackendStorage.WebOf(state)
             : BackendStorage.IndexedDB(null)
 
-        const resp = await props.addBackend(storage, label, description)
+        const resp = await props.dispatch(
+          BackendAction.CreateBackend(storage, label, description))
 
         handleCompletedAction(
           resp,
@@ -36,4 +36,4 @@ const AddBackend = LocationStreamAware(props =>
   ])
 )
 
-module.exports = connect(undefined, { addBackend })(AddBackend)
+module.exports = AddBackend;

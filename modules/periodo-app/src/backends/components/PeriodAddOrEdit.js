@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('periodo-ui')
     , { RandomID} = require('periodo-utils').hoc
-    , { updateLocalDataset } = require('../actions')
+    , BackendAction = require('../actions')
     , PeriodForm = require('../../editors/PeriodForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
@@ -36,7 +36,7 @@ class AddPeriod extends React.Component {
             const isEdit = !!period.id
                 , id = isEdit ? period.id : randomID('period')
 
-            await dispatch(updateLocalDataset(
+            await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
               R.assocPath(
                 ['authorities', authority.id, 'periods', id],

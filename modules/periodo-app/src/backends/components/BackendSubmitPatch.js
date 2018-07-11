@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Button$Primary } = require('periodo-ui')
     , { LocationStreamAware, Route } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { submitPatch } = require('../../patches/actions')
+    , PatchAction = require('../../patches/actions')
     , { PatchDirection } = require('../../patches/types')
     , SelectChanges = require('../../patches/SelectChanges')
 
@@ -25,7 +25,7 @@ class SubmitPatch extends React.Component {
     const { dispatch, locationStream, backend } = this.props
         , { selectedPatch, remoteBackend } = this.state
 
-    const action = await dispatch(submitPatch(backend.storage, selectedPatch))
+    const action = await dispatch(PatchAction.SubmitPatch(backend.storage, selectedPatch))
 
     handleCompletedAction(action,
       () => {

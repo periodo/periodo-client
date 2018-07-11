@@ -50,7 +50,7 @@ function normalizeDataset(dataset) {
       delete authority.definitions;
     }
 
-    Object.values(authority.periods).forEach(period => {
+    Object.values(authority.periods || {}).forEach(period => {
       if (renamePeriods) {
         period.type = 'Period';
       }

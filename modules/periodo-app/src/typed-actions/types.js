@@ -16,18 +16,18 @@ const ActionRequest = Type({ ActionRequest: {
   readyState: ReadyState,
 }})
 
-function makeTypedAction(namespace, obj) {
+function makeTypedAction(obj) {
   const requestTypeDef = {}
       , responseTypeDef = {}
       , execs = {}
 
   Object.entries(obj).forEach(([name, { request, response, exec }]) => {
     if (!request) {
-      throw new Error(`Action \`${namespace}.${name}\` has not declared a request type.`)
+      throw new Error(`Action \`${name}\` has not declared a request type.`)
     }
 
     if (!response) {
-      throw new Error(`Action \`${namespace}.${name}\` has not declared a response type.`)
+      throw new Error(`Action \`${name}\` has not declared a response type.`)
     }
 
     requestTypeDef[name] = request;
@@ -43,7 +43,7 @@ function makeTypedAction(namespace, obj) {
         , extraKeys = R.difference(Object.keys(obj), resp._keys)
 
     if (extraKeys.length) {
-      throw new Error(`Extra keys in ${namespace}.${resp._name}: ${extraKeys.join(', ')}`)
+      throw new Error(`Extra keys in response for action \`${this._name}\`: ${extraKeys.join(', ')}`)
     }
 
     return resp
@@ -54,11 +54,10 @@ function makeTypedAction(namespace, obj) {
   }
 
   RequestType.prototype.toString = function() {
-    return `${namespace}.${this._name}`
+    return `${this._name}`
   }
 
   RequestType.prototype[$$TypedRequest] = true
-  RequestType.namespace = namespace;
 
   return RequestType;
 }

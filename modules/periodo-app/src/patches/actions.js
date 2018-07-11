@@ -1,26 +1,59 @@
 "use strict";
 
 const jsonpatch = require('fast-json-patch')
-    , { fetchBackend } = require('../backends/actions')
-    , { getResponse } = require('../typed-actions/utils')
+    , BackendAction = require('../backends/actions')
+    , { BackendStorage } = require('../backends/types')
+    , { makeTypedAction, getResponse } = require('../typed-actions')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
-    , { PatchDirection, PatchAction } = require('./types')
+    , { PatchDirection } = require('./types')
 
-function prefixMatch(a, b) {
-  let prefix = ''
+const PatchAction = module.exports = makeTypedAction({
+  GetLocalPatch: {
+    exec: getLocalPatch,
+    request: {
+      patchURL: String,
+    },
+    response: {
+      patch: Object,
+      fromDataset: Object,
+      toDataset: Object,
+      patchText: Object,
+    }
+  },
 
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] === b[i]) {
-      prefix += a[i];
-    } else {
-      break;
+  GetOpenServerPatches: {
+    exec: getOpenServerPatches,
+    request: {
+    },
+    response: {
+      patches: Object,
+    }
+  },
+  GenerateDatasetPatch: {
+    exec: generateDatasetPatch,
+    request: {
+      origin: BackendStorage,
+      remote: BackendStorage,
+      direction: PatchDirection
+    },
+    response: {
+      patch: Object,
+      localDataset: Object,
+      remoteDataset: Object,
+    }
+  },
+  SubmitPatch: {
+    exec: submitPatch,
+    request: {
+      backend: BackendStorage,
+      patch: Object,
+    },
+    response: {
+      patchURL: String,
     }
   }
-
-  return prefix;
-}
-
+})
 
 
 // push means going from a->b; pull from b->a
@@ -29,16 +62,10 @@ function generateDatasetPatch(
   remoteBackend,
   direction
 ) {
-  const action = PatchAction.GenerateDatasetPatch(
-    localBackend,
-    remoteBackend,
-    direction
-  )
-
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const [localReq, remoteReq] = await Promise.all([
-      dispatch(fetchBackend(localBackend)),
-      dispatch(fetchBackend(remoteBackend)),
+      dispatch(BackendAction.GetBackendDataset(localBackend, true)),
+      dispatch(BackendAction.GetBackendDataset(remoteBackend, true)),
     ])
 
     // FIXME: Handle errors in responses?
@@ -70,13 +97,13 @@ function generateDatasetPatch(
       localDataset,
       remoteDataset,
     }
-  })
+  }
 }
 
 function submitPatch(storage, patch) {
   const action = PatchAction.SubmitPatch(storage, patch)
 
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const resp = await fetch('d.jsonld', {
       body: JSON.stringify(patch),
       method: 'PATCH',
@@ -104,70 +131,68 @@ function submitPatch(storage, patch) {
     })
 
     return { patchURL }
-  })
+  }
 }
 
-function getLocalPatch(patchURL) {
-  const action = PatchAction.GetLocalPatch(patchURL)
+async function getLocalPatch(patchURL) {
+  const patchResp = await fetch(patchURL)
 
-  return action.do(async () => {
-    const patchResp = await fetch(patchURL)
+  if (!patchResp.ok) throw new Error('Could not fetch patch')
 
-    if (!patchResp.ok) throw new Error('Could not fetch patch')
+  const patch = await patchResp.json()
 
-    const patch = await patchResp.json()
+  const [ fromDatasetResp, patchTextResp ] = await Promise.all([
+    fetch(patch.created_from),
+    fetch(patch.text),
+  ])
 
+  if (!fromDatasetResp.ok) {
+    throw new Error('Could not fetch source dataset')
+  }
 
-    const [ fromDatasetResp, patchTextResp ] = await Promise.all([
-      fetch(patch.created_from),
-      fetch(patch.text),
-    ])
+  if (!patchTextResp.ok) {
+    throw new Error('Could not fetch patch text')
+  }
 
-    if (!fromDatasetResp.ok) {
-      throw new Error('Could not fetch source dataset')
-    }
+  const fromDataset = await fromDatasetResp.json()
+      , patchText = await patchTextResp.json()
 
-    if (!patchTextResp.ok) {
-      throw new Error('Could not fetch patch text')
-    }
+  const toDataset = jsonpatch.applyPatch(
+    jsonpatch.deepClone(fromDataset),
+    jsonpatch.deepClone(patchText)
+  ).newDocument
 
-    const fromDataset = await fromDatasetResp.json()
-        , patchText = await patchTextResp.json()
-
-    const toDataset = jsonpatch.applyPatch(
-      jsonpatch.deepClone(fromDataset),
-      jsonpatch.deepClone(patchText)
-    ).newDocument
-
-    return {
-      patch,
-      fromDataset,
-      toDataset,
-      patchText,
-    }
-  })
+  return {
+    patch,
+    fromDataset,
+    toDataset,
+    patchText,
+  }
 }
 
-function getOpenServerPatches() {
-  const action = PatchAction.GetOpenServerPatches
+async function getOpenServerPatches() {
+  const resp = await fetch('/patches.json?open=true')
 
-  return action.do(async () => {
-    const resp = await fetch('/patches.json?open=true')
-
-    return {
-      patches: await resp.json()
-    }
-  })
-}
-
-module.exports = {
-  generateDatasetPatch,
-  submitPatch,
-  getLocalPatch,
-  getOpenServerPatches,
+  return {
+    patches: await resp.json()
+  }
 }
 
 /*
+function prefixMatch(a, b) {
+  let prefix = ''
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) {
+      prefix += a[i];
+    } else {
+      break;
+    }
+  }
+
+  return prefix;
+}
+
 function IDBBackend(opts) {
   this.saveSubmittedPatch = function (patchObj) {
     return require('./db')(this.name).localPatches

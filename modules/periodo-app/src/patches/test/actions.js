@@ -4,11 +4,11 @@ global.RETHROW_ERRORS = true;
 
 const test = require('blue-tape')
     , R = require('ramda')
-    , backendActions = require('../../backends/actions')
+    , BackendAction = require('../../backends/actions')
     , { BackendStorage } = require('../../backends/types')
     , { ReadyState } = require('../../typed-actions/types')
-    , { getResponse, getReadyState } = require('../../typed-actions/utils')
-    , patchActions = require('../actions')
+    , { getResponse } = require('../../typed-actions/utils')
+    , PatchAction = require('../actions')
     , { PatchDirection } = require('../types')
     , makeMockStore = require('../../store_mock')
 
@@ -17,14 +17,14 @@ test('Patch generation actions', async t => {
   const store = makeMockStore()
 
   await store.dispatch(
-    backendActions.addBackend(
+    BackendAction.CreateBackend(
       BackendStorage.IndexedDB(null),
       'origin',
       ''
     ))
 
   await store.dispatch(
-    backendActions.addBackend(
+    BackendAction.CreateBackend(
       BackendStorage.IndexedDB(null),
       'remote',
       ''
@@ -50,14 +50,15 @@ test('Patch generation actions', async t => {
   }
 
   await store.dispatch(
-    backendActions.updateLocalDataset(backendA, newData))
+    BackendAction.UpdateLocalDataset(backendA, newData, ''))
 
-  await store.dispatch(
-    patchActions.generateDatasetPatch(backendA, backendB, PatchDirection.Push))
+  const action1 = PatchAction.GenerateDatasetPatch(backendA, backendB, PatchDirection.Push)
 
-  t.deepEqual(
-    getReadyState(R.last(store.getActions())),
-    ReadyState.Success({
+  await store.dispatch(action1)
+
+  t.deepEqual(R.last(store.getActions()), {
+    type: action1,
+    readyState: ReadyState.Success(action1.responseOf({
       patch: [
         {
           op: 'add',
@@ -69,23 +70,22 @@ test('Patch generation actions', async t => {
       ],
       localDataset: newData,
       remoteDataset: emptyData,
-    }),
-    'should patch additions'
-  )
+    }))
+  }, 'should patch additions')
 
-  await store.dispatch(
-    patchActions.generateDatasetPatch(
-      backendA,
-      backendB,
-      PatchDirection.Pull))
+  const action2 = PatchAction.GenerateDatasetPatch(
+    backendA,
+    backendB,
+    PatchDirection.Pull)
 
-  t.deepEqual(
-    getReadyState(R.last(store.getActions())),
-    ReadyState.Success({
+  await store.dispatch(action2)
+
+  t.deepEqual(R.last(store.getActions()), {
+    type: action2,
+    readyState: ReadyState.Success(action2.responseOf({
       patch: [],
       localDataset: newData,
       remoteDataset: emptyData,
-    }),
-    'should ignore "deletions" of items that simply aren\'t present in both source/origin'
-  )
+    })),
+  }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
 })

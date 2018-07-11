@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { updateApplicationSettings } = require('../actions')
+    , AuthAction = require('../actions')
     , { Box, Span, ResourceTitle, Alert$Success } = require('periodo-ui')
     , { Link } = require('periodo-ui')
 
@@ -27,7 +27,7 @@ class SignIn extends React.Component {
         , oauthName = e.data.name
         , oauthToken = e.data.token
 
-    dispatch(updateApplicationSettings(
+    dispatch(AuthAction.UpdateApplicationSettings(
       R.flip(R.merge)({ oauthName, oauthToken })
     ))
   }
@@ -50,7 +50,7 @@ class SignIn extends React.Component {
 
     e.preventDefault();
 
-    dispatch(updateApplicationSettings(
+    dispatch(AuthAction.UpdateApplicationSettings(
       R.omit(['oauthName', 'oauthToken'])
     ))
   }

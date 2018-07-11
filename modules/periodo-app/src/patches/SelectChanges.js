@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Button$Primary, InputBlock } = require('periodo-ui')
     , { BackendStorage } = require('../backends/types')
     , { handleCompletedAction } = require('../typed-actions/utils')
-    , { generateDatasetPatch } = require('./actions')
+    , PatchAction = require('./actions')
     , Compare = require('./Compare')
 
 class SelectChanges extends React.Component {
@@ -28,7 +28,7 @@ class SelectChanges extends React.Component {
   async generatePatch(remoteBackend) {
     const { dispatch, localBackend, direction } = this.props
 
-    const patchReq = await dispatch(generateDatasetPatch(
+    const patchReq = await dispatch(PatchAction.GenerateDatasetPatch(
       localBackend.storage,
       remoteBackend,
       direction

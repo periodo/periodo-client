@@ -5,15 +5,108 @@ const R = require('ramda')
     , url = require('url')
     , ns = require('lov-ns')
     , jsonpatch = require('fast-json-patch')
-    , { normalizeDataset } = require('periodo-utils').dataset
+    , Type = require('union-type')
+    , { normalizeDataset, isDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
-    , { Backend, BackendAction, BackendMetadata, BackendStorage } = require('./types')
+    , { Backend, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
-    , { getResponse } = require('../typed-actions/utils')
-    , { fetchORCIDs } = require('../linked-data/actions')
+    , { makeTypedAction, getResponse } = require('../typed-actions')
+    , LinkedDataAction = require('../linked-data/actions')
     , { rdfListToArray } = require('../linked-data/utils/n3')
     , { getPatchRepr } = require('../linked-data/utils/patch')
     , parseJSONLD = require('../linked-data/utils/parse_jsonld')
+
+
+const BackendAction = module.exports = makeTypedAction({
+  GetAllBackends: {
+    exec: listAvailableBackends,
+    request: {},
+    response: {
+      backends: Type.ListOf(Backend),
+    }
+  },
+
+  GetBackendDataset: {
+    exec: fetchBackend,
+    request: {
+      storage: BackendStorage,
+      forceReload: Boolean,
+    },
+    response: {
+      backend: Backend,
+      dataset: isDataset,
+    }
+  },
+
+  GetBackendHistory: {
+    exec: fetchBackendHistory,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {
+      // TODO: make this "patch" type
+      patches: Type.ListOf(Object)
+    }
+  },
+
+  GetBackendPatch: {
+    exec: fetchBackendPatch,
+    request: {
+      storage: BackendStorage,
+      patchID: String,
+    },
+    response: {
+      dataset: isDataset,
+      prevDataset: isDataset,
+      patch: Object,
+    }
+  },
+
+  CreateBackend: {
+    exec: addBackend,
+    request: {
+      storage: BackendStorage,
+      label: String,
+      description: String,
+    },
+    response: {
+      backend: Backend,
+    }
+  },
+
+  UpdateLocalDataset: {
+    exec: updateLocalDataset,
+    request: {
+      storage: BackendStorage,
+      newDataset: isDataset,
+      message: String,
+    },
+    response: {
+      backend: Backend,
+      dataset: isDataset,
+      patchData: Object,
+    }
+  },
+
+  UpdateBackend: {
+    exec: updateBackend,
+    request: {
+      storage: BackendStorage,
+      withObj: Object,
+    },
+    response: {
+      backend: Backend,
+    }
+  },
+
+  DeleteBackend: {
+    exec: deleteBackend,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {}
+  },
+})
 
 
 const emptyDataset = () => ({
@@ -22,9 +115,7 @@ const emptyDataset = () => ({
 })
 
 function listAvailableBackends() {
-  const action = BackendAction.GetAllBackends
-
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const backends = []
 
     const makeBackend = typeConstructor => item =>
@@ -39,7 +130,7 @@ function listAvailableBackends() {
     ])
 
     return { backends }
-  })
+  }
 }
 
 function ensureTrailingSlash(url) {
@@ -66,9 +157,7 @@ async function fetchServerResource(baseURL, resourceName) {
 
 
 function fetchBackend(storage, forceReload) {
-  const action = BackendAction.GetBackendDataset(storage)
-
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const identifier = storage.asIdentifier()
         , existingDataset = R.path(['backends', 'datasets', identifier], getState())
 
@@ -137,13 +226,11 @@ function fetchBackend(storage, forceReload) {
       }),
       dataset: normalizeDataset(dataset),
     }
-  })
+  }
 }
 
 function fetchBackendPatch(storage, patchID) {
-  const action = BackendAction.GetBackendPatch(storage, patchID)
-
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const ret = await storage.case({
       IndexedDB: async backendID => {
         const patch = await db.localBackendPatches.get(parseInt(patchID))
@@ -221,15 +308,13 @@ function fetchBackendPatch(storage, patchID) {
     })
 
     return ret;
-  })
+  }
 }
 
 
 function fetchBackendHistory(storage) {
-  const action = BackendAction.GetBackendHistory(storage)
-
-  return action.do(async (dispatch, getState, { db }) => {
-    const datasetPromise = dispatch(fetchBackend(storage))
+  return async (dispatch, getState, { db }) => {
+    const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, true))
 
     const patchesPromise =  storage.case({
       IndexedDB: async id => {
@@ -281,7 +366,7 @@ function fetchBackendHistory(storage) {
       R.filter(R.contains('://orcid.org/'))
     )(patches))]
 
-    await dispatch(fetchORCIDs(orcids))
+    await dispatch(LinkedDataAction.FetchORCIDs(orcids))
 
     const { nameByORCID } = getState().linkedData
 
@@ -296,20 +381,18 @@ function fetchBackendHistory(storage) {
     })
 
     return { patches }
-  })
+  }
 }
 
 
 function addBackend(storage, label='', description='') {
-  const action = BackendAction.CreateBackend(storage, label, description)
-
   const throwUnaddable = () => {
     throw new Error(
       `Backend of type ${storage._name} is not meant to be created.`
     )
   }
 
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const table = storage.case({
       Web: () => db.remoteBackends,
       IndexedDB: id => {
@@ -351,13 +434,11 @@ function addBackend(storage, label='', description='') {
     })
 
     return { backend }
-  })
+  }
 }
 
 
 function updateBackend(storage, withObj) {
-  const action = BackendAction.UpdateBackend(storage, withObj)
-
   const updated = {
     modified: new Date()
   }
@@ -371,7 +452,7 @@ function updateBackend(storage, withObj) {
     updated.description = withObj.description
   }
 
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     await storage.case({
       IndexedDB: id => {
         return db.localBackends
@@ -390,17 +471,15 @@ function updateBackend(storage, withObj) {
       _: () => null
     })
 
-    const fetchAction = await dispatch(fetchBackend(storage, true))
+    const fetchAction = await dispatch(BackendAction.GetBackendDataset(storage, true))
         , { backend } = getResponse(fetchAction)
 
     return { backend }
-  })
+  }
 }
 
 
 function updateLocalDataset(storage, newDataset, message) {
-  const action = BackendAction.UpdateLocalDataset(storage, newDataset)
-
   storage.case({
     IndexedDB: () => null,
     _: () => {
@@ -408,12 +487,12 @@ function updateLocalDataset(storage, newDataset, message) {
     }
   })
 
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     let backend, dataset
 
     async function _refetch() {
-      const fetchAction = await dispatch(fetchBackend(storage, true))
-          , resp = getResponse(fetchAction)
+      const action = await dispatch(BackendAction.GetBackendDataset(storage, true))
+          , resp = getResponse(action)
 
       backend = resp.backend;
       dataset = resp.dataset;
@@ -444,14 +523,12 @@ function updateLocalDataset(storage, newDataset, message) {
       dataset,
       patchData
     }
-  })
+  }
 }
 
 
 function deleteBackend(storage) {
-  const action = BackendAction.DeleteBackend(storage)
-
-  return action.do(async (dispatch, getState, { db }) => {
+  return async (dispatch, getState, { db }) => {
     const ct = await storage.case({
       Web: url =>
         db.remoteBackends
@@ -467,7 +544,7 @@ function deleteBackend(storage) {
 
       _: () => {
         throw new Error(
-          `Backend of type ${action._type} is not meant to be deleted.`
+          `Backend of type ${storage._type} is not meant to be deleted.`
         )
       }
     })
@@ -477,17 +554,5 @@ function deleteBackend(storage) {
     }
 
     return {}
-  })
-}
-
-
-module.exports = {
-  listAvailableBackends,
-  fetchBackend,
-  fetchBackendHistory,
-  fetchBackendPatch,
-  addBackend,
-  updateBackend,
-  updateLocalDataset,
-  deleteBackend,
+  }
 }

@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Button$Primary } = require('periodo-ui')
     , { LocationStreamAware, Route } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { updateLocalDataset } = require('../actions')
+    , BackendAction = require('../actions')
     , { PatchDirection } = require('../../patches/types')
     , SelectChanges = require('../../patches/SelectChanges')
 
@@ -33,7 +33,7 @@ class SyncBackend extends React.Component {
       JSON.parse(JSON.stringify(selectedPatch)),
     ).newDocument
 
-    const action = await dispatch(updateLocalDataset(
+    const action = await dispatch(BackendAction.UpdateLocalDataset(
       backend.storage,
       newDataset,
       'Sync' // FIXME: better message

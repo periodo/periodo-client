@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { isInModule, moduleActionCase, readyStateCase } = require('../typed-actions/utils')
+    , LinkedDataAction = require('./actions')
 
 const initialState = () => ({
   nameByORCID: {},
@@ -9,10 +9,10 @@ const initialState = () => ({
 })
 
 module.exports = function linkedData(state=initialState(), action) {
-  if (!isInModule(action, 'linkedData')) return state;
+  if (!LinkedDataAction.prototype.isPrototypeOf(action.type)) return state
 
-  return readyStateCase(action, {
-    Success: resp => moduleActionCase(action, {
+  return action.readyState.case({
+    Success: resp => action.type.case({
       FetchLinkedData() {
         return state
       },

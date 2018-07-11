@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { Route, LocationStreamAware } = require('org-shell')
     , { handleCompletedAction } = require('../../typed-actions/utils')
-    , { updateBackend, deleteBackend } = require('../actions')
+    , BackendAction = require('../actions')
     , BackendForm = require('./BackendForm')
 
 module.exports = LocationStreamAware(function UpdateBackend(props) {
@@ -15,7 +15,7 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
         handleDelete: async () => {
           if (!confirm('Really delete backend?')) return
 
-          const resp = await props.dispatch(deleteBackend(props.backend.storage))
+          const resp = await props.dispatch(BackendAction.DeleteBackend(props.backend.storage))
 
           handleCompletedAction(
             resp,
@@ -30,7 +30,7 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
           )
         },
         handleSave: async ({ label, description }) => {
-          const resp = await props.dispatch(updateBackend(props.backend.storage, {
+          const resp = await props.dispatch(BackendAction.UpdateBackend(props.backend.storage, {
             label,
             description
           }))

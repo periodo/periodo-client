@@ -14,34 +14,8 @@ function isUnionTypeRecord(obj) {
   )
 }
 
-function getActionType(action) {
-  return action[$$ActionType]
-}
-
-function getReadyState(action) {
-  return action[$$ReadyState]
-}
-
-function getModule(action) {
-  const Type = getActionType(action);
-
-  return Type ? Type.module : null
-}
-
-function isInModule(action, moduleString) {
-  return getModule(action) === moduleString
-}
-
-function readyStateCase(action, cases) {
-  return getReadyState(action).case(cases)
-}
-
-function moduleActionCase(action, cases) {
-  return getActionType(action).case(cases)
-}
-
 function getResponse(action) {
-  return readyStateCase(action, {
+  return action.readyState.case({
     Success: resp => resp,
     _: () => {
       throw new Error('Ready state of action was not \'Success\'.')
@@ -50,7 +24,7 @@ function getResponse(action) {
 }
 
 function getError(action) {
-  return readyStateCase(action, {
+  return action.readyState.case({
     Failure: err => err,
     _: () => {
       throw new Error('Ready state of action was not \'Failure\'.')
@@ -59,7 +33,7 @@ function getError(action) {
 }
 
 function handleCompletedAction(action, onSuccess, onError) {
-  return readyStateCase(action, {
+  return action.readyState.case({
     Success: onSuccess,
     Failure: onError,
     Pending: () => {
@@ -73,12 +47,6 @@ function handleCompletedAction(action, onSuccess, onError) {
 module.exports = {
   isTypedRequest,
   isUnionTypeRecord,
-  getModule,
-  getReadyState,
-  getActionType,
-  isInModule,
-  readyStateCase,
-  moduleActionCase,
   getResponse,
   getError,
   handleCompletedAction,
