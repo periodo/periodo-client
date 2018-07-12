@@ -59,6 +59,32 @@ function makeTypedAction(obj) {
 
   RequestType.prototype[$$TypedRequest] = true
 
+  if (process.env.NODE_ENV !== 'production') {
+    return new Proxy(RequestType, {
+      get(obj, prop) {
+        const ctor = obj[prop]
+
+        if (!ctor) {
+          throw new Error(`No such action: \`${prop}\``)
+        }
+
+        if (typeof ctor === 'function' && !prop.endsWith('Of')) {
+          return new Proxy(ctor, {
+            apply(target, _this, args) {
+              if (target.length !== args.length) {
+                throw new Error(`Wrong number of arguments passed to action \`${prop}\``)
+              }
+
+              return target.apply(_this, args)
+            }
+          })
+        }
+
+        return ctor
+      },
+    })
+  }
+
   return RequestType;
 }
 
