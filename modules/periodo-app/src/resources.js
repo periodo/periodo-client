@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
     , LinkedDataAction = require('./linked-data/actions')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
-    , { handleCompletedAction } = require('./typed-actions/utils')
+    , { handleCompletedAction } = require('org-async-actions')
 
 function requireParam(params, key, msg) {
   if (key in params) return;

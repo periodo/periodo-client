@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { ReadyState } = require('../typed-actions/types')
+    , { ReadyState } = require('org-async-actions')
 
 const emptyState = () => ({
   readyState: null,

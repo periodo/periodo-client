@@ -3,7 +3,7 @@
 const jsonpatch = require('fast-json-patch')
     , BackendAction = require('../backends/actions')
     , { BackendStorage } = require('../backends/types')
-    , { makeTypedAction, getResponse } = require('../typed-actions')
+    , { makeTypedAction, getResponse } = require('org-async-actions')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
     , { PatchDirection } = require('./types')

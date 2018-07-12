@@ -20,6 +20,7 @@
     "language-tags": "^1.0.5",
     "lov-ns": "^1.1.1",
     "n3": "^0.11.1",
+    "org-async-actions": "^1.0.0",
     "org-layouts": "^1.0.0",
     "org-shell": "^1.0.0",
     "periodo-date-parser": "^1.0.1",

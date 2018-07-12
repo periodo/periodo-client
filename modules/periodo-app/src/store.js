@@ -2,7 +2,7 @@
 
 const { createStore, applyMiddleware, compose, combineReducers } = require('redux')
     , thunk = require('redux-thunk').default
-    , { typedAsyncActionMiddleware } = require('./typed-actions')
+    , { typedAsyncActionMiddleware } = require('org-async-actions')
     , periodoDB = require('./db')
 
 module.exports = function () {

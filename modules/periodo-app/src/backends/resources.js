@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , utils = require('periodo-utils')
     , actions = require('./actions')
     , { BackendStorage } = require('./types')
-    , { handleCompletedAction } = require('../typed-actions/utils')
+    , { handleCompletedAction } = require('org-async-actions')
 
 const backendRoute = props => name =>
   Route(`backend-${name}`, {

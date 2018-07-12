@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { makeTypedAction } = require('../typed-actions')
+    , { makeTypedAction } = require('org-async-actions')
 
 const AuthAction = module.exports = makeTypedAction({
   GetAllSettings: {

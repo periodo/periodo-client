@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { Button$Primary, InputBlock } = require('periodo-ui')
     , { BackendStorage } = require('../backends/types')
-    , { handleCompletedAction } = require('../typed-actions/utils')
+    , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('./actions')
     , Compare = require('./Compare')
 

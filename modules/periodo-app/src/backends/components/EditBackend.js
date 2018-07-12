@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { Route, LocationStreamAware } = require('org-shell')
-    , { handleCompletedAction } = require('../../typed-actions/utils')
+    , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
     , BackendForm = require('./BackendForm')
 
