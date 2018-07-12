@@ -91,7 +91,7 @@ function EntityValue(props) {
     ExternalLink,
     R.merge(R.omit([ 'value' ], props), { href: id }),
     [
-      h(Span, { fontSize: 6 }, `${abbreviate(id)}:`),
+      h(Span, { fontSize: '12px' }, `${abbreviate(id)}:`),
       label
     ]
   )
