@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box, ResourceTitle } = require('periodo-ui')
-    , BackendForm = require('./BackendForm')
+    , { BackendForm } = require('../../forms')
     , BackendAction = require('../actions')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('org-async-actions')

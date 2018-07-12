@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { Route, LocationStreamAware } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
-    , BackendForm = require('./BackendForm')
+    , { BackendForm } = require('../../forms')
 
 module.exports = LocationStreamAware(function UpdateBackend(props) {
   return (
