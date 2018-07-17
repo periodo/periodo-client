@@ -29,7 +29,7 @@ class SignIn extends React.Component {
         , oauthName = e.data.name
         , oauthToken = e.data.token
 
-    dispatch(AuthAction.UpdateApplicationSettings(
+    dispatch(AuthAction.UpdateSettings(
       R.flip(R.merge)({ oauthName, oauthToken })
     ))
   }
@@ -52,7 +52,7 @@ class SignIn extends React.Component {
 
     e.preventDefault();
 
-    dispatch(AuthAction.UpdateApplicationSettings(
+    dispatch(AuthAction.UpdateSettings(
       R.omit(['oauthName', 'oauthToken'])
     ))
   }
