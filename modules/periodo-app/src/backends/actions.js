@@ -99,6 +99,12 @@ const BackendAction = module.exports = makeTypedAction({
     }
   },
 
+  DeleteAllBackends: {
+    exec: deleteAllBackends,
+    request: {},
+    response: {},
+  },
+
   DeleteBackend: {
     exec: deleteBackend,
     request: {
@@ -552,6 +558,15 @@ function deleteBackend(storage) {
     if (ct === 0) {
       // FIXME: nothing was deleted? Raise an error?
     }
+
+    return {}
+  }
+}
+
+function deleteAllBackends() {
+  return async (dispatch, getState, { db }) => {
+    await db.localBackends.clear()
+    await db.remoteBackends.clear()
 
     return {}
   }

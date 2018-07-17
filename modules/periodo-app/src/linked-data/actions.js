@@ -20,6 +20,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
       prefixes: Object,
     }
   },
+
   FetchORCIDs: {
     exec: fetchORCIDs,
     request: {
@@ -29,6 +30,12 @@ const LinkedDataAction = module.exports = makeTypedAction({
       nameByORCID: Object,
     }
   },
+
+  ClearLinkedDataCache: {
+    exec: clearLinkedDataCache,
+    request: {},
+    response: {},
+  }
 })
 
 async function _fetchLinkedData(url, type="text/turtle") {
@@ -132,5 +139,12 @@ function fetchSource(url, opts) {
     const source = makeSourceRepr(store, getGraphSubject(url))
 
     return { source }
+  }
+}
+
+function clearLinkedDataCache() {
+  return async (dispatch, getState, { db }) => {
+    await db.linkedDataCache.clear()
+    return {}
   }
 }

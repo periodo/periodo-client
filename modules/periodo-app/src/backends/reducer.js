@@ -98,6 +98,13 @@ module.exports = function backends(state=initialState(), action) {
           R.over(R.lensProp('datasets'), removeBackend),
           R.over(R.lensProp('available'), removeBackend)
         )(state)
+      },
+
+      DeleteAllBackends() {
+        return R.pipe(
+          R.set(R.lensProp('datasets'), {}),
+          R.set(R.lensProp('available'), {})
+        )(state)
       }
     }),
     _: () => state

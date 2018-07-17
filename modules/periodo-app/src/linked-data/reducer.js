@@ -25,8 +25,11 @@ module.exports = function linkedData(state=initialState(), action) {
           R.flip(R.merge)(nameByORCID),
           state
         )
-      }
+      },
 
+      ClearLinkedDataCache() {
+        return {}
+      }
     }),
     _: () => state
   })

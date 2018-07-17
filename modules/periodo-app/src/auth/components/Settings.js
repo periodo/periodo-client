@@ -4,7 +4,9 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , AuthAction = require('../actions')
-    , { Box, Span, ResourceTitle, Alert$Success } = require('periodo-ui')
+    , BackendAction = require('../../backends/actions')
+    , LinkedDataAction = require('../../linked-data/actions')
+    , { Heading, Box, Span, ResourceTitle, Alert$Success, Button$Danger, Button$Default } = require('periodo-ui')
     , { Link } = require('periodo-ui')
 
 class SignIn extends React.Component {
@@ -60,6 +62,10 @@ class SignIn extends React.Component {
 
     return (
       h(Box, [
+        h(Heading, {
+          level: 3,
+        }, 'Authorization'),
+
         !oauthToken && (
           h(Link, {
             href: '',
@@ -86,7 +92,9 @@ class SignIn extends React.Component {
               onClick: this.signOut.bind(this)
             }, 'Sign out'),
           ])
-        )
+        ),
+
+
       ])
     )
   }
@@ -104,6 +112,27 @@ module.exports = function Settings(props) {
         oauthName,
         oauthToken,
       }),
+
+      h(Heading, {
+        level: 3,
+      }, 'Local data'),
+
+      h(Button$Default, {
+        mr: 2,
+        onClick: async () => {
+          await dispatch(LinkedDataAction.ClearLinkedDataCache);
+          window.location.reload()
+        }
+      }, 'Clear linked data cache'),
+
+      h(Button$Danger, {
+        onClick: async () => {
+          if (confirm('Continue deleting all backends? Local data will not be able to be recovered.')) {
+            await dispatch(BackendAction.DeleteAllBackends);
+            window.location.reload()
+          }
+        }
+      }, 'Clear all data'),
     ])
   )
 }
