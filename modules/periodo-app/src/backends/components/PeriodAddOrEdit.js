@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { RandomID} = require('periodo-utils').hoc
     , BackendAction = require('../actions')
-    , PeriodForm = require('../../editors/PeriodForm')
+    , PeriodForm = require('../../forms/PeriodForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
 class AddPeriod extends React.Component {

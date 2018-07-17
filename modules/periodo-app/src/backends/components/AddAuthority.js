@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , generateID = require('../../linked-data/utils/generate_skolem_id')
     , BackendAction = require('../actions')
-    , AuthorityForm = require('../../editors/AuthorityForm')
+    , AuthorityForm = require('../../forms/AuthorityForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
 module.exports = LocationStreamAware(class AddAuthority extends React.Component {
