@@ -2,10 +2,12 @@
 
 const R = require('ramda')
 
-function isDataset(obj) {
+function isDataset(obj, includeLegacy=false) {
   return (
-    typeof obj === 'object' &&
-    typeof obj.authorities === 'object'
+    typeof obj === 'object' && (
+      typeof obj.authorities === 'object' ||
+      (!!includeLegacy && typeof obj.periodCollections === 'object')
+    )
   )
 }
 
