@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , { handleCompletedAction } = require('org-async-actions')
     , { Route, LocationStreamAware } = require('org-shell')
 
-const AddBackend = LocationStreamAware(props =>
+const AddBackend = props =>
   h(Box, [
     h(ResourceTitle, 'Add backend'),
     h(BackendForm, {
@@ -24,7 +24,7 @@ const AddBackend = LocationStreamAware(props =>
 
         handleCompletedAction(
           resp,
-          () => props.locationStream.write({ route: Route('open-backend') }),
+          props.onSave || (() => null),
           err => {
             alert('Error saving backend');
             // eslint-disable-next-line no-console
@@ -34,6 +34,5 @@ const AddBackend = LocationStreamAware(props =>
       }
     }),
   ])
-)
 
 module.exports = AddBackend;

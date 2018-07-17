@@ -73,7 +73,7 @@ module.exports = class BackendForm extends React.Component {
         ]),
 
         h('div', [
-          h(Label, { mt: 3, htmlFor: 'label' }, 'Label'),
+          h(Label, { mt: 3, htmlFor: 'label', isRequired: true, }, 'Label'),
 
           h(Input, {
             id: 'label',
@@ -83,7 +83,7 @@ module.exports = class BackendForm extends React.Component {
             onChange: this.handleChange
           }),
 
-          type === 'Web' && h(Label, { mt: 3, htmlFor: 'url' }, 'URL'),
+          type === 'Web' && h(Label, { mt: 3, htmlFor: 'url', isRequired: true, }, 'URL'),
 
           type === 'Web' && h(Input, {
             id: 'url',

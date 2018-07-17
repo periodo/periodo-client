@@ -42,7 +42,7 @@ const Home = {
     },
     */
     'open-backend': {
-      label: 'Backend list',
+      label: 'Open backend',
       Component: require('./backends/components/BackendSelect'),
       async onBeforeRoute(dispatch) {
         await dispatch(BackendAction.GetAllBackends)
@@ -54,10 +54,6 @@ const Home = {
           R.reverse
         )(state.backends.available)
       }),
-    },
-    'add-backend': {
-      label: 'Add backend',
-      Component: require('./backends/components/AddBackend'),
     },
     'open-patches': {
       label: 'Review patches',
