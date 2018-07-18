@@ -2,6 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
+    , url = require('url')
     , { Route } = require('org-shell')
     , BackendAction = require('./backends/actions')
     , AuthAction = require('./auth/actions')
@@ -116,15 +117,19 @@ const ReviewPatch = {
   async onBeforeRoute(dispatch, params) {
     requireParam(params, 'patchURL')
 
-    const patch = await throwIfUnsuccessful(
-      dispatch(PatchAction.GetLocalPatch(
-        decodeURIComponent(params.patchURL)))
-      )
+    const patchURL = url.resolve(
+      window.location.href,
+      decodeURIComponent(params.patchURL))
 
-    return { patch }
+    await throwIfUnsuccessful(
+      dispatch(PatchAction.GetLocalPatch(patchURL)))
   },
   mapStateToProps(state, props) {
-    return Object.assign({}, props.extra.patch)
+    const patchURL = url.resolve(
+      window.location.href,
+      decodeURIComponent(props.params.patchURL))
+
+    return state.patches.patches[patchURL]
   }
 }
 

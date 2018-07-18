@@ -2,11 +2,13 @@
 
 const jsonpatch = require('fast-json-patch')
     , BackendAction = require('../backends/actions')
+    , LinkedDataAction = require('../linked-data/actions')
     , { BackendStorage } = require('../backends/types')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
     , { PatchDirection } = require('./types')
+    , { isURL } = require('periodo-utils').misc
 
 const PatchAction = module.exports = makeTypedAction({
   GetLocalPatch: {
@@ -51,6 +53,15 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patchURL: String,
+    }
+  },
+  AddPatchComment: {
+    exec: addPatchComment,
+    request: {
+      patchURL: isURL,
+      comment: String,
+    },
+    response: {
     }
   }
 })
@@ -101,8 +112,6 @@ function generateDatasetPatch(
 }
 
 function submitPatch(storage, patch) {
-  const action = PatchAction.SubmitPatch(storage, patch)
-
   return async (dispatch, getState, { db }) => {
     const resp = await fetch('d.jsonld', {
       body: JSON.stringify(patch),
@@ -134,39 +143,66 @@ function submitPatch(storage, patch) {
   }
 }
 
-async function getLocalPatch(patchURL) {
-  const patchResp = await fetch(patchURL)
+function getLocalPatch(patchURL) {
+  return async (dispatch, getState) => {
+    const patchResp = await fetch(patchURL)
 
-  if (!patchResp.ok) throw new Error('Could not fetch patch')
+    if (!patchResp.ok) throw new Error('Could not fetch patch')
 
-  const patch = await patchResp.json()
+    const patch = await patchResp.json()
 
-  const [ fromDatasetResp, patchTextResp ] = await Promise.all([
-    fetch(patch.created_from),
-    fetch(patch.text),
-  ])
+    const existing = getState().patches.patches[patchURL]
 
-  if (!fromDatasetResp.ok) {
-    throw new Error('Could not fetch source dataset')
-  }
+    let ret
 
-  if (!patchTextResp.ok) {
-    throw new Error('Could not fetch patch text')
-  }
+    // If we've already generated the source and destination datasets, only
+    // refresh the patch resource itself. (Which may change in the case of,
+    // e.g. commenting, or merging a patch.
+    if (existing) {
+      ret = Object.assign({}, existing, { patch })
+    } else {
+      const [ fromDatasetResp, patchTextResp ] = await Promise.all([
+        fetch(patch.created_from),
+        fetch(patch.text),
+      ])
 
-  const fromDataset = await fromDatasetResp.json()
-      , patchText = await patchTextResp.json()
+      if (!fromDatasetResp.ok) {
+        throw new Error('Could not fetch source dataset')
+      }
 
-  const toDataset = jsonpatch.applyPatch(
-    jsonpatch.deepClone(fromDataset),
-    jsonpatch.deepClone(patchText)
-  ).newDocument
+      if (!patchTextResp.ok) {
+        throw new Error('Could not fetch patch text')
+      }
 
-  return {
-    patch,
-    fromDataset,
-    toDataset,
-    patchText,
+      const fromDataset = await fromDatasetResp.json()
+          , patchText = await patchTextResp.json()
+
+      const toDataset = jsonpatch.applyPatch(
+        jsonpatch.deepClone(fromDataset),
+        jsonpatch.deepClone(patchText)
+      ).newDocument
+
+      ret = {
+        patch,
+        fromDataset,
+        toDataset,
+        patchText,
+      }
+    }
+
+    // Fetch ORCIDs
+    await dispatch(LinkedDataAction.FetchORCIDs(
+      [...new Set(patch.comments.map(patch => patch.author))]
+    ))
+
+    ret.patch.comments.forEach(comment => {
+      comment.author = {
+        url: comment.author,
+        label: getState().linkedData.nameByORCID[comment.author],
+      }
+    })
+
+    return ret;
   }
 }
 
@@ -176,6 +212,45 @@ async function getOpenServerPatches() {
   return {
     patches: await resp.json()
   }
+}
+
+function addPatchComment(patchURL, comment) {
+  let commentURL = patchURL
+
+  if (!commentURL.endsWith('/')) commentURL += '/';
+  commentURL += 'messages';
+
+  return async (dispatch, getState) => {
+    const resp = await fetch(commentURL, {
+      body: JSON.stringify({ message: comment }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getState().auth.settings.oauthToken}`
+      }
+    })
+
+    switch (resp.status) {
+    case 401:
+      throw new Error('Bad authentication credentials. Sign out and sign back in.')
+
+    case 403:
+      throw new Error('You do not have permission to merge patches')
+
+    default:
+      if (!resp.ok) {
+        const err = new Error('Error posting comment')
+        err.resp = resp;
+        throw err;
+      }
+    }
+
+    // Refresh patch
+    await dispatch(PatchAction.GetLocalPatch(patchURL))
+
+    return {}
+  }
+
 }
 
 /*
