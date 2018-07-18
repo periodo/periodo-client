@@ -11,6 +11,11 @@ const PatchDirection = Type({
   Pull: {},
 })
 
+const PatchFate = Type({
+  Accept: {},
+  Reject: {},
+})
+
 const PatchType = Type({
   Unknown: {},
 
@@ -149,5 +154,6 @@ PatchType.prototype.getLabel = function (minimal) {
 
 module.exports = {
   PatchDirection,
+  PatchFate,
   PatchType,
 }

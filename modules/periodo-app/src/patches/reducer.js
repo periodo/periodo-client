@@ -35,6 +35,10 @@ module.exports = function patches(state=initialState(), action) {
       AddPatchComment() {
         return state
       },
+
+      DecidePatchFate() {
+        return state
+      }
     }),
     _: () => state
   })

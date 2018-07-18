@@ -3,10 +3,10 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { handleCompletedAction } = require('org-async-actions')
-    , { Box, Text, Link, Heading, TextareaBlock, Button$Default } = require('periodo-ui')
+    , { Box, Text, Link, Heading, TextareaBlock, Button$Default, Button$Danger } = require('periodo-ui')
     , { Route } = require('org-shell')
     , Compare = require('./Compare')
-    , { PatchDirection } = require('./types')
+    , { PatchDirection, PatchFate } = require('./types')
     , PatchAction = require('./actions')
 
 class ReviewPatch extends React.Component {
@@ -19,6 +19,7 @@ class ReviewPatch extends React.Component {
     }
 
     this.addComment = this.addComment.bind(this)
+    this.decideFate = this.decideFate.bind(this)
   }
 
   async addComment() {
@@ -42,8 +43,17 @@ class ReviewPatch extends React.Component {
     this.setState({ submitting: false })
   }
 
+  async decideFate(fate) {
+    const { dispatch, mergeURL } = this.props
+
+    const resp = await dispatch(PatchAction.DecidePatchFate(
+      mergeURL,
+      fate
+    ))
+  }
+
   render() {
-    const { fromDataset, toDataset, patchText, patch } = this.props
+    const { fromDataset, toDataset, patchText, patch, mergeURL } = this.props
         , { comment, submitting } = this.state
 
     return (
@@ -61,6 +71,8 @@ class ReviewPatch extends React.Component {
 
         h(Heading, {
           level: 2,
+          mt: 2,
+          mb: 1,
         }, 'Comments'),
 
         patch.comments.map((comment, i) =>
@@ -83,7 +95,23 @@ class ReviewPatch extends React.Component {
         h(Button$Default, {
           disabled: !comment || submitting,
           onClick: this.addComment,
-        }, 'Add comment')
+        }, 'Add comment'),
+
+        h(Heading, {
+          level: 2,
+          mt: 2,
+          mb: 1,
+        }, 'Accept patch?'),
+
+        h(Button$Default, {
+          mr: 1,
+          onClick: () => this.decideFate(PatchFate.Accept),
+        }, 'Accept'),
+
+        h(Button$Danger, {
+          onClick: () => this.decideFate(PatchFate.Reject),
+        }, 'Reject'),
+
 
       ])
     )

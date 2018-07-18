@@ -1,13 +1,16 @@
 "use strict";
 
-const jsonpatch = require('fast-json-patch')
+const R = require('ramda')
+    , url = require('url')
+    , jsonpatch = require('fast-json-patch')
     , BackendAction = require('../backends/actions')
     , LinkedDataAction = require('../linked-data/actions')
+    , parseLinkHeader = require('parse-link-header')
     , { BackendStorage } = require('../backends/types')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
-    , { PatchDirection } = require('./types')
+    , { PatchDirection, PatchFate } = require('./types')
     , { isURL } = require('periodo-utils').misc
 
 const PatchAction = module.exports = makeTypedAction({
@@ -21,6 +24,7 @@ const PatchAction = module.exports = makeTypedAction({
       fromDataset: Object,
       toDataset: Object,
       patchText: Object,
+      mergeURL: val => val === null || isURL(val),
     }
   },
 
@@ -60,6 +64,15 @@ const PatchAction = module.exports = makeTypedAction({
     request: {
       patchURL: isURL,
       comment: String,
+    },
+    response: {
+    }
+  },
+  DecidePatchFate: {
+    exec: decidePatchFate,
+    request: {
+      patchURL: isURL,
+      fate: PatchFate,
     },
     response: {
     }
@@ -111,15 +124,22 @@ function generateDatasetPatch(
   }
 }
 
+function withAuthHeaders(state, extra) {
+  const token = R.path(['auth', 'settings', 'oauthToken'], state)
+
+  return Object.assign({}, extra, !token ? {} : {
+    Authorization: `Bearer ${token}`,
+  })
+}
+
 function submitPatch(storage, patch) {
   return async (dispatch, getState, { db }) => {
     const resp = await fetch('d.jsonld', {
       body: JSON.stringify(patch),
       method: 'PATCH',
-      headers: {
+      headers: withAuthHeaders(getState(), {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${getState().auth.settings.oauthToken}`
-      }
+      })
     })
 
     if (resp.status === 401) {
@@ -145,7 +165,19 @@ function submitPatch(storage, patch) {
 
 function getLocalPatch(patchURL) {
   return async (dispatch, getState) => {
-    const patchResp = await fetch(patchURL)
+    const ret = {}
+
+    const patchResp = await fetch(patchURL, {
+      headers: withAuthHeaders(getState())
+    })
+
+    const link = parseLinkHeader(patchResp.headers.get('Link'))
+
+    if (link && link.merge) {
+      ret.mergeURL = url.resolve(patchResp.url, link.merge.url)
+    } else {
+      ret.mergeURL = null
+    }
 
     if (!patchResp.ok) throw new Error('Could not fetch patch')
 
@@ -153,13 +185,11 @@ function getLocalPatch(patchURL) {
 
     const existing = getState().patches.patches[patchURL]
 
-    let ret
-
     // If we've already generated the source and destination datasets, only
     // refresh the patch resource itself. (Which may change in the case of,
     // e.g. commenting, or merging a patch.
     if (existing) {
-      ret = Object.assign({}, existing, { patch })
+      Object.assign(ret, existing, { patch })
     } else {
       const [ fromDatasetResp, patchTextResp ] = await Promise.all([
         fetch(patch.created_from),
@@ -182,12 +212,12 @@ function getLocalPatch(patchURL) {
         jsonpatch.deepClone(patchText)
       ).newDocument
 
-      ret = {
+      Object.assign(ret, {
         patch,
         fromDataset,
         toDataset,
         patchText,
-      }
+      })
     }
 
     // Fetch ORCIDs
@@ -224,10 +254,9 @@ function addPatchComment(patchURL, comment) {
     const resp = await fetch(commentURL, {
       body: JSON.stringify({ message: comment }),
       method: 'POST',
-      headers: {
+      headers: withAuthHeaders(getState(), {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${getState().auth.settings.oauthToken}`
-      }
+      })
     })
 
     switch (resp.status) {
@@ -250,7 +279,26 @@ function addPatchComment(patchURL, comment) {
 
     return {}
   }
+}
 
+function decidePatchFate(mergeURL, fate) {
+  return async (dispatch, getState, { db }) => {
+    const actionURL = fate.case({
+      Accept: () => mergeURL,
+      Reject: () => mergeURL.replace('merge', 'reject'), // lol.
+    })
+
+    const resp = await fetch(actionURL, {
+      method: 'POST',
+      headers: withAuthHeaders(getState(), {
+        'Content-Type': 'application/json' // necessary? probably not.
+      })
+    })
+
+    // TODO: Update local skolem ids for new items (see code below)
+
+    return {}
+  }
 }
 
 /*
