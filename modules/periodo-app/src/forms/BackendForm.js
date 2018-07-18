@@ -2,7 +2,7 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
-    , { Flex, Box, Input, Label, Select, Textarea } = require('periodo-ui')
+    , { Flex, Box, Input, Label, Link, Select, Textarea } = require('periodo-ui')
     , { Button$Primary, Button$Danger } = require('periodo-ui')
 
 
@@ -57,6 +57,7 @@ module.exports = class BackendForm extends React.Component {
 
     return (
       h(Box, { width: 400 }, [
+
         h('div', [
           h(Label, { htmlFor: 'type' }, 'Type'),
 
@@ -85,13 +86,43 @@ module.exports = class BackendForm extends React.Component {
 
           type === 'Web' && h(Label, { mt: 3, htmlFor: 'url', isRequired: true, }, 'URL'),
 
-          type === 'Web' && h(Input, {
-            id: 'url',
-            name: 'url',
-            label: 'URL',
-            value: url || '',
-            onChange: this.handleChange
-          }),
+          type === 'Web' && h(Box, [
+            h(Input, {
+              id: 'url',
+              name: 'url',
+              label: 'URL',
+              value: url || '',
+              onChange: this.handleChange
+            }),
+
+            h(Box, { level: 4 }, 'Shortcuts'),
+            h(Box, [
+              h(Link, {
+                href: '',
+                onClick: e => {
+                  e.preventDefault();
+                  this.setState({ 
+                    label: 'this URL',
+                    url: window.location.origin,
+                  })
+                }
+              }, 'this URL'),
+              ` (${window.location.origin})`
+            ]),
+            h(Box, [
+              h(Link, {
+                href: '',
+                onClick: e => {
+                  e.preventDefault();
+                  this.setState({ 
+                    label: 'the canonical PeriodO server',
+                    url: 'https://test.perio.do/',
+                  })
+                }
+              }, 'the canonical PeriodO server'),
+              ` (https://test.perio.do/)`
+            ]),
+          ]),
 
           h(Label, { mt: 3, htmlFor: 'description' }, 'Description'),
 
