@@ -1,9 +1,8 @@
 "use strict";
 
 const R = require('ramda')
-    , { Result } = require('periodo-utils/src/types')
-    , terminus = require('periodo-utils/src/terminus')
-    , label = require('periodo-utils/src/label')
+    , { Result } = require('periodo-common')
+    , { terminus, label } = require('periodo-utils')
     , { isLinkedData } = require('../linked-data/utils/source_ld_match')
 
 function addError(obj, label, err) {

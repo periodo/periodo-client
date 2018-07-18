@@ -21,6 +21,7 @@
     "linkify-it": "^2.0.3",
     "open-color": "1.6.3",
     "org-shell": "^1.0.0",
+    "periodo-common": "^1.0.0",
     "periodo-utils": "^5.0.0-pre2",
     "ramda": "^0.24.1",
     "react": "^16.2.0",

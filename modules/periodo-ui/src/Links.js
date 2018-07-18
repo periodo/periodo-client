@@ -1,8 +1,6 @@
 "use strict";
 
-const h = require('react-hyperscript')
-    , { Text } = require('./Base')
-    , { Link } = require('org-shell')
+const { Link } = require('org-shell')
     , sys = require('system-components').default
 
 exports.Link = Link(sys({

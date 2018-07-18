@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { parse } = require('periodo-date-parser')
-    , { oneOf } = require('./misc')
+    , { oneOf } = require('./util')
 
 const paths = {
   earliest: ['in', 'earliestYear'],

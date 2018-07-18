@@ -1,7 +1,7 @@
 "use strict";
 
 const Type = require('union-type')
-    , { isURL } = require('periodo-utils/src/misc')
+    , isURL = require('is-url')
 
 const BackendStorage = Type({
   Web: { url: isURL },

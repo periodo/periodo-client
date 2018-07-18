@@ -2,7 +2,7 @@
 
 const N3 = require('n3')
     , { makeTypedAction, getResponse } = require('org-async-actions')
-    , { isURL } = require('periodo-utils/src/misc')
+    , isURL = require('is-url')
     , makeSourceRepr = require('./utils/make_source_repr')
     , { getGraphSubject } = require('./utils/source_ld_match')
 

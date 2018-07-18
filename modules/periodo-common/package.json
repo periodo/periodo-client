@@ -1,6 +1,6 @@
 {
-  "name": "periodo-utils",
-  "version": "5.0.0-pre2",
+  "name": "periodo-common",
+  "version": "1.0.0",
   "private": true,
   "description": "",
   "main": "src/index.js",
@@ -14,8 +14,8 @@
     "tape": "^4.8.0"
   },
   "dependencies": {
-    "iso-639-3": "^1.0.1",
-    "periodo-date-parser": "^1.0.1",
-    "ramda": "^0.24.1"
+    "ramda": "^0.24.1",
+    "react-hyperscript": "github:periodo/react-hyperscript",
+    "union-type": "github:ptgolden/union-type"
   }
 }

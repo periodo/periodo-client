@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { oneOf } = require('./misc')
+    , { oneOf } = require('./util')
     , contributorList = require('./contributor_list')
 
 const creators = R.pipe(

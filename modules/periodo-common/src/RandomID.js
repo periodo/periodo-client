@@ -7,7 +7,7 @@ function randomstr() {
   return (Math.random() + '').slice(2, 12)
 }
 
-module.exports = function (Component) {
+function makeRandomID(Component) {
   return class RandomID extends React.Component {
     constructor() {
       super();
@@ -22,4 +22,8 @@ module.exports = function (Component) {
       }))
     }
   }
+}
+
+module.exports = {
+  RandomID: makeRandomID,
 }

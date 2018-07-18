@@ -1,7 +1,6 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , sys = require('system-components').default
     , { themeGet } = require('styled-system')
     , { Box } = require('./Base')

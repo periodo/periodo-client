@@ -1,6 +1,7 @@
 "use strict";
 
-const ss = require('styled-system')
+const R = require('ramda')
+    , ss = require('styled-system')
 
 const ssProps = Object.values(ss.propTypes)
   .map(Object.keys)
@@ -10,6 +11,9 @@ function blacklist(...keys) {
   return ssProps.concat(keys)
 }
 
+const ensureArray = R.ifElse(Array.isArray, R.identity, Array.of)
+
 module.exports = {
   blacklist,
+  ensureArray,
 }

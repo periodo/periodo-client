@@ -11,7 +11,7 @@ const R = require('ramda')
       , SpatialExtentValue
       , LanguageSpecificValue
       } = require('./Value')
-    , { ensureArray } = require('periodo-utils').misc
+    , { ensureArray } = require('./util')
 
 const extractSpatialExtent = period => {
   const description = period.spatialCoverageDescription || ''

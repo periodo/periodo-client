@@ -11,7 +11,7 @@ const R = require('ramda')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
     , { PatchDirection, PatchFate } = require('./types')
-    , { isURL } = require('periodo-utils').misc
+    , isURL = require('is-url')
 
 const PatchAction = module.exports = makeTypedAction({
   GetLocalPatch: {

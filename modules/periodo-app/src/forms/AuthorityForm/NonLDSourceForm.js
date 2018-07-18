@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { RandomID } = require('periodo-utils/src/hoc')
+    , { RandomID } = require('periodo-common')
     , { Flex, Box, Label, Input } = require('periodo-ui')
     , { InputBlock, TextareaBlock, Button$Default } = require('periodo-ui')
 

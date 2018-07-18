@@ -2,8 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , sys = require('system-components').default
-    , { RandomID } = require('periodo-utils').hoc
+    , { RandomID } = require('periodo-common')
     , { Box, Text } = require('./Base')
     , { Label, Input, Textarea } = require('./FormElements')
 
