@@ -224,9 +224,6 @@ const BackendPatch = {
 
     const storage = BackendStorage.fromIdentifier(params.backendID)
 
-    await throwIfUnsuccessful(
-      dispatch(BackendAction.GetBackendHistory(storage)))
-
     const patchReq = await throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendPatch(storage, params.patchID)))
 

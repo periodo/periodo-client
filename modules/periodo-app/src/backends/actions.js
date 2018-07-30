@@ -59,6 +59,7 @@ const BackendAction = module.exports = makeTypedAction({
       dataset: isDataset,
       prevDataset: isDataset,
       patch: Object,
+      change: Object,
     }
   },
 
@@ -272,30 +273,25 @@ function fetchBackendPatch(storage, patchID) {
           dataset: postDataset,
           prevDataset,
           patch,
+
+          // FIXME: hack hack hack
+          change: {},
         }
       },
       Web: async () => {
-        const headers = new Headers()
-        headers.append('Accept', 'application/json')
+        await dispatch(BackendAction.GetBackendHistory(storage))
 
-        const resp = await fetch(patchID + '?inline-context', { headers })
-            , data = await resp.json()
-            , store = N3.Store()
+        const changelog = getState().backends.patches[storage.asIdentifier()]
 
-        const { triples } = await parseJSONLD(data)
-
-        store.addPrefixes({
-          dcterms: ns.dcterms,
-          prov: ns.prov,
-          foaf: ns.foaf,
-        })
-        store.addTriples(triples);
-
-        const patchData = getPatchRepr(store, patchID)
+        const [ change ] = changelog.filter(c => c.url === patchID)
 
         const [ prevDatasetReq, patchReq ] = await Promise.all([
-          fetch(patchData.sourceDatasetURL, { headers }),
-          fetch(patchData.patchURL),
+          fetch(change.sourceDatasetURL, {
+            headers: new Headers({
+              Accept: 'application/json',
+            })
+          }),
+          fetch(change.patchURL),
         ])
 
         const prevDataset = await prevDatasetReq.json()
@@ -308,6 +304,7 @@ function fetchBackendPatch(storage, patchID) {
           dataset: normalizeDataset(postDataset),
           prevDataset: normalizeDataset(prevDataset),
           patch,
+          change,
         }
       },
       _: R.T,
@@ -320,7 +317,7 @@ function fetchBackendPatch(storage, patchID) {
 
 function fetchBackendHistory(storage) {
   return async (dispatch, getState, { db }) => {
-    const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, true))
+    const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, false))
 
     const patchesPromise =  storage.case({
       IndexedDB: async id => {
@@ -477,7 +474,7 @@ function updateBackend(storage, withObj) {
       _: () => null
     })
 
-    const fetchAction = await dispatch(BackendAction.GetBackendDataset(storage, true))
+    const fetchAction = await dispatch(BackendAction.GetBackendDataset(storage, false))
         , { backend } = getResponse(fetchAction)
 
     return { backend }
