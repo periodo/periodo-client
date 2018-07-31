@@ -60,6 +60,7 @@ const BackendAction = module.exports = makeTypedAction({
       prevDataset: isDataset,
       patch: Object,
       change: Object,
+      position: Object,
     }
   },
 
@@ -238,7 +239,7 @@ function fetchBackend(storage, forceReload) {
 
 function fetchBackendPatch(storage, patchID) {
   return async (dispatch, getState, { db }) => {
-    const ret = await storage.case({
+    return await storage.case({
       IndexedDB: async backendID => {
         const patch = await db.localBackendPatches.get(parseInt(patchID))
 
@@ -274,8 +275,10 @@ function fetchBackendPatch(storage, patchID) {
           prevDataset,
           patch,
 
-          // FIXME: hack hack hack
+          // FIXME: I added these for the Web backend but no the IndexedDB one.
+          // They should be able to be added.
           change: {},
+          position: {},
         }
       },
       Web: async () => {
@@ -284,6 +287,8 @@ function fetchBackendPatch(storage, patchID) {
         const changelog = getState().backends.patches[storage.asIdentifier()]
 
         const [ change ] = changelog.filter(c => c.url === patchID)
+
+        const index = changelog.indexOf(change)
 
         const [ prevDatasetReq, patchReq ] = await Promise.all([
           fetch(change.sourceDatasetURL, {
@@ -305,12 +310,15 @@ function fetchBackendPatch(storage, patchID) {
           prevDataset: normalizeDataset(prevDataset),
           patch,
           change,
+          position: {
+            index,
+            next: changelog[index + 1] || null,
+            prev: changelog[index - 1] || null,
+          }
         }
       },
       _: R.T,
     })
-
-    return ret;
   }
 }
 
