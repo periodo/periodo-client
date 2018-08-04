@@ -3,8 +3,33 @@
 const R = require('ramda')
     , Type = require('union-type')
     , pointer = require('json-pointer')
+    , isURL = require('is-url')
 
 const $$type = Symbol('patch-type')
+
+const ORCID = Type({ ORCID: {
+  url: val => val.startsWith('https://orcid.org/'),
+  label: String,
+}})
+
+const PatchRequest = Type({ PatchRequest: {
+}})
+
+const PatchMetadata = Type({
+  Remote: {
+    url: isURL,
+    patchURL: isURL,
+    sourceDatasetURL: isURL,
+    created: Date,
+
+    mergedBy: Type.ListOf(ORCID),
+    createdBy: Type.ListOf(ORCID),
+    updatedBy: Type.ListOf(ORCID),
+  },
+
+  Local: {
+  }
+})
 
 const PatchDirection = Type({
   Push: {},
@@ -156,4 +181,6 @@ module.exports = {
   PatchDirection,
   PatchFate,
   PatchType,
+  PatchRequest,
+  PatchMetadata,
 }
