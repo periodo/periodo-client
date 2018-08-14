@@ -5,11 +5,10 @@ global.RETHROW_ERRORS = true;
 const test = require('blue-tape')
     , R = require('ramda')
     , makeMockStore = require('../../store_mock')
-    , { ReadyState } = require('org-async-actions')
+    , { ReadyState, getResponse } = require('org-async-actions')
     , BackendAction = require('../actions')
     , reducer = require('../reducer')
     , { Backend, BackendMetadata, BackendStorage } = require('../types')
-    , { getResponse } = require('../../typed-actions')
 
 test('Listing backends', async t => {
   const store = makeMockStore()
