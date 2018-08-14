@@ -8,7 +8,6 @@
     "blue-tape": "^0.2.0",
     "browserify": "^14.3.0",
     "common-shakeify": "^0.2.0",
-    "envify": "^3.4.0",
     "exorcist": "^0.4.0",
     "fake-indexeddb": "^1.0.6",
     "lerna": "^2.5.1",
@@ -19,13 +18,12 @@
   },
   "browserify": {
     "transform": [
-      "envify",
       "common-shakeify"
     ]
   },
   "scripts": {
     "prepack": "make clean && make",
-    "test": "NO_DEFAULT_BACKEND=1 tape $(find modules -path */test/*.js -not -path */node_modules/*)",
+    "test": "tape $(find modules -path */test/*.js -not -path */node_modules/*)",
     "start": "serve -p 8000"
   }
 }
