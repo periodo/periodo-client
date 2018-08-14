@@ -4,7 +4,7 @@
   "author": "Patrick Golden",
   "description": "Client for browsing and editing PeriodO data.",
   "devDependencies": {
-    "babili": "0.0.12",
+    "babel-minify": "^0.4.3",
     "blue-tape": "^0.2.0",
     "browserify": "^14.3.0",
     "common-shakeify": "^0.2.0",

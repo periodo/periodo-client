@@ -26,7 +26,7 @@ node_modules: $(PACKAGE_JSON_FILES)
 
 $(PRODUCTION_JS_BUNDLE): $(JS_FILES) node_modules
 	NODE_ENV=production $(BIN)/browserify -d $(ENTRY) -o $(subst .min,,$@)
-	$(BIN)/babili $(subst .min,,$@) -o $@
+	$(BIN)/minify $(subst .min,,$@) -o $@
 
 clean:
 	rm -f index.html $(JS_BASE_NAME)*.js
