@@ -1,11 +1,10 @@
 {
   "name": "org-async-actions",
   "version": "1.0.0",
-  "private": true,
-  "description": "",
+  "description": "Redux middleware with runtime typechecks for asynchronous requests and responses",
   "main": "src/index.js",
   "keywords": [],
-  "author": "",
+  "author": "Patrick Golden <ptgolden@email.unc.edu>",
   "license": "CC0",
   "dependencies": {
     "ramda": "^0.24.1",

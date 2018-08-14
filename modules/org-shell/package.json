@@ -1,10 +1,10 @@
 {
   "name": "org-shell",
   "version": "1.0.0",
-  "private": true,
   "description": "",
   "main": "src/index.js",
   "keywords": [],
+  "author": "Patrick Golden <ptgolden@email.unc.edu>",
   "license": "CC0",
   "browser": {
     "querystring": "querystring-browser"
