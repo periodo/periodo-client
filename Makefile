@@ -26,7 +26,7 @@ node_modules: $(PACKAGE_JSON_FILES)
 
 $(PRODUCTION_JS_BUNDLE): $(JS_FILES) node_modules
 	NODE_ENV=production $(BIN)/browserify -d $(ENTRY) -o $(subst .min,,$@)
-	$(BIN)/minify $(subst .min,,$@) -o $@
+	$(BIN)/terser $(subst .min,,$@) -o $@ --compress --source-map "content=inline"
 
 clean:
 	rm -f index.html $(JS_BASE_NAME)*.js

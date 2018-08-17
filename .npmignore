@@ -2,5 +2,6 @@
 !images/*
 !index.html
 !*.js
+!*.js.map
 !LICENSE-3RD-PARTY
 !COPYING

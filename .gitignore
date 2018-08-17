@@ -3,4 +3,5 @@ node_modules/
 modules/**/node_modules/
 dist/*
 /periodo-client*.js
+/periodo-client*.js.map
 index.html

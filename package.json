@@ -4,7 +4,6 @@
   "author": "Patrick Golden",
   "description": "Client for browsing and editing PeriodO data.",
   "devDependencies": {
-    "babel-minify": "^0.4.3",
     "blue-tape": "^1.0.0",
     "browserify": "^16.2.2",
     "common-shakeify": "^0.5.0",
@@ -13,6 +12,7 @@
     "lerna": "^3.0.4",
     "redux-mock-store": "^1.5.3",
     "source-map": "^0.7.3",
+    "terser": "^3.8.1",
     "watchify": "^3.11.0"
   },
   "browserify": {
