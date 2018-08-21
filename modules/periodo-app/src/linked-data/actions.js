@@ -1,10 +1,11 @@
 "use strict";
 
-const N3 = require('n3')
+const { Util, Store } = require('n3')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , isURL = require('is-url')
     , makeSourceRepr = require('./utils/make_source_repr')
     , { getGraphSubject } = require('./utils/source_ld_match')
+    , ns = require('./ns')
 
 const CORS_PROXY = 'https://ptgolden.org/cors-anywhere/'
 
@@ -16,7 +17,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
       opts: Object,
     },
     response: {
-      triples: Array,
+      quads: Array,
       prefixes: Object,
     }
   },
@@ -56,9 +57,9 @@ async function _fetchLinkedData(url, type="text/turtle") {
   }
 
   const text = await resp.text()
-      , { triples, prefixes } = await parser(text)
+      , { quads, prefixes } = await parser(text)
 
-  return { triples, prefixes }
+  return { quads, prefixes }
 }
 
 function fetchLinkedData(url, opts={}) {
@@ -72,6 +73,8 @@ function fetchLinkedData(url, opts={}) {
     let resource
 
     // TODO: Add cache invalidation
+    // FIXME: This is just a plain object- not n3 terms. This might be better
+    // fixed in the database itself
     if (tryCache) {
       resource = await db.linkedDataCache.get(url)
     }
@@ -80,7 +83,7 @@ function fetchLinkedData(url, opts={}) {
       resource = await _fetchLinkedData(url, resourceMimeType)
       resource = {
         url,
-        triples: resource.triples,
+        quads: resource.quads,
         prefixes: resource.prefixes,
       }
       if (populateCache) {
@@ -88,7 +91,7 @@ function fetchLinkedData(url, opts={}) {
       }
     }
 
-    return { triples: resource.triples, prefixes: resource.prefixes }
+    return { quads: resource.quads, prefixes: resource.prefixes }
   }
 }
 
@@ -101,40 +104,36 @@ function fetchORCIDs(orcids, opts) {
       }, opts)))
     ))
 
-    const store = N3.Store()
+    const store = Store()
 
-    reqs.map(getResponse).forEach(({ triples, prefixes }) => {
-      store.addPrefixes(prefixes);
-      store.addTriples(triples);
-    })
+    reqs
+      .map(getResponse)
+      .forEach(({ quads }) => store.addQuads(quads))
 
-    const nameByORCID = {}
-
-    orcids.forEach(url => {
-      if (url.startsWith('http://')) {
-        url = 'https' + url.slice(4)
+    return orcids.reduce((acc, orcid) => {
+      if (orcid.startsWith('http://')) {
+        orcid = 'https' + orcid.slice(4)
       }
 
-      const [ literal ] = store.getObjects(url, 'rdfs:label')
+      const [ label ] = store.getQuads(orcid, ns('rdfs')('label'))
 
-      nameByORCID[url] = literal
-        ? N3.Util.getLiteralValue(literal)
-        : url
-    })
-
-    return { nameByORCID }
+      return Object.assign({}, acc, {
+        [orcid]: (label && Util.isLiteral(label.object))
+          ? label.object.value
+          : orcid
+      })
+    }, {})
   }
 }
 
 function fetchSource(url, opts) {
   return async dispatch => {
-    const store = N3.Store()
+    const store = Store()
 
     const ldReq = await dispatch(fetchLinkedData(url, opts))
-        , { triples, prefixes } = getResponse(ldReq)
+        , { quads } = getResponse(ldReq)
 
-    store.addPrefixes(prefixes);
-    store.addTriples(triples);
+    store.addQuads(quads);
 
     const source = makeSourceRepr(store, getGraphSubject(url))
 

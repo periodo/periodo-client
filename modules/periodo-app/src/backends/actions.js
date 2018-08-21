@@ -348,16 +348,11 @@ function fetchBackendHistory(storage) {
             , data = await resp.json()
             , store = N3.Store()
 
-        const { triples } = await parseJSONLD(data)
+        const { quads } = await parseJSONLD(data)
 
-        store.addPrefixes({
-          dcterms: ns.dcterms,
-          prov: ns.prov,
-          foaf: ns.foaf,
-        })
-        store.addTriples(triples);
+        store.addQuads(quads);
 
-        const [ changeList ] = store.getObjects(null, 'dcterms:provenance')
+        const [ changeList ] = store.getObjects(null, ns('dcterms:provenance'))
 
         const changes = rdfListToArray(store, changeList)
           .map(getPatchRepr.bind(null, store))

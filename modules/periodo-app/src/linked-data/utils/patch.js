@@ -2,15 +2,15 @@
 
 const R = require('ramda')
     , N3 = require('n3')
-    , ns = require('lov-ns')
+    , ns = require('../ns')
 
 function patchAgentsByRole(store, url) {
   return R.pipe(
-    () => store.getObjects(url, `${ns.prov}qualifiedAssociation`),
-    R.groupBy(assoc => store.getObjects(assoc, `${ns.prov}hadRole`)[0].split('#')[1] + 'By'),
-    R.map(([assoc]) => R.map(
+    () => store.getObjects(url, ns('prov:qualifiedAssociation')),
+    R.groupBy(association => store.getObjects(association, ns('prov:hadRole'))[0].split('#')[1] + 'By'),
+    R.map(([association]) => R.map(
       R.replace('http://', 'https://'),
-      store.getObjects(assoc, `${ns.prov}agent`)
+      store.getObjects(association, ns('prov:agent'))
     )),
 
     // TODO: Possibly take this out. Can there be more than one agent assigned
@@ -21,15 +21,15 @@ function patchAgentsByRole(store, url) {
 }
 
 function getPatchRepr(store, url) {
-  const used = store.getObjects(url, 'prov:used')
+  const used = store.getObjects(url, ns('prov:used'))
 
   const [ patchResourceURL, sourceDatasetURL ] =
     used[0].includes('patch') ? used : used.reverse()
 
-  const [ patchURL ] = store.getObjects(patchResourceURL, 'foaf:page')
+  const [ patchURL ] = store.getObjects(patchResourceURL, ns('foaf:page'))
 
   const time = R.pipe(
-    () => store.getObjects(url, 'prov:startedAtTime'),
+    () => store.getObjects(url, ns('prov:startedAtTime')),
     R.head,
     N3.Util.getLiteralValue,
   )()

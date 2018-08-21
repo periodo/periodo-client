@@ -1,32 +1,38 @@
 "use strict";
 
-const { getLiteralValue } = require('n3/lib/N3Util')
+const ns = require('../ns')
+
+const expand = ns.withPrefixes({
+  schema: 'http://schema.org/',
+})
 
 
-const sourceFields = new Map()
-  .set('title', [
-    'http://purl.org/dc/terms/title',
-    'http://schema.org/name'
-  ])
-  .set('yearPublished', [
-    'http://purl.org/dc/terms/date',
-    'http://schema.org/datePublished'
-  ])
-  .set('creators', [
-    'http://purl.org/dc/terms/creator',
-    'http://schema.org/creator'
-  ])
-  .set('contributors', [
-    'http://purl.org/dc/terms/contributor',
-    'http://schema.org/contributor',
-    'http://schema.org/editor'
-  ])
+const sourceFields = {
+  title: [
+    expand('dc:title'),
+    expand('schema:name'),
+  ],
+  yearPublished: [
+    expand('dc:date'),
+    expand('schema:datePublished'),
+  ],
+  creators: [
+    expand('dc:creator'),
+    expand('schema:creator'),
+  ],
+  contributors: [
+    expand('dc:contributor'),
+    expand('schema:contributor'),
+    expand('schema:editor'),
+  ],
+}
 
-const contributorFields = new Map()
-  .set('name', [
-    'http://xmlns.com/foaf/0.1/name',
-    'http://schema.org/name'
-  ])
+const contributorFields = {
+  name: [
+    expand('foaf:name'),
+    expand('schema:name'),
+  ]
+}
 
 
 /*
@@ -38,9 +44,9 @@ const contributorFields = new Map()
 // Given a store and a subject URI, iterate through the candidate predicate
 // URIs, and return the triples of the first predicate which matches the pattern
 // s-p-? in the store.
-function matchFromPredicateList(store, subjectURI, predicateURIs) {
-  for (const predicateURI of predicateURIs) {
-    const match = store.getTriplesByIRI(subjectURI, predicateURI, null);
+function matchFromPredicateList(store, subject, predicates) {
+  for (const predicate of predicates) {
+    const match = store.getQuads(subject, predicate)
 
     if (match.length) return match
   }
@@ -52,25 +58,30 @@ function firstObjectLiteral(triples) {
   return getLiteralValue(triples[0].object)
 }
 
-module.exports = function makeSourceRepr(store, entity) {
-  const source = { id: entity }
+module.exports = function makeSourceRepr(store, sourceNode) {
+  const source = { id: sourceNode.id }
 
-  Array.from(sourceFields).forEach(([field, preds]) => {
-    const triples = matchFromPredicateList(store, entity, preds)
+  Object.entries(sourceFields).forEach(([field, preds]) => {
+    const quads = matchFromPredicateList(store, sourceNode, preds)
 
-    if (!triples) return;
+    if (!quads) return;
 
     if (field !== 'creators' && field !== 'contributors') {
-      source[field] = firstObjectLiteral(triples)
+      source[field] = quads[0].object.value
       return
     }
 
-    const agents = triples.map(triple => {
-      const agent = { id: triple.object }
-          , nameTriples = matchFromPredicateList(store, agent.id, contributorFields.get('name'))
+    const agents = quads.map(quad => {
+      const agent = { id: quad.object.id }
 
-      if (nameTriples) {
-        agent.name = firstObjectLiteral(nameTriples)
+      const nameQuads = matchFromPredicateList(
+        store,
+        quad.object,
+        contributorFields.name
+      )
+
+      if (nameQuads) {
+        agent.name = nameQuads[0].object.value
       }
 
       return agent;

@@ -1,23 +1,23 @@
 "use strict";
 
-const N3Parser = require('n3/lib/N3Parser')
+const { Parser } = require('n3')
 
 /*
  * Given a string of turtle, TriG, N-Triples, or N-Quads, returns a promise
  * that resolves with an object containing the resulting triples and prefixes.
  */
 module.exports = function (rdf) {
-  const parser = N3Parser()
-      , triples = []
+  const parser = Parser()
+      , quads = []
 
   return new Promise((resolve, reject) => {
-    parser.parse(rdf, (err, triple, prefixes) => {
+    parser.parse(rdf, (err, quad, prefixes) => {
       if (err) {
         reject(err);
-      } else if (triple) {
-        triples.push(triple);
+      } else if (quad) {
+        quads.push(quad);
       } else {
-        resolve({ triples, prefixes });
+        resolve({ quads, prefixes });
       }
     });
   });

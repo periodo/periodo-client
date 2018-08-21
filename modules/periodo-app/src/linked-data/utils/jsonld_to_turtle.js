@@ -1,7 +1,10 @@
 "use strict";
 
 const jsonld = require('jsonld')
-    , N3Writer = require('n3/lib/N3Writer')
+    , ns = require('../ns')
+    , { Parser, Writer, DataFactory } = require('n3')
+    , N3 = require('n3')
+    , parseRDF = require('./parse_rdf')
 
 const PREFIXES = {
   skos: 'http://www.w3.org/2004/02/skos/core#',
@@ -45,29 +48,25 @@ function processStatement(statement) {
   return val;
 }
 
-module.exports = function (jsonldData) {
+module.exports = async function (jsonldData) {
+  const parser = Parser()
+      , writer = Writer({ prefixes: ns.prefixes })
+
+  const rdf = await jsonld.promises.toRDF(jsonldData, { format: 'application/nquads' })
+      , { quads } = await parseRDF(rdf)
+
+  writer.addQuads(quads)
+
+  debugger;
+
   return new Promise((resolve, reject) => {
-    jsonld.toRDF(jsonldData, (err, dataset) => {
-      const writer = N3Writer()
-
-      writer.addPrefixes(PREFIXES)
-
+    writer.end((err, result) => {
       if (err) reject(err);
+      result = result
+        .replace(/\n</g, '\n\n<')
+        .replace(/(\n<.*?>) /g, "$1\n    ")
 
-      dataset['@default'].forEach(triple => writer.addTriple({
-        subject: processStatement(triple.subject),
-        predicate: processStatement(triple.predicate),
-        object: processStatement(triple.object)
-      }));
-
-      writer.end((err, result) => {
-        if (err) reject(err);
-        result = result
-          .replace(/\n</g, '\n\n<')
-          .replace(/(\n<.*?>) /g, "$1\n    ")
-
-        resolve(result);
-      });
+      resolve(result);
     });
-  });
+  })
 }

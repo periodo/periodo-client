@@ -8,25 +8,41 @@ const test = require('blue-tape')
 test('Generating a textual representation of a graph with a document', async t => {
   const store = N3.Store()
 
-  store.addPrefixes(ns)
+  const expand = ns.withPrefixes({
+    '': 'http://example.com/'
+  })
 
-  store.addTriple(':source', ns.dc + 'title', '"Computation and Human Experience"')
-  store.addTriple(':source', ':irrelevant', ':triple')
+  store.addQuad(
+    expand(':source'),
+    expand('dc:title'),
+    '"Computation and Human Experience"')
 
-  t.deepEqual(makeSourceRepr(store, ':source'), {
-    id: ':source',
+  store.addQuad(
+    expand(':source'),
+    expand(':irrelevant'),
+    expand(':statement'))
+
+  t.deepEqual(makeSourceRepr(store, expand(':source')), {
+    id: 'http://example.com/source',
     title: 'Computation and Human Experience',
   })
 
-  store.addTriple(':source', ns.dc + 'creator', ':auth1')
-  store.addTriple(':auth1', ns.foaf + 'name', '"Philip Agre"')
+  store.addQuad(
+    expand(':source'),
+    expand('dc:creator'),
+    expand(':auth1'))
 
-  t.deepEqual(makeSourceRepr(store, ':source'), {
-    id: ':source',
+  store.addQuad(
+    expand(':auth1'),
+    expand('foaf:name'),
+    '"Philip Agre"')
+
+  t.deepEqual(makeSourceRepr(store, expand(':source')), {
+    id: expand(':source').id,
     title: 'Computation and Human Experience',
     creators: [
       {
-        id: ':auth1',
+        id: expand(':auth1').id,
         name: 'Philip Agre'
       }
     ]

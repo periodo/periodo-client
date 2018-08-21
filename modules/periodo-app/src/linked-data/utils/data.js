@@ -12,21 +12,23 @@ function prefixLines(text, prefix) {
 }
 
 function inlineBlankNodes(blankNodesMap, ttl) {
-  const regex = /^(\s+)([^ ]+ )(_:b\d+)/gm
+  const regex = /^(\s+)([^ ]+ )(_:b\w+)/gm
 
   const inlined = ttl.replace(regex, (match, whitespace, predicate, blankNode) => {
     return (
       whitespace + predicate + '[\n' +
-      prefixLines(blankNodesMap[blankNode], whitespace + '  ') +
+      prefixLines(blankNodesMap[blankNode.trim()], whitespace + '  ') +
       '\n' + whitespace + ']'
     )
   });
 
-  return regex.test(inlined) ? inlineBlankNodes(blankNodesMap, inlined) : inlined;
+  return regex.test(inlined)
+    ? inlineBlankNodes(blankNodesMap, inlined)
+    : inlined.trim()
 }
 
 function replaceBlankNodes(ttl) {
-  const regex = /^(_:b\d+) ([\s\S]+?)\.$/gm
+  const regex = /^(_:b[^ ]+) ([\s\S]+?)\.$/gm
       , nodes = {}
 
   let strippedTtl = ttl.replace(regex, (match, nodeName, nodeValue) => {
