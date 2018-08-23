@@ -57,8 +57,28 @@ function rdfListToArray(store, headNode) {
   return arr;
 }
 
+function nsExpander(prefixes) {
+  const n3fn = N3.Util.prefixes(prefixes)
+
+  function expandNS(arg) {
+    const colonPos = arg.indexOf(':')
+
+    return colonPos > -1
+      ? n3fn(arg.slice(0, colonPos))(arg.slice(colonPos + 1))
+      : n3fn(arg)
+  }
+
+  return Object.assign(expandNS, {
+    prefixes,
+    withPrefixes(extra) {
+      return nsExpander(Object.assign({}, prefixes, extra))
+    }
+  })
+}
+
 module.exports = {
   rdfToStore,
   findOne,
   rdfListToArray,
+  nsExpander,
 }
