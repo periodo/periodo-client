@@ -12,7 +12,7 @@ const R = require('ramda')
     , { NotImplementedError } = require('../errors')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , LinkedDataAction = require('../linked-data/actions')
-    , { rdfListToArray } = require('../linked-data/utils/n3')
+    , { rdfListToArray } = require('org-n3-utils')
     , { getPatchRepr } = require('../linked-data/utils/patch')
     , parseJSONLD = require('../linked-data/utils/parse_jsonld')
 

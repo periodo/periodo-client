@@ -12,7 +12,7 @@ function prefixLines(text, prefix) {
 }
 
 function inlineBlankNodes(blankNodesMap, ttl) {
-  const regex = /^(\s+)([^ ]+ )(_:b\w+)/gm
+  const regex = /^(\s+)([^ ]+ )(_:n3-\w+)/gm
 
   const inlined = ttl.replace(regex, (match, whitespace, predicate, blankNode) => {
     return (
@@ -28,7 +28,7 @@ function inlineBlankNodes(blankNodesMap, ttl) {
 }
 
 function replaceBlankNodes(ttl) {
-  const regex = /^(_:b[^ ]+) ([\s\S]+?)\.$/gm
+  const regex = /^(_:n3-[^ ]+) ([\s\S]+?)\.$/gm
       , nodes = {}
 
   let strippedTtl = ttl.replace(regex, (match, nodeName, nodeValue) => {

@@ -1,11 +1,29 @@
 "use strict";
 
-const { namedNode } = require('n3').DataFactory
+const N3 = require('n3')
+    , { namedNode } = N3.DataFactory
 
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
     , rdfNil = namedNode(RDF + 'nil')
     , rdfFirst = namedNode(RDF + 'first')
     , rdfRest = namedNode(RDF + 'rest')
+
+async function rdfToStore(rdfString) {
+  const parser = N3.Parser()
+      , store = N3.Store()
+
+  return new Promise((resolve, reject) => {
+    parser.parse(rdfString, (err, quad, prefixes) => {
+      if (err) {
+        reject(err);
+      } else if (quad) {
+        store.addQuad(quad);
+      } else {
+        resolve({ store, prefixes });
+      }
+    })
+  })
+}
 
 function findOne(store, s, p, o) {
   let ret = null
@@ -40,6 +58,7 @@ function rdfListToArray(store, headNode) {
 }
 
 module.exports = {
+  rdfToStore,
   findOne,
   rdfListToArray,
 }

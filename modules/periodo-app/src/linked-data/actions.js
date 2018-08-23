@@ -1,11 +1,15 @@
 "use strict";
 
-const { Util, Store } = require('n3')
+const R = require('ramda')
+    , { Util } = require('n3')
     , { makeTypedAction, getResponse } = require('org-async-actions')
+    , N3 = require('n3')
     , isURL = require('is-url')
     , makeSourceRepr = require('./utils/make_source_repr')
     , { getGraphSubject } = require('./utils/source_ld_match')
     , ns = require('./ns')
+    , jsonldToStore = require('./utils/parse_jsonld')
+    , { rdfToStore } = require('org-n3-utils')
 
 const CORS_PROXY = 'https://ptgolden.org/cors-anywhere/'
 
@@ -17,7 +21,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
       opts: Object,
     },
     response: {
-      quads: Array,
+      store: Object,
       prefixes: Object,
     }
   },
@@ -32,18 +36,26 @@ const LinkedDataAction = module.exports = makeTypedAction({
     }
   },
 
+  FetchSource: {
+    exec: fetchSource,
+    request: {
+      orcids: Array,
+    },
+    response: {
+      nameByORCID: Object,
+    }
+  },
+
   ClearLinkedDataCache: {
     exec: clearLinkedDataCache,
     request: {},
     response: {},
-  }
+  },
 })
 
 async function _fetchLinkedData(url, type="text/turtle") {
   // TODO: Validate the type here... or base it off of the extension on the URL
-  const parser = type === 'application/json+ld'
-    ? require('./utils/parse_jsonld')
-    : require('./utils/parse_rdf')
+  const parser = type === 'application/json+ld' ? jsonldToStore : rdfToStore
 
   const resp = await fetch(CORS_PROXY + url, {
     mode: 'cors',
@@ -57,9 +69,9 @@ async function _fetchLinkedData(url, type="text/turtle") {
   }
 
   const text = await resp.text()
-      , { quads, prefixes } = await parser(text)
+      , { store, prefixes={} } = await parser(text)
 
-  return { quads, prefixes }
+  return { store, prefixes }
 }
 
 function fetchLinkedData(url, opts={}) {
@@ -70,72 +82,76 @@ function fetchLinkedData(url, opts={}) {
       resourceMimeType='text/turtle'
     } = opts
 
-    let resource
+    let store
 
     // TODO: Add cache invalidation
     // FIXME: This is just a plain object- not n3 terms. This might be better
     // fixed in the database itself
     if (tryCache) {
-      resource = await db.linkedDataCache.get(url)
+      const { quads } = await db.linkedDataCache.get(url)
+
+      store = N3.Store()
+      store.addQuads(quads)
     }
 
-    if (!resource) {
-      resource = await _fetchLinkedData(url, resourceMimeType)
-      resource = {
-        url,
-        quads: resource.quads,
-        prefixes: resource.prefixes,
-      }
+    if (!store) {
+      store = (await _fetchLinkedData(url, resourceMimeType)).store
+
       if (populateCache) {
-        await db.linkedDataCache.put(resource)
+        await db.linkedDataCache.put({
+          url,
+          quads: store.getQuads().map(quad => {
+            ['subject', 'object'].forEach(part => {
+              const term = quad[part]
+              if (term.termType === 'BlankNode') {
+                term.value = ''
+              }
+            })
+          }),
+        })
       }
     }
 
-    return { quads: resource.quads, prefixes: resource.prefixes }
+    return { store }
   }
 }
 
 function fetchORCIDs(orcids, opts) {
   return async (dispatch) => {
-    const reqs = await Promise.all(orcids.map(url =>
-      dispatch(LinkedDataAction.FetchLinkedData(url, Object.assign({
-        tryCache: true,
-        populateCache: true
-      }, opts)))
-    ))
-
-    const store = Store()
-
-    reqs
-      .map(getResponse)
-      .forEach(({ quads }) => store.addQuads(quads))
-
-    return orcids.reduce((acc, orcid) => {
+    const pairs = await Promise.all(orcids.map(async orcid => {
       if (orcid.startsWith('http://')) {
         orcid = 'https' + orcid.slice(4)
       }
 
-      const [ label ] = store.getQuads(orcid, ns('rdfs')('label'))
+      const req = dispatch(LinkedDataAction.FetchLinkedData(orcid, Object.assign({
+        tryCache: true,
+        populateCache: true
+      }, opts)))
 
-      return Object.assign({}, acc, {
-        [orcid]: (label && Util.isLiteral(label.object))
-          ? label.object.value
-          : orcid
-      })
-    }, {})
+      const { store } = getResponse(req)
+
+      let [ label ] = store.getQuads(orcid, ns('rdfs')('label'))
+
+      label = (label && Util.isLiteral(label.object))
+        ? label.object.value
+        : orcid
+
+      return [ orcid, label ]
+    }))
+
+    return R.fromPairs(pairs)
   }
 }
 
 function fetchSource(url, opts) {
   return async dispatch => {
-    const store = Store()
+    const req = await dispatch(LinkedDataAction.FetchLinkedData(url, Object.assign({
+      tryCache: true,
+      populateCache: true,
+    }, opts)))
 
-    const ldReq = await dispatch(fetchLinkedData(url, opts))
-        , { quads } = getResponse(ldReq)
-
-    store.addQuads(quads);
-
-    const source = makeSourceRepr(store, getGraphSubject(url))
+    const { store } = getResponse(req)
+        , source = makeSourceRepr(store, getGraphSubject(url))
 
     return { source }
   }

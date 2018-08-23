@@ -1,25 +1,14 @@
 "use strict";
 
-const jsonld = require('jsonld')
+const parseJSONLD = require('./parse_jsonld')
     , ns = require('../ns')
     , N3 = require('n3')
 
 module.exports = async function (jsonldData) {
-  const store = N3.Store()
-      , writer = N3.Writer({ prefixes: ns.prefixes })
+  const writer = N3.Writer({ prefixes: ns.prefixes })
 
-  const quads = await jsonld.promises.toRDF(jsonldData)
+  const { store } = await parseJSONLD(jsonldData)
 
-  quads.forEach(quad => {
-    ['subject', 'object'].forEach(part => {
-      const term = quad[part]
-      if (term.termType === 'BlankNode') {
-        term.value = term.value.slice(2)
-      }
-    })
-  })
-
-  store.addQuads(quads)
   writer.addQuads(store.getQuads())
 
   return new Promise((resolve, reject) => {
