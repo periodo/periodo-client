@@ -1,6 +1,6 @@
 {
   "name": "periodo-utils",
-  "version": "5.0.0-pre2",
+  "version": "5.0.0",
   "private": true,
   "description": "",
   "main": "src/index.js",

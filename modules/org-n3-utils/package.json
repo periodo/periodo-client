@@ -1,6 +1,6 @@
 {
   "name": "org-n3-utils",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Utilities for working with RDF data from N3",
   "main": "src/index.js",
   "keywords": [],
