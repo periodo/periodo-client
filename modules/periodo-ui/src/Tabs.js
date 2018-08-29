@@ -5,12 +5,13 @@ const h = require('react-hyperscript')
 
 const TabItem = ({ label, isSelected, isLast, onClick }) =>
   h(Box, {
-    p: 2,
+    p: 3,
     center: true,
     border: 1,
-    borderColor: 'gray4',
+    borderColor: 'gray.4',
     onClick,
     fontSize: 4,
+    textAlign: 'center',
     css: Object.assign({
       borderRadius: '6px 6px 0 0',
       flexGrow: 1,
@@ -47,10 +48,10 @@ exports.Tabs = props =>
     h(Box, props.tabs.map(({ id, element }) => 
       h(Box, {
         key: id,
-        p: 2,
+        p: 24,
         border: 1,
         borderTop: 0,
-        borderColor: 'gray4',
+        borderColor: 'gray.4',
         display: props.value === id ? 'none' : 'block'
       }, element)
     ))

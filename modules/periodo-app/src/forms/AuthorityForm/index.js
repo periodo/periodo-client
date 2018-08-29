@@ -68,6 +68,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
           h(Box, { width: .48 }, [
             h(InputBlock, {
               label: 'Locator',
+              mb: 4,
               disabled: !value.source,
               value: (value.source || {}).locator || '',
               onChange: cancel || R.pipe(
@@ -83,7 +84,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
             }),
 
             h(TextareaBlock, {
-              mt: 2,
+              mb: 4,
               name: 'editorial-note',
               label: 'Editorial notes',
               helpText: 'Notes about importing this source',
@@ -95,18 +96,18 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
                 onValueChange
               )
             }),
+
+            h(Box, {
+              align: 'right',
+              bg: 'gray1',
+            }, [
+              h(Button$Primary, {
+                onClick: () => this.props.validate(value, this.props.onValidated)
+              }, 'Save'),
+            ]),
           ]),
         ]),
 
-        h(Box, {
-          bg: 'gray1',
-          p: 2,
-          mt: 2,
-        }, [
-          h(Button$Primary, {
-            onClick: () => this.props.validate(value, this.props.onValidated)
-          }, 'Save'),
-        ]),
       ])
     )
   }

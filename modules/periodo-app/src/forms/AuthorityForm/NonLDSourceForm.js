@@ -37,6 +37,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
     return (
       h(Box, [
         h(TextareaBlock, {
+          my: 3,
           name: 'citation',
           label: 'Citation (required)',
           helpText: `Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.`,
@@ -47,6 +48,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
 
 
         h(InputBlock, {
+          my: 3,
           name: 'title',
           label: 'Title',
           value: value.title || '',
@@ -54,6 +56,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
         }),
 
         h(InputBlock, {
+          my: 3,
           name: 'url',
           label: 'URL',
           value: value.url || '',
@@ -61,6 +64,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
         }),
 
         h(InputBlock, {
+          my: 3,
           name: 'sameAs',
           label: 'Same as (read-only)',
           value: value.sameAs || '',
@@ -68,6 +72,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
         }),
 
         h(InputBlock, {
+          my: 3,
           name: 'yearPublished',
           label: 'Year published',
           value: value.yearPublished || '',
@@ -78,7 +83,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
         ['creators', 'contributors'].map(field => {
           const list = R.defaultTo(R.prop(field, value), [emptyCreator])
 
-          return h(Box, { key: field }, [
+          return h(Box, { key: field, mt: 3, }, [
             h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
             h(Box, list.map((agent, i) =>
               h(Flex, { key: field + i }, [

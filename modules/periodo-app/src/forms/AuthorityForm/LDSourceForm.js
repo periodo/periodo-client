@@ -29,13 +29,17 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
       h(Box, [
         h(Text, 'Paste text in the block below that contains one of the following'),
 
-        h(Box, { is: 'ul' }, [
-          h(Box, { is: 'li' }, [
+        h(Box, {
+          is: 'ul',
+          ml: 3,
+          mb: 3,
+        }, [
+          h(Box, { is: 'li', mt: 1 }, [
             'A URL of a record in the ',
             h(Link, { href: 'https://worldcat.org' }, 'WorldCat database'),
           ]),
 
-          h(Box, { is: 'li' }, [
+          h(Box, { is: 'li', my: 1 }, [
             'A DOI contained in the ',
             h(Link, { href: 'https://search.crossref.org' }, 'CrossRef database')
           ]),
