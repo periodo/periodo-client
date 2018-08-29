@@ -13,6 +13,9 @@ const R = require('ramda')
 
 const CORS_PROXY = 'https://ptgolden.org/cors-anywhere/'
 
+// TODO: Remove concept of prefixes. Just rely on our own prefixes defined
+// ahead of time. We should only abbreviate what we expect, anyway.
+
 const LinkedDataAction = module.exports = makeTypedAction({
   FetchLinkedData: {
     exec: fetchLinkedData,
@@ -39,10 +42,11 @@ const LinkedDataAction = module.exports = makeTypedAction({
   FetchSource: {
     exec: fetchSource,
     request: {
-      orcids: Array,
+      url: isURL,
+      opts: Object,
     },
     response: {
-      nameByORCID: Object,
+      source: Object,
     }
   },
 
@@ -88,10 +92,14 @@ function fetchLinkedData(url, opts={}) {
     // FIXME: This is just a plain object- not n3 terms. This might be better
     // fixed in the database itself
     if (tryCache) {
-      const { quads } = await db.linkedDataCache.get(url)
+      const obj = await db.linkedDataCache.get(url)
 
-      store = N3.Store()
-      store.addQuads(quads)
+      if (obj) {
+        const { quads } = obj
+
+        store = N3.Store()
+        store.addQuads(quads)
+      }
     }
 
     if (!store) {
@@ -112,7 +120,7 @@ function fetchLinkedData(url, opts={}) {
       }
     }
 
-    return { store }
+    return { store, prefixes: {} }
   }
 }
 
@@ -146,7 +154,7 @@ function fetchORCIDs(orcids, opts) {
 function fetchSource(url, opts) {
   return async dispatch => {
     const req = await dispatch(LinkedDataAction.FetchLinkedData(url, Object.assign({
-      tryCache: true,
+      tryCache: false,
       populateCache: true,
     }, opts)))
 

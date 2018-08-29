@@ -59,7 +59,7 @@ function firstObjectLiteral(triples) {
 }
 
 module.exports = function makeSourceRepr(store, sourceNode) {
-  const source = { id: sourceNode.id }
+  const source = { id: sourceNode }
 
   Object.entries(sourceFields).forEach(([field, preds]) => {
     const quads = matchFromPredicateList(store, sourceNode, preds)

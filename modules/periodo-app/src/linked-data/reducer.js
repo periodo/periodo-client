@@ -17,6 +17,10 @@ module.exports = function linkedData(state=initialState(), action) {
         return state
       },
 
+      FetchSource() {
+        return state
+      },
+
       FetchORCIDs() {
         const { nameByORCID } = resp
 

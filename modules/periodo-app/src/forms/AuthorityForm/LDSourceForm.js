@@ -5,24 +5,26 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Icon = require('react-geomicons').default
     , Spinner = require('respin')
-    , AsyncRequestor = require('../../linked-data/AsyncRequestor')
+    , { connect } = require('react-redux')
     , { Box, Text, Textarea } = require('periodo-ui')
-    , { fetchLD, match } = require('../../linked-data/utils/source_ld_match')
+    , { asURL, match } = require('../../linked-data/utils/source_ld_match')
+    , LinkedDataAction = require('../../linked-data/actions')
     , { Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
 
 
-const LDInput = AsyncRequestor(class LDInput extends React.Component {
+class LDInput extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      input: ''
+      input: '',
+      readyState: null,
     }
   }
 
   render() {
-    const { input } = this.state
-        , { doRequest, clearRequest, readyState, onNextCompletion, onValueChange } = this.props
+    const { input, readyState } = this.state
+        , { dispatch, onValueChange } = this.props
         , sourceMatch = match(input)
 
     return (
@@ -55,14 +57,18 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
         h(Button$Primary, {
           disabled: sourceMatch === null,
           onClick: () => {
-            clearRequest(() => {
-              onNextCompletion((err, value) => {
-                if (!err) {
-                  onValueChange(value)
-                }
-              })
+            const url = asURL(sourceMatch)
+                , req = dispatch(LinkedDataAction.FetchSource(url, {}))
 
-              doRequest(fetchLD, sourceMatch);
+            this.setState({ readyState: req.readyState })
+
+            req.then(resp => {
+              resp.readyState.case({
+                Success: ({ source }) => {
+                  onValueChange(source)
+                },
+                _: () => null,
+              })
             })
           }
         }, h(Icon, { name: 'refresh' })),
@@ -84,14 +90,15 @@ const LDInput = AsyncRequestor(class LDInput extends React.Component {
       ])
     )
   }
-})
+}
 
-const LinkedDataSourceForm = ({ value, onValueChange }) =>
+const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
   h(Box, [
     value
       ? h(Box, [
-          h(Source, { source: value }),
-          h(Box, [
+          console.log(value),
+          h(Source, { value }),
+          h(Box, { mt: 3 }, [
             h(Text, 'Incorrect source?'),
             h(Box, [
               h(Button$Danger, {
@@ -102,7 +109,7 @@ const LinkedDataSourceForm = ({ value, onValueChange }) =>
             ])
           ]),
         ])
-      : h(LDInput, { onValueChange })
+      : h(LDInput, { dispatch, onValueChange })
   ])
 
-module.exports = AsyncRequestor(LinkedDataSourceForm)
+module.exports = connect()(LinkedDataSourceForm)
