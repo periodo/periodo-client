@@ -29,7 +29,7 @@ module.exports = function periodoDB(dexieOpts) {
 
     if (global.location && global.location.hostname.startsWith('client.')) {
       const backend = {
-        url: global.location.hostname.replace('client.', 'data.'),
+        url: global.location.origin.replace('client.', 'data.'),
 
         // See above
         created: new Date(),
