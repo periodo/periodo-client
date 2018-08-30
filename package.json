@@ -1,6 +1,6 @@
 {
   "name": "periodo-client",
-  "version": "3.0.0-pre.5",
+  "version": "3.0.0",
   "author": "Patrick Golden",
   "description": "Client for browsing and editing PeriodO data.",
   "devDependencies": {
