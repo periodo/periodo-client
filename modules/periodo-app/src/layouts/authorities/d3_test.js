@@ -13,6 +13,29 @@ const d = {
 
 const MIN_HEIGHT = 420
 
+function roundToUnit(num, unit, floor=true) {
+  let multiplier = Math.floor(num / unit)
+
+  multiplier = floor
+    ? Math.floor(multiplier) - 1
+    : Math.ceil(multiplier) + 1
+
+  return unit * multiplier
+}
+
+function domainUnit(num, floor=true) {
+  if (Math.abs(num) > 1000000) return num
+
+  const pow = num.toString().length
+
+  let unit = Math.pow(10, pow)
+
+  if (unit === 1) unit = 10
+
+  return roundToUnit(num, unit * .5, floor)
+}
+
+
 module.exports = blocks.DOM({
   label: 'D3 test',
   description: 'd3 component with init/update/destroy methods',
@@ -118,7 +141,7 @@ module.exports = blocks.DOM({
       _periods.push([earliest, latest])
     })
 
-    this.scale.x.domain([min, max])
+    this.scale.x.domain([domainUnit(min), domainUnit(max, false)])
     this.scale.y.domain([0, periods.length])
 
     this.axisG.x.transition().duration(256).call(this.getXAxis())
