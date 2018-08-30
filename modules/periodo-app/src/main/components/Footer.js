@@ -1,10 +1,9 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Box } = require('periodo-ui')
-
-// , version = require('../../../package.json').version
-// , href = `https://github.com/periodo/periodo-client/tree/v${version}`
+    , { Flex, Box, Link } = require('periodo-ui')
+   , version = require('../../../../../package.json').version
+   , href = `https://github.com/periodo/periodo-client/tree/v${version}`
 
 
 const Logo = ({ href, title, src, height=44 }) =>
@@ -17,7 +16,6 @@ const Logo = ({ href, title, src, height=44 }) =>
 const Footer = props =>
   h(Box.withComponent('footer'), props, [
     h(Flex, {
-      height: '100%',
       justifyContent: 'space-around',
       alignItems: 'center',
     }, [
@@ -28,13 +26,21 @@ const Footer = props =>
         height: 80
       }),
 
-      h(Logo, {
-        href: 'http://neh.gov',
-        title: 'National Endowment for the Humanities',
-        src: 'images/neh-logo.svg',
-        height: 60
-      }),
-    ])
+      h(Box, [
+        h(Logo, {
+          href: 'http://neh.gov',
+          title: 'National Endowment for the Humanities',
+          src: 'images/neh-logo.svg',
+          height: 60
+        }),
+
+        h(Box, { mt: 2, align: 'right' }, [
+          'Client version ',
+          h(Link, { href }, version)
+        ]),
+      ]),
+    ]),
+
   ])
 
 /*
