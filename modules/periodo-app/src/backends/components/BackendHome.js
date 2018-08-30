@@ -3,12 +3,12 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box, Text } = require('periodo-ui')
+    , { Tabs, Flex, Box, Text } = require('periodo-ui')
     , { LayoutEditor } = require('org-layouts')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , blocks = require('../../layouts/authorities/blocks')
 
-const defaultLayout = `
+const periodLayout = `
 grid-template-columns = 2fr 1fr
 grid-template-rows = repeat(4, auto)
 grid-gap = 1em 1.66em
@@ -35,57 +35,48 @@ grid-column = 1/2
 grid-row = 1/5
 `
 
-const _defaultLayout = `
-grid-gap = 1em 2.5em
-grid-template-columns = 1fr 1fr
-
-[HumanTime]
-type = time-cutoff
-grid-column = 2/3
-grid-row = 1/2
-
-[Search]
-type = text-search
-grid-column = 1/2
-grid-row = 1/2
-
+const authorityLayout = `
 [AuthorityList]
 type = authority-list
-grid-column = 1/2
-grid-row = 2/3
-limit = 10
-
-[Timeline]
-type = timespan-visualization
-grid-column = 2/3
-grid-row = 2/3
-
-[PeriodList]
-type = period-list
-grid-column = 1/3
-grid-row = 3/4
-limit = 25
-`.trim()
+`
 
 
 module.exports = class BackendHome extends React.Component {
+  /*
   constructor() {
     super();
 
     this.state = {
-      layout: defaultLayout,
-      editingLayout: defaultLayout,
+      //layout: defaultLayout,
+      //editingLayout: defaultLayout,
       showEdit: false,
     }
   }
+  */
 
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { Layout={} } = this.props.opts
-        , { layout } = this.state
+        , { Layout={}, Tab='Periods' } = this.props.opts
+        //, { layout } = this.state
+
+    const layout = Tab === 'Periods'
+      ? periodLayout
+      : authorityLayout
+
+    const el = h(AuthorityLayoutRenderer, {
+      layout,
+      backend,
+      dataset,
+      blockOpts: Layout,
+      onBlockOptsChange: updatedOpts =>
+        R.isEmpty(updatedOpts)
+          ? updateOpts(R.dissoc('Layout'))
+          : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
+    })
 
     return (
       h(Box, [
+        /*
         h(Flex, {
           justifyContent: 'space-around',
           pb: 2,
@@ -136,19 +127,27 @@ module.exports = class BackendHome extends React.Component {
           is: 'hr',
           mt: 2,
         }),
+        */
 
-        h(Box, { pt: 2 }, [
-          h(AuthorityLayoutRenderer, {
-            layout,
-            backend,
-            dataset,
-            blockOpts: Layout,
-            onBlockOptsChange: updatedOpts =>
-              R.isEmpty(updatedOpts)
-                ? updateOpts(R.dissoc('Layout'))
-                : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
-          }),
-        ]),
+        h(Tabs, {
+          pt: 2,
+          value: Tab,
+          onChange: val => {
+            updateOpts(R.assoc('Tab', val))
+          },
+          tabs: [
+            {
+              id: 'Periods',
+              label: 'Periods',
+              element: el,
+            },
+            {
+              id: 'Authorities',
+              label: 'Authorities',
+              element: el,
+            }
+          ]
+        }),
       ])
     )
   }
