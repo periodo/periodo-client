@@ -97,7 +97,7 @@ function fetchLinkedData(url, opts={}) {
       if (obj) {
         const { quads } = obj
 
-        store = N3.Store()
+        store = new N3.Store()
         store.addQuads(quads)
       }
     }

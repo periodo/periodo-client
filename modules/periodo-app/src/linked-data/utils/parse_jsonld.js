@@ -6,7 +6,7 @@ const N3 = require('n3')
 module.exports = async function (doc) {
   if (typeof doc === 'string') doc = JSON.parse(doc)
 
-  const store = N3.Store()
+  const store = new N3.Store()
       , quads = await jsonld.promises.toRDF(doc)
 
   const replacements = {}

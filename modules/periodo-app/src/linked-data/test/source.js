@@ -6,7 +6,7 @@ const test = require('blue-tape')
     , makeSourceRepr = require('../utils/make_source_repr')
 
 test('Generating a textual representation of a graph with a document', async t => {
-  const store = N3.Store()
+  const store = new N3.Store()
 
   const expand = ns.withPrefixes({
     '': 'http://example.com/'

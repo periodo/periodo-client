@@ -5,7 +5,7 @@ const parseJSONLD = require('./parse_jsonld')
     , N3 = require('n3')
 
 module.exports = async function (jsonldData) {
-  const writer = N3.Writer({ prefixes: ns.prefixes })
+  const writer = new N3.Writer({ prefixes: ns.prefixes })
 
   const { store } = await parseJSONLD(jsonldData)
 

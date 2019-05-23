@@ -346,7 +346,7 @@ function fetchBackendHistory(storage) {
       Web: async url => {
         const resp = await fetchServerResource(url, 'history.jsonld?inline-context')
             , data = await resp.json()
-            , store = N3.Store()
+            , store = new N3.Store()
 
         const { quads } = await parseJSONLD(data)
 
