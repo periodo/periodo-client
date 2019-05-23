@@ -17,7 +17,7 @@ watch: node_modules
 	sed -e 's/JS-FILENAME/$(DEVELOPMENT_JS_BUNDLE)/' index.TEMPLATE.html > index.html
 	$(BIN)/watchify $(ENTRY) -o $(DEVELOPMENT_JS_BUNDLE) -dv
 
-test:
+test: node_modules
 	npm test
 
 node_modules: $(PACKAGE_JSON_FILES)
