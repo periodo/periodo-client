@@ -22,7 +22,7 @@ test('Generating a textual representation of a graph with a document', async t =
     expand(':irrelevant'),
     expand(':statement'))
 
-  t.deepEqual(makeSourceRepr(store, expand(':source')), {
+  t.deepEqual(makeSourceRepr(store, expand(':source').id), {
     id: 'http://example.com/source',
     title: 'Computation and Human Experience',
   })
@@ -37,7 +37,7 @@ test('Generating a textual representation of a graph with a document', async t =
     expand('foaf:name'),
     '"Philip Agre"')
 
-  t.deepEqual(makeSourceRepr(store, expand(':source')), {
+  t.deepEqual(makeSourceRepr(store, expand(':source').id), {
     id: expand(':source').id,
     title: 'Computation and Human Experience',
     creators: [
