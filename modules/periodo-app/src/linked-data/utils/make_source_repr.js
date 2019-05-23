@@ -54,10 +54,6 @@ function matchFromPredicateList(store, subject, predicates) {
   return null;
 }
 
-function firstObjectLiteral(triples) {
-  return getLiteralValue(triples[0].object)
-}
-
 module.exports = function makeSourceRepr(store, sourceNode) {
   const source = { id: sourceNode }
 
