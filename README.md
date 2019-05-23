@@ -7,7 +7,7 @@ Compatible with all browsers that support ES2017 and IndexedDB. Safari has known
 
 # Building
 
-To build a standalone version of the client which can be run from a static web directory, run `make zip`. This will build a zipfile containing the HTML, JavaScript, and CSS required to run the application at `dist/periodo-$VERSION.zip`. `VERSION` will be the current version of the package found in `modules/periodo-app`.
+To build a standalone version of the client which can be run from a static web directory, run `make production`.
 
 Run `make test` to run all tests. Because we use ES6/ES2017 features like arrow functions and `async`/`await`, you must have Node 8+ installed.
 
@@ -19,9 +19,9 @@ This is an umbrella project for several distinct sub-projects ("modules"). Each 
 
 # Development
 
-Because browsers do not support IndexedDB for pages served from local file systems, during development, you will need to run a process that will serve the `dist` directory over HTTP.
+Because browsers do not support IndexedDB for pages served from local file systems, during development, you will need to run a process that will serve the root directory over HTTP.
 
-Once you have set up a server to serve the root directory, run `make watch` to rebuild the site during development. This will build the files `dist/periodo.js` and `dist/periodo.css` and rebuild them upon any changes to source files.
+Once you have set up a server to serve the root directory, run `make watch` to rebuild the site during development. This will build the file `periodo-client.js` and rebuild it upon any changes to source files.
 
 
 # Code guidelines
