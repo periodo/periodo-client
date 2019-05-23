@@ -19,7 +19,7 @@ This is an umbrella project for several distinct sub-projects ("modules"). Each 
 
 # Development
 
-Because browsers do not support IndexedDB for pages served from local file systems, during development, you will need to run a process that will serve the `dist` directory over HTTP. The easiest way to do so is by running the command `make serve` from the project root. If you have `python3` installed, this will serve a development version of the client at <http://localhost:8020>.
+Because browsers do not support IndexedDB for pages served from local file systems, during development, you will need to run a process that will serve the `dist` directory over HTTP.
 
 Once you have set up a server to serve the root directory, run `make watch` to rebuild the site during development. This will build the files `dist/periodo.js` and `dist/periodo.css` and rebuild them upon any changes to source files.
 
