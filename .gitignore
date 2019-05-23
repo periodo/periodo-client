@@ -5,3 +5,4 @@ dist/*
 /periodo-client*.js
 /periodo-client*.js.map
 index.html
+.DS_Store
