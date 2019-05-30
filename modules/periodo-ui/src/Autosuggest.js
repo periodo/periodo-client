@@ -89,7 +89,7 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
                 cursor: 'pointer',
               }
             }
-          }, isHighlighted && { bg: 'gray2' }), [
+          }, isHighlighted && { bg: 'gray.2' }), [
             item.name
           ]),
 
