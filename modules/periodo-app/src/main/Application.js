@@ -102,47 +102,83 @@ class Menu extends React.Component {
           i++;
         }
       }
-
     }
 
     return (
-      h(Flex, {
-        mb: 3,
-        py: 2,
-        px: 3,
-        bg: 'gray.0',
-        border: 1,
-        borderColor: 'gray.4',
-      }, groups.map(({ label, routes, ghost }, i) =>
-        h(Box, {
-          key: i,
-          minWidth: 200,
-          px: 2,
-          py: 1,
-          css: Object.assign({
-            '& [data-active="true"]::before': {
-              content: '"▸"',
-              position: 'absolute',
-              marginLeft: '-11px',
-              color: 'orangered',
-            },
-          }, ghost && { opacity: .5 })
-        }, [
-          h(Heading, { key: 'heading' + '-i', level: 5 }, label),
-        ].concat(routes.map(({ route, label }) =>
-          h(Link, {
-            display: 'block',
-            ['data-active']: route.resourceName === active.resource.name,
-            key: route.resourceName,
-            route,
-          }, label)
-        )))
-      ))
+      h(Box, [
+        h(Flex, {
+          mb: 3,
+          py: 2,
+          px: 3,
+          bg: 'gray.0',
+          border: 1,
+          borderColor: 'gray.4',
+        }, groups.map(({ label, routes, ghost }, i) =>
+          h(Box, {
+            key: i,
+            minWidth: 200,
+            px: 2,
+            py: 1,
+            css: Object.assign({
+              '& [data-active="true"]::before': {
+                content: '"▸"',
+                position: 'absolute',
+                marginLeft: '-11px',
+                color: 'orangered',
+              },
+            }, ghost && { opacity: .5 })
+          }, [
+            h(Heading, { key: 'heading' + '-i', level: 5 }, label),
+          ].concat(routes.map(({ route, label }) =>
+            h(Link, {
+              display: 'block',
+              ['data-active']: route.resourceName === active.resource.name,
+              key: route.resourceName,
+              route,
+            }, label)
+          )))
+        )),
+
+        h(() => {
+          this.props.onRendered()
+          return null
+        }),
+      ])
     )
   }
 }
 
 Menu = connect(state => ({ storeState: state }))(Menu)
+
+class MenuedResource extends React.Component{
+  constructor() {
+    super();
+    this.state = {
+      renderedMenu: false,
+    }
+  }
+
+  render() {
+    const { renderedMenu } = this.state
+
+    return (
+      h(Box, [
+        h(Menu, {
+          loading: this.props.loading,
+          activeResource: this.props.activeResource,
+          prevResource: this.props.prevResource,
+          params: this.props.params,
+          extra: this.props.extra,
+          onRendered: () => {
+            this.setState({ renderedMenu: true })
+          },
+        }),
+
+        renderedMenu ? h(Box, {}, this.props.children) : null,
+      ])
+    )
+  }
+}
 
 class PeriodoApplication extends React.Component {
   constructor() {
@@ -209,16 +245,14 @@ class PeriodoApplication extends React.Component {
                   }, 'Component stack'),
                   h(Pre, this.state.error.info.componentStack.trim()),
                 ])
-              : h(Box, [
-                  this.state.activeResource && h(Menu, {
-                    loading: this.props.loading,
-                    activeResource: this.state.activeResource,
-                    prevResource: this.state.prevResource,
-                    params: this.props.params,
-                    extra: this.props.extra,
-                  }),
-                  ...[].concat(this.props.children)
-              ])
+              : this.state.activeResource && h(MenuedResource, {
+                  key: this.state.activeResource.name,
+                  loading: this.props.loading,
+                  activeResource: this.state.activeResource,
+                  prevResource: this.state.prevResource,
+                  params: this.props.params,
+                  extra: this.props.extra,
+                }, this.props.children)
           ),
 
           h(Footer, {
