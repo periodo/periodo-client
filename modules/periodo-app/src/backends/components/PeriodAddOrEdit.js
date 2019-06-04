@@ -25,13 +25,15 @@ class AddPeriod extends React.Component {
       backend,
       dataset,
       locationStream,
-      randomID
+      randomID,
+      gazetteers
     } = this.props
 
     return (
       h(Box, [
         h(PeriodForm, {
           value: this.state.period,
+          gazetteers,
           onValidated: async period => {
             const isEdit = !!period.id
                 , id = isEdit ? period.id : randomID('period')

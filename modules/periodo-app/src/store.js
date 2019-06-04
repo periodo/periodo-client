@@ -11,7 +11,8 @@ module.exports = function () {
       backends: require('./backends/reducer'),
       auth: require('./auth/reducer'),
       linkedData: require('./linked-data/reducer'),
-      patches: require('./patches/reducer')
+      patches: require('./patches/reducer'),
+      graphs: require('./graphs/reducer'),
     }),
     compose(
       applyMiddleware(typedAsyncActionMiddleware({ db: periodoDB() })),

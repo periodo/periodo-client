@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
     , AuthAction = require('./auth/actions')
     , PatchAction = require('./patches/actions')
     , LinkedDataAction = require('./linked-data/actions')
+    , GraphsAction = require('./graphs/actions')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
@@ -302,12 +303,14 @@ const Period = {
       Component: () => h('h1', 'History')
     },
   },
-  onBeforeRoute(dispatch, params) {
-    requireParam(params, 'periodID');
+  async onBeforeRoute(dispatch, params) {
+    requireParam(params, 'periodID')
+    await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
   },
   mapStateToProps(state, props) {
     return {
-      period: props.authority.periods[props.params.periodID]
+      period: props.authority.periods[props.params.periodID],
+      gazetteers: state.graphs.gazetteers
     }
   }
 }

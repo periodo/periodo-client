@@ -6,23 +6,17 @@ const h = require('react-hyperscript')
     , { Box, Text, InputBlock, Label, Tags } = require('periodo-ui')
     , LabeledMap = require('./LabeledMap')
     , PlaceSuggest = require('./PlaceSuggest')
-    , places = require('periodo-utils/assets/periodo-graph-places.json')
-
-const indexFeaturesById = R.pipe(
-  R.chain(R.prop('features')),
-  R.indexBy(R.prop('id'))
-)
-
-const gazetteers = Object.values(places.graphs)
-const features = indexFeaturesById(gazetteers)
 
 const SpatialCoverageForm = ({
   onValueChange,
   description='',
   coverage=[],
+  gazetteers,
 }) => {
 
   const [focusedFeature, setFocusedFeature] = useState(undefined)
+
+  const feature = id => R.path(gazetteers.index[id], gazetteers)
 
   const inCoverage = feature => R.any(item => item.id === feature.id, coverage)
 
@@ -57,15 +51,15 @@ const SpatialCoverageForm = ({
             }, 'Search below for places to add')
         : h(Tags, {
             items: coverage,
-            onFocus: item => setFocusedFeature(features[item.id]),
+            onFocus: item => setFocusedFeature(feature(item.id)),
             onBlur: () => setFocusedFeature(undefined),
             onDelete: item => onValueChange(
               {spatialCoverage: R.without([item], coverage)})
         }),
 
       h(LabeledMap, {
-        focusedFeature, //: focusedFeature || features[R.last(coverage).id],
-        features: coverage.map(({id}) => features[id]),
+        focusedFeature,
+        features: coverage.map(({id}) => feature(id)),
         mt: 1,
       }),
 
