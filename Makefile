@@ -78,8 +78,8 @@ $(VERSIONED_DIRECTORY)/package.json: package.json
 	jq '{ name, version, author, contributors, license, description }' $< > $@
 
 $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
-	rm -f $@
-	mkdir -p $(VERSIONED_DIRECTORY)
+	rm -rf $@ $(VERSIONED_DIRECTORY)
+	mkdir $(VERSIONED_DIRECTORY)
 	cp $^ $(VERSIONED_DIRECTORY)
 	cd $(VERSIONED_DIRECTORY) && mkdir images && mv $(notdir $(ASSET_FILES)) images
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
