@@ -1,8 +1,19 @@
 {
   "name": "periodo-client",
   "version": "3.0.1",
-  "author": "Patrick Golden",
+  "author": "Patrick Golden <ptgolden@email.unc.edu>",
+  "contributors": [
+    "Ryan Shaw <ryanshaw@unc.edu>"
+  ],
+  "license": " CC0-1.0",
   "description": "Client for browsing and editing PeriodO data.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/periodo/periodo-client"
+  },
+  "bugs": {
+    "url": "https://github.com/periodo/periodo-client/issues"
+  },
   "devDependencies": {
     "blue-tape": "^1.0.0",
     "browserify": "^16.2.3",
@@ -21,7 +32,7 @@
     ]
   },
   "scripts": {
-    "prepack": "make clean && make",
+    "prepublishOnly": "echo 'Use the `make publish` command instead.' && exit 1",
     "test": "tape $(find modules -path */test/*.js -not -path */node_modules/*)",
     "start": "serve -p 8000"
   }
