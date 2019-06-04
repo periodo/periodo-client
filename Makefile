@@ -52,7 +52,7 @@ clean:
 
 publish: clean zip
 	unzip $(VERSIONED_ZIPFILE) -d dist
-	cd $(VERSIONED_DIRECTORY) && npm publish --dry-run
+	cd $(VERSIONED_DIRECTORY) && npm publish
 
 .PHONY: all watch zip serve test clean
 
