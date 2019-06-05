@@ -13,7 +13,6 @@ const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
     focusedFeature,
     features,
     flex: '1 1',
-    css: {backgroundColor: '#6194b9'}, // ocean color
   }),
   h(FeatureLabel, {
     feature: focusedFeature,

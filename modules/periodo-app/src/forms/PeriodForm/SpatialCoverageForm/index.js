@@ -16,8 +16,6 @@ const SpatialCoverageForm = ({
 
   const [focusedFeature, setFocusedFeature] = useState(undefined)
 
-  const feature = id => R.path(gazetteers.index[id], gazetteers)
-
   const inCoverage = feature => R.any(item => item.id === feature.id, coverage)
 
   return h(Box, [
@@ -51,7 +49,7 @@ const SpatialCoverageForm = ({
             }, 'Search below for places to add')
         : h(Tags, {
             items: coverage,
-            onFocus: item => setFocusedFeature(feature(item.id)),
+            onFocus: item => setFocusedFeature(gazetteers.find(item.id)),
             onBlur: () => setFocusedFeature(undefined),
             onDelete: item => onValueChange(
               {spatialCoverage: R.without([item], coverage)})
@@ -59,7 +57,7 @@ const SpatialCoverageForm = ({
 
       h(LabeledMap, {
         focusedFeature,
-        features: coverage.map(({id}) => feature(id)),
+        features: coverage.map(({id}) => gazetteers.find(id)),
         mt: 1,
       }),
 
