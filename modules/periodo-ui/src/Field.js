@@ -61,12 +61,13 @@ const formatCounts = counts => `
 const showValues = ({
   values,
   component = PrimitiveValue,
-  required = false
+  required = false,
+  ...props
 }) => (
 
   { warnings: checkRequired(required)(values)
   , summary: null
-  , items: R.map(show(component), values)
+  , items: R.map(show(component, props), values)
   }
 )
 
@@ -94,15 +95,17 @@ const compareValues = ({
   )
 }
 
-const fieldExtractor = fieldSpec => R.pipe(
+const fieldExtractor = props => fieldSpec => R.pipe(
   fieldSpec.values,
   values => R.assoc('values', values, fieldSpec),
-  R.assoc('id', fieldSpec.label)
+  R.assoc('id', fieldSpec.label),
+  R.merge(R.pick(R.propOr([], 'useProps', fieldSpec), props)),
+  R.dissoc('useProps')
 )
 
-const fieldsExtractor = fieldSpecs => R.pipe(
+const fieldsExtractor = (fieldSpecs, props) => R.pipe(
   R.of,
-  R.ap(R.map(fieldExtractor, fieldSpecs)),
+  R.ap(R.map(fieldExtractor(props), fieldSpecs)),
   R.filter(({ required, values }) => (required || values.length > 0)),
   R.map(Value.Identified)
 )
@@ -146,13 +149,20 @@ function Field(props) {
   )
 }
 
+const usedProps = R.reduce(
+  (usedProps, fieldSpec) => R.union(
+    usedProps, R.propOr([], 'useProps', fieldSpec)
+  )
+)
+
 const FieldList = fieldSpecs => props => {
   const { value, compare } = props
-      , fields = fieldsExtractor(fieldSpecs)
+      , fields = fieldsExtractor(fieldSpecs, props)
+      , omitProps = usedProps([ 'value', 'compare' ], fieldSpecs)
 
   return h(
     Box,
-    R.merge(R.omit([ 'value', 'compare' ], props), { is: 'dl' }),
+    R.merge(R.omit(omitProps, props), { is: 'dl' }),
     compare
       ? showChanges(Field)(findChanges(fields(value), fields(compare)))
       : R.map(show(Field), fields(value))

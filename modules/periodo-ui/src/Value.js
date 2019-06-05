@@ -7,6 +7,7 @@ const h = require('react-hyperscript')
     , { Box, Span, Pre } = require('./Base')
     , { Italic } = require('./Typography')
     , { Link, ExternalLink } = require('./Links')
+    , { Map } = require('./Map')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { BackendContext } = require('./BackendContext')
     , { useContext } = require('react')
@@ -53,9 +54,10 @@ const describeLanguageTag = tag => tags(tag || '')
   .join(', ')
   || 'unknown language'
 
-const show = component => R.pipe(
+const show = (component, props={}) => R.pipe(
   R.head,
   R.objOf('value'),
+  R.merge(props),
   component
 )
 
@@ -195,22 +197,32 @@ function AgentValue(props) {
 }
 
 function SpatialExtentValue(props) {
-  const { value: { description, places }, compare } = props
-  return h(
-    Annotated,
-    R.merge(
-      R.omit([ 'value', 'compare' ], props),
-      compare
-        ? { value:
-              h(Diff, { value: description, compare: compare.description })
-          , annotations:
-              showChanges(EntityValue)(findChanges(places, compare.places))
-          }
-        : { value: description
-          , annotations: R.map(show(EntityValue), places)
-          }
+  const { value: { description, places }, gazetteers, compare } = props
+  return h(Box, [
+    h(
+      Annotated,
+      R.merge(
+        R.omit([ 'value', 'compare' ], props),
+        compare
+          ? { value:
+                h(Diff, { value: description, compare: compare.description })
+            , annotations:
+                showChanges(EntityValue)(findChanges(places, compare.places))
+            }
+          : { value: description
+            , annotations: R.map(show(EntityValue), places)
+            }
+      ),
     ),
-  )
+    compare
+      ? null
+      : h(Map, {
+        mt: 1,
+        border: '1px solid #ccc',
+        maxWidth: '650px',
+        features: places.map(([{id}]) => gazetteers.find(id))
+      })
+  ])
 }
 
 function JSONLDContextValue(props) {

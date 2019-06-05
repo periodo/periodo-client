@@ -64,9 +64,12 @@ function fetchGraphs(path) {
 function fetchGazetteers() {
   return async dispatch => {
     const req = await dispatch(GraphsAction.FetchGraphs('places'))
-    const { json } = getResponse(req)
-    const gazetteers = Object.values(json.graphs)
-    gazetteers.index = indexFeatures(gazetteers)
+        , { json } = getResponse(req)
+        , gazetteers = Object.values(json.graphs)
+        , featuresIndex = indexFeatures(gazetteers)
+    gazetteers.find = id => {
+      return R.path(featuresIndex[id], gazetteers)
+    }
     return { gazetteers }
   }
 }

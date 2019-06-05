@@ -104,6 +104,7 @@ const PERIOD_FIELDS = [
   {
     label: 'Spatial coverage',
     values: extractSpatialExtent,
+    useProps: [ 'gazetteers' ],
     component: SpatialExtentValue,
     required: true,
   },

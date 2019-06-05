@@ -125,8 +125,11 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   ])
 }
 
-exports.Map = ({ features, focusedFeature, height=200, ...props }) => h(Box,
-  props, [
-    h(_Map, { key: 2, features, focusedFeature, height })
-  ]
+exports.Map = ({ features, focusedFeature, height=200, ...props }) => h(
+  Box,
+  {
+    css: {backgroundColor: '#6194b9'}, // ocean color
+    ...props
+  },
+  [ h(_Map, { key: 2, features, focusedFeature, height }) ]
 )
