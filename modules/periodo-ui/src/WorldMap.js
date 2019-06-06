@@ -2,9 +2,10 @@
 
 const R = require('ramda')
     , regl = require('regl')
+    , resl = require('resl')
     , mixmap = require('mixmap')
     , zoomTo = require('mixmap-zoom')
-    , mixtiles = require('mixmap-tiles')
+    , glsl = require('glslify')
     , createMesh = require('earth-mesh')
     , easing = require('eases/circ-out')
     , h = require('react-hyperscript')
@@ -12,13 +13,95 @@ const R = require('ramda')
     , { Box } = require('./Base')
     , useRect = require('./useRect')
 
+const tiles = require('../../../images/maptiles/manifest.json')
+
 const mix = mixmap(regl)
 const map = mix.create({backgroundColor: [0, 0, 0, 0]})
 
-mixtiles(map, {
-  path: '/images/maptiles',
-  layers: require('../../../images/maptiles/layers.json'),
-  load: require('mixmap-tiles/xhr')
+const drawTile = map.createDraw({
+  frag: glsl`
+    precision highp float;
+    #pragma glslify: hsl2rgb = require('glsl-hsl2rgb')
+    uniform float id;
+    uniform sampler2D texture;
+    varying vec2 vtcoord;
+    void main () {
+      float h = mod(id/8.0,1.0);
+      float s = mod(id/4.0,1.0)*0.5+0.25;
+      float l = mod(id/16.0,1.0)*0.5+0.25;
+      vec3 c = hsl2rgb(h,s,l);
+      vec4 tc = texture2D(texture,vtcoord);
+      gl_FragColor = vec4(c*(1.0-tc.a)+tc.rgb*tc.a,0.5+tc.a*0.5);
+    }
+  `,
+  vert: `
+    precision highp float;
+    attribute vec2 position;
+    uniform vec4 viewbox;
+    uniform vec2 offset;
+    uniform float zindex, aspect;
+    attribute vec2 tcoord;
+    varying vec2 vtcoord;
+    void main () {
+      vec2 p = position + offset;
+      vtcoord = tcoord;
+      gl_Position = vec4(
+        (p.x - viewbox.x) / (viewbox.z - viewbox.x) * 2.0 - 1.0,
+        ((p.y - viewbox.y) / (viewbox.w - viewbox.y) * 2.0 - 1.0) * aspect,
+        1.0/(2.0+zindex), 1);
+    }
+  `,
+  uniforms: {
+    id: map.prop('id'),
+    zindex: map.prop('zindex'),
+    texture: map.prop('texture')
+  },
+  attributes: {
+    position: map.prop('points'),
+    tcoord: [0,1,0,0,1,1,1,0] // sw,se,nw,ne
+  },
+  elements: [0,1,2,1,2,3],
+  blend: {
+    enable: true,
+    func: { src: 'src alpha', dst: 'one minus src alpha' }
+  }
+})
+
+map.addLayer({
+  viewbox(bbox, zoom, cb) {
+    zoom = Math.round(zoom)
+    if (zoom < 2) cb(null, tiles[0])
+    else if (zoom < 4) cb(null, tiles[1])
+    else cb(null, tiles[2])
+  },
+  add(key, bbox) {
+    const file = key.split('!')[1]
+    const level = Number(file.split('/')[0])
+    const prop = {
+      id: Number(key.split('!')[0]),
+      key,
+      zindex: 2 + level,
+      texture: map.regl.texture(),
+      points: [
+        bbox[0], bbox[1], // sw
+        bbox[0], bbox[3], // se
+        bbox[2], bbox[1], // nw
+        bbox[2], bbox[3]  // ne
+      ]
+    }
+    drawTile.props.push(prop)
+    map.draw()
+    resl({
+      manifest: { tile: { type: 'image', src: '/images/maptiles/'+file } },
+      onDone(assets) {
+        prop.texture = map.regl.texture(assets.tile)
+        map.draw()
+      }
+    })
+  },
+  remove(key) {
+    drawTile.props = drawTile.props.filter(p => p.key !== key)
+  }
 })
 
 const PURPLE = 'vec4(1.0,0.0,1.0,0.5)'
@@ -104,6 +187,12 @@ const display = (features, focusedFeature) => {
 // shared webgl context, only needs to be rendered once
 const renderMix = R.once(() => document.body.appendChild(mix.render()))
 
+const removeAllChildren = node => {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild)
+  }
+}
+
 const _Map = ({ features=[], focusedFeature, height }) => {
 
   const innerRef = useRef()
@@ -112,12 +201,11 @@ const _Map = ({ features=[], focusedFeature, height }) => {
 
   useLayoutEffect(() => {
     renderMix()
-    if (innerRef.current.firstChild) {
-      map.resize(width, height)
-    } else {
-      innerRef.current.appendChild(map.render({width, height}))
-    }
+    innerRef.current.appendChild(map.render({width, height}))
     display(features, focusedFeature)
+    return function cleanup() {
+      removeAllChildren(innerRef.current)
+    }
   })
 
   return h('div', { ref: outerRef, style: {height} }, [
