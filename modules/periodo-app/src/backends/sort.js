@@ -1,13 +1,15 @@
 "use strict";
 
 const $$Sorts = Symbol('sorts')
-    , { authorityList, terminus } = require('periodo-utils')
+    , { terminus } = require('periodo-utils')
     , natsort = require('natsort')
 
 const sorter = natsort({ insensitive: true })
 
 function sort(getter, vals) {
-  return [...vals].sort((a, b) => {
+  const ret = new Map()
+
+  const sorted = [...vals].sort((a, b) => {
     const _a = getter(a)
     const _b = getter(b)
 
@@ -16,12 +18,43 @@ function sort(getter, vals) {
 
     return sorter(_a, _b)
   })
+
+  sorted.forEach((period, i) => {
+    ret.set(period, i)
+  })
+
+  return ret
 }
+
+function reverse(getter, map) {
+  let reversed = [...map.keys()].reverse()
+
+  const toEnd = []
+      , ret = new Map()
+
+  while (reversed[0] && (getter(reversed[0]) == null)) {
+    toEnd.push(reversed.shift())
+  }
+
+  reversed = reversed.concat(toEnd)
+
+  reversed.forEach((period, i) => {
+    ret.set(period, i)
+  })
+
+  return ret
+}
+
+const sortDefs = [
+  ['label', p => p.label],
+  ['start', p => terminus.earliestYear(p.start)],
+  ['stop', p => terminus.latestYear(p.stop)],
+]
 
 // Add sorts for label, earliest start, and latest stop
 function initSorts(dataset) {
   const periods = []
-      , sorts = {}
+      , sorts = { forward: {}, reverse: {}}
 
   Object.values(dataset.authorities).forEach(auth => {
     Object.values(auth.periods).forEach(period => {
@@ -29,23 +62,32 @@ function initSorts(dataset) {
     })
   })
 
-  sorts.label = Object.freeze(sort(p => p.label, periods))
-  sorts.start = Object.freeze(sort(p => terminus.earliestYear(p.start), periods))
-  sorts.stop = Object.freeze(sort(p => terminus.latestYear(p.stop), periods))
+  sortDefs.forEach(([ key, fn ]) => {
+    const forwardSort = sort(fn, periods)
+        , reverseSort = reverse(fn, forwardSort)
+
+    sorts.forward[key] = forwardSort
+    sorts.reverse[key] = reverseSort
+  })
 
   dataset[$$Sorts] = sorts
 }
 
 function cachedSort(dataset, periods, field, rev=false) {
-  const sorted = dataset[$$Sorts][field]
+  const accessor = rev ? 'reverse' : 'forward'
+      , map = dataset[$$Sorts][accessor][field]
 
-  if (!sorted) {
+  if (!map) {
     throw new Error('No cached sort available for field `' + field + '`')
   }
 
-  const ret = sorted.filter(p => periods.indexOf(p) > -1)
+  const sorted = []
 
-  return rev ? ret.reverse() : ret
+  periods.forEach(period => {
+    sorted[map.get(period)] = period
+  })
+
+  return Object.values(sorted)
 }
 
 module.exports = {
