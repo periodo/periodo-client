@@ -6,10 +6,14 @@ const R = require('ramda')
     , { yearPublished } = require('periodo-utils/src/source')
     , { Route } = require('org-shell')
     , { blocks } = require('org-layouts')
+    , { cachedSort } = require('../../backends/sort')
 
 const columns = {
   label: {
     label: 'Label',
+    sort: (periods, { dataset, sortDirection }) => {
+      return cachedSort(dataset, periods, 'label', sortDirection === "desc")
+    },
     getValue(period) {
       return period.label
     },
@@ -32,6 +36,10 @@ const columns = {
   start: {
     label: 'Start',
 
+    sort: (periods, { dataset, sortDirection }) => {
+      return cachedSort(dataset, periods, 'start', sortDirection === "desc")
+    },
+
     getValue(period) {
       return earliestYear(period.start)
     },
@@ -40,6 +48,11 @@ const columns = {
 
   stop: {
     label: 'Stop',
+
+    sort: (periods, { dataset, sortDirection }) => {
+      return cachedSort(dataset, periods, 'stop', sortDirection === "desc")
+    },
+
     getValue(period) {
       return latestYear(period.stop)
     },

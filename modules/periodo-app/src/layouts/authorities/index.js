@@ -20,7 +20,7 @@ const PeriodoLayoutRenderer = props =>
           }))
         )(props.dataset.authorities)
       ),
-    extraProps: { backend: props.backend },
+    extraProps: { backend: props.backend, dataset: props.dataset },
   })))
 
 PeriodoLayoutRenderer.propTypes = {

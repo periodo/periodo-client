@@ -208,19 +208,23 @@ module.exports = function makeList(opts) {
       const col = columns[props.sortBy]
 
       if (col) {
-        const sorter = natsort({
-          insensitive: true,
-          desc: props.sortDirection === 'desc',
-        })
+        if (col.sort) {
+          ret = col.sort(ret, props)
+        } else {
+          const sorter = natsort({
+            insensitive: true,
+            desc: props.sortDirection === 'desc',
+          })
 
-        ret = ret.sort((a, b) => {
-          const [_a, _b] = [a, b].map(col.getValue)
+          ret = ret.sort((a, b) => {
+            const [_a, _b] = [a, b].map(col.getValue)
 
-          if (_a == null) return 1
-          if (_b == null) return -1
+            if (_a == null) return 1
+            if (_b == null) return -1
 
-          return sorter(_a, _b)
-        })
+            return sorter(_a, _b)
+          })
+        }
       }
     }
 
