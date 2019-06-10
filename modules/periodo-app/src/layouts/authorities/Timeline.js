@@ -29,9 +29,9 @@ function domainUnit(num, floor=true) {
 
   const pow = num.toString().length
 
-  let unit = Math.pow(10, pow)
+  let unit = Math.pow(10, pow - 2)
 
-  if (unit === 1) unit = 10
+  if (unit <= 1) unit = 10
 
   return roundToUnit(num, unit * .5, floor)
 }
@@ -106,8 +106,9 @@ module.exports = blocks.DOM({
         //   * Ga (billion years ago)
         [R.gt(-50000), R.pipe(
           R.subtract(new Date().getFullYear()),
-          d3.format('.1s'),
-          R.flip(R.concat)('a')
+          d3.format('.2s'),
+          R.flip(R.concat)('a'),
+          x => x.replace('.0', '')
         )],
 
         // Late stone age to ISO8601 year -1: Tack on 'BC'. Add commas
