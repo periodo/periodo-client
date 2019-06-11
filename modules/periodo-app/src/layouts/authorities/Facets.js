@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
     , concat = [].concat.bind([])
     , tags = require('language-tags')
     , { Flex, Box, Link } = require('periodo-ui')
+    , work = require('webworkify')
 
 const languageDescription = R.memoize(tag => {
   const language = tags(tag || '').language()
@@ -54,84 +55,110 @@ function withValue(val, set) {
   return newSet;
 }
 
-function AspectTable({ aspect, aspectID, data, opts, updateOpts }) {
-  const { label, getter } = aspect
-      , render = aspect.render || R.identity
+class AspectTable extends React.Component {
+  constructor() {
+    super()
 
-  const counts = R.pipe(
-    R.countBy(getter),
-    Object.entries,
-    R.sortBy(R.prop(1)),
-    R.reverse
-  )(data)
+    this.state = {
+      counts: [],
+    }
+  }
 
-  const selected = new Set(R.path(['selected', aspectID], opts) || [])
+  componentDidMount() {
+    this.worker = work(require('./facet_worker'))
 
-  return (
-    h(Flex, {
-      flexDirection: 'column',
-      border: 1,
-      borderRadius: '3px',
-      borderColor: 'gray.4',
-      height: 256,
-    }, [
-      h(Box, {
-        bg: 'gray.0',
-        p: 2,
-        borderRadius: '3px 3px 0 0',
-        fontWeight: 'bold',
-        fontSize: 2,
-      }, label),
+    this.worker.addEventListener('message', e => {
+      this.setState({
+        counts: e.data,
+      })
+    })
+  }
 
-      h('div', {
-        style: {
-          height:'100%',
-          overflowY: 'scroll',
-        }
+  componentDidUpdate(prevProps) {
+    if (this.props.data && (this.props.data !== prevProps.data)) {
+      if (this.worker) {
+        this.worker.postMessage({
+          type: this.props.aspect.label,
+          data: this.props.data,
+        })
+      }
+    }
+  }
+
+  render() {
+    const { aspect, aspectID, opts, updateOpts } = this.props
+        , { counts } = this.state
+        , { label } = aspect
+        , render = aspect.render || R.identity
+
+    const selected = new Set(R.path(['selected', aspectID], opts) || [])
+
+    return (
+      h(Flex, {
+        flexDirection: 'column',
+        border: 1,
+        borderRadius: '3px',
+        borderColor: 'gray.4',
+        height: 256,
       }, [
-        h(Table, {
-          is: 'table',
-          px: 1,
-          width: '100%',
-        }, [
-          h('tbody', counts.map(([value, count]) =>
-            h('tr', [
-              h('td', count),
-              h('td', [
-                h(Link, {
-                  href: '',
-                  onClick: e => {
-                    e.preventDefault();
-                    updateOpts(R.pipe(
-                      R.over(
-                        R.lensPath(['selected', aspectID]),
-                        () => [...(selected.has(value)
-                          ? withoutValue(value, selected)
-                          : withValue(value, selected))]),
-                      R.ifElse(
-                        val => val.selected[aspectID].length,
-                        R.identity,
-                        R.dissocPath(['selected', aspectID])),
-                      R.ifElse(
-                        val => R.isEmpty(val.selected),
-                        R.dissoc('selected'),
-                        R.identity)
-                    ), true)
+        h(Box, {
+          bg: 'gray.0',
+          p: 2,
+          borderRadius: '3px 3px 0 0',
+          fontWeight: 'bold',
+          fontSize: 2,
+        }, label),
 
-                  },
-                }, render(value))
-              ]),
-            ])
-          ))
+        h('div', {
+          style: {
+            height:'100%',
+            overflowY: 'scroll',
+          }
+        }, [
+          h(Table, {
+            is: 'table',
+            px: 1,
+            width: '100%',
+          }, [
+            h('tbody', counts.map(([value, count]) =>
+              h('tr', [
+                h('td', count),
+                h('td', [
+                  h(Link, {
+                    href: '',
+                    onClick: e => {
+                      e.preventDefault();
+                      updateOpts(R.pipe(
+                        R.over(
+                          R.lensPath(['selected', aspectID]),
+                          () => [...(selected.has(value)
+                            ? withoutValue(value, selected)
+                            : withValue(value, selected))]),
+                        R.ifElse(
+                          val => val.selected[aspectID].length,
+                          R.identity,
+                          R.dissocPath(['selected', aspectID])),
+                        R.ifElse(
+                          val => R.isEmpty(val.selected),
+                          R.dissoc('selected'),
+                          R.identity)
+                      ), true)
+
+                    },
+                  }, render(value))
+                ]),
+              ])
+            ))
+          ])
         ])
       ])
-    ])
-  )
+    )
+  }
 }
 
 class Facets extends React.Component {
   render() {
-    const { updateOpts, data } = this.props
+    const { opts, data, updateOpts } = this.props
 
     return (
       h('div', Object.entries(aspects).map(([key, aspect]) =>
@@ -140,8 +167,8 @@ class Facets extends React.Component {
           data,
           aspect,
           aspectID: key,
-          opts: this.props.opts,
-          updateOpts: this.props.updateOpts,
+          opts,
+          updateOpts,
         })
       ))
     )
