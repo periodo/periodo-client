@@ -46,6 +46,9 @@ const VALID_PERIOD_FIELDS = [
   'language',
   'languageTag',
   'localizedLabels',
+  'derivedFrom',
+  'broader',
+  'narrower',
   'spatialCoverage',
   'spatialCoverageDescription',
   'start',
@@ -84,6 +87,9 @@ function validatePeriod(period) {
       errors = addError(errors, 'dates', 'Date range for period stop has a beginning later than its end.')
     }
   }
+
+  // FIXME We could check here for cycles in derivedFrom and broader relations.
+  // But for now it seems not worth the expense of checking the entire dataset.
 
   if (R.equals(errors, {})) {
     const cleanedPeriod = {
