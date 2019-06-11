@@ -16,16 +16,15 @@ module.exports = class DatasetProxy {
     this.authoritiesByID = {}
 
     Object.values(this.raw.authorities || {}).forEach(authority => {
-      this.authorities.push(authority)
       this.authoritiesByID[authority.id] = authority
-
       Object.values(authority.periods || {}).forEach(period => {
-        this.periods.push(period)
         this.periodsByID[period.id] = period
-
         period[$$Authority] = authority
       })
     })
+
+    this.periods = Object.values(this.periodsByID)
+    this.authorities = Object.values(this.authoritiesByID)
   }
 
   periodByID(periodID) {
@@ -39,13 +38,11 @@ module.exports = class DatasetProxy {
   async initSorts() {
     if (this.sorts) return
 
-    this.sorts = await getSorts(this.periods)
+    this.sorts = await getSorts(this)
   }
 
   async cachedSort(periods, field, rev=false) {
-    if (!this.sorts) {
-      throw new Error('Must call `initSorts` before getting a cached sort')
-    }
+    await this.initSorts()
 
     const accessor = rev ? 'reverse' : 'forward'
         , map = this.sorts[accessor][field]
