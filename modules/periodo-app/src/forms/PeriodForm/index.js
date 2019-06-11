@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , LabelForm = require('./LabelForm')
     , { Flex, Box, Heading } = require('periodo-ui')
     , { InputBlock, TextareaBlock, Button$Primary, Errors } = require('periodo-ui')
+    , RelatedPeriodsForm = require('./RelatedPeriodsForm')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
     , SpatialCoverageForm = require('./SpatialCoverageForm')
     , Validated = require('../Validated')
@@ -19,7 +20,14 @@ const lenses = {
 }
 
 module.exports = Validated(validatePeriod, props => {
-  const { value={}, onValueChange=R.always(null), errors } = props
+  const {
+    value={},
+    onValueChange=R.always(null),
+    backendID,
+    dataset,
+    authority,
+    errors,
+  } = props
 
   const get = lens => R.view(lens, value) || ''
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
@@ -27,13 +35,14 @@ module.exports = Validated(validatePeriod, props => {
   return (
     h(Box, {}, [
       h(Box, {
-        p: 2,
+        py: 2,
+        px: 3,
         border: 1,
         borderColor: '#ccc',
         css: {
           borderRadius: '6px 6px 0 0',
         },
-        bg: 'gray0',
+        bg: 'gray.0',
       }, [
         h(Heading, {
           level: 3,
@@ -89,6 +98,18 @@ module.exports = Validated(validatePeriod, props => {
             })
           ]),
         ]),
+
+        h(Heading, { level: 3, px: 3, py: 2 }, 'Related periods'),
+
+        h(RelatedPeriodsForm, {
+          value,
+          onValueChange,
+          backendID,
+          dataset,
+          authority,
+          pb: 2,
+          borderBottom: '1px solid #ccc'
+        }),
 
         h(Flex, {
           css: {
