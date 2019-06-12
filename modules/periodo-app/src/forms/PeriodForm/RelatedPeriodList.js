@@ -100,12 +100,13 @@ const RelatedPeriod = ({
   ...props
 }) => {
 
+  const backend = useContext(BackendContext)
   const authority = util.period.authorityOf(period)
 
   return h(Box, props, [
     h(Link, {
       route: Route('period-view', {
-        backendID: useContext(BackendContext).asIdentifier(),
+        backendID: backend.asIdentifier(),
         authorityID: authority.id,
         periodID: period.id,
       })

@@ -91,11 +91,12 @@ function LinkValue(props) {
 
 function RelatedPeriodValue(props) {
   const { value: period } = props
+  const backend = useContext(BackendContext)
   return h(
     Link,
     {
       route: Route('period-view', {
-        backendID: useContext(BackendContext).asIdentifier(),
+        backendID: backend.asIdentifier(),
         authorityID: util.period.authorityOf(period).id,
         periodID: period.id,
       })
