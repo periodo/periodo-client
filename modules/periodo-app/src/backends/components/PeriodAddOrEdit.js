@@ -8,9 +8,12 @@ const h = require('react-hyperscript')
     , BackendAction = require('../actions')
     , PeriodForm = require('../../forms/PeriodForm')
     , { LocationStreamAware, Route } = require('org-shell')
+    , { $$Authority } = require('periodo-utils/src/symbols')
+
+const $$RelatedPeriods = Symbol.for('RelatedPeriods')
 
 const emptyPeriod = () => ({
-  [Symbol.for('RelatedPeriods')]: {
+  [$$RelatedPeriods]: {
     derivedFrom: {},
     broader: {},
     narrower: {}
@@ -22,14 +25,12 @@ class AddPeriod extends React.Component {
     super(props);
 
     const period = props.period || emptyPeriod()
+    period.narrower = R.keys(period[$$RelatedPeriods].narrower)
 
-    // to be edited
-    period.narrower = R.keys(period[Symbol.for('RelatedPeriods')].narrower)
-
-    // for comparison at save
-    const narrower = R.clone(period.narrower)
-
-    this.state = { period, narrower }
+    this.state = {
+      period,
+      related: period[$$RelatedPeriods]
+    }
   }
 
   render() {
@@ -70,7 +71,7 @@ class AddPeriod extends React.Component {
             // FIXME: this assumes that narrower periods are always from the
             // same authority; this could possibly change in the future.
             for (const npID of narrower) {
-              if (! this.state.narrower.includes(npID)) {
+              if (! (npID in this.state.related.narrower)) {
                 updatedDataset = R.assocPath(
                   ['authorities', authority.id, 'periods', npID, 'broader'],
                   id,
@@ -82,7 +83,7 @@ class AddPeriod extends React.Component {
             }
             // FIXME: this assumes that narrower periods are always from the
             // same authority; this could possibly change in the future.
-            for (const npID of this.state.narrower) {
+            for (const npID in this.state.related.narrower) {
               if (! narrower.includes(npID)) {
                 updatedDataset = R.dissocPath(
                   ['authorities', authority.id, 'periods', npID, 'broader'],
@@ -107,6 +108,11 @@ class AddPeriod extends React.Component {
             })
           },
           onValueChange: period => {
+            // restore symbols possibly wiped out by editing
+            period[$$Authority] = authority
+            if (! ($$RelatedPeriods in period)) {
+              period[$$RelatedPeriods] = this.state.related
+            }
             this.setState({ period })
           }
         }),
