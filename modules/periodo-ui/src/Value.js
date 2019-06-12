@@ -3,12 +3,16 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , tags = require('language-tags')
+    , { Route } = require('org-shell')
     , { Box, Span, Pre } = require('./Base')
     , { Italic } = require('./Typography')
-    , { ExternalLink } = require('./Links')
+    , { Link, ExternalLink } = require('./Links')
     , { Diff, findChanges, showChanges } = require('./Diff')
+    , { BackendContext } = require('./BackendContext')
+    , { useContext } = require('react')
     , { Value } = require('./types')
     , linkifier = require('linkify-it')()
+    , util = require('periodo-utils')
 
 const abbreviate = id => {
   try {
@@ -82,6 +86,21 @@ function LinkValue(props) {
   const { value } = props
   return h(
     ExternalLink, R.merge(R.omit([ 'value' ], props), { href: value }), value
+  )
+}
+
+function RelatedPeriodValue(props) {
+  const { value: period } = props
+  return h(
+    Link,
+    {
+      route: Route('period-view', {
+        backendID: useContext(BackendContext).asIdentifier(),
+        authorityID: util.period.authorityOf(period).id,
+        periodID: period.id,
+      })
+    },
+    period.label
   )
 }
 
@@ -213,5 +232,6 @@ module.exports = {
   LinkifiedTextValue,
   AgentValue,
   SpatialExtentValue,
-  JSONLDContextValue
+  JSONLDContextValue,
+  RelatedPeriodValue
 }

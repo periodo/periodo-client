@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { Value } = require('./types')
+    , { Value, asValue } = require('./types')
     , { FieldList, extract, as } = require('./Field')
     , { TextValue
       , LinkValue
@@ -10,8 +10,11 @@ const R = require('ramda')
       , LinkifiedTextValue
       , SpatialExtentValue
       , LanguageSpecificValue
+      , RelatedPeriodValue
       } = require('./Value')
-    , { ensureArray } = require('periodo-utils')
+    , { ensureArray, period } = require('periodo-utils')
+
+const $$RelatedPeriods = Symbol.for('RelatedPeriods')
 
 const extractSpatialExtent = period => {
   const description = period.spatialCoverageDescription || ''
@@ -42,6 +45,13 @@ const extractAlternateLabels = period => R.map(
   )
 )
 
+const extractRelatedPeriods = key => R.pipe(
+  R.pathOr({}, [$$RelatedPeriods, key]),
+  R.values,
+  R.sort(period.byStartYear),
+  R.map(asValue)
+)
+
 const PERIOD_FIELDS = [
   {
     label: 'Permalink',
@@ -61,6 +71,21 @@ const PERIOD_FIELDS = [
     values: as('text')(extract('label')),
     component: TextValue,
     required: true,
+  },
+  {
+    label: 'Part of',
+    values: extractRelatedPeriods('broader'),
+    component: RelatedPeriodValue,
+  },
+  {
+    label: 'Has parts',
+    values: extractRelatedPeriods('narrower'),
+    component: RelatedPeriodValue,
+  },
+  {
+    label: 'Derived from',
+    values: extractRelatedPeriods('derivedFrom'),
+    component: RelatedPeriodValue,
   },
   {
     label: 'Start',
