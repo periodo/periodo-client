@@ -6,6 +6,8 @@ const h = require('react-hyperscript')
     , { valueAsArray, terminus } = require('periodo-utils')
     , RelatedPeriodList = require('./RelatedPeriodList')
 
+const $$RelatedPeriods = Symbol.for('RelatedPeriods')
+
 const byStartYear = R.comparator(
   (a, b) => terminus.earliestYear(a.start) < terminus.earliestYear(b.start)
 )
@@ -18,15 +20,16 @@ const RelatedPeriodsForm = ({
     authority,
 }) => {
 
-  const related = Symbol.for('RelatedPeriods')
   const periods = R.fromPairs(['broader', 'narrower', 'derivedFrom'].map(
     prop => [
-      prop, valueAsArray(prop, value).map(id => value[related][prop][id])
+      prop, valueAsArray(prop, value).map(
+        id => value[$$RelatedPeriods][prop][id]
+      )
     ]
   ))
   const update = prop => periods => {
     value[prop] = periods.map(({ id }) => id)
-    value[related][prop] = R.indexBy(R.prop('id'), periods)
+    value[$$RelatedPeriods][prop] = R.indexBy(R.prop('id'), periods)
     onValueChange(value)
   }
 
