@@ -108,6 +108,25 @@ function validatePeriod(period) {
     delete cleanedPeriod.start._type;
     delete cleanedPeriod.stop._type;
 
+    // Clean up related period arrays
+    if (
+      'derivedFrom' in cleanedPeriod
+      && Array.isArray(cleanedPeriod.derivedFrom)
+      && cleanedPeriod.derivedFrom.length === 0
+    ) {
+      delete cleanedPeriod.derivedFrom
+    }
+    if (
+      'broader' in cleanedPeriod
+      && Array.isArray(cleanedPeriod.broader)
+    ) {
+      if (cleanedPeriod.broader.length == 0) {
+        delete cleanedPeriod.broader
+      } else if (cleanedPeriod.broader.length == 1) {
+        cleanedPeriod.broader = cleanedPeriod.broader[0]
+      }
+    }
+
     return Result.Ok(cleanedPeriod);
 
   } else {

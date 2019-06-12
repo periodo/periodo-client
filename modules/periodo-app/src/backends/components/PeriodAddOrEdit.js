@@ -9,26 +9,24 @@ const h = require('react-hyperscript')
     , PeriodForm = require('../../forms/PeriodForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
-// FIXME: this assumes that narrower periods are always from the
-// same authority; this could possibly change in the future.
-const findNarrower = (periodID, authority) => Object.values(authority.periods)
-  .reduce((narrower, period) => period.broader === periodID
-    ? narrower.concat(period.id)
-    : narrower, []
-)
+const emptyPeriod = () => ({
+  [Symbol.for('RelatedPeriods')]: {
+    derivedFrom: {},
+    broader: {},
+    narrower: {}
+  }
+})
 
 class AddPeriod extends React.Component {
   constructor(props) {
     super(props);
 
-    const period = props.period || {}
+    const period = props.period || emptyPeriod()
 
-    // to be modified during editing
-    period.narrower = period.id
-      ? findNarrower(period.id, props.authority)
-      : []
+    // to be edited
+    period.narrower = R.keys(period[Symbol.for('RelatedPeriods')].narrower)
 
-    // for comparison after editing is finished
+    // for comparison at save
     const narrower = R.clone(period.narrower)
 
     this.state = { period, narrower }

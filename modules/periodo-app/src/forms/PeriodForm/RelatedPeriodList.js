@@ -1,7 +1,6 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , { Route } = require('org-shell')
     , { RandomID } = require('periodo-common')
     , { Flex, Box, Link, Text, Label } = require('periodo-ui')
@@ -127,30 +126,11 @@ const Deletable = ({ children, onDelete, ...props }) => h(Flex, {
   h(Box, { flex: '1 1' }, children)
 ])
 
-const getPeriods = (authorities, periodIDs) => {
-  if (! periodIDs) {
-    return []
-  }
-  if (! Array.isArray(periodIDs)) {
-    periodIDs = [ periodIDs ]
-  }
-  let periods = {}
-  for (const authority of authorities) {
-    periods = { ...R.pick(periodIDs, authority.periods) }
-    if (Object.keys(periods).length === periodIDs.length) {
-      break
-    }
-  }
-  return Object.values(periods).sort(R.comparator((a, b) => (
-    util.terminus.earliestYear(a.start) <  util.terminus.earliestYear(b.start)
-  )))
-}
-
 const RelatedPeriodList = ({
   name,
   label,
   helpText,
-  periodIDs,
+  periods,
   suggestionFilter=() => true,
   limit,
   authorities,
@@ -160,8 +140,7 @@ const RelatedPeriodList = ({
   ...props
 }) => {
 
-  const periods = getPeriods(authorities, periodIDs)
-      , atLimit = limit && periods.length >= limit
+  const atLimit = limit && periods.length >= limit
 
   return h(Box, { css: { position: 'relative' }, ...props }, [
     h(Label, { htmlFor: randomID(name) }, label),
