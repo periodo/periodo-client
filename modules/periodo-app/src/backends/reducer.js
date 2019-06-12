@@ -1,6 +1,8 @@
 "use strict";
 
 const R = require('ramda')
+    , { valueAsArray } = require('periodo-utils')
+    , { $$Authority } = require('periodo-utils/src/symbols')
     , BackendAction = require('./actions')
 
 const initialState = () => ({
@@ -14,8 +16,78 @@ const updateBackend = (backend, dataset, state) => {
 
   return R.pipe(
     R.set(R.lensPath(['available', identifier]), backend),
-    R.set(R.lensPath(['datasets', identifier]), dataset),
+    R.set(
+      R.lensPath(['datasets', identifier]),
+      R.pipe(
+        addAuthoritySymbols,
+        addRelatedPeriodsSymbols,
+      )(dataset)
+    )
   )(state)
+}
+
+function addAuthoritySymbols(dataset) {
+  return R.over(
+    R.lensProp('authorities'),
+    R.map(authority =>
+      R.over(
+        R.lensProp('periods'),
+        R.map(R.assoc($$Authority, authority)),
+        authority
+      )
+    ),
+    dataset
+  )
+}
+
+// FIXME: this assumes that narrower periods are always from the
+// same authority; this could possibly change in the future.
+const narrowerPeriodIDs = (authority, periodID) => R.values(authority.periods)
+  .reduce((narrower, period) => period.broader === periodID
+    ? narrower.concat(period.id)
+    : narrower, [])
+
+const relatedPeriods = (dataset, authority, period) => {
+
+  const props = ['derivedFrom', 'broader', 'narrower']
+
+  const ids = R.fromPairs(
+    R.map(prop => [ prop, valueAsArray(prop, period) ], props)
+  )
+  const periods = R.fromPairs(R.map(prop => [ prop, {} ], props))
+
+  ids.narrower = narrowerPeriodIDs(authority, period.id)
+
+  const done = () => R.all(
+    prop => R.keys(periods[prop]).length === ids[prop].length,
+    props
+  )
+
+  for (const auth of [ authority, ...R.values(dataset.authorities) ]) {
+    for (const prop of props) {
+      periods[prop] = R.merge(periods[prop], R.pick(ids[prop], auth.periods))
+    }
+    if (done()) { break }
+  }
+  return periods
+}
+
+function addRelatedPeriodsSymbols(dataset) {
+  return R.over(
+    R.lensProp('authorities'),
+    R.map(authority =>
+      R.over(
+        R.lensProp('periods'),
+        R.map(period => {
+          period[Symbol.for('RelatedPeriods')] = relatedPeriods(
+            dataset, authority, period)
+          return period
+        }),
+        authority
+      )
+    ),
+    dataset
+  )
 }
 
 module.exports = function backends(state=initialState(), action) {
