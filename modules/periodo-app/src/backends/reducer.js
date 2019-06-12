@@ -1,7 +1,6 @@
 "use strict";
 
 const R = require('ramda')
-    , { $$Authority } = require('periodo-utils/src/symbols')
     , BackendAction = require('./actions')
 
 const initialState = () => ({
@@ -13,20 +12,10 @@ const initialState = () => ({
 const updateBackend = (backend, dataset, state) => {
   const identifier = backend.asIdentifier()
 
-  addAuthoritySymbols(dataset)
-
   return R.pipe(
     R.set(R.lensPath(['available', identifier]), backend),
     R.set(R.lensPath(['datasets', identifier]), dataset),
   )(state)
-}
-
-function addAuthoritySymbols(dataset) {
-  Object.values(dataset.authorities).forEach(authority => {
-    Object.values(authority.periods).forEach(period => {
-      period[$$Authority] = authority
-    })
-  })
 }
 
 module.exports = function backends(state=initialState(), action) {

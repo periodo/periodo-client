@@ -6,7 +6,7 @@ const R = require('ramda')
     , ns = require('lov-ns')
     , jsonpatch = require('fast-json-patch')
     , Type = require('union-type')
-    , { normalizeDataset, isDataset } = require('periodo-utils').dataset
+    , { normalizeDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
@@ -15,8 +15,11 @@ const R = require('ramda')
     , { rdfListToArray } = require('org-n3-utils')
     , { getPatchRepr } = require('../linked-data/utils/patch')
     , parseJSONLD = require('../linked-data/utils/parse_jsonld')
-    , { initSorts } = require('./sort')
+    , DatasetProxy = require('./dataset_proxy')
 
+function isDatasetProxy(obj) {
+  return obj instanceof DatasetProxy
+}
 
 const BackendAction = module.exports = makeTypedAction({
   GetAllBackends: {
@@ -35,7 +38,7 @@ const BackendAction = module.exports = makeTypedAction({
     },
     response: {
       backend: Backend,
-      dataset: isDataset,
+      dataset: isDatasetProxy,
     }
   },
 
@@ -57,8 +60,8 @@ const BackendAction = module.exports = makeTypedAction({
       patchID: String,
     },
     response: {
-      dataset: isDataset,
-      prevDataset: isDataset,
+      dataset: isDatasetProxy,
+      prevDataset: isDatasetProxy,
       patch: Object,
       change: Object,
       position: Object,
@@ -81,12 +84,12 @@ const BackendAction = module.exports = makeTypedAction({
     exec: updateLocalDataset,
     request: {
       storage: BackendStorage,
-      newDataset: isDataset,
+      newDataset: isDatasetProxy,
       message: String,
     },
     response: {
       backend: Backend,
-      dataset: isDataset,
+      dataset: isDatasetProxy,
       patchData: Object,
     }
   },
@@ -177,7 +180,7 @@ function fetchBackend(storage, forceReload) {
       }
     }
 
-    const [metadata, dataset] = await storage.case({
+    const [ metadata, dataset ] = await storage.case({
       IndexedDB: async id => {
         const ct = await db.localBackends
           .where('id')
@@ -226,18 +229,14 @@ function fetchBackend(storage, forceReload) {
       Memory: () => {
         throw new NotImplementedError();
       },
-    });
-
-    const _dataset = normalizeDataset(dataset)
-
-    initSorts(_dataset)
+    })
 
     return {
       backend: Backend.BackendOf({
         storage,
         metadata: BackendMetadata.BackendMetadataOf(metadata)
       }),
-      dataset: _dataset,
+      dataset: new DatasetProxy(normalizeDataset(dataset))
     }
   }
 }
@@ -276,8 +275,8 @@ function fetchBackendPatch(storage, patchID) {
         jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch.forward))
 
         return {
-          dataset: postDataset,
-          prevDataset,
+          dataset: new DatasetProxy(postDataset),
+          prevDataset: new DatasetProxy(prevDataset),
           patch,
 
           // FIXME: I added these for the Web backend but no the IndexedDB one.
@@ -311,8 +310,8 @@ function fetchBackendPatch(storage, patchID) {
         jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch))
 
         return {
-          dataset: normalizeDataset(postDataset),
-          prevDataset: normalizeDataset(prevDataset),
+          dataset: new DatasetProxy(normalizeDataset(postDataset)),
+          prevDataset: new DatasetProxy(normalizeDataset(prevDataset)),
           patch,
           change,
           position: {
@@ -511,7 +510,7 @@ function updateLocalDataset(storage, newDataset, message) {
 
     await _refetch()
 
-    const patchData = formatPatch(dataset, newDataset, message)
+    const patchData = formatPatch(dataset.raw, newDataset, message)
 
     const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
       dataset: newDataset,
@@ -532,7 +531,7 @@ function updateLocalDataset(storage, newDataset, message) {
     return {
       backend,
       dataset,
-      patchData
+      patchData,
     }
   }
 }
