@@ -15,6 +15,7 @@ const R = require('ramda')
     , { rdfListToArray } = require('org-n3-utils')
     , { getPatchRepr } = require('../linked-data/utils/patch')
     , parseJSONLD = require('../linked-data/utils/parse_jsonld')
+    , { initSorts } = require('./sort')
 
 
 const BackendAction = module.exports = makeTypedAction({
@@ -227,12 +228,16 @@ function fetchBackend(storage, forceReload) {
       },
     });
 
+    const _dataset = normalizeDataset(dataset)
+
+    initSorts(_dataset)
+
     return {
       backend: Backend.BackendOf({
         storage,
         metadata: BackendMetadata.BackendMetadataOf(metadata)
       }),
-      dataset: normalizeDataset(dataset),
+      dataset: _dataset,
     }
   }
 }

@@ -3,6 +3,7 @@
 const R = require('ramda')
     , { valueAsArray } = require('periodo-utils')
     , { $$Authority } = require('periodo-utils/src/symbols')
+    , $$RelatedPeriods = Symbol.for('RelatedPeriods')
     , BackendAction = require('./actions')
 
 const initialState = () => ({
@@ -14,30 +15,21 @@ const initialState = () => ({
 const updateBackend = (backend, dataset, state) => {
   const identifier = backend.asIdentifier()
 
+  addAuthoritySymbols(dataset)
+  addRelatedPeriodsSymbols(dataset)
+
   return R.pipe(
     R.set(R.lensPath(['available', identifier]), backend),
-    R.set(
-      R.lensPath(['datasets', identifier]),
-      R.pipe(
-        addAuthoritySymbols,
-        addRelatedPeriodsSymbols,
-      )(dataset)
-    )
+    R.set(R.lensPath(['datasets', identifier]), dataset),
   )(state)
 }
 
 function addAuthoritySymbols(dataset) {
-  return R.over(
-    R.lensProp('authorities'),
-    R.map(authority =>
-      R.over(
-        R.lensProp('periods'),
-        R.map(R.assoc($$Authority, authority)),
-        authority
-      )
-    ),
-    dataset
-  )
+  Object.values(dataset.authorities).forEach(authority => {
+    Object.values(authority.periods).forEach(period => {
+      period[$$Authority] = authority
+    })
+  })
 }
 
 // FIXME: this assumes that narrower periods are always from the
@@ -73,21 +65,11 @@ const relatedPeriods = (dataset, authority, period) => {
 }
 
 function addRelatedPeriodsSymbols(dataset) {
-  return R.over(
-    R.lensProp('authorities'),
-    R.map(authority =>
-      R.over(
-        R.lensProp('periods'),
-        R.map(period => {
-          period[Symbol.for('RelatedPeriods')] = relatedPeriods(
-            dataset, authority, period)
-          return period
-        }),
-        authority
-      )
-    ),
-    dataset
-  )
+  Object.values(dataset.authorities).forEach(authority => {
+    Object.values(authority.periods).forEach(period => {
+      period[$$RelatedPeriods] = relatedPeriods(dataset, authority, period)
+    })
+  })
 }
 
 module.exports = function backends(state=initialState(), action) {
