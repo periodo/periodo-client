@@ -137,7 +137,6 @@ const RelatedPeriodList = ({
   suggestionFilter=() => true,
   limit,
   authorities,
-  backendID,
   onValueChange,
   randomID,
   ...props
@@ -162,7 +161,7 @@ const RelatedPeriodList = ({
               ),
               ...(atLimit ? {} : { borderBottom: '1px dotted #ced4da' }),
             }, [
-                h(RelatedPeriod, { period, backendID })
+                h(RelatedPeriod, { period })
               ]
             )
           )
