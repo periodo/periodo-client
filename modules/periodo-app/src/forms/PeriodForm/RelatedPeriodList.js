@@ -5,8 +5,9 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
     , { RandomID } = require('periodo-common')
     , { Flex, Box, Link, Text, Label } = require('periodo-ui')
-    , { Autosuggest } = require('periodo-ui')
+    , { Autosuggest, BackendContext } = require('periodo-ui')
     , util = require('periodo-utils')
+    , { useContext } = require('react')
 
 const spatialCoverageOf = period => period.spatialCoverageDescription
   ? period.spatialCoverageDescription
@@ -96,16 +97,15 @@ const renderSuggestion = (item, { isHighlighted }) => h(Box,
 
 const RelatedPeriod = ({
   period,
-  backendID,
   ...props
 }) => {
-
   const authority = util.period.authorityOf(period)
+      , { backend } = useContext(BackendContext)
 
   return h(Box, props, [
     h(Link, {
       route: Route('period-view', {
-        backendID,
+        backendID: backend.asIdentifier(),
         authorityID: authority.id,
         periodID: period.id,
       })
