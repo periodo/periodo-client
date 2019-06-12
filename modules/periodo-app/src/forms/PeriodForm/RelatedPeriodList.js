@@ -109,7 +109,7 @@ const RelatedPeriod = ({
         authorityID: authority.id,
         periodID: period.id,
       })
-    }, util.period.originalLabel(period).label),
+    }, period.label),
     h(Text, `${spatialCoverageOf(period)}, ${temporalCoverageOf(period)}`),
     h(Text, util.authority.displayTitle(authority))
   ])
