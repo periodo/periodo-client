@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box } = require('periodo-ui')
+    , { Box, BackendContext } = require('periodo-ui')
     , { RandomID } = require('periodo-common')
     , BackendAction = require('../actions')
     , PeriodForm = require('../../forms/PeriodForm')
@@ -45,77 +45,78 @@ class AddPeriod extends React.Component {
 
     return (
       h(Box, [
-        h(PeriodForm, {
-          value: this.state.period,
-          backendID: backend.asIdentifier(),
-          dataset,
-          authority,
-          onValidated: async period => {
+        h(BackendContext.Provider, { value: backend }, [
+          h(PeriodForm, {
+            value: this.state.period,
+            dataset,
+            authority,
+            onValidated: async period => {
 
-            const isEdit = !!period.id
-                , id = isEdit ? period.id : randomID('period')
+              const isEdit = !!period.id
+                  , id = isEdit ? period.id : randomID('period')
 
-            const narrower = period.narrower
-            delete period.narrower
+              const narrower = period.narrower
+              delete period.narrower
 
-            let updatedDataset = R.assocPath(
-              ['authorities', authority.id, 'periods', id],
-              Object.assign({ id }, period),
-              dataset
-            )
+              let updatedDataset = R.assocPath(
+                ['authorities', authority.id, 'periods', id],
+                Object.assign({ id }, period),
+                dataset
+              )
 
-            let message = isEdit
-              ? `Edited period ${id} in authority ${authority.id}`
-              : `Added period ${id} to authority ${authority.id}`
+              let message = isEdit
+                ? `Edited period ${id} in authority ${authority.id}`
+                : `Added period ${id} to authority ${authority.id}`
 
-            // FIXME: this assumes that narrower periods are always from the
-            // same authority; this could possibly change in the future.
-            for (const npID of narrower) {
-              if (! (npID in this.state.related.narrower)) {
-                updatedDataset = R.assocPath(
-                  ['authorities', authority.id, 'periods', npID, 'broader'],
-                  id,
-                  updatedDataset
-                )
-                message += (
-                  `; added broader reference to it from period ${npID}`)
+              // FIXME: this assumes that narrower periods are always from the
+              // same authority; this could possibly change in the future.
+              for (const npID of narrower) {
+                if (! (npID in this.state.related.narrower)) {
+                  updatedDataset = R.assocPath(
+                    ['authorities', authority.id, 'periods', npID, 'broader'],
+                    id,
+                    updatedDataset
+                  )
+                  message += (
+                    `; added broader reference to it from period ${npID}`)
+                }
               }
-            }
-            // FIXME: this assumes that narrower periods are always from the
-            // same authority; this could possibly change in the future.
-            for (const npID in this.state.related.narrower) {
-              if (! narrower.includes(npID)) {
-                updatedDataset = R.dissocPath(
-                  ['authorities', authority.id, 'periods', npID, 'broader'],
-                  updatedDataset
-                )
-                message += (
-                  `; removed broader reference to it from period ${npID}`)
+              // FIXME: this assumes that narrower periods are always from the
+              // same authority; this could possibly change in the future.
+              for (const npID in this.state.related.narrower) {
+                if (! narrower.includes(npID)) {
+                  updatedDataset = R.dissocPath(
+                    ['authorities', authority.id, 'periods', npID, 'broader'],
+                    updatedDataset
+                  )
+                  message += (
+                    `; removed broader reference to it from period ${npID}`)
+                }
               }
-            }
 
-            await dispatch(BackendAction.UpdateLocalDataset(
-              backend.storage,
-              updatedDataset,
-              message
-            ))
+              await dispatch(BackendAction.UpdateLocalDataset(
+                backend.storage,
+                updatedDataset,
+                message
+              ))
 
-            locationStream.write({
-              route: Route('authority-view', {
-                backendID: backend.asIdentifier(),
-                authorityID: authority.id,
+              locationStream.write({
+                route: Route('authority-view', {
+                  backendID: backend.asIdentifier(),
+                  authorityID: authority.id,
+                })
               })
-            })
-          },
-          onValueChange: period => {
-            // restore symbols possibly wiped out by editing
-            period[$$Authority] = authority
-            if (! ($$RelatedPeriods in period)) {
-              period[$$RelatedPeriods] = this.state.related
+            },
+            onValueChange: period => {
+              // restore symbols possibly wiped out by editing
+              period[$$Authority] = authority
+              if (! ($$RelatedPeriods in period)) {
+                period[$$RelatedPeriods] = this.state.related
+              }
+              this.setState({ period })
             }
-            this.setState({ period })
-          }
-        }),
+          }),
+        ])
       ])
     )
   }

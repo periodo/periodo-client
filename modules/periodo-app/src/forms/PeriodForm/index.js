@@ -23,7 +23,6 @@ module.exports = Validated(validatePeriod, props => {
   const {
     value={},
     onValueChange=R.always(null),
-    backendID,
     dataset,
     authority,
     errors,
@@ -104,7 +103,6 @@ module.exports = Validated(validatePeriod, props => {
         h(RelatedPeriodsForm, {
           value,
           onValueChange,
-          backendID,
           dataset,
           authority,
           pb: 2,

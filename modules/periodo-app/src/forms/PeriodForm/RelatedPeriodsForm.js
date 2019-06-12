@@ -11,7 +11,6 @@ const $$RelatedPeriods = Symbol.for('RelatedPeriods')
 const RelatedPeriodsForm = ({
     value,
     onValueChange,
-    backendID,
     dataset,
     authority,
 }) => {
@@ -44,7 +43,6 @@ const RelatedPeriodsForm = ({
           ({ id }) => value.id !== id && ! value.narrower.includes(id),
         limit: 1,
         authorities: [ authority ],
-        backendID,
         onValueChange: update('broader')
       }),
       h(RelatedPeriodList, {
@@ -55,7 +53,6 @@ const RelatedPeriodsForm = ({
         periods: R.sort(period.byStartYear, periods.narrower),
         suggestionFilter: ({ id }) => value.id !== id && value.broader !== id,
         authorities: [ authority ],
-        backendID,
         onValueChange: update('narrower')
       })
     ]),
@@ -68,7 +65,6 @@ const RelatedPeriodsForm = ({
         periods: periods.derivedFrom,
         suggestionFilter: ({ id }) => value.id !== id,
         authorities: Object.values(dataset.authorities),
-        backendID,
         onValueChange: update('derivedFrom')
       })
     ]),
