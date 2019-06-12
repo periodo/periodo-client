@@ -29,7 +29,7 @@ class AddPeriod extends React.Component {
 
     this.state = {
       period,
-      related: period[$$RelatedPeriods]
+      related: R.clone(period[$$RelatedPeriods])
     }
   }
 
