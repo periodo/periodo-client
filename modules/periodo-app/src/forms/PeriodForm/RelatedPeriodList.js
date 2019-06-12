@@ -1,6 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , { Route } = require('org-shell')
     , { RandomID } = require('periodo-common')
     , { Flex, Box, Link, Text, Label } = require('periodo-ui')
@@ -51,6 +52,8 @@ const matches = query => {
   }
 }
 
+const byName = R.comparator((a, b) => R.prop('name', a) < R.prop('name', b))
+
 const getSuggestions = (authorities, suggestionFilter) => (query = '') => (
   authorities
     .map(authority => ({
@@ -58,7 +61,7 @@ const getSuggestions = (authorities, suggestionFilter) => (query = '') => (
       suggestions: Object.values(authority.periods)
         .reduce(matches(query), [])
         .filter(suggestionFilter)
-        //.filter(({ id }) => ! excludePeriodIDs.includes(id))
+        .sort(byName)
     }))
     .filter(section => section.suggestions.length > 0)
 )
