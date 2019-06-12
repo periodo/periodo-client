@@ -3,14 +3,10 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Flex, Box } = require('periodo-ui')
-    , { valueAsArray, terminus } = require('periodo-utils')
+    , { valueAsArray, period } = require('periodo-utils')
     , RelatedPeriodList = require('./RelatedPeriodList')
 
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
-
-const byStartYear = R.comparator(
-  (a, b) => terminus.earliestYear(a.start) < terminus.earliestYear(b.start)
-)
 
 const RelatedPeriodsForm = ({
     value,
@@ -56,7 +52,7 @@ const RelatedPeriodsForm = ({
         name: 'narrower',
         label: 'Has parts',
         helpText: 'Narrower periods contained by this one',
-        periods: R.sort(byStartYear, periods.narrower),
+        periods: R.sort(period.byStartYear, periods.narrower),
         suggestionFilter: ({ id }) => value.id !== id && value.broader !== id,
         authorities: [ authority ],
         backendID,
