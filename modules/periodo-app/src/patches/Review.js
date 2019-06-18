@@ -53,7 +53,7 @@ class ReviewPatch extends React.Component {
   }
 
   render() {
-    const { fromDatasetProxy, toDatasetProxy, patchText, patch, mergeURL } = this.props
+    const { fromDataset, toDataset, patchText, patch, mergeURL } = this.props
         , { comment, submitting } = this.state
 
     return (
@@ -63,8 +63,8 @@ class ReviewPatch extends React.Component {
         }, 'Patch'),
 
         h(Compare, {
-          localDatasetProxy: fromDatasetProxy,
-          remoteDatasetProxy: toDatasetProxy,
+          localDataset: fromDataset,
+          remoteDataset: toDataset,
           patch: patchText,
           direction: PatchDirection.Pull,
         }),

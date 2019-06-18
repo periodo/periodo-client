@@ -55,7 +55,7 @@ module.exports = class BackendHome extends React.Component {
   */
 
   render() {
-    const { backend, datasetProxy, updateOpts } = this.props
+    const { backend, dataset, updateOpts } = this.props
         , { Layout={}, Tab='Periods' } = this.props.opts
         //, { layout } = this.state
 
@@ -66,7 +66,7 @@ module.exports = class BackendHome extends React.Component {
     const el = h(AuthorityLayoutRenderer, {
       layout,
       backend,
-      datasetProxy,
+      dataset,
       blockOpts: Layout,
       onBlockOptsChange: updatedOpts =>
         R.isEmpty(updatedOpts)

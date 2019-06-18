@@ -9,12 +9,12 @@ const initialState = () => ({
   patches: {}
 })
 
-const updateBackend = (backend, datasetProxy, state) => {
+const updateBackend = (backend, dataset, state) => {
   const identifier = backend.asIdentifier()
 
   return R.pipe(
     R.set(R.lensPath(['available', identifier]), backend),
-    R.set(R.lensPath(['datasets', identifier]), datasetProxy),
+    R.set(R.lensPath(['datasets', identifier]), dataset),
   )(state)
 }
 
@@ -45,9 +45,9 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       GetBackendDataset() {
-        const { backend, datasetProxy } = resp
+        const { backend, dataset } = resp
 
-        return updateBackend(backend, datasetProxy, state)
+        return updateBackend(backend, dataset, state)
       },
 
       GetBackendHistory(storage) {
@@ -71,9 +71,9 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       UpdateLocalDataset() {
-        const { backend, datasetProxy } = resp
+        const { backend, dataset } = resp
 
-        return updateBackend(backend, datasetProxy, state)
+        return updateBackend(backend, dataset, state)
       },
 
       DeleteBackend(storage) {

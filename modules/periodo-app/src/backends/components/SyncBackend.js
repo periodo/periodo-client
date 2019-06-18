@@ -23,19 +23,19 @@ class SyncBackend extends React.Component {
   }
 
   async acceptPatch() {
-    const { dispatch, backend, datasetProxy, locationStream } = this.props
+    const { dispatch, backend, dataset, locationStream } = this.props
         , { selectedPatch } = this.state
 
     // FIXME? this could throw if patch is invalid... But how could the patch
     // be invalid?
-    const newDataset = jsonpatch.applyPatch(
-      JSON.parse(JSON.stringify(datasetProxy.raw)),
+    const newRawDataset = jsonpatch.applyPatch(
+      JSON.parse(JSON.stringify(dataset.raw)),
       JSON.parse(JSON.stringify(selectedPatch)),
     ).newDocument
 
     const action = await dispatch(BackendAction.UpdateLocalDataset(
       backend.storage,
-      newDataset,
+      newRawDataset,
       'Sync' // FIXME: better message
     ))
 

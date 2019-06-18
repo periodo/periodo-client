@@ -355,32 +355,32 @@ class Compare extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.state !== nextState ||
-      this.props.localDatasetProxy !== nextProps.localDatasetProxy ||
-      this.props.remoteDatasetProxy !== nextProps.remoteDatasetProxy ||
+      this.props.localDataset !== nextProps.localDataset ||
+      this.props.remoteDataset !== nextProps.remoteDataset ||
       this.props.patch !== nextProps.patch
     )
   }
 
   static getDerivedStateFromProps(nextProps, nextState) {
     const update = (
-      nextProps.localDatasetProxy !== nextState.localDatasetProxy ||
-      nextProps.remoteDatasetProxy !== nextState.remoteDatasetProxy ||
+      nextProps.localDataset !== nextState.localDataset ||
+      nextProps.remoteDataset !== nextState.remoteDataset ||
       nextProps.patch !== nextState.explicitPatch
     )
 
     if (!update) return null
 
-    const { direction, localDatasetProxy, remoteDatasetProxy, patch } = nextProps
+    const { direction, localDataset, remoteDataset, patch } = nextProps
 
-    const [ unpatchedDatasetProxy, patchedDatasetProxy ] = direction.case({
-      Push: () => [ remoteDatasetProxy, localDatasetProxy ],
-      Pull: () => [ localDatasetProxy, remoteDatasetProxy ],
+    const [ unpatchedDataset, patchedDataset ] = direction.case({
+      Push: () => [ remoteDataset, localDataset ],
+      Pull: () => [ localDataset, remoteDataset ],
     })
 
     let allPatches = patch
 
     if (!allPatches) {
-      allPatches = makePatch(unpatchedDatasetProxy, patchedDatasetProxy)
+      allPatches = makePatch(unpatchedDataset, patchedDataset)
     }
 
     allPatches = allPatches.map((p, i) => ({
@@ -392,10 +392,10 @@ class Compare extends React.Component {
     return {
       allPatches,
       explicitPatch: patch,
-      unpatchedDatasetProxy,
-      patchedDatasetProxy,
-      localDatasetProxy,
-      remoteDatasetProxy,
+      unpatchedDataset,
+      patchedDataset,
+      localDataset,
+      remoteDataset,
       selectedPeriods: {},
       selectedPatches: {},
       filteredTypes: [],

@@ -8,14 +8,14 @@ const h = require('react-hyperscript')
 
 module.exports = function PeriodoLayoutRenderer(props) {
   return (
-    h(LayoutRenderer, R.omit(['datasetProxy', 'backend'], Object.assign({}, props, {
+    h(LayoutRenderer, R.omit(['dataset', 'backend'], Object.assign({}, props, {
       blocks,
       createReadStream: () => fromArray.obj(
-        props.datasetProxy.authorities.map(authority => ({
+        props.dataset.authorities.map(authority => ({
           authority,
           periods: authority.periods,
         }))),
-      extraProps: { backend: props.backend, datasetProxy: props.datasetProxy },
+      extraProps: { backend: props.backend, dataset: props.dataset },
     })))
   )
 }

@@ -49,7 +49,7 @@ module.exports = blocks.DOM({
   init(el, props) {
     this.el = el;
 
-    this.datasetProxy = props.datasetProxy
+    this.dataset = props.dataset
 
     this.svg = d3.select(el)
       .append('svg')
@@ -132,7 +132,7 @@ module.exports = blocks.DOM({
 
     if (!this.rendered) this.setDimensions()
 
-    periods = await this.datasetProxy.cachedSort(periods, 'start')
+    periods = await this.dataset.cachedSort(periods, 'start')
 
     periods.forEach(period => {
       const earliest = earliestYear(period.start)

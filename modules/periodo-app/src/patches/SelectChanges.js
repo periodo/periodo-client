@@ -16,7 +16,7 @@ class SelectChanges extends React.Component {
     this.state = {
       fetchErr: null,
       remoteBackend: null,
-      remoteDatasetProxy: null,
+      remoteDataset: null,
       url: window.location.origin,
       currentPatch: [],
     }
@@ -35,10 +35,10 @@ class SelectChanges extends React.Component {
     ))
 
     handleCompletedAction(patchReq,
-      ({ patch, localDatasetProxy, remoteDatasetProxy }) => this.setState({
+      ({ patch, localDataset, remoteDataset }) => this.setState({
         patch,
-        localDatasetProxy,
-        remoteDatasetProxy,
+        localDataset,
+        remoteDataset,
       }),
       err => {
         throw err;
@@ -52,14 +52,14 @@ class SelectChanges extends React.Component {
 
   render() {
     const { direction, handleSelectPatch } = this.props
-        , { patch, localDatasetProxy, remoteDatasetProxy } = this.state
+        , { patch, localDataset, remoteDataset } = this.state
 
     if (patch) {
       return h(Box, [
         h(Compare, {
           onChange: this.handleChange,
-          localDatasetProxy,
-          remoteDatasetProxy,
+          localDataset,
+          remoteDataset,
           direction,
           patch
         }),
@@ -69,8 +69,8 @@ class SelectChanges extends React.Component {
           onClick: () => handleSelectPatch(
             this.state.currentPatch,
             h(Compare, {
-              localDatasetProxy,
-              remoteDatasetProxy,
+              localDataset,
+              remoteDataset,
               direction,
               patch: this.state.currentPatch,
             }),

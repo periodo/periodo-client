@@ -117,7 +117,7 @@ test('Updating backends', async t => {
 
   const { backend } = getResponse(store.getActions()[1])
 
-  const updatedDataset = {
+  const updatedRawDataset = {
     type: 'rdf:Bag',
     authorities: {
       'authority1': {
@@ -130,7 +130,7 @@ test('Updating backends', async t => {
 
   await store.dispatch(BackendAction.UpdateLocalDataset(
     backend.storage,
-    updatedDataset,
+    updatedRawDataset,
     '',
   ))
 

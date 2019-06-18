@@ -22,8 +22,8 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patch: Object,
-      fromDatasetProxy: Object,
-      toDatasetProxy: Object,
+      fromDataset: Object,
+      toDataset: Object,
       patchText: Object,
       mergeURL: val => val === null || isURL(val),
     }
@@ -46,8 +46,8 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patch: Object,
-      localDatasetProxy: Object,
-      remoteDatasetProxy: Object,
+      localDataset: Object,
+      remoteDataset: Object,
     }
   },
   SubmitPatch: {
@@ -95,8 +95,8 @@ function generateDatasetPatch(
 
     // FIXME: Handle errors in responses?
     const localID = getResponse(localReq).backend.storage.id
-        , localDatasetProxy = getResponse(localReq).datasetProxy
-        , remoteDatasetProxy = getResponse(remoteReq).datasetProxy
+        , localDataset = getResponse(localReq).dataset
+        , remoteDataset = getResponse(remoteReq).dataset
 
     const hashObjectStore = direction.case({
       Push: () => 'forwardHashes',
@@ -111,16 +111,16 @@ function generateDatasetPatch(
         .uniqueKeys()
 
     const rawPatch = direction.case({
-      Push: () => makePatch(remoteDatasetProxy.raw, localDatasetProxy.raw),
-      Pull: () => makePatch(localDatasetProxy.raw, remoteDatasetProxy.raw)
+      Push: () => makePatch(remoteDataset.raw, localDataset.raw),
+      Pull: () => makePatch(localDataset.raw, remoteDataset.raw)
     })
 
     const patch = await filterByHash(rawPatch, direction, filterHashes)
 
     return {
       patch,
-      localDatasetProxy,
-      remoteDatasetProxy,
+      localDataset,
+      remoteDataset,
     }
   }
 }
@@ -192,12 +192,12 @@ function getLocalPatch(patchURL) {
     if (existing) {
       Object.assign(ret, existing, { patch })
     } else {
-      const [ fromDatasetResp, patchTextResp ] = await Promise.all([
+      const [ fromRawDatasetResp, patchTextResp ] = await Promise.all([
         fetch(patch.created_from),
         fetch(patch.text),
       ])
 
-      if (!fromDatasetResp.ok) {
+      if (!fromDatasetRawResp.ok) {
         throw new Error('Could not fetch source dataset')
       }
 
@@ -205,18 +205,18 @@ function getLocalPatch(patchURL) {
         throw new Error('Could not fetch patch text')
       }
 
-      const fromDataset = await fromDatasetResp.json()
+      const fromRawDataset = await fromDatasetResp.json()
           , patchText = await patchTextResp.json()
 
-      const toDataset = jsonpatch.applyPatch(
-        jsonpatch.deepClone(fromDataset),
+      const toRawDataset = jsonpatch.applyPatch(
+        jsonpatch.deepClone(fromRawDataset),
         jsonpatch.deepClone(patchText)
       ).newDocument
 
       Object.assign(ret, {
         patch,
-        fromDatasetProxy: new DatasetProxy(fromDataset),
-        toDatasetProxy: new DatasetProxy(toDataset),
+        fromDataset: new DatasetProxy(fromRawDataset),
+        toDataset: new DatasetProxy(toRawDataset),
         patchText,
       })
     }

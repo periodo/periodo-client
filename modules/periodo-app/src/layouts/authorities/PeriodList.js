@@ -10,8 +10,8 @@ const R = require('ramda')
 const columns = {
   label: {
     label: 'Label',
-    sort: (periods, { datasetProxy, sortDirection }) => {
-      return datasetProxy.cachedSort(periods, 'label', sortDirection === "desc")
+    sort: (periods, { dataset, sortDirection }) => {
+      return dataset.cachedSort(periods, 'label', sortDirection === "desc")
     },
     getValue(period) {
       return period.label
@@ -35,8 +35,8 @@ const columns = {
   start: {
     label: 'Start',
 
-    sort: (periods, { datasetProxy, sortDirection }) => {
-      return datasetProxy.cachedSort(periods, 'start', sortDirection === "desc")
+    sort: (periods, { dataset, sortDirection }) => {
+      return dataset.cachedSort(periods, 'start', sortDirection === "desc")
     },
 
     getValue(period) {
@@ -48,8 +48,8 @@ const columns = {
   stop: {
     label: 'Stop',
 
-    sort: (periods, { datasetProxy, sortDirection }) => {
-      return datasetProxy.cachedSort(periods, 'stop', sortDirection === "desc")
+    sort: (periods, { dataset, sortDirection }) => {
+      return dataset.cachedSort(periods, 'stop', sortDirection === "desc")
     },
 
     getValue(period) {

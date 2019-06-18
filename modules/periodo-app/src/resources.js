@@ -204,7 +204,7 @@ const Backend = {
   mapStateToProps(state, props) {
     return {
       backend: state.backends.available[props.params.backendID],
-      datasetProxy: state.backends.datasets[props.params.backendID],
+      dataset: state.backends.datasets[props.params.backendID],
     }
   }
 }
@@ -272,7 +272,7 @@ const Authority = {
   },
   mapStateToProps(state, props) {
     return {
-      authority: props.datasetProxy.authorityByID(props.params.authorityID)
+      authority: props.dataset.authorityByID(props.params.authorityID)
     }
   }
 }

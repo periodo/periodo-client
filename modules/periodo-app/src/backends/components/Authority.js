@@ -25,7 +25,7 @@ class AuthorityLayout extends React.Component {
       h(AuthorityLayoutRenderer, {
         layout,
         backend,
-        datasetProxy: new DatasetProxy({
+        dataset: new DatasetProxy({
           authorities: {
             [authority.id]: authority
           }

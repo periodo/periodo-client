@@ -35,7 +35,7 @@ test('Patch generation actions', async t => {
     store.getActions()[3],
   ].map(getResponse).map(resp => resp.backend.storage)
 
-  const newData = {
+  const newRawDataset = {
     type: 'rdf:Bag',
     authorities: {
       fakeID: {
@@ -44,13 +44,13 @@ test('Patch generation actions', async t => {
     }
   }
 
-  const emptyData = {
+  const emptyRawDataset = {
     type: 'rdf:Bag',
     authorities: {}
   }
 
   await store.dispatch(
-    BackendAction.UpdateLocalDataset(backendA, newData, ''))
+    BackendAction.UpdateLocalDataset(backendA, newRawDataset, ''))
 
   const action1 = PatchAction.GenerateDatasetPatch(backendA, backendB, PatchDirection.Push)
 
@@ -68,8 +68,8 @@ test('Patch generation actions', async t => {
           }
         },
       ],
-      localDatasetProxy: new DatasetProxy(newData),
-      remoteDatasetProxy: new DatasetProxy(emptyData),
+      localDataset: new DatasetProxy(newRawDataset),
+      remoteDataset: new DatasetProxy(emptyRawDataset),
     }))
   }, 'should patch additions')
 
@@ -84,8 +84,8 @@ test('Patch generation actions', async t => {
     type: action2,
     readyState: ReadyState.Success(action2.responseOf({
       patch: [],
-      localDatasetProxy: new DatasetProxy(newData),
-      remoteDatasetProxy: new DatasetProxy(emptyData),
+      localDataset: new DatasetProxy(newRawDataset),
+      remoteDataset: new DatasetProxy(emptyRawDataset),
     })),
   }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
 })

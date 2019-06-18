@@ -38,7 +38,7 @@ const BackendAction = module.exports = makeTypedAction({
     },
     response: {
       backend: Backend,
-      datasetProxy: isDatasetProxy,
+      dataset: isDatasetProxy,
     }
   },
 
@@ -60,8 +60,8 @@ const BackendAction = module.exports = makeTypedAction({
       patchID: String,
     },
     response: {
-      datasetProxy: isDatasetProxy,
-      prevDatasetProxy: isDatasetProxy,
+      dataset: isDatasetProxy,
+      prevDataset: isDatasetProxy,
       patch: Object,
       change: Object,
       position: Object,
@@ -84,12 +84,12 @@ const BackendAction = module.exports = makeTypedAction({
     exec: updateLocalDataset,
     request: {
       storage: BackendStorage,
-      newDataset: isDataset,
+      newRawDataset: isDataset,
       message: String,
     },
     response: {
       backend: Backend,
-      datasetProxy: isDatasetProxy,
+      dataset: isDatasetProxy,
       patchData: Object,
     }
   },
@@ -121,7 +121,7 @@ const BackendAction = module.exports = makeTypedAction({
 })
 
 
-const emptyDataset = () => ({
+const emptyRawDataset = () => ({
   authorities: {},
   type: 'rdf:Bag'
 })
@@ -171,16 +171,16 @@ async function fetchServerResource(baseURL, resourceName) {
 function fetchBackend(storage, forceReload) {
   return async (dispatch, getState, { db }) => {
     const identifier = storage.asIdentifier()
-        , existingDatasetProxy = R.path(['backends', 'datasets', identifier], getState())
+        , existingDataset = R.path(['backends', 'datasets', identifier], getState())
 
-    if (existingDatasetProxy && !forceReload) {
+    if (existingDataset && !forceReload) {
       return {
         backend: R.path(['backends', 'available', identifier], getState()),
-        datasetProxy: existingDatasetProxy
+        dataset: existingDataset,
       }
     }
 
-    const [ metadata, dataset ] = await storage.case({
+    const [ metadata, rawDataset ] = await storage.case({
       IndexedDB: async id => {
         const ct = await db.localBackends
           .where('id')
@@ -201,7 +201,7 @@ function fetchBackend(storage, forceReload) {
 
         const isSavedLocally = !!metadata
             , resp = await fetchServerResource(url, 'd.jsonld')
-            , dataset = await resp.json()
+            , rawDataset = await resp.json()
 
         if (!isSavedLocally) {
           metadata = {
@@ -218,7 +218,7 @@ function fetchBackend(storage, forceReload) {
             .modify({ accessed: new Date() })
         }
 
-        return [ metadata, dataset ]
+        return [ metadata, rawDataset ]
       },
 
       Canonical: async url => {
@@ -236,7 +236,7 @@ function fetchBackend(storage, forceReload) {
         storage,
         metadata: BackendMetadata.BackendMetadataOf(metadata)
       }),
-      datasetProxy: new DatasetProxy(normalizeDataset(dataset))
+      dataset: new DatasetProxy(normalizeDataset(rawDataset))
     }
   }
 }
@@ -261,22 +261,22 @@ function fetchBackendPatch(storage, patchID) {
           .until(p => p.created === patch.created)
           .toArray()
 
-        const prevDataset = emptyDataset()
+        const prevRawDataset = emptyRawDataset()
 
-        let postDataset = emptyDataset()
+        let postRawDataset = emptyRawDataset()
 
         prevPatches.forEach(patch => {
           const toApply = jsonpatch.deepClone(patch.forward)
-          jsonpatch.applyPatch(prevDataset, toApply);
-          jsonpatch.applyPatch(postDataset, toApply);
+          jsonpatch.applyPatch(prevRawDataset, toApply);
+          jsonpatch.applyPatch(postRawDataset, toApply);
         })
 
-        postDataset = jsonpatch.deepClone(postDataset)
-        jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch.forward))
+        postRawDataset = jsonpatch.deepClone(postRawDataset)
+        jsonpatch.applyPatch(postRawDataset, jsonpatch.deepClone(patch.forward))
 
         return {
-          datasetProxy: new DatasetProxy(postDataset),
-          prevDatasetProxy: new DatasetProxy(prevDataset),
+          dataset: new DatasetProxy(postRawDataset),
+          prevDataset: new DatasetProxy(prevRawDataset),
           patch,
 
           // FIXME: I added these for the Web backend but no the IndexedDB one.
@@ -294,7 +294,7 @@ function fetchBackendPatch(storage, patchID) {
 
         const index = changelog.indexOf(change)
 
-        const [ prevDatasetReq, patchReq ] = await Promise.all([
+        const [ prevRawDatasetReq, patchReq ] = await Promise.all([
           fetch(change.sourceDatasetURL, {
             headers: new Headers({
               Accept: 'application/json',
@@ -303,15 +303,15 @@ function fetchBackendPatch(storage, patchID) {
           fetch(change.patchURL),
         ])
 
-        const prevDataset = await prevDatasetReq.json()
+        const prevRawDataset = await prevRawDatasetReq.json()
             , patch = await patchReq.json()
 
-        const postDataset = jsonpatch.deepClone(prevDataset)
-        jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch))
+        const postRawDataset = jsonpatch.deepClone(prevRawDataset)
+        jsonpatch.applyPatch(postRawDataset, jsonpatch.deepClone(patch))
 
         return {
-          datasetProxy: new DatasetProxy(normalizeDataset(postDataset)),
-          prevDatasetProxy: new DatasetProxy(normalizeDataset(prevDataset)),
+          dataset: new DatasetProxy(normalizeDataset(postRawDataset)),
+          prevDataset: new DatasetProxy(normalizeDataset(prevRawDataset)),
           patch,
           change,
           position: {
@@ -427,7 +427,7 @@ function addBackend(storage, label='', description='') {
 
     Object.assign(backendObj, storage.case({
       Web: () => ({ url: storage.url }),
-      IndexedDB: () => ({ dataset: emptyDataset() }),
+      IndexedDB: () => ({ dataset: emptyRawDataset() }),
       _: () => null,
     }))
 
@@ -489,7 +489,7 @@ function updateBackend(storage, withObj) {
 }
 
 
-function updateLocalDataset(storage, newDataset, message) {
+function updateLocalDataset(storage, newRawDataset, message) {
   storage.case({
     IndexedDB: () => null,
     _: () => {
@@ -498,22 +498,22 @@ function updateLocalDataset(storage, newDataset, message) {
   })
 
   return async (dispatch, getState, { db }) => {
-    let backend, datasetProxy
+    let backend, dataset
 
     async function _refetch() {
       const action = await dispatch(BackendAction.GetBackendDataset(storage, true))
           , resp = getResponse(action)
 
       backend = resp.backend;
-      datasetProxy = resp.datasetProxy;
+      dataset = resp.dataset;
     }
 
     await _refetch()
 
-    const patchData = formatPatch(datasetProxy.raw, newDataset, message)
+    const patchData = formatPatch(dataset.raw, newRawDataset, message)
 
     const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
-      dataset: newDataset,
+      dataset: newRawDataset,
       modified: new Date().getTime()
     })
 
@@ -530,7 +530,7 @@ function updateLocalDataset(storage, newDataset, message) {
 
     return {
       backend,
-      datasetProxy: new DatasetProxy(newDataset),
+      dataset: new DatasetProxy(newRawDataset),
       patchData,
     }
   }
