@@ -19,7 +19,7 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
   }
 
   render() {
-    const { dispatch, backend, dataset, locationStream } = this.props
+    const { dispatch, backend, datasetProxy, locationStream } = this.props
 
     return (
       h(Box, [
@@ -33,7 +33,7 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
               R.assocPath(
                 ['authorities', id],
                 Object.assign({ id }, authority),
-                dataset
+                datasetProxy.raw
               ),
               `Added authority ${id}`
             ))

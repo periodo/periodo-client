@@ -6,13 +6,12 @@ const R = require('ramda')
     , { yearPublished } = require('periodo-utils/src/source')
     , { Route } = require('org-shell')
     , { blocks } = require('org-layouts')
-    , { cachedSort } = require('../../backends/sort')
 
 const columns = {
   label: {
     label: 'Label',
-    sort: (periods, { dataset, sortDirection }) => {
-      return cachedSort(dataset, periods, 'label', sortDirection === "desc")
+    sort: (periods, { datasetProxy, sortDirection }) => {
+      return datasetProxy.cachedSort(periods, 'label', sortDirection === "desc")
     },
     getValue(period) {
       return period.label
@@ -36,8 +35,8 @@ const columns = {
   start: {
     label: 'Start',
 
-    sort: (periods, { dataset, sortDirection }) => {
-      return cachedSort(dataset, periods, 'start', sortDirection === "desc")
+    sort: (periods, { datasetProxy, sortDirection }) => {
+      return datasetProxy.cachedSort(periods, 'start', sortDirection === "desc")
     },
 
     getValue(period) {
@@ -49,8 +48,8 @@ const columns = {
   stop: {
     label: 'Stop',
 
-    sort: (periods, { dataset, sortDirection }) => {
-      return cachedSort(dataset, periods, 'stop', sortDirection === "desc")
+    sort: (periods, { datasetProxy, sortDirection }) => {
+      return datasetProxy.cachedSort(periods, 'stop', sortDirection === "desc")
     },
 
     getValue(period) {

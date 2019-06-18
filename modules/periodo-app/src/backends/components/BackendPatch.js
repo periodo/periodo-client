@@ -36,8 +36,8 @@ module.exports = function BackendPatch(props) {
 
       h(Compare, {
         direction: PatchDirection.Pull,
-        localDataset: props.extra.prevDataset,
-        remoteDataset: props.extra.dataset,
+        localDatasetProxy: props.extra.prevDatasetProxy,
+        remoteDatasetProxy: props.extra.datasetProxy,
       })
     ])
   )

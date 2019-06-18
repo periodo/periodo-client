@@ -12,6 +12,7 @@ const R = require('ramda')
     , { filterByHash } = require('./patch_collection')
     , { PatchDirection, PatchFate } = require('./types')
     , isURL = require('is-url')
+    , DatasetProxy = require('../backends/dataset_proxy')
 
 const PatchAction = module.exports = makeTypedAction({
   GetLocalPatch: {
@@ -21,8 +22,8 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patch: Object,
-      fromDataset: Object,
-      toDataset: Object,
+      fromDatasetProxy: Object,
+      toDatasetProxy: Object,
       patchText: Object,
       mergeURL: val => val === null || isURL(val),
     }
@@ -45,8 +46,8 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patch: Object,
-      localDataset: Object,
-      remoteDataset: Object,
+      localDatasetProxy: Object,
+      remoteDatasetProxy: Object,
     }
   },
   SubmitPatch: {
@@ -87,15 +88,15 @@ function generateDatasetPatch(
   direction
 ) {
   return async (dispatch, getState, { db }) => {
-    const [localReq, remoteReq] = await Promise.all([
+    const [ localReq, remoteReq ] = await Promise.all([
       dispatch(BackendAction.GetBackendDataset(localBackend, true)),
       dispatch(BackendAction.GetBackendDataset(remoteBackend, true)),
     ])
 
     // FIXME: Handle errors in responses?
     const localID = getResponse(localReq).backend.storage.id
-        , localDataset = getResponse(localReq).dataset
-        , remoteDataset = getResponse(remoteReq).dataset
+        , localDatasetProxy = getResponse(localReq).datasetProxy
+        , remoteDatasetProxy = getResponse(remoteReq).datasetProxy
 
     const hashObjectStore = direction.case({
       Push: () => 'forwardHashes',
@@ -110,16 +111,16 @@ function generateDatasetPatch(
         .uniqueKeys()
 
     const rawPatch = direction.case({
-      Push: () => makePatch(remoteDataset, localDataset),
-      Pull: () => makePatch(localDataset, remoteDataset)
+      Push: () => makePatch(remoteDatasetProxy.raw, localDatasetProxy.raw),
+      Pull: () => makePatch(localDatasetProxy.raw, remoteDatasetProxy.raw)
     })
 
     const patch = await filterByHash(rawPatch, direction, filterHashes)
 
     return {
       patch,
-      localDataset,
-      remoteDataset,
+      localDatasetProxy,
+      remoteDatasetProxy,
     }
   }
 }
@@ -214,8 +215,8 @@ function getLocalPatch(patchURL) {
 
       Object.assign(ret, {
         patch,
-        fromDataset,
-        toDataset,
+        fromDatasetProxy: new DatasetProxy(fromDataset),
+        toDatasetProxy: new DatasetProxy(toDataset),
         patchText,
       })
     }

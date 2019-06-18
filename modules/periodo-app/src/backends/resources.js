@@ -100,7 +100,7 @@ const individualBackendPage = (makeTitle, Component) => ({
   mapStateToProps(state, props) {
     return {
       backend: state.backends.available[props.params.backendID],
-      dataset: state.backends.datasets[props.params.backendID],
+      datasetProxy: state.backends.datasets[props.params.backendID],
     }
   },
   Component,
@@ -123,12 +123,12 @@ const individualAuthorityPage = (makeTitle, Component) => ({
   onBeforeRoute: fetchIndividualBackend(true),
   Component,
   mapStateToProps(state, props) {
-    const dataset = state.backends.datasets[props.params.backendID]
+    const datasetProxy = state.backends.datasets[props.params.backendID]
 
     return {
       backend: state.backends.available[props.params.backendID],
-      dataset: state.backends.datasets[props.params.backendID],
-      authority: dataset.authorities[props.params.authorityID],
+      datasetProxy: state.backends.datasets[props.params.backendID],
+      authority: datasetProxy.authorityByID(props.params.authorityID),
     }
   },
 })
@@ -147,12 +147,12 @@ const individualPeriodPage = (makeTitle, Component) => ({
   onBeforeRoute: fetchIndividualBackend(true, true),
   Component,
   mapStateToProps(state, props) {
-    const dataset = state.backends.datasets[props.params.backendID]
-        , authority = dataset.authorities[props.params.authorityID]
+    const datasetProxy = state.backends.datasets[props.params.backendID]
+        , authority = datasetProxy.authorityByID(props.params.authorityID)
 
     return {
       backend: state.backends.available[props.params.backendID],
-      dataset,
+      datasetProxy,
       authority,
       period: authority.periods[props.params.periodID],
     }
@@ -284,7 +284,7 @@ module.exports = {
       mapStateToProps(state, props) {
         return {
           backend: state.backends.available[props.params.backendID],
-          dataset: state.backends.datasets[props.params.backendID],
+          datasetProxy: state.backends.datasets[props.params.backendID],
           availableBackends: R.values(state.backends.available),
         }
       },

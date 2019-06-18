@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , { Flex, Box, Heading } = require('periodo-ui')
     , { Source } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
+    , DatasetProxy = require('../dataset_proxy')
 
 const layout = `
 []
@@ -24,11 +25,11 @@ class AuthorityLayout extends React.Component {
       h(AuthorityLayoutRenderer, {
         layout,
         backend,
-        dataset: {
+        datasetProxy: new DatasetProxy({
           authorities: {
             [authority.id]: authority
           }
-        },
+        }),
         blockOpts: this.state.blockOpts,
         onBlockOptsChange: blockOpts => this.setState({ blockOpts })
       })

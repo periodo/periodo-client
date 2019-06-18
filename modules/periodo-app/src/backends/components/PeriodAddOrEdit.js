@@ -23,7 +23,7 @@ class AddPeriod extends React.Component {
       authority,
       dispatch,
       backend,
-      dataset,
+      datasetProxy,
       locationStream,
       randomID
     } = this.props
@@ -41,7 +41,7 @@ class AddPeriod extends React.Component {
               R.assocPath(
                 ['authorities', authority.id, 'periods', id],
                 Object.assign({ id }, period),
-                dataset
+                datasetProxy.raw
               ),
               isEdit
                 ? `Edited period ${id} in authority ${authority.id}`

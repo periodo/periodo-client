@@ -10,6 +10,7 @@ const test = require('blue-tape')
     , PatchAction = require('../actions')
     , { PatchDirection } = require('../types')
     , makeMockStore = require('../../store_mock')
+    , DatasetProxy = require('../../backends/dataset_proxy')
 
 
 test('Patch generation actions', async t => {
@@ -67,8 +68,8 @@ test('Patch generation actions', async t => {
           }
         },
       ],
-      localDataset: newData,
-      remoteDataset: emptyData,
+      localDatasetProxy: new DatasetProxy(newData),
+      remoteDatasetProxy: new DatasetProxy(emptyData),
     }))
   }, 'should patch additions')
 
@@ -83,8 +84,8 @@ test('Patch generation actions', async t => {
     type: action2,
     readyState: ReadyState.Success(action2.responseOf({
       patch: [],
-      localDataset: newData,
-      remoteDataset: emptyData,
+      localDatasetProxy: new DatasetProxy(newData),
+      remoteDatasetProxy: new DatasetProxy(emptyData),
     })),
   }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
 })

@@ -15,17 +15,25 @@ module.exports = class DatasetProxy {
     this.periodsByID = {}
     this.authoritiesByID = {}
 
-    Object.values(this.raw.authorities).forEach(authority => {
+    Object.values(this.raw.authorities || {}).forEach(authority => {
       this.authorities.push(authority)
-      this.authorityID[authority.id] = authority
+      this.authoritiesByID[authority.id] = authority
 
-      Object.values(authority.periods).forEach(period => {
+      Object.values(authority.periods || {}).forEach(period => {
         this.periods.push(period)
         this.periodsByID[period.id] = period
 
         period[$$Authority] = authority
       })
     })
+  }
+
+  periodByID(periodID) {
+    return this.periodsByID(periodID)
+  }
+
+  authorityByID(authorityID) {
+    return this.authoritiesByID(authorityID)
   }
 
   async initSorts() {

@@ -6,7 +6,7 @@ const R = require('ramda')
     , ns = require('lov-ns')
     , jsonpatch = require('fast-json-patch')
     , Type = require('union-type')
-    , { normalizeDataset } = require('periodo-utils').dataset
+    , { normalizeDataset, isDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
@@ -38,7 +38,7 @@ const BackendAction = module.exports = makeTypedAction({
     },
     response: {
       backend: Backend,
-      dataset: isDatasetProxy,
+      datasetProxy: isDatasetProxy,
     }
   },
 
@@ -60,8 +60,8 @@ const BackendAction = module.exports = makeTypedAction({
       patchID: String,
     },
     response: {
-      dataset: isDatasetProxy,
-      prevDataset: isDatasetProxy,
+      datasetProxy: isDatasetProxy,
+      prevDatasetProxy: isDatasetProxy,
       patch: Object,
       change: Object,
       position: Object,
@@ -84,12 +84,12 @@ const BackendAction = module.exports = makeTypedAction({
     exec: updateLocalDataset,
     request: {
       storage: BackendStorage,
-      newDataset: isDatasetProxy,
+      newDataset: isDataset,
       message: String,
     },
     response: {
       backend: Backend,
-      dataset: isDatasetProxy,
+      datasetProxy: isDatasetProxy,
       patchData: Object,
     }
   },
@@ -171,12 +171,12 @@ async function fetchServerResource(baseURL, resourceName) {
 function fetchBackend(storage, forceReload) {
   return async (dispatch, getState, { db }) => {
     const identifier = storage.asIdentifier()
-        , existingDataset = R.path(['backends', 'datasets', identifier], getState())
+        , existingDatasetProxy = R.path(['backends', 'datasets', identifier], getState())
 
-    if (existingDataset && !forceReload) {
+    if (existingDatasetProxy && !forceReload) {
       return {
         backend: R.path(['backends', 'available', identifier], getState()),
-        dataset: existingDataset
+        datasetProxy: existingDatasetProxy
       }
     }
 
@@ -193,7 +193,7 @@ function fetchBackend(storage, forceReload) {
 
         const backend = await db.localBackends.get(id)
 
-        return [backend, backend.dataset]
+        return [ backend, backend.dataset ]
       },
 
       Web: async url => {
@@ -218,7 +218,7 @@ function fetchBackend(storage, forceReload) {
             .modify({ accessed: new Date() })
         }
 
-        return [metadata, dataset]
+        return [ metadata, dataset ]
       },
 
       Canonical: async url => {
@@ -236,7 +236,7 @@ function fetchBackend(storage, forceReload) {
         storage,
         metadata: BackendMetadata.BackendMetadataOf(metadata)
       }),
-      dataset: new DatasetProxy(normalizeDataset(dataset))
+      datasetProxy: new DatasetProxy(normalizeDataset(dataset))
     }
   }
 }
@@ -275,8 +275,8 @@ function fetchBackendPatch(storage, patchID) {
         jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch.forward))
 
         return {
-          dataset: new DatasetProxy(postDataset),
-          prevDataset: new DatasetProxy(prevDataset),
+          datasetProxy: new DatasetProxy(postDataset),
+          prevDatasetProxy: new DatasetProxy(prevDataset),
           patch,
 
           // FIXME: I added these for the Web backend but no the IndexedDB one.
@@ -310,8 +310,8 @@ function fetchBackendPatch(storage, patchID) {
         jsonpatch.applyPatch(postDataset, jsonpatch.deepClone(patch))
 
         return {
-          dataset: new DatasetProxy(normalizeDataset(postDataset)),
-          prevDataset: new DatasetProxy(normalizeDataset(prevDataset)),
+          datasetProxy: new DatasetProxy(normalizeDataset(postDataset)),
+          prevDatasetProxy: new DatasetProxy(normalizeDataset(prevDataset)),
           patch,
           change,
           position: {
@@ -498,19 +498,19 @@ function updateLocalDataset(storage, newDataset, message) {
   })
 
   return async (dispatch, getState, { db }) => {
-    let backend, dataset
+    let backend, datasetProxy
 
     async function _refetch() {
       const action = await dispatch(BackendAction.GetBackendDataset(storage, true))
           , resp = getResponse(action)
 
       backend = resp.backend;
-      dataset = resp.dataset;
+      datasetProxy = resp.datasetProxy;
     }
 
     await _refetch()
 
-    const patchData = formatPatch(dataset.raw, newDataset, message)
+    const patchData = formatPatch(datasetProxy.raw, newDataset, message)
 
     const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
       dataset: newDataset,
@@ -530,7 +530,7 @@ function updateLocalDataset(storage, newDataset, message) {
 
     return {
       backend,
-      dataset,
+      datasetProxy: new DatasetProxy(newDataset),
       patchData,
     }
   }

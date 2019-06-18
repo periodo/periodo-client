@@ -4,7 +4,6 @@ const d3 = require('d3')
     , R = require('ramda')
     , { blocks } = require('org-layouts')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
-    , { cachedSort } = require('../../backends/sort')
 
 const d = {
   MARGIN: 20,
@@ -50,7 +49,7 @@ module.exports = blocks.DOM({
   init(el, props) {
     this.el = el;
 
-    this.dataset = props.dataset
+    this.datasetProxy = props.datasetProxy
 
     this.svg = d3.select(el)
       .append('svg')
@@ -125,7 +124,7 @@ module.exports = blocks.DOM({
       ]))
   },
 
-  update(periods) {
+  async update(periods) {
     let min = Infinity
       , max = -Infinity
 
@@ -133,7 +132,7 @@ module.exports = blocks.DOM({
 
     if (!this.rendered) this.setDimensions()
 
-    periods = cachedSort(this.dataset, periods, 'start')
+    periods = await this.datasetProxy.cachedSort(periods, 'start')
 
     periods.forEach(period => {
       const earliest = earliestYear(period.start)

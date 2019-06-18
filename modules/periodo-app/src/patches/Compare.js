@@ -355,33 +355,32 @@ class Compare extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.state !== nextState ||
-      this.props.localDataset !== nextProps.localDataset ||
-      this.props.remoteDataset !== nextProps.remoteDataset ||
+      this.props.localDatasetProxy !== nextProps.localDatasetProxy ||
+      this.props.remoteDatasetProxy !== nextProps.remoteDatasetProxy ||
       this.props.patch !== nextProps.patch
-
     )
   }
 
   static getDerivedStateFromProps(nextProps, nextState) {
     const update = (
-      nextProps.localDataset !== nextState.localDataset ||
-      nextProps.remoteDataset !== nextState.remoteDataset ||
+      nextProps.localDatasetProxy !== nextState.localDatasetProxy ||
+      nextProps.remoteDatasetProxy !== nextState.remoteDatasetProxy ||
       nextProps.patch !== nextState.explicitPatch
     )
 
     if (!update) return null
 
-    const { direction, localDataset, remoteDataset, patch } = nextProps
+    const { direction, localDatasetProxy, remoteDatasetProxy, patch } = nextProps
 
-    const [ unpatchedDataset, patchedDataset ] = direction.case({
-      Push: () => [ remoteDataset, localDataset ],
-      Pull: () => [ localDataset, remoteDataset ],
+    const [ unpatchedDatasetProxy, patchedDatasetProxy ] = direction.case({
+      Push: () => [ remoteDatasetProxy, localDatasetProxy ],
+      Pull: () => [ localDatasetProxy, remoteDatasetProxy ],
     })
 
     let allPatches = patch
 
     if (!allPatches) {
-      allPatches = makePatch(unpatchedDataset, patchedDataset)
+      allPatches = makePatch(unpatchedDatasetProxy, patchedDatasetProxy)
     }
 
     allPatches = allPatches.map((p, i) => ({
@@ -393,10 +392,10 @@ class Compare extends React.Component {
     return {
       allPatches,
       explicitPatch: patch,
-      unpatchedDataset,
-      patchedDataset,
-      localDataset,
-      remoteDataset,
+      unpatchedDatasetProxy,
+      patchedDatasetProxy,
+      localDatasetProxy,
+      remoteDatasetProxy,
       selectedPeriods: {},
       selectedPatches: {},
       filteredTypes: [],
@@ -430,6 +429,7 @@ class Compare extends React.Component {
       })
   }
 
+  // FIXME: use datasetProxy.getAuthorityByID and datasetProxy.getPeriodByID here
   getAuthority(side, ...args) {
     return util.dataset.getAuthority(side.case({
       Unpatched: () => this.state.unpatchedDataset,
