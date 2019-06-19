@@ -28,11 +28,11 @@ module.exports = class DatasetProxy {
   }
 
   periodByID(periodID) {
-    return this.periodsByID(periodID)
+    return this.periodsByID[periodID]
   }
 
   authorityByID(authorityID) {
-    return this.authoritiesByID(authorityID)
+    return this.authoritiesByID[authorityID]
   }
 
   async initSorts() {
@@ -41,9 +41,7 @@ module.exports = class DatasetProxy {
     this.sorts = await getSorts(this)
   }
 
-  async cachedSort(periods, field, rev=false) {
-    await this.initSorts()
-
+  cachedSort(periods, field, rev=false) {
     const accessor = rev ? 'reverse' : 'forward'
         , map = this.sorts[accessor][field]
 

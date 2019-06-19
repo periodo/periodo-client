@@ -65,6 +65,9 @@ function makeTypedAction(obj) {
         const ctor = obj[prop]
 
         if (!ctor) {
+          // This truly stinks, but is necessary to work with webworkify where
+          // a RequestType is returned as an export. I'm sorry.
+          if (prop === 'default') return null
           throw new Error(`No such action: \`${prop}\``)
         }
 

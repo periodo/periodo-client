@@ -231,12 +231,16 @@ function fetchBackend(storage, forceReload) {
       },
     })
 
+    const dataset = new DatasetProxy(normalizeDataset(rawDataset))
+
+    await dataset.initSorts()
+
     return {
       backend: Backend.BackendOf({
         storage,
         metadata: BackendMetadata.BackendMetadataOf(metadata)
       }),
-      dataset: new DatasetProxy(normalizeDataset(rawDataset))
+      dataset,
     }
   }
 }

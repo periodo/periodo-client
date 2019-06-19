@@ -11,7 +11,7 @@ function createSorts(field, periods) {
     })
 
     worker.postMessage({
-      key: 'label',
+      key: field,
       periods
     })
   })
