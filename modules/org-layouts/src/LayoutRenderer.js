@@ -5,17 +5,14 @@ const h = require('react-hyperscript')
     , React = require('react')
     , PropTypes = require('prop-types')
     , debounce = require('debounce')
-    , consume = require('stream-consume')
     , { Box } = require('periodo-ui')
     , processLayout = require('./process_layout')
 
-const DEFAULT_STREAM_RESET_DELAY = 333
+const RESET_DEBOUNCE_TIME = 275
 
 class LayoutBlock extends React.Component {
   shouldComponentUpdate(nextProps) {
-    if (nextProps.stream !== this.props.stream) return true;
-
-    const monitored = ['extraProps', 'processedOpts', 'passedOpts', 'defaultOpts']
+    const monitored = ['extraProps', 'processedOpts', 'passedOpts', 'defaultOpts', 'data']
         , changed = []
 
     for (const key of monitored) {
@@ -31,13 +28,13 @@ class LayoutBlock extends React.Component {
 
   render() {
     const {
-      stream,
       gridRow,
       gridColumn,
       defaultOpts,
       passedOpts,
       processedOpts,
       extraProps,
+      data,
       block: { Component },
       onOptsChange,
     } = this.props
@@ -63,11 +60,7 @@ class LayoutBlock extends React.Component {
         }
       }
 
-      onOptsChange(newOpts)
-
-      if (invalidate) {
-        this.props.reset();
-      }
+      onOptsChange(newOpts, invalidate)
     }
 
     return (
@@ -82,61 +75,111 @@ class LayoutBlock extends React.Component {
       }, [
         h(Component, Object.assign({
           opts,
-          stream,
           updateOpts,
+          data,
         }, processedOpts, extraProps)),
       ])
     )
   }
 }
 
+function computeLayout(blocks, layoutDefinition) {
+  return processLayout(blocks, layoutDefinition)
+}
+
+function computeLayoutOptions(layout, opts={}) {
+  return layout.blocks.map(block =>
+    block.block.processOpts(
+      Object.assign({}, block.baseOpts, opts[block.id])))
+}
+
 class LayoutRenderer extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    const processedLayout = computeLayout(props.blocks, props.layout)
+        , processedOpts = computeLayoutOptions(processedLayout, props.blockOpts)
 
     this.state = {
-      streams: null
+      processedLayout,
+      processedOpts,
+      dataForBlocks: processedOpts.map(() => []),
     }
 
-    this.reset = this.reset.bind(this);
-    this.resetStreams = this.resetStreams.bind(this);
+    this.dataResets = 0
 
+    this.resetLayout = this.resetLayout.bind(this);
+    this.resetData = this.resetData.bind(this);
+    this.debouncedResetData = debounce(this.resetData, RESET_DEBOUNCE_TIME)
   }
 
   componentDidMount() {
-    this.reset(this.props)
-    this.updateProcessedOpts(this.props.blockOpts)
-    this.resetStreams();
-    this._resetStreams = this.resetStreams;
-    this.resetStreams = debounce(
-      this.resetStreams,
-      this.props.streamResetDelay || DEFAULT_STREAM_RESET_DELAY
-    )
+    this.resetData()
   }
 
-  componentWillReceiveProps(nextProps) {
-    const reset = (
-      !R.equals(this.props.layout, nextProps.layout) ||
-      !R.equals(this.props.blocks, nextProps.blocks) ||
-      !R.equals(this.props.extraProps, nextProps.extraProps) ||
-      (R.isEmpty(nextProps.blockOpts) && !R.isEmpty(this.props.blockOpts))
+  componentDidUpdate(prevProps) {
+    const resetLayout = (
+      !R.equals(this.props.layout, prevProps.layout) ||
+      !R.equals(this.props.blocks, prevProps.blocks) ||
+      !R.equals(this.props.extraProps, prevProps.extraProps) ||
+      (R.isEmpty(prevProps.blockOpts) && !R.isEmpty(this.props.blockOpts))
     )
 
-    if (reset) {
-      this.reset(nextProps)
-      this._resetStreams()
+    if (resetLayout) {
+      this.resetLayout(this.props)
     }
 
-    if (this.props.blockOpts !== nextProps.blockOpts) {
-      this.updateProcessedOpts(nextProps.blockOpts)
+    if (this.props.blockOpts !== prevProps.blockOpts) {
+      this.updateProcessedOpts(this.props.blockOpts)
     }
   }
 
-  reset(props) {
+  resetLayout(props) {
     this.setState({
       processedLayout: processLayout(props.blocks, props.layout),
     })
   }
+
+  async resetData(startFrom=0) {
+    this.dataResets += 1
+
+    const { processedLayout, processedOpts } = this.state
+        , renderID = this.dataResets
+        , numBlocks = processedLayout.blocks.length
+
+    let dataForBlocks = [...this.state.dataForBlocks]
+
+    for (let i = 0; i < numBlocks; i++) {
+      await new Promise(resolve => {
+        const block = processedLayout.blocks[i]
+            , blockOpts = processedOpts[i]
+            , lastData = dataForBlocks[i - 1] || this.props.data
+
+        if (this.dataResets !== renderID) resolve()
+
+        let nextData = lastData
+
+        const { makeFilter } = block.block
+
+        if (makeFilter) {
+          const filterFn = makeFilter(blockOpts)
+
+          if (filterFn) {
+            nextData = lastData.filter(filterFn)
+          }
+        }
+
+        dataForBlocks = [...dataForBlocks]
+        dataForBlocks[i] = nextData
+
+        if (this.dataResets !== renderID) resolve()
+
+        this.setState({ dataForBlocks })
+        setTimeout(resolve, 0)
+      })
+    }
+  }
+
 
   updateProcessedOpts(opts={}) {
     this.setState(prev => {
@@ -148,57 +191,34 @@ class LayoutRenderer extends React.Component {
     })
   }
 
-  resetStreams(startFrom=0) {
-    this.setState(prev => {
-      const _streams = prev.processedLayout.blocks.reduce((_streams, { block }, i) => {
-        const processedOpts = prev.processedOpts[i]
-            , lastOutput = (R.last(_streams) || { output: this.props.createReadStream() }).output
-            , input = lastOutput.pipe(block.makeInputStream())
-            , output = input.pipe(block.makeOutputStream(processedOpts))
-
-        return [..._streams, { input, output }]
-      }, [])
-
-      return {
-        _streams,
-        streams: [
-          ...(prev.streams || []).slice(0, startFrom),
-          ..._streams.slice(startFrom)
-        ]
-      }
-    })
-  }
-
   render() {
-    const { extraProps, blockOpts, onBlockOptsChange } = this.props
-        , { processedLayout, processedOpts, streams, _streams } = this.state
+    const { extraProps, blockOpts, onBlockOptsChange, data } = this.props
+        , { processedLayout, processedOpts, dataForBlocks } = this.state
 
     const currentOpts = () => this.props.blockOpts
 
-    if (!processedLayout || !streams || !processedOpts) return null
+    if (!processedLayout || !data || !processedOpts) return null
 
-    const children = processedLayout.blocks.map((block, i) => [
+    const children = processedLayout.blocks.map((block, i) =>
       h(LayoutBlock, Object.assign({
         key: `${i}-${block.type}`,
-        stream: streams[i].input,
+        data: dataForBlocks[i] || [],
         extraProps,
         processedOpts: processedOpts[i],
         passedOpts: blockOpts[block.id],
-        onOptsChange(newOpts) {
+        onOptsChange: (newOpts, invalidate) => {
           onBlockOptsChange(
             R.isEmpty(newOpts)
               ? R.dissoc(block.id, currentOpts())
-              : R.merge(currentOpts(), { [block.id]: newOpts })
-          )
-        },
-        reset: this.resetStreams.bind(this, i),
-      }, block)),
+              : R.merge(currentOpts(), { [block.id]: newOpts }))
 
-      h(() => {
-        consume(_streams[i].output);
-        return null;
-      }, { key: `stream-consume-${i}` }),
-    ])
+          if (invalidate) {
+            setTimeout(() => this.debouncedResetData(i), 0)
+          }
+
+        },
+      }, block)),
+    )
 
     return (
       h(Box, {
@@ -220,8 +240,7 @@ module.exports = Object.assign(LayoutRenderer, {
       label: PropTypes.string.isRequired,
       description: PropTypes.string.isRequired,
       Component: PropTypes.any.isRequired,
-      makeInputStream: PropTypes.func,
-      makeOutputStream: PropTypes.func,
+      makeFilter: PropTypes.func,
       processOpts: PropTypes.func,
     })).isRequired,
     layout: PropTypes.string.isRequired,
@@ -230,7 +249,6 @@ module.exports = Object.assign(LayoutRenderer, {
       PropTypes.object
     ]).isRequired,
     onBlockOptsChange: PropTypes.func.isRequired,
-    createReadStream: PropTypes.func.isRequired,
-    streamResetDelay: PropTypes.number,
+    data: PropTypes.array.isRequired,
   }
 })

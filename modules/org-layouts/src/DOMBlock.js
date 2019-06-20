@@ -2,14 +2,10 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , StreamConsumingBlock = require('./StreamConsumingBlock')
 
 const noop = () => null
 
 module.exports = function makeDOMBlock(obj) {
-  const next = obj.next || ((prev=[], items) => prev.concat(items))
-      , steps = obj.steps || Infinity
-
   const proto = Object.assign({
     init: noop,
     update: noop,
@@ -30,25 +26,23 @@ module.exports = function makeDOMBlock(obj) {
 
       this.instance = Object.create(proto)
       this.instance.init(this.blockEl, this.props)
+      this.update()
 
       this._rootEl.appendChild(this.blockEl)
     }
 
-    componentWillReceiveProps(nextProps) {
-      if (this.props.stream !== nextProps.stream) {
-        this.setState(prev => ({ streamCount: prev.streamCount + 1 }))
-      }
-    }
-
     componentDidUpdate(prevProps) {
-      if (this.props.started && this.props.data !== prevProps.data) {
-        if (!this.props.finished && !this.props.data.length) return
-        this.instance.update(this.props.data, this.props, this.state.streamCount)
+      if (this.props.data !== prevProps.data) {
+        this.update()
       }
     }
 
     componentWillUnmount() {
       this.instance.destroy();
+    }
+
+    update() {
+      this.instance.update(this.props.data, this.props)
     }
 
     render() {
@@ -59,6 +53,6 @@ module.exports = function makeDOMBlock(obj) {
   }
 
   return Object.assign({}, obj, {
-    Component: StreamConsumingBlock(next, steps)(DOMBlock)
+    Component: DOMBlock,
   })
 }

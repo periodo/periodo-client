@@ -1,8 +1,9 @@
 "use strict";
 
-const d3 = require('d3')
+const h = require('react-hyperscript')
+    , d3 = require('d3')
     , R = require('ramda')
-    , { blocks } = require('org-layouts')
+    , React = require('react')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
 const d = {
@@ -35,25 +36,55 @@ function domainUnit(num, floor=true) {
   return roundToUnit(num, unit * .5, floor)
 }
 
+const yaTickFormat = R.cond([
+  // Pre-late stone age (50,000 BC): use SI notation for how many years
+  // ago it was, with 'a' as a suffix:
+  //
+  //   * ka (thousand years ago)
+  //   * Ma (million years ago)
+  //   * Ga (billion years ago)
+  [R.gt(-50000), R.pipe(
+    R.subtract(new Date().getFullYear()),
+    d3.format('.2s'),
+    R.flip(R.concat)('a'),
+    x => x.replace('.0', '')
+  )],
 
-module.exports = blocks.DOM({
-  label: 'D3 test',
-  description: 'd3 component with init/update/destroy methods',
-  steps: 1000,
-  next(prev=[], items) {
-    return prev.concat(...items.map(authority =>
-      R.values(authority.periods)
-    ))
-  },
+  // Late stone age to ISO8601 year -1: Tack on 'BC'. Add commas
+  // for 10,000 to 50,000.
+  [R.gte(-1), R.pipe(
+    d => Math.abs(d),
+    R.ifElse(R.lte(10000), d3.format(','), R.toString),
+    R.flip(R.concat)('BC'),
+  )],
 
-  init(el, props) {
-    this.el = el;
+  // Otherwise, just return the string. (e.g. 1243, 466, 1999). This
+  // would not make sense for far-future dates
+  [R.T, R.toString]
+])
 
-    this.dataset = props.dataset
+class Timeline extends React.Component {
+  componentDidMount() {
+    this.init()
+    this.update()
+  }
 
-    this.svg = d3.select(el)
+  componentDidUpdate(prevProps) {
+    const update = (
+      this.props.data !== prevProps.data
+    )
+
+    if (update) {
+      this.update()
+    }
+  }
+
+  init() {
+    const { svgHeight=MIN_HEIGHT } = this.props
+
+    this.svg = d3.select(this.el)
       .append('svg')
-      .attr('height', 'height' in props ? props.height : MIN_HEIGHT)
+      .attr('height', svgHeight)
 
     this.g = this.svg
       .append('g')
@@ -61,9 +92,7 @@ module.exports = blocks.DOM({
 
     this.periodsGBackground = this.g.append('rect')
     this.periodsG = this.g.append('g')
-  },
 
-  setDimensions() {
     const { width, height } = this.el.getBoundingClientRect()
 
     this.svg
@@ -86,53 +115,16 @@ module.exports = blocks.DOM({
       x: this.g.append('g')
         .attr('transform', `translate(0,${height})`)
     }
+  }
 
-    this.rendered = true;
+  update() {
+    const { dataset, data } = this.props
 
-
-  },
-
-  getXAxis() {
-    return d3.axisBottom()
-      .scale(this.scale.x)
-      .ticks(5)
-      .tickFormat(R.cond([
-        // Pre-late stone age (50,000 BC): use SI notation for how many years
-        // ago it was, with 'a' as a suffix:
-        //
-        //   * ka (thousand years ago)
-        //   * Ma (million years ago)
-        //   * Ga (billion years ago)
-        [R.gt(-50000), R.pipe(
-          R.subtract(new Date().getFullYear()),
-          d3.format('.2s'),
-          R.flip(R.concat)('a'),
-          x => x.replace('.0', '')
-        )],
-
-        // Late stone age to ISO8601 year -1: Tack on 'BC'. Add commas
-        // for 10,000 to 50,000.
-        [R.gte(-1), R.pipe(
-          d => Math.abs(d),
-          R.ifElse(R.lte(10000), d3.format(','), R.toString),
-          R.flip(R.concat)('BC'),
-        )],
-
-        // Otherwise, just return the string. (e.g. 1243, 466, 1999). This
-        // would not make sense for far-future dates
-        [R.T, R.toString]
-      ]))
-  },
-
-  async update(periods) {
     let min = Infinity
       , max = -Infinity
 
-    const _periods = []
-
-    if (!this.rendered) this.setDimensions()
-
-    periods = await this.dataset.cachedSort(periods, 'start')
+    const periods = dataset.cachedSort(data, 'start')
+        , _periods = []
 
     periods.forEach(period => {
       const earliest = earliestYear(period.start)
@@ -147,7 +139,12 @@ module.exports = blocks.DOM({
     this.scale.x.domain([domainUnit(min), domainUnit(max, false)])
     this.scale.y.domain([0, periods.length])
 
-    this.axisG.x.transition().duration(256).call(this.getXAxis())
+    const xAxis = d3.axisBottom()
+      .scale(this.scale.x)
+      .ticks(5)
+      .tickFormat(yaTickFormat)
+
+    this.axisG.x.transition().duration(256).call(xAxis)
 
     const rects = this.periodsG
       .selectAll('rect')
@@ -204,5 +201,19 @@ module.exports = blocks.DOM({
       .style('opacity', 1)
 
     this.notFirst = true;
-  },
-})
+  }
+
+  render() {
+    return (
+      h('div', {
+        ref: el => { this.el = el }
+      })
+    )
+  }
+}
+
+module.exports = {
+  label: 'D3 test',
+  description: 'd3 component with init/update/destroy methods',
+  Component: Timeline,
+}

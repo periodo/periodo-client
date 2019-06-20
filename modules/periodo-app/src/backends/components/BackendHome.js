@@ -3,10 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Tabs, Flex, Box, Text } = require('periodo-ui')
-    , { LayoutEditor } = require('org-layouts')
+    , { Tabs, Box } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
-    , blocks = require('../../layouts/authorities/blocks')
 
 const periodLayout = `
 grid-template-columns = 2fr 1fr

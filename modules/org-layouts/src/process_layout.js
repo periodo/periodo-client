@@ -2,7 +2,6 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , through = require('through2')
     , parseLayout = require('./parser')
 
 // Take an object full of definitions of blocks, and the specification of a
@@ -19,8 +18,7 @@ module.exports = function processLayout(blockDefs, layoutString) {
                 backgroundColor: 'red'
               },
             }, `No such block type: ${type}`),
-            makeInputStream=through.obj,
-            makeOutputStream=through.obj,
+            makeFilter=null,
             processOpts=R.defaultTo({}, R.identity),
             defaultOpts={}
           } = (blockDefs[type] || {})
@@ -32,8 +30,7 @@ module.exports = function processLayout(blockDefs, layoutString) {
             gridColumn,
             block: {
               Component,
-              makeInputStream,
-              makeOutputStream,
+              makeFilter,
               processOpts,
             },
             defaultOpts: Object.assign({}, defaultOpts, opts),

@@ -4,7 +4,6 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { LayoutRenderer, blocks } = require('org-layouts')
     , { Route } = require('org-shell')
-    , fromArray = require('from2-array')
     , { Link } = require('periodo-ui')
 
 const PatchList = blocks.List({
@@ -39,6 +38,6 @@ module.exports = props =>
     blocks: {
       'patch-list': PatchList,
     },
-    createReadStream: () => fromArray.obj(props.patches),
+    data: props.patches,
     extraProps: { backend: props.backend },
   })))

@@ -8,8 +8,6 @@ const h = require('react-hyperscript')
     , { colors } = require('periodo-ui').theme
     , { Button, DropdownMenu, DropdownMenuItem, Link } = require('periodo-ui')
     , Icon = require('react-geomicons').default
-    , StreamConsumingBlock = require('./StreamConsumingBlock')
-    , concat = [].concat.bind([])
 
 const ListHeader = ({
   start,
@@ -90,7 +88,7 @@ const ListHeader = ({
 
       h(Button, {
         borderRadius: 0,
-        disabled: start + shownItems.length >= items.length,
+        disabled: items == null || start + shownItems.length >= items.length,
         onClick: nextPage,
       }, h(Icon, {
         onMouseDown: e => {
@@ -105,7 +103,7 @@ const ListHeader = ({
 
       h(Button, {
         borderRadius: 0,
-        disabled: start + shownItems.length >= items.length,
+        disabled: items == null || start + shownItems.length >= items.length,
         onClick: lastPage,
       }, h(Icon, {
         onMouseDown: e => {
@@ -186,7 +184,7 @@ function LinkedRowNumbering(props) {
 }
 
 module.exports = function makeList(opts) {
-  const { label, description, defaultOpts={}, transducer, columns, makeItemRoute } = opts
+  const { label, description, defaultOpts={}, columns, makeItemRoute } = opts
 
   const withDefaults = obj => Object.assign({
     start: 0,
@@ -196,47 +194,13 @@ module.exports = function makeList(opts) {
 
   const RowNumbering = makeItemRoute ? LinkedRowNumbering : DefaultRowNumbering
 
-  const next = (prev, items, props={}) => {
-    let ret = R.transduce(
-      transducer || R.map(R.identity),
-      concat,
-      prev || [],
-      items
-    )
-
-    if (props && props.sortBy) {
-      const col = columns[props.sortBy]
-
-      if (col) {
-        if (col.sort) {
-          ret = col.sort(ret, props)
-        } else {
-          const sorter = natsort({
-            insensitive: true,
-            desc: props.sortDirection === 'desc',
-          })
-
-          ret = ret.sort((a, b) => {
-            const [_a, _b] = [a, b].map(col.getValue)
-
-            if (_a == null) return 1
-            if (_b == null) return -1
-
-            return sorter(_a, _b)
-          })
-        }
-      }
-    }
-
-    return ret
-  }
-
   class List extends React.Component {
     constructor(props) {
       super(props);
 
       this.state = {
         start: withDefaults(props).start,
+        sortedData: null,
       }
 
       this.firstPage = this.firstPage.bind(this);
@@ -245,14 +209,43 @@ module.exports = function makeList(opts) {
       this.prevPage = this.prevPage.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(prevProps) {
       const updateSort = (
-        nextProps.sortBy !== this.props.sortBy ||
-        nextProps.sortDirection !== this.props.sortDirection
+        prevProps.sortBy !== this.props.sortBy ||
+        prevProps.sortDirection !== this.props.sortDirection ||
+        prevProps.data !== this.props.data
       )
 
       if (updateSort) {
-        this.props.updateData(data => next(data, [], nextProps))
+        this.updateSort()
+      }
+    }
+
+    async updateSort() {
+      const { sortBy, sortDirection, data } = this.props
+          , column = columns[sortBy]
+
+      if (column) {
+        if (column.sort) {
+          const sortedData = await column.sort(data, this.props)
+          this.setState({ sortedData, start: 0 })
+        } else {
+          const sorter = natsort({
+            insensitive: true,
+            desc: sortDirection === 'desc',
+          })
+
+          const sortedData = [...data].sort((a, b) => {
+            const [_a, _b] = [a, b].map(column.getValue)
+
+            if (_a == null) return 1
+            if (_b == null) return -1
+
+            return sorter(_a, _b)
+          })
+
+          this.setState({ sortedData, start: 0 })
+        }
       }
     }
 
@@ -299,11 +292,10 @@ module.exports = function makeList(opts) {
     }
 
     render() {
-      const items = this.props.data
-          , { shownColumns, sortBy, sortDirection, updateOpts } = this.props
+      const { shownColumns, sortBy, sortDirection, updateOpts } = this.props
           , limit = parseInt(this.props.limit)
-          , { start } = this.state
-          , shownItems = items.slice(start, start + limit)
+          , { start, sortedData: items } = this.state
+          , shownItems = (items || []).slice(start, start + limit)
           , hide = shownItems.length === 0
 
       return (
@@ -435,6 +427,6 @@ module.exports = function makeList(opts) {
     description,
     processOpts: withDefaults,
     defaultOpts,
-    Component: StreamConsumingBlock(next, Infinity)(List)
+    Component: List,
   }
 }

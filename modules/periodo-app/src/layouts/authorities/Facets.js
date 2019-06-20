@@ -3,9 +3,6 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , through = require('through2')
-    , { StreamConsuming } = require('org-layouts').blocks
-    , concat = [].concat.bind([])
     , tags = require('language-tags')
     , { Flex, Box, Link } = require('periodo-ui')
     , work = require('webworkify')
@@ -25,7 +22,7 @@ const aspects = {
 
   spatialCoverage: {
     label: 'Spatial coverage',
-    getter: R.prop('spatialCoverageDescription'),
+    getter: period => period.spatialCoverageDescription,
     render: R.identity,
   }
 }
@@ -179,8 +176,10 @@ class Facets extends React.Component {
 module.exports = {
   label: 'Facets',
   description: 'Filter items based on their attributes',
-  makeOutputStream(opts) {
+  makeFilter(opts) {
     const { selected={} } = (opts || {})
+
+    if (R.isEmpty(selected)) return null
 
     const fns = Object.entries(selected).map(([aspectID, vals]) => {
       const { getter } = aspects[aspectID]
@@ -188,28 +187,7 @@ module.exports = {
       return period => vals.includes(getter(period))
     })
 
-    return through.obj(function ({ authority, periods }, enc, cb) {
-      const matchedPeriods = R.filter(period => fns.every(fn => fn(period)), periods)
-
-      if (!R.isEmpty(matchedPeriods)) {
-        this.push({
-          authority,
-          periods: matchedPeriods,
-        })
-      }
-
-      cb();
-    })
+    return period => fns.every(fn => fn(period))
   },
-  Component: StreamConsuming(
-    (prev=[], items, props={}) => {
-      return R.transduce(
-        R.map(R.pipe(R.prop('periods'), R.values)),
-        concat,
-        prev,
-        items
-      )
-    },
-    Infinity
-  )(Facets),
+  Component: Facets,
 }

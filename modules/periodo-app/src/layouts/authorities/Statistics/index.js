@@ -1,43 +1,26 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , { Box, Text } = require('periodo-ui')
-    , { blocks } = require('org-layouts')
+    , { period: { authorityOf }} = require('periodo-utils')
 
-function itemKeySetReducer(sets, item) {
-  Object.keys(item).forEach(key => {
-    const val = [].concat(item[key])
-        , set = sets[key]
+function countAuthorities(data) {
+  const s = new Set()
 
-    val.forEach(set.add.bind(set))
+  data.forEach(period => {
+    s.add(authorityOf(period))
   })
 
-  return sets
-}
-
-const next = (prev, items) => {
-  prev = prev || { authorities: new Set(), periods: new Set() }
-
-  return R.transduce(
-    R.map(({ authority, periods }) => ({
-      authorities: authority.id,
-      periods: Object.keys(periods),
-    })),
-    itemKeySetReducer,
-    prev,
-    items
-  )
+  return s.size
 }
 
 module.exports = {
   label: 'Statistics',
   description: 'Simple stastics about the dataset.',
-  Component: blocks.StreamConsuming(next, 2)(props =>
+  Component: props =>
     h(Box, [
       h(Box, [
-        h(Text, `There are ${props.data.periods.size} periods in ${props.data.authorities.size} authorities`)
+        h(Text, `There are ${props.data.length} periods in ${countAuthorities(props.data)} authorities`)
       ])
     ])
-  )
 }

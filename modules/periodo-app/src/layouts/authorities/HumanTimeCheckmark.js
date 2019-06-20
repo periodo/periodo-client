@@ -1,41 +1,26 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , through = require('through2')
     , { Box } = require('periodo-ui')
-    , { terminus: { earliestYear} } = require('periodo-utils')
+    , { terminus: { earliestYear } } = require('periodo-utils')
 
 module.exports = {
   label: 'Human time checkmarks',
   description: 'Filter out periods that occur before humans existed',
-  makeOutputStream(opts={}) {
+  makeFilter(opts={}) {
     const { cutoff='homo-sapiens' } = opts
 
-    let earliest = -Infinity
+    if (cutoff !== 'homo-sapiens') return null
 
-    if (cutoff === 'homo-sapiens') {
-      earliest = -400001
+    const earliest = -400001
+
+    return period => {
+      if (period.start == undefined) return false
+
+      const earliestStart = earliestYear(period.start)
+
+      return earliestStart != null && earliestStart > earliest
     }
-
-    return through.obj(function ({ authority, periods }, enc, cb) {
-      const matchedPeriods = R.filter(period => {
-        if (!period.start) return false;
-
-        const earliestStart = earliestYear(period.start)
-
-        return earliestStart != null && earliestStart > earliest
-      })(periods)
-
-      if (R.isEmpty(periods) || !R.isEmpty(matchedPeriods)) {
-        this.push({
-          authority,
-          periods: matchedPeriods,
-        })
-      }
-
-      cb();
-    })
   },
   Component: ({ cutoff='homo-sapiens', updateOpts }) =>
     h(Box, [

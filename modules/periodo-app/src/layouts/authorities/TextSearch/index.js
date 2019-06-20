@@ -2,41 +2,31 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , through = require('through2')
     , { alternateLabels } = require('periodo-utils/src/period')
 
+const _alternateLabels = R.memoizeWith(R.identity, alternateLabels)
 
 module.exports = {
   label: 'Text search',
   description: 'Search for periods by text.',
-  makeOutputStream(opts) {
+  makeFilter(opts) {
     const text = opts && opts.text
-        , regex = text && new RegExp(text, 'i')
 
-    if (!text) return through.obj()
+    if (!text) return null
 
-    return through.obj(function ({ authority, periods }, enc, cb) {
-      const matchedPeriods = R.filter(period =>
-        regex.test(period.label) ||
-        alternateLabels(period).some(label => regex.test(label.value))
-      )(periods)
+    const regex = text && new RegExp(text, 'i')
 
-      if (!R.isEmpty(matchedPeriods)) {
-        this.push({
-          authority,
-          periods: matchedPeriods,
-        })
-      }
-
-      cb();
-    })
+    return period => (
+      regex.test(period.label) ||
+      _alternateLabels(period).some(label => regex.test(label.value))
+    )
   },
   Component: props =>
     h('label', [
       'Search: ',
       h('input', {
         type: 'text',
-        value: props.text || '',
+        value: props.opts.text || '',
         onChange: e => {
           const text = e.target.value
               , invalidate = text.slice(-1) !== '|'
