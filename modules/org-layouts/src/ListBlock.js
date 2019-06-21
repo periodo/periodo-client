@@ -12,8 +12,8 @@ const h = require('react-hyperscript')
 const ListHeader = ({
   start,
   shownItems,
-  hide,
   items,
+  loaded,
   limit,
   columns,
   shownColumns,
@@ -33,7 +33,7 @@ const ListHeader = ({
       textAlign: 'left',
       flex: '1 1 auto',
     }, [
-      !hide && h(Text, {
+      (!loaded || shownItems.length === 0) ? null : h(Text, {
         mx: 2,
       }, `${start + 1}‒${start + shownItems.length} of ${items.length}`),
     ]),
@@ -88,7 +88,7 @@ const ListHeader = ({
 
       h(Button, {
         borderRadius: 0,
-        disabled: items == null || start + shownItems.length >= items.length,
+        disabled: !loaded || start + shownItems.length >= items.length,
         onClick: nextPage,
       }, h(Icon, {
         onMouseDown: e => {
@@ -103,7 +103,7 @@ const ListHeader = ({
 
       h(Button, {
         borderRadius: 0,
-        disabled: items == null || start + shownItems.length >= items.length,
+        disabled: !loaded || start + shownItems.length >= items.length,
         onClick: lastPage,
       }, h(Icon, {
         onMouseDown: e => {
@@ -296,7 +296,7 @@ module.exports = function makeList(opts) {
           , limit = parseInt(this.props.limit)
           , { start, sortedData: items } = this.state
           , shownItems = (items || []).slice(start, start + limit)
-          , hide = shownItems.length === 0
+          , loaded = items != null
 
       return (
         h(Box, {
@@ -304,13 +304,17 @@ module.exports = function makeList(opts) {
           onKeyDown: e => {
             if (e.key === 'ArrowLeft') this.prevPage();
             if (e.key === 'ArrowRight') this.nextPage();
-          }
+          },
+
+          style: {
+            minHeight: limit * 24,
+          },
         }, [
           h(ListHeader, Object.assign({
-            hide,
             items,
             limit,
             shownItems,
+            loaded,
             prevPage: this.prevPage,
             nextPage: this.nextPage,
             firstPage: this.firstPage,
@@ -409,7 +413,7 @@ module.exports = function makeList(opts) {
             )
           ]),
 
-          hide && (
+          !(loaded && shownItems.length === 0) ? null : (
             h(Text, {
               align: 'center',
               fontSize: 4,
@@ -417,6 +421,13 @@ module.exports = function makeList(opts) {
             }, 'No items to display')
           ),
 
+          loaded ? null : (
+            h(Text, {
+              align: 'center',
+              fontSize: 4,
+              p: 2,
+            }, 'Loading...')
+          ),
         ])
       )
     }
