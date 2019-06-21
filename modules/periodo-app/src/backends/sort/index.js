@@ -1,21 +1,7 @@
 "use strict";
 
 const work = require('webworkify')
-
-function createSorts(field, periods) {
-  const worker = work(require('./worker'))
-
-  return new Promise(resolve => {
-    worker.addEventListener('message', e => {
-      resolve(e.data)
-    })
-
-    worker.postMessage({
-      key: field,
-      periods
-    })
-  })
-}
+    , PromiseWorker = require('promise-worker')
 
 // Get the exact periods from the dataset, since the object identities will have
 // changed after coming from the web worker
@@ -25,15 +11,22 @@ function restore(sortedPosByID, dataset) {
 
 // Add sorts for label, earliest start, and latest stop
 async function getSorts(dataset) {
-  const periods = dataset.periods
+  const worker = work(require('./worker'))
+      , promiseWorker = new PromiseWorker(worker)
+      , periods = dataset.periods
       , sorts = { forward: {}, reverse: {}}
 
-  await Promise.all((['label', 'stop', 'start']).map(async key => {
-    const { forward, reverse } = await createSorts(key, periods)
+  for (const key of ['label', 'stop', 'start']) {
+    const { forward, reverse } = await promiseWorker.postMessage({
+      key,
+      periods
+    })
 
     sorts.forward[key] = restore(forward, dataset)
     sorts.reverse[key] = restore(reverse, dataset)
-  }))
+  }
+
+  worker.terminate()
 
   return sorts
 }

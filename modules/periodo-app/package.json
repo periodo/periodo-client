@@ -28,6 +28,7 @@
     "periodo-date-parser": "^1.0.1",
     "periodo-ui": "^1.1.0",
     "periodo-utils": "^5.0.0",
+    "promise-worker": "^2.0.1",
     "prop-types": "^15.5.10",
     "ramda": "^0.24.1",
     "react": "^16.2.0",

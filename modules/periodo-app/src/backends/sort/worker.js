@@ -3,6 +3,7 @@
 const { terminus } = require('periodo-utils')
     , natsort = require('natsort')
     , sorter = natsort({ insensitive: true })
+    , registerPromiseWorker = require('promise-worker/register')
 
 function sort(getter, vals) {
   const ret = new Map()
@@ -53,19 +54,17 @@ function sortPosByID(sortedMap) {
   return new Map([...sortedMap].map(([ k, v ]) => [ k.id, v ]))
 }
 
-module.exports = function sortWorker(self) {
-  self.addEventListener('message', e => {
-    const { key, periods } = e.data
+module.exports = function sortWorker() {
+  registerPromiseWorker(message => {
+    const { key, periods } = message
         , fn = getters[key]
 
     const forwardSort = sort(fn, periods)
         , reverseSort = reverse(fn, forwardSort)
 
-    self.postMessage({
+    return {
       forward: sortPosByID(forwardSort),
       reverse: sortPosByID(reverseSort),
-    })
-
-    self.close()
+    }
   })
 }
