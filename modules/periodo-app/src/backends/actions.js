@@ -234,7 +234,10 @@ function fetchBackend(storage, forceReload) {
     const dataset = new DatasetProxy(normalizeDataset(rawDataset))
 
     if ((typeof window) !== 'undefined') {
-      await dataset.initSorts()
+      await Promise.all([
+        dataset.cachedSort([], 'label'),
+        dataset.cachedSort([], 'start'),
+      ])
     }
 
     return {

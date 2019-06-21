@@ -119,13 +119,13 @@ class Timeline extends React.Component {
     }
   }
 
-  update() {
+  async update() {
     const { dataset, data } = this.props
 
     let min = Infinity
       , max = -Infinity
 
-    const periods = dataset.cachedSort(data, 'start')
+    const periods = await dataset.cachedSort(data, 'start')
         , _periods = []
 
     periods.forEach(period => {
