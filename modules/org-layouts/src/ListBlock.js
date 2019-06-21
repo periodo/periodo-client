@@ -326,6 +326,7 @@ module.exports = function makeList(opts) {
           h(Box, {
             is: 'table',
             css: {
+              tableLayout: 'fixed',
               width: '100%',
               borderCollapse: 'collapse',
             }
@@ -344,12 +345,18 @@ module.exports = function makeList(opts) {
                   is: 'th',
                   key: 'first',
                   p: 1,
+                  style: {
+                    width: '42px',
+                  },
                 })
               ].concat(shownColumns.map(n =>
                 h(Box, {
                   is: 'th',
                   key: n,
                   p: 1,
+                  style: {
+                    width: columns[n].width || 'unset',
+                  },
                   onClick: () => {
                     updateOpts((opts={}) => Object.assign(
                       {},

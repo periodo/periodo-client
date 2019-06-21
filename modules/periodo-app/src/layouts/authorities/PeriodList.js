@@ -27,6 +27,7 @@ const columns = {
 
   publicationDate: {
     label: 'Publication date',
+    width: '132px',
     getValue(period) {
       return yearPublished(authorityOf(period).source)
     }
@@ -34,6 +35,7 @@ const columns = {
 
   start: {
     label: 'Start',
+    width: '100px',
 
     sort: (periods, { dataset, sortDirection }) => {
       return dataset.cachedSort(periods, 'start', sortDirection === "desc")
@@ -47,6 +49,7 @@ const columns = {
 
   stop: {
     label: 'Stop',
+    width: '100px',
 
     sort: (periods, { dataset, sortDirection }) => {
       return dataset.cachedSort(periods, 'stop', sortDirection === "desc")
