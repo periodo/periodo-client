@@ -31,13 +31,15 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
         , { value={}, onValueChange, errors } = this.props
         , cancel = onValueChange ? false : R.always(null)
 
-    const sourceFormElement = h(showLDForm ? LDSourceForm : NonLDSourceForm, {
+    const childProps = {
       value: value.source,
       onValueChange: cancel || R.pipe(
         R.set(lenses.source, R.__, value),
         onValueChange
       ),
-    })
+    }
+
+    const sourceFormElement = h(showLDForm ? LDSourceForm : NonLDSourceForm, {})
 
     return (
       h(Box, [
@@ -50,12 +52,12 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
                 {
                   id: 'ld',
                   label: 'Linked data',
-                  element: sourceFormElement,
+                  renderTab: () => h(LDSourceForm, childProps),
                 },
                 {
                   id: 'non-ld',
                   label: h('span', [h('em', 'Not'), ' linked data']),
-                  element: sourceFormElement,
+                  renderTab: () => h(NonLDSourceForm, childProps),
                 }
               ],
               value: showLDForm ? 'ld' : 'non-ld',

@@ -57,12 +57,7 @@ module.exports = class BackendHome extends React.Component {
         , { Layout={}, Tab='Periods' } = this.props.opts
         //, { layout } = this.state
 
-    const layout = Tab === 'Periods'
-      ? periodLayout
-      : authorityLayout
-
-    const el = h(AuthorityLayoutRenderer, {
-      layout,
+    const childProps = {
       backend,
       dataset,
       blockOpts: Layout,
@@ -70,7 +65,15 @@ module.exports = class BackendHome extends React.Component {
         R.isEmpty(updatedOpts)
           ? updateOpts(R.dissoc('Layout'))
           : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
-    })
+    }
+
+    const renderPeriodTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
+      layout: periodLayout,
+    }))
+
+    const renderAuthorityTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
+      layout: authorityLayout,
+    }))
 
     return (
       h(Box, [
@@ -137,12 +140,12 @@ module.exports = class BackendHome extends React.Component {
             {
               id: 'Periods',
               label: 'Periods',
-              element: el,
+              renderTab: renderPeriodTab,
             },
             {
               id: 'Authorities',
               label: 'Authorities',
-              element: el,
+              renderTab: renderAuthorityTab,
             }
           ]
         }),

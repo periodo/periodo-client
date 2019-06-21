@@ -45,14 +45,15 @@ exports.Tabs = props =>
       })
     )),
 
-    h(Box, props.tabs.map(({ id, element }) => 
-      h(Box, {
-        key: id,
-        p: 24,
-        border: 1,
-        borderTop: 0,
-        borderColor: 'gray.4',
-        display: props.value === id ? 'none' : 'block'
-      }, element)
+    h(Box, props.tabs.map(({ id, renderTab }) => 
+      props.value !== id ? null : (
+        h(Box, {
+          key: id,
+          p: 24,
+          border: 1,
+          borderTop: 0,
+          borderColor: 'gray.4',
+        }, renderTab())
+      )
     ))
   ])
