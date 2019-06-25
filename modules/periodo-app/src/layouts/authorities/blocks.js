@@ -8,5 +8,6 @@ module.exports = {
   'time-cutoff': require('./HumanTimeCheckmark'),
   'timespan-visualization': require('./Timeline'),
   'facets': require('./Facets'),
-  'hovered-period': require('./PeriodDetail'),
+  'period-detail': require('./PeriodDetail'),
+  'authority-detail': require('./AuthorityDetail'),
 }

@@ -7,36 +7,41 @@ const h = require('react-hyperscript')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
 
 const periodLayout = `
-grid-template-columns = repeat(3, 1fr)
+grid-template-columns = repeat(6, 1fr)
 grid-template-rows = repeat(5, auto)
 grid-gap = 1em 1.66em
 
 [Search]
 type = text-search
-grid-column = 1/2
+grid-column = 1/3
 grid-row = 1/2
 
 [Facets]
 type = facets
 flex = true
 height = 200
-grid-column = 1/4
+grid-column = 1/7
 grid-row = 2/3
 
 [TimeRange]
 type = timespan-visualization
-grid-column = 2/4
+grid-column = 3/7
 grid-row = 1/2
 height = 256
 
 [PeriodList]
 type = windowed-period-list
-grid-column = 1/4
+grid-column = 1/7
 grid-row = 3/4
 
-[HoveredPeriod]
-type = hovered-period
+[PeriodDetail]
+type = period-detail
 grid-column = 1/4
+grid-row = 4/5
+
+[AuthorityDetail]
+type = authority-detail
+grid-column = 4/7
 grid-row = 4/5
 `
 
