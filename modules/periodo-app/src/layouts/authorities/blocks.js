@@ -7,5 +7,6 @@ module.exports = {
   'authority-list': require('./AuthorityList'),
   'time-cutoff': require('./HumanTimeCheckmark'),
   'timespan-visualization': require('./Timeline'),
-  'facets': require('./Facets')
+  'facets': require('./Facets'),
+  'hovered-period': require('./PeriodDetail'),
 }

@@ -93,7 +93,8 @@ align-items: center;
 `
 
 const BodyRow = styled(Row)`
-:hover {
+&:hover,
+&[data-selected="true"] {
   background-color: #f0f0f0;
 }
 `
@@ -119,18 +120,27 @@ grid-template-columns: 5ch 100px 100px 1fr 1fr;
 function ItemRow({
   index,
   style,
-  data: { periods, setHoveredItem },
+  data: {
+    periods,
+    selectedPeriod,
+    setHoveredPeriod,
+    setSelectedPeriod,
+  },
 }) {
   const period = periods[index]
 
   return (
     h(BodyRow, {
       style,
+      ['data-selected']: selectedPeriod === period,
+      onClick: () => {
+        setSelectedPeriod(period)
+      },
       onMouseEnter: () => {
-        setHoveredItem(period.label)
+        setHoveredPeriod(period)
       },
       onMouseLeave: () => {
-        setHoveredItem(null)
+        setHoveredPeriod(null)
       },
     }, [
       h('span', index + 1),
@@ -202,8 +212,16 @@ class PeriodList extends React.Component {
   }
 
   render() {
-    const { sortBy, sortDirection, updateOpts } = this.props
-        , { rect, hoveredItem, sortedData: periods } = this.state
+    const { rect, sortedData: periods } = this.state
+
+    const {
+      sortBy,
+      sortDirection,
+      updateOpts,
+      setHoveredPeriod,
+      setSelectedPeriod,
+      selectedPeriod,
+    } = this.props
 
     return (
       h('div', {
@@ -258,9 +276,9 @@ class PeriodList extends React.Component {
           height: 250,
           itemData: {
             periods,
-            setHoveredItem: item => {
-              this.setState({ hoveredItem: item })
-            },
+            selectedPeriod,
+            setHoveredPeriod,
+            setSelectedPeriod,
           },
           itemCount: periods == null ? 0 : periods.length,
           itemSize: 28,
