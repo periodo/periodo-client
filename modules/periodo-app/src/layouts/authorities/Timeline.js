@@ -12,8 +12,6 @@ const d = {
   WIDTH: 500,
 }
 
-const MIN_HEIGHT = 420
-
 function roundToUnit(num, unit, floor=true) {
   let multiplier = Math.floor(num / unit)
 
@@ -80,7 +78,11 @@ class Timeline extends React.Component {
   }
 
   init() {
-    const { svgHeight=MIN_HEIGHT } = this.props
+    let { height: svgHeight } = this.props.opts
+
+    if (!svgHeight) {
+      svgHeight = 400
+    }
 
     this.svg = d3.select(this.el)
       .append('svg')

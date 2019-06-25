@@ -36,6 +36,7 @@
     "react-geomicons": "^2.1.0",
     "react-hyperscript": "github:periodo/react-hyperscript",
     "react-redux": "^5.0.6",
+    "react-window": "^1.8.3",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
     "respin": "^1.0.1",
