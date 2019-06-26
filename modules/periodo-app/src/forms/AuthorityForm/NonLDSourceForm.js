@@ -32,8 +32,6 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
     const { onValueChange } = this.props
         , value = this.props.value || {}
 
-
-
     return (
       h(Box, [
         h(TextareaBlock, {
