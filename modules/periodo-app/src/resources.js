@@ -174,7 +174,7 @@ const Backend = {
     },
     'backend-add-authority': {
       label: 'Add authority',
-      Component: require('./backends/components/AddAuthority'),
+      Component: require('./backends/components/AuthorityAddOrEdit'),
       showInMenu: hasEditableBackend,
     },
     'backend-sync': {
@@ -278,7 +278,7 @@ const Authority = {
     'authority-edit': {
       label: 'Edit',
       showInMenu: hasEditableBackend,
-      Component: () => h('h1', 'Edit authority'),
+      Component: require('./backends/components/AuthorityAddOrEdit'),
     },
 
     'authority-add-period': {

@@ -79,9 +79,8 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
           onChange: this.handleChange
         }),
 
-
         ['creators', 'contributors'].map(field => {
-          const list = R.defaultTo(R.prop(field, value), [emptyCreator])
+          const list = R.propOr([emptyCreator], field, value)
 
           return h(Box, { key: field, mt: 3, }, [
             h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
@@ -104,7 +103,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                   onClick: () => {
                     onValueChange(R.over(
                       R.lensProp(field),
-                      cs => (cs || []).splice(i + 1, 0, emptyCreator),
+                      cs => R.insert(i + 1, emptyCreator, (cs || [])),
                       value
                     ))
                   }
@@ -117,9 +116,9 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                   onClick: () => {
                     onValueChange(R.over(
                       R.lensProp(field),
-                      cs => (cs || []).length < 2
-                        ? [emptyCreator]
-                        : cs.splice(i, 1),
+                      cs => (cs || []).length > 1
+                        ? R.remove(i, 1, cs)
+                        : [emptyCreator],
                       value
                     ))
                   }
