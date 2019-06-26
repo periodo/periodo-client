@@ -4,29 +4,37 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box } = require('periodo-ui')
-    , generateID = require('../../linked-data/utils/generate_skolem_id')
+    , { RandomID } = require('periodo-common')
     , BackendAction = require('../actions')
     , AuthorityForm = require('../../forms/AuthorityForm')
     , { LocationStreamAware, Route } = require('org-shell')
 
-module.exports = LocationStreamAware(class AddAuthority extends React.Component {
+class AuthorityAddOrEdit extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      authority: props.initialValue || {}
+      authority: props.authority || {}
     }
   }
 
   render() {
-    const { dispatch, backend, dataset, locationStream } = this.props
+    const {
+      dispatch,
+      backend,
+      dataset,
+      locationStream,
+      randomID
+    } = this.props
 
     return (
       h(Box, [
         h(AuthorityForm, {
           value: this.state.authority,
           onValidated: async authority => {
-            const id = generateID()
+
+            const isEdit = !!authority.id
+                , id = isEdit ? authority.id : randomID('authority')
 
             await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
@@ -35,7 +43,9 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
                 Object.assign({ id }, authority),
                 dataset
               ),
-              `Added authority ${id}`
+              isEdit
+                ? `Edited authority ${id}`
+                : `Added authority ${id}`
             ))
 
             locationStream.write({
@@ -51,4 +61,6 @@ module.exports = LocationStreamAware(class AddAuthority extends React.Component 
       ])
     )
   }
-})
+}
+
+module.exports = RandomID(LocationStreamAware(AuthorityAddOrEdit))
