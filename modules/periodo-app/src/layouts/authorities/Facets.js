@@ -6,6 +6,7 @@ const h = require('react-hyperscript')
     , tags = require('language-tags')
     , { Flex, Box, Link } = require('periodo-ui')
     , work = require('webworkify')
+    , { shallowEqualObjects } = require('shallow-equal')
 
 const languageDescription = R.memoize(tag => {
   const language = tags(tag || '').language()
@@ -154,6 +155,13 @@ class AspectTable extends React.Component {
 }
 
 class Facets extends React.Component {
+  shouldComponentUpdate(prevProps) {
+    return (
+      !shallowEqualObjects(this.props.opts, prevProps.opts) ||
+      this.props.data !== prevProps.data
+    )
+  }
+
   render() {
     const { opts, data, updateOpts } = this.props
 
