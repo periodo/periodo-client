@@ -96,7 +96,6 @@ const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
   h(Box, [
     value
       ? h(Box, [
-          console.log(value),
           h(Source, { value }),
           h(Box, { mt: 3 }, [
             h(Text, 'Incorrect source?'),
