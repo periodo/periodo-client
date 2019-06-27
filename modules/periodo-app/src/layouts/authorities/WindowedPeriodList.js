@@ -7,6 +7,7 @@ const h = require('react-hyperscript')
     , { authorityOf } = require('periodo-utils/src/period')
     , { yearPublished } = require('periodo-utils/src/source')
     , styled = require('styled-components').default
+    , { throttle } = require('throttle-debounce')
 
 const columns = {
   start: {
@@ -93,7 +94,6 @@ align-items: center;
 `
 
 const BodyRow = styled(Row)`
-&:hover,
 &[data-selected="true"] {
   background-color: #f0f0f0;
 }
@@ -122,6 +122,7 @@ function ItemRow({
   style,
   data: {
     periods,
+    hoveredPeriod,
     selectedPeriod,
     setHoveredPeriod,
     setSelectedPeriod,
@@ -131,9 +132,14 @@ function ItemRow({
 
   return (
     h(BodyRow, {
-      style,
+      style: Object.assign({}, style, {
+        backgroundColor: (
+          hoveredPeriod === period ||
+          selectedPeriod === period
+        )? '#f0f0f0' : 'unset',
+      }),
       ['data-selected']: selectedPeriod === period,
-      onClick: () => {
+      onMouseDown: () => {
         setSelectedPeriod(period)
       },
       onMouseEnter: () => {
@@ -162,6 +168,9 @@ class PeriodList extends React.Component {
       rect: null,
       sortedData: null,
     }
+
+    this.onMouseMove = this.onMouseMove.bind(this)
+    this.handleScroll = throttle(50, this.handleScroll.bind(this))
   }
 
   componentDidMount() {
@@ -180,6 +189,29 @@ class PeriodList extends React.Component {
 
     if (updateSort) {
       this.updateSort()
+    }
+  }
+
+  componentWillUnmount() {
+    this.scrollEl.removeEventListener('mousemove', this.onMouseMove)
+  }
+
+  onMouseMove(e) {
+    this.mouseOffset = e.y - this.scrollEl.getBoundingClientRect().y - 34
+  }
+
+  handleScroll(e) {
+    const { hoveredPeriod, setHoveredPeriod } = this.props
+        , { sortedData: periods } = this.state
+
+    if (this.mouseOffset == null) return
+
+    const pos = e.scrollOffset + this.mouseOffset
+        , hoveredItemIdx = Math.floor(pos / 28)
+        , nextPeriod = periods[hoveredItemIdx]
+
+    if (nextPeriod !== hoveredPeriod) {
+      setHoveredPeriod(nextPeriod)
     }
   }
 
@@ -218,6 +250,7 @@ class PeriodList extends React.Component {
       sortBy,
       sortDirection,
       updateOpts,
+      hoveredPeriod,
       setHoveredPeriod,
       setSelectedPeriod,
       selectedPeriod,
@@ -274,8 +307,22 @@ class PeriodList extends React.Component {
 
         h(List, {
           height: 250,
+          onScroll: this.handleScroll,
+          innerRef: el => {
+            debugger;
+            if (!this.scrollEl && el) {
+              this.scrollEl = el.parentNode
+
+              this.scrollEl.addEventListener('click', e => {
+                console.log(e)
+              })
+
+              this.scrollEl.addEventListener('mousemove', this.onMouseMove)
+            }
+          },
           itemData: {
             periods,
+            hoveredPeriod,
             selectedPeriod,
             setHoveredPeriod,
             setSelectedPeriod,
