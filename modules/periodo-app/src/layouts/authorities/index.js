@@ -10,10 +10,14 @@ module.exports = function PeriodoLayoutRenderer(props) {
   const [ hoveredPeriod, setHoveredPeriod ] = useState(null)
       , [ selectedPeriod, setSelectedPeriod ] = useState(null)
 
+  const data = props.useAuthorities
+    ? props.dataset.authorities
+    : props.dataset.periods
+
   return (
     h(LayoutRenderer, R.omit(['dataset', 'backend'], Object.assign({}, props, {
       blocks,
-      data: props.dataset.periods,
+      data,
       extraProps: {
         backend: props.backend,
         dataset: props.dataset,

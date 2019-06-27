@@ -84,6 +84,7 @@ module.exports = class BackendHome extends React.Component {
     }))
 
     const renderAuthorityTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
+      useAuthorities: true,
       layout: authorityLayout,
     }))
 

@@ -61,8 +61,8 @@ module.exports = blocks.List({
     limit: 25,
     start: 0,
     selected: [],
+    sortBy: 'title',
     shownColumns: ['title', 'authors', 'yearPublished', 'numPeriods'],
   },
-  transducer: R.map(R.prop('authority')),
   columns,
 })
