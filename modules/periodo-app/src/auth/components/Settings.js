@@ -35,6 +35,10 @@ class SignIn extends React.Component {
     e.target.close()
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('message', this.handleMessage)
+  }
+
   initOrcidAuth(e) {
     e.preventDefault();
 
@@ -47,7 +51,7 @@ class SignIn extends React.Component {
 
     global.oauthWindow = oauthWindow
 
-    oauthWindow.addEventListener('message', this.handleMessage)
+    window.addEventListener('message', this.handleMessage)
   }
 
   signOut(e) {
