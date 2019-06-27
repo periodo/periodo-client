@@ -10,8 +10,7 @@ const R = require('ramda')
     , ns = require('./ns')
     , jsonldToStore = require('./utils/parse_jsonld')
     , { rdfToStore } = require('org-n3-utils')
-
-const CORS_PROXY = 'https://ptgolden.org/cors-anywhere/'
+    , globals = require('../globals')
 
 // TODO: Remove concept of prefixes. Just rely on our own prefixes defined
 // ahead of time. We should only abbreviate what we expect, anyway.
@@ -61,7 +60,7 @@ async function _fetchLinkedData(url, type="text/turtle") {
   // TODO: Validate the type here... or base it off of the extension on the URL
   const parser = type === 'application/json+ld' ? jsonldToStore : rdfToStore
 
-  const resp = await fetch(CORS_PROXY + url, {
+  const resp = await fetch(corsProxyURL + url, {
     mode: 'cors',
     headers: { Accept: type }
   })

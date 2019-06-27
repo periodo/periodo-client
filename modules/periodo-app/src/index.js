@@ -11,10 +11,6 @@ const h = require('react-hyperscript')
     , fastclick = require('fastclick')
     , Application = require('./main/Application')
 
-
-global.CORS_PROXY_URL = 'https://ptgolden.org/cors-anywhere/'
-global.CORS_PROXY_ENABLED = true
-
 if (process.browser) {
   fastclick(document.body);
 

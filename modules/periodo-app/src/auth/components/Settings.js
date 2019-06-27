@@ -3,6 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
+    , globals = require('../../globals')
     , AuthAction = require('../actions')
     , BackendAction = require('../../backends/actions')
     , LinkedDataAction = require('../../linked-data/actions')
@@ -38,7 +39,7 @@ class SignIn extends React.Component {
     e.preventDefault();
 
     const oauthWindow = window.open(
-      '/register',
+      globals.orcidURL,
       '_blank',
       'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500');
 
