@@ -1,7 +1,10 @@
 "use strict";
 
+const periodoServerURL = global.PERIODO_PROXY_URL || '/'
+
 module.exports = {
-  orcidURL: global.PERIODO_ORCID_URL,
+  periodoServerURL,
+  orcidURL: periodoServerURL + 'register',
 
   permalinkURL: global.PERIODO_PERMALINK_URL,
 
