@@ -21,10 +21,6 @@ class SignIn extends React.Component {
     this.handleMessage = this.handleMessage.bind(this)
   }
 
-  componentWillUnmount() {
-    if (this.unlisten) this.unlisten();
-  }
-
   handleMessage(e) {
     const { dispatch } = this.props
         , oauthName = e.data.name
@@ -33,6 +29,8 @@ class SignIn extends React.Component {
     dispatch(AuthAction.UpdateSettings(
       R.flip(R.merge)({ oauthName, oauthToken })
     ))
+
+    e.target.close()
   }
 
   initOrcidAuth(e) {
@@ -44,8 +42,6 @@ class SignIn extends React.Component {
       'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500');
 
     oauthWindow.addEventListener('message', this.handleMessage)
-
-    this.unlisten = () => oauthWindow.removeEventListener('message', this.handleMessage)
   }
 
   signOut(e) {
