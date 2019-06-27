@@ -1,6 +1,6 @@
 "use strict";
 
-const periodoServerURL = global.PERIODO_PROXY_URL || '/'
+const periodoServerURL = global.PERIODO_SERVER_URL || '/'
 
 module.exports = {
   periodoServerURL,
