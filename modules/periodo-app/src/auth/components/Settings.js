@@ -22,6 +22,8 @@ class SignIn extends React.Component {
   }
 
   handleMessage(e) {
+    console.log('received message')
+
     const { dispatch } = this.props
         , oauthName = e.data.name
         , oauthToken = e.data.token
@@ -40,6 +42,10 @@ class SignIn extends React.Component {
       globals.orcidURL,
       '_blank',
       'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500');
+
+    console.log('Setting global variable `oauthWindow`')
+
+    global.oauthWindow = oauthWindow
 
     oauthWindow.addEventListener('message', this.handleMessage)
   }

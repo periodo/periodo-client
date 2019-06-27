@@ -84,7 +84,7 @@ $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	cd $(VERSIONED_DIRECTORY) && mkdir images && mv $(notdir $(ASSET_FILES)) images
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
 	sed -i \
-		-e 's|$(JS_BUNDLE)|$(notdir $(MINIFIED_VERSIONED_JS_BUNDLE))|' \
+		-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
 		$(VERSIONED_DIRECTORY)/index.html
 	cd dist && zip -r $(notdir $@) $(notdir $(VERSIONED_DIRECTORY))
 	rm -rf $(VERSIONED_DIRECTORY)
