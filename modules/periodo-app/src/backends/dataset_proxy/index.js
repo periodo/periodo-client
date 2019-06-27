@@ -10,7 +10,10 @@ module.exports = class DatasetProxy {
     this.raw = raw
     Object.assign(this, indexItems(raw))
 
-    this.globalWorker = this.spawnWorker()
+    if (typeof window !== 'undefined') {
+      this.globalWorker = this.spawnWorker()
+    }
+
     this.sorts = {}
   }
 
