@@ -54,6 +54,9 @@ publish: clean zip
 	unzip $(VERSIONED_ZIPFILE) -d dist
 	cd $(VERSIONED_DIRECTORY) && npm publish
 
+serve:
+	python3 -m http.server 5002
+
 .PHONY: all watch zip serve test clean
 
 

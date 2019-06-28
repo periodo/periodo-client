@@ -13,6 +13,7 @@ const R = require('ramda')
     , { PatchDirection, PatchFate } = require('./types')
     , isURL = require('is-url')
     , DatasetProxy = require('../backends/dataset_proxy')
+    , globals = require('../globals')
 
 const PatchAction = module.exports = makeTypedAction({
   GetLocalPatch: {
@@ -135,7 +136,7 @@ function withAuthHeaders(state, extra) {
 
 function submitPatch(storage, patch) {
   return async (dispatch, getState, { db }) => {
-    const resp = await fetch('d.jsonld', {
+    const resp = await fetch(new URL('d.jsonld', globals.periodoServerURL).href, {
       body: JSON.stringify(patch),
       method: 'PATCH',
       headers: withAuthHeaders(getState(), {

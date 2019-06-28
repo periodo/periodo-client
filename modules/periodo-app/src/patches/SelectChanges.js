@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
     , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('./actions')
     , Compare = require('./Compare')
+    , globals = require('../globals')
 
 class SelectChanges extends React.Component {
   constructor() {
@@ -17,7 +18,7 @@ class SelectChanges extends React.Component {
       fetchErr: null,
       remoteBackend: null,
       remoteDataset: null,
-      url: window.location.origin,
+      url: globals.periodoServerURL,
       currentPatch: [],
     }
 
