@@ -22,8 +22,6 @@ class SignIn extends React.Component {
   }
 
   handleMessage(e) {
-    console.log('received message')
-
     const { dispatch } = this.props
         , oauthName = e.data.name
         , oauthToken = e.data.token
@@ -32,6 +30,7 @@ class SignIn extends React.Component {
       R.flip(R.merge)({ oauthName, oauthToken })
     ))
 
+    this.oauthWindow.close()
     e.target.close()
   }
 
@@ -42,14 +41,10 @@ class SignIn extends React.Component {
   initOrcidAuth(e) {
     e.preventDefault();
 
-    const oauthWindow = window.open(
+    this.oauthWindow = window.open(
       globals.orcidURL,
       '_blank',
       'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500');
-
-    console.log('Setting global variable `oauthWindow`')
-
-    global.oauthWindow = oauthWindow
 
     window.addEventListener('message', this.handleMessage)
   }
