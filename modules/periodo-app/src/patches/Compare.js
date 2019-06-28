@@ -429,19 +429,22 @@ class Compare extends React.Component {
       })
   }
 
-  // FIXME: use datasetProxy.getAuthorityByID and datasetProxy.getPeriodByID here
-  getAuthority(side, ...args) {
-    return util.dataset.getAuthority(side.case({
+  getAuthority(side) {
+    const source = side.case({
       Unpatched: () => this.state.unpatchedDataset,
       Patched: () => this.state.patchedDataset,
-    }))(...args)
+    })
+
+    return authorityID => source.authorityByID(authorityID)
   }
 
-  getPeriod(side, ...args) {
-    return util.dataset.getPeriod(side.case({
+  getPeriod(side) {
+    const source = side.case({
       Unpatched: () => this.state.unpatchedDataset,
       Patched: () => this.state.patchedDataset,
-    }))(...args)
+    })
+
+    return authorityID => periodID => source.periodByID(periodID)
   }
 
   componentDidUpdate(prevProps, prevState) {
