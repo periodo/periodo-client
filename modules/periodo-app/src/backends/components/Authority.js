@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Flex, Box, Heading } = require('periodo-ui')
-    , { Source } = require('periodo-ui')
+    , { Authority } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , DatasetProxy = require('../dataset_proxy')
 
@@ -40,9 +40,9 @@ class AuthorityLayout extends React.Component {
 module.exports = ({ backend, authority }) =>
   h(Flex, [
     h(Box, { width: .5 }, [
-      h(Heading, { level: 2 }, 'Source'),
+      h(Heading, { level: 2 }, 'Authority'),
 
-      h(Source, { value: authority.source }),
+      h(Authority, { value: authority }),
     ]),
 
     h(Box, { width: .5 }, [

@@ -9,6 +9,8 @@ const h = require('react-hyperscript')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { Value } = require('./types')
     , linkifier = require('linkify-it')()
+    , { permalinkURL } = require('../../periodo-app/src/globals')
+
 
 const abbreviate = id => {
   try {
@@ -83,6 +85,13 @@ function LinkValue(props) {
   return h(
     ExternalLink, R.merge(R.omit([ 'value' ], props), { href: value }), value
   )
+}
+
+function PermalinkValue(props) {
+  const { value } = props
+  return value.startsWith('p0')
+    ? LinkValue({ ...props, value: `${ permalinkURL }${ value }`})
+    : h(Italic, 'not yet assigned')
 }
 
 function EntityValue(props) {
@@ -206,6 +215,7 @@ module.exports = {
   show,
   PrimitiveValue,
   LinkValue,
+  PermalinkValue,
   IntervalValue,
   LanguageTagValue,
   LanguageSpecificValue,

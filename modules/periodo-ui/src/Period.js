@@ -5,6 +5,7 @@ const R = require('ramda')
     , { FieldList, extract, as } = require('./Field')
     , { TextValue
       , LinkValue
+      , PermalinkValue
       , IntervalValue
       , LanguageTagValue
       , LinkifiedTextValue
@@ -46,6 +47,7 @@ const PERIOD_FIELDS = [
   {
     label: 'Permalink',
     values: extract('id'),
+    component: PermalinkValue,
     required: true,
     immutable: true
   },
