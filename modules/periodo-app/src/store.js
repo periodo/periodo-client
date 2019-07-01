@@ -13,9 +13,6 @@ module.exports = function () {
       linkedData: require('./linked-data/reducer'),
       patches: require('./patches/reducer')
     }),
-    compose(
-      applyMiddleware(typedAsyncActionMiddleware({ db: periodoDB() })),
-      window.devToolsExtension ? window.devToolsExtension() : a => a
-    )
+    applyMiddleware(typedAsyncActionMiddleware({ db: periodoDB() }))
   )
 }
