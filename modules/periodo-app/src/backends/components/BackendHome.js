@@ -52,31 +52,33 @@ type = authority-list
 
 
 module.exports = class BackendHome extends React.Component {
-  /*
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
-      //layout: defaultLayout,
-      //editingLayout: defaultLayout,
-      showEdit: false,
+      // layout: defaultLayout,
+      // editingLayout: defaultLayout,
+      // showEdit: false,
+      blockOpts: this.props.opts.Layout || {},
     }
   }
-  */
 
   render() {
     const { backend, dataset, updateOpts } = this.props
-        , { Layout={}, Tab='Periods' } = this.props.opts
-        //, { layout } = this.state
+        , { Tab='Periods' } = this.props.opts
+        , { blockOpts } = this.state
 
     const childProps = {
       backend,
       dataset,
-      blockOpts: Layout,
-      onBlockOptsChange: updatedOpts =>
+      blockOpts,
+      onBlockOptsChange: updatedOpts => {
+        this.setState({ blockOpts: updatedOpts })
+
         R.isEmpty(updatedOpts)
           ? updateOpts(R.dissoc('Layout'))
           : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
+      },
     }
 
     const renderPeriodTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
