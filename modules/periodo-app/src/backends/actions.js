@@ -578,8 +578,7 @@ function deleteBackend(storage) {
 
 function deleteAllBackends() {
   return async (dispatch, getState, { db }) => {
-    await db.localBackends.clear()
-    await db.remoteBackends.clear()
+    await db.delete()
 
     return {}
   }
