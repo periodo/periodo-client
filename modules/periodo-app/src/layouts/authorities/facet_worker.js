@@ -1,6 +1,8 @@
 "use strict"
 
 const tags = require('language-tags')
+    , { period: { authorityOf }, authority: { displayTitle }} = require('periodo-utils')
+    , indexItems = require('../../backends/dataset_proxy/index_items')
 
 const languageDescription = tag => {
   const language = tags(tag || '').language()
@@ -9,27 +11,56 @@ const languageDescription = tag => {
 }
 
 const getters = {
-  Language: period => languageDescription(period.languageTag),
-  ['Spatial coverage']: period => period.spatialCoverageDescription,
+  Language: {
+    getter: period => languageDescription(period.languageTag),
+  },
+  ['Spatial coverage']: {
+    getter: period => period.spatialCoverageDescription || null,
+  },
+  Authority: {
+    getter: period => authorityOf(period).id,
+    renderLabel: (id, dataset) => displayTitle(dataset.authoritiesByID[id])
+  },
 }
 
 
 module.exports = function a(self) {
+  let dataset
+
   self.addEventListener('message', e => {
-    const { type, data } = e.data
-        , getter = getters[type]
-        , counts = {}
+    switch (e.data.type) {
+      case "initialize":
+        dataset = indexItems(e.data.rawDataset)
+        break;
 
-    data.forEach(period => {
-      const key = getter(period)
-      if (!counts[key]) counts[key] = 0
-      counts[key]++
-    })
+      case "get_counts": {
+        const { label, periods } = e.data
+          , { getter, renderLabel } = getters[label]
+          , counts = new Map()
 
-    const countArr = Object.entries(counts)
-      .sort((a, b) => a[1] - b[1])
-      .reverse()
+        periods.forEach(period => {
+          const key = getter(dataset.periodsByID[period.id])
 
-    self.postMessage(countArr)
+          if (!counts.has(key)) counts.set(key, 0)
+          counts.set(key, counts.get(key) + 1)
+        })
+
+        const countArr = ([...counts])
+          .sort((a, b) => a[1] - b[1])
+          .reverse()
+
+        if (renderLabel) {
+          countArr.forEach(d => {
+            d.push(renderLabel(d[0], dataset))
+          })
+        }
+
+        self.postMessage(countArr)
+        break;
+      }
+
+      default:
+        break;
+    }
   })
 }

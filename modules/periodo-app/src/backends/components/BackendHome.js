@@ -19,7 +19,7 @@ grid-row = 1/2
 [Facets]
 type = facets
 flex = true
-height = 200
+height = 120
 grid-column = 1/7
 grid-row = 2/3
 
@@ -27,7 +27,7 @@ grid-row = 2/3
 type = timespan-visualization
 grid-column = 3/7
 grid-row = 1/2
-height = 256
+height = 200
 
 [PeriodList]
 type = windowed-period-list

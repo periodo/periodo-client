@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , tags = require('language-tags')
     , { Flex, Box, Link } = require('periodo-ui')
+    , { period: { authorityOf }} = require('periodo-utils')
     , work = require('webworkify')
     , { shallowEqualObjects } = require('shallow-equal')
 
@@ -14,18 +15,28 @@ const languageDescription = R.memoize(tag => {
   return language ? language.descriptions()[0] : '(bad value)'
 })
 
+function identityWithDefault(defaultLabel) {
+  return x => x || defaultLabel
+}
+
 const aspects = {
   language: {
     label: 'Language',
     getter: period => languageDescription(period.languageTag),
-    render: R.identity,
+    render: identityWithDefault('(no value)')
   },
 
   spatialCoverage: {
     label: 'Spatial coverage',
-    getter: period => period.spatialCoverageDescription,
-    render: R.identity,
-  }
+    getter: period => period.spatialCoverageDescription || null,
+    render: identityWithDefault('(no value)')
+  },
+
+  authority: {
+    label: 'Authority',
+    getter: period => authorityOf(period).id,
+    render: identityWithDefault('(no value)')
+  },
 }
 
 const Table = Box.extend([], {
@@ -65,39 +76,57 @@ class AspectTable extends React.Component {
   componentDidMount() {
     this.worker = work(require('./facet_worker'))
 
+    this.worker.postMessage({
+      type: 'initialize',
+      rawDataset: this.props.rawDataset,
+    })
+
     this.worker.addEventListener('message', e => {
       this.setState({
+        loading: false,
         counts: e.data,
       })
     })
   }
 
+  componentWillUnmount() {
+    this.worker.terminate()
+  }
+
   componentDidUpdate(prevProps) {
     if (this.props.data && (this.props.data !== prevProps.data)) {
+      this.setState({ loading: true })
       if (this.worker) {
-        this.worker.postMessage({
-          type: this.props.aspect.label,
-          data: this.props.data,
-        })
+        setTimeout(() => {
+          this.worker.postMessage({
+            type: 'get_counts',
+            label: this.props.aspect.label,
+            periods: this.props.data,
+          })
+        }, 0)
       }
     }
   }
 
   render() {
-    const { aspect, aspectID, opts, updateOpts } = this.props
+    const { aspect, aspectID, opts, updateOpts, flex } = this.props
         , { counts } = this.state
         , { label } = aspect
         , render = aspect.render || R.identity
+        , height = parseInt(opts.height || '256')
 
     const selected = new Set(R.path(['selected', aspectID], opts) || [])
 
     return (
       h(Flex, {
+        style: {
+          flex: 1,
+        },
         flexDirection: 'column',
         border: 1,
         borderRadius: '3px',
         borderColor: 'gray.4',
-        height: 256,
+        height,
       }, [
         h(Box, {
           bg: 'gray.0',
@@ -112,13 +141,20 @@ class AspectTable extends React.Component {
             height:'100%',
             overflowY: 'scroll',
           }
-        }, [
+        }, this.state.loading ? (
+          h('div', {
+            style: {
+              textAlign: 'center',
+              padding: '1em',
+            },
+          }, '. . .')
+        ): [
           h(Table, {
             is: 'table',
             px: 1,
             width: '100%',
           }, [
-            h('tbody', counts.map(([value, count]) =>
+            h('tbody', counts.map(([value, count, label]) =>
               h('tr', [
                 h('td', count),
                 h('td', [
@@ -143,7 +179,7 @@ class AspectTable extends React.Component {
                       ), true)
 
                     },
-                  }, render(value))
+                  }, render(label === undefined ? value : label))
                 ]),
               ])
             ))
@@ -163,13 +199,21 @@ class Facets extends React.Component {
   }
 
   render() {
-    const { opts, data, updateOpts } = this.props
+    const { opts, data, updateOpts, dataset } = this.props
+
+    const style = {}
+
+    if (opts.flex) {
+      style.display = 'flex'
+    }
 
     return (
-      h('div', Object.entries(aspects).map(([key, aspect]) =>
+      h('div', { style }, Object.entries(aspects).map(([key, aspect]) =>
         h(AspectTable, {
           key,
           data,
+          flex: opts.flex,
+          rawDataset: dataset.raw,
           aspect,
           aspectID: key,
           opts,
