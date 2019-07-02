@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { FieldList, extract, extractIndexedValues, as } = require('./Field')
-    , { LinkValue, LinkifiedTextValue } = require('./Value')
+    , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./Value')
     , { Period } = require('./Period')
     , { Source } = require('./Source')
 
@@ -11,6 +11,7 @@ const AUTHORITY_FIELDS = [
   {
     label: 'Permalink',
     values: extract('id'),
+    component: PermalinkValue,
     required: true,
     immutable: true
   },
