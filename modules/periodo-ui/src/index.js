@@ -29,4 +29,7 @@ addUIModules([
   require('./Links'),
   require('./Autosuggest'),
   require('./Base'),
+  require('./InlineList'),
+  require('./Map'),
+  require('./Tags'),
 ])

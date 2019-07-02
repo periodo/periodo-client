@@ -19,7 +19,7 @@ const lenses = {
 }
 
 module.exports = Validated(validatePeriod, props => {
-  const { value={}, onValueChange=R.always(null), errors } = props
+  const { value={}, onValueChange=R.always(null), errors, gazetteers } = props
 
   const get = lens => R.view(lens, value) || ''
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
@@ -104,6 +104,7 @@ module.exports = Validated(validatePeriod, props => {
               ),
               description: value.spatialCoverageDescription,
               coverage: value.spatialCoverage,
+              gazetteers
             })
           ]),
 
