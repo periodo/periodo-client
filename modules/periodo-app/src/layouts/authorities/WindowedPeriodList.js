@@ -63,53 +63,56 @@ const columns = {
   },
 }
 
-const Row = styled.div`
-display: flex;
-align-items: center;
+const ListWrapper = styled.div`
+.row {
+  display: flex;
+  align-items: center;
+}
 
-& span {
+.row span {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   padding: 0 7px;
 }
 
-& :nth-child(1) {
+.row :nth-child(1) {
   width: 8ch;
 }
 
-& :nth-child(2),
-& :nth-child(3) {
+.row :nth-child(2),
+.row :nth-child(3) {
   width: 160px;
 }
 
-& :nth-child(4),
-& :nth-child(5) {
+.row :nth-child(4),
+.row :nth-child(5) {
   flex: 1;
 }
 
-& :nth-child(6) {
+.row :nth-child(6) {
   width: 132px;
 }
-`
 
-const BodyRow = styled(Row)`
-&[data-selected="true"] {
-  background-color: #f0f0f0;
+.row__header {
+  font-weight: bold;
+  margin-bottom: 1px;
+
+  z-index: 1;
 }
-`
 
-const HeaderRow = styled(Row)`
-font-weight: bold;
-margin-bottom: 1px;
+.row[data-selected="true"] {
+  background-color: #f0f0f0;
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
 
-z-index: 1;
-
-& span {
+.row__header span {
   z-index: 1;
   cursor: pointer;
   padding: 8px 0;
 }
+
 `
 
 /*
@@ -131,7 +134,8 @@ function ItemRow({
   const period = periods[index]
 
   return (
-    h(BodyRow, {
+    h('div', {
+      className: 'row',
       style: Object.assign({}, style, {
         backgroundColor: (
           hoveredPeriod === period ||
@@ -169,8 +173,11 @@ class PeriodList extends React.Component {
       sortedData: null,
     }
 
+    this.onKeyDown = this.onKeyDown.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
-    this.handleScroll = throttle(50, this.handleScroll.bind(this))
+    this.handleScroll = this.handleScroll.bind(this)
+
+    this.listRef = React.createRef()
   }
 
   componentDidMount() {
@@ -188,17 +195,48 @@ class PeriodList extends React.Component {
     )
 
     if (updateSort) {
+      this.listRef.current.scrollToItem(0)
+      this.props.setSelectedPeriod(null)
       this.updateSort()
     }
-  }
-
-  componentWillUnmount() {
-    this.scrollEl.removeEventListener('mousemove', this.onMouseMove)
   }
 
   onMouseMove(e) {
     this.mouseOffset = e.y - this.scrollEl.getBoundingClientRect().y - 34
   }
+
+  onKeyDown(e) {
+    const { selectedPeriod, setHoveredPeriod, setSelectedPeriod } = this.props
+        , { sortedData: periods } = this.state
+
+    let adjustment
+
+    if (!selectedPeriod) return
+
+    if (e.key === 'ArrowDown' || e.key === 'j') adjustment = 1
+    if (e.key === 'ArrowUp' || e.key === 'k') adjustment = -1
+
+    if (adjustment) {
+      e.preventDefault()
+
+      if (this.lastAdjustment && (new Date() - this.lastAdjustment < 75)) {
+        return
+      }
+
+      this.lastAdjustment = new Date()
+
+      const nextIdx = periods.indexOf(selectedPeriod) + adjustment
+          , nextPeriod = periods[nextIdx]
+
+      if (nextPeriod) {
+        setSelectedPeriod(nextPeriod)
+        setHoveredPeriod(null)
+        this.mouseOffset = null
+        this.listRef.current.scrollToItem(nextIdx)
+      }
+    }
+  }
+
 
   handleScroll(e) {
     const { hoveredPeriod, setHoveredPeriod } = this.props
@@ -208,7 +246,7 @@ class PeriodList extends React.Component {
 
     const pos = e.scrollOffset + this.mouseOffset
         , hoveredItemIdx = Math.floor(pos / 28)
-        , nextPeriod = periods[hoveredItemIdx]
+        , nextPeriod = periods[hoveredItemIdx + 1]
 
     if (nextPeriod !== hoveredPeriod) {
       setHoveredPeriod(nextPeriod)
@@ -257,14 +295,16 @@ class PeriodList extends React.Component {
     } = this.props
 
     return (
-      h('div', {
+      h(ListWrapper, {
+        tabIndex: 0,
+        onKeyDown: this.onKeyDown,
         style: {
           overflowY: rect == null ? 'scroll' : 'unset',
           position: 'relative',
           border: '1px solid #ccc',
           padding: '1px',
         },
-        ref: el => { this.el = el },
+        innerRef: el => { this.el = el },
       }, rect == null ? null : [
         h('div', {
           style: {
@@ -277,7 +317,8 @@ class PeriodList extends React.Component {
             borderBottom: '1px solid #ccc',
           },
         }),
-        h(HeaderRow, {
+        h('div', {
+          className: 'row row__header',
           style: {
             width: this.state.headerWidth - 4,
           },
@@ -308,16 +349,15 @@ class PeriodList extends React.Component {
         h(List, {
           height: 250,
           onScroll: this.handleScroll,
+          ref: this.listRef,
           innerRef: el => {
-            debugger;
             if (!this.scrollEl && el) {
               this.scrollEl = el.parentNode
 
-              this.scrollEl.addEventListener('click', e => {
-                console.log(e)
-              })
-
               this.scrollEl.addEventListener('mousemove', this.onMouseMove)
+              this.scrollEl.addEventListener('mouseleave', () => {
+                this.mouseOffset = null
+              })
             }
           },
           itemData: {
