@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { Result } = require('periodo-common')
-    , { terminus, label } = require('periodo-utils')
+    , { terminus } = require('periodo-utils')
     , { isLinkedData } = require('../linked-data/utils/source_ld_match')
 
 function addError(obj, label, err) {
@@ -13,25 +13,43 @@ function addError(obj, label, err) {
   )
 }
 
-function validateAuthority(authority) {
-  const { source, periods={} } = authority
+const VALID_AUTHORITY_FIELDS = [
+  'id',
+  'source',
+  'periods',
+  'editorialNote',
+]
 
+function validateAuthority(authority) {
   let errors = {}
 
-  if (!source || R.equals(source, {})) {
-    errors = addError(errors, 'source', 'A source is required for an authority.')
-  } else if (!isLinkedData(source)) {
-    if (!source.citation && !source.title) {
-      errors = addError(errors, 'source', 'Non linked data sources must have a citation or title.')
+  if (!authority.source || R.equals(authority.source, {})) {
+    errors = addError(errors, 'source',
+      'A source is required for an authority.')
+
+  } else if (!isLinkedData(authority.source)) {
+    if (!authority.source.citation && !authority.source.title) {
+      errors = addError(errors, 'source',
+        'Non linked data sources must have a citation or title.')
     }
   }
 
   if (R.equals(errors, {})) {
-    return Result.Ok({
-      source,
-      periods,
-      type: 'Authority'
+    const cleanedAuthority = {
+      type: 'Authority',
+      periods: {}
+    }
+
+    VALID_AUTHORITY_FIELDS.forEach(field => {
+      const val = authority[field]
+
+      if (val) {
+        cleanedAuthority[field] = val
+      }
     })
+
+    return Result.Ok(cleanedAuthority)
+
   } else {
     return Result.Err(errors)
   }

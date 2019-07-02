@@ -22,21 +22,20 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
     super();
 
     this.state = {
-      showLDForm: !props.value.source || isLinkedData(props.value)
+      showLDForm: !props.value.source || isLinkedData(props.value.source)
     }
   }
 
   render() {
     const { showLDForm } = this.state
         , { value={}, onValueChange, errors } = this.props
-        , cancel = onValueChange ? false : R.always(null)
+
+    const get = lens => R.view(lens, value) || ''
+        , set = (lens, val) => onValueChange(R.set(lens, val, value))
 
     const sourceFormElement = h(showLDForm ? LDSourceForm : NonLDSourceForm, {
-      value: value.source,
-      onValueChange: cancel || R.pipe(
-        R.set(lenses.source, R.__, value),
-        onValueChange
-      ),
+      value: get(lenses.source),
+      onValueChange: value => set(lenses.source, value)
     })
 
     return (
@@ -70,12 +69,8 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
               label: 'Locator',
               mb: 4,
               disabled: !value.source,
-              value: (value.source || {}).locator || '',
-              onChange: cancel || R.pipe(
-                R.path(['target', 'value']),
-                R.assoc(lenses.locator, R.__, value),
-                onValueChange
-              ),
+              value: get(lenses.locator),
+              onChange: e => set(lenses.locator, e.target.value),
               helpText: `
                 If all periods are defined on a single page within this source,
                 include that page number here. Otherwise, include a locator for
@@ -89,12 +84,8 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
               label: 'Editorial notes',
               helpText: 'Notes about importing this source',
               rows: 5,
-              value: value.editorialNote || '',
-              onChange: cancel || R.pipe(
-                R.path(['target', 'value']),
-                R.assoc(lenses.editorialNote, R.__, value),
-                onValueChange
-              )
+              value: get(lenses.editorialNote),
+              onChange: e => set(lenses.editorialNote, e.target.value),
             }),
 
             h(Box, {
