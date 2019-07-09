@@ -58,8 +58,8 @@ function PeriodCell(props) {
     authority,
     expandAll,
     selectAll,
-    unpatchedPeriod,
-    patchedPeriod,
+    unpatchedPeriodByID,
+    patchedPeriodByID,
     expandedPeriods,
     selectedPeriods,
     selectedPatches,
@@ -162,8 +162,8 @@ function PeriodCell(props) {
         AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
         ChangePeriod: () => h(Period, {
           p: 1,
-          value: unpatchedPeriod(authority.id, period.id),
-          compare: patchedPeriod(authority.id, period.id),
+          value: unpatchedPeriodByID(period.id),
+          compare: patchedPeriodByID(period.id),
         }),
         RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
         RemovePeriod: () => h(Period, { p: 1, bg: 'red0', value: period }),
@@ -177,8 +177,8 @@ function AuthorityRow(props) {
   const {
     patches,
     editing,
-    getAuthority,
-    getPeriod,
+    datasetAuthorityByID,
+    datasetPeriodByID,
     selectedPeriods,
     selectedPatches,
     viewedAllPeriods,
@@ -188,20 +188,18 @@ function AuthorityRow(props) {
     setState,
   } = props
 
-
-
-  const patchedAuthority = getAuthority(Side.Patched)
-      , unpatchedAuthority = getAuthority(Side.Unpatched)
-      , patchedPeriod = getPeriod(Side.Patched)
-      , unpatchedPeriod = getPeriod(Side.Unpatched)
+  const patchedAuthorityByID = datasetAuthorityByID(Side.Patched)
+      , unpatchedAuthorityByID = datasetAuthorityByID(Side.Unpatched)
+      , patchedPeriodByID = datasetPeriodByID(Side.Patched)
+      , unpatchedPeriodByID = datasetPeriodByID(Side.Unpatched)
 
   const authority = patches[0].type.case({
-    AddAuthority: patchedAuthority,
-    ChangeAuthority: unpatchedAuthority,
-    RemoveAuthority: unpatchedAuthority,
-    AddPeriod: unpatchedAuthority,
-    ChangePeriod: unpatchedAuthority,
-    RemovePeriod: unpatchedAuthority,
+    AddAuthority: patchedAuthorityByID,
+    ChangeAuthority: unpatchedAuthorityByID,
+    RemoveAuthority: unpatchedAuthorityByID,
+    AddPeriod: unpatchedAuthorityByID,
+    ChangePeriod: unpatchedAuthorityByID,
+    RemovePeriod: unpatchedAuthorityByID,
     _: R.F,
   })
 
@@ -211,9 +209,9 @@ function AuthorityRow(props) {
         AddAuthority: () => util.authority.periods(patch.patch.value),
         RemoveAuthority: () => util.authority.periods(authority),
         ChangeAuthority: R.always([]),
-        AddPeriod: patchedPeriod,
-        ChangePeriod: unpatchedPeriod,
-        RemovePeriod: unpatchedPeriod,
+        AddPeriod: (authorityID, periodID) => patchedPeriodByID(periodID),
+        ChangePeriod: (authorityID, periodID) => unpatchedPeriodByID(periodID),
+        RemovePeriod: (authorityID, periodID) => unpatchedPeriodByID(periodID),
         _: R.F,
       }))
 
@@ -312,8 +310,8 @@ function AuthorityRow(props) {
           period,
           patch,
           authority,
-          unpatchedPeriod,
-          patchedPeriod,
+          unpatchedPeriodByID,
+          patchedPeriodByID,
         }, props))),
         R.ifElse(
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
@@ -348,8 +346,8 @@ class Compare extends React.Component {
     this.state = {}
 
     this.getPatchFromSelection = this.getPatchFromSelection.bind(this);
-    this.getPeriod = this.getPeriod.bind(this);
-    this.getAuthority = this.getAuthority.bind(this);
+    this.datasetPeriodByID = this.datasetPeriodByID.bind(this);
+    this.datasetAuthorityByID = this.datasetAuthorityByID.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -380,7 +378,7 @@ class Compare extends React.Component {
     let allPatches = patch
 
     if (!allPatches) {
-      allPatches = makePatch(unpatchedDataset, patchedDataset)
+      allPatches = makePatch(unpatchedDataset.raw, patchedDataset.raw)
     }
 
     allPatches = allPatches.map((p, i) => ({
@@ -429,22 +427,22 @@ class Compare extends React.Component {
       })
   }
 
-  getAuthority(side) {
-    const source = side.case({
+  datasetAuthorityByID(side) {
+    const dataset = side.case({
       Unpatched: () => this.state.unpatchedDataset,
       Patched: () => this.state.patchedDataset,
     })
 
-    return authorityID => source.authorityByID(authorityID)
+    return authorityID => dataset.authorityByID(authorityID)
   }
 
-  getPeriod(side) {
-    const source = side.case({
+  datasetPeriodByID(side) {
+    const dataset = side.case({
       Unpatched: () => this.state.unpatchedDataset,
       Patched: () => this.state.patchedDataset,
     })
 
-    return authorityID => periodID => source.periodByID(periodID)
+    return periodID => dataset.periodByID(periodID)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -601,13 +599,12 @@ class Compare extends React.Component {
               key: authorityID,
               editing,
               setState: this.setState.bind(this),
-              getAuthority: this.getAuthority,
-              getPeriod: this.getPeriod,
+              datasetAuthorityByID: this.datasetAuthorityByID,
+              datasetPeriodByID: this.datasetPeriodByID,
               patches,
             }, this.state))
           ))
         ])
-
       ])
     )
   }

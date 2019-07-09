@@ -246,6 +246,8 @@ module.exports = function makeList(opts) {
 
           this.setState({ sortedData, start: 0 })
         }
+      } else {
+        this.setState({ sortedData: data })
       }
     }
 

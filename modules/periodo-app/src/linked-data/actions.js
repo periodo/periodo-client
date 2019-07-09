@@ -9,12 +9,22 @@ const R = require('ramda')
     , { getGraphSubject } = require('./utils/source_ld_match')
     , ns = require('./ns')
     , jsonldToStore = require('./utils/parse_jsonld')
-    , { rdfToStore } = require('org-n3-utils')
-    , globals = require('../globals')
+    , formatLDURL = require('./utils/format_url')
+    , { parseToPromise } = require('org-n3-utils')
+
+function createParser() {
+  const blankNodePrefix = new Date().getTime() + '' + Math.random() + ':'
+
+  return new N3.Parser({
+    blankNodePrefix,
+  })
+}
+
+const writer = new N3.Writer({ format: 'application/nquads' })
+
 
 // TODO: Remove concept of prefixes. Just rely on our own prefixes defined
 // ahead of time. We should only abbreviate what we expect, anyway.
-
 const LinkedDataAction = module.exports = makeTypedAction({
   FetchLinkedData: {
     exec: fetchLinkedData,
@@ -58,9 +68,11 @@ const LinkedDataAction = module.exports = makeTypedAction({
 
 async function _fetchLinkedData(url, type="text/turtle") {
   // TODO: Validate the type here... or base it off of the extension on the URL
-  const parser = type === 'application/json+ld' ? jsonldToStore : rdfToStore
+  const parser = type === 'application/json+ld'
+    ? jsonldToStore
+    : parseToPromise.bind(null, createParser())
 
-  const resp = await fetch(corsProxyURL + url, {
+  const resp = await fetch(formatLDURL(url), {
     mode: 'cors',
     headers: { Accept: type }
   })
@@ -72,12 +84,17 @@ async function _fetchLinkedData(url, type="text/turtle") {
   }
 
   const text = await resp.text()
-      , { store, prefixes={} } = await parser(text)
+      , { quads, prefixes={} } = await parser(text)
+      , store = new N3.Store()
+
+  store.addQuads(quads)
 
   return { store, prefixes }
 }
 
 function fetchLinkedData(url, opts={}) {
+  const parser = createParser()
+
   return async (dispatch, getState, { db }) => {
     const {
       tryCache=false,
@@ -88,33 +105,28 @@ function fetchLinkedData(url, opts={}) {
     let store
 
     // TODO: Add cache invalidation
-    // FIXME: This is just a plain object- not n3 terms. This might be better
-    // fixed in the database itself
     if (tryCache) {
-      const obj = await db.linkedDataCache.get(url)
+      const cached = await db.linkedDataCache.get(url)
 
-      if (obj) {
-        const { quads } = obj
-
+      if (cached) {
+        const { quads } = await parseToPromise(parser, cached.rdf)
         store = new N3.Store()
         store.addQuads(quads)
       }
     }
 
     if (!store) {
-      store = (await _fetchLinkedData(url, resourceMimeType)).store
+      const resp = (await _fetchLinkedData(url, resourceMimeType))
+
+      store = resp.store
 
       if (populateCache) {
+        const rdf = writer.quadsToString(store.getQuads())
+
         await db.linkedDataCache.put({
           url,
-          quads: store.getQuads().map(quad => {
-            ['subject', 'object'].forEach(part => {
-              const term = quad[part]
-              if (term.termType === 'BlankNode') {
-                term.value = ''
-              }
-            })
-          }),
+          rdf,
+          date: new Date(),
         })
       }
     }
@@ -130,7 +142,7 @@ function fetchORCIDs(orcids, opts) {
         orcid = 'https' + orcid.slice(4)
       }
 
-      const req = dispatch(LinkedDataAction.FetchLinkedData(orcid, Object.assign({
+      const req = await dispatch(LinkedDataAction.FetchLinkedData(orcid, Object.assign({
         tryCache: true,
         populateCache: true
       }, opts)))
@@ -146,7 +158,9 @@ function fetchORCIDs(orcids, opts) {
       return [ orcid, label ]
     }))
 
-    return R.fromPairs(pairs)
+    return {
+      nameByORCID: R.fromPairs(pairs)
+    }
   }
 }
 

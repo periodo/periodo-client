@@ -15,7 +15,6 @@ module.exports = function sortWorker() {
         break;
 
       case 'getSort':
-        debugger;
         return sort(dataset.periods, message.field)
 
       default:
