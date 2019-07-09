@@ -1,9 +1,8 @@
 "use strict";
 
 const R = require('ramda')
-    , N3 = require('n3')
     , url = require('url')
-    , ns = require('lov-ns')
+    , ns = require('../linked-data/ns')
     , jsonpatch = require('fast-json-patch')
     , Type = require('union-type')
     , { normalizeDataset, isDataset } = require('periodo-utils').dataset
@@ -359,13 +358,10 @@ function fetchBackendHistory(storage) {
       Web: async url => {
         const resp = await fetchServerResource(url, 'history.jsonld?inline-context')
             , data = await resp.json()
-            , store = new N3.Store()
 
-        const { quads } = await parseJSONLD(data)
+        const { store } = await parseJSONLD(data)
 
-        store.addQuads(quads);
-
-        const [ changeList ] = store.getObjects(null, ns('dcterms:provenance'))
+        const [ changeList ] = store.getObjects(null, ns('dc:provenance'))
 
         const changes = rdfListToArray(store, changeList)
           .map(getPatchRepr.bind(null, store))

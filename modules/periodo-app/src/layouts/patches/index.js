@@ -17,6 +17,12 @@ const PatchList = blocks.List({
         : item.url
     })
   },
+
+  defaultOpts: {
+    sortBy: 'created',
+    sortDirection: 'desc',
+  },
+
   columns: {
     creator: {
       label: 'Creator',

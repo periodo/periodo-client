@@ -13,5 +13,6 @@ module.exports = nsExpander({
   owl: ns.owl,
   bibo: ns.bibo,
   rdfs: ns.rdfs,
+  prov: ns.prov,
   periodo: 'http://n2t.net/ark:/99152/p0v#',
 })
