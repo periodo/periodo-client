@@ -1,6 +1,7 @@
 "use strict";
 
 const R = require('ramda')
+    , { earliestYear } = require('./terminus')
     , { $$Authority } = require('./symbols')
 
 function originalLabel(period) {
@@ -38,10 +39,15 @@ function periodWithAuthority(period) {
   }
 }
 
+const byStartYear = R.comparator(
+  (a, b) => earliestYear(a.start) < earliestYear(b.start)
+)
+
 module.exports = {
   originalLabel,
   allLabels,
   alternateLabels,
   authorityOf,
   periodWithAuthority,
+  byStartYear,
 }

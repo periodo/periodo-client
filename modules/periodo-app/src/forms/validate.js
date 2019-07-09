@@ -46,6 +46,9 @@ const VALID_PERIOD_FIELDS = [
   'language',
   'languageTag',
   'localizedLabels',
+  'derivedFrom',
+  'broader',
+  'narrower',
   'spatialCoverage',
   'spatialCoverageDescription',
   'start',
@@ -85,6 +88,9 @@ function validatePeriod(period) {
     }
   }
 
+  // FIXME We could check here for cycles in derivedFrom and broader relations.
+  // But for now it seems not worth the expense of checking the entire dataset.
+
   if (R.equals(errors, {})) {
     const cleanedPeriod = {
       type: 'Period',
@@ -101,6 +107,25 @@ function validatePeriod(period) {
     // Clean up parsed terminus labels
     delete cleanedPeriod.start._type;
     delete cleanedPeriod.stop._type;
+
+    // Clean up related period arrays
+    if (
+      'derivedFrom' in cleanedPeriod
+      && Array.isArray(cleanedPeriod.derivedFrom)
+      && cleanedPeriod.derivedFrom.length === 0
+    ) {
+      delete cleanedPeriod.derivedFrom
+    }
+    if (
+      'broader' in cleanedPeriod
+      && Array.isArray(cleanedPeriod.broader)
+    ) {
+      if (cleanedPeriod.broader.length == 0) {
+        delete cleanedPeriod.broader
+      } else if (cleanedPeriod.broader.length == 1) {
+        cleanedPeriod.broader = cleanedPeriod.broader[0]
+      }
+    }
 
     return Result.Ok(cleanedPeriod);
 

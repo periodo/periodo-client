@@ -32,4 +32,5 @@ addUIModules([
   require('./InlineList'),
   require('./Map'),
   require('./Tags'),
+  require('./BackendContext'),
 ])

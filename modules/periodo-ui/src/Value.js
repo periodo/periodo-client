@@ -3,14 +3,17 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , tags = require('language-tags')
+    , { Route } = require('org-shell')
     , { Box, Span, Pre } = require('./Base')
     , { Italic } = require('./Typography')
-    , { ExternalLink } = require('./Links')
+    , { Link, ExternalLink } = require('./Links')
     , { Diff, findChanges, showChanges } = require('./Diff')
+    , { BackendContext } = require('./BackendContext')
+    , { useContext } = require('react')
     , { Value } = require('./types')
     , linkifier = require('linkify-it')()
     , { permalinkURL } = require('../../periodo-app/src/globals')
-
+    , util = require('periodo-utils')
 
 const abbreviate = id => {
   try {
@@ -89,9 +92,25 @@ function LinkValue(props) {
 
 function PermalinkValue(props) {
   const { value } = props
+
   return value.startsWith('p0')
     ? LinkValue({ ...props, value: `${ permalinkURL }${ value }`})
     : h(Italic, 'not yet assigned')
+}
+
+function RelatedPeriodValue(props) {
+  const { value: period } = props
+  return h(
+    Link,
+    {
+      route: Route('period-view', {
+        backendID: useContext(BackendContext).asIdentifier(),
+        authorityID: util.period.authorityOf(period).id,
+        periodID: period.id,
+      })
+    },
+    period.label
+  )
 }
 
 function EntityValue(props) {
@@ -223,5 +242,6 @@ module.exports = {
   LinkifiedTextValue,
   AgentValue,
   SpatialExtentValue,
-  JSONLDContextValue
+  JSONLDContextValue,
+  RelatedPeriodValue
 }
