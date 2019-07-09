@@ -46,8 +46,6 @@ class SubmitPatch extends React.Component {
 
     let child
 
-    console.log(this.props.settings)
-
     if (this.state.selectedPatch) {
       child = h(Box, [
         this.state.compareComponent,
