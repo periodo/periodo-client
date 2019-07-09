@@ -2,8 +2,16 @@
 
 const { corsProxyURL, corsProxyEnabled } = require('../../globals')
 
+const CORS_PROXY_SITES = /(?:(?:\.worldcat.org)|(?:\.orcid\.org))\//
+
 module.exports = function formatURL(url) {
-  return (corsProxyEnabled && url.indexOf(corsProxyURL) === -1)
+  const useProxy = (
+    corsProxyEnabled &&
+    url.indexOf(corsProxyURL) === -1 &&
+    CORS_PROXY_SITES.test(url)
+  )
+
+  return useProxy
     ? corsProxyURL + url
     : url
 }
