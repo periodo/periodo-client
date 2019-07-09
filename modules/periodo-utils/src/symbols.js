@@ -1,5 +1,6 @@
 "use strict";
 
 module.exports = {
-  $$Authority: Symbol('Authority'),
+  $$Authority: Symbol.for('Authority'),
+  $$RelatedPeriods: Symbol.for('RelatedPeriods'),
 }
