@@ -150,68 +150,75 @@ const RelatedPeriodList = ({
 
   const isSelected = item => R.any(period => period.id === item.id, periods)
 
-  return h(Box, { css: { position: 'relative' }, ...props }, [
-    h(Label, { htmlFor: randomID(name) }, label),
+  return (
+    h(Box, {
+      css: {
+        position: 'relative'
+      },
+      ...R.omit(['backendID'], props)
+    }, [
+      h(Label, { htmlFor: randomID(name) }, label),
 
-    helpText && h(Text, { size: 1, mb: 1 }, helpText),
+      helpText && h(Text, { size: 1, mb: 1 }, helpText),
 
-    h(Box, { mt: -1, mb: '-1px' }, [
-      periods.length
-        ? periods.map(
-            (period, key) => h(Deletable, {
-              key,
-              px: 1,
-              py: 2,
-              onDelete: () => onValueChange(
-                periods.filter(({ id }) => id !== period.id)
-              ),
-              ...(atLimit ? {} : { borderBottom: '1px dotted #ced4da' }),
-            }, [
-                h(RelatedPeriod, { period })
-              ]
+      h(Box, { mt: -1, mb: '-1px' }, [
+        periods.length
+          ? periods.map(
+              (period, key) => h(Deletable, {
+                key,
+                px: 1,
+                py: 2,
+                onDelete: () => onValueChange(
+                  periods.filter(({ id }) => id !== period.id)
+                ),
+                ...(atLimit ? {} : { borderBottom: '1px dotted #ced4da' }),
+              }, [
+                  h(RelatedPeriod, { period })
+                ]
+              )
             )
-          )
-        : h(Box, {
-            py: 2,
-            color: 'gray.6',
-            css: { fontStyle: 'italic' },
-          }, 'Search below for periods to add')
-    ]),
+          : h(Box, {
+              py: 2,
+              color: 'gray.6',
+              css: { fontStyle: 'italic' },
+            }, 'Search below for periods to add')
+      ]),
 
-    atLimit
-      ? null
-      : h(Autosuggest, {
-          theme: {
-            suggestionsContainer: {
-              boxSizing: 'border-box',
-              position: 'absolute',
-              left: 0,
-              right: 0,
+      atLimit
+        ? null
+        : h(Autosuggest, {
+            theme: {
+              suggestionsContainer: {
+                boxSizing: 'border-box',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+              },
+              suggestionsContainerOpen: {
+                border: '1px solid #ccc',
+                height: 164,
+                boxShadow: '2px 1px 4px #ddd',
+              }
             },
-            suggestionsContainerOpen: {
-              border: '1px solid #ccc',
-              height: 164,
-              boxShadow: '2px 1px 4px #ddd',
-            }
-          },
-          multiSection: true,
-          getSuggestions: getSuggestions(authorities, suggestionFilter),
-          renderSectionTitle,
-          renderSuggestion: (item, info) => renderSuggestion(
-            item, { isSelected: isSelected(item), ...info }
-          ),
-          getSectionSuggestions: section => section.suggestions,
-          inputProps: {
-            placeholder: 'Begin typing to search for periods to add',
-            id: randomID(name),
-            borderRadius: '0 0 2px 2px'
-          },
-          onSelect: item => onValueChange(isSelected(item)
-            ? periods.filter(({ id }) => id !== item.id)
-            : periods.concat(item)
-          )
-        })
-  ])
+            multiSection: true,
+            getSuggestions: getSuggestions(authorities, suggestionFilter),
+            renderSectionTitle,
+            renderSuggestion: (item, info) => renderSuggestion(
+              item, { isSelected: isSelected(item), ...info }
+            ),
+            getSectionSuggestions: section => section.suggestions,
+            inputProps: {
+              placeholder: 'Begin typing to search for periods to add',
+              id: randomID(name),
+              borderRadius: '0 0 2px 2px'
+            },
+            onSelect: item => onValueChange(isSelected(item)
+              ? periods.filter(({ id }) => id !== item.id)
+              : periods.concat(item)
+            )
+          })
+    ])
+  )
 }
 
 module.exports = RandomID(RelatedPeriodList)

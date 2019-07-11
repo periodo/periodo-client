@@ -33,10 +33,10 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
     const get = lens => R.view(lens, value) || ''
         , set = (lens, val) => onValueChange(R.set(lens, val, value))
 
-    const sourceFormElement = h(showLDForm ? LDSourceForm : NonLDSourceForm, {
+    const childProps = {
       value: get(lenses.source),
       onValueChange: value => set(lenses.source, value)
-    })
+    }
 
     return (
       h(Box, [

@@ -20,6 +20,13 @@ function isDatasetProxy(obj) {
   return obj instanceof DatasetProxy
 }
 
+function isRawDataset(obj) {
+  return (
+    isDataset(obj) &&
+    !(obj instanceof DatasetProxy)
+  )
+}
+
 const BackendAction = module.exports = makeTypedAction({
   GetAllBackends: {
     exec: listAvailableBackends,
@@ -83,7 +90,7 @@ const BackendAction = module.exports = makeTypedAction({
     exec: updateLocalDataset,
     request: {
       storage: BackendStorage,
-      newRawDataset: isDataset,
+      newRawDataset: isRawDataset,
       message: String,
     },
     response: {

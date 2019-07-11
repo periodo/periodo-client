@@ -4,9 +4,9 @@ const { $$Authority, $$RelatedPeriods } = require('periodo-utils/src/symbols')
 
 function emptyRelations() {
   return {
-    derivedFrom: [],
-    broader: [],
-    narrower: [],
+    derivedFrom: {},
+    broader: {},
+    narrower: {},
   }
 }
 
@@ -46,10 +46,10 @@ module.exports = function indexItems(rawDataset) {
       ;[].concat(period[relation] || []).forEach(relatedPeriodID => {
         const relatedPeriod = periodsByID[relatedPeriodID]
 
-        period[$$RelatedPeriods][relation].push(relatedPeriod)
+        period[$$RelatedPeriods][relation][relatedPeriodID] = relatedPeriod
 
         if (inverseRelation) {
-          relatedPeriod[$$RelatedPeriods][inverseRelation].push(period)
+          relatedPeriod[$$RelatedPeriods][inverseRelation][period.id] = period
         }
       })
     })

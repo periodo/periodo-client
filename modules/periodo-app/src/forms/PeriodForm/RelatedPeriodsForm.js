@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { Flex, Box } = require('periodo-ui')
-    , { valueAsArray, period } = require('periodo-utils')
+    , { period } = require('periodo-utils')
     , RelatedPeriodList = require('./RelatedPeriodList')
 
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
@@ -15,14 +15,8 @@ const RelatedPeriodsForm = ({
     dataset,
     authority,
 }) => {
+  const relatedPeriods = value[$$RelatedPeriods]
 
-  const periods = R.fromPairs(['broader', 'narrower', 'derivedFrom'].map(
-    prop => [
-      prop, valueAsArray(prop, value).map(
-        id => value[$$RelatedPeriods][prop][id]
-      )
-    ]
-  ))
   const update = prop => periods => {
     value[prop] = periods.map(({ id }) => id)
     value[$$RelatedPeriods][prop] = R.indexBy(R.prop('id'), periods)
@@ -39,7 +33,7 @@ const RelatedPeriodsForm = ({
         name: 'broader',
         label: 'Part of',
         helpText: 'Broader period containing this one',
-        periods: periods.broader,
+        periods: Object.values(relatedPeriods.broader),
         suggestionFilter:
           ({ id }) => value.id !== id && ! value.narrower.includes(id),
         limit: 1,
@@ -52,7 +46,7 @@ const RelatedPeriodsForm = ({
         name: 'narrower',
         label: 'Has parts',
         helpText: 'Narrower periods contained by this one',
-        periods: R.sort(period.byStartYear, periods.narrower),
+        periods: R.sort(period.byStartYear, Object.values(relatedPeriods.narrower)),
         suggestionFilter: ({ id }) => value.id !== id && value.broader !== id,
         authorities: [ authority ],
         backendID,
@@ -65,7 +59,7 @@ const RelatedPeriodsForm = ({
         name: 'derived-from',
         label: 'Derived from',
         helpText: 'Other periods from which this one was derived',
-        periods: periods.derivedFrom,
+        periods: Object.values(relatedPeriods.derivedFrom),
         suggestionFilter: ({ id }) => value.id !== id,
         authorities: Object.values(dataset.authorities),
         backendID,

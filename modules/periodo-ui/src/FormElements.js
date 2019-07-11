@@ -59,6 +59,7 @@ exports.Errors = props =>
 
 exports.Label = sys({
   is: 'label',
+  blacklist: ['isRequired'],
   fontSize: 2,
   color: 'black',
   display: 'inline-block',

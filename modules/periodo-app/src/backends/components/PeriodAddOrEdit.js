@@ -20,6 +20,16 @@ const emptyPeriod = () => ({
   }
 })
 
+function shallowClone(obj) {
+  const clone = {}
+
+  Object.entries(obj).forEach(([ k, v ]) => {
+    clone[k] = v
+  })
+
+  return clone
+}
+
 class AddPeriod extends React.Component {
   constructor(props) {
     super(props);
@@ -29,7 +39,8 @@ class AddPeriod extends React.Component {
 
     this.state = {
       period,
-      related: R.clone(period[$$RelatedPeriods])
+      originalRelated: R.clone(period[$$RelatedPeriods]),
+      related: shallowClone(period[$$RelatedPeriods])
     }
   }
 
@@ -60,10 +71,10 @@ class AddPeriod extends React.Component {
             const narrower = period.narrower
             delete period.narrower
 
-            let updatedDataset = R.assocPath(
+            let updatedRawDataset = R.assocPath(
               ['authorities', authority.id, 'periods', id],
               Object.assign({ id }, period),
-              dataset
+              dataset.raw
             )
 
             let message = isEdit
@@ -73,11 +84,11 @@ class AddPeriod extends React.Component {
             // FIXME: this assumes that narrower periods are always from the
             // same authority; this could possibly change in the future.
             for (const npID of narrower) {
-              if (! (npID in this.state.related.narrower)) {
-                updatedDataset = R.assocPath(
+              if (! (npID in this.state.originalRelated.narrower)) {
+                updatedRawDataset = R.assocPath(
                   ['authorities', authority.id, 'periods', npID, 'broader'],
                   id,
-                  updatedDataset
+                  updatedRawDataset
                 )
                 message += (
                   `; added broader reference to it from period ${npID}`)
@@ -85,11 +96,11 @@ class AddPeriod extends React.Component {
             }
             // FIXME: this assumes that narrower periods are always from the
             // same authority; this could possibly change in the future.
-            for (const npID in this.state.related.narrower) {
+            for (const npID in this.state.originalRelated.narrower) {
               if (! narrower.includes(npID)) {
-                updatedDataset = R.dissocPath(
+                updatedRawDataset = R.dissocPath(
                   ['authorities', authority.id, 'periods', npID, 'broader'],
-                  updatedDataset
+                  updatedRawDataset
                 )
                 message += (
                   `; removed broader reference to it from period ${npID}`)
@@ -98,7 +109,7 @@ class AddPeriod extends React.Component {
 
             await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
-              updatedDataset,
+              updatedRawDataset,
               message
             ))
 
@@ -110,12 +121,17 @@ class AddPeriod extends React.Component {
             })
           },
           onValueChange: period => {
+            let { related } = this.state
+
             // restore symbols possibly wiped out by editing
             period[$$Authority] = authority
             if (! ($$RelatedPeriods in period)) {
               period[$$RelatedPeriods] = this.state.related
+            } else {
+              related = period[$$RelatedPeriods]
             }
-            this.setState({ period })
+
+            this.setState({ period, related })
           }
         }),
       ])
