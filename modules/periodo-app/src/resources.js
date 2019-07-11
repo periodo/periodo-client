@@ -167,6 +167,14 @@ const Backend = {
     'backend-home': {
       label: 'Browse',
       Component: require('./backends/components/BackendHome'),
+      async onBeforeRoute(dispatch) {
+        await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
+      },
+      mapStateToProps(state) {
+        return {
+          gazetteers: state.graphs.gazetteers,
+        }
+      }
     },
     'backend-edit': {
       label: 'Configure',

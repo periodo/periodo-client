@@ -67,8 +67,13 @@ function fetchGazetteers() {
         , { json } = getResponse(req)
         , gazetteers = Object.values(json.graphs)
         , featuresIndex = indexFeatures(gazetteers)
+
     gazetteers.find = id => {
-      return R.path(featuresIndex[id], gazetteers)
+      const index = featuresIndex[id]
+
+      if (!index) return null
+
+      return R.path(index, gazetteers)
     }
     return { gazetteers }
   }

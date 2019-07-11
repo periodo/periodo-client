@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Period } = require('periodo-ui')
 
-function PeriodDetail({ hoveredPeriod, selectedPeriod }) {
+function PeriodDetail({ hoveredPeriod, selectedPeriod, gazetteers }) {
   const period = hoveredPeriod || selectedPeriod || null
 
   return h('div', {
@@ -12,7 +12,7 @@ function PeriodDetail({ hoveredPeriod, selectedPeriod }) {
     },
   }, [
     period == null ? null : (
-      h(Period, { value: period })
+      h(Period, { value: period, gazetteers })
     )
   ])
 }

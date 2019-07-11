@@ -21,6 +21,7 @@ module.exports = function PeriodoLayoutRenderer(props) {
       extraProps: {
         backend: props.backend,
         dataset: props.dataset,
+        gazetteers: props.gazetteers,
         hoveredPeriod,
         setHoveredPeriod,
         selectedPeriod,

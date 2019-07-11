@@ -64,7 +64,7 @@ module.exports = class BackendHome extends React.Component {
   }
 
   render() {
-    const { backend, dataset, updateOpts } = this.props
+    const { backend, dataset, updateOpts, gazetteers } = this.props
         , { Tab='Periods' } = this.props.opts
         , { blockOpts } = this.state
 
@@ -72,6 +72,7 @@ module.exports = class BackendHome extends React.Component {
       backend,
       dataset,
       blockOpts,
+      gazetteers,
       onBlockOptsChange: updatedOpts => {
         this.setState({ blockOpts: updatedOpts })
 
