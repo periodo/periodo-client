@@ -84,6 +84,8 @@ $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rm -rf $@ $(VERSIONED_DIRECTORY)
 	mkdir $(VERSIONED_DIRECTORY)
 	rsync -R $^ $(VERSIONED_DIRECTORY)
+	rsync -r $(VERSIONED_DIRECTORY)/dist/ $(VERSIONED_DIRECTORY)
+	rm -rf $(VERSIONED_DIRECTORY)/dist
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
 	sed -i \
 		-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
