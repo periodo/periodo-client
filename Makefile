@@ -83,8 +83,7 @@ $(VERSIONED_DIRECTORY)/package.json: package.json
 $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rm -rf $@ $(VERSIONED_DIRECTORY)
 	mkdir $(VERSIONED_DIRECTORY)
-	cp $^ $(VERSIONED_DIRECTORY)
-	cd $(VERSIONED_DIRECTORY) && mkdir images && mv $(notdir $(ASSET_FILES)) images
+	rsync -R $^ $(VERSIONED_DIRECTORY)
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
 	sed -i \
 		-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
