@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Box, Span, Pre } = require('./Base')
     , { Italic } = require('./Typography')
     , { Link, ExternalLink } = require('./Links')
-    , { Map } = require('./Map')
+    , { WorldMap } = require('./WorldMap')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { BackendContext } = require('./BackendContext')
     , { useContext } = require('react')
@@ -216,7 +216,7 @@ function SpatialExtentValue(props) {
     ),
     compare
       ? null
-      : h(Map, {
+      : h(WorldMap, {
         mt: 1,
         border: '1px solid #ccc',
         maxWidth: '650px',

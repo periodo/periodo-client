@@ -125,7 +125,7 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   ])
 }
 
-exports.Map = ({ features, focusedFeature, height=200, ...props }) => h(
+exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
   Box,
   {
     css: {backgroundColor: '#6194b9'}, // ocean color

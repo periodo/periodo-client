@@ -30,7 +30,7 @@ addUIModules([
   require('./Autosuggest'),
   require('./Base'),
   require('./InlineList'),
-  require('./Map'),
+  require('./WorldMap'),
   require('./Tags'),
   require('./BackendContext'),
 ])

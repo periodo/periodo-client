@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Map } = require('periodo-ui')
+    , { Flex, WorldMap } = require('periodo-ui')
     , FeatureLabel = require('./FeatureLabel')
 
 const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
@@ -9,7 +9,7 @@ const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
   borderBottom: 'none',
   ...props
 }, [
-  h(Map, {
+  h(WorldMap, {
     focusedFeature,
     features,
     flex: '1 1',
