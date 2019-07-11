@@ -197,32 +197,48 @@ function AgentValue(props) {
 }
 
 function SpatialExtentValue(props) {
-  const { value: { description, places }, gazetteers, compare } = props
-  return h(Box, [
-    h(
-      Annotated,
-      R.merge(
-        R.omit([ 'value', 'compare' ], props),
-        compare
-          ? { value:
-                h(Diff, { value: description, compare: compare.description })
-            , annotations:
-                showChanges(EntityValue)(findChanges(places, compare.places))
-            }
-          : { value: description
-            , annotations: R.map(show(EntityValue), places)
-            }
-      ),
-    ),
+  const {
+    value: { description, places },
+    gazetteers,
     compare
-      ? null
-      : h(WorldMap, {
-        mt: 1,
-        border: '1px solid #ccc',
-        maxWidth: '650px',
-        features: places.map(([{id}]) => gazetteers.find(id))
-      })
-  ])
+  } = props
+
+  let annotationProps
+
+  if (compare) {
+    annotationProps = {
+      value: h(Diff, { value: description, compare: compare.description }),
+      annotations: showChanges(EntityValue)(findChanges(places, compare.places)),
+    }
+  } else {
+    annotationProps = {
+      value: description,
+      annotations: R.map(show(EntityValue), places),
+    }
+  }
+
+  const features = places
+    .map(([{id}]) => gazetteers.find(id))
+    .filter(R.identity)
+
+  const showMap = (!compare && features.length > 0)
+
+  return (
+    h('div', [
+      h(Annotated, R.merge(
+        R.omit([ 'value', 'compare' ], props),
+        annotationProps
+      )),
+      !showMap ? null : (
+        h(WorldMap, {
+          mt: 1,
+          border: '1px solid #ccc',
+          maxWidth: '650px',
+          features: places.map(([{id}]) => gazetteers.find(id))
+        })
+      )
+    ])
+  )
 }
 
 function JSONLDContextValue(props) {
