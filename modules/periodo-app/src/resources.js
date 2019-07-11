@@ -12,6 +12,8 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
+    , { connect } = require('react-redux')
+    , { BackendContext } = require('periodo-ui')
 
 function requireParam(params, key, msg) {
   if (key in params) return;
@@ -134,6 +136,30 @@ const ReviewPatch = {
   }
 }
 
+function withBackendContext(Component) {
+  function mapStateToProps(state, ownProps) {
+    const { backendID } = ownProps.params
+
+    return {
+      backend: state.backends.available[backendID],
+      dataset: state.backends.datasets[backendID],
+    }
+  }
+
+  function BackendKnower(props) {
+    return h(BackendContext.Provider, {
+      value: {
+        dataset: props.dataset,
+        backend: props.backend,
+      }
+    }, h(Component, props))
+  }
+
+  connect(mapStateToProps)(BackendKnower)
+
+  return BackendKnower
+}
+
 const Backend = {
   label: 'Backend',
   parent: Home,
@@ -148,7 +174,7 @@ const Backend = {
     },
     'backend-add-authority': {
       label: 'Add authority',
-      Component: require('./backends/components/AddAuthority'),
+      Component: require('./backends/components/AuthorityAddOrEdit'),
       showInMenu: hasEditableBackend,
     },
     'backend-sync': {
@@ -194,6 +220,9 @@ const Backend = {
       },
     },
   },
+  wrappers: [
+    withBackendContext,
+  ],
   async onBeforeRoute(dispatch, params) {
     requireParam(params, 'backendID');
 
@@ -249,7 +278,7 @@ const Authority = {
     'authority-edit': {
       label: 'Edit',
       showInMenu: hasEditableBackend,
-      Component: () => h('h1', 'Edit authority'),
+      Component: require('./backends/components/AuthorityAddOrEdit'),
     },
 
     'authority-add-period': {
@@ -284,7 +313,7 @@ const Period = {
   resources: {
     'period-view': {
       label: 'View',
-      Component: require('./backends/components/PeriodView')
+      Component: require('./backends/components/PeriodView'),
     },
 
     'period-edit': {
@@ -377,10 +406,11 @@ function registerGroups(groups) {
       }
 
       const aggregated = R.pipe(
-        R.map(R.pick(['onBeforeRoute', 'mapStateToProps'])),
+        R.map(R.pick(['onBeforeRoute', 'mapStateToProps', 'wrappers'])),
         R.reduce(
           R.mergeWith(R.flip(R.append)),
           {
+            wrappers: [],
             onBeforeRoute: [],
             mapStateToProps: [],
           }
@@ -405,8 +435,14 @@ function registerGroups(groups) {
           {}
         )
       }
-
       defineName(resource.mapStateToProps, `${resourceKey}:combinedMapStateToProps`)
+
+      const OriginalComponent = resource.Component
+
+      resource.Component = R.flatten(aggregated.wrappers).reduce(
+        (Component, wrapper) => wrapper(Component),
+        OriginalComponent
+      )
 
     }, group.resources)
 
