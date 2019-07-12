@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Tabs, Box } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
+    , debounce = require('debounce')
 
 const periodLayout = `
 grid-template-columns = repeat(6, 1fr)
@@ -61,6 +62,17 @@ module.exports = class BackendHome extends React.Component {
       // showEdit: false,
       blockOpts: this.props.opts.Layout || {},
     }
+
+    this.persistBlockOpts = debounce(this.persistBlockOpts.bind(this), 50)
+  }
+
+  persistBlockOpts() {
+    const { updateOpts } = this.props
+        , { blockOpts } = this.state
+
+    R.isEmpty(blockOpts)
+      ? updateOpts(R.dissoc('Layout'))
+      : updateOpts(R.set(R.lensProp('Layout'), blockOpts))
   }
 
   render() {
@@ -74,11 +86,7 @@ module.exports = class BackendHome extends React.Component {
       blockOpts,
       gazetteers,
       onBlockOptsChange: updatedOpts => {
-        this.setState({ blockOpts: updatedOpts })
-
-        R.isEmpty(updatedOpts)
-          ? updateOpts(R.dissoc('Layout'))
-          : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
+        this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
       },
     }
 
