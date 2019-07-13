@@ -221,20 +221,18 @@ function SpatialExtentValue(props) {
     .map(([{id}]) => gazetteers.find(id))
     .filter(R.identity)
 
-  const showMap = (!compare && features.length > 0)
-
   return (
     h('div', [
       h(Annotated, R.merge(
         R.omit([ 'value', 'compare' ], props),
         annotationProps
       )),
-      !showMap ? null : (
+      compare ? null : (
         h(WorldMap, {
           mt: 1,
           border: '1px solid #ccc',
           maxWidth: '650px',
-          features: places.map(([{id}]) => gazetteers.find(id))
+          features
         })
       )
     ])
