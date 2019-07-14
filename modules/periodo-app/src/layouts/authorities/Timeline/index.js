@@ -6,11 +6,14 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
-const d = {
-  MARGIN: 20,
-  HEIGHT: 500,
-  WIDTH: 500,
+const m = {
+  l: 20,
+  r: 20,
+  t: 0,
+  b: 20,
 }
+
+const PLOT_BG_COLOR = '#f9f9f9'
 
 function roundToUnit(num, unit, floor=true) {
   let multiplier = Math.floor(num / unit)
@@ -78,44 +81,44 @@ class Timeline extends React.Component {
   }
 
   init() {
-    let { height: svgHeight } = this.props.opts
+    let { height: heightFromOptions } = this.props.opts
 
-    if (!svgHeight) {
-      svgHeight = 400
+    if (!heightFromOptions) {
+      heightFromOptions = 400
     }
+
+    const { width: containerWidth } = this.el.getBoundingClientRect()
+        , containerHeight = heightFromOptions
+
+    const plotWidth = containerWidth - m.l - m.r
+        , plotHeight = containerHeight - m.t - m.b
 
     this.svg = d3.select(this.el)
       .append('svg')
-      .attr('height', svgHeight)
+      .attr('width', containerWidth)
+      .attr('height', containerHeight)
 
     this.g = this.svg
       .append('g')
-        .attr('transform', `translate(${d.MARGIN,d.MARGIN})`)
+        .attr('transform', `translate(${m.t,m.l})`)
 
-    this.periodsGBackground = this.g.append('rect')
-    this.periodsG = this.g.append('g')
-
-    const { width, height } = this.el.getBoundingClientRect()
-
-    this.svg
-      .attr('width', width + 2 * d.MARGIN)
-      .attr('height', height + 2 * d.MARGIN)
-
-    this.scale = {
-      x: d3.scaleLinear().range([0, width - 2 * d.MARGIN]),
-      y: d3.scaleLinear().range([height, 0]),
-    }
-
-    this.periodsGBackground
+    this.plotBackground = this.g.append('rect')
       .attr('x', 0)
       .attr('y', 0)
-      .attr('width', width - 2 * d.MARGIN)
-      .attr('height', height)
-      .attr('fill', '#f9f9f9')
+      .attr('width', plotWidth)
+      .attr('height', plotHeight)
+      .attr('fill', PLOT_BG_COLOR)
+
+    this.plotG = this.g.append('g')
+
+    this.scale = {
+      x: d3.scaleLinear().range([0, plotWidth]),
+      y: d3.scaleLinear().range([plotHeight, 0]),
+    }
 
     this.axisG = {
       x: this.g.append('g')
-        .attr('transform', `translate(0,${height})`)
+        .attr('transform', `translate(0,${plotHeight})`)
     }
   }
 
@@ -148,7 +151,7 @@ class Timeline extends React.Component {
 
     this.axisG.x.transition().duration(256).call(xAxis)
 
-    const rects = this.periodsG
+    const rects = this.plotG
       .selectAll('rect')
       .data(periods, d => d.id)
 
