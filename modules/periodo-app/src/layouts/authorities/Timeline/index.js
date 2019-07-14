@@ -15,6 +15,15 @@ const m = {
 
 const PLOT_BG_COLOR = '#f9f9f9'
 
+function getEndpoints(period) {
+  const earliest = earliestYear(period.start)
+      , latest = latestYear(period.stop)
+
+  return [ earliest, latest ]
+}
+
+const _getEndpoints = R.memoizeWith(p => p.id, getEndpoints)
+
 function roundToUnit(num, unit, floor=true) {
   let multiplier = Math.floor(num / unit)
 
@@ -64,23 +73,57 @@ const yaTickFormat = R.cond([
   [R.T, R.toString]
 ])
 
+const visualizations = {
+  Bars: require('./Bars'),
+}
+
 class Timeline extends React.Component {
+  constructor (props) {
+    super();
+
+    const initialVisualization = (
+      visualizations[props.opts.visualization] ||
+      visualizations.Bars
+    )
+
+    this.state = {
+      visualization: new initialVisualization()
+    }
+  }
+
   componentDidMount() {
-    this.init()
+    this.initPlot()
     this.update()
   }
 
   componentDidUpdate(prevProps) {
-    const update = (
+    const newVisualization = (
+      this.props.opts.visualization !== prevProps.opts.visualization
+    )
+
+    const newData = (
       this.props.data !== prevProps.data
     )
 
-    if (update) {
+    if (newVisualization) {
+      const nextVisualization = visualizations[this.props.opts.visualization]
+
+      if (this.state.visualization.destroy) {
+        this.state.visualization.destroy()
+      }
+
+      this.plotG.remove()
+      this.plotG = this.plotGParent.append('g')
+
+      this.setState({
+        visualization: new nextVisualization()
+      }, this.update)
+    } else if (newData) {
       this.update()
     }
   }
 
-  init() {
+  initPlot() {
     let { height: heightFromOptions } = this.props.opts
 
     if (!heightFromOptions) {
@@ -109,7 +152,8 @@ class Timeline extends React.Component {
       .attr('height', plotHeight)
       .attr('fill', PLOT_BG_COLOR)
 
-    this.plotG = this.g.append('g')
+    this.plotGParent = this.g.append('g')
+    this.plotG = this.plotGParent.append('g')
 
     this.scale = {
       x: d3.scaleLinear().range([0, plotWidth]),
@@ -124,88 +168,42 @@ class Timeline extends React.Component {
 
   async update() {
     const { dataset, data } = this.props
+        , { visualization } = this.state
 
     let min = Infinity
       , max = -Infinity
 
-    const periods = await dataset.cachedSort(data, 'start')
-        , _periods = []
+    const sortedPeriods = await dataset.cachedSort(data, 'start')
+        , periodsWithEndpoints = []
 
-    periods.forEach(period => {
-      const earliest = earliestYear(period.start)
-          , latest = latestYear(period.stop)
+    sortedPeriods.forEach(period => {
+      const [ earliest, latest ] = _getEndpoints(period)
 
       if (earliest != null && earliest < min) min = earliest;
       if (latest != null && latest > max) max = latest
 
-      _periods.push([earliest, latest])
+      periodsWithEndpoints.push({ period, earliest, latest })
     })
 
-    this.scale.x.domain([domainUnit(min), domainUnit(max, false)])
-    this.scale.y.domain([0, periods.length])
+    const xScale = this.scale.x
+      .domain([domainUnit(min), domainUnit(max, false)])
+
+    const yScale = this.scale.y
+      .domain([0, sortedPeriods.length])
 
     const xAxis = d3.axisBottom()
-      .scale(this.scale.x)
+      .scale(xScale)
       .ticks(5)
       .tickFormat(yaTickFormat)
 
     this.axisG.x.transition().duration(256).call(xAxis)
 
-    const rects = this.plotG
-      .selectAll('rect')
-      .data(periods, d => d.id)
-
-    rects.exit()
-      .transition()
-        .duration(250)
-        .ease(d3.easeSin)
-        .style('opacity', 0)
-      .transition()
-        .remove()
-
-    const width = (d, i) => {
-      let w = this.scale.x(_periods[i][1]) - this.scale.x(_periods[i][0])
-
-      if (w < 1) w = 1;
-
-      return w;
-    }
-
-    const height = () => {
-      const h = this.scale.y(periods.length - .85)
-
-      return h >= 1 ? h : 1;
-    }
-
-    const x = (d, i) => this.scale.x(_periods[i][0])
-        , y = (d, i) => this.scale.y(i + 1)
-
-    const t = d3.transition()
-      .duration(400)
-      .ease(d3.easeSin)
-
-    rects
-      .transition(t)
-      .attr('x', x)
-      .attr('y', y)
-      .attr('width', width)
-      .attr('height', height)
-
-    rects.enter()
-      .append('rect')
-      .attr('x', x)
-      .attr('y', y)
-      .attr('width', width)
-      .attr('fill', d3.schemeCategory10[0])
-      .attr('height', height)
-      .style('opacity', 0)
-      .transition()
-        .delay(this.notFirst ? 350 : 0)
-        .duration(500)
-        .ease(d3.easeSin)
-      .style('opacity', 1)
-
-    this.notFirst = true;
+    visualization.update({
+      xScale,
+      yScale,
+      group: this.plotG,
+      periodsWithEndpoints,
+    })
   }
 
   render() {
