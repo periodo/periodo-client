@@ -128,13 +128,33 @@ class AspectTable extends React.Component {
         borderColor: 'gray.4',
         height,
       }, [
-        h(Box, {
+        h(Flex, {
+          justifyContent: 'space-between',
+          alignItems: 'center',
           bg: 'gray.0',
           p: 2,
           borderRadius: '3px 3px 0 0',
           fontWeight: 'bold',
           fontSize: 2,
-        }, label),
+        }, [
+          h('span', label),
+
+          h('span', {}, selected.size === 0 ? null : (
+            h('a', {
+              href: '',
+              style: {
+                color: 'red',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 100,
+              },
+              onClick: e => {
+                e.preventDefault();
+                updateOpts(R.dissocPath(['selected', aspectID]), true)
+              },
+            }, 'Clear')
+          ))
+        ]),
 
         h('div', {
           style: {

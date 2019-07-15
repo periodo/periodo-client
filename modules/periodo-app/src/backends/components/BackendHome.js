@@ -20,7 +20,7 @@ grid-row = 1/2
 [Facets]
 type = facets
 flex = true
-height = 120
+height = 156
 grid-column = 1/7
 grid-row = 2/3
 
