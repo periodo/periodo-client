@@ -67,7 +67,6 @@ const Home = {
           dispatch(PatchAction.GetOpenServerPatches)
         )
 
-
         await dispatch(LinkedDataAction.FetchORCIDs(
           patches.map(R.prop('created_by'))
         ))

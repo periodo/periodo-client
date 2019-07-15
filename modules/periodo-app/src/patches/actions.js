@@ -198,7 +198,7 @@ function getLocalPatch(patchURL) {
         fetch(patch.text),
       ])
 
-      if (!fromDatasetRawResp.ok) {
+      if (!fromRawDatasetResp.ok) {
         throw new Error('Could not fetch source dataset')
       }
 
@@ -206,7 +206,7 @@ function getLocalPatch(patchURL) {
         throw new Error('Could not fetch patch text')
       }
 
-      const fromRawDataset = await fromDatasetResp.json()
+      const fromRawDataset = await fromRawDatasetResp.json()
           , patchText = await patchTextResp.json()
 
       const toRawDataset = jsonpatch.applyPatch(
@@ -239,7 +239,8 @@ function getLocalPatch(patchURL) {
 }
 
 async function getOpenServerPatches() {
-  const resp = await fetch('/patches.json?open=true')
+  const patchURL = new URL('patches.json?open=true', globals.periodoServerURL).href
+      , resp = await fetch(patchURL)
 
   return {
     patches: await resp.json()
