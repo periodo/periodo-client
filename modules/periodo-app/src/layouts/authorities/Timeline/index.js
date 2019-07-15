@@ -75,7 +75,10 @@ const yaTickFormat = R.cond([
 
 const visualizations = {
   Bars: require('./Bars'),
+  Histogram: require('./Histogram')
 }
+
+const defaultVisualization = visualizations.Histogram
 
 class Timeline extends React.Component {
   constructor (props) {
@@ -83,7 +86,7 @@ class Timeline extends React.Component {
 
     const initialVisualization = (
       visualizations[props.opts.visualization] ||
-      visualizations.Bars
+      defaultVisualization
     )
 
     this.state = {
@@ -106,7 +109,10 @@ class Timeline extends React.Component {
     )
 
     if (newVisualization) {
-      const nextVisualization = visualizations[this.props.opts.visualization]
+      const nextVisualization = (
+        visualizations[this.props.opts.visualization] ||
+        defaultVisualization
+      )
 
       if (this.state.visualization.destroy) {
         this.state.visualization.destroy()
