@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
+    , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
 
 const m = {
   l: 20,
@@ -84,6 +85,8 @@ class Timeline extends React.Component {
   constructor (props) {
     super();
 
+    this.svgContainerRef = React.createRef()
+
     const initialVisualization = (
       visualizations[props.opts.visualization] ||
       defaultVisualization
@@ -136,13 +139,14 @@ class Timeline extends React.Component {
       heightFromOptions = 400
     }
 
-    const { width: containerWidth } = this.el.getBoundingClientRect()
+    const el = this.svgContainerRef.current
+        , { width: containerWidth } = el.getBoundingClientRect()
         , containerHeight = heightFromOptions
 
     const plotWidth = containerWidth - m.l - m.r
         , plotHeight = containerHeight - m.t - m.b
 
-    this.svg = d3.select(this.el)
+    this.svg = d3.select(el)
       .append('svg')
       .attr('width', containerWidth)
       .attr('height', containerHeight)
@@ -213,10 +217,38 @@ class Timeline extends React.Component {
   }
 
   render() {
+    const { updateOpts } = this.props
+
     return (
-      h('div', {
-        ref: el => { this.el = el }
-      })
+      h('div', [
+        h('div', {
+          style: {
+            paddingLeft: m.l,
+            marginBottom: '1em',
+            marginTop: '1em',
+          }
+        }, [
+          h(DropdownMenu, {
+            label: 'Timeline style',
+            onSelection(val) {
+              updateOpts({ visualization: val })
+            },
+          }, [
+            h(DropdownMenuItem, {
+              value: 'Bars',
+              minWidth: 200,
+              textAlign: 'left',
+            }, 'Stacked bars'),
+
+            h(DropdownMenuItem, {
+              value: 'Histogram',
+              minWidth: 200,
+              textAlign: 'left',
+            }, 'Histogram'),
+          ]),
+        ]),
+        h('div', { ref: this.svgContainerRef }),
+      ])
     )
   }
 }
