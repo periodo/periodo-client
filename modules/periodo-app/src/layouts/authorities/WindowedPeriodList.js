@@ -7,7 +7,8 @@ const h = require('react-hyperscript')
     , { authorityOf } = require('periodo-utils/src/period')
     , { yearPublished } = require('periodo-utils/src/source')
     , styled = require('styled-components').default
-    , { throttle } = require('throttle-debounce')
+    , { Link } = require('periodo-ui')
+    , { Route } = require('org-shell')
 
 const columns = {
   start: {
@@ -124,6 +125,7 @@ function ItemRow({
   index,
   style,
   data: {
+    backend,
     periods,
     hoveredPeriod,
     selectedPeriod,
@@ -153,7 +155,18 @@ function ItemRow({
         setHoveredPeriod(null)
       },
     }, [
-      h('span', index + 1),
+      h('span', [
+        h(Link, {
+          style: {
+            display: 'flex',
+          },
+          route: new Route('period-view', {
+            backendID: backend.asIdentifier(),
+            authorityID: authorityOf(period).id,
+            periodID: period.id,
+          }),
+        }, index + 1)
+      ]),
     ].concat(Object.values(columns).map(({ getValue }) =>
       h('span', getValue(period))
     )))
@@ -292,6 +305,7 @@ class PeriodList extends React.Component {
       setHoveredPeriod,
       setSelectedPeriod,
       selectedPeriod,
+      backend,
     } = this.props
 
     return (
@@ -361,6 +375,7 @@ class PeriodList extends React.Component {
             }
           },
           itemData: {
+            backend,
             periods,
             hoveredPeriod,
             selectedPeriod,

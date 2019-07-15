@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Tabs, Box } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
+    , debounce = require('debounce')
 
 const periodLayout = `
 grid-template-columns = repeat(6, 1fr)
@@ -19,7 +20,7 @@ grid-row = 1/2
 [Facets]
 type = facets
 flex = true
-height = 120
+height = 156
 grid-column = 1/7
 grid-row = 2/3
 
@@ -61,6 +62,17 @@ module.exports = class BackendHome extends React.Component {
       // showEdit: false,
       blockOpts: this.props.opts.Layout || {},
     }
+
+    this.persistBlockOpts = debounce(this.persistBlockOpts.bind(this), 50)
+  }
+
+  persistBlockOpts() {
+    const { updateOpts } = this.props
+        , { blockOpts } = this.state
+
+    R.isEmpty(blockOpts)
+      ? updateOpts(R.dissoc('Layout'))
+      : updateOpts(R.set(R.lensProp('Layout'), blockOpts))
   }
 
   render() {
@@ -74,17 +86,24 @@ module.exports = class BackendHome extends React.Component {
       blockOpts,
       gazetteers,
       onBlockOptsChange: updatedOpts => {
-        this.setState({ blockOpts: updatedOpts })
-
-        R.isEmpty(updatedOpts)
-          ? updateOpts(R.dissoc('Layout'))
-          : updateOpts(R.set(R.lensProp('Layout'), updatedOpts))
+        this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
       },
     }
 
-    const renderPeriodTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
-      layout: periodLayout,
-    }))
+    const renderPeriodTab = () => (
+      dataset.periods.length === 0
+        ? (
+          h(Box, {
+            fontSize: 4,
+            color: 'gray.8',
+            textAlign: 'center',
+          }, 'No periods in backend')
+        )
+        : (
+          h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
+          layout: periodLayout,
+        })))
+    )
 
     const renderAuthorityTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
       useAuthorities: true,

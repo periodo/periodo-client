@@ -3,6 +3,7 @@
 const { terminus } = require('periodo-utils')
     , natsort = require('natsort')
     , sorter = natsort({ insensitive: true })
+    , { transliterate } = require('transliteration')
 
 function sort(getter, vals) {
   const ret = new Map()
@@ -44,7 +45,7 @@ function reverse(getter, map) {
 }
 
 const getters = {
-  label: p => p.label,
+  label: p => transliterate(p.label),
   start: p => terminus.earliestYear(p.start),
   stop: p => terminus.latestYear(p.stop),
 }
