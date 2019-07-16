@@ -5,6 +5,7 @@ const ns = require('lov-ns')
 
 
 module.exports = nsExpander({
+  activity: 'https://www.w3.org/ns/activitystreams#',
   skos: ns.skos,
   dc: ns.dcterms,
   foaf: ns.foaf,

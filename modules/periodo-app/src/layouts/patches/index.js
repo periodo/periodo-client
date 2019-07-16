@@ -19,7 +19,7 @@ const PatchList = blocks.List({
   },
 
   defaultOpts: {
-    sortBy: 'created',
+    sortBy: 'merged',
     sortDirection: 'desc',
   },
 
@@ -32,9 +32,14 @@ const PatchList = blocks.List({
         : h('span', label || '(undefined)')
     },
 
-    created: {
-      label: 'Created',
-      getValue: x => new Date(x.time).toLocaleString(),
+    merged: {
+      label: 'Merged at',
+      getValue: x => new Date(x.mergeTime).toLocaleString(),
+    },
+
+    comment: {
+      label: 'Comment',
+      getValue: x => x.firstComment,
     },
   },
 })

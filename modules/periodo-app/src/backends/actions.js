@@ -373,7 +373,7 @@ function fetchBackendHistory(storage) {
         const changes = rdfListToArray(store, changeList)
           .map(getPatchRepr.bind(null, store))
 
-        return R.sortBy(R.prop('time'), changes);
+        return changes
       },
 
       _: () => {
