@@ -1,12 +1,11 @@
 "use strict";
 
-const R = require('ramda')
-    , url = require('url')
+const url = require('url')
     , jsonpatch = require('fast-json-patch')
     , BackendAction = require('../backends/actions')
     , LinkedDataAction = require('../linked-data/actions')
     , parseLinkHeader = require('parse-link-header')
-    , { BackendStorage } = require('../backends/types')
+    , { Backend, BackendStorage } = require('../backends/types')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
@@ -19,6 +18,7 @@ const PatchAction = module.exports = makeTypedAction({
   GetLocalPatch: {
     exec: getLocalPatch,
     request: {
+      remoteBackend: Backend,
       patchURL: String,
     },
     response: {
@@ -54,7 +54,8 @@ const PatchAction = module.exports = makeTypedAction({
   SubmitPatch: {
     exec: submitPatch,
     request: {
-      backend: BackendStorage,
+      backend: Backend,
+      remoteBackend: Backend,
       patch: Object,
     },
     response: {
@@ -64,6 +65,7 @@ const PatchAction = module.exports = makeTypedAction({
   AddPatchComment: {
     exec: addPatchComment,
     request: {
+      remoteBackend: Backend,
       patchURL: isURL,
       comment: String,
     },
@@ -73,6 +75,7 @@ const PatchAction = module.exports = makeTypedAction({
   DecidePatchFate: {
     exec: decidePatchFate,
     request: {
+      remoteBackend: Backend,
       patchURL: isURL,
       fate: PatchFate,
     },
@@ -126,20 +129,20 @@ function generateDatasetPatch(
   }
 }
 
-function withAuthHeaders(state, extra) {
-  const token = R.path(['auth', 'settings', 'oauthToken'], state)
+function withAuthHeaders(backend, extra) {
+  const { token } = (backend.metadata.orcidCredential || {})
 
   return Object.assign({}, extra, !token ? {} : {
     Authorization: `Bearer ${token}`,
   })
 }
 
-function submitPatch(storage, patch) {
+function submitPatch(localBackend, remoteBackend, patch) {
   return async (dispatch, getState, { db }) => {
     const resp = await fetch(new URL('d.jsonld', globals.periodoServerURL).href, {
       body: JSON.stringify(patch),
       method: 'PATCH',
-      headers: withAuthHeaders(getState(), {
+      headers: withAuthHeaders(remoteBackend, {
         'Content-Type': 'application/json',
       })
     })
@@ -157,7 +160,7 @@ function submitPatch(storage, patch) {
 
     await db.patchSubmissions.put({
       patchURL,
-      backendID: storage.id,
+      backendID: localBackend.storage.id,
       resolved: false,
     })
 
@@ -165,12 +168,16 @@ function submitPatch(storage, patch) {
   }
 }
 
-function getLocalPatch(patchURL) {
+function getLocalPatch(remoteBackend, patchURL) {
   return async (dispatch, getState) => {
     const ret = {}
 
+    if (!patchURL.startsWith('http')) {
+      patchURL = new URL(patchURL, remoteBackend.storage.url)
+    }
+
     const patchResp = await fetch(patchURL, {
-      headers: withAuthHeaders(getState())
+      headers: withAuthHeaders(remoteBackend)
     })
 
     const link = parseLinkHeader(patchResp.headers.get('Link'))
@@ -247,17 +254,17 @@ async function getOpenServerPatches() {
   }
 }
 
-function addPatchComment(patchURL, comment) {
+function addPatchComment(backend, patchURL, comment) {
   let commentURL = patchURL
 
   if (!commentURL.endsWith('/')) commentURL += '/';
   commentURL += 'messages';
 
-  return async (dispatch, getState) => {
+  return async dispatch => {
     const resp = await fetch(commentURL, {
       body: JSON.stringify({ message: comment }),
       method: 'POST',
-      headers: withAuthHeaders(getState(), {
+      headers: withAuthHeaders(backend, {
         'Content-Type': 'application/json',
       })
     })
@@ -278,14 +285,14 @@ function addPatchComment(patchURL, comment) {
     }
 
     // Refresh patch
-    await dispatch(PatchAction.GetLocalPatch(patchURL))
+    await dispatch(PatchAction.GetLocalPatch(backend, patchURL))
 
     return {}
   }
 }
 
-function decidePatchFate(mergeURL, fate) {
-  return async (dispatch, getState, { db }) => {
+function decidePatchFate(backend, mergeURL, fate) {
+  return async (dispatch, { db }) => {
     const actionURL = fate.case({
       Accept: () => mergeURL,
       Reject: () => mergeURL.replace('merge', 'reject'), // lol.
@@ -293,7 +300,7 @@ function decidePatchFate(mergeURL, fate) {
 
     const resp = await fetch(actionURL, {
       method: 'POST',
-      headers: withAuthHeaders(getState(), {
+      headers: withAuthHeaders(backend, {
         'Content-Type': 'application/json' // necessary? probably not.
       })
     })

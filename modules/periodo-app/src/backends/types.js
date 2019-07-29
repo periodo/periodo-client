@@ -50,6 +50,12 @@ const BackendMetadata = Type({
     created: Date,
     modified: Date,
     accessed: Date,
+    orcidCredential: x =>
+      x == null || (
+        typeof x === 'object' &&
+        typeof x.name === 'string' &&
+        typeof x.token === 'string'
+      )
   }
 })
 

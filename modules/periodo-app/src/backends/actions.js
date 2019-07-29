@@ -106,9 +106,25 @@ const BackendAction = module.exports = makeTypedAction({
       storage: BackendStorage,
       withObj: Object,
     },
-    response: {
-      backend: Backend,
-    }
+    response: {}
+  },
+
+  AddOrcidCredential: {
+    exec: addOrcidCredential,
+    request: {
+      storage: BackendStorage,
+      token: String,
+      name: String,
+    },
+    response: {},
+  },
+
+  RemoveOrcidCredential: {
+    exec: removeOrcidCredential,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {},
   },
 
   DeleteAllBackends: {
@@ -215,7 +231,7 @@ function fetchBackend(storage, forceReload) {
             description: '',
             created: resp.headers.get('Date'),
             modified: resp.headers.get('Last-Modified'),
-            accessed: Date.now()
+            accessed: Date.now(),
           }
         } else {
           await db.remoteBackends
@@ -465,13 +481,17 @@ function updateBackend(storage, withObj) {
     modified: new Date()
   }
 
-  // Only allow editing "label" and "description"
+  // Only allow editing "label" and "description" and "orcidCredential"
   if (withObj.label) {
     updated.label = withObj.label
   }
 
   if (withObj.description) {
     updated.description = withObj.description
+  }
+
+  if ('orcidCredential' in withObj) {
+    updated.orcidCredential = withObj.orcidCredential
   }
 
   return async (dispatch, getState, { db }) => {
@@ -493,10 +513,9 @@ function updateBackend(storage, withObj) {
       _: () => null
     })
 
-    const fetchAction = await dispatch(BackendAction.GetBackendDataset(storage, false))
-        , { backend } = getResponse(fetchAction)
+    await dispatch(BackendAction.GetAllBackends)
 
-    return { backend }
+    return {}
   }
 }
 
@@ -574,6 +593,33 @@ function deleteBackend(storage) {
     if (ct === 0) {
       // FIXME: nothing was deleted? Raise an error?
     }
+
+    return {}
+  }
+}
+
+function addOrcidCredential(storage, token, name) {
+  return async dispatch => {
+    storage.case({
+      Web: () => null,
+      _: () => {
+        throw new Error('Only Web backends contain ORCID credentials')
+      }
+    })
+
+    await dispatch(BackendAction.UpdateBackend(storage, {
+      orcidCredential: { token, name },
+    }))
+
+    return {}
+  }
+}
+
+function removeOrcidCredential(storage) {
+  return async dispatch => {
+    await dispatch(BackendAction.UpdateBackend(storage, {
+      orcidCredential: null,
+    }))
 
     return {}
   }

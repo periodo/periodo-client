@@ -12,7 +12,9 @@ module.exports = function patches(state=initialState(), action) {
 
   return action.readyState.case({
     Success: resp => action.type.case({
-      GetLocalPatch(patchURL) {
+      GetLocalPatch(remoteBackend, patchPath) {
+        const patchURL = new URL(patchPath, remoteBackend.storage.url)
+
         return R.set(
           R.lensPath(['patches', patchURL]),
           Object.assign(...resp._keys.map(k => ({ [k]: resp[k] }))),

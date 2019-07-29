@@ -68,15 +68,21 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       UpdateBackend() {
-        const { backend } = resp
-
-        return R.set(R.lensPath(['available', backend.asIdentifier()]), backend, state)
+        return state
       },
 
       UpdateLocalDataset() {
         const { backend, dataset } = resp
 
         return updateBackend(backend, dataset, state)
+      },
+
+      AddOrcidCredential() {
+        return state
+      },
+
+      RemoveOrcidCredential() {
+        return state
       },
 
       DeleteBackend(storage) {
