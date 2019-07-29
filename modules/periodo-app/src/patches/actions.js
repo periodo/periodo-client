@@ -30,8 +30,8 @@ const PatchAction = module.exports = makeTypedAction({
     }
   },
 
-  GetOpenServerPatches: {
-    exec: getOpenServerPatches,
+  GetServerPatches: {
+    exec: getServerPatches,
     request: {
     },
     response: {
@@ -245,13 +245,25 @@ function getLocalPatch(remoteBackend, patchURL) {
   }
 }
 
-async function getOpenServerPatches() {
-  const patchURL = new URL('patches.json?open=true', globals.periodoServerURL).href
-      , resp = await fetch(patchURL)
+async function getServerPatches() {
+  let patches = []
 
-  return {
-    patches: await resp.json()
+  let patchURL = new URL('patches.json?limit=250', globals.periodoServerURL).href
+
+  while (patchURL) {
+    const resp = await fetch(patchURL)
+        , link = parseLinkHeader(resp.headers.get('Link'))
+
+    patches = [...patches, ...(await resp.json())]
+
+    if (link && link.next) {
+      patchURL = link.next.url
+    } else {
+      break;
+    }
   }
+
+  return { patches }
 }
 
 function addPatchComment(backend, patchURL, comment) {
@@ -270,11 +282,15 @@ function addPatchComment(backend, patchURL, comment) {
     })
 
     switch (resp.status) {
-    case 401:
-      throw new Error('Bad authentication credentials. Sign out and sign back in.')
+    case 401: {
+      const err = 'Bad authentication credentials. Sign out and sign back in.';
+      throw new Error(err)
+    }
 
-    case 403:
-      throw new Error('You do not have permission to merge patches')
+    case 403: {
+      const err = 'You do not have permission to comment'
+      throw new Error(err)
+    }
 
     default:
       if (!resp.ok) {
@@ -304,6 +320,32 @@ function decidePatchFate(backend, mergeURL, fate) {
         'Content-Type': 'application/json' // necessary? probably not.
       })
     })
+
+    switch (resp.status) {
+    case 401: {
+      const err = 'Bad authentication credentials. Sign out and sign back in.';
+      throw new Error(err)
+    }
+
+    case 403: {
+      const err = 'You do not have permission to merge patches'
+      throw new Error(err)
+    }
+
+    default:
+      if (!resp.ok) {
+        const err = new Error('Error posting comment')
+        err.resp = resp;
+        throw err;
+      }
+    }
+
+    await dispatch(BackendAction.GetBackendDataset(backend.storage, true))
+
+    await dispatch(PatchAction.GetLocalPatch(
+      backend,
+      mergeURL.replace('merge', '')
+    ))
 
     // TODO: Update local skolem ids for new items (see code below)
 

@@ -6,9 +6,9 @@ const { Box } = require('./Base')
 function makeAlert(color) {
   return extend(Box, {
     p: 2,
-    border: 2,
-    borderRadius: '2px',
-    fontSize: 4,
+    border: 1,
+    borderRadius: '4px',
+    fontSize: 2,
 
     bg: `${color}.2`,
     color: `${color}.9`,

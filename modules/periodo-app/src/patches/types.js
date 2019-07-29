@@ -75,7 +75,7 @@ const PatchType = Type({
 
 PatchType.fromPatch = function fromPath(patch) {
   if (patch[$$type]) return patch[$$type]
-  
+
   const { path, op } = patch
 
   let tok

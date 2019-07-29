@@ -3,17 +3,29 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { handleCompletedAction } = require('org-async-actions')
-    , { Box, Text, Link, Heading, TextareaBlock, Button$Default, Button$Danger } = require('periodo-ui')
-    , { Route } = require('org-shell')
     , Compare = require('./Compare')
     , { PatchDirection, PatchFate } = require('./types')
     , PatchAction = require('./actions')
+
+const {
+  Box,
+  Text,
+  Link,
+  Heading,
+  TextareaBlock,
+  Button$Default,
+  Button$Danger,
+  Alert$Success,
+  Alert$Error,
+} = require('periodo-ui')
+
 
 class ReviewPatch extends React.Component {
   constructor() {
     super()
 
     this.state = {
+      message: null,
       comment: '',
       submitting: false,
     }
@@ -22,12 +34,38 @@ class ReviewPatch extends React.Component {
     this.decideFate = this.decideFate.bind(this)
   }
 
-  async addComment() {
-    const { dispatch, patch } = this.props
+  componentDidMount() {
+    this.loadPatch()
+  }
 
-    this.setState({ submitting: true })
+  async loadPatch() {
+    const { dispatch, backend, params: { patchURL }} = this.props
+
+    const resp = await dispatch(PatchAction.GetLocalPatch(
+      backend,
+      patchURL,
+    ))
+
+    handleCompletedAction(resp,
+      () => {
+      },
+      err => {
+        this.setState({
+          message: h(Alert$Error, {
+            mb: 2
+          }, err.message)
+        })
+      }
+    )
+  }
+
+  async addComment() {
+    const { dispatch, backend, patch } = this.props
+
+    this.setState({ message: null, submitting: true })
 
     const resp = await dispatch(PatchAction.AddPatchComment(
+      backend,
       patch.url,
       this.state.comment,
     ))
@@ -36,7 +74,12 @@ class ReviewPatch extends React.Component {
       () => {
         this.setState({ comment: '' })
       },
-      () => {
+      err => {
+        this.setState({
+          message: h(Alert$Error, {
+            mb: 2
+          }, err.message)
+        })
       }
     )
 
@@ -44,20 +87,50 @@ class ReviewPatch extends React.Component {
   }
 
   async decideFate(fate) {
-    const { dispatch, mergeURL } = this.props
+    const { dispatch, backend, mergeURL } = this.props
+
+    this.setState({ message: null })
+
+    this.setState({ deciding: true })
 
     const resp = await dispatch(PatchAction.DecidePatchFate(
+      backend,
       mergeURL,
       fate
     ))
+
+    this.setState({ deciding: false })
+
+    handleCompletedAction(resp,
+      () => {
+        this.setState({
+          message: h(Alert$Success, {
+            mb: 2
+          }, `Successfully ${fate._name.toLowerCase()}ed patch`)
+        })
+      },
+      err => {
+        this.setState({
+          message: h(Alert$Error, {
+            mb: 2
+          }, err.message)
+        })
+      },
+    )
   }
 
   render() {
     const { fromDataset, toDataset, patchText, patch, mergeURL } = this.props
-        , { comment, submitting } = this.state
+        , { comment, submitting, deciding } = this.state
+
+    if (!fromDataset) {
+      return 'Loading patch...'
+    }
 
     return (
       h(Box, [
+        this.state.message,
+
         h(Heading, {
           level: 2,
         }, 'Patch'),
@@ -97,22 +170,29 @@ class ReviewPatch extends React.Component {
           onClick: this.addComment,
         }, 'Add comment'),
 
-        h(Heading, {
-          level: 2,
-          mt: 2,
-          mb: 1,
-        }, 'Accept patch?'),
+        !patch.open ? null : h(Box, [
+          h(Heading, {
+            level: 2,
+            mt: 2,
+            mb: 1,
+          }, 'Accept patch?'),
 
-        h(Button$Default, {
-          mr: 1,
-          onClick: () => this.decideFate(PatchFate.Accept),
-        }, 'Accept'),
+          h(Button$Default, {
+            mr: 1,
+            disabled: deciding,
+            onClick: () => this.decideFate(PatchFate.Accept),
+          }, 'Accept'),
 
-        h(Button$Danger, {
-          onClick: () => this.decideFate(PatchFate.Reject),
-        }, 'Reject'),
+          h(Button$Danger, {
+            disabled: deciding,
+            onClick: () => this.decideFate(PatchFate.Reject),
+          }, 'Reject'),
 
+        ]),
 
+        !deciding ? null : (
+          h('p', 'Loading...')
+        )
       ])
     )
   }

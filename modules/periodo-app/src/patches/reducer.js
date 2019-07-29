@@ -22,7 +22,7 @@ module.exports = function patches(state=initialState(), action) {
         )
       },
 
-      GetOpenServerPatches() {
+      GetServerPatches() {
         return state
       },
 

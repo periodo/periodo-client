@@ -59,39 +59,6 @@ const Home = {
         )(state.backends.available)
       }),
     },
-    'open-patches': {
-      label: 'Review patches',
-      Component: require('./patches/OpenPatches'),
-      async onBeforeRoute(dispatch) {
-        const { patches } = await throwIfUnsuccessful(
-          dispatch(PatchAction.GetOpenServerPatches)
-        )
-
-        await dispatch(LinkedDataAction.FetchORCIDs(
-          patches.map(R.prop('created_by'))
-        ))
-
-        return { patchRequests: patches }
-      },
-      mapStateToProps: (state, ownProps) => {
-        const { nameByORCID } = state.linkedData
-
-        const urlize = url => ({
-          label: nameByORCID[url],
-          url,
-        })
-
-        return {
-          patchRequests: R.map(
-            R.pipe(
-              R.over(R.lensProp('created_by'), urlize),
-              R.over(R.lensProp('updated_by'), urlize),
-            ),
-            ownProps.extra.patchRequests
-          )
-        }
-      }
-    },
     'settings': {
       label: 'Settings',
       Component: require('./auth/components/Settings'),
@@ -104,34 +71,6 @@ const Home = {
     return {
       settings: state.auth.settings,
     }
-  }
-}
-
-const ReviewPatch = {
-  label: 'Review patch',
-  parent: Home,
-  resources: {
-    'review-patch': {
-      label: 'Review patch',
-      Component: require('./patches/Review'),
-    }
-  },
-  async onBeforeRoute(dispatch, params) {
-    requireParam(params, 'patchURL')
-
-    const patchURL = url.resolve(
-      window.location.href,
-      decodeURIComponent(params.patchURL))
-
-    await throwIfUnsuccessful(
-      dispatch(PatchAction.GetLocalPatch(patchURL)))
-  },
-  mapStateToProps(state, props) {
-    const patchURL = url.resolve(
-      window.location.href,
-      decodeURIComponent(props.params.patchURL))
-
-    return state.patches.patches[patchURL]
   }
 }
 
@@ -175,14 +114,67 @@ const Backend = {
         }
       }
     },
-    'backend-edit': {
-      label: 'Configure',
-      Component: require('./backends/components/EditBackend'),
+    'backend-history': {
+      label: 'Changelog',
+      Component: require('./backends/components/History'),
+      async onBeforeRoute(dispatch, params) {
+        const storage = BackendStorage.fromIdentifier(params.backendID)
+
+        const changes = await throwIfUnsuccessful(
+          dispatch(BackendAction.GetBackendHistory(storage)))
+      },
+      mapStateToProps(state, props) {
+        return {
+          patches: state.backends.patches[props.params.backendID]
+        }
+      },
     },
     'backend-add-authority': {
       label: 'Add authority',
       Component: require('./backends/components/AuthorityAddOrEdit'),
       showInMenu: hasEditableBackend,
+    },
+    'backend-patches': {
+      label: 'Patch requests',
+      Component: require('./patches/OpenPatches'),
+      showInMenu: ({ backend }) =>
+        backend.storage.case({
+          Web: () => true,
+          _: () => false,
+        }),
+      async onBeforeRoute(dispatch) {
+        const { patches } = await throwIfUnsuccessful(
+          dispatch(PatchAction.GetServerPatches)
+        )
+
+        const creators = new Set(patches.map(R.prop('created_by')))
+            , mergers = new Set(patches.map(R.prop('updated_by')))
+
+        const allORCIDs = [...new Set([...creators, ...mergers])]
+          .filter(R.startsWith('http'))
+
+        await dispatch(LinkedDataAction.FetchORCIDs(allORCIDs))
+
+        return { patchRequests: patches }
+      },
+      mapStateToProps: (state, ownProps) => {
+        const { nameByORCID } = state.linkedData
+
+        const urlize = url => ({
+          label: nameByORCID[url],
+          url,
+        })
+
+        return {
+          patchRequests: R.map(
+            R.pipe(
+              R.over(R.lensProp('created_by'), urlize),
+              R.over(R.lensProp('updated_by'), urlize),
+            ),
+            ownProps.extra.patchRequests
+          )
+        }
+      }
     },
     'backend-sync': {
       label: 'Sync',
@@ -198,6 +190,11 @@ const Backend = {
       showInMenu: hasEditableBackend,
       async onBeforeRoute(dispatch) {
         await dispatch(BackendAction.GetAllBackends)
+      },
+      mapStateToProps(state) {
+        return {
+          backends: state.backends.available,
+        }
       }
     },
     'backend-patch-submissions': {
@@ -211,20 +208,9 @@ const Backend = {
         */
       }
     },
-    'backend-history': {
-      label: 'History',
-      Component: require('./backends/components/History'),
-      async onBeforeRoute(dispatch, params) {
-        const storage = BackendStorage.fromIdentifier(params.backendID)
-
-        const changes = await throwIfUnsuccessful(
-          dispatch(BackendAction.GetBackendHistory(storage)))
-      },
-      mapStateToProps(state, props) {
-        return {
-          patches: state.backends.patches[props.params.backendID]
-        }
-      },
+    'backend-edit': {
+      label: 'Settings',
+      Component: require('./backends/components/EditBackend'),
     },
   },
   wrappers: [
@@ -243,6 +229,28 @@ const Backend = {
       backend: state.backends.available[props.params.backendID],
       dataset: state.backends.datasets[props.params.backendID],
     }
+  }
+}
+
+const ReviewPatch = {
+  label: 'Review patch',
+  parent: Backend,
+  resources: {
+    'review-patch': {
+      label: 'Review patch',
+      Component: require('./patches/Review'),
+    }
+  },
+  async onBeforeRoute(dispatch, params) {
+    requireParam(params, 'patchURL')
+  },
+  mapStateToProps(state, props) {
+    const storage = BackendStorage.fromIdentifier(props.params.backendID)
+        , patchURL = new URL(decodeURIComponent(props.params.patchURL), storage.url).href
+
+    const patch = state.patches.patches[patchURL]
+
+    return patch || {}
   }
 }
 
@@ -383,7 +391,7 @@ function makeResourceComponent(resource, group) {
 }
 
 function registerGroups(groups) {
-  R.mapObjIndexed((group, key) => {
+  Object.entries(groups).forEach(([ key, group ]) => {
     const groupKey = `ResourceGroup:${key}`
         , parents = getParents(group)
 
@@ -398,7 +406,7 @@ function registerGroups(groups) {
       defineName(group.onBeforeRoute, `${groupKey}:onBeforeRoute`)
     }
 
-    R.mapObjIndexed((resource, key) => {
+    Object.entries(group.resources).forEach(([ key, resource ]) => {
       const resourceKey = `Resource:${key}`
 
       resource.name = key;
@@ -451,11 +459,11 @@ function registerGroups(groups) {
         OriginalComponent
       )
 
-    }, group.resources)
+    })
 
     module.exports.push(group)
 
-  } , groups)
+  })
 }
 
 module.exports = []

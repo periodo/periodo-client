@@ -19,6 +19,7 @@ class SelectChanges extends React.Component {
       remoteBackend: null,
       remoteDataset: null,
       url: globals.periodoServerURL,
+      generatingPatch: false,
       currentPatch: [],
     }
 
@@ -26,8 +27,16 @@ class SelectChanges extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.remoteBackend) {
+      this.generatePatch(this.props.remoteBackend.storage)
+    }
+  }
+
   async generatePatch(remoteBackend) {
     const { dispatch, localBackend, direction } = this.props
+
+    this.setState({ generatingPatch: true })
 
     const patchReq = await dispatch(PatchAction.GenerateDatasetPatch(
       localBackend.storage,
@@ -53,7 +62,7 @@ class SelectChanges extends React.Component {
 
   render() {
     const { direction, handleSelectPatch } = this.props
-        , { patch, localDataset, remoteDataset } = this.state
+        , { patch, localDataset, remoteDataset, generatingPatch } = this.state
 
     if (patch) {
       return h(Box, [
@@ -77,6 +86,12 @@ class SelectChanges extends React.Component {
             }),
           ),
         }, 'Continue'),
+      ])
+    }
+
+    if (generatingPatch) {
+      return h(Box, [
+        'Generating patch...'
       ])
     }
 
