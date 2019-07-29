@@ -1,11 +1,31 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , { useState } = require('react')
     , { Box, Text, Link } = require('periodo-ui')
     , { Route } = require('org-shell')
+    , PatchRequestLayout = require('../layouts/patch_requests')
+
+const layout = `
+[]
+type = request-list
+`
 
 function ReviewPatches(props) {
-  const { patchRequests } = props
+  const { patchRequests, backend } = props
+      , [ blockOpts, setBlockOpts ] = useState({})
+
+  return (
+    h(Box, [
+      h(PatchRequestLayout, {
+        layout,
+        patchRequests,
+        backend,
+        blockOpts,
+        onBlockOptsChange: setBlockOpts,
+      })
+    ])
+  )
 
   return (
     h(Box, [

@@ -236,7 +236,12 @@ module.exports = function makeList(opts) {
           })
 
           const sortedData = [...data].sort((a, b) => {
-            const [_a, _b] = [a, b].map(column.getValue)
+            let [_a, _b] = [a, b]
+              .map(column.getValue)
+
+            if (column.getSortValue) {
+              [_a, _b] = [_a, _b].map(column.getSortValue)
+            }
 
             if (_a == null) return 1
             if (_b == null) return -1
@@ -415,7 +420,9 @@ module.exports = function makeList(opts) {
                       py: 0,
                       css: {
                       }
-                    }, (col.render || R.identity)(col.getValue(item, this.props.backend)))
+                    }, (col.render || R.identity)(
+                      col.getValue(item)
+                    ))
                   ))
                 )
               )
