@@ -33,11 +33,7 @@ const enforceTypedAsyncActions = extraArgs => ({ dispatch, getState }) => next =
       _: R.T,
     }))
       .then(respData => update(ReadyState.Success(action.responseOf(respData))))
-      .catch(err => {
-        update(ReadyState.Failure(err))
-
-        throw err;
-      })
+      .catch(err => update(ReadyState.Failure(err)))
   }
 
   return next(action)
