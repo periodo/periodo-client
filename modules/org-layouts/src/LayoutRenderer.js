@@ -133,6 +133,14 @@ class LayoutRenderer extends React.Component {
     if (this.props.blockOpts !== prevProps.blockOpts) {
       this.updateProcessedOpts(this.props.blockOpts)
     }
+
+    const resetData = (
+      this.props.data !== prevProps.data
+    )
+
+    if (resetData) {
+      this.resetData()
+    }
   }
 
   resetLayout(props) {
