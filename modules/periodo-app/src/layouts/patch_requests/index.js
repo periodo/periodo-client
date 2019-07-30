@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , Type = require('union-type')
     , { LayoutRenderer, blocks } = require('org-layouts')
-    , { Route } = require('org-shell')
+    , { LocationStreamAware, Route } = require('org-shell')
     , { Link } = require('periodo-ui')
 
 const PatchStatus = Type({
@@ -39,11 +39,13 @@ function Status({ status }) {
 const PatchRequestList = blocks.List({
   label: 'Patch request list',
   description: 'List of patch requests',
-  makeItemRoute({ item, backend }) {
-    return Route('review-patch', {
+  navigateToItem(item, { locationStream, backend }) {
+    const route = Route('review-patch', {
       backendID: backend.asIdentifier(),
       patchURL: item.url.replace(backend.storage.url, ''),
     })
+
+    locationStream.write({ route })
   },
 
   defaultOpts: {
@@ -82,11 +84,14 @@ const PatchRequestList = blocks.List({
   },
 })
 
-module.exports = props =>
-  h(LayoutRenderer, R.omit(['patchRequests', 'backend'], Object.assign({}, props, {
+module.exports = LocationStreamAware(props =>
+  h(LayoutRenderer, R.omit(['patchRequests', 'backend', 'locationStream'], Object.assign({}, props, {
     blocks: {
       'request-list': PatchRequestList,
     },
     data: props.patchRequests,
-    extraProps: { backend: props.backend },
-  })))
+    extraProps: {
+      backend: props.backend,
+      locationStream: props.locationStream,
+    },
+  }))))

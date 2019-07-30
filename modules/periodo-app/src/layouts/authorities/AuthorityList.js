@@ -1,7 +1,6 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , contributorList = require('periodo-utils/src/contributor_list')
     , source = require('periodo-utils/src/source')
     , { blocks } = require('org-layouts')
@@ -51,11 +50,13 @@ const columns = {
 module.exports = blocks.List({
   label: 'Authority List',
   description: 'Selectable list of period authorities.',
-  makeItemRoute({ item, backend }) {
-    return Route('authority-view', {
+  navigateToItem(item, { locationStream, backend }) {
+    const route = Route('authority-view', {
       backendID: backend.asIdentifier(),
       authorityID: item.id,
     })
+
+    locationStream.write({ route })
   },
   defaultOpts: {
     limit: 25,

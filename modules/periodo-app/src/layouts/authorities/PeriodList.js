@@ -65,14 +65,15 @@ module.exports = blocks.List({
   label: 'Period List',
   description: 'Selectable list of periods.',
 
-  makeItemRoute({ item, backend }) {
-    return Route('period-view', {
+  navigateToItem(item, { locationStream, backend }) {
+    const route = Route('period-view', {
       backendID: backend.asIdentifier(),
       authorityID: authorityOf(item).id,
       periodID: item.id,
     })
-  },
 
+    locationStream.write({ route })
+  },
   defaultOpts: {
     limit: 25,
     start: 0,

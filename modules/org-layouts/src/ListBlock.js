@@ -183,8 +183,17 @@ function LinkedRowNumbering(props) {
   )
 }
 
+const noop = () => null
+
 module.exports = function makeList(opts) {
-  const { label, description, defaultOpts={}, columns, makeItemRoute } = opts
+  const {
+    label,
+    description,
+    defaultOpts={},
+    columns,
+    makeItemRoute,
+    navigateToItem,
+  } = opts
 
   const withDefaults = obj => Object.assign({
     start: 0,
@@ -387,7 +396,7 @@ module.exports = function makeList(opts) {
 
             h('tbody',
               shownItems.map(
-                (item, i) => h(Box, {
+                (item, i) => h(Box, Object.assign({}, {
                   is: 'tr',
                   key: item.id,
                   m: 0,
@@ -397,7 +406,22 @@ module.exports = function makeList(opts) {
                       backgroundColor: '#e4e2e0',
                     }
                   }
-                }, [
+                }, !navigateToItem ? null : {
+                  role: 'link',
+                  tabIndex: 0,
+                  style: {
+                    cursor: 'pointer',
+                  },
+                  onClick: e => {
+                    if (e.target.tagName === 'A') return true
+                    navigateToItem(item, this.props)
+                  },
+                  onKeyDown: e => {
+                    if (e.key === 'Enter') {
+                      navigateToItem(item, this.props)
+                    }
+                  },
+                }), [
                     h(Box, {
                       is: 'td',
                       key: '_numbering',
