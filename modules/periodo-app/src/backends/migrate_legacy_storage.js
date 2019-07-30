@@ -49,7 +49,7 @@ function migrateLegacyIDBBackend(name, dexieOpts) {
             name,
             type: INDEXED_DB,
             created: null,
-            modified
+            modified,
           });
 
           periodoDB.localDatasets.add({
@@ -79,7 +79,7 @@ function openLegacyDB(name, dexieOpts) {
     switch (name) {
       case '_file_backends':
         db.version(1).stores({
-          files: 'id++,&name,filename'
+          files: 'id++,&name,filename',
         });
         break;
 
@@ -89,7 +89,7 @@ function openLegacyDB(name, dexieOpts) {
           localData: 'id&,modified',
           patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
           localPatches: 'id&,resolved',
-          idMap: 'id&,serverURL,localID'
+          idMap: 'id&,serverURL,localID',
         });
         break;
 

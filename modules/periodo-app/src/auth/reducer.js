@@ -22,9 +22,9 @@ module.exports = function auth(state=initialState(), action) {
         const { settings } = resp
 
         return R.merge(state, { settings })
-      }
+      },
 
     }),
-    _: () => state
+    _: () => state,
   })
 }

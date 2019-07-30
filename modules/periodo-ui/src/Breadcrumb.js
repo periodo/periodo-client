@@ -13,7 +13,7 @@ exports.Breadcrumb = props =>
     fontSize: 4,
     css: {
       listStyleType: 'none',
-    }
+    },
   }, props), [].concat(props.children || []).map((el, i, arr) =>
     h(Box, {
       is: 'li',
@@ -31,8 +31,8 @@ exports.Breadcrumb = props =>
             content: '"\\203a"',
             color: '#999',
             margin: '0 8px',
-          }
-        }
-      }
+          },
+        },
+      },
     }, el)
   ))

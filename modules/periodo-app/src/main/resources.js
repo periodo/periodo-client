@@ -16,10 +16,10 @@ module.exports = {
       h(Heading, {mt: 2}, 'diff'),
       h(Period,
         { value: example.period.maximal
-        , compare: example.period.maximalAltered
+        , compare: example.period.maximalAltered,
         }
       ),
-    ])
+    ]),
   },
 
   'test-source': {
@@ -31,10 +31,10 @@ module.exports = {
       h(Heading, {mt: 2}, 'diff'),
       h(Source,
         { value: example.source.maximal
-        , compare: example.source.maximalAltered
+        , compare: example.source.maximalAltered,
         }
       ),
-    ])
+    ]),
   },
 
   'test-authority': {
@@ -46,10 +46,10 @@ module.exports = {
       h(Heading, {mt: 2}, 'diff'),
       h(Authority,
         { value: example.authority.maximal
-        , compare: example.authority.maximalAltered
+        , compare: example.authority.maximalAltered,
         }
       ),
-    ])
+    ]),
   },
 
   'test-dataset': {
@@ -61,10 +61,10 @@ module.exports = {
       h(Heading, {mt: 2}, 'diff'),
       h(Dataset,
         { value: example.dataset.maximal
-        , compare: example.dataset.maximalAltered
+        , compare: example.dataset.maximalAltered,
         }
       ),
-    ])
+    ]),
   },
 
   'test-patch': {
@@ -72,28 +72,28 @@ module.exports = {
       h(Heading, 'minimal'),
       h(Patch,
         { patch: example.patch.minimal
-        , data: example.dataset.minimal
+        , data: example.dataset.minimal,
         }
       ),
       h(Heading, 'minimal reversed'),
       h(Patch,
         { patch: example.patch.minimalReverse
-        , data: example.dataset.minimalAltered
+        , data: example.dataset.minimalAltered,
         }
       ),
       h(Heading, 'maximal'),
       h(Patch,
         { patch: example.patch.maximal
-        , data: example.dataset.maximal
+        , data: example.dataset.maximal,
         }
       ),
       h(Heading, 'maximal reversed'),
       h(Patch,
         { patch: example.patch.maximalReverse
-        , data: example.dataset.maximalAltered
+        , data: example.dataset.maximalAltered,
         }
       ),
-    ])
-  }
+    ]),
+  },
 
 }

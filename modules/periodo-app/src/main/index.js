@@ -1,5 +1,5 @@
 "use strict";
 
 module.exports = {
-  resources: require('./resources')
+  resources: require('./resources'),
 }

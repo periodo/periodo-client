@@ -11,14 +11,14 @@ const DATASET_FIELDS = [
     label: 'Permalink',
     values: extract('id'),
     required: true,
-    immutable: true
+    immutable: true,
   },
   {
     label: 'Type',
     values: extract('type'),
     required: true,
     immutable: true,
-    hidden: true
+    hidden: true,
   },
   {
     label: 'Context',
@@ -26,7 +26,7 @@ const DATASET_FIELDS = [
     component: JSONLDContextValue,
     required: true,
     immutable: true,
-    hidden: true
+    hidden: true,
   },
   { label: 'Authorities',
     values: extractIndexedValues('authorities'),
@@ -36,7 +36,7 @@ const DATASET_FIELDS = [
         { m: 1, borderTop: 'thin solid', borderColor: 'Gainsboro' }
       ),
     ),
-    hideUnchanged: true
+    hideUnchanged: true,
   },
 ]
 

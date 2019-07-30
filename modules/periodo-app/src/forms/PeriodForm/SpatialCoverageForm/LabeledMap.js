@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
 const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
   border: '1px solid #ccc',
   borderBottom: 'none',
-  ...props
+  ...props,
 }, [
   h(WorldMap, {
     focusedFeature,
@@ -19,7 +19,7 @@ const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
     borderLeft: focusedFeature ? '1px solid #ccc' : null,
     width: focusedFeature ? 200 : '0px',
     height: 200,
-    css: {transition: 'width 0.25s'}
+    css: {transition: 'width 0.25s'},
   }),
 ])
 

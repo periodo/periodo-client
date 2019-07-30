@@ -7,19 +7,19 @@ const GraphsAction = module.exports = makeTypedAction({
   FetchGraphs: {
     exec: fetchGraphs,
     request: {
-      path: String
+      path: String,
     },
     response: {
-      json: Object
-    }
+      json: Object,
+    },
   },
 
   FetchGazetteers: {
     exec: fetchGazetteers,
     request: {},
     response: {
-      gazetteers: Object
-    }
+      gazetteers: Object,
+    },
   },
 })
 
@@ -47,7 +47,7 @@ function fetchGraphs(path) {
   return async () => {
     const resp = await fetch(graphURL(path), {
       mode: 'cors',
-      headers: { Accept: 'application/json' }
+      headers: { Accept: 'application/json' },
     })
 
     if (!resp.ok) {

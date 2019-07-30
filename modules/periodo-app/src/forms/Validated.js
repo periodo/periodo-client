@@ -9,7 +9,7 @@ module.exports = function makeValidated(validationFn, Component) {
       super();
 
       this.state = {
-        errors: {}
+        errors: {},
       }
     }
 
@@ -17,7 +17,7 @@ module.exports = function makeValidated(validationFn, Component) {
       this.clearErrors.call(this, () => {
         validationFn(data).case({
           Ok: onSuccess,
-          Err: errors => this.setState({ errors })
+          Err: errors => this.setState({ errors }),
         })
       })
     }

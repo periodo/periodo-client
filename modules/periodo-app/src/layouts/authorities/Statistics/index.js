@@ -20,7 +20,7 @@ module.exports = {
   Component: props =>
     h(Box, [
       h(Box, [
-        h(Text, `There are ${props.data.length} periods in ${countAuthorities(props.data)} authorities`)
-      ])
-    ])
+        h(Text, `There are ${props.data.length} periods in ${countAuthorities(props.data)} authorities`),
+      ]),
+    ]),
 }

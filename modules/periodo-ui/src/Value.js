@@ -111,7 +111,7 @@ function RelatedPeriodValue(props) {
         backendID: backend.asIdentifier(),
         authorityID: util.period.authorityOf(period).id,
         periodID: period.id,
-      })
+      }),
     },
     period.label
   )
@@ -124,7 +124,7 @@ function EntityValue(props) {
     R.merge(R.omit([ 'value' ], props), { href: id }),
     [
       h(Span, { fontSize: '12px' }, `${abbreviate(id)}:`),
-      label
+      label,
     ]
   )
 }
@@ -138,7 +138,7 @@ function IntervalValue(props) {
       R.omit([ 'value' ], props),
       {
         value: value.label,
-        annotations: value.in ? [ asYearOrRange(value.in) ] : [ 'MISSING INTEGER VALUE' ]
+        annotations: value.in ? [ asYearOrRange(value.in) ] : [ 'MISSING INTEGER VALUE' ],
       }
     )
   )
@@ -200,7 +200,7 @@ function SpatialExtentValue(props) {
   const {
     value: { description, places },
     gazetteers,
-    compare
+    compare,
   } = props
 
   let annotationProps
@@ -232,9 +232,9 @@ function SpatialExtentValue(props) {
           mt: 1,
           border: '1px solid #ccc',
           maxWidth: '650px',
-          features
+          features,
         })
-      )
+      ),
     ])
   )
 }
@@ -252,7 +252,7 @@ function JSONLDContextValue(props) {
             findChanges(entries(context), entries(compare.context))
           ),
 
-          '}'
+          '}',
         ]
       )
     : h(Pre, {}, JSON.stringify(context, null, '  '))
@@ -271,5 +271,5 @@ module.exports = {
   AgentValue,
   SpatialExtentValue,
   JSONLDContextValue,
-  RelatedPeriodValue
+  RelatedPeriodValue,
 }

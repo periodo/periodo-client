@@ -21,21 +21,21 @@ const columns = {
         : h(Span, {
             color: 'gray',
           }, '(not given)')
-    }
+    },
   },
 
   yearPublished: {
     label: 'Year published',
     getValue(authority) {
       return source.yearPublished(authority.source)
-    }
+    },
   },
 
   numPeriods: {
     label: 'Num. of periods',
     getValue(authority) {
       return Object.keys(authority.periods).length
-    }
+    },
   },
 
   title: {
@@ -43,8 +43,8 @@ const columns = {
     getValue(authority) {
 
       return source.title(authority.source)
-    }
-  }
+    },
+  },
 }
 
 module.exports = blocks.List({

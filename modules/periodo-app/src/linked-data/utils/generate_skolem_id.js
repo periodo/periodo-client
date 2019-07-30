@@ -12,6 +12,6 @@ module.exports = function (protocol=location.protocol, host=location.host, lengt
   return url.format({
     protocol,
     host,
-    pathname: '/.well-known/genid/' + hexstr
+    pathname: '/.well-known/genid/' + hexstr,
   });
 }

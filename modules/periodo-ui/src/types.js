@@ -14,7 +14,7 @@ const isAnonymous = R.cond([
   [ R.is(String), R.T ],
   [ R.is(Number), R.T ],
   [ R.both(R.is(Object), R.complement(isIdentified)), R.T ],
-  [ R.T, R.F ]
+  [ R.T, R.F ],
 ]);
 
 const Value = Type({

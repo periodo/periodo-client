@@ -52,8 +52,8 @@ class ReviewPatch extends React.Component {
       err => {
         this.setState({
           message: h(Alert$Error, {
-            mb: 2
-          }, err.message)
+            mb: 2,
+          }, err.message),
         })
       }
     )
@@ -77,8 +77,8 @@ class ReviewPatch extends React.Component {
       err => {
         this.setState({
           message: h(Alert$Error, {
-            mb: 2
-          }, err.message)
+            mb: 2,
+          }, err.message),
         })
       }
     )
@@ -105,15 +105,15 @@ class ReviewPatch extends React.Component {
       () => {
         this.setState({
           message: h(Alert$Success, {
-            mb: 2
-          }, `Successfully ${fate._name.toLowerCase()}ed patch`)
+            mb: 2,
+          }, `Successfully ${fate._name.toLowerCase()}ed patch`),
         })
       },
       err => {
         this.setState({
           message: h(Alert$Error, {
-            mb: 2
-          }, err.message)
+            mb: 2,
+          }, err.message),
         })
       },
     )
@@ -192,7 +192,7 @@ class ReviewPatch extends React.Component {
 
         !deciding ? null : (
           h('p', 'Loading...')
-        )
+        ),
       ])
     )
   }

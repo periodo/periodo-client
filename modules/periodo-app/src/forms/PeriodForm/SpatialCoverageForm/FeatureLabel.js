@@ -21,7 +21,7 @@ const FeatureLabel = ({feature, ...props}) => {
   const show = feature && feature.properties && feature.properties.title
   return h(Box, {
     p: show ? 2 : 0,
-    ...props
+    ...props,
   },
   show
     ? [
@@ -30,7 +30,7 @@ const FeatureLabel = ({feature, ...props}) => {
           feature.geometry === undefined
             ? h(Italic, { fontSize: 'smaller', color: 'gray.6' },
               'not shown on map')
-            : null
+            : null,
         ]),
         h(InlineList, {fontSize: 'x-small', pb: 1}, otherNames(feature)),
         h(Text, {fontSize: 'small'}, description(feature)),

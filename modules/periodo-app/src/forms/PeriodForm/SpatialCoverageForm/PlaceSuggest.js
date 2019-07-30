@@ -42,7 +42,7 @@ const matches = query => {
 const getSuggestions = gazetteers => (query = '') => gazetteers
   .map(gazetteer => ({
     title: gazetteer.title,
-    suggestions: gazetteer.features.reduce(matches(query), [])
+    suggestions: gazetteer.features.reduce(matches(query), []),
   }))
   .filter(section => section.suggestions.length > 0)
 
@@ -53,9 +53,9 @@ const renderSectionTitle = section =>
     border: 1,
     borderColor: 'transparent',
     fontWeight: 'bold',
-    css: {borderRadius: 1}
+    css: {borderRadius: 1},
   }, [
-    section.title
+    section.title,
   ])
 
 const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
@@ -66,7 +66,7 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
     borderColor: 'transparent',
     css: {
       borderRadius: 1,
-      cursor: 'pointer'
+      cursor: 'pointer',
     },
   }, isHighlighted && { bg: 'gray.2' }), [
     h(Span, {
@@ -74,7 +74,7 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
       width: '1em',
       color: 'gray.6',
     }, isSelected ? '✓' : ' '),
-    item.name
+    item.name,
   ]
 )
 
@@ -82,13 +82,13 @@ const PlaceSuggest = ({
   gazetteers,
   onSuggestionHighlighted,
   isSelected,
-  onSelect
+  onSelect,
 }) => h(Box, {
   border: 1,
   borderColor: 'gray.4',
   borderRadius: '0 0 2px 2px',
   pt: '2px',
-  css: { position: 'relative' }
+  css: { position: 'relative' },
 }, [
   h(Autosuggest, {
     theme: {
@@ -102,7 +102,7 @@ const PlaceSuggest = ({
         border: '1px solid #ccc',
         height: 164,
         boxShadow: '2px 1px 4px #ddd',
-      }
+      },
     },
     multiSection: true,
     getSuggestions: getSuggestions(gazetteers),
@@ -119,7 +119,7 @@ const PlaceSuggest = ({
     },
     onSuggestionHighlighted,
     onSelect,
-  })
+  }),
 ])
 
 module.exports = PlaceSuggest

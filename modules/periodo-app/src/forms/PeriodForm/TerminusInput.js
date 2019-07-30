@@ -10,17 +10,17 @@ const h = require('react-hyperscript')
 
 const emptyTerminus = {
   label: '',
-  in: { year: '' }
+  in: { year: '' },
 }
 
 const toggleMultipart = terminus => isMultipart(terminus)
   ? {
       label: terminus.label,
-      in: { year: R.path(['in', 'earliest'], terminus) || '' }
+      in: { year: R.path(['in', 'earliest'], terminus) || '' },
     }
   : {
       label: terminus.label,
-      in: { earliestYear: R.path(['in', 'year'], terminus) || '', latestYear: '' }
+      in: { earliestYear: R.path(['in', 'year'], terminus) || '', latestYear: '' },
     }
 
 function parse(label) {
@@ -52,7 +52,7 @@ module.exports = class TerminusInput extends React.Component {
             value: terminus.label || '',
             onChange: e => autoparse
               ? onValueChange(parse(e.target.value))
-              : onValueChange(R.assoc('label', e.target.value, terminus))
+              : onValueChange(R.assoc('label', e.target.value, terminus)),
           }),
 
           h(Box, { width: .5 }, [
@@ -83,7 +83,7 @@ module.exports = class TerminusInput extends React.Component {
                       e.target.value, terminus
                     )
                   )
-                }
+                },
               })
             : h(InputBlock, {
                 name: 'year',
@@ -99,7 +99,7 @@ module.exports = class TerminusInput extends React.Component {
                       e.target.value, terminus
                     )
                   )
-                }
+                },
               }),
 
           isMultipart(terminus) && h(InputBlock, {
@@ -115,9 +115,9 @@ module.exports = class TerminusInput extends React.Component {
                     e.target.value, terminus
                   )
                 )
-              }
+              },
           }),
-        ])
+        ]),
       ])
     )
   }

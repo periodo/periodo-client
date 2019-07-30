@@ -43,7 +43,7 @@ class LDInput extends React.Component {
 
           h(Box, { is: 'li', my: 1 }, [
             'A DOI contained in the ',
-            h(Link, { href: 'https://search.crossref.org' }, 'CrossRef database')
+            h(Link, { href: 'https://search.crossref.org' }, 'CrossRef database'),
           ]),
         ]),
 
@@ -51,7 +51,7 @@ class LDInput extends React.Component {
           rows: 6,
           onChange: e => {
             this.setState({ input: e.target.value });
-          }
+          },
         }),
 
         h(Button$Primary, {
@@ -70,12 +70,12 @@ class LDInput extends React.Component {
                 _: () => null,
               })
             })
-          }
+          },
         }, h(Icon, { name: 'refresh' })),
 
         readyState && h(Box, { display: 'inline', ml: 1 }, readyState.case({
           Pending: () => ([
-            h(Spinner)
+            h(Spinner),
           ]),
 
           Failure: err => {
@@ -85,7 +85,7 @@ class LDInput extends React.Component {
             return h(Text, 'Failed to fetch source')
           },
 
-          _: R.always('null')
+          _: R.always('null'),
         })),
       ])
     )
@@ -103,12 +103,12 @@ const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
               h(Button$Danger, {
                 onClick: () => {
                   onValueChange(null)
-                }
-              }, '‹ Reset')
-            ])
+                },
+              }, '‹ Reset'),
+            ]),
           ]),
         ])
-      : h(LDInput, { dispatch, onValueChange })
+      : h(LDInput, { dispatch, onValueChange }),
   ])
 
 module.exports = connect()(LinkedDataSourceForm)

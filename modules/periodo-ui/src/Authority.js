@@ -13,25 +13,25 @@ const AUTHORITY_FIELDS = [
     values: extract('id'),
     component: PermalinkValue,
     required: true,
-    immutable: true
+    immutable: true,
   },
   {
     label: 'Type',
     values: extract('type'),
     required: true,
     immutable: true,
-    hidden: true
+    hidden: true,
   },
   {
     label: 'Source',
     values: extract('source'),
     component: Source,
-    required: true
+    required: true,
   },
   {
     label: 'Editorial notes',
     values: as('text')(extract('editorialNote')),
-    component: LinkifiedTextValue
+    component: LinkifiedTextValue,
   },
   {
     label: 'Same as',

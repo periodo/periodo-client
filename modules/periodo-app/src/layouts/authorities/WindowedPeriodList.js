@@ -60,7 +60,7 @@ const columns = {
     width: '132px',
     getValue(period) {
       return yearPublished(authorityOf(period).source)
-    }
+    },
   },
 }
 
@@ -165,7 +165,7 @@ function ItemRow({
             authorityID: authorityOf(period).id,
             periodID: period.id,
           }),
-        }, index + 1)
+        }, index + 1),
       ]),
     ].concat(Object.values(columns).map(({ getValue }) =>
       h('span', getValue(period))
@@ -348,15 +348,15 @@ class PeriodList extends React.Component {
                   sortBy: key,
                   sortDirection: opts.sortBy === key
                     ?  (!opts.sortDirection || opts.sortDirection === 'asc') ? 'desc' : 'asc'
-                    : 'asc'
+                    : 'asc',
                 }
               ))
-            }
+            },
           }, [
             label,
             sortBy !== key ? null : (
               sortDirection === 'desc' ? '▲' : '▼'
-            )
+            ),
           ])
         ))),
 

@@ -63,5 +63,5 @@ module.exports = {
   match,
   asURL,
   getGraphSubject,
-  isLinkedData
+  isLinkedData,
 }

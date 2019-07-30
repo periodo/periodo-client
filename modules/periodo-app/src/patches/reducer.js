@@ -40,8 +40,8 @@ module.exports = function patches(state=initialState(), action) {
 
       DecidePatchFate() {
         return state
-      }
+      },
     }),
-    _: () => state
+    _: () => state,
   })
 }

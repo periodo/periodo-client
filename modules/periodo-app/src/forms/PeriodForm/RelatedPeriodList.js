@@ -45,7 +45,7 @@ const matches = query => {
       if (matches(label)) {
         return matched.concat({
           ...period,
-          name: `${label} (${spatialCoverageOf(period)})`
+          name: `${label} (${spatialCoverageOf(period)})`,
         })
       }
     }
@@ -62,7 +62,7 @@ const getSuggestions = (authorities, suggestionFilter) => (query = '') => (
       suggestions: Object.values(authority.periods)
         .reduce(matches(query), [])
         .filter(suggestionFilter)
-        .sort(byName)
+        .sort(byName),
     }))
     .filter(section => section.suggestions.length > 0)
 )
@@ -74,9 +74,9 @@ const renderSectionTitle = section =>
     border: 1,
     borderColor: 'transparent',
     fontWeight: 'bold',
-    css: {borderRadius: 1}
+    css: {borderRadius: 1},
   }, [
-    section.title
+    section.title,
   ])
 
 const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
@@ -87,7 +87,7 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
     borderColor: 'transparent',
     css: {
       borderRadius: 1,
-      cursor: 'pointer'
+      cursor: 'pointer',
     },
   }, isHighlighted && { bg: 'gray.2' }), [
     h(Span, {
@@ -95,7 +95,7 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
       width: '1em',
       color: 'gray.6',
     }, isSelected ? '✓' : ' '),
-    item.name
+    item.name,
   ]
 )
 
@@ -112,15 +112,15 @@ const RelatedPeriod = ({
         backendID: backend.asIdentifier(),
         authorityID: authority.id,
         periodID: period.id,
-      })
+      }),
     }, period.label),
     h(Text, `${spatialCoverageOf(period)}, ${temporalCoverageOf(period)}`),
-    h(Text, util.authority.displayTitle(authority))
+    h(Text, util.authority.displayTitle(authority)),
   ])
 }
 
 const Deletable = ({ children, onDelete, ...props }) => h(Flex, {
-  ...props
+  ...props,
 }, [
   h(Box, {
     flex: '0 0',
@@ -130,7 +130,7 @@ const Deletable = ({ children, onDelete, ...props }) => h(Flex, {
     onClick: () => onDelete(),
   }, '✕'),
 
-  h(Box, { flex: '1 1' }, children)
+  h(Box, { flex: '1 1' }, children),
 ])
 
 const RelatedPeriodList = ({
@@ -153,9 +153,9 @@ const RelatedPeriodList = ({
   return (
     h(Box, {
       css: {
-        position: 'relative'
+        position: 'relative',
       },
-      ...R.omit(['backendID'], props)
+      ...R.omit(['backendID'], props),
     }, [
       h(Label, { htmlFor: randomID(name) }, label),
 
@@ -173,7 +173,7 @@ const RelatedPeriodList = ({
                 ),
                 ...(atLimit ? {} : { borderBottom: '1px dotted #ced4da' }),
               }, [
-                  h(RelatedPeriod, { period })
+                  h(RelatedPeriod, { period }),
                 ]
               )
             )
@@ -181,7 +181,7 @@ const RelatedPeriodList = ({
               py: 2,
               color: 'gray.6',
               css: { fontStyle: 'italic' },
-            }, 'Search below for periods to add')
+            }, 'Search below for periods to add'),
       ]),
 
       atLimit
@@ -198,7 +198,7 @@ const RelatedPeriodList = ({
                 border: '1px solid #ccc',
                 height: 164,
                 boxShadow: '2px 1px 4px #ddd',
-              }
+              },
             },
             multiSection: true,
             getSuggestions: getSuggestions(authorities, suggestionFilter),
@@ -210,13 +210,13 @@ const RelatedPeriodList = ({
             inputProps: {
               placeholder: 'Begin typing to search for periods to add',
               id: randomID(name),
-              borderRadius: '0 0 2px 2px'
+              borderRadius: '0 0 2px 2px',
             },
             onSelect: item => onValueChange(isSelected(item)
               ? periods.filter(({ id }) => id !== item.id)
               : periods.concat(item)
-            )
-          })
+            ),
+          }),
     ])
   )
 }

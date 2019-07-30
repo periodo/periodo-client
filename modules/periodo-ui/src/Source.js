@@ -5,7 +5,7 @@ const R = require('ramda')
     , { LinkValue
       , TextValue
       , LinkifiedTextValue
-      , AgentValue
+      , AgentValue,
       } = require('./Value')
 
 const extractFirstOf = keysOrPaths => R.pipe(
@@ -21,27 +21,27 @@ const SOURCE_FIELDS = [
   {
     label: 'Title',
     values: as('text')(extractFirstOf(orPartOf([ 'title' ]))),
-    component: TextValue
+    component: TextValue,
   },
   {
     label: 'Creators',
     values: extractFirstOf(orPartOf([ 'creators' ])),
-    component: AgentValue
+    component: AgentValue,
   },
   {
     label: 'Contributors',
     values: extractFirstOf(orPartOf([ 'contributors' ])),
-    component: AgentValue
+    component: AgentValue,
   },
   {
     label: 'Citation',
     values: as('text')(extractFirstOf(orPartOf([ 'citation' ]))),
-    component: LinkifiedTextValue
+    component: LinkifiedTextValue,
   },
   {
     label: 'Abstract',
     values: as('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
-    component: LinkifiedTextValue
+    component: LinkifiedTextValue,
   },
   {
     label: 'Year published',
@@ -54,11 +54,11 @@ const SOURCE_FIELDS = [
   {
     label: 'Editorial notes',
     values: as('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
-    component: LinkifiedTextValue
+    component: LinkifiedTextValue,
   },
   {
     label: 'Locator',
-    values: extract('locator')
+    values: extract('locator'),
   },
   {
     label: 'Web page',

@@ -80,7 +80,7 @@ class Search extends React.Component {
                 , invalidate = text.slice(-1) !== '|'
 
             updateOpts(Object.assign({}, opts, { text }), invalidate)
-          }
+          },
         }),
       ])
     )
@@ -99,7 +99,7 @@ module.exports = {
 
     let test
 
-    if (!!opts.withAlternate) {
+    if (opts.withAlternate) {
       test = period => (
         regex.test(period.label) ||
         _alternateLabels(period).some(({ label }) => regex.test(label))

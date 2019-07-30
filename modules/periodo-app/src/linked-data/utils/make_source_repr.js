@@ -31,7 +31,7 @@ const contributorFields = {
   name: [
     expand('foaf:name'),
     expand('schema:name'),
-  ]
+  ],
 }
 
 

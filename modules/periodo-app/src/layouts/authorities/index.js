@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { LocationStreamAware } = require('org-shell')
     , blocks = require('./blocks')
 
-module.exports = LocationStreamAware(function PeriodoLayoutRenderer(props) {
+module.exports = LocationStreamAware((props) => {
   const [ hoveredPeriod, setHoveredPeriod ] = useState(null)
       , [ selectedPeriod, setSelectedPeriod ] = useState(null)
 

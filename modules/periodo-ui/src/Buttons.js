@@ -25,7 +25,7 @@ function makeButton(color, startShade=5, extra) {
     borderRadius: '4px',
     color: 'white',
     fontWeight: 'bold',
-  }, 'position', 
+  }, 'position',
     props => Object.assign({
       cursor: 'pointer',
       backgroundImage: gradient(0, 1)(props),
@@ -35,7 +35,7 @@ function makeButton(color, startShade=5, extra) {
       ':disabled': {
         cursor: 'not-allowed',
         opacity: .4,
-      }
+      },
     }, extra),
   )
 }
@@ -68,5 +68,5 @@ exports.AriaButton = props =>
         props.onSelect();
       }
     },
-    onClick: props.onSelect
+    onClick: props.onSelect,
   }, props), props.children)

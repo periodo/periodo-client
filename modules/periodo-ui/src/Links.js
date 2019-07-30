@@ -9,8 +9,8 @@ exports.Link = Link(sys({
 }, 'space', 'display', 'fontSize', 'fontWeight', {
   textDecoration: 'none',
   ':hover': {
-    textDecoration: 'underline'
-  }
+    textDecoration: 'underline',
+  },
 }))
 
 exports.ExternalLink = Link(sys({
@@ -20,6 +20,6 @@ exports.ExternalLink = Link(sys({
 }, 'space', 'display', 'fontSize', 'fontWeight', {
   textDecoration: 'none',
   ':hover': {
-    textDecoration: 'underline'
-  }
+    textDecoration: 'underline',
+  },
 }))

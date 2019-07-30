@@ -22,7 +22,7 @@ test('Listing backends', async t => {
     {
       type: action,
       readyState: ReadyState.Success(action.responseOf({
-        backends: []
+        backends: [],
       })),
     },
     'should return an empty array when no backends are present'
@@ -55,8 +55,8 @@ test('Adding local backends', async t => {
           created: timestamp,
           modified: timestamp,
           accessed: timestamp,
-        })
-      })
+        }),
+      }),
     })),
   }, 'should allow adding backends')
 
@@ -121,9 +121,9 @@ test('Updating backends', async t => {
     type: 'rdf:Bag',
     authorities: {
       'authority1': {
-        id: 'authority1'
-      }
-    }
+        id: 'authority1',
+      },
+    },
   }
 
   store.clearActions();
@@ -141,8 +141,8 @@ test('Updating backends', async t => {
       {
         op: 'add',
         path: '/authorities/authority1',
-        value: { id: 'authority1' }
-      }
+        value: { id: 'authority1' },
+      },
     ],
     'Should generate patch data for an updated dataset'
   );

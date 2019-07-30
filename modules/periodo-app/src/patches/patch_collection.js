@@ -22,7 +22,7 @@ function groupByChangeType(patches) {
       RemovePeriod: authorityID,
       ChangePeriod: periodID,
       ChangeAuthority: authorityID,
-      _: topLevel
+      _: topLevel,
     })
 
     ret = R.over(
@@ -111,5 +111,5 @@ module.exports = {
   replaceMappedIDs,
   groupByChangeType,
   filterByHash,
-  getOrcids
+  getOrcids,
 }

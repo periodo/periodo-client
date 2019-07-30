@@ -19,16 +19,16 @@ const TabItem = ({ label, isSelected, isLast, onClick }) =>
       fontWeight: 'bold',
     }, isSelected
       ? {
-          borderBottomColor: 'transparent'
+          borderBottomColor: 'transparent',
         }
       : {
           cursor: 'pointer',
           backgroundColor: '#eee',
           ':hover': {
             backgroundColor: '#ccc',
-          }
+          },
         }
-    )
+    ),
   }, label)
 
 exports.Tabs = props =>
@@ -45,7 +45,7 @@ exports.Tabs = props =>
       })
     )),
 
-    h(Box, props.tabs.map(({ id, renderTab }) => 
+    h(Box, props.tabs.map(({ id, renderTab }) =>
       props.value !== id ? null : (
         h(Box, {
           key: id,
@@ -55,5 +55,5 @@ exports.Tabs = props =>
           borderColor: 'gray.4',
         }, renderTab())
       )
-    ))
+    )),
   ])

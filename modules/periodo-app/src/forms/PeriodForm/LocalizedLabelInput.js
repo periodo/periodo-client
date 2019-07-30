@@ -17,7 +17,7 @@ class Suggestor extends React.Component {
   }
 
   render() {
-    const { editing,} = this.state
+    const { editing} = this.state
         , { onSelect, getSuggestions, buttonCSS } = this.props
 
     return (
@@ -32,7 +32,7 @@ class Suggestor extends React.Component {
             marginRight: '-1px',
           }, buttonCSS),
           isOpen: editing,
-          onClick: () => this.setState(prev => ({ editing: !prev.editing }))
+          onClick: () => this.setState(prev => ({ editing: !prev.editing })),
         }, this.props.value),
 
         editing && h('div', {
@@ -45,9 +45,9 @@ class Suggestor extends React.Component {
                 input.focused = true;
               }
             }
-          }
+          },
         }, [
-          h(DropdownMenuMenu, { p: 1, width: 600, }, [
+          h(DropdownMenuMenu, { p: 1, width: 600 }, [
             h(Autosuggest, {
               getSuggestions,
               onSelect: (...args) => {
@@ -56,10 +56,10 @@ class Suggestor extends React.Component {
               },
               onBlur: () => this.setState({
                 editing: false,
-              })
-            })
-          ])
-        ])
+              }),
+            }),
+          ]),
+        ]),
       ])
     )
   }
@@ -115,8 +115,8 @@ module.exports = function LocalizedLabelInput(props) {
           onSelect: ({ subtag }) =>
             onValueChange({
               label,
-              languageTag: subtag.format()
-            })
+              languageTag: subtag.format(),
+            }),
         }),
 
         h(Suggestor, {
@@ -138,7 +138,7 @@ module.exports = function LocalizedLabelInput(props) {
               label,
               languageTag: langDefaultScriptTag === subtag.format()
                 ? langTag
-              : `${lang}-${subtag.format()}`
+              : `${lang}-${subtag.format()}`,
             })
           },
         }),
@@ -151,9 +151,9 @@ module.exports = function LocalizedLabelInput(props) {
           onChange: e => {
             onValueChange({
               label: e.target.value,
-              languageTag
+              languageTag,
             })
-          }
+          },
         }),
 
         addLabelAfter && h(Button, {
@@ -169,7 +169,7 @@ module.exports = function LocalizedLabelInput(props) {
           borderRadius: 0,
           onClick: removeLabelAt,
         }, '-'),
-      ])
+      ]),
     ])
   )
 }

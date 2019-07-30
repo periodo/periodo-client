@@ -11,7 +11,7 @@ function makeItemRoute(item, backend) {
     backendID: backend.asIdentifier(),
     patchID: 'id' in item
       ? item.id.toString()
-      : item.url
+      : item.url,
   })
 }
 
@@ -20,7 +20,7 @@ const PatchList = blocks.List({
   description: 'List of patches',
   navigateToItem(item, { locationStream, backend }) {
     locationStream.write({
-      route: makeItemRoute(item, backend)
+      route: makeItemRoute(item, backend),
     })
   },
 
@@ -35,7 +35,7 @@ const PatchList = blocks.List({
       getValue: x => x.submittedBy || {},
       render: ({ url, label }) => url
         ? h(Link, { href: url }, label)
-        : h('span', label || '(undefined)')
+        : h('span', label || '(undefined)'),
     },
 
     merged: {

@@ -70,21 +70,21 @@ module.exports = class BackendForm extends React.Component {
           }, [
             h('option', { value: 'IndexedDB' }, 'Local (editable)'),
             h('option', { value: 'Web' }, 'Web (read-only)'),
-          ])
+          ]),
         ]),
 
         h('div', [
-          h(Label, { mt: 3, htmlFor: 'label', isRequired: true, }, 'Label'),
+          h(Label, { mt: 3, htmlFor: 'label', isRequired: true }, 'Label'),
 
           h(Input, {
             id: 'label',
             name: 'label',
             type: 'text',
             value: label || '',
-            onChange: this.handleChange
+            onChange: this.handleChange,
           }),
 
-          type === 'Web' && h(Label, { mt: 3, htmlFor: 'url', isRequired: true, }, 'URL'),
+          type === 'Web' && h(Label, { mt: 3, htmlFor: 'url', isRequired: true }, 'URL'),
 
           type === 'Web' && h(Box, [
             h(Input, {
@@ -93,7 +93,7 @@ module.exports = class BackendForm extends React.Component {
               label: 'URL',
               disabled: !!this.editing,
               value: url || '',
-              onChange: this.handleChange
+              onChange: this.handleChange,
             }),
 
             this.editing ? null : (
@@ -108,9 +108,9 @@ module.exports = class BackendForm extends React.Component {
                         label: 'this URL',
                         url: window.location.origin,
                       })
-                    }
+                    },
                   }, 'this URL'),
-                  ` (${window.location.origin})`
+                  ` (${window.location.origin})`,
                 ]),
                 h(Box, [
                   h(Link, {
@@ -121,12 +121,12 @@ module.exports = class BackendForm extends React.Component {
                         label: 'the canonical PeriodO server',
                         url: 'https://test.perio.do/',
                       })
-                    }
+                    },
                   }, 'the canonical PeriodO server'),
-                  ` (https://test.perio.do/)`
+                  ` (https://test.perio.do/)`,
                 ]),
               ])
-            )
+            ),
           ]),
 
           h(Label, { mt: 3, htmlFor: 'description' }, 'Description'),
@@ -136,7 +136,7 @@ module.exports = class BackendForm extends React.Component {
             id: 'description',
             name: 'description',
             value: description || '',
-            onChange: this.handleChange
+            onChange: this.handleChange,
           }),
 
         ]),
@@ -147,13 +147,13 @@ module.exports = class BackendForm extends React.Component {
         }, [
           h(Button$Primary, {
             onClick: this.isValidState() ? (() => handleSave(this.state)) : () => null,
-            disabled: !this.isValidState()
+            disabled: !this.isValidState(),
           }, this.editing ? 'Update' : 'Add'),
 
           this.editing && h(Button$Danger, {
             onClick: () => handleDelete(),
-          }, 'Delete')
-        ])
+          }, 'Delete'),
+        ]),
       ])
     )
   }

@@ -39,7 +39,7 @@ function ReviewPatches(props) {
             },
           }),
           'Open patches only',
-        ])
+        ]),
       ]),
 
       h(PatchRequestLayout, {
@@ -48,7 +48,7 @@ function ReviewPatches(props) {
         backend,
         blockOpts,
         onBlockOptsChange: setBlockOpts,
-      })
+      }),
     ])
   )
 
@@ -61,18 +61,18 @@ function ReviewPatches(props) {
             h(Link, {
               route: Route('review-patch', {
                 patchURL: encodeURIComponent(req.url.replace(window.location.origin, '')),
-              })
+              }),
             }, [
               'Patch ',
-              req.url.slice(0, -1).split('/').pop()
-            ])
+              req.url.slice(0, -1).split('/').pop(),
+            ]),
           ]),
 
           h('div', [
             'Created by ' + req.created_by.label + ' at ' + new Date(req.created_at),
           ]),
         ])
-      ))
+      )),
     ])
   )
 }

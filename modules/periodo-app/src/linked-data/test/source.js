@@ -9,7 +9,7 @@ test('Generating a textual representation of a graph with a document', async t =
   const store = new N3.Store()
 
   const expand = ns.withPrefixes({
-    '': 'http://example.com/'
+    '': 'http://example.com/',
   })
 
   store.addQuad(
@@ -43,8 +43,8 @@ test('Generating a textual representation of a graph with a document', async t =
     creators: [
       {
         id: expand(':auth1').id,
-        name: 'Philip Agre'
-      }
-    ]
+        name: 'Philip Agre',
+      },
+    ],
   })
 })

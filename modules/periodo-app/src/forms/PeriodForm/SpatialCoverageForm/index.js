@@ -27,8 +27,8 @@ const SpatialCoverageForm = ({
         'A description of the spatial coverage as it appeared in the source',
       value: description,
       onChange: e => onValueChange({
-        spatialCoverageDescription: e.target.value
-      })
+        spatialCoverageDescription: e.target.value,
+      }),
     }),
 
     h(Box, {
@@ -52,7 +52,7 @@ const SpatialCoverageForm = ({
             onFocus: item => setFocusedFeature(gazetteers.find(item.id)),
             onBlur: () => setFocusedFeature(undefined),
             onDelete: item => onValueChange(
-              {spatialCoverage: R.without([item], coverage)})
+              {spatialCoverage: R.without([item], coverage)}),
         }),
 
       h(LabeledMap, {
@@ -70,11 +70,11 @@ const SpatialCoverageForm = ({
           const item = { id: feature.id, label: feature.properties.title }
           onValueChange({ spatialCoverage: inCoverage(item)
             ? R.without([item], coverage)
-            : R.union(coverage, [item])
+            : R.union(coverage, [item]),
           })
-        }
-      })
-    ])
+        },
+      }),
+    ]),
   ])
 }
 

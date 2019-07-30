@@ -22,7 +22,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
     super();
 
     this.state = {
-      showLDForm: !props.value.source || isLinkedData(props.value.source)
+      showLDForm: !props.value.source || isLinkedData(props.value.source),
     }
   }
 
@@ -35,7 +35,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
 
     const childProps = {
       value: get(lenses.source),
-      onValueChange: value => set(lenses.source, value)
+      onValueChange: value => set(lenses.source, value),
     }
 
     return (
@@ -55,7 +55,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
                   id: 'non-ld',
                   label: h('span', [h('em', 'Not'), ' linked data']),
                   renderTab: () => h(NonLDSourceForm, childProps),
-                }
+                },
               ],
               value: showLDForm ? 'ld' : 'non-ld',
               onChange: val => {
@@ -75,7 +75,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
                 If all periods are defined on a single page within this source,
                 include that page number here. Otherwise, include a locator for
                 individual periods as you create them.
-              `
+              `,
             }),
 
             h(TextareaBlock, {
@@ -93,7 +93,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
               bg: 'gray1',
             }, [
               h(Button$Primary, {
-                onClick: () => this.props.validate(value, this.props.onValidated)
+                onClick: () => this.props.validate(value, this.props.onValidated),
               }, 'Save'),
             ]),
           ]),

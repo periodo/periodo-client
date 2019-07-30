@@ -39,14 +39,14 @@ test('Patch generation actions', async t => {
     type: 'rdf:Bag',
     authorities: {
       fakeID: {
-        id: 'fakeID'
-      }
-    }
+        id: 'fakeID',
+      },
+    },
   }
 
   const emptyRawDataset = {
     type: 'rdf:Bag',
-    authorities: {}
+    authorities: {},
   }
 
   await store.dispatch(
@@ -64,13 +64,13 @@ test('Patch generation actions', async t => {
           op: 'add',
           path: '/authorities/fakeID',
           value: {
-            id: 'fakeID'
-          }
+            id: 'fakeID',
+          },
         },
       ],
       localDataset: new DatasetProxy(newRawDataset),
       remoteDataset: new DatasetProxy(emptyRawDataset),
-    }))
+    })),
   }, 'should patch additions')
 
   const action2 = PatchAction.GenerateDatasetPatch(

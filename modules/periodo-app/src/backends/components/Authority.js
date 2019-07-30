@@ -27,11 +27,11 @@ class AuthorityLayout extends React.Component {
         backend,
         dataset: new DatasetProxy({
           authorities: {
-            [authority.id]: authority
-          }
+            [authority.id]: authority,
+          },
         }),
         blockOpts: this.state.blockOpts,
-        onBlockOptsChange: blockOpts => this.setState({ blockOpts })
+        onBlockOptsChange: blockOpts => this.setState({ blockOpts }),
       })
     )
   }
@@ -48,6 +48,6 @@ module.exports = ({ backend, authority }) =>
     h(Box, { width: .5 }, [
       h(Heading, { level: 2 }, 'Periods'),
 
-      h(AuthorityLayout, { backend, authority })
+      h(AuthorityLayout, { backend, authority }),
     ]),
   ])

@@ -92,7 +92,7 @@ class SignIn extends React.Component {
             h(Link, {
               ml: 1,
               href: '',
-              onClick: this.signOut.bind(this)
+              onClick: this.signOut.bind(this),
             }, 'Sign out'),
           ])
         ),
@@ -130,7 +130,7 @@ module.exports = function Settings(props) {
           onClick: async () => {
             await dispatch(LinkedDataAction.ClearLinkedDataCache);
             window.location.reload()
-          }
+          },
         }, 'Clear linked data cache'),
 
         h(Button$Danger, {
@@ -139,7 +139,7 @@ module.exports = function Settings(props) {
               await dispatch(BackendAction.DeleteAllBackends);
               window.location.reload()
             }
-          }
+          },
         }, 'Clear all data'),
       ]),
     ])

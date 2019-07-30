@@ -31,7 +31,7 @@ class SignIn extends React.Component {
     ))
 
     this.setState({
-      message: h(Alert$Success, 'Successfully authenticated')
+      message: h(Alert$Success, 'Successfully authenticated'),
     })
   }
 
@@ -64,7 +64,7 @@ class SignIn extends React.Component {
     await dispatch(BackendAction.RemoveOrcidCredential(backend.storage))
 
     this.setState({
-      message: h(Alert$Success, 'Successfully signed out')
+      message: h(Alert$Success, 'Successfully signed out'),
     })
   }
 
@@ -104,7 +104,7 @@ class SignIn extends React.Component {
             h(Link, {
               ml: 1,
               href: '',
-              onClick: this.signOut.bind(this)
+              onClick: this.signOut.bind(this),
             }, 'Sign out'),
           ])
         ),

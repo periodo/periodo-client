@@ -12,7 +12,7 @@ const disabled = props => ({
     cursor: 'not-allowed',
     backgroundColor: themeGet('colors.gray.3')(props),
     color: 'gray.9',
-  }
+  },
 })
 
 exports.Select = sys({
@@ -72,5 +72,5 @@ exports.Label = sys({
   ':after': !props.isRequired ? {} : {
     content: '" \x2a        "',
     color: 'red',
-  }
+  },
 }))

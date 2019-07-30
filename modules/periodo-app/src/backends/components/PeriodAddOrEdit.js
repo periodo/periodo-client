@@ -16,8 +16,8 @@ const emptyPeriod = () => ({
   [$$RelatedPeriods]: {
     derivedFrom: {},
     broader: {},
-    narrower: {}
-  }
+    narrower: {},
+  },
 })
 
 function shallowClone(obj) {
@@ -40,7 +40,7 @@ class AddPeriod extends React.Component {
     this.state = {
       period,
       originalRelated: R.clone(period[$$RelatedPeriods]),
-      related: shallowClone(period[$$RelatedPeriods])
+      related: shallowClone(period[$$RelatedPeriods]),
     }
   }
 
@@ -52,7 +52,7 @@ class AddPeriod extends React.Component {
       dataset,
       locationStream,
       randomID,
-      gazetteers
+      gazetteers,
     } = this.props
 
     return (
@@ -117,7 +117,7 @@ class AddPeriod extends React.Component {
               route: Route('authority-view', {
                 backendID: backend.asIdentifier(),
                 authorityID: authority.id,
-              })
+              }),
             })
           },
           onValueChange: period => {
@@ -132,7 +132,7 @@ class AddPeriod extends React.Component {
             }
 
             this.setState({ period, related })
-          }
+          },
         }),
       ])
     )

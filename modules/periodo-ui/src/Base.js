@@ -36,7 +36,7 @@ const Box = styled(tag)([], [
 Box.defaultProps = {
   blacklist: Object.keys(ss.propTypes).concat([
     'css',
-  ])
+  ]),
 }
 
 const Pre = styled(tag.pre)([], [
@@ -90,7 +90,7 @@ const Heading = styled(_Heading)([], [
   props => ({
     fontWeight: 'bold',
     fontSize: sizeForLevel[props.level] || '12px',
-  })
+  }),
 ])
 
 const ResourceTitle = props => h(Heading, Object.assign({

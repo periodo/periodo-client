@@ -3,7 +3,7 @@
 const PropTypes = require('prop-types')
 
 Object.defineProperty(require('react'), 'PropTypes', {
-  get: () => PropTypes
+  get: () => PropTypes,
 })
 
 const h = require('react-hyperscript')

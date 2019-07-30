@@ -42,9 +42,9 @@ function makePatch(before, after) {
           patches: patches.concat({
             op: 'add',
             path: attributePointer,
-            value: pointer.get(after, attributePointer)
+            value: pointer.get(after, attributePointer),
           }),
-          replaced: replaced.concat(attributePointer)
+          replaced: replaced.concat(attributePointer),
         }
     }, { patches: [], replaced: [] })
     .patches
@@ -56,7 +56,7 @@ function getAffected(patches) {
 
     return {
       periods: periods.concat(periodID || []),
-      authorities: authorities.concat(authorityID || [])
+      authorities: authorities.concat(authorityID || []),
     }
   }, { authorities: [], periods: [] })
 }
@@ -86,7 +86,7 @@ function formatPatch(oldData, newData, message) {
     backwardHashes: backward.map(hashPatch),
     created: new Date().getTime(),
     affectedAuthorities: affected.authorities,
-    affectedPeriods: affected.periods
+    affectedPeriods: affected.periods,
   }
 }
 

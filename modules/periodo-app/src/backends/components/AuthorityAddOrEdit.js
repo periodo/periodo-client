@@ -14,7 +14,7 @@ class AuthorityAddOrEdit extends React.Component {
     super(props);
 
     this.state = {
-      authority: props.authority || {}
+      authority: props.authority || {},
     }
   }
 
@@ -24,7 +24,7 @@ class AuthorityAddOrEdit extends React.Component {
       backend,
       dataset,
       locationStream,
-      randomID
+      randomID,
     } = this.props
 
     return (
@@ -50,13 +50,13 @@ class AuthorityAddOrEdit extends React.Component {
 
             locationStream.write({
               route: Route('backend-home', {
-                backendID: backend.asIdentifier()
-              })
+                backendID: backend.asIdentifier(),
+              }),
             })
           },
           onValueChange: authority => {
             this.setState({ authority })
-          }
+          },
         }),
       ])
     )

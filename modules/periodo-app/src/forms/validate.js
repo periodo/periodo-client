@@ -37,7 +37,7 @@ function validateAuthority(authority) {
   if (R.equals(errors, {})) {
     const cleanedAuthority = {
       type: 'Authority',
-      periods: {}
+      periods: {},
     }
 
     VALID_AUTHORITY_FIELDS.forEach(field => {

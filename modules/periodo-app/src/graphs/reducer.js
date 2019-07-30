@@ -22,6 +22,6 @@ module.exports = function linkedData(state=initialState(), action) {
         return R.assoc('gazetteers', resp.gazetteers, state)
       },
     }),
-    _: () => state
+    _: () => state,
   })
 }

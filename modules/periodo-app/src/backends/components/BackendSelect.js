@@ -35,7 +35,7 @@ module.exports = props =>
           h('th', 'Label'),
           h('th', 'Description'),
           h('th', 'Last opened'),
-        ])
+        ]),
       ]),
 
       h('tbody', {}, props.backends.length
@@ -51,8 +51,8 @@ module.exports = props =>
                 h(Link, {
                   route: Route('backend-home', {
                     backendID: backend.asIdentifier(),
-                  })
-                }, backend.metadata.label)
+                  }),
+                }, backend.metadata.label),
               ]),
               h('td', backend.metadata.description),
               h('td', {}, new Date(backend.metadata.accessed).toLocaleDateString()),
@@ -64,15 +64,15 @@ module.exports = props =>
               py: 2,
               fontSize: 2,
               color: 'gray.7',
-            }, 'No backends currently defined. Add one below.')
-          ])
+            }, 'No backends currently defined. Add one below.'),
+          ]),
         ])
-      )
+      ),
     ]),
 
     h(AddBackend, Object.assign({}, props, {
       onSave: () => {
         window.location.reload();
-      }
+      },
     })),
   ])

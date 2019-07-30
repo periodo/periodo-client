@@ -25,7 +25,7 @@ const RelatedPeriodsForm = ({
 
   return h(Flex, {
     pb: 2,
-    borderBottom: '1px solid #ccc'
+    borderBottom: '1px solid #ccc',
   }, [
 
     h(Box, { width: .5, px: 3 }, [
@@ -39,7 +39,7 @@ const RelatedPeriodsForm = ({
         limit: 1,
         authorities: [ authority ],
         backendID,
-        onValueChange: update('broader')
+        onValueChange: update('broader'),
       }),
       h(RelatedPeriodList, {
         mt: 2,
@@ -50,8 +50,8 @@ const RelatedPeriodsForm = ({
         suggestionFilter: ({ id }) => value.id !== id && value.broader !== id,
         authorities: [ authority ],
         backendID,
-        onValueChange: update('narrower')
-      })
+        onValueChange: update('narrower'),
+      }),
     ]),
 
     h(Box, { width: .5, px: 3 }, [
@@ -63,8 +63,8 @@ const RelatedPeriodsForm = ({
         suggestionFilter: ({ id }) => value.id !== id,
         authorities: Object.values(dataset.authorities),
         backendID,
-        onValueChange: update('derivedFrom')
-      })
+        onValueChange: update('derivedFrom'),
+      }),
     ]),
   ])
 }

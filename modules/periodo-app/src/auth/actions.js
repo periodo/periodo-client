@@ -9,7 +9,7 @@ const AuthAction = module.exports = makeTypedAction({
     request: {},
     response: {
       settings: Object,
-    }
+    },
   },
 
   UpdateSettings: {
@@ -19,8 +19,8 @@ const AuthAction = module.exports = makeTypedAction({
     },
     response: {
       settings: Object,
-    }
-  }
+    },
+  },
 })
 
 function getApplicationSettings() {

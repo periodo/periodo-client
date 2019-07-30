@@ -62,7 +62,7 @@ const PatchRequestList = blocks.List({
         if (req.merged) return 'Merged'
         return 'Rejected'
       },
-      render: status => h(Status, { status })
+      render: status => h(Status, { status }),
     },
 
     creator: {
@@ -74,7 +74,7 @@ const PatchRequestList = blocks.List({
           h(Link, {
             href: x.url,
           }, x.label)
-        )
+        ),
     },
 
     submitted: {

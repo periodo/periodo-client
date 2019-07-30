@@ -181,8 +181,8 @@ module.exports = class BackendHome extends React.Component {
               id: 'Authorities',
               label: 'Authorities',
               renderTab: renderAuthorityTab,
-            }
-          ]
+            },
+          ],
         }),
       ])
     )

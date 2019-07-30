@@ -23,19 +23,19 @@ const aspects = {
   language: {
     label: 'Language',
     getter: period => languageDescription(period.languageTag),
-    render: identityWithDefault('(no value)')
+    render: identityWithDefault('(no value)'),
   },
 
   spatialCoverage: {
     label: 'Spatial coverage',
     getter: period => period.spatialCoverageDescription || null,
-    render: identityWithDefault('(no value)')
+    render: identityWithDefault('(no value)'),
   },
 
   authority: {
     label: 'Authority',
     getter: period => authorityOf(period).id,
-    render: identityWithDefault('(no value)')
+    render: identityWithDefault('(no value)'),
   },
 }
 
@@ -49,7 +49,7 @@ const Table = Box.extend([], {
   },
   '& td:last-of-type': {
     width: '100%',
-  }
+  },
 })
 
 function withoutValue(val, set) {
@@ -153,14 +153,14 @@ class AspectTable extends React.Component {
                 updateOpts(R.dissocPath(['selected', aspectID]), true)
               },
             }, 'Clear')
-          ))
+          )),
         ]),
 
         h('div', {
           style: {
             height:'100%',
             overflowY: 'scroll',
-          }
+          },
         }, this.state.loading ? (
           h('div', {
             style: {
@@ -199,12 +199,12 @@ class AspectTable extends React.Component {
                       ), true)
 
                     },
-                  }, render(label === undefined ? value : label))
+                  }, render(label === undefined ? value : label)),
                 ]),
               ])
-            ))
-          ])
-        ])
+            )),
+          ]),
+        ]),
       ])
     )
   }

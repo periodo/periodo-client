@@ -18,7 +18,7 @@ const Tag = ({label, onDelete, ...props}) => h(Box, {
       onDelete()
     }
   },
-  ...props
+  ...props,
 }, [
   label,
   h(Span, {
@@ -26,8 +26,8 @@ const Tag = ({label, onDelete, ...props}) => h(Box, {
     ml: 2,
     mt: 1,
     style: { cursor: 'pointer' },
-    onClick: onDelete
-  }, '✕')
+    onClick: onDelete,
+  }, '✕'),
 ])
 
 // items must have { id, label }
@@ -55,7 +55,7 @@ const Tags = ({
     p: 0,
     mb: -1,
     css: { listStyleType: 'none' },
-    ...props
+    ...props,
   }, items.map((item, index) => h(Tag, {
       key: item.id,
       label: item.label,
@@ -73,12 +73,12 @@ const Tags = ({
         onBlur()
         onDelete(item)
         setFocusedIndex(index - 1)
-      }
+      },
     }))
   )
 }
 
 module.exports = {
   Tag,
-  Tags
+  Tags,
 }

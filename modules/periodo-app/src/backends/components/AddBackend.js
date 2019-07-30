@@ -31,7 +31,7 @@ const AddBackend = props =>
             console.error(err);
           }
         )
-      }
+      },
     }),
   ])
 

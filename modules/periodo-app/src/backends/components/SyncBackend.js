@@ -43,8 +43,8 @@ class SyncBackend extends React.Component {
       () => {
         locationStream.write({
           route: Route('backend-home', {
-            backendID: backend.asIdentifier()
-          })
+            backendID: backend.asIdentifier(),
+          }),
         })
       },
       err => {
@@ -63,7 +63,7 @@ class SyncBackend extends React.Component {
         h(Button$Primary, {
           onClick: () => {
             this.acceptPatch()
-          }
+          },
         }, 'Accept changes'),
       ])
     } else {
@@ -73,7 +73,7 @@ class SyncBackend extends React.Component {
         localBackend: this.props.backend,
         handleSelectPatch: (selectedPatch, compareComponent) => {
           this.setState({ selectedPatch, compareComponent })
-        }
+        },
       })
     }
 

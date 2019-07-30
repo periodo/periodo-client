@@ -29,7 +29,7 @@ function getRouteGroups(resource, params, props) {
                 label: resource.label,
               }]
             : acc
-      , [])
+      , []),
     }))
   } catch(e) {
     return []
@@ -66,7 +66,7 @@ class Menu extends React.Component {
           resource: nextProps.activeResource,
           mappedProps,
         },
-        prev: nextState.active
+        prev: nextState.active,
       }
     }
 
@@ -126,7 +126,7 @@ class Menu extends React.Component {
                 marginLeft: '-11px',
                 color: 'orangered',
               },
-            }, ghost && { opacity: .5 })
+            }, ghost && { opacity: .5 }),
           }, [
             h(Heading, { key: 'heading' + '-i', level: 5 }, label),
           ].concat(routes.map(({ route, label }) =>
@@ -204,7 +204,7 @@ class PeriodoApplication extends React.Component {
 
   componentDidCatch(err, info) {
     this.setState({
-      error: { err, info }
+      error: { err, info },
     })
   }
 
@@ -260,8 +260,8 @@ class PeriodoApplication extends React.Component {
             bg: 'gray.1',
             p: 2,
             borderTop: '1px solid #ccc',
-          })
-        ])
+          }),
+        ]),
       ])
     )
   }

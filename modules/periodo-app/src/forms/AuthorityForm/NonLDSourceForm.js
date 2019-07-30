@@ -52,7 +52,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
           name: 'title',
           label: 'Title',
           value: value.title || '',
-          onChange: this.handleChange
+          onChange: this.handleChange,
         }),
 
         h(InputBlock, {
@@ -60,7 +60,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
           name: 'url',
           label: 'URL',
           value: value.url || '',
-          onChange: this.handleChange
+          onChange: this.handleChange,
         }),
 
         h(InputBlock, {
@@ -68,7 +68,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
           name: 'sameAs',
           label: 'Same as (read-only)',
           value: value.sameAs || '',
-          disabled: true
+          disabled: true,
         }),
 
         h(InputBlock, {
@@ -76,13 +76,13 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
           name: 'yearPublished',
           label: 'Year published',
           value: value.yearPublished || '',
-          onChange: this.handleChange
+          onChange: this.handleChange,
         }),
 
         ['creators', 'contributors'].map(field => {
           const list = R.propOr([emptyCreator], field, value)
 
-          return h(Box, { key: field, mt: 3, }, [
+          return h(Box, { key: field, mt: 3 }, [
             h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
             h(Box, list.map((agent, i) =>
               h(Flex, { key: field + i }, [
@@ -93,7 +93,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                   onChange: e => {
                     onValueChange(
                       R.assocPath([field, i, 'name'], e.target.value, value))
-                  }
+                  },
                 }),
 
                 h(Button$Default, {
@@ -106,7 +106,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                       cs => R.insert(i + 1, emptyCreator, (cs || [])),
                       value
                     ))
-                  }
+                  },
                 }, '+'),
 
                 h(Button$Default, {
@@ -121,12 +121,12 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                         : [emptyCreator],
                       value
                     ))
-                  }
-                },'-')
+                  },
+                },'-'),
               ])
-            ))
+            )),
           ])
-        })
+        }),
       ])
     )
   }

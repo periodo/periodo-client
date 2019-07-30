@@ -56,7 +56,7 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
 
           this.setState({
             suggestions: [],
-            value: ''
+            value: '',
           })
         },
         theme: Object.assign({
@@ -87,10 +87,10 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
               borderRadius: 1,
               ':hover': {
                 cursor: 'pointer',
-              }
-            }
+              },
+            },
           }, isHighlighted && { bg: 'gray.2' }), [
-            item.name
+            item.name,
           ]),
 
         inputProps: Object.assign({
@@ -100,15 +100,15 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
           onBlur: () => {
             this.setState({
               suggestions: [],
-              value: ''
+              value: '',
             })
 
             // lol
             if (this.props.onBlur) {
               this.props.onBlur();
             }
-          }
-        }, R.omit(['onBlur'], this.props.inputProps))
+          },
+        }, R.omit(['onBlur'], this.props.inputProps)),
       }, autoSuggestProps))
     )
   }

@@ -27,7 +27,7 @@ const PatchAction = module.exports = makeTypedAction({
       toDataset: Object,
       patchText: Object,
       mergeURL: val => val === null || isURL(val),
-    }
+    },
   },
 
   GetServerPatches: {
@@ -36,20 +36,20 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patches: Object,
-    }
+    },
   },
   GenerateDatasetPatch: {
     exec: generateDatasetPatch,
     request: {
       origin: BackendStorage,
       remote: BackendStorage,
-      direction: PatchDirection
+      direction: PatchDirection,
     },
     response: {
       patch: Object,
       localDataset: Object,
       remoteDataset: Object,
-    }
+    },
   },
   SubmitPatch: {
     exec: submitPatch,
@@ -60,7 +60,7 @@ const PatchAction = module.exports = makeTypedAction({
     },
     response: {
       patchURL: String,
-    }
+    },
   },
   AddPatchComment: {
     exec: addPatchComment,
@@ -70,7 +70,7 @@ const PatchAction = module.exports = makeTypedAction({
       comment: String,
     },
     response: {
-    }
+    },
   },
   DecidePatchFate: {
     exec: decidePatchFate,
@@ -80,8 +80,8 @@ const PatchAction = module.exports = makeTypedAction({
       fate: PatchFate,
     },
     response: {
-    }
-  }
+    },
+  },
 })
 
 
@@ -116,7 +116,7 @@ function generateDatasetPatch(
 
     const rawPatch = direction.case({
       Push: () => makePatch(remoteDataset.raw, localDataset.raw),
-      Pull: () => makePatch(localDataset.raw, remoteDataset.raw)
+      Pull: () => makePatch(localDataset.raw, remoteDataset.raw),
     })
 
     const patch = await filterByHash(rawPatch, direction, filterHashes)
@@ -144,7 +144,7 @@ function submitPatch(localBackend, remoteBackend, patch) {
       method: 'PATCH',
       headers: withAuthHeaders(remoteBackend, {
         'Content-Type': 'application/json',
-      })
+      }),
     })
 
     if (resp.status === 401) {
@@ -177,7 +177,7 @@ function getLocalPatch(remoteBackend, patchURL) {
     }
 
     const patchResp = await fetch(patchURL, {
-      headers: withAuthHeaders(remoteBackend)
+      headers: withAuthHeaders(remoteBackend),
     })
 
     const link = parseLinkHeader(patchResp.headers.get('Link'))
@@ -278,7 +278,7 @@ function addPatchComment(backend, patchURL, comment) {
       method: 'POST',
       headers: withAuthHeaders(backend, {
         'Content-Type': 'application/json',
-      })
+      }),
     })
 
     switch (resp.status) {
@@ -317,8 +317,8 @@ function decidePatchFate(backend, mergeURL, fate) {
     const resp = await fetch(actionURL, {
       method: 'POST',
       headers: withAuthHeaders(backend, {
-        'Content-Type': 'application/json' // necessary? probably not.
-      })
+        'Content-Type': 'application/json', // necessary? probably not.
+      }),
     })
 
     switch (resp.status) {

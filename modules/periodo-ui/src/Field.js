@@ -25,7 +25,7 @@ const as = key => fn => R.pipe(
   fn,
   R.addIndex(R.map)(Value.caseOn({
     Identified: v => Value.Identified(v),
-    Anonymous: (v, index) => Value.Identified({ id: index, [key]: v })
+    Anonymous: (v, index) => Value.Identified({ id: index, [key]: v }),
   }))
 )
 
@@ -67,7 +67,7 @@ const showValues = ({
 
   { warnings: checkRequired(required)(values)
   , summary: null
-  , items: R.map(show(component, props), values)
+  , items: R.map(show(component, props), values),
   }
 )
 
@@ -90,7 +90,7 @@ const compareValues = ({
   return (
     { warnings: check(immutable)(required)(values)(compare.values)
     , summary: summarizeChanges ? h(InfoText, {}, formatCounts(counts)) : null
-    , items: showChanges(component)(filteredChanges)
+    , items: showChanges(component)(filteredChanges),
     }
   )
 }
@@ -124,7 +124,7 @@ function Field(props) {
       , { label, hidden = false } = value
       , { warnings
         , summary
-        , items
+        , items,
         } = compare ? compareValues(value, compare) : showValues(value)
       , hide = hidden && R.isEmpty(warnings)
 
@@ -138,13 +138,13 @@ function Field(props) {
       ]
     ),
     [
-      h(Box, { is: 'dt', fontWeight: 'bold', }, label),
+      h(Box, { is: 'dt', fontWeight: 'bold' }, label),
 
       warnings.length ? h(Warnings, { warnings }) : null,
 
       summary,
 
-      ...wrap({ is: 'dd', ml: 3 })(items)
+      ...wrap({ is: 'dd', ml: 3 })(items),
     ]
   )
 }

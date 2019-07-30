@@ -20,7 +20,7 @@ module.exports = function makeAsyncRequestor(Component) {
 
     onNextCompletion(fn) {
       this.setState(prev => ({
-        onNextCompletion: [...prev.onNextCompletion, fn]
+        onNextCompletion: [...prev.onNextCompletion, fn],
       }))
     }
 
@@ -35,7 +35,7 @@ module.exports = function makeAsyncRequestor(Component) {
       }
 
       this.setState({
-        readyState: ReadyState.Pending
+        readyState: ReadyState.Pending,
       })
 
       fetchFn(...opts).then(

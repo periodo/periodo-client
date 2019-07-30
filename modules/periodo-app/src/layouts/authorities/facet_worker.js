@@ -19,7 +19,7 @@ const getters = {
   },
   Authority: {
     getter: period => authorityOf(period).id,
-    renderLabel: (id, dataset) => displayTitle(dataset.authoritiesByID[id])
+    renderLabel: (id, dataset) => displayTitle(dataset.authoritiesByID[id]),
   },
 }
 

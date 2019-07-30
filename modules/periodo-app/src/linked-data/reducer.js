@@ -33,8 +33,8 @@ module.exports = function linkedData(state=initialState(), action) {
 
       ClearLinkedDataCache() {
         return {}
-      }
+      },
     }),
-    _: () => state
+    _: () => state,
   })
 }

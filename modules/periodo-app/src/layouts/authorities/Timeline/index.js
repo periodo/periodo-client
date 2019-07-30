@@ -71,12 +71,12 @@ const yaTickFormat = R.cond([
 
   // Otherwise, just return the string. (e.g. 1243, 466, 1999). This
   // would not make sense for far-future dates
-  [R.T, R.toString]
+  [R.T, R.toString],
 ])
 
 const visualizations = {
   Bars: require('./Bars'),
-  Histogram: require('./Histogram')
+  Histogram: require('./Histogram'),
 }
 
 const defaultVisualization = visualizations.Histogram
@@ -93,7 +93,7 @@ class Timeline extends React.Component {
     )
 
     this.state = {
-      visualization: new initialVisualization()
+      visualization: new initialVisualization(),
     }
   }
 
@@ -125,7 +125,7 @@ class Timeline extends React.Component {
       this.plotG = this.plotGParent.append('g')
 
       this.setState({
-        visualization: new nextVisualization()
+        visualization: new nextVisualization(),
       }, this.update)
     } else if (newData) {
       this.update()
@@ -172,7 +172,7 @@ class Timeline extends React.Component {
 
     this.axisG = {
       x: this.g.append('g')
-        .attr('transform', `translate(0,${plotHeight})`)
+        .attr('transform', `translate(0,${plotHeight})`),
     }
   }
 
@@ -226,7 +226,7 @@ class Timeline extends React.Component {
             paddingLeft: m.l,
             marginBottom: '1em',
             marginTop: '1em',
-          }
+          },
         }, [
           h(DropdownMenu, {
             label: 'Timeline style',

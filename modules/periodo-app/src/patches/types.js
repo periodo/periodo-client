@@ -28,7 +28,7 @@ const PatchMetadata = Type({
   },
 
   Local: {
-  }
+  },
 })
 
 const PatchDirection = Type({
@@ -47,10 +47,10 @@ const PatchType = Type({
   ChangeContext: {},
 
   AddAuthority: {
-    authorityID: String
+    authorityID: String,
   },
   RemoveAuthority: {
-    authorityID: String
+    authorityID: String,
   },
   ChangeAuthority: {
     authorityID: String,
@@ -106,7 +106,7 @@ PatchType.fromPatch = function fromPath(patch) {
     return patch[$$type] = R.cond([
       [R.equals('add'), () => PatchType.AddAuthority(authorityID)],
       [R.equals('remove'), () => PatchType.RemoveAuthority(authorityID)],
-      [R.T, () => PatchType.Unknown]
+      [R.T, () => PatchType.Unknown],
     ])(op)
   }
 
@@ -125,7 +125,7 @@ PatchType.fromPatch = function fromPath(patch) {
     return patch[$$type] = R.cond([
       [R.equals('add'), () => PatchType.AddPeriod(authorityID, periodID)],
       [R.equals('remove'), () => PatchType.RemovePeriod(authorityID, periodID)],
-      [R.T, () => PatchType.Unknown]
+      [R.T, () => PatchType.Unknown],
     ])(op)
   }
 
@@ -173,7 +173,7 @@ PatchType.prototype.getLabel = function (minimal) {
 
   return this.case({
     Unknown: 'Unknown change',
-    _: () => fmt(this)
+    _: () => fmt(this),
   })
 }
 

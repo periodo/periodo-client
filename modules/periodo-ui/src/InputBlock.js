@@ -29,7 +29,7 @@ const FormControlBlock = FormComponent => RandomID(props =>
 
     h(FormComponent, Object.assign(R.pick(inputProps, props), {
       id: props.randomID(props.name),
-    }))
+    })),
   ]))
 
 exports.InputBlock = FormControlBlock(Input)

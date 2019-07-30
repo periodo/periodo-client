@@ -16,7 +16,7 @@ BackendStorage.prototype.asIdentifier = function () {
     Web: url => `web-${url}`,
     _: () => {
       throw new Error('not yet')
-    }
+    },
   })
 }
 
@@ -55,15 +55,15 @@ const BackendMetadata = Type({
         typeof x === 'object' &&
         typeof x.name === 'string' &&
         typeof x.token === 'string'
-      )
-  }
+      ),
+  },
 })
 
 const Backend = Type({
   Backend: {
     metadata: BackendMetadata,
     storage: BackendStorage,
-  }
+  },
 })
 
 Backend.prototype.asIdentifier = function () {

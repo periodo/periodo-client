@@ -33,15 +33,15 @@ class ExportData extends React.Component {
       this.setState({
         representation: ReadyState.Success(
           JSON.stringify(asJSONLD(toExport), true, '  ')
-        )
+        ),
       })
     } else if (selected === 'Turtle') {
       asTurtle(toExport, true).then(
         ttl => this.setState({
-          representation: ReadyState.Success(ttl)
+          representation: ReadyState.Success(ttl),
         }),
         err => this.setState({
-          representation: ReadyState.Error(err.toString())
+          representation: ReadyState.Error(err.toString()),
         })
       )
     }
@@ -83,9 +83,9 @@ class ExportData extends React.Component {
           backgroundColor: selected === type ? '#eee' : undefined,
           onClick: () => this.setState({
             selected: type,
-            representation: ReadyState.Pending
-          }, this.setRepresentation)
-        }, type)
+            representation: ReadyState.Pending,
+          }, this.setRepresentation),
+        }, type),
       ]))),
       selected && h(Box, { key: 'repr' }, [
         representation.case({
@@ -97,9 +97,9 @@ class ExportData extends React.Component {
             css: { whiteSpace: 'pre-wrap' },
             p: 2,
           }, data),
-          Failure: error => h(Box, {}, 'ERROR: ' + error)
-        })
-      ])
+          Failure: error => h(Box, {}, 'ERROR: ' + error),
+        }),
+      ]),
     ]
   }
 }

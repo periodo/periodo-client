@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , { BackendForm } = require('../../forms')
     , ORCIDSettings = require('../../auth/components/ORCID')
 
-module.exports = LocationStreamAware(function UpdateBackend(props) {
+module.exports = LocationStreamAware((props) => {
   const { backend } = props
 
   return (
@@ -29,7 +29,7 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
             handleCompletedAction(
               resp,
               () => props.locationStream.write({
-                route: Route('open-backend')
+                route: Route('open-backend'),
               }),
               err => {
                 alert('Error deleting backend');
@@ -41,7 +41,7 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
           handleSave: async ({ label, description }) => {
             const resp = await props.dispatch(BackendAction.UpdateBackend(props.backend.storage, {
               label,
-              description
+              description,
             }))
 
             handleCompletedAction(
@@ -49,7 +49,7 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
               () => props.locationStream.write({
                 route: Route('backend-home', {
                   backendID: props.backend.asIdentifier(),
-                })
+                }),
               }),
               err => {
                 alert('Error saving backend');
@@ -57,7 +57,7 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
                 console.error(err);
               }
             )
-          }
+          },
         }),
       ]),
 
@@ -67,9 +67,9 @@ module.exports = LocationStreamAware(function UpdateBackend(props) {
             level: 2,
             mb: 2,
           }, 'ORCID credentials'),
-          h(ORCIDSettings, { backend })
+          h(ORCIDSettings, { backend }),
         ])
-      )
+      ),
     ])
   )
 })

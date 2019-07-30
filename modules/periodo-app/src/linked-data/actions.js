@@ -35,7 +35,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
     response: {
       store: Object,
       prefixes: Object,
-    }
+    },
   },
 
   FetchORCIDs: {
@@ -45,7 +45,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
     },
     response: {
       nameByORCID: Object,
-    }
+    },
   },
 
   FetchSource: {
@@ -56,7 +56,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
     },
     response: {
       source: Object,
-    }
+    },
   },
 
   ClearLinkedDataCache: {
@@ -74,7 +74,7 @@ async function _fetchLinkedData(url, type="text/turtle") {
 
   const resp = await fetch(formatLDURL(url), {
     mode: 'cors',
-    headers: { Accept: type }
+    headers: { Accept: type },
   })
 
   if (!resp.ok) {
@@ -99,7 +99,7 @@ function fetchLinkedData(url, opts={}) {
     const {
       tryCache=false,
       populateCache=false,
-      resourceMimeType='text/turtle'
+      resourceMimeType='text/turtle',
     } = opts
 
     let store
@@ -144,7 +144,7 @@ function fetchORCIDs(orcids, opts) {
 
       const req = await dispatch(LinkedDataAction.FetchLinkedData(orcid, Object.assign({
         tryCache: true,
-        populateCache: true
+        populateCache: true,
       }, opts)))
 
       const { store } = getResponse(req)
@@ -159,7 +159,7 @@ function fetchORCIDs(orcids, opts) {
     }))
 
     return {
-      nameByORCID: R.fromPairs(pairs)
+      nameByORCID: R.fromPairs(pairs),
     }
   }
 }

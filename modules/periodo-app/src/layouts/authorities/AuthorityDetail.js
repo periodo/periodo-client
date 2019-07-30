@@ -14,7 +14,7 @@ function AuthorityDetail({ hoveredPeriod, selectedPeriod }) {
   }, [
     period == null ? null : (
       h(Authority, { value: authorityOf(period) })
-    )
+    ),
   ])
 }
 

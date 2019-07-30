@@ -30,7 +30,7 @@ const columns = {
     width: '132px',
     getValue(period) {
       return yearPublished(authorityOf(period).source)
-    }
+    },
   },
 
   start: {
@@ -58,7 +58,7 @@ const columns = {
     getValue(period) {
       return latestYear(period.stop)
     },
-  }
+  },
 }
 
 module.exports = blocks.List({

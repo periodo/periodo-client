@@ -6,7 +6,7 @@ const R = require('ramda')
 const initialState = () => ({
   available: {},
   datasets: {},
-  patches: {}
+  patches: {},
 })
 
 const updateBackend = (backend, dataset, state) => {
@@ -99,8 +99,8 @@ module.exports = function backends(state=initialState(), action) {
           R.set(R.lensProp('datasets'), {}),
           R.set(R.lensProp('available'), {})
         )(state)
-      }
+      },
     }),
-    _: () => state
+    _: () => state,
   })
 }

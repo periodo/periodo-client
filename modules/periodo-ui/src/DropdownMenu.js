@@ -18,9 +18,9 @@ exports.DropdownMenuItem = props =>
         ':hover': {
           cursor: 'pointer',
           backgroundColor: '#eee',
-        }
-      }
-    }, props))
+        },
+      },
+    }, props)),
   ])
 
 exports.DropdownMenuHeader = props =>
@@ -35,8 +35,8 @@ exports.DropdownMenuHeader = props =>
     h(Text, {
       css: {
         fontWeight: 'bold',
-      }
-    }, props.children)
+      },
+    }, props.children),
   ])
 
 
@@ -51,8 +51,8 @@ exports.DropdownMenuButton = Button.extend([], [
       position: 'relative',
       left: '5px',
       bottom: '1px',
-    }
-  })
+    },
+  }),
 ])
 
 exports.DropdownMenuButton.defaultProps.blacklist = blacklist('isOpen')
@@ -72,7 +72,7 @@ exports.DropdownMenuMenu = props =>
       marginTop: '3px',
       whiteSpace: 'nowrap',
       zIndex: 1,
-    }, props.css)
+    }, props.css),
   }, R.omit(['openLeft', 'css'], props)), props.children)
 
 
@@ -95,8 +95,8 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
           position: 'relative',
           display: 'inline-block',
           userSelect: 'none',
-        }
-      }, R.omit(['locationStream', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu',], this.props)), [
+        },
+      }, R.omit(['locationStream', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu'], this.props)), [
         h(MB.Wrapper, {
           onMenuToggle: e => { this.setState(e) },
           closeOnSelection,
@@ -106,7 +106,7 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
             } else {
               onSelection(val, e)
             }
-          }
+          },
         }, [
           h(MB.Button, {
             id,
@@ -129,8 +129,8 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
             h(exports.DropdownMenuMenu, {
               is: 'ul',
               openLeft,
-            }, children)
-          ])
+            }, children),
+          ]),
         ]),
       ])
     )
@@ -139,4 +139,4 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
 
 
 exports.DropdownMenuSeparator = () =>
-  h(Box, { is: 'hr', mx: '8px', my: '8px', })
+  h(Box, { is: 'hr', mx: '8px', my: '8px' })

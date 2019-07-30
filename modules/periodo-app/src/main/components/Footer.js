@@ -9,8 +9,8 @@ const h = require('react-hyperscript')
 const Logo = ({ href, title, src, height=44 }) =>
   h(Box, {}, [
     h('a', { href }, [
-      h('img', { title, src, height })
-    ])
+      h('img', { title, src, height }),
+    ]),
   ])
 
 const Footer = props =>
@@ -23,7 +23,7 @@ const Footer = props =>
         href: 'http://imls.gov',
         title: 'Institute of Museum and Library Services',
         src: 'images/imls_logo_2c.svg',
-        height: 80
+        height: 80,
       }),
 
       h(Box, [
@@ -31,12 +31,12 @@ const Footer = props =>
           href: 'http://neh.gov',
           title: 'National Endowment for the Humanities',
           src: 'images/neh-logo.svg',
-          height: 60
+          height: 60,
         }),
 
         h(Box, { mt: 2, align: 'right' }, [
           'Client version ',
-          h(Link, { href }, version)
+          h(Link, { href }, version),
         ]),
       ]),
     ]),

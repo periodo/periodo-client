@@ -56,7 +56,7 @@ class SubmitPatch extends React.Component {
           message: (
             h(Alert$Success, {
             }, 'Submitted patch')
-          )
+          ),
         })
       },
       err => {
@@ -64,7 +64,7 @@ class SubmitPatch extends React.Component {
           message: (
             h(Alert$Error, {
             }, err.message)
-          )
+          ),
         })
         throw err;
       }
@@ -86,7 +86,7 @@ class SubmitPatch extends React.Component {
         h(Button$Primary, {
           onClick: () => {
             this.submitPatch()
-          }
+          },
         }, 'Submit patch'),
       ])
     } else if (this.state.showCompare) {
@@ -102,8 +102,8 @@ class SubmitPatch extends React.Component {
               selectedPatch,
               compareComponent,
             })
-          }
-        })
+          },
+        }),
       ])
     } else if (webBackends.length === 0) {
       child = h(InfoText, [
@@ -129,7 +129,7 @@ class SubmitPatch extends React.Component {
                 onClick: () => {
                   this.setState({
                     message: null,
-                    showCompare: true
+                    showCompare: true,
                   })
                 },
               }, 'Continue'),
@@ -148,7 +148,7 @@ class SubmitPatch extends React.Component {
           onSelection: val => {
             this.setState({
               message: null,
-              selectedWebBackendID: val.asIdentifier()
+              selectedWebBackendID: val.asIdentifier(),
             })
           },
         }, webBackends.map(backend =>

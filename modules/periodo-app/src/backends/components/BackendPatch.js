@@ -31,14 +31,14 @@ module.exports = function BackendPatch(props) {
               patchID: next.url,
             }),
           }, 'Next >>'),
-        ])
+        ]),
       ]),
 
       h(Compare, {
         direction: PatchDirection.Pull,
         localDataset: props.extra.prevDataset,
         remoteDataset: props.extra.dataset,
-      })
+      }),
     ])
   )
 }

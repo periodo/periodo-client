@@ -54,29 +54,29 @@ module.exports = Validated(validatePeriod, props => {
         css: {
           borderLeft: '1px solid #ccc',
           borderRight: '1px solid #ccc',
-        }
+        },
       }, [
         h(Flex, {
           css: {
             borderBottom: '1px solid #ccc',
-          }
+          },
         }, [
-          h(Box, { width: .5, px: 3, py: 2, }, [
+          h(Box, { width: .5, px: 3, py: 2 }, [
             errors.label && Errors({ errors: errors.label }),
 
             h(LabelForm, {
               period: value,
               onValueChange,
-            })
+            }),
           ]),
 
-          h(Box, { width: .5, px: 3, py: 2, }, [
+          h(Box, { width: .5, px: 3, py: 2 }, [
             h(InputBlock, {
               name: 'locator',
               label: 'Locator',
               placeholder: 'Position within the source (e.g. page 75)',
               value: get(lenses.locator),
-              onChange: e => set(lenses.locator, e.target.value)
+              onChange: e => set(lenses.locator, e.target.value),
             }),
 
             h(InputBlock, {
@@ -85,7 +85,7 @@ module.exports = Validated(validatePeriod, props => {
               label: 'URL',
               placeholder: 'URL for a webpage for this period',
               value: get(lenses.url),
-              onChange: e => set(lenses.url, e.target.value)
+              onChange: e => set(lenses.url, e.target.value),
             }),
 
             h(InputBlock, {
@@ -96,7 +96,7 @@ module.exports = Validated(validatePeriod, props => {
               placeholder: 'Linked data for this period',
               value: get(lenses.sameAs),
               onChange: R.always(null),
-            })
+            }),
           ]),
         ]),
 
@@ -109,15 +109,15 @@ module.exports = Validated(validatePeriod, props => {
           dataset,
           authority,
           pb: 2,
-          borderBottom: '1px solid #ccc'
+          borderBottom: '1px solid #ccc',
         }),
 
         h(Flex, {
           css: {
             borderBottom: '1px solid #ccc',
-          }
+          },
         }, [
-          h(Box, { width: .5, px: 3, py: 2, }, [
+          h(Box, { width: .5, px: 3, py: 2 }, [
             h(Heading, { level: 3 }, 'Spatial coverage'),
             h(SpatialCoverageForm, {
               onValueChange: R.pipe(
@@ -126,11 +126,11 @@ module.exports = Validated(validatePeriod, props => {
               ),
               description: value.spatialCoverageDescription,
               coverage: value.spatialCoverage,
-              gazetteers
-            })
+              gazetteers,
+            }),
           ]),
 
-          h(Box, { width: .5, px: 3, py: 2, }, [
+          h(Box, { width: .5, px: 3, py: 2 }, [
             h(Heading, { level: 3 }, 'Temporal coverage'),
 
             errors.dates && Errors({ errors: errors.dates }),
@@ -142,8 +142,8 @@ module.exports = Validated(validatePeriod, props => {
               ),
               start: value.start,
               stop: value.stop,
-            })
-          ])
+            }),
+          ]),
         ]),
 
         h(Flex, [
@@ -171,7 +171,7 @@ module.exports = Validated(validatePeriod, props => {
             helpText: 'Notes about the import process',
             value: get(lenses.editorialNote),
             onChange: e => set(lenses.editorialNote, e.target.value),
-          })
+          }),
         ]),
       ]),
 
@@ -185,7 +185,7 @@ module.exports = Validated(validatePeriod, props => {
         },
       }, [
         h(Button$Primary, {
-          onClick: () => props.validate(value, props.onValidated)
+          onClick: () => props.validate(value, props.onValidated),
         }, 'Save'),
       ]),
     ])

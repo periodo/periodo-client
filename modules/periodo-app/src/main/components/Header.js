@@ -28,7 +28,7 @@ module.exports = props =>
           }, h('img', {
             src: 'images/periodo-logo.svg',
             height: 32,
-          }))
+          })),
         ]),
       ]),
 
@@ -37,5 +37,5 @@ module.exports = props =>
       ]),
 
       h(Box, ' '),
-    ])
+    ]),
   ])

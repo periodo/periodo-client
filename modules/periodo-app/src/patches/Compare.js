@@ -33,7 +33,7 @@ function Indicator({ label }) {
       color: colors[label] || 'black',
       width: 108,
       textAlign: 'center',
-    }
+    },
   }, label)
 }
 
@@ -97,7 +97,7 @@ function PeriodCell(props) {
               return {
                 selectedPatches: patch.id in prev.selectedPatches
                   ? R.dissoc(patch.id, prev.selectedPatches)
-                  : R.assoc(patch.id, true, prev.selectedPatches)
+                  : R.assoc(patch.id, true, prev.selectedPatches),
               }
             }
 
@@ -110,14 +110,14 @@ function PeriodCell(props) {
                   R.prop('periods'),
                   R.dissoc(period.id),
                   R.map(R.T)
-                )(authority))(prev.selectedPeriods)
+                )(authority))(prev.selectedPeriods),
               }
             }
 
             // If this one has been explicitly selected, unselect it.
             if (explicitlySelected) {
               return {
-                selectedPeriods: R.dissocPath([patch.id, period.id], prev.selectedPeriods)
+                selectedPeriods: R.dissocPath([patch.id, period.id], prev.selectedPeriods),
               }
             }
 
@@ -126,9 +126,9 @@ function PeriodCell(props) {
             // authority.
             return {
               selectedPeriods: R.assocPath([patch.id, period.id], true, prev.selectedPeriods),
-              selectedPatches: R.assoc(patch.id, true, prev.selectedPatches)
+              selectedPatches: R.assoc(patch.id, true, prev.selectedPatches),
             }
-          })
+          }),
         }),
 
 
@@ -140,11 +140,11 @@ function PeriodCell(props) {
             ChangePeriod: () => 'Changed',
             RemovePeriod: () => 'Removed',
             _: () => null,
-          })
+          }),
         }),
         h(Box, {
           onClick: () => setState({
-            expandedPeriods: addOrRemove(expandedPeriods, period.id)
+            expandedPeriods: addOrRemove(expandedPeriods, period.id),
           }),
           p: '4px',
           css: {
@@ -152,9 +152,9 @@ function PeriodCell(props) {
             cursor: 'pointer',
             ':hover': {
               backgroundColor: '#eee',
-            }
-          }
-        }, period.label)
+            },
+          },
+        }, period.label),
       ]),
 
       (expandAll || expandedPeriods.has(period.id)) && patch.type.case({
@@ -226,7 +226,7 @@ function AuthorityRow(props) {
     R.map(p => ({
       period: p[0].period,
       authority: p[0].authority,
-      patches: p.map(R.prop('patch'))
+      patches: p.map(R.prop('patch')),
     }))
   )(patches)
 
@@ -245,7 +245,7 @@ function AuthorityRow(props) {
         css: {
           border: '1px solid #ccc',
           borderRight: 'none',
-        }
+        },
       }, [
         h(Flex, {
           alignItems: 'center',
@@ -261,8 +261,8 @@ function AuthorityRow(props) {
                 : Object.assign({ [patchID]: true }, selectedPatches),
               selectedPeriods: (patchID in selectedPeriods)
                 ? R.dissoc(patchID, selectedPeriods)
-                : selectedPeriods
-            })
+                : selectedPeriods,
+            }),
           }),
 
           authorityPatches.length > 0 && authorityPatches[0].type.case({
@@ -274,7 +274,7 @@ function AuthorityRow(props) {
 
           h(Box, {
             onClick: () => setState({
-              expandedAuthorities: addOrRemove(expandedAuthorities, authority.id)
+              expandedAuthorities: addOrRemove(expandedAuthorities, authority.id),
             }),
             p: '8px 4px',
             css: {
@@ -282,9 +282,9 @@ function AuthorityRow(props) {
               cursor: 'pointer',
               ':hover': {
                 backgroundColor: '#eee',
-              }
-            }
-          }, util.authority.displayTitle(authority))
+              },
+            },
+          }, util.authority.displayTitle(authority)),
         ]),
         (expandAll || expandedAuthorities.has(authority.id)) && h(Authority, Object.assign({
           p: 1,
@@ -293,8 +293,8 @@ function AuthorityRow(props) {
           AddAuthority: () => ({ bg: 'green0' }),
           ChangeAuthority: () => ({ /* FIXME: compare to remote */ }),
           RemoveAuthority: () => ({ bg: 'red0' }),
-          _: () => ({})
-        })))
+          _: () => ({}),
+        }))),
       ]),
 
       h(Box, {
@@ -303,7 +303,7 @@ function AuthorityRow(props) {
           padding: '4px 0',
           border: '1px solid #ccc',
           borderLeft: 'none',
-        }
+        },
       }, R.pipe(
         R.map(({ period, patch, authority }) => h(PeriodCell, Object.assign({
           key: period.id,
@@ -327,10 +327,10 @@ function AuthorityRow(props) {
               onClick: e => {
                 e.preventDefault();
                 setState({
-                  viewedAllPeriods: addOrRemove(viewedAllPeriods, authority.id)
+                  viewedAllPeriods: addOrRemove(viewedAllPeriods, authority.id),
                 })
-              }
-            }, `View ${list.length - 5} more`)
+              },
+            }, `View ${list.length - 5} more`),
           ],
           R.identity
         )
@@ -505,12 +505,12 @@ class Compare extends React.Component {
           borderColor: 'gray.4',
         }, [
           h(Box, [
-            h(Heading, { level: 4, }, 'Patch summary'),
+            h(Heading, { level: 4 }, 'Patch summary'),
             h(Box, { is: 'ul', ml: 3 }, [
               Object.entries(countsByType).map(([label, count]) =>
                 h(Box, { is: 'li', key: label }, `${label} (${count})`)
-              )
-            ])
+              ),
+            ]),
           ]),
 
           h(Box, [
@@ -521,11 +521,11 @@ class Compare extends React.Component {
               onClick(e) {
                 e.preventDefault();
                 const patch = new Blob([
-                  JSON.stringify(allPatches.map(p => p.patch), true, '  ')
+                  JSON.stringify(allPatches.map(p => p.patch), true, '  '),
                 ], { type: 'application/json' })
 
                 saveAs(patch, 'patch.jsonpatch')
-              }
+              },
             }, 'Download patch'),
           ]),
         ]),
@@ -551,7 +551,7 @@ class Compare extends React.Component {
                 }
               }
             })
-          }
+          },
         }, expandAll ? 'Collapse all' : 'Expand all'),
 
         editing && h(Box, {
@@ -574,7 +574,7 @@ class Compare extends React.Component {
                 }
               }
             })
-          }
+          },
         }, selectAll ? 'Unselect all' : 'Select all'),
 
         h(Box, {
@@ -582,7 +582,7 @@ class Compare extends React.Component {
           css: {
             width: '100%',
             borderCollapse: 'collapse',
-          }
+          },
         }, [
           h('colgroup', [
             h('col', { style: { width: "50%" }}),
@@ -592,7 +592,7 @@ class Compare extends React.Component {
             h('tr', [
               h('th', 'Authority'),
               h('th', 'Period'),
-            ])
+            ]),
           ]),
           h('tbody', Object.entries(byAuthority).map(([authorityID, patches]) =>
             h(AuthorityRow, Object.assign({
@@ -603,8 +603,8 @@ class Compare extends React.Component {
               datasetPeriodByID: this.datasetPeriodByID,
               patches,
             }, this.state))
-          ))
-        ])
+          )),
+        ]),
       ])
     )
   }

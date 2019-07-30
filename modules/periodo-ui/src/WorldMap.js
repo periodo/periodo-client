@@ -99,17 +99,17 @@ const initializeMap = mix => {
     uniforms: {
       id: map.prop('id'),
       zindex: map.prop('zindex'),
-      texture: map.prop('texture')
+      texture: map.prop('texture'),
     },
     attributes: {
       position: map.prop('points'),
-      tcoord: [0,1,0,0,1,1,1,0] // sw,se,nw,ne
+      tcoord: [0,1,0,0,1,1,1,0], // sw,se,nw,ne
     },
     elements: [0,1,2,1,2,3],
     blend: {
       enable: true,
-      func: { src: 'src alpha', dst: 'one minus src alpha' }
-    }
+      func: { src: 'src alpha', dst: 'one minus src alpha' },
+    },
   })
 
   map.addLayer({
@@ -131,8 +131,8 @@ const initializeMap = mix => {
           bbox[0], bbox[1], // sw
           bbox[0], bbox[3], // se
           bbox[2], bbox[1], // nw
-          bbox[2], bbox[3]  // ne
-        ]
+          bbox[2], bbox[3],  // ne
+        ],
       }
       drawTile.props.push(prop)
       map.draw()
@@ -141,12 +141,12 @@ const initializeMap = mix => {
         onDone(assets) {
           prop.texture = map.regl.texture(assets.tile)
           map.draw()
-        }
+        },
       })
     },
     remove(key) {
       drawTile.props = drawTile.props.filter(p => p.key !== key)
-    }
+    },
   })
 
   const PURPLE = 'vec4(1.0,0.0,1.0,0.5)'
@@ -159,16 +159,16 @@ const initializeMap = mix => {
     }
   `,
     uniforms: {
-      zindex: 100
+      zindex: 100,
     },
     blend: {
       enable: true,
-      func: { src: 'src alpha', dst: 'one minus src alpha' }
+      func: { src: 'src alpha', dst: 'one minus src alpha' },
     },
     attributes: {
-      position: map.prop('positions')
+      position: map.prop('positions'),
     },
-    elements: map.prop('cells')
+    elements: map.prop('cells'),
   })
 
   const drawFeatures = drawTriangle(YELLOW)
@@ -239,7 +239,7 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   })
 
   return h('div', { ref: outerRef, style: {height} }, [
-    h('div', { ref: innerRef, style: {position: 'absolute'} })
+    h('div', { ref: innerRef, style: {position: 'absolute'} }),
   ])
 }
 
@@ -247,7 +247,7 @@ exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
   Box,
   {
     css: {backgroundColor: '#6194b9'}, // ocean color
-    ...props
+    ...props,
   },
   [ h(_Map, { key: 2, features, focusedFeature, height }) ]
 )

@@ -98,7 +98,7 @@ class LabelForm extends React.Component {
     this.setState({
       alternateLabels: alternateLabels.length === 1
         ? R.assocPath([0, 'label'], '', alternateLabels)
-        : R.remove(i, 1, alternateLabels)
+        : R.remove(i, 1, alternateLabels),
     }, this.updateLocalizedLabels)
   }
 
@@ -144,7 +144,7 @@ class LabelForm extends React.Component {
 
         h(Label, {
           mt: 2,
-          htmlFor: randomID('alt-labels')
+          htmlFor: randomID('alt-labels'),
         }, 'Alternate labels'),
 
         alternateLabels.map((label, i) =>
@@ -159,14 +159,14 @@ class LabelForm extends React.Component {
                 // preserve the `counter` property, so merging it is.
                 alternateLabels: R.adjust(
                   R.flip(R.merge)(value), i, alternateLabels
-                )
+                ),
               }, this.updateLocalizedLabels)
             },
             addLabelAfter: () => this.addLabelAfter(i),
             removeLabelAt: () => this.removeLabelAt(i),
 
           })
-        )
+        ),
       ])
     )
   }

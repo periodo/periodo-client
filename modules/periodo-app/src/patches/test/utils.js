@@ -14,7 +14,7 @@ test('Formatting and hashing patches', async t => {
     'p03377f',
     'periods',
     'p03377fkhrv',
-    'editorialNote'
+    'editorialNote',
   ]
 
   const updatedData = R.assocPath(path, 'This is an editorial note.', initialData);
@@ -25,15 +25,15 @@ test('Formatting and hashing patches', async t => {
     {
       op: 'add',
       path: `/${path.join('/')}`,
-      value: 'This is an editorial note.'
-    }
+      value: 'This is an editorial note.',
+    },
   ])
 
   t.deepEqual(patch.backward, [
     {
       op: 'remove',
-      path: `/${path.join('/')}`
-    }
+      path: `/${path.join('/')}`,
+    },
   ]);
 
   // Hash of '{"op":"add","path":"/authorities/p03377f/periods/p03377fkhrv/editorialNote","value":"This is an editorial note."}'
@@ -58,16 +58,16 @@ test('Patch utils', async t => {
   const samplePatches = {
     addPeriod: {
       op: 'add',
-      path: '/authorities/a/periods/b'
+      path: '/authorities/a/periods/b',
     },
     removePeriod: {
       op: 'remove',
-      path: '/authorities/a/periods/b'
+      path: '/authorities/a/periods/b',
     },
     changePeriod: {
       op: 'add',
-      path: '/authorities/a/periods/b/note'
-    }
+      path: '/authorities/a/periods/b/note',
+    },
   }
 
   t.deepEqual(
@@ -81,16 +81,16 @@ test('Patch utils', async t => {
 
   t.deepEqual(groupByChangeType(patches), {
     AddPeriod: {
-      a: [samplePatches.addPeriod]
+      a: [samplePatches.addPeriod],
     },
     RemovePeriod: {
-      a: [samplePatches.removePeriod]
+      a: [samplePatches.removePeriod],
     },
     ChangePeriod: {
       a: {
-        b: [samplePatches.changePeriod]
-      }
-    }
+        b: [samplePatches.changePeriod],
+      },
+    },
   }, 'should group patches together');
 
 
@@ -102,8 +102,8 @@ test('Patch utils', async t => {
     {
       op: 'add',
       path: '/' + attrPath.join('/'),
-      value: R.view(R.lensPath(attrPath), newData)
-    }
+      value: R.view(R.lensPath(attrPath), newData),
+    },
   ], 'should use "add" operation for simple values instead of "replace"');
 
 
@@ -112,13 +112,13 @@ test('Patch utils', async t => {
     'p03377f',
     'periods',
     'p03377fkhrv',
-    'spatialCoverage'
+    'spatialCoverage',
   ]
 
   const newData2 = R.over(
     R.lensPath(attrPath2),
     sc => sc.concat([
-      { id: 'http://example.com/', label: 'New country' }
+      { id: 'http://example.com/', label: 'New country' },
     ]),
     data)
 
@@ -129,8 +129,8 @@ test('Patch utils', async t => {
     {
       op: 'add',
       path: '/' + attrPath2.join('/'),
-      value: R.view(R.lensPath(attrPath2), newData2)
-    }
+      value: R.view(R.lensPath(attrPath2), newData2),
+    },
   ], 'should use "add" operation for complex values instead of "replace"');
 
   const samples = [
@@ -153,7 +153,7 @@ test('Patch utils', async t => {
 
 
   t.deepEquals(
-    PatchType.fromPatch({ 
+    PatchType.fromPatch({
       op: 'add',
       path: '/nonsense',
     }),
@@ -170,32 +170,32 @@ test('Skolem ID utils', t => {
   const oldRecord = {
     a: 'http://example.com/.well-known/genid/abc123',
     b: [
-      'c', 'http://example.com/.well-known/genid/def456'
+      'c', 'http://example.com/.well-known/genid/def456',
     ],
     e: {
       'http://example.com/.well-known/genid/jkl012': {
-        f: 'http://example.com/.well-known/genid/ghi789'
-      }
-    }
+        f: 'http://example.com/.well-known/genid/ghi789',
+      },
+    },
   }
 
   const skolemMap = {
     'http://example.com/.well-known/genid/abc123': 'id1',
     'http://example.com/.well-known/genid/def456': 'id2',
     'http://example.com/.well-known/genid/jkl012': 'id3',
-    'http://example.com/.well-known/genid/ghi789': 'id4'
+    'http://example.com/.well-known/genid/ghi789': 'id4',
   }
 
   t.deepEqual(replaceIDs(oldRecord, skolemMap), {
     a: 'id1',
     b: [
-      'c', 'id2'
+      'c', 'id2',
     ],
     e: {
       id3: {
-        f: 'id4'
-      }
-    }
+        f: 'id4',
+      },
+    },
   });
 
 });
@@ -206,7 +206,7 @@ test('Patch collection hash filtering', async t => {
   const patches = [
     { op: 'add', path: '/authorities/a/periods/aa/note' },
     { op: 'remove', path: '/authorities/b' },
-    { op: 'add', path: '/authorities/c' }
+    { op: 'add', path: '/authorities/c' },
   ]
 
   const matcher = hashes => {

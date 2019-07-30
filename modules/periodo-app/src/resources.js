@@ -39,7 +39,7 @@ const Home = {
       Component: () => h('div'),
       onBeforeRoute(dispatch, params, redirect) {
         redirect(new Route('open-backend'))
-      }
+      },
     },
     /*
     help: {
@@ -56,7 +56,7 @@ const Home = {
           R.values,
           R.sortBy(R.path(['metadata', 'accessed'])),
           R.reverse
-        )(state.backends.available)
+        )(state.backends.available),
       }),
     },
     'settings': {
@@ -71,7 +71,7 @@ const Home = {
     return {
       settings: state.auth.settings,
     }
-  }
+  },
 }
 
 function withBackendContext(Component) {
@@ -89,7 +89,7 @@ function withBackendContext(Component) {
       value: {
         dataset: props.dataset,
         backend: props.backend,
-      }
+      },
     }, h(Component, props))
   }
 
@@ -112,7 +112,7 @@ const Backend = {
         return {
           gazetteers: state.graphs.gazetteers,
         }
-      }
+      },
     },
     'backend-history': {
       label: 'Changelog',
@@ -125,7 +125,7 @@ const Backend = {
       },
       mapStateToProps(state, props) {
         return {
-          patches: state.backends.patches[props.params.backendID]
+          patches: state.backends.patches[props.params.backendID],
         }
       },
     },
@@ -172,9 +172,9 @@ const Backend = {
               R.over(R.lensProp('updated_by'), urlize),
             ),
             ownProps.extra.patchRequests
-          )
+          ),
         }
-      }
+      },
     },
     'backend-sync': {
       label: 'Sync',
@@ -182,7 +182,7 @@ const Backend = {
       showInMenu: hasEditableBackend,
       async onBeforeRoute(dispatch) {
         await dispatch(BackendAction.GetAllBackends)
-      }
+      },
     },
     'backend-submit-patch': {
       label: 'Submit patch',
@@ -195,7 +195,7 @@ const Backend = {
         return {
           backends: state.backends.available,
         }
-      }
+      },
     },
     'backend-patch-submissions': {
       label: 'Review submitted patches',
@@ -206,7 +206,7 @@ const Backend = {
         const storage = BackendStorage.fromIdentifier(params.backendID)
         await dispatch(actions.getPatchesSubmittedFromBackend(storage))
         */
-      }
+      },
     },
     'backend-edit': {
       label: 'Settings',
@@ -229,7 +229,7 @@ const Backend = {
       backend: state.backends.available[props.params.backendID],
       dataset: state.backends.datasets[props.params.backendID],
     }
-  }
+  },
 }
 
 const ReviewPatch = {
@@ -239,7 +239,7 @@ const ReviewPatch = {
     'review-patch': {
       label: 'Review patch',
       Component: require('./patches/Review'),
-    }
+    },
   },
   async onBeforeRoute(dispatch, params) {
     requireParam(params, 'patchURL')
@@ -251,7 +251,7 @@ const ReviewPatch = {
     const patch = state.patches.patches[patchURL]
 
     return patch || {}
-  }
+  },
 }
 
 const BackendPatch = {
@@ -262,7 +262,7 @@ const BackendPatch = {
       label: 'View patch',
       Component: require('./backends/components/BackendPatch'),
       showInMenu: hasEditableBackend,
-    }
+    },
   },
   async onBeforeRoute(dispatch, params) {
     requireParam(params, 'patchID')
@@ -276,9 +276,9 @@ const BackendPatch = {
   },
   mapStateToProps(state, props) {
     return {
-      patches: state.backends.patches[props.params.backendID]
+      patches: state.backends.patches[props.params.backendID],
     }
-  }
+  },
 }
 
 const Authority = {
@@ -309,7 +309,7 @@ const Authority = {
 
     'authority-history': {
       label: 'History',
-      Component: () => h('h1', 'History')
+      Component: () => h('h1', 'History'),
     },
   },
   onBeforeRoute(dispatch, params) {
@@ -317,9 +317,9 @@ const Authority = {
   },
   mapStateToProps(state, props) {
     return {
-      authority: props.dataset.authorityByID(props.params.authorityID)
+      authority: props.dataset.authorityByID(props.params.authorityID),
     }
-  }
+  },
 }
 
 const Period = {
@@ -334,7 +334,7 @@ const Period = {
     'period-edit': {
       label: 'Edit',
       showInMenu: hasEditableBackend,
-      Component: require('./backends/components/PeriodAddOrEdit')
+      Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
     'period-export': {
@@ -344,7 +344,7 @@ const Period = {
 
     'period-history': {
       label: 'History',
-      Component: () => h('h1', 'History')
+      Component: () => h('h1', 'History'),
     },
   },
   async onBeforeRoute(dispatch, params) {
@@ -354,9 +354,9 @@ const Period = {
   mapStateToProps(state, props) {
     return {
       period: props.authority.periods[props.params.periodID],
-      gazetteers: state.graphs.gazetteers
+      gazetteers: state.graphs.gazetteers,
     }
-  }
+  },
 }
 
 function defineName(fn, value) {
@@ -379,7 +379,7 @@ function getParents(group) {
 function makeResourceComponent(resource, group) {
   const Resource = props => {
     return (
-      h(Box, { css: { width: '100%', flexGrow: 1, }}, [
+      h(Box, { css: { width: '100%', flexGrow: 1 }}, [
         h(resource.Component, props),
       ])
     )

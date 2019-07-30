@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
 exports.InlineList = ({css, ...props}) => h(Box, {
   ml: '1px',
   css: { position: 'relative', overflow: 'hidden', ...css },
-  ...props
+  ...props,
 }, [
   h(Box, {
     is: 'ul',
@@ -20,5 +20,5 @@ exports.InlineList = ({css, ...props}) => h(Box, {
       display: 'inline-block',
       px: 1,
     }, el)
-  ))
+  )),
 ])

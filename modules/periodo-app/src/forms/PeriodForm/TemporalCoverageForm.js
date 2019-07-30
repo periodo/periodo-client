@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
 
 const emptyTerminus = {
   label: '',
-  in: { year: '' }
+  in: { year: '' },
 }
 
 module.exports = class TemporalCoverageForm extends React.Component {
@@ -20,7 +20,7 @@ module.exports = class TemporalCoverageForm extends React.Component {
       autoparse: (
         (!props.start && !props.stop) ||
         (wasAutoparsed(props.start) && wasAutoparsed(props.stop))
-      )
+      ),
     }
   }
 
@@ -36,8 +36,8 @@ module.exports = class TemporalCoverageForm extends React.Component {
             onChange: () =>
               this.setState(prev => ({ autoparse: !prev.autoparse })),
           }),
-          'Parse dates automatically'
-        ])
+          'Parse dates automatically',
+        ]),
       ]),
 
       h(Flex, { alignItems: 'center', mt: 2 }, [
@@ -45,7 +45,7 @@ module.exports = class TemporalCoverageForm extends React.Component {
         h(TerminusInput, {
           autoparse,
           terminus: start || emptyTerminus,
-          onValueChange: start => onValueChange({ start })
+          onValueChange: start => onValueChange({ start }),
         }),
       ]),
 
@@ -54,9 +54,9 @@ module.exports = class TemporalCoverageForm extends React.Component {
         h(TerminusInput, {
           autoparse,
           terminus: stop || emptyTerminus,
-          onValueChange: stop => onValueChange({ stop })
+          onValueChange: stop => onValueChange({ stop }),
         }),
-      ])
+      ]),
     ])
   }
 }

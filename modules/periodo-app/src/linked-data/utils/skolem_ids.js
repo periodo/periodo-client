@@ -16,7 +16,7 @@ function replaceIDs(data, map) {
     map[key] || key,
     typeof val === 'string'
       ? map[val] || val
-      : replaceIDs(val, map)
+      : replaceIDs(val, map),
   ]
 
   return Array.isArray(data)

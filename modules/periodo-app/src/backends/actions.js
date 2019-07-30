@@ -33,7 +33,7 @@ const BackendAction = module.exports = makeTypedAction({
     request: {},
     response: {
       backends: Type.ListOf(Backend),
-    }
+    },
   },
 
   GetBackendDataset: {
@@ -45,7 +45,7 @@ const BackendAction = module.exports = makeTypedAction({
     response: {
       backend: Backend,
       dataset: isDatasetProxy,
-    }
+    },
   },
 
   GetBackendHistory: {
@@ -55,8 +55,8 @@ const BackendAction = module.exports = makeTypedAction({
     },
     response: {
       // TODO: make this "patch" type
-      patches: Type.ListOf(Object)
-    }
+      patches: Type.ListOf(Object),
+    },
   },
 
   GetBackendPatch: {
@@ -71,7 +71,7 @@ const BackendAction = module.exports = makeTypedAction({
       patch: Object,
       change: Object,
       position: Object,
-    }
+    },
   },
 
   CreateBackend: {
@@ -83,7 +83,7 @@ const BackendAction = module.exports = makeTypedAction({
     },
     response: {
       backend: Backend,
-    }
+    },
   },
 
   UpdateLocalDataset: {
@@ -97,7 +97,7 @@ const BackendAction = module.exports = makeTypedAction({
       backend: Backend,
       dataset: isDatasetProxy,
       patchData: Object,
-    }
+    },
   },
 
   UpdateBackend: {
@@ -106,7 +106,7 @@ const BackendAction = module.exports = makeTypedAction({
       storage: BackendStorage,
       withObj: Object,
     },
-    response: {}
+    response: {},
   },
 
   AddOrcidCredential: {
@@ -138,14 +138,14 @@ const BackendAction = module.exports = makeTypedAction({
     request: {
       storage: BackendStorage,
     },
-    response: {}
+    response: {},
   },
 })
 
 
 const emptyRawDataset = () => ({
   authorities: {},
-  type: 'rdf:Bag'
+  type: 'rdf:Bag',
 })
 
 function listAvailableBackends() {
@@ -155,7 +155,7 @@ function listAvailableBackends() {
     const makeBackend = typeConstructor => item =>
       backends.push(Backend.BackendOf({
         storage: typeConstructor(item),
-        metadata: BackendMetadata.BackendMetadataOf(item)
+        metadata: BackendMetadata.BackendMetadataOf(item),
       }))
 
     await Promise.all([
@@ -265,7 +265,7 @@ function fetchBackend(storage, forceReload) {
     return {
       backend: Backend.BackendOf({
         storage,
-        metadata: BackendMetadata.BackendMetadataOf(metadata)
+        metadata: BackendMetadata.BackendMetadataOf(metadata),
       }),
       dataset,
     }
@@ -329,7 +329,7 @@ function fetchBackendPatch(storage, patchID) {
           fetch(change.sourceDatasetURL, {
             headers: new Headers({
               Accept: 'application/json',
-            })
+            }),
           }),
           fetch(change.patchURL),
         ])
@@ -349,7 +349,7 @@ function fetchBackendPatch(storage, patchID) {
             index,
             next: changelog[index + 1] || null,
             prev: changelog[index - 1] || null,
-          }
+          },
         }
       },
       _: R.T,
@@ -394,7 +394,7 @@ function fetchBackendHistory(storage) {
 
       _: () => {
         throw new Error('not implemented');
-      }
+      },
     })
 
     const [, patches ] = await Promise.all([ datasetPromise, patchesPromise ])
@@ -440,7 +440,7 @@ function addBackend(storage, label='', description='') {
 
         return db.localBackends
       },
-      _: throwUnaddable
+      _: throwUnaddable,
     })
 
     const now = new Date().getTime()
@@ -468,7 +468,7 @@ function addBackend(storage, label='', description='') {
         _: () => storage,
       }),
 
-      metadata: BackendMetadata.BackendMetadataOf(backendObj)
+      metadata: BackendMetadata.BackendMetadataOf(backendObj),
     })
 
     return { backend }
@@ -478,7 +478,7 @@ function addBackend(storage, label='', description='') {
 
 function updateBackend(storage, withObj) {
   const updated = {
-    modified: new Date()
+    modified: new Date(),
   }
 
   // Only allow editing "label" and "description" and "orcidCredential"
@@ -510,7 +510,7 @@ function updateBackend(storage, withObj) {
           .modify(updated)
       },
 
-      _: () => null
+      _: () => null,
     })
 
     await dispatch(BackendAction.GetAllBackends)
@@ -525,7 +525,7 @@ function updateLocalDataset(storage, newRawDataset, message) {
     IndexedDB: () => null,
     _: () => {
       throw new Error('Only indexedDB backends can be updated');
-    }
+    },
   })
 
   return async (dispatch, getState, { db }) => {
@@ -545,7 +545,7 @@ function updateLocalDataset(storage, newRawDataset, message) {
 
     const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
       dataset: newRawDataset,
-      modified: new Date().getTime()
+      modified: new Date().getTime(),
     })
 
     delete updatedBackend._name;
@@ -554,7 +554,7 @@ function updateLocalDataset(storage, newRawDataset, message) {
     await db.localBackends.put(updatedBackend);
 
     await db.localBackendPatches.add(Object.assign({
-      backendID: backend.storage.id
+      backendID: backend.storage.id,
     }, patchData))
 
     await _refetch()
@@ -587,7 +587,7 @@ function deleteBackend(storage) {
         throw new Error(
           `Backend of type ${storage._type} is not meant to be deleted.`
         )
-      }
+      },
     })
 
     if (ct === 0) {
@@ -604,7 +604,7 @@ function addOrcidCredential(storage, token, name) {
       Web: () => null,
       _: () => {
         throw new Error('Only Web backends contain ORCID credentials')
-      }
+      },
     })
 
     await dispatch(BackendAction.UpdateBackend(storage, {

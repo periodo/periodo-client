@@ -31,7 +31,7 @@ module.exports = {
             name: 'cutoff',
             value: 'none',
             checked: cutoff === 'none',
-            onChange: () => updateOpts({ cutoff: 'none' }, true)
+            onChange: () => updateOpts({ cutoff: 'none' }, true),
           }),
           'No cutoff',
         ]),
@@ -44,13 +44,13 @@ module.exports = {
             name: 'cutoff',
             value: 'homo-sapiens',
             checked: cutoff === 'homo-sapiens',
-            onChange: () => updateOpts({ cutoff: 'homo-sapiens' }, true)
+            onChange: () => updateOpts({ cutoff: 'homo-sapiens' }, true),
           }),
 
           'Post-',
           h('i', 'Homo sapiens'),
           ' (after 300,000 years ago)',
-        ])
+        ]),
       ]),
-    ])
+    ]),
 }

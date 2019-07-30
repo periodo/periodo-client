@@ -9,12 +9,12 @@ const Italic = exports.Italic = Span.extend([], [
 
 exports.InfoText = Italic.extend([], [
   props => ({
-    color: themeGet('colors.gray.8')(props)
-  })
+    color: themeGet('colors.gray.8')(props),
+  }),
 ])
 
 exports.WarnText = Italic.extend([], [
   props => ({
-    color: themeGet('colors.red.5')(props)
-  })
+    color: themeGet('colors.red.5')(props),
+  }),
 ])

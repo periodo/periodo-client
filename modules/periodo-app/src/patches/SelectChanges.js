@@ -71,7 +71,7 @@ class SelectChanges extends React.Component {
           localDataset,
           remoteDataset,
           direction,
-          patch
+          patch,
         }),
 
         h(Button$Primary, {
@@ -91,7 +91,7 @@ class SelectChanges extends React.Component {
 
     if (generatingPatch) {
       return h(Box, [
-        'Generating patch...'
+        'Generating patch...',
       ])
     }
 
@@ -106,7 +106,7 @@ class SelectChanges extends React.Component {
 
         h(Button$Primary, {
           onClick: () => this.generatePatch(BackendStorage.Web(this.state.url)),
-        }, 'Compare')
+        }, 'Compare'),
       ])
     )
   }

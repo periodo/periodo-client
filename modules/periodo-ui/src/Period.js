@@ -11,7 +11,7 @@ const R = require('ramda')
       , LinkifiedTextValue
       , SpatialExtentValue
       , LanguageSpecificValue
-      , RelatedPeriodValue
+      , RelatedPeriodValue,
       } = require('./Value')
     , { ensureArray, period } = require('periodo-utils')
 
@@ -59,7 +59,7 @@ const PERIOD_FIELDS = [
     values: extract('id'),
     component: PermalinkValue,
     required: true,
-    immutable: true
+    immutable: true,
   },
   {
     label: 'Type',
@@ -136,7 +136,7 @@ const PERIOD_FIELDS = [
   {
     label: 'Web page',
     values: extract('url'),
-    component: LinkValue
+    component: LinkValue,
   },
   {
     label: 'Same as',

@@ -12,7 +12,7 @@ const colors = {insert: '#e4ffee', delete: '#ffeef0'}
 
 const styles =
   { [DMP.DIFF_INSERT]: { bg: colors.insert }
-  , [DMP.DIFF_DELETE]: { bg: colors.delete }
+  , [DMP.DIFF_DELETE]: { bg: colors.delete },
   }
 
 const format = ([operation, string]) => h(
@@ -65,7 +65,7 @@ const findChanges = (valuesA, valuesB) => R.reduce(
                                        : Change.Mutation(objA, objB)
                 )
         return R.append(change, changes)
-      }
+      },
     }, value)
   },
   [],
