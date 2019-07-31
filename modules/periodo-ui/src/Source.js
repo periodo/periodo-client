@@ -20,54 +20,54 @@ const orPartOf = R.converge(R.concat, [R.identity, R.map(R.pair('partOf'))])
 const SOURCE_FIELDS = [
   {
     label: 'Title',
-    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'title' ]))),
+    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'title' ]))),
     component: TextValue,
   },
   {
     label: 'Creators',
-    values: extractFirstOf(orPartOf([ 'creators' ])),
+    getValues: extractFirstOf(orPartOf([ 'creators' ])),
     component: AgentValue,
   },
   {
     label: 'Contributors',
-    values: extractFirstOf(orPartOf([ 'contributors' ])),
+    getValues: extractFirstOf(orPartOf([ 'contributors' ])),
     component: AgentValue,
   },
   {
     label: 'Citation',
-    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'citation' ]))),
+    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'citation' ]))),
     component: LinkifiedTextValue,
   },
   {
     label: 'Abstract',
-    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
+    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
     component: LinkifiedTextValue,
   },
   {
     label: 'Year published',
-    values: extractFirstOf(orPartOf([ 'yearPublished' ])),
+    getValues: extractFirstOf(orPartOf([ 'yearPublished' ])),
   },
   {
     label: 'Date accessed',
-    values: extractFirstOf(orPartOf([ 'dateAccessed' ])),
+    getValues: extractFirstOf(orPartOf([ 'dateAccessed' ])),
   },
   {
     label: 'Editorial notes',
-    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
+    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
     component: LinkifiedTextValue,
   },
   {
     label: 'Locator',
-    values: extract('locator'),
+    getValues: extract('locator'),
   },
   {
     label: 'Web page',
-    values: extractFirstOf(orPartOf([ 'id', 'url' ])),
+    getValues: extractFirstOf(orPartOf([ 'id', 'url' ])),
     component: LinkValue,
   },
   {
     label: 'Same as',
-    values: extractFirstOf(orPartOf([ 'sameAs' ])),
+    getValues: extractFirstOf(orPartOf([ 'sameAs' ])),
     component: LinkValue,
   },
 ]

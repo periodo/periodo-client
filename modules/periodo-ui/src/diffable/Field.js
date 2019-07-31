@@ -143,7 +143,7 @@ function compareValues(fieldValue, compareTo) {
 function fieldExtractor(props) {
   return fieldSpec => item => {
     //TODO: const { getValue, useProps, ...ret } = fieldSpec
-    const values = fieldSpec.values(item)
+    const values = fieldSpec.getValues(item)
 
     const ret = R.omit(['getValue', 'useProps'], fieldSpec)
 

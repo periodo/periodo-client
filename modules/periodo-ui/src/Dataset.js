@@ -9,27 +9,27 @@ const h = require('react-hyperscript')
 const DATASET_FIELDS = [
   {
     label: 'Permalink',
-    values: extract('id'),
+    getValues: extract('id'),
     required: true,
     immutable: true,
   },
   {
     label: 'Type',
-    values: extract('type'),
+    getValues: extract('type'),
     required: true,
     immutable: true,
     hidden: true,
   },
   {
     label: 'Context',
-    values: extractWithKey('context')(extract('@context')),
+    getValues: extractWithKey('context')(extract('@context')),
     component: JSONLDContextValue,
     required: true,
     immutable: true,
     hidden: true,
   },
   { label: 'Authorities',
-    values: extractIndexedValues('authorities'),
+    getValues: extractIndexedValues('authorities'),
     component: props => h(
       Authority,
       R.merge(props,
