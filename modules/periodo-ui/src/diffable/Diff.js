@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , DMP = require('diff-match-patch')
-    , { Box } = require('./Base')
+    , { Box } = require('../Base')
     , { Value, Change, valueEquality } = require('./types')
 
 const dmp = new DMP()

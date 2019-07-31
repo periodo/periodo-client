@@ -2,8 +2,8 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./Field')
-    , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./Value')
+    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./diffable/Field')
+    , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./diffable/Value')
     , { Period } = require('./Period')
     , { Source } = require('./Source')
 

@@ -2,9 +2,9 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box } = require('./Base')
+    , { Box } = require('../Base')
     , { PrimitiveValue, show } = require('./Value')
-    , { InfoText, WarnText } = require('./Typography')
+    , { InfoText, WarnText } = require('../Typography')
     , { Value, Change, asValue } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
 

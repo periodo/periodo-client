@@ -1,12 +1,12 @@
 "use strict";
 
 const R = require('ramda')
-    , { FieldList, extract, extractWithKey } = require('./Field')
+    , { FieldList, extract, extractWithKey } = require('./diffable/Field')
     , { LinkValue
       , TextValue
       , LinkifiedTextValue
       , AgentValue,
-      } = require('./Value')
+      } = require('./diffable/Value')
 
 const extractFirstOf = keysOrPaths => R.pipe(
   R.of,

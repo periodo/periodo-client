@@ -2,8 +2,8 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./Field')
-    , { JSONLDContextValue } = require('./Value')
+    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./diffable/Field')
+    , { JSONLDContextValue } = require('./diffable/Value')
     , { Authority } = require('./Authority')
 
 const DATASET_FIELDS = [

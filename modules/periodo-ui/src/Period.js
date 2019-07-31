@@ -1,8 +1,8 @@
 "use strict";
 
 const R = require('ramda')
-    , { Value, asValue } = require('./types')
-    , { FieldList, extract, extractWithKey } = require('./Field')
+    , { Value, asValue } = require('./diffable/types')
+    , { FieldList, extract, extractWithKey } = require('./diffable/Field')
     , { TextValue
       , LinkValue
       , PermalinkValue
@@ -12,7 +12,7 @@ const R = require('ramda')
       , SpatialExtentValue
       , LanguageSpecificValue
       , RelatedPeriodValue,
-      } = require('./Value')
+      } = require('./diffable/Value')
     , { ensureArray, period } = require('periodo-utils')
 
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
