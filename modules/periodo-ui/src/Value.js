@@ -44,22 +44,24 @@ const linkify = text => {
   return nodes
 }
 
-const asYearOrRange = ({year, earliestYear, latestYear}) => year
-  ? year
-  : `${earliestYear}–${latestYear || ''}`
+function asYearOrRange({ year, earliestYear, latestYear }) {
+  return year != null
+    ? year
+    : `${earliestYear}–${latestYear || ''}`
+}
 
-const describeLanguageTag = tag => tags(tag || '')
-  .subtags()
-  .map(t => `${t.descriptions()[0]}${t.type() === 'script' ? ' script' : ''}`)
-  .join(', ')
-  || 'unknown language'
+function describeLanguageTag(tag) {
+  return tags(tag || '')
+    .subtags()
+    .map(t => `${t.descriptions()[0]}${t.type() === 'script' ? ' script' : ''}`)
+    .join(', ')
+    || 'unknown language'
+}
 
-const show = (component, props={}) => R.pipe(
-  R.head,
-  R.objOf('value'),
-  R.merge(props),
-  component
-)
+function show(Component, props={}) {
+  return ([ value ]) =>
+    h(Component, Object.assign({ value }, props))
+}
 
 const entries = R.pipe(
   R.toPairs,
@@ -68,13 +70,13 @@ const entries = R.pipe(
 
 function Annotated(props) {
   const { value, annotations } = props
-  return h(
-    Span,
-    R.omit(['value', 'annotations'], props),
-    [
+      , childProps = R.omit(['value', 'annotations'], props)
+
+  return (
+    h(Span, childProps, [
       value,
       h(Italic, { ml: 1 }, R.intersperse(', ', annotations)),
-    ]
+    ])
   )
 }
 
@@ -82,90 +84,114 @@ function Annotated(props) {
 
 function PrimitiveValue(props) {
   const { value } = props
-  return h(Span, R.omit([ 'value' ], props), value)
+      , childProps = R.omit(['value'], props)
+
+  return (
+    h(Span, childProps, value)
+  )
 }
 
 function LinkValue(props) {
   const { value } = props
-  return h(
-    ExternalLink, R.merge(R.omit([ 'value' ], props), { href: value }), value
+
+  const childProps = Object.assign({}, {
+    href: value,
+  }, R.omit(['value', props]))
+
+  return (
+    h(ExternalLink, childProps, value)
   )
 }
 
 function PermalinkValue(props) {
   const { value } = props
 
-  return value.startsWith('p0')
-    ? LinkValue({ ...props, value: `${ permalinkURL }${ value }`})
-    : h(Italic, 'not yet assigned')
+  if (value.startsWith('p0')) {
+    const childProps = Object.assign({}, props, {
+      value: `${ permalinkURL }${ value }`,
+    })
+
+    return LinkValue(childProps)
+  } else {
+    return h(Italic, 'not yet assigned')
+  }
 }
 
 function RelatedPeriodValue(props) {
   const { value: period } = props
       , { backend } = useContext(BackendContext)
 
-  return h(
-    Link,
-    {
-      route: Route('period-view', {
-        backendID: backend.asIdentifier(),
-        authorityID: util.period.authorityOf(period).id,
-        periodID: period.id,
-      }),
-    },
-    period.label
+  const childProps = {
+    route: Route('period-view', {
+      backendID: backend.asIdentifier(),
+      authorityID: util.period.authorityOf(period).id,
+      periodID: period.id,
+    }),
+  }
+
+  return (
+    h(Link, childProps, period.label)
   )
 }
 
 function EntityValue(props) {
   const { value: { id, label }} = props
-  return h(
-    ExternalLink,
-    R.merge(R.omit([ 'value' ], props), { href: id }),
-    [
+
+  const childProps = Object.assign({}, R.omit(['value'], props), {
+    href: id,
+  })
+
+  return (
+    h(ExternalLink, childProps, [
       h(Span, { fontSize: '12px' }, `${abbreviate(id)}:`),
       label,
-    ]
+    ])
   )
 }
 
 function IntervalValue(props) {
   const { value } = props
 
-  return h(
-    Annotated,
-    R.merge(
-      R.omit([ 'value' ], props),
-      {
-        value: value.label,
-        annotations: value.in ? [ asYearOrRange(value.in) ] : [ 'MISSING INTEGER VALUE' ],
-      }
-    )
+  const childProps = Object.assign({}, R.omit(['value'], props), {
+    value: value.label,
+    annotations: value.in ? [ asYearOrRange(value.in) ] : [ 'MISSING INTEGER VALUE' ],
+  })
+
+  return (
+    h(Annotated, childProps)
   )
 }
 
 function LanguageTagValue(props) {
   const { value } = props
-  return h(Span, R.omit([ 'value' ], props), describeLanguageTag(value))
+      , childProps = R.omit(['value'], props)
+
+  return (
+    h(Span, childProps, describeLanguageTag(value))
+  )
 }
 
 function LanguageSpecificValue(props) {
   const { value: { value, language }} = props
-  return h(
-    Annotated,
-    R.merge(
-      R.omit([ 'value' ], props),
-      { value, annotations: [ describeLanguageTag(language) ]}
-    )
+
+  const childProps = Object.assign(R.omit(['value'], props), {
+    value,
+    annotations: [ describeLanguageTag(language) ],
+  })
+
+  return (
+    h(Annotated, childProps)
   )
 }
 
 function JSONLDContextEntryValue(props) {
   const { value: [ key, value ] } = props
-  return h(
-    Box,
-    R.omit([ 'value' ], props),
-    `  "${key}": ${JSON.stringify(value)}`
+      , childProps = R.omit(['value'], props)
+
+  return (
+    h(Box, childProps, [
+      `  "${key}": ${JSON.stringify(value)}`,
+    ])
   )
 }
 
@@ -173,27 +199,47 @@ function JSONLDContextEntryValue(props) {
 
 function TextValue(props) {
   const { value: { text }, compare, links = false } = props
-      , p = R.omit(['value', 'compare', 'links'], props)
-  return compare
-    ? h(Diff, R.merge(p, { value: text, compare: compare.text }))
-    : h(Span, p, links ? linkify(text) : text)
+      , childProps = R.omit(['value', 'compare', 'links'], props)
+
+  if (compare) {
+    return (
+      h(Diff, Object.assign({}, childProps, {
+        value: text,
+        compare: compare.text,
+      }))
+    )
+  }
+  return (
+    h(Span, childProps, [
+      links ? linkify(text) : text,
+    ])
+  )
 }
 
 function LinkifiedTextValue(props) {
-  return TextValue(R.merge(props, { links: true }))
+  return TextValue(Object.assign({}, props, { links: true }))
 }
 
 function AgentValue(props) {
   const { value: { id, name }, compare } = props
 
-  if (R.isNil(name)) return null // sometimes names are missing
+  if (name == null) return null
 
-  const _props = R.omit([ 'value', 'compare' ], props)
-      , child = compare ? h(Diff, { value: name, compare: compare.name }) : name
+  const childProps = Object.assign(R.omit(['value', 'compare'], props), {
+    children: compare
+      ? h(Diff, { value: name, compare: compare.name })
+      : name,
+  })
 
-  return id
-    ? h(ExternalLink, R.merge(_props, { href: id }), child)
-    : h(Span, _props, child)
+  if (id) {
+    return (
+      h(ExternalLink, Object.assign({}, childProps, { href: id }))
+    )
+  }
+
+  return (
+    h(Span, childProps)
+  )
 }
 
 function SpatialExtentValue(props) {
@@ -241,21 +287,23 @@ function SpatialExtentValue(props) {
 
 function JSONLDContextValue(props) {
   const { value: { context }, compare } = props
-  return compare
-    ? h(
-        Pre,
-        R.omit([ 'value', 'compare' ], props),
-        [
-          '{',
+      , childProps = R.omit(['value', 'compare'], props)
 
-          ...showChanges(JSONLDContextEntryValue)(
-            findChanges(entries(context), entries(compare.context))
-          ),
+  if (compare) {
+    return (
+      h(Pre, childProps, [
+        '{',
+        ...showChanges(JSONLDContextEntryValue)(
+          findChanges(entries(context), entries(compare.context))
+        ),
+        '}',
+      ])
+    )
+  }
 
-          '}',
-        ]
-      )
-    : h(Pre, {}, JSON.stringify(context, null, '  '))
+  return (
+    h(Pre, childProps, JSON.stringify(context, null, '  '))
+  )
 }
 
 module.exports = {

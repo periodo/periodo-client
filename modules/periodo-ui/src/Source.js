@@ -1,7 +1,7 @@
 "use strict";
 
 const R = require('ramda')
-    , { FieldList, extract, as } = require('./Field')
+    , { FieldList, extract, extractWithKey } = require('./Field')
     , { LinkValue
       , TextValue
       , LinkifiedTextValue
@@ -20,7 +20,7 @@ const orPartOf = R.converge(R.concat, [R.identity, R.map(R.pair('partOf'))])
 const SOURCE_FIELDS = [
   {
     label: 'Title',
-    values: as('text')(extractFirstOf(orPartOf([ 'title' ]))),
+    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'title' ]))),
     component: TextValue,
   },
   {
@@ -35,12 +35,12 @@ const SOURCE_FIELDS = [
   },
   {
     label: 'Citation',
-    values: as('text')(extractFirstOf(orPartOf([ 'citation' ]))),
+    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'citation' ]))),
     component: LinkifiedTextValue,
   },
   {
     label: 'Abstract',
-    values: as('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
+    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
     component: LinkifiedTextValue,
   },
   {
@@ -53,7 +53,7 @@ const SOURCE_FIELDS = [
   },
   {
     label: 'Editorial notes',
-    values: as('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
+    values: extractWithKey('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
     component: LinkifiedTextValue,
   },
   {

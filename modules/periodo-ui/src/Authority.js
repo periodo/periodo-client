@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { FieldList, extract, extractIndexedValues, as } = require('./Field')
+    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./Field')
     , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./Value')
     , { Period } = require('./Period')
     , { Source } = require('./Source')
@@ -30,7 +30,7 @@ const AUTHORITY_FIELDS = [
   },
   {
     label: 'Editorial notes',
-    values: as('text')(extract('editorialNote')),
+    values: extractWithKey('text')(extract('editorialNote')),
     component: LinkifiedTextValue,
   },
   {

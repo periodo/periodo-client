@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { FieldList, extract, extractIndexedValues, as } = require('./Field')
+    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./Field')
     , { JSONLDContextValue } = require('./Value')
     , { Authority } = require('./Authority')
 
@@ -22,7 +22,7 @@ const DATASET_FIELDS = [
   },
   {
     label: 'Context',
-    values: as('context')(extract('@context')),
+    values: extractWithKey('context')(extract('@context')),
     component: JSONLDContextValue,
     required: true,
     immutable: true,

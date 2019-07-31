@@ -7,101 +7,156 @@ const h = require('react-hyperscript')
     , { InfoText, WarnText } = require('./Typography')
     , { Value, Change, asValue } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
-    , { ensureArray } = require('periodo-utils')
 
-const extract = keyOrPath => R.pipe(
-  R.pathOr([], ensureArray(keyOrPath)),
-  ensureArray,
-  R.map(asValue)
-)
-
-const extractIndexedValues = keyOrPath => R.pipe(
-  R.pathOr({}, ensureArray(keyOrPath)),
-  R.values,
-  R.map(asValue)
-)
-
-const as = key => fn => R.pipe(
-  fn,
-  R.addIndex(R.map)(Value.caseOn({
-    Identified: v => Value.Identified(v),
-    Anonymous: (v, index) => Value.Identified({ id: index, [key]: v }),
-  }))
-)
-
-const checkRequired = isRequired => values => (isRequired && R.isEmpty(values))
-  ? [ 'missing required value' ] : []
-
-const check = isImmutable => isRequired => values => changed => {
-  const warnings = (isImmutable && ! R.equals(values, changed.values))
-    ? [ 'changing immutable field' ] : []
-  return warnings.concat(checkRequired(isRequired)(changed.values))
-}
-
-const wrap = props => R.map(x => h(Box, props, x))
-
-const countChanges = R.pipe(
-  R.countBy(Change.case({
-    Addition: () => 'added',
-    Deletion: () => 'deleted',
-    Mutation: () => 'changed',
-    Preservation: () => 'unchanged',
-  })),
-  R.merge({ added: 0, deleted: 0, changed: 0, unchanged: 0 })
-)
-
-const formatCounts = counts => `
- ${counts.deleted} deleted,
- ${counts.added} added,
- ${counts.changed} changed,
- and ${counts.unchanged} unchanged
- ${counts.unchanged > 0 ? '(not shown)' : ''}
-`
-
-const showValues = ({
-  values,
-  component = PrimitiveValue,
-  required = false,
-  ...props
-}) => (
-
-  { warnings: checkRequired(required)(values)
-  , summary: null
-  , items: R.map(show(component, props), values),
+// Extract the value of a key or path from the item being rendered, then
+// convert it to a list of Value types
+function extract(path) {
+  path = [].concat(path)
+  return item => {
+    const extracted = R.pathOr([], path, item)
+    return [].concat(extracted).map(v => asValue(v))
   }
-)
-
-const compareValues = ({
-  values,
-  component = PrimitiveValue,
-  required = false,
-  immutable = false,
-  hideUnchanged = false,
-}, compare) => {
-
-  const changes = findChanges(values, compare.values)
-  const counts = countChanges(changes)
-  const didChange = counts.unchanged < changes.length
-  const summarizeChanges = (didChange && hideUnchanged) ? true : false
-  const filteredChanges = (didChange && hideUnchanged)
-    ? R.filter(Change.case({ Preservation: R.F, _: R.T }), changes)
-    : changes
-
-  return (
-    { warnings: check(immutable)(required)(values)(compare.values)
-    , summary: summarizeChanges ? h(InfoText, {}, formatCounts(counts)) : null
-    , items: showChanges(component)(filteredChanges),
-    }
-  )
 }
 
-const fieldExtractor = props => fieldSpec => R.pipe(
-  fieldSpec.values,
-  values => R.assoc('values', values, fieldSpec),
-  R.assoc('id', fieldSpec.label),
-  R.merge(R.pick(R.propOr([], 'useProps', fieldSpec), props)),
-  R.dissoc('useProps')
-)
+// Same as above, but for indexed values
+function extractIndexedValues(path) {
+  path = [].concat(path)
+
+  return item => {
+    const extracted = R.pathOr({}, path, item)
+        , ret = {}
+
+    Object.entries(extracted).forEach(([ k, v ]) => {
+      ret[k] = asValue(v)
+    })
+
+    return ret
+  }
+}
+
+// Make an extractor function return an array of Value objects with a certain
+// key in them (??). Was called `as'
+function extractWithKey(key) {
+  return fn => item => fn(item).map((value, i) => value.case({
+    Identified: v => Value.Identified(v),
+    Anonymous: v => Value.Identified({ id: i, [key]: v }),
+  }))
+}
+
+function checkRequired(isRequired, values) {
+  return (isRequired && R.isEmpty(values))
+    ? [ 'missing required value' ]
+    : []
+}
+
+function checkImmutable(isImmutable, values, changedValues) {
+  return (isImmutable && !R.equals(values, changedValues))
+    ? [ 'changing immutable field' ]
+    : []
+}
+
+function runComparisonChecks({
+  isImmutable,
+  isRequired,
+  values,
+  comparedValues,
+}) {
+  const warnings = [].concat(
+    checkImmutable(isImmutable, values, comparedValues),
+    checkRequired(isRequired, comparedValues)
+  )
+
+  return warnings
+}
+
+function countChanges(changes) {
+  return R.pipe(
+    R.countBy(Change.case({
+      Addition: () => 'added',
+      Deletion: () => 'deleted',
+      Mutation: () => 'changed',
+      Preservation: () => 'unchanged',
+    })),
+    R.merge({ added: 0, deleted: 0, changed: 0, unchanged: 0 })
+  )(changes)
+}
+
+function formatCounts(counts) {
+  return `
+   ${counts.deleted} deleted,
+   ${counts.added} added,
+   ${counts.changed} changed,
+   and ${counts.unchanged} unchanged
+   ${counts.unchanged > 0 ? '(not shown)' : ''}
+  `
+}
+
+function showValues(props) {
+  const {
+    values,
+    component = PrimitiveValue,
+    required = false,
+  } = props
+
+  const childProps = R.omit(['values', 'component', 'required'], props)
+
+  return {
+    warnings: checkRequired(required)(values),
+    summary: null,
+    items: R.map(show(component, childProps), values),
+  }
+}
+
+function compareValues(fieldValue, compareTo) {
+  const {
+    values,
+    component,
+    required=false,
+    immutable=false,
+    hideUnchanged=false,
+  } = fieldValue
+
+  const changes = findChanges(values, compareTo.values)
+      , counts = countChanges(changes)
+      , didChange = counts.unchanged < changes.length
+      , summarizeChanges = (didChange && hideUnchanged) ? true : false
+
+  const filteredChanges = !(didChange && hideUnchanged)
+    ? changes
+    : changes.filter(change => change.case({
+        Preservation: () => false,
+        _: () => true,
+      }))
+
+  return {
+    warnings: runComparisonChecks({
+      isImmutable: immutable,
+      isRequired: required,
+      values,
+      comparedValues: compareTo.values,
+    }),
+    summary: summarizeChanges ? h(InfoText, {}, formatCounts(counts)) : null,
+    items: showChanges(component)(filteredChanges),
+  }
+}
+
+function fieldExtractor(props) {
+  return fieldSpec => item => {
+    //TODO: const { getValue, useProps, ...ret } = fieldSpec
+    const values = fieldSpec.values(item)
+
+    const ret = R.omit(['getValue', 'useProps'], fieldSpec)
+
+    ret.id = fieldSpec.label;
+    ret.values = values;
+
+    (fieldSpec.useProps || []).forEach(prop => {
+      ret[prop] = props[prop]
+    })
+
+    return ret
+  }
+}
 
 const fieldsExtractor = (fieldSpecs, props) => R.pipe(
   R.of,
@@ -112,40 +167,50 @@ const fieldsExtractor = (fieldSpecs, props) => R.pipe(
 
 function Warnings(props) {
   const { warnings } = props
-  return h(
-    Box,
-    R.omit([ 'warnings' ], props),
-    R.map(warning => h(WarnText, {}, `Warning: ${warning}`), warnings)
+      , childProps = R.omit(['warnings'], props)
+
+  return (
+    h(Box, childProps, warnings.map(warning =>
+      h(WarnText, [
+        `Warning: ${warning}`,
+      ])
+    ))
   )
 }
 
+// A field takes a value (which is extracted from the item being rendered
+// using an extractor function, and renders it as a <dt>/<dd> pair. Optionally,
+// another value can be compared to the value, using the `compare' prop.
 function Field(props) {
   const { value, compare } = props
-      , { label, hidden = false } = value
-      , { warnings
-        , summary
-        , items,
-        } = compare ? compareValues(value, compare) : showValues(value)
+      , { label, hidden=false } = value
+      , values = compare ? compareValues(value, compare) : showValues(value)
+      , { warnings, summary, items } = values
       , hide = hidden && R.isEmpty(warnings)
 
-  return h(
-    Box,
-    R.mergeAll(
-      [
-        R.omit([ 'value', 'compare' ], props),
-        { mt: 2 },
-        hide ? { css: {display: 'none'} } : {},
-      ]
-    ),
-    [
+  const childProps = Object.assign(
+    { mt: 2 },
+    R.omit(['value', 'compare'], props))
+
+  if (hide) {
+    Object.assign(childProps, {
+      css: { display: 'none' },
+    })
+  }
+
+  return (
+    h(Box, childProps, [
       h(Box, { is: 'dt', fontWeight: 'bold' }, label),
 
-      warnings.length ? h(Warnings, { warnings }) : null,
+      warnings.length === 0 ? null : h(Warnings, { warnings }),
 
       summary,
 
-      ...wrap({ is: 'dd', ml: 3 })(items),
-    ]
+      ...items.map(item => h(Box, {
+        is: 'dd',
+        ml: 3,
+      }, item)),
+    ])
   )
 }
 
@@ -155,18 +220,24 @@ const usedProps = R.reduce(
   )
 )
 
-const FieldList = fieldSpecs => props => {
-  const { value, compare } = props
-      , fields = fieldsExtractor(fieldSpecs, props)
-      , omitProps = usedProps([ 'value', 'compare' ], fieldSpecs)
+function FieldList (fieldSpecs) {
+  return props => {
+    const { value, compare } = props
+        , fields = fieldsExtractor(fieldSpecs, props)
+        , omitProps = usedProps([ 'value', 'compare' ], fieldSpecs)
 
-  return h(
-    Box,
-    R.merge(R.omit(omitProps, props), { is: 'dl' }),
-    compare
-      ? showChanges(Field)(findChanges(fields(value), fields(compare)))
-      : R.map(show(Field), fields(value))
-  )
+    const childProps = Object.assign(R.omit(omitProps, props), {
+      is: 'dl',
+    })
+
+    return (
+      h(Box, childProps, [
+        compare
+          ? showChanges(Field)(findChanges(fields(value), fields(compare)))
+          : R.map(show(Field), fields(value)),
+      ])
+    )
+  }
 }
 
-module.exports = { extract, extractIndexedValues, as, FieldList }
+module.exports = { extract, extractIndexedValues, FieldList, extractWithKey }

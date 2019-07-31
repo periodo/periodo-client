@@ -8,31 +8,37 @@ const h = require('react-hyperscript')
 
 const dmp = new DMP()
 
-const colors = {insert: '#e4ffee', delete: '#ffeef0'}
-
-const styles =
-  { [DMP.DIFF_INSERT]: { bg: colors.insert }
-  , [DMP.DIFF_DELETE]: { bg: colors.delete },
-  }
-
-const format = ([operation, string]) => h(
-  Box,
-  R.merge({ is: 'span'}, styles[operation] || {}),
-  string
-)
-
-const diff = (a, b) => {
-  const diffs = dmp.diff_main(a + '', b + '')
-  dmp.diff_cleanupSemantic(diffs)
-  return diffs
+const colors = {
+  insert: '#e4ffee',
+  delete: '#ffeef0',
 }
+
+const styles = {
+  [DMP.DIFF_INSERT]: {
+    backgroundColor: colors.insert,
+  },
+  [DMP.DIFF_DELETE]: {
+    backgroundColor: colors.delete,
+  },
+}
+
 
 function Diff(props) {
   const { value, compare } = props
-  return h(
-    Box,
-    R.merge(R.omit([ 'value', 'compare' ], props), { is: 'span' }),
-    diff(value, compare).map(format),
+      , diffs = dmp.diff_main(value + '', compare + '')
+
+  dmp.diff_cleanupSemantic(diffs)
+
+  const childProps = Object.assign(R.omit(['value', 'compare'], props), {
+    is: 'span',
+  })
+
+  return (
+    h(Box, childProps, diffs.map(([ operation, string ]) =>
+      h('span', {
+        style: styles[operation],
+      }, string)
+    ))
   )
 }
 

@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { Value, asValue } = require('./types')
-    , { FieldList, extract, as } = require('./Field')
+    , { FieldList, extract, extractWithKey } = require('./Field')
     , { TextValue
       , LinkValue
       , PermalinkValue
@@ -70,7 +70,7 @@ const PERIOD_FIELDS = [
   },
   {
     label: 'Original label',
-    values: as('text')(extract('label')),
+    values: extractWithKey('text')(extract('label')),
     component: TextValue,
     required: true,
   },
@@ -121,12 +121,12 @@ const PERIOD_FIELDS = [
   },
   {
     label: 'Notes from source',
-    values: as('text')(extract('note')),
+    values: extractWithKey('text')(extract('note')),
     component: LinkifiedTextValue,
   },
   {
     label: 'Editorial notes',
-    values: as('text')(extract('editorialNote')),
+    values: extractWithKey('text')(extract('editorialNote')),
     component: LinkifiedTextValue,
   },
   {
