@@ -60,7 +60,7 @@ function describeLanguageTag(tag) {
 
 function show(Component, props={}) {
   return ([ value ]) =>
-    h(Component, Object.assign({ value }, props))
+    h(Component, { value, ...props })
 }
 
 const entries = R.pipe(
@@ -69,8 +69,7 @@ const entries = R.pipe(
 )
 
 function Annotated(props) {
-  const { value, annotations } = props
-      , childProps = R.omit(['value', 'annotations'], props)
+  const { value, annotations, ...childProps } = props
 
   return (
     h(Span, childProps, [
@@ -83,8 +82,7 @@ function Annotated(props) {
 // Atomic values ---------------------------------------------------------------
 
 function PrimitiveValue(props) {
-  const { value } = props
-      , childProps = R.omit(['value'], props)
+  const { value, ...childProps } = props
 
   return (
     h(Span, childProps, value)
@@ -92,11 +90,9 @@ function PrimitiveValue(props) {
 }
 
 function LinkValue(props) {
-  const { value } = props
+  const { value, ...childProps } = props
 
-  const childProps = Object.assign({}, {
-    href: value,
-  }, R.omit(['value', props]))
+  childProps.href = value
 
   return (
     h(ExternalLink, childProps, value)
@@ -107,9 +103,10 @@ function PermalinkValue(props) {
   const { value } = props
 
   if (value.startsWith('p0')) {
-    const childProps = Object.assign({}, props, {
+    const childProps = {
+      ...props,
       value: `${ permalinkURL }${ value }`,
-    })
+    }
 
     return LinkValue(childProps)
   } else {
@@ -135,11 +132,9 @@ function RelatedPeriodValue(props) {
 }
 
 function EntityValue(props) {
-  const { value: { id, label }} = props
+  const { value: { id, label }, ...childProps} = props
 
-  const childProps = Object.assign({}, R.omit(['value'], props), {
-    href: id,
-  })
+  childProps.href = id
 
   return (
     h(ExternalLink, childProps, [
@@ -150,12 +145,13 @@ function EntityValue(props) {
 }
 
 function IntervalValue(props) {
-  const { value } = props
+  const { value, ...childProps } = props
 
-  const childProps = Object.assign({}, R.omit(['value'], props), {
-    value: value.label,
-    annotations: value.in ? [ asYearOrRange(value.in) ] : [ 'MISSING INTEGER VALUE' ],
-  })
+  childProps.value = value.label
+
+  childProps.annotations = value.in
+    ? [ asYearOrRange(value.in) ]
+    : [ 'MISSING INTEGER VALUE' ]
 
   return (
     h(Annotated, childProps)
@@ -163,8 +159,7 @@ function IntervalValue(props) {
 }
 
 function LanguageTagValue(props) {
-  const { value } = props
-      , childProps = R.omit(['value'], props)
+  const { value, ...childProps } = props
 
   return (
     h(Span, childProps, describeLanguageTag(value))
@@ -172,12 +167,11 @@ function LanguageTagValue(props) {
 }
 
 function LanguageSpecificValue(props) {
-  const { value: { value, language }} = props
+  const { value: { value, language }, ...childProps} = props
 
-  const childProps = Object.assign(R.omit(['value'], props), {
-    value,
-    annotations: [ describeLanguageTag(language) ],
-  })
+  childProps.value = value;
+
+  childProps.annotations = [ describeLanguageTag(language) ]
 
   return (
     h(Annotated, childProps)
@@ -185,8 +179,7 @@ function LanguageSpecificValue(props) {
 }
 
 function JSONLDContextEntryValue(props) {
-  const { value: [ key, value ] } = props
-      , childProps = R.omit(['value'], props)
+  const { value: [ key, value ], ...childProps } = props
 
   return (
     h(Box, childProps, [
@@ -198,15 +191,20 @@ function JSONLDContextEntryValue(props) {
 // Diffable values -------------------------------------------------------------
 
 function TextValue(props) {
-  const { value: { text }, compare, links = false } = props
-      , childProps = R.omit(['value', 'compare', 'links'], props)
+  const {
+    value: { text },
+    compare,
+    links=false,
+    ...childProps
+  } = props
 
   if (compare) {
     return (
-      h(Diff, Object.assign({}, childProps, {
+      h(Diff, {
+        ...childProps,
         value: text,
         compare: compare.text,
-      }))
+      })
     )
   }
   return (
@@ -217,23 +215,27 @@ function TextValue(props) {
 }
 
 function LinkifiedTextValue(props) {
-  return TextValue(Object.assign({}, props, { links: true }))
+  return TextValue({
+    ...props,
+    links: true,
+  })
 }
 
 function AgentValue(props) {
-  const { value: { id, name }, compare } = props
+  const { value: { id, name }, compare, ...childProps } = props
 
   if (name == null) return null
 
-  const childProps = Object.assign(R.omit(['value', 'compare'], props), {
-    children: compare
-      ? h(Diff, { value: name, compare: compare.name })
-      : name,
-  })
+  childProps.children = compare
+    ? h(Diff, { value: name, compare: compare.name })
+    : name
 
   if (id) {
     return (
-      h(ExternalLink, Object.assign({}, childProps, { href: id }))
+      h(ExternalLink, {
+        ...childProps,
+        href: id,
+      })
     )
   }
 
@@ -286,8 +288,7 @@ function SpatialExtentValue(props) {
 }
 
 function JSONLDContextValue(props) {
-  const { value: { context }, compare } = props
-      , childProps = R.omit(['value', 'compare'], props)
+  const { value: { context }, compare, ...childProps } = props
 
   if (compare) {
     return (

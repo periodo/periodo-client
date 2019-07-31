@@ -24,14 +24,12 @@ const styles = {
 
 
 function Diff(props) {
-  const { value, compare } = props
+  const { value, compare, ...childProps } = props
       , diffs = dmp.diff_main(value + '', compare + '')
 
   dmp.diff_cleanupSemantic(diffs)
 
-  const childProps = Object.assign(R.omit(['value', 'compare'], props), {
-    is: 'span',
-  })
+  childProps.is = 'span'
 
   return (
     h(Box, childProps, diffs.map(([ operation, string ]) =>

@@ -94,14 +94,13 @@ function formatCounts(counts) {
 function showValues(props) {
   const {
     values,
-    component = PrimitiveValue,
-    required = false,
+    component=PrimitiveValue,
+    required=false,
+    ...childProps
   } = props
 
-  const childProps = R.omit(['values', 'component', 'required'], props)
-
   return {
-    warnings: checkRequired(required)(values),
+    warnings: checkRequired(required, values),
     summary: null,
     items: R.map(show(component, childProps), values),
   }
@@ -166,8 +165,7 @@ const fieldsExtractor = (fieldSpecs, props) => R.pipe(
 )
 
 function Warnings(props) {
-  const { warnings } = props
-      , childProps = R.omit(['warnings'], props)
+  const { warnings, ...childProps } = props
 
   return (
     h(Box, childProps, warnings.map(warning =>
@@ -182,20 +180,16 @@ function Warnings(props) {
 // using an extractor function, and renders it as a <dt>/<dd> pair. Optionally,
 // another value can be compared to the value, using the `compare' prop.
 function Field(props) {
-  const { value, compare } = props
+  const { value, compare, ...childProps } = props
       , { label, hidden=false } = value
       , values = compare ? compareValues(value, compare) : showValues(value)
       , { warnings, summary, items } = values
       , hide = hidden && R.isEmpty(warnings)
 
-  const childProps = Object.assign(
-    { mt: 2 },
-    R.omit(['value', 'compare'], props))
+  childProps.mt = 2
 
   if (hide) {
-    Object.assign(childProps, {
-      css: { display: 'none' },
-    })
+    childProps.style = { display: 'none' }
   }
 
   return (
