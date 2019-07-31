@@ -8,39 +8,37 @@ const h = require('react-hyperscript')
     , { Value, Change, asValue } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
 
-// Extract the value of a key or path from the item being rendered, then
-// convert it to a list of Value types
-function extract(path) {
-  path = [].concat(path)
-  return item => {
-    const extracted = R.pathOr([], path, item)
-    return [].concat(extracted).map(v => asValue(v))
-  }
-}
 
-// Same as above, but for indexed values
-function extractIndexedValues(path) {
+function extract(path, opts={}) {
+  const { withKey, indexed=false } = opts
+
   path = [].concat(path)
 
   return item => {
-    const extracted = R.pathOr({}, path, item)
-        , ret = {}
+    const defaultValue = indexed ? {} : []
+        , extracted = R.pathOr(defaultValue, path, item)
 
-    Object.entries(extracted).forEach(([ k, v ]) => {
-      ret[k] = asValue(v)
-    })
+    if (indexed) {
+      const ret = {}
 
-    return ret
+      Object.entries(extracted).forEach(([ k, v ]) => {
+        ret[k] = asValue(v)
+      })
+
+      return ret
+    } else {
+      let ret = [].concat(extracted).map(v => asValue(v))
+
+      if (withKey) {
+        ret = ret.map((value, i) => value.case({
+          Identified: v => Value.Identified(v),
+          Anonymous: v => Value.Identified({ id: i, [withKey]: v }),
+        }))
+      }
+
+      return ret
+    }
   }
-}
-
-// Make an extractor function return an array of Value objects with a certain
-// key in them (??). Was called `as'
-function extractWithKey(key) {
-  return fn => item => fn(item).map((value, i) => value.case({
-    Identified: v => Value.Identified(v),
-    Anonymous: v => Value.Identified({ id: i, [key]: v }),
-  }))
 }
 
 function checkRequired(isRequired, values) {
@@ -234,4 +232,4 @@ function FieldList (fieldSpecs) {
   }
 }
 
-module.exports = { extract, extractIndexedValues, FieldList, extractWithKey }
+module.exports = { extract, FieldList }

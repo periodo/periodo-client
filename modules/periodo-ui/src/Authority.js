@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { FieldList, extract, extractIndexedValues, extractWithKey } = require('./diffable/Field')
+    , { FieldList, extract } = require('./diffable/Field')
     , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./diffable/Value')
     , { Period } = require('./Period')
     , { Source } = require('./Source')
@@ -30,7 +30,7 @@ const AUTHORITY_FIELDS = [
   },
   {
     label: 'Editorial notes',
-    getValues: extractWithKey('text')(extract('editorialNote')),
+    getValues: extract('editorialNote', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
   {
@@ -43,7 +43,7 @@ const AUTHORITY_FIELDS = [
 const AUTHORITY_WITH_PERIODS_FIELDS = [
   ...AUTHORITY_FIELDS,
   { label: 'Periods',
-    getValues: extractIndexedValues('periods'),
+    getValues: extract('periods', { indexed: true }),
     component: props => h(
       Period,
       R.merge(props,

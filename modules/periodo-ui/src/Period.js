@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { Value, asValue } = require('./diffable/types')
-    , { FieldList, extract, extractWithKey } = require('./diffable/Field')
+    , { FieldList, extract } = require('./diffable/Field')
     , { TextValue
       , LinkValue
       , PermalinkValue
@@ -61,6 +61,7 @@ const PERIOD_FIELDS = [
     required: true,
     immutable: true,
   },
+
   {
     label: 'Type',
     getValues: extract('type'),
@@ -68,12 +69,14 @@ const PERIOD_FIELDS = [
     immutable: true,
     hidden: true,
   },
+
   {
     label: 'Original label',
-    getValues: extractWithKey('text')(extract('label')),
+    getValues: extract('label', { withKey: 'text' }),
     component: TextValue,
     required: true,
   },
+
   {
     label: 'Part of',
     getValues: extractRelatedPeriods('broader'),
@@ -89,18 +92,21 @@ const PERIOD_FIELDS = [
     getValues: extractRelatedPeriods('derivedFrom'),
     component: RelatedPeriodValue,
   },
+
   {
     label: 'Start',
     getValues: extract('start'),
     component: IntervalValue,
     required: true,
   },
+
   {
     label: 'Stop',
     getValues: extract('stop'),
     component: IntervalValue,
     required: true,
   },
+
   {
     label: 'Spatial coverage',
     getValues: extractSpatialExtent,
@@ -108,36 +114,43 @@ const PERIOD_FIELDS = [
     component: SpatialExtentValue,
     required: true,
   },
+
   {
     label: 'Language',
     getValues: extract('languageTag'),
     component: LanguageTagValue,
     required: true,
   },
+
   {
     label: 'Alternate labels',
     getValues: extractAlternateLabels,
     component: LanguageSpecificValue,
   },
+
   {
     label: 'Notes from source',
-    getValues: extractWithKey('text')(extract('note')),
+    getValues: extract('note', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Editorial notes',
-    getValues: extractWithKey('text')(extract('editorialNote')),
+    getValues: extract('editorialNote', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Locator',
     getValues: extract(['source', 'locator']),
   },
+
   {
     label: 'Web page',
     getValues: extract('url'),
     component: LinkValue,
   },
+
   {
     label: 'Same as',
     getValues: extract('sameAs'),

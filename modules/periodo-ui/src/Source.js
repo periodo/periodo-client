@@ -1,73 +1,92 @@
 "use strict";
 
-const R = require('ramda')
-    , { FieldList, extract, extractWithKey } = require('./diffable/Field')
-    , { LinkValue
-      , TextValue
-      , LinkifiedTextValue
-      , AgentValue,
-      } = require('./diffable/Value')
+const { FieldList, extract } = require('./diffable/Field')
 
-const extractFirstOf = keysOrPaths => R.pipe(
-  R.of,
-  R.ap(R.map(extract, keysOrPaths)),
-  R.find(R.compose(R.not, R.isEmpty)),
-  R.ifElse(R.identity, R.identity, R.always([])),
-)
+const {
+  LinkValue,
+  TextValue,
+  LinkifiedTextValue,
+  AgentValue,
+} = require('./diffable/Value')
 
-const orPartOf = R.converge(R.concat, [R.identity, R.map(R.pair('partOf'))])
+function extractSourceOrPartOf(key, opts) {
+  return period => {
+    const val = extract(key, opts)(period)
+
+    if (Object.keys(val).length) return val
+
+    return extract(['partOf'].concat(key), opts)(period)
+  }
+}
+
+
 
 const SOURCE_FIELDS = [
   {
     label: 'Title',
-    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'title' ]))),
+    getValues: extractSourceOrPartOf('title', { withKey: 'text' }),
     component: TextValue,
   },
+
   {
     label: 'Creators',
-    getValues: extractFirstOf(orPartOf([ 'creators' ])),
+    getValues: extractSourceOrPartOf('creators'),
     component: AgentValue,
   },
+
   {
     label: 'Contributors',
-    getValues: extractFirstOf(orPartOf([ 'contributors' ])),
+    getValues: extractSourceOrPartOf('contributors'),
     component: AgentValue,
   },
+
   {
     label: 'Citation',
-    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'citation' ]))),
+    getValues: extractSourceOrPartOf('citation', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Abstract',
-    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
+    getValues: extractSourceOrPartOf('abstract', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Year published',
-    getValues: extractFirstOf(orPartOf([ 'yearPublished' ])),
+    getValues: extractSourceOrPartOf('yearPublished'),
   },
+
   {
     label: 'Date accessed',
-    getValues: extractFirstOf(orPartOf([ 'dateAccessed' ])),
+    getValues: extractSourceOrPartOf('dateAccessed'),
   },
+
   {
     label: 'Editorial notes',
-    getValues: extractWithKey('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
+    getValues: extractSourceOrPartOf('editorialNote', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Locator',
     getValues: extract('locator'),
   },
+
   {
     label: 'Web page',
-    getValues: extractFirstOf(orPartOf([ 'id', 'url' ])),
-    component: LinkValue,
+    getValues: period =>  {
+      const id = extractSourceOrPartOf('id')(period)
+
+      if (Object.keys(id).length) return id
+
+      return extractSourceOrPartOf('url')(period)
+    },
   },
+
   {
     label: 'Same as',
-    getValues: extractFirstOf(orPartOf([ 'sameAs' ])),
+    getValues: extractSourceOrPartOf('sameAs'),
     component: LinkValue,
   },
 ]
