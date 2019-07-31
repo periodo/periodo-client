@@ -3,39 +3,48 @@
 const R = require('ramda')
     , Type = require('union-type')
 
-const isIdentified = R.ifElse(
-  R.is(Object),       // don't treat @context.id as an id
-  R.both(R.has('id'), R.complement(R.propEq('id', '@id'))),
-  R.F
-)
+function isIdentified(value) {
+  return (
+    typeof value === 'object' &&
+    'id' in value &&
+    value.id !== '@id'
+  )
+}
 
-const isAnonymous = R.cond([
-  // string or number or object without id
-  [ R.is(String), R.T ],
-  [ R.is(Number), R.T ],
-  [ R.both(R.is(Object), R.complement(isIdentified)), R.T ],
-  [ R.T, R.F ],
-]);
+/*
+// Is there any reason for this to exist? Wouldn't all non-identified values
+// be anonymous?
+function isAnonymous(value) {
+  return (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    (typeof value === 'object' && !isIdentified(value))
+  )
+}
+*/
 
-const Value = Type({
-  Identified:    [ isIdentified ],
-  Anonymous: [ isAnonymous ],
-})
+function valueEquals(a, b) {
+  if (isIdentified(a)) {
+    return a.id === b.id
+  }
 
-const asValue = R.ifElse(isIdentified, Value.Identified, Value.Anonymous)
-
-const valueEquality = Value.caseOn({
-  Identified:
-    (a,b) => Value.case({ Identified: R.propEq('id', a.id), _: R.F }, b),
-  Anonymous:
-    (a,b) => Value.case({ Anonymous:  R.equals(a),          _: R.F }, b),
-})
+  return R.equals(a, b)
+}
 
 const Change = Type({
-  Addition:     [ R.either(isAnonymous, isIdentified) ],
-  Deletion:     [ R.either(isAnonymous, isIdentified) ],
-  Preservation: [ R.either(isAnonymous, isIdentified) ],
-  Mutation:     [ isIdentified, isIdentified ],
+  Addition: {
+    value: R.T,
+  },
+  Deletion: {
+    value: R.T,
+  },
+  Preservation: {
+    value: R.T,
+  },
+  Mutation: {
+    from: isIdentified,
+    to: isIdentified,
+  },
 })
 
-module.exports = { Value, Change, asValue, valueEquality }
+module.exports = { Change, isIdentified, valueEquals }

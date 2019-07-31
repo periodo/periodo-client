@@ -1,7 +1,6 @@
 "use strict";
 
 const R = require('ramda')
-    , { Value, asValue } = require('./diffable/types')
     , { FieldList, extract } = require('./diffable/Field')
     , { TextValue
       , LinkValue
@@ -23,7 +22,7 @@ const extractSpatialExtent = period => {
 
   return (description || places.length)
     // return identified value so that it is diffable
-    ? [ Value.Identified({ id: 0, description, places }) ]
+    ? [ { id: 0, description, places } ]
     : []
 }
 
@@ -39,7 +38,7 @@ const extractIndex = R.pipe(
 )
 
 const extractAlternateLabels = period => R.map(
-  ([ language, value ]) => Value.Anonymous({ language, value }),
+  ([ language, value ]) => ({ language, value }),
   R.difference( // exclude original label
     extractIndex('localizedLabels', period),
     [ R.pair(period.language, period.label) ]
@@ -49,8 +48,7 @@ const extractAlternateLabels = period => R.map(
 const extractRelatedPeriods = key => R.pipe(
   R.pathOr({}, [$$RelatedPeriods, key]),
   R.values,
-  R.sort(period.byStartYear),
-  R.map(asValue)
+  R.sort(period.byStartYear)
 )
 
 const PERIOD_FIELDS = [

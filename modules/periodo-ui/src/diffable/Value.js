@@ -11,7 +11,6 @@ const h = require('react-hyperscript')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { BackendContext } = require('../BackendContext')
     , { useContext } = require('react')
-    , { Value } = require('./types')
     , linkifier = require('linkify-it')()
     , { permalinkURL } = require('../../../periodo-app/src/globals')
     , util = require('periodo-utils')
@@ -59,13 +58,13 @@ function describeLanguageTag(tag) {
 }
 
 function show(Component, props={}) {
-  return ([ value ]) =>
+  return value =>
     h(Component, { value, ...props })
 }
 
 const entries = R.pipe(
   R.toPairs,
-  R.map(Value.Anonymous)
+  R.map(R.identity)
 )
 
 function Annotated(props) {
@@ -266,7 +265,7 @@ function SpatialExtentValue(props) {
   }
 
   const features = places
-    .map(([{id}]) => gazetteers.find(id))
+    .map(({ id }) => gazetteers.find(id))
     .filter(R.identity)
 
   return (

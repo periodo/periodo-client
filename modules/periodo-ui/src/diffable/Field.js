@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { Box } = require('../Base')
     , { PrimitiveValue, show } = require('./Value')
     , { InfoText, WarnText } = require('../Typography')
-    , { Value, Change, asValue } = require('./types')
+    , { Change, isIdentified } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
 
 
@@ -22,18 +22,18 @@ function extract(path, opts={}) {
       const ret = {}
 
       Object.entries(extracted).forEach(([ k, v ]) => {
-        ret[k] = asValue(v)
+        ret[k] = v
       })
 
       return ret
     } else {
-      let ret = [].concat(extracted).map(v => asValue(v))
+      let ret = [].concat(extracted)
 
       if (withKey) {
-        ret = ret.map((value, i) => value.case({
-          Identified: v => Value.Identified(v),
-          Anonymous: v => Value.Identified({ id: i, [withKey]: v }),
-        }))
+        ret = ret.map((value, i) =>
+          isIdentified(value)
+            ? value
+            : { id: i, [withKey]: value })
       }
 
       return ret
@@ -60,8 +60,8 @@ function runComparisonChecks({
   comparedValues,
 }) {
   const warnings = [].concat(
-    checkImmutable(isImmutable, values, comparedValues),
-    checkRequired(isRequired, comparedValues)
+    checkRequired(isRequired, values),
+    checkImmutable(isImmutable, values, comparedValues)
   )
 
   return warnings
@@ -139,10 +139,10 @@ function compareValues(fieldValue, compareTo) {
 
 function fieldExtractor(props) {
   return fieldSpec => item => {
-    //TODO: const { getValue, useProps, ...ret } = fieldSpec
+    // TODO: const { getValue, useProps, ...ret } = fieldSpec
     const values = fieldSpec.getValues(item)
 
-    const ret = R.omit(['getValue', 'useProps'], fieldSpec)
+    const ret = R.omit(['getValues', 'useProps'], fieldSpec)
 
     ret.id = fieldSpec.label;
     ret.values = values;
@@ -158,8 +158,7 @@ function fieldExtractor(props) {
 const fieldsExtractor = (fieldSpecs, props) => R.pipe(
   R.of,
   R.ap(R.map(fieldExtractor(props), fieldSpecs)),
-  R.filter(({ required, values }) => (required || values.length > 0)),
-  R.map(Value.Identified)
+  R.filter(({ required, values }) => (required || values.length > 0))
 )
 
 function Warnings(props) {
