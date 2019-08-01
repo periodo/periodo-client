@@ -211,24 +211,22 @@ const usedProps = R.reduce(
   )
 )
 
-function FieldList (fieldSpecs) {
-  return props => {
-    const { value, compare } = props
-        , fields = fieldsExtractor(fieldSpecs, props)
-        , omitProps = usedProps([ 'value', 'compare' ], fieldSpecs)
+function DiffableItem (props) {
+  const { fieldList, value, compare, ...rest } = props
+      , fields = fieldsExtractor(fieldList, { value, compare, ...rest })
+      , omitProps = usedProps([ 'value', 'compare' ], fieldList)
 
-    const childProps = Object.assign(R.omit(omitProps, props), {
-      is: 'dl',
-    })
+  const childProps = Object.assign(R.omit(omitProps, props), {
+    is: 'dl',
+  })
 
-    return (
-      h(Box, childProps, [
-        compare
-          ? showChanges(Field)(findChanges(fields(value), fields(compare)))
-          : R.map(show(Field), fields(value)),
-      ])
-    )
-  }
+  return (
+    h(Box, childProps, [
+      compare
+        ? showChanges(Field)(findChanges(fields(value), fields(compare)))
+        : R.map(show(Field), fields(value)),
+    ])
+  )
 }
 
-module.exports = { extract, FieldList }
+module.exports = { extract, DiffableItem }

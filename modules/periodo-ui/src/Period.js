@@ -1,27 +1,30 @@
 "use strict";
 
-const R = require('ramda')
-    , { FieldList, extract } = require('./diffable/Field')
-    , { TextValue
-      , LinkValue
-      , PermalinkValue
-      , IntervalValue
-      , LanguageTagValue
-      , LinkifiedTextValue
-      , SpatialExtentValue
-      , LanguageSpecificValue
-      , RelatedPeriodValue,
-      } = require('./diffable/Value')
+const h = require('react-hyperscript')
+    , R = require('ramda')
+    , { DiffableItem, extract } = require('./diffable/Field')
     , { ensureArray, period } = require('periodo-utils')
+    , $$RelatedPeriods = Symbol.for('RelatedPeriods')
 
-const $$RelatedPeriods = Symbol.for('RelatedPeriods')
+const {
+  TextValue,
+  LinkValue,
+  PermalinkValue,
+  IntervalValue,
+  LanguageTagValue,
+  LinkifiedTextValue,
+  SpatialExtentValue,
+  LanguageSpecificValue,
+  RelatedPeriodValue,
+} = require('./diffable/Value')
+
 
 const extractSpatialExtent = period => {
   const description = period.spatialCoverageDescription || ''
       , places = extract('spatialCoverage')(period)
 
+  // return identified value so that it is diffable
   return (description || places.length)
-    // return identified value so that it is diffable
     ? [ { id: 0, description, places } ]
     : []
 }
@@ -51,7 +54,7 @@ const extractRelatedPeriods = key => R.pipe(
   R.sort(period.byStartYear)
 )
 
-const PERIOD_FIELDS = [
+const periodFields = [
   {
     label: 'Permalink',
     getValues: extract('id'),
@@ -156,4 +159,11 @@ const PERIOD_FIELDS = [
   },
 ]
 
-exports.Period = FieldList(PERIOD_FIELDS)
+function Period(props) {
+  return h(DiffableItem, {
+    ...props,
+    fieldList: periodFields,
+  })
+}
+
+module.exports = { Period }

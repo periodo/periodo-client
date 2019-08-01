@@ -1,6 +1,7 @@
 "use strict";
 
-const { FieldList, extract } = require('./diffable/Field')
+const h = require('react-hyperscript')
+    , { DiffableItem, extract } = require('./diffable/Field')
 
 const {
   LinkValue,
@@ -21,7 +22,7 @@ function extractSourceOrPartOf(key, opts) {
 
 
 
-const SOURCE_FIELDS = [
+const sourceFields = [
   {
     label: 'Title',
     getValues: extractSourceOrPartOf('title', { withKey: 'text' }),
@@ -91,4 +92,13 @@ const SOURCE_FIELDS = [
   },
 ]
 
-exports.Source = FieldList(SOURCE_FIELDS)
+function Source(props) {
+  return (
+    h(DiffableItem, {
+      ...props,
+      fieldList: sourceFields,
+    })
+  )
+}
+
+module.exports = { Source }
