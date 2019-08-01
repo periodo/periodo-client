@@ -162,6 +162,7 @@ function PeriodCell(props) {
         AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
         ChangePeriod: () => h(Period, {
           p: 1,
+          showMap: false,
           value: unpatchedPeriodByID(period.id),
           compare: patchedPeriodByID(period.id),
         }),

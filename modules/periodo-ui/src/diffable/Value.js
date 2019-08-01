@@ -247,10 +247,12 @@ function SpatialExtentValue(props) {
   const {
     value: { description, places },
     gazetteers,
+    showMap=true,
     compare,
   } = props
 
   let annotationProps
+    , features
 
   if (compare) {
     annotationProps = {
@@ -264,17 +266,19 @@ function SpatialExtentValue(props) {
     }
   }
 
-  const features = places
-    .map(({ id }) => gazetteers.find(id))
-    .filter(R.identity)
+  if (showMap) {
+    features = places
+      .map(({ id }) => gazetteers.find(id))
+      .filter(R.identity)
+  }
 
   return (
     h('div', [
       h(Annotated, R.merge(
-        R.omit([ 'value', 'compare' ], props),
+        R.omit([ 'value', 'compare', 'showMap', ], props),
         annotationProps
       )),
-      compare ? null : (
+      !showMap ? null : (
         h(WorldMap, {
           mt: 1,
           border: '1px solid #ccc',
