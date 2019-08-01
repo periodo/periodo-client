@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , DMP = require('diff-match-patch')
     , { Box } = require('../Base')
-    , { Value, Change, valueEquality } = require('./types')
+    , { isIdentified, Change, valueEquals } = require('./types')
 
 const dmp = new DMP()
 
@@ -40,41 +40,50 @@ function Diff(props) {
   )
 }
 
-const mergeObjects = R.reduce(R.mergeDeepRight, {})
+function mergeDeepAll(objects) {
+  return objects.reduce(
+    (acc, obj) => R.mergeDeepRight(acc, obj),
+    {})
+}
 
-const findChanges = (valuesA, valuesB) => R.reduce(
-  (changes, value) => {
-    const equivalentsA = R.filter(valueEquality(value), valuesA)
-        , equivalentsB = R.filter(valueEquality(value), valuesB)
+function findChanges(valuesA, valuesB) {
+  const allValues = R.unionWith(valueEquals, valuesA, valuesB)
 
-    return Value.case({
-      Anonymous: v => {
-        const countA = R.length(equivalentsA)
-            , countB = R.length(equivalentsB)
-            , difference = countB - countA
-        return changes.concat(
-          Array(Math.min(countA, countB))
-            .fill(Change.Preservation(v)),
-          Array(Math.abs(difference))
-            .fill(difference > 0 ? Change.Addition(v) : Change.Deletion(v))
-        )
-      },
-      Identified: v => {
-        const objA = mergeObjects(R.map(v => v[0], equivalentsA))
-            , objB = mergeObjects(R.map(v => v[0], equivalentsB))
-            , change =
-                ( R.isEmpty(objA)      ? Change.Addition(v)
-                : R.isEmpty(objB)      ? Change.Deletion(v)
-                : R.equals(objA, objB) ? Change.Preservation(v)
-                                       : Change.Mutation(objA, objB)
-                )
-        return R.append(change, changes)
-      },
-    }, value)
-  },
-  [],
-  R.unionWith(valueEquality, valuesA, valuesB)
-)
+  return allValues.reduce((acc, value) => {
+    const matchingValues = v => valueEquals(v, value)
+        , equivalentsA = valuesA.filter(matchingValues)
+        , equivalentsB = valuesB.filter(matchingValues)
+
+    if (isIdentified(value)) {
+      const objA = mergeDeepAll(equivalentsA)
+          , objB = mergeDeepAll(equivalentsB)
+
+      let change
+
+      if (R.isEmpty(objA)) {
+        change = Change.Addition(value)
+      } else if (R.isEmpty(objB)) {
+        change = Change.Deletion(value)
+      } else if (R.equals(objA, objB)) {
+        change = Change.Preservation(value)
+      } else {
+        change = Change.Mutation(objA, objB)
+      }
+
+      return [...acc, change]
+    } else {
+      const countA = R.length(equivalentsA)
+          , countB = R.length(equivalentsB)
+          , difference = countB - countA
+      return acc.concat(
+        Array(Math.min(countA, countB))
+          .fill(Change.Preservation(value)),
+        Array(Math.abs(difference))
+          .fill(difference > 0 ? Change.Addition(value) : Change.Deletion(value))
+      )
+    }
+  }, [])
+}
 
 const showChanges = component => R.map(
   Change.case({
