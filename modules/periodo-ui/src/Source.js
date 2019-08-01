@@ -1,75 +1,104 @@
 "use strict";
 
-const R = require('ramda')
-    , { FieldList, extract, as } = require('./Field')
-    , { LinkValue
-      , TextValue
-      , LinkifiedTextValue
-      , AgentValue,
-      } = require('./Value')
+const h = require('react-hyperscript')
+    , { DiffableItem, extract } = require('./diffable/Field')
 
-const extractFirstOf = keysOrPaths => R.pipe(
-  R.of,
-  R.ap(R.map(extract, keysOrPaths)),
-  R.find(R.compose(R.not, R.isEmpty)),
-  R.ifElse(R.identity, R.identity, R.always([])),
-)
+const {
+  LinkValue,
+  TextValue,
+  LinkifiedTextValue,
+  AgentValue,
+} = require('./diffable/Value')
 
-const orPartOf = R.converge(R.concat, [R.identity, R.map(R.pair('partOf'))])
+function extractSourceOrPartOf(key, opts) {
+  return period => {
+    const val = extract(key, opts)(period)
 
-const SOURCE_FIELDS = [
+    if (Object.keys(val).length) return val
+
+    return extract(['partOf'].concat(key), opts)(period)
+  }
+}
+
+
+
+const sourceFields = [
   {
     label: 'Title',
-    values: as('text')(extractFirstOf(orPartOf([ 'title' ]))),
+    getValues: extractSourceOrPartOf('title', { withKey: 'text' }),
     component: TextValue,
   },
+
   {
     label: 'Creators',
-    values: extractFirstOf(orPartOf([ 'creators' ])),
+    getValues: extractSourceOrPartOf('creators'),
     component: AgentValue,
   },
+
   {
     label: 'Contributors',
-    values: extractFirstOf(orPartOf([ 'contributors' ])),
+    getValues: extractSourceOrPartOf('contributors'),
     component: AgentValue,
   },
+
   {
     label: 'Citation',
-    values: as('text')(extractFirstOf(orPartOf([ 'citation' ]))),
+    getValues: extractSourceOrPartOf('citation', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Abstract',
-    values: as('text')(extractFirstOf(orPartOf([ 'abstract' ]))),
+    getValues: extractSourceOrPartOf('abstract', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Year published',
-    values: extractFirstOf(orPartOf([ 'yearPublished' ])),
+    getValues: extractSourceOrPartOf('yearPublished'),
   },
+
   {
     label: 'Date accessed',
-    values: extractFirstOf(orPartOf([ 'dateAccessed' ])),
+    getValues: extractSourceOrPartOf('dateAccessed'),
   },
+
   {
     label: 'Editorial notes',
-    values: as('text')(extractFirstOf(orPartOf([ 'editorialNote' ]))),
+    getValues: extractSourceOrPartOf('editorialNote', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Locator',
-    values: extract('locator'),
+    getValues: extract('locator'),
   },
+
   {
     label: 'Web page',
-    values: extractFirstOf(orPartOf([ 'id', 'url' ])),
-    component: LinkValue,
+    getValues: period =>  {
+      const id = extractSourceOrPartOf('id')(period)
+
+      if (Object.keys(id).length) return id
+
+      return extractSourceOrPartOf('url')(period)
+    },
   },
+
   {
     label: 'Same as',
-    values: extractFirstOf(orPartOf([ 'sameAs' ])),
+    getValues: extractSourceOrPartOf('sameAs'),
     component: LinkValue,
   },
 ]
 
-exports.Source = FieldList(SOURCE_FIELDS)
+function Source(props) {
+  return (
+    h(DiffableItem, {
+      ...props,
+      fieldList: sourceFields,
+    })
+  )
+}
+
+module.exports = { Source }

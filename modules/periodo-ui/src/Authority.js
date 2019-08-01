@@ -1,58 +1,82 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , { FieldList, extract, extractIndexedValues, as } = require('./Field')
-    , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./Value')
+    , { DiffableItem, extract } = require('./diffable/Field')
+    , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./diffable/Value')
     , { Period } = require('./Period')
     , { Source } = require('./Source')
 
-const AUTHORITY_FIELDS = [
+const authorityFields = [
   {
     label: 'Permalink',
-    values: extract('id'),
+    getValues: extract('id'),
     component: PermalinkValue,
     required: true,
     immutable: true,
   },
+
   {
     label: 'Type',
-    values: extract('type'),
+    getValues: extract('type'),
     required: true,
     immutable: true,
     hidden: true,
   },
+
   {
     label: 'Source',
-    values: extract('source'),
+    getValues: extract('source'),
     component: Source,
     required: true,
   },
+
   {
     label: 'Editorial notes',
-    values: as('text')(extract('editorialNote')),
+    getValues: extract('editorialNote', { withKey: 'text' }),
     component: LinkifiedTextValue,
   },
+
   {
     label: 'Same as',
-    values: extract('sameAs'),
+    getValues: extract('sameAs'),
     component: LinkValue,
   },
 ]
 
-const AUTHORITY_WITH_PERIODS_FIELDS = [
-  ...AUTHORITY_FIELDS,
-  { label: 'Periods',
-    values: extractIndexedValues('periods'),
-    component: props => h(
-      Period,
-      R.merge(props,
-        { m: 1, borderTop: 'thin solid', borderColor: 'Gainsboro' }
-      ),
+const authorityFieldsWithPeriods = [
+  ...authorityFields,
+
+  {
+    label: 'Periods',
+    getValues: extract('periods', { indexed: true }),
+    component: props => (
+      h(Period, {
+        ...props,
+        m: 1,
+        borderTop: 'thin solid',
+        borderColor: 'Gainsboro',
+      })
     ),
     hideUnchanged: true,
   },
 ]
 
-exports.Authority = FieldList(AUTHORITY_FIELDS)
-exports.AuthorityWithPeriods = FieldList(AUTHORITY_WITH_PERIODS_FIELDS)
+function Authority(props) {
+  return (
+    h(DiffableItem, {
+      ...props,
+      fieldList: authorityFields,
+    })
+  )
+}
+
+function AuthorityWithPeriods(props) {
+  return (
+    h(DiffableItem, {
+      ...props,
+      fieldList: authorityFieldsWithPeriods,
+    })
+  )
+}
+
+module.exports = { Authority, AuthorityWithPeriods }
