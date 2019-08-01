@@ -137,29 +137,29 @@ function compareValues(fieldValue, compareTo) {
   }
 }
 
-function fieldExtractor(props) {
-  return fieldSpec => item => {
-    // TODO: const { getValue, useProps, ...ret } = fieldSpec
-    const values = fieldSpec.getValues(item)
+function processFieldSpec(fieldSpecs, props) {
+  return function fieldsFor(item) {
+    const fields = []
 
-    const ret = R.omit(['getValues', 'useProps'], fieldSpec)
+    fieldSpecs.forEach(fieldSpec => {
+      const { getValues, useProps=[], ...field } = fieldSpec
+          , values = getValues(item)
 
-    ret.id = fieldSpec.label;
-    ret.values = values;
+      field.id = fieldSpec.label
+      field.values = values
 
-    (fieldSpec.useProps || []).forEach(prop => {
-      ret[prop] = props[prop]
+      useProps.forEach(prop => {
+        field[prop] = props[prop]
+      })
+
+      if (field.required || field.values.length > 0) {
+        fields.push(field)
+      }
     })
 
-    return ret
+    return fields
   }
 }
-
-const fieldsExtractor = (fieldSpecs, props) => R.pipe(
-  R.of,
-  R.ap(R.map(fieldExtractor(props), fieldSpecs)),
-  R.filter(({ required, values }) => (required || values.length > 0))
-)
 
 function Warnings(props) {
   const { warnings, ...childProps } = props
@@ -205,27 +205,31 @@ function Field(props) {
   )
 }
 
-const usedProps = R.reduce(
-  (usedProps, fieldSpec) => R.union(
-    usedProps, R.propOr([], 'useProps', fieldSpec)
-  )
-)
-
 function DiffableItem (props) {
   const { fieldList, value, compare, ...rest } = props
-      , fields = fieldsExtractor(fieldList, { value, compare, ...rest })
-      , omitProps = usedProps([ 'value', 'compare' ], fieldList)
+      , fieldsFor = processFieldSpec(fieldList, { value, compare, ...rest })
 
-  const childProps = Object.assign(R.omit(omitProps, props), {
-    is: 'dl',
-  })
+  // Don't include props only meant for fields on the outer Box, but include
+  // everything else (e.g. for styling or event handling)
+  const outerProps = R.omit(
+    ['value', 'compare'].concat(fieldList.map(f => f.usedProps)),
+    props
+  )
+
+  outerProps.is = 'dl'
+
+  let children
+
+  if (compare) {
+    const changes = findChanges(fieldsFor(value), fieldsFor(compare))
+
+    children = showChanges(Field)(changes)
+  } else {
+    children = fieldsFor(value).map(f => show(Field)(f))
+  }
 
   return (
-    h(Box, childProps, [
-      compare
-        ? showChanges(Field)(findChanges(fields(value), fields(compare)))
-        : R.map(show(Field), fields(value)),
-    ])
+    h(Box, outerProps, children)
   )
 }
 
