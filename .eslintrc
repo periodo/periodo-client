@@ -9,23 +9,51 @@
     "es6": true
   },
   "rules": {
+    "array-bracket-newline": ["error", "consistent"],
+    "array-bracket-spacing": ["error", "always", {
+      "objectsInArrays": false,
+      "arraysInArrays": false,
+    }],
     "comma-dangle": [2, {
       "arrays": "always-multiline",
       "objects": "always-multiline"
     }],
+    "comma-style": ["error", "last", {
+      "exceptions": {
+        "VariableDeclaration": true
+      }
+    }],
     "curly": [2, "multi-line"],
+    "indent": ["error", 2, {
+        "MemberExpression": "off",
+        "ignoreComments": true,
+        "ignoredNodes": ["VariableDeclaration"]
+    }],
     "new-cap": 0,
     "no-mixed-requires": 0,
     "no-trailing-spaces": 2,
     "no-underscore-dangle": 0,
     "no-use-before-define": [2, "nofunc"],
     "no-var": 2,
+    "object-curly-newline": ["error", {
+      "ObjectExpression": {
+        "multiline": true,
+        "minProperties": 3,
+        "consistent": true,
+      }
+    }],
+    "object-curly-spacing": ["error", "always", {
+      "objectsInObjects": false,
+      "arraysInObjects": false,
+    }],
+    "object-property-newline": 2,
     "object-shorthand": 2,
     "prefer-arrow-callback": [2, {
       "allowNamedFunctions": true
     }],
     "prefer-const": 2,
     "prefer-spread": 2,
+    "prefer-object-spread": 2,
     "quotes": 0
   }
 }
