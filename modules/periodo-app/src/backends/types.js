@@ -29,17 +29,17 @@ BackendStorage.prototype.isEditable = function () {
 }
 
 BackendStorage.fromIdentifier = identifier => {
-  const [type, id] = identifier.split('-')
+  const [ type, id ] = identifier.split('-')
 
   switch (type) {
-    case 'web':
-      return BackendStorage.Web(decodeURIComponent(id));
+  case 'web':
+    return BackendStorage.Web(decodeURIComponent(id));
 
-    case 'local':
-      return BackendStorage.IndexedDB(parseInt(id));
+  case 'local':
+    return BackendStorage.IndexedDB(parseInt(id));
 
-    default:
-      throw new Error(`Unknown backend type: ${type}`)
+  default:
+    throw new Error(`Unknown backend type: ${type}`)
   }
 }
 

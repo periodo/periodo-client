@@ -2,7 +2,6 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , url = require('url')
     , { Route } = require('org-shell')
     , BackendAction = require('./backends/actions')
     , AuthAction = require('./auth/actions')
@@ -54,7 +53,7 @@ const Home = {
       mapStateToProps: state => ({
         backends: R.pipe(
           R.values,
-          R.sortBy(R.path(['metadata', 'accessed'])),
+          R.sortBy(R.path([ 'metadata', 'accessed' ])),
           R.reverse
         )(state.backends.available),
       }),
@@ -120,7 +119,7 @@ const Backend = {
       async onBeforeRoute(dispatch, params) {
         const storage = BackendStorage.fromIdentifier(params.backendID)
 
-        const changes = await throwIfUnsuccessful(
+        await throwIfUnsuccessful(
           dispatch(BackendAction.GetBackendHistory(storage)))
       },
       mapStateToProps(state, props) {
@@ -150,7 +149,7 @@ const Backend = {
         const creators = new Set(patches.map(R.prop('created_by')))
             , mergers = new Set(patches.map(R.prop('updated_by')))
 
-        const allORCIDs = [...new Set([...creators, ...mergers])]
+        const allORCIDs = [ ...new Set([ ...creators, ...mergers ]) ]
           .filter(R.startsWith('http'))
 
         await dispatch(LinkedDataAction.FetchORCIDs(allORCIDs))
@@ -201,12 +200,12 @@ const Backend = {
       label: 'Review submitted patches',
       Component: require('./backends/components/ReviewSubmittedPatches'),
       showInMenu: hasEditableBackend,
+      /* FIXME
       async onBeforeRoute(dispatch) {
-        /*
         const storage = BackendStorage.fromIdentifier(params.backendID)
         await dispatch(actions.getPatchesSubmittedFromBackend(storage))
-        */
       },
+      */
     },
     'backend-edit': {
       label: 'Settings',
@@ -376,10 +375,15 @@ function getParents(group) {
   return parents.reverse()
 }
 
-function makeResourceComponent(resource, group) {
+function makeResourceComponent(resource) {
   const Resource = props => {
     return (
-      h(Box, { css: { width: '100%', flexGrow: 1 }}, [
+      h(Box, {
+        css: {
+          width: '100%',
+          flexGrow: 1,
+        },
+      }, [
         h(resource.Component, props),
       ])
     )
@@ -421,7 +425,7 @@ function registerGroups(groups) {
       }
 
       const aggregated = R.pipe(
-        R.map(R.pick(['onBeforeRoute', 'mapStateToProps', 'wrappers'])),
+        R.map(R.pick([ 'onBeforeRoute', 'mapStateToProps', 'wrappers' ])),
         R.reduce(
           R.mergeWith(R.flip(R.append)),
           {
@@ -487,5 +491,5 @@ module.exports = module.exports.reduce((acc, group) =>
       makeTitle: () => `${group.label} | ${resource.label}`,
     })), group.resources)
   ),
-  {}
+{}
 )

@@ -76,7 +76,7 @@ function PeriodCell(props) {
   )
 
   const explicitlySelected = deferToAuthority
-    ? R.path([patch.id, period.id], selectedPeriods)
+    ? R.path([ patch.id, period.id ], selectedPeriods)
     : patch.id in selectedPatches
 
   const checked = selectAll || !!(selectAllPeriods || explicitlySelected)
@@ -117,7 +117,7 @@ function PeriodCell(props) {
             // If this one has been explicitly selected, unselect it.
             if (explicitlySelected) {
               return {
-                selectedPeriods: R.dissocPath([patch.id, period.id], prev.selectedPeriods),
+                selectedPeriods: R.dissocPath([ patch.id, period.id ], prev.selectedPeriods),
               }
             }
 
@@ -125,7 +125,7 @@ function PeriodCell(props) {
             // selected. In that case, select both the period and the
             // authority.
             return {
-              selectedPeriods: R.assocPath([patch.id, period.id], true, prev.selectedPeriods),
+              selectedPeriods: R.assocPath([ patch.id, period.id ], true, prev.selectedPeriods),
               selectedPatches: R.assoc(patch.id, true, prev.selectedPatches),
             }
           }),
@@ -158,16 +158,32 @@ function PeriodCell(props) {
       ]),
 
       (expandAll || expandedPeriods.has(period.id)) && patch.type.case({
-        AddAuthority: () => h(Period, { p: 1, bg: 'green0', value: period }),
-        AddPeriod: () => h(Period, { p: 1, bg: 'green0', value: period }),
+        AddAuthority: () => h(Period, {
+          p: 1,
+          bg: 'green0',
+          value: period,
+        }),
+        AddPeriod: () => h(Period, {
+          p: 1,
+          bg: 'green0',
+          value: period,
+        }),
         ChangePeriod: () => h(Period, {
           p: 1,
           showMap: false,
           value: unpatchedPeriodByID(period.id),
           compare: patchedPeriodByID(period.id),
         }),
-        RemoveAuthority: () => h(Period, { p: 1, bg: 'red0', value: period }),
-        RemovePeriod: () => h(Period, { p: 1, bg: 'red0', value: period }),
+        RemoveAuthority: () => h(Period, {
+          p: 1,
+          bg: 'red0',
+          value: period,
+        }),
+        RemovePeriod: () => h(Period, {
+          p: 1,
+          bg: 'red0',
+          value: period,
+        }),
         _: () => null,
       }),
     ])
@@ -222,7 +238,7 @@ function AuthorityRow(props) {
         patch,
       }))
     }),
-    R.groupBy(R.path(['period', 'id'])),
+    R.groupBy(R.path([ 'period', 'id' ])),
     R.values,
     R.map(p => ({
       period: p[0].period,
@@ -259,7 +275,10 @@ function AuthorityRow(props) {
             onChange: () => setState({
               selectedPatches: (patchID in selectedPatches)
                 ? R.dissoc(patchID, selectedPatches)
-                : Object.assign({ [patchID]: true }, selectedPatches),
+                : ({
+                  [patchID]: true,
+                  ...selectedPatches,
+                }),
               selectedPeriods: (patchID in selectedPeriods)
                 ? R.dissoc(patchID, selectedPeriods)
                 : selectedPeriods,
@@ -287,15 +306,16 @@ function AuthorityRow(props) {
             },
           }, util.authority.displayTitle(authority)),
         ]),
-        (expandAll || expandedAuthorities.has(authority.id)) && h(Authority, Object.assign({
+        (expandAll || expandedAuthorities.has(authority.id)) && h(Authority, {
           p: 1,
           value: authority,
-        }, authorityPatches.length && authorityPatches[0].type.case({
-          AddAuthority: () => ({ bg: 'green0' }),
-          ChangeAuthority: () => ({ /* FIXME: compare to remote */ }),
-          RemoveAuthority: () => ({ bg: 'red0' }),
-          _: () => ({}),
-        }))),
+          ...authorityPatches.length && authorityPatches[0].type.case({
+            AddAuthority: () => ({ bg: 'green0' }),
+            ChangeAuthority: () => ({ /* FIXME: compare to remote */ }),
+            RemoveAuthority: () => ({ bg: 'red0' }),
+            _: () => ({}),
+          }),
+        }),
       ]),
 
       h(Box, {
@@ -306,14 +326,15 @@ function AuthorityRow(props) {
           borderLeft: 'none',
         },
       }, R.pipe(
-        R.map(({ period, patch, authority }) => h(PeriodCell, Object.assign({
+        R.map(({ period, patch, authority }) => h(PeriodCell, {
           key: period.id,
           period,
           patch,
           authority,
           unpatchedPeriodByID,
           patchedPeriodByID,
-        }, props))),
+          ...props,
+        })),
         R.ifElse(
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
           list => [
@@ -417,10 +438,10 @@ class Compare extends React.Component {
         if (!(id in selectedPeriods)) return patch;
 
         return R.over(
-          R.lensPath(['value', 'periods']),
+          R.lensPath([ 'value', 'periods' ]),
           R.pipe(
             Object.entries,
-            R.filter(([periodID]) => selectedPeriods[id][periodID]),
+            R.filter(([ periodID ]) => selectedPeriods[id][periodID]),
             R.fromPairs
           ),
           patch
@@ -492,7 +513,10 @@ class Compare extends React.Component {
 
     // Then, partition by authority, so that changes to periods in the same
     // authority can be grouped together
-    const byAuthority = R.groupBy(R.path(['type', 'authorityID']), itemPatches)
+    const byAuthority = R.groupBy(R.path([ 'type', 'authorityID' ]), itemPatches)
+
+    // FIXME: Render other patches
+    other
 
     return (
       h(Box, [
@@ -507,9 +531,15 @@ class Compare extends React.Component {
         }, [
           h(Box, [
             h(Heading, { level: 4 }, 'Patch summary'),
-            h(Box, { is: 'ul', ml: 3 }, [
-              Object.entries(countsByType).map(([label, count]) =>
-                h(Box, { is: 'li', key: label }, `${label} (${count})`)
+            h(Box, {
+              is: 'ul',
+              ml: 3,
+            }, [
+              Object.entries(countsByType).map(([ label, count ]) =>
+                h(Box, {
+                  is: 'li',
+                  key: label,
+                }, `${label} (${count})`)
               ),
             ]),
           ]),
@@ -595,15 +625,16 @@ class Compare extends React.Component {
               h('th', 'Period'),
             ]),
           ]),
-          h('tbody', Object.entries(byAuthority).map(([authorityID, patches]) =>
-            h(AuthorityRow, Object.assign({
+          h('tbody', Object.entries(byAuthority).map(([ authorityID, patches ]) =>
+            h(AuthorityRow, {
               key: authorityID,
               editing,
               setState: this.setState.bind(this),
               datasetAuthorityByID: this.datasetAuthorityByID,
               datasetPeriodByID: this.datasetPeriodByID,
               patches,
-            }, this.state))
+              ...this.state,
+            })
           )),
         ]),
       ])

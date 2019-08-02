@@ -6,18 +6,19 @@ const h = require('react-hyperscript')
 const noop = () => null
 
 module.exports = function makeDOMBlock(obj) {
-  const proto = Object.assign({
+  const proto = {
     init: noop,
     update: noop,
     destroy: noop,
-  }, obj)
+    ...obj,
+  }
 
   class DOMBlock extends React.Component {
     constructor() {
       super();
 
       this.state = {
-        streamCount: 0
+        streamCount: 0,
       }
     }
 
@@ -47,12 +48,13 @@ module.exports = function makeDOMBlock(obj) {
 
     render() {
       return h('div', {
-        ref: el => this._rootEl = el
+        ref: el => this._rootEl = el,
       })
     }
   }
 
-  return Object.assign({}, obj, {
+  return {
+    ...obj,
     Component: DOMBlock,
-  })
+  }
 }

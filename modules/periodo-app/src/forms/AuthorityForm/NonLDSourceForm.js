@@ -79,10 +79,13 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
           onChange: this.handleChange,
         }),
 
-        ['creators', 'contributors'].map(field => {
-          const list = R.propOr([emptyCreator], field, value)
+        [ 'creators', 'contributors' ].map(field => {
+          const list = R.propOr([ emptyCreator ], field, value)
 
-          return h(Box, { key: field, mt: 3 }, [
+          return h(Box, {
+            key: field,
+            mt: 3,
+          }, [
             h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
             h(Box, list.map((agent, i) =>
               h(Flex, { key: field + i }, [
@@ -92,7 +95,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                   value: agent.name || '',
                   onChange: e => {
                     onValueChange(
-                      R.assocPath([field, i, 'name'], e.target.value, value))
+                      R.assocPath([ field, i, 'name' ], e.target.value, value))
                   },
                 }),
 
@@ -118,7 +121,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
                       R.lensProp(field),
                       cs => (cs || []).length > 1
                         ? R.remove(i, 1, cs)
-                        : [emptyCreator],
+                        : [ emptyCreator ],
                       value
                     ))
                   },

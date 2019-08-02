@@ -132,9 +132,12 @@ function generateDatasetPatch(
 function withAuthHeaders(backend, extra) {
   const { token } = (backend.metadata.orcidCredential || {})
 
-  return Object.assign({}, extra, !token ? {} : {
-    Authorization: `Bearer ${token}`,
-  })
+  return {
+    ...extra,
+    ...(!token ? {} : {
+      Authorization: `Bearer ${token}`,
+    }),
+  }
 }
 
 function submitPatch(localBackend, remoteBackend, patch) {
@@ -231,7 +234,7 @@ function getLocalPatch(remoteBackend, patchURL) {
 
     // Fetch ORCIDs
     await dispatch(LinkedDataAction.FetchORCIDs(
-      [...new Set(patch.comments.map(patch => patch.author))]
+      [ ...new Set(patch.comments.map(patch => patch.author)) ]
     ))
 
     ret.patch.comments.forEach(comment => {
@@ -254,7 +257,7 @@ async function getServerPatches() {
     const resp = await fetch(patchURL)
         , link = parseLinkHeader(resp.headers.get('Link'))
 
-    patches = [...patches, ...(await resp.json())]
+    patches = [ ...patches, ...(await resp.json()) ]
 
     if (link && link.next) {
       patchURL = link.next.url
@@ -348,6 +351,7 @@ function decidePatchFate(backend, mergeURL, fate) {
     ))
 
     // TODO: Update local skolem ids for new items (see code below)
+    db;
 
     return {}
   }

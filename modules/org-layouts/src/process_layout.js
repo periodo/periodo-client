@@ -9,18 +9,18 @@ const h = require('react-hyperscript')
 module.exports = function processLayout(blockDefs, layoutString) {
   const parsedLayout = parseLayout(layoutString)
   return R.pipe(
-      R.over(
-        R.lensProp('blocks'),
-        R.map(({ id, type, opts, gridRow='auto', gridColumn='auto' }) => {
+    R.over(
+      R.lensProp('blocks'),
+      R.map(({ id, type, opts, gridRow='auto', gridColumn='auto' }) => {
           const {
             Component=() => h('div', {
               style: {
-                backgroundColor: 'red'
+                backgroundColor: 'red',
               },
             }, `No such block type: ${type}`),
             makeFilter=null,
             processOpts=R.defaultTo({}, R.identity),
-            defaultOpts={}
+            defaultOpts={},
           } = (blockDefs[type] || {})
 
           return {
@@ -33,23 +33,26 @@ module.exports = function processLayout(blockDefs, layoutString) {
               makeFilter,
               processOpts,
             },
-            defaultOpts: Object.assign({}, defaultOpts, opts),
+            defaultOpts: {
+              ...defaultOpts,
+              ...opts,
+            },
           }
-        })
-      ),
-      R.over(
-        R.lensProp('gridGap'),
-        R.defaultTo('')
-      ),
+      })
+    ),
+    R.over(
+      R.lensProp('gridGap'),
+      R.defaultTo('')
+    ),
 
-      R.over(
-        R.lensProp('gridTemplateColumns'),
-        R.defaultTo('')
-      ),
+    R.over(
+      R.lensProp('gridTemplateColumns'),
+      R.defaultTo('')
+    ),
 
-      R.over(
-        R.lensProp('gridTemplateRows'),
-        R.defaultTo('')
-      ),
+    R.over(
+      R.lensProp('gridTemplateRows'),
+      R.defaultTo('')
+    ),
   )(parsedLayout)
 }

@@ -17,7 +17,7 @@ function migrateLegacyDB(name, dexieOpts) {
       request.onerror = reject;
       request.onsuccess = e => {
         const db = e.target.result
-            , objectStoreNames = [...db.objectStoreNames]
+            , objectStoreNames = [ ...db.objectStoreNames ]
 
         const isLegacyIDB = (
           objectStoreNames.indexOf('localData') !== -1 &&
@@ -61,7 +61,10 @@ function migrateLegacyIDBBackend(name, dexieOpts) {
 
         legacyDB.patches.toArray(patches => {
           patches.forEach(patch => {
-            periodoDB.localDatasetPatches.put(Object.assign({}, patch, { name }));
+            periodoDB.localDatasetPatches.put({
+              ...patch,
+              name,
+            });
           });
         });
       })
@@ -77,21 +80,21 @@ function openLegacyDB(name, dexieOpts) {
     const db = new Dexie(name, dexieOpts)
 
     switch (name) {
-      case '_file_backends':
-        db.version(1).stores({
-          files: 'id++,&name,filename',
-        });
-        break;
+    case '_file_backends':
+      db.version(1).stores({
+        files: 'id++,&name,filename',
+      });
+      break;
 
-      default:
-        db.version(10).stores({
-          dumps: 'id&,modified,synced',
-          localData: 'id&,modified',
-          patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
-          localPatches: 'id&,resolved',
-          idMap: 'id&,serverURL,localID',
-        });
-        break;
+    default:
+      db.version(10).stores({
+        dumps: 'id&,modified,synced',
+        localData: 'id&,modified',
+        patches: 'id++,created,*affectedCollections,*affectedPeriods,*forwardHashes,*backwardHashes,type',
+        localPatches: 'id&,resolved',
+        idMap: 'id&,serverURL,localID',
+      });
+      break;
 
     }
 
@@ -99,4 +102,7 @@ function openLegacyDB(name, dexieOpts) {
   }
 }
 
-module.exports = { migrateLegacyDB, migrateLegacyFileBackend }
+module.exports = {
+  migrateLegacyDB,
+  migrateLegacyFileBackend,
+}

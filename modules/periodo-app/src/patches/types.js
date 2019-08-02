@@ -7,13 +7,17 @@ const R = require('ramda')
 
 const $$type = Symbol('patch-type')
 
-const ORCID = Type({ ORCID: {
-  url: val => val.startsWith('https://orcid.org/'),
-  label: String,
-}})
+const ORCID = Type({
+  ORCID: {
+    url: val => val.startsWith('https://orcid.org/'),
+    label: String,
+  },
+})
 
-const PatchRequest = Type({ PatchRequest: {
-}})
+const PatchRequest = Type({
+  PatchRequest: {
+  },
+})
 
 const PatchMetadata = Type({
   Remote: {
@@ -104,9 +108,9 @@ PatchType.fromPatch = function fromPath(patch) {
 
   if (!advance()) {
     return patch[$$type] = R.cond([
-      [R.equals('add'), () => PatchType.AddAuthority(authorityID)],
-      [R.equals('remove'), () => PatchType.RemoveAuthority(authorityID)],
-      [R.T, () => PatchType.Unknown],
+      [ R.equals('add'), () => PatchType.AddAuthority(authorityID) ],
+      [ R.equals('remove'), () => PatchType.RemoveAuthority(authorityID) ],
+      [ R.T, () => PatchType.Unknown ],
     ])(op)
   }
 
@@ -123,9 +127,9 @@ PatchType.fromPatch = function fromPath(patch) {
 
   if (!advance()) {
     return patch[$$type] = R.cond([
-      [R.equals('add'), () => PatchType.AddPeriod(authorityID, periodID)],
-      [R.equals('remove'), () => PatchType.RemovePeriod(authorityID, periodID)],
-      [R.T, () => PatchType.Unknown],
+      [ R.equals('add'), () => PatchType.AddPeriod(authorityID, periodID) ],
+      [ R.equals('remove'), () => PatchType.RemovePeriod(authorityID, periodID) ],
+      [ R.T, () => PatchType.Unknown ],
     ])(op)
   }
 
@@ -133,7 +137,7 @@ PatchType.fromPatch = function fromPath(patch) {
 }
 
 function fmt(type) {
-  let [verb] = type._name.match(/([A-Z][a-z]+)/)
+  let [ verb ] = type._name.match(/([A-Z][a-z]+)/)
     , message = ''
 
   const { authorityID, periodID, attribute } = type

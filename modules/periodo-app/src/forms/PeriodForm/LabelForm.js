@@ -97,7 +97,7 @@ class LabelForm extends React.Component {
 
     this.setState({
       alternateLabels: alternateLabels.length === 1
-        ? R.assocPath([0, 'label'], '', alternateLabels)
+        ? R.assocPath([ 0, 'label' ], '', alternateLabels)
         : R.remove(i, 1, alternateLabels),
     }, this.updateLocalizedLabels)
   }
@@ -108,7 +108,7 @@ class LabelForm extends React.Component {
     let { alternateLabels } = this.state
 
     if (!alternateLabels.length) {
-      alternateLabels = [defaultLabel()]
+      alternateLabels = [ defaultLabel() ]
     }
 
     return (

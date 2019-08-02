@@ -59,7 +59,10 @@ function describeLanguageTag(tag) {
 
 function show(Component, props={}) {
   return value =>
-    h(Component, { value, ...props })
+    h(Component, {
+      value,
+      ...props,
+    })
 }
 
 const entries = R.pipe(
@@ -131,7 +134,7 @@ function RelatedPeriodValue(props) {
 }
 
 function EntityValue(props) {
-  const { value: { id, label }, ...childProps} = props
+  const { value: { id, label }, ...childProps } = props
 
   childProps.href = id
 
@@ -166,7 +169,7 @@ function LanguageTagValue(props) {
 }
 
 function LanguageSpecificValue(props) {
-  const { value: { value, language }, ...childProps} = props
+  const { value: { value, language }, ...childProps } = props
 
   childProps.value = value;
 
@@ -226,7 +229,10 @@ function AgentValue(props) {
   if (name == null) return null
 
   childProps.children = compare
-    ? h(Diff, { value: name, compare: compare.name })
+    ? h(Diff, {
+      value: name,
+      compare: compare.name,
+    })
     : name
 
   if (id) {
@@ -256,7 +262,10 @@ function SpatialExtentValue(props) {
 
   if (compare) {
     annotationProps = {
-      value: h(Diff, { value: description, compare: compare.description }),
+      value: h(Diff, {
+        value: description,
+        compare: compare.description,
+      }),
       annotations: showChanges(EntityValue)(findChanges(places, compare.places)),
     }
   } else {
@@ -275,7 +284,7 @@ function SpatialExtentValue(props) {
   return (
     h('div', [
       h(Annotated, R.merge(
-        R.omit([ 'value', 'compare', 'showMap', ], props),
+        R.omit([ 'value', 'compare', 'showMap' ], props),
         annotationProps
       )),
       !showMap ? null : (

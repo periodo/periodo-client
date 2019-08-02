@@ -51,7 +51,8 @@ const PatchList = blocks.List({
 })
 
 module.exports = LocationStreamAware(props =>
-  h(LayoutRenderer, R.omit(['patches', 'backend', 'locationStream'], Object.assign({}, props, {
+  h(LayoutRenderer, R.omit([ 'patches', 'backend', 'locationStream' ], {
+    ...props,
     blocks: {
       'patch-list': PatchList,
     },
@@ -60,4 +61,4 @@ module.exports = LocationStreamAware(props =>
       backend: props.backend,
       locationStream: props.locationStream,
     },
-  }))))
+  })))

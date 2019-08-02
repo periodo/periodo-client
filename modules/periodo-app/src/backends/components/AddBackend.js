@@ -6,7 +6,6 @@ const h = require('react-hyperscript')
     , BackendAction = require('../actions')
     , { BackendStorage } = require('../types')
     , { handleCompletedAction } = require('org-async-actions')
-    , { Route, LocationStreamAware } = require('org-shell')
 
 const AddBackend = props =>
   h(Box, [
@@ -16,8 +15,8 @@ const AddBackend = props =>
         const { label, description='', type } = state
 
         const storage = type === 'Web'
-            ? BackendStorage.WebOf(state)
-            : BackendStorage.IndexedDB(null)
+          ? BackendStorage.WebOf(state)
+          : BackendStorage.IndexedDB(null)
 
         const resp = await props.dispatch(
           BackendAction.CreateBackend(storage, label, description))

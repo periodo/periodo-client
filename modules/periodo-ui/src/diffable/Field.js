@@ -33,7 +33,10 @@ function extract(path, opts={}) {
         ret = ret.map((value, i) =>
           isIdentified(value)
             ? value
-            : { id: i, [withKey]: value })
+            : {
+              id: i,
+              [withKey]: value,
+            })
       }
 
       return ret
@@ -75,7 +78,12 @@ function countChanges(changes) {
       Mutation: () => 'changed',
       Preservation: () => 'unchanged',
     })),
-    R.merge({ added: 0, deleted: 0, changed: 0, unchanged: 0 })
+    R.merge({
+      added: 0,
+      deleted: 0,
+      changed: 0,
+      unchanged: 0,
+    })
   )(changes)
 }
 
@@ -121,9 +129,9 @@ function compareValues(fieldValue, compareTo) {
   const filteredChanges = !(didChange && hideUnchanged)
     ? changes
     : changes.filter(change => change.case({
-        Preservation: () => false,
-        _: () => true,
-      }))
+      Preservation: () => false,
+      _: () => true,
+    }))
 
   return {
     warnings: runComparisonChecks({
@@ -191,7 +199,10 @@ function Field(props) {
 
   return (
     h(Box, childProps, [
-      h(Box, { is: 'dt', fontWeight: 'bold' }, label),
+      h(Box, {
+        is: 'dt',
+        fontWeight: 'bold',
+      }, label),
 
       warnings.length === 0 ? null : h(Warnings, { warnings }),
 
@@ -207,12 +218,16 @@ function Field(props) {
 
 function DiffableItem (props) {
   const { fieldList, value, compare, ...rest } = props
-      , fieldsFor = processFieldSpec(fieldList, { value, compare, ...rest })
+      , fieldsFor = processFieldSpec(fieldList, {
+        value,
+        compare,
+        ...rest,
+      })
 
   // Don't include props only meant for fields on the outer Box, but include
   // everything else (e.g. for styling or event handling)
   const outerProps = R.omit(
-    ['value', 'compare'].concat(fieldList.map(f => f.usedProps)),
+    [ 'value', 'compare' ].concat(fieldList.map(f => f.usedProps)),
     props
   )
 
@@ -233,4 +248,7 @@ function DiffableItem (props) {
   )
 }
 
-module.exports = { extract, DiffableItem }
+module.exports = {
+  extract,
+  DiffableItem,
+}

@@ -39,8 +39,11 @@ class AuthorityAddOrEdit extends React.Component {
             await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
               R.assocPath(
-                ['authorities', id],
-                Object.assign({ id }, authority),
+                [ 'authorities', id ],
+                {
+                  id,
+                  ...authority,
+                },
                 dataset.raw
               ),
               isEdit

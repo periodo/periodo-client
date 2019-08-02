@@ -37,13 +37,13 @@ test('Formatting and hashing patches', async t => {
   ]);
 
   // Hash of '{"op":"add","path":"/authorities/p03377f/periods/p03377fkhrv/editorialNote","value":"This is an editorial note."}'
-  t.deepEqual(patch.forwardHashes, ['74ef216d2a904a8bcca5569f65956133']);
+  t.deepEqual(patch.forwardHashes, [ '74ef216d2a904a8bcca5569f65956133' ]);
 
   // Hash of '{"op":"remove","path":"/authorities/p03377f/periods/p03377fkhrv/editorialNote"}'
-  t.deepEqual(patch.backwardHashes, ['5736c4b2aa8e19d190136510e8f0dd31']);
+  t.deepEqual(patch.backwardHashes, [ '5736c4b2aa8e19d190136510e8f0dd31' ]);
 
-  t.deepEqual(patch.affectedAuthorities, ['p03377f']);
-  t.deepEqual(patch.affectedPeriods, ['p03377fkhrv']);
+  t.deepEqual(patch.affectedAuthorities, [ 'p03377f' ]);
+  t.deepEqual(patch.affectedPeriods, [ 'p03377fkhrv' ]);
 
   t.equal(
     patch.message,
@@ -81,20 +81,20 @@ test('Patch utils', async t => {
 
   t.deepEqual(groupByChangeType(patches), {
     AddPeriod: {
-      a: [samplePatches.addPeriod],
+      a: [ samplePatches.addPeriod ],
     },
     RemovePeriod: {
-      a: [samplePatches.removePeriod],
+      a: [ samplePatches.removePeriod ],
     },
     ChangePeriod: {
       a: {
-        b: [samplePatches.changePeriod],
+        b: [ samplePatches.changePeriod ],
       },
     },
   }, 'should group patches together');
 
 
-  const attrPath = ['authorities', 'p03377f', 'source']
+  const attrPath = [ 'authorities', 'p03377f', 'source' ]
       , newData = R.assocPath(attrPath.concat('yearPublished'), '1900', data)
       , patch = makePatch(data, newData)
 
@@ -118,7 +118,10 @@ test('Patch utils', async t => {
   const newData2 = R.over(
     R.lensPath(attrPath2),
     sc => sc.concat([
-      { id: 'http://example.com/', label: 'New country' },
+      {
+        id: 'http://example.com/',
+        label: 'New country',
+      },
     ]),
     data)
 
@@ -204,18 +207,27 @@ test('Patch collection hash filtering', async t => {
   const { filterByHash } = require('../patch_collection');
 
   const patches = [
-    { op: 'add', path: '/authorities/a/periods/aa/note' },
-    { op: 'remove', path: '/authorities/b' },
-    { op: 'add', path: '/authorities/c' },
+    {
+      op: 'add',
+      path: '/authorities/a/periods/aa/note',
+    },
+    {
+      op: 'remove',
+      path: '/authorities/b',
+    },
+    {
+      op: 'add',
+      path: '/authorities/c',
+    },
   ]
 
   const matcher = hashes => {
     // Hash of '{"op":"add","path":"/authorities/a/periods/aa/note"}'
     const expectedHash = 'acbf17d2f121127d02a6afeef294b07d'
 
-    t.deepEqual(hashes, [expectedHash]);
+    t.deepEqual(hashes, [ expectedHash ]);
 
-    return [expectedHash];
+    return [ expectedHash ];
   }
 
   {

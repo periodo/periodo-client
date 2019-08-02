@@ -79,4 +79,7 @@ function AuthorityWithPeriods(props) {
   )
 }
 
-module.exports = { Authority, AuthorityWithPeriods }
+module.exports = {
+  Authority,
+  AuthorityWithPeriods,
+}

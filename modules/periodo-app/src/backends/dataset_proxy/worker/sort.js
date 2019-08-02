@@ -8,7 +8,7 @@ const { terminus } = require('periodo-utils')
 function sort(getter, vals) {
   const ret = new Map()
 
-  const sorted = [...vals].sort((a, b) => {
+  const sorted = [ ...vals ].sort((a, b) => {
     const _a = getter(a)
     const _b = getter(b)
 
@@ -26,7 +26,7 @@ function sort(getter, vals) {
 }
 
 function reverse(getter, map) {
-  let reversed = [...map.keys()].reverse()
+  let reversed = [ ...map.keys() ].reverse()
 
   const toEnd = []
       , ret = new Map()
@@ -51,7 +51,7 @@ const getters = {
 }
 
 function sortPosByID(sortedMap) {
-  return new Map([...sortedMap].map(([ k, v ]) => [ k.id, v ]))
+  return new Map([ ...sortedMap ].map(([ k, v ]) => [ k.id, v ]))
 }
 
 module.exports = function (periods, field) {

@@ -11,7 +11,7 @@ const h = require('react-hyperscript')
 
 exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
-    h(Box, Object.assign({
+    h(Box, {
       p: '10px 12px',
       css: {
         minWidth: 200,
@@ -20,7 +20,8 @@ exports.DropdownMenuItem = props =>
           backgroundColor: '#eee',
         },
       },
-    }, props)),
+      ...props,
+    }),
   ])
 
 exports.DropdownMenuHeader = props =>
@@ -59,12 +60,12 @@ exports.DropdownMenuButton.defaultProps.blacklist = blacklist('isOpen')
 
 
 exports.DropdownMenuMenu = props =>
-  h(Box, Object.assign({
+  h(Box, {
     p: 0,
     border: 1,
     borderColor: '#ccc',
     bg: 'white',
-    css: Object.assign({
+    css: {
       borderRadius: 2,
       position: 'absolute',
       boxShadow: '2px 1px 4px #ddd',
@@ -72,8 +73,10 @@ exports.DropdownMenuMenu = props =>
       marginTop: '3px',
       whiteSpace: 'nowrap',
       zIndex: 1,
-    }, props.css),
-  }, R.omit(['openLeft', 'css'], props)), props.children)
+      ...props.css,
+    },
+    ...R.omit([ 'openLeft', 'css' ], props),
+  }, props.children)
 
 
 exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Component {
@@ -90,13 +93,14 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
         , { children, closeOnSelection, label, onSelection, openLeft, id, locationStream } = this.props
 
     return (
-      h(Box, Object.assign({
+      h(Box, {
         css: {
           position: 'relative',
           display: 'inline-block',
           userSelect: 'none',
         },
-      }, R.omit(['locationStream', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu'], this.props)), [
+        ...R.omit([ 'locationStream', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu' ], this.props),
+      }, [
         h(MB.Wrapper, {
           onMenuToggle: e => { this.setState(e) },
           closeOnSelection,
@@ -139,4 +143,8 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
 
 
 exports.DropdownMenuSeparator = () =>
-  h(Box, { is: 'hr', mx: '8px', my: '8px' })
+  h(Box, {
+    is: 'hr',
+    mx: '8px',
+    my: '8px',
+  })

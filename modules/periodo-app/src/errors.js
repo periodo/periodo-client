@@ -17,4 +17,7 @@ function NotImplementedError(message) {
 NotImplementedError.prototype = Object.create(Error.prototype);
 NotImplementedError.prototype.constructor = NotImplementedError;
 
-module.exports = { NotFoundError, NotImplementedError }
+module.exports = {
+  NotFoundError,
+  NotImplementedError,
+}

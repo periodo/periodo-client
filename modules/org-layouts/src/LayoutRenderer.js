@@ -12,7 +12,7 @@ const RESET_DEBOUNCE_TIME = 275
 
 class LayoutBlock extends React.Component {
   shouldComponentUpdate(nextProps) {
-    const monitored = ['extraProps', 'processedOpts', 'passedOpts', 'defaultOpts']
+    const monitored = [ 'extraProps', 'processedOpts', 'passedOpts', 'defaultOpts' ]
 
     if (this.props.data !== nextProps.data) {
       return true
@@ -40,11 +40,17 @@ class LayoutBlock extends React.Component {
       onOptsChange,
     } = this.props
 
-    const opts = Object.assign({}, defaultOpts, passedOpts)
+    const opts = {
+      ...defaultOpts,
+      ...passedOpts,
+    }
 
     const updateOpts = (fn, invalidate) => {
       const updated = typeof fn === 'object'
-        ? Object.assign({}, opts, fn)
+        ? ({
+          ...opts,
+          ...fn,
+        })
         : fn(opts)
 
       const newOpts = {}
@@ -74,11 +80,13 @@ class LayoutBlock extends React.Component {
           overflow: 'hidden',
         },
       }, [
-        h(Component, Object.assign({
+        h(Component, {
           opts,
           updateOpts,
           data,
-        }, processedOpts, extraProps)),
+          ...processedOpts,
+          ...extraProps,
+        }),
       ])
     )
   }
@@ -90,8 +98,10 @@ function computeLayout(blocks, layoutDefinition) {
 
 function computeLayoutOptions(layout, opts={}) {
   return layout.blocks.map(block =>
-    block.block.processOpts(
-      Object.assign({}, block.baseOpts, opts[block.id])))
+    block.block.processOpts( {
+      ...block.baseOpts,
+      ...opts[block.id],
+    }))
 }
 
 class LayoutRenderer extends React.Component {
@@ -149,14 +159,16 @@ class LayoutRenderer extends React.Component {
     })
   }
 
-  async resetData(startFrom=0) {
+  // TODO: Add startFrom=0 argument in order to prevent having to run filters
+  // on every single block unnecessarily
+  async resetData(/*startFrom=0*/) {
     this.dataResets += 1
 
     const { processedLayout, processedOpts } = this.state
         , renderID = this.dataResets
         , numBlocks = processedLayout.blocks.length
 
-    let dataForBlocks = [...this.state.dataForBlocks]
+    let dataForBlocks = [ ...this.state.dataForBlocks ]
 
     for (let i = 0; i < numBlocks; i++) {
       await new Promise(resolve => {
@@ -178,7 +190,7 @@ class LayoutRenderer extends React.Component {
           }
         }
 
-        dataForBlocks = [...dataForBlocks]
+        dataForBlocks = [ ...dataForBlocks ]
         dataForBlocks[i] = nextData
 
         if (this.dataResets !== renderID) resolve()
@@ -194,7 +206,10 @@ class LayoutRenderer extends React.Component {
     this.setState(prev => {
       const processedOpts = prev.processedLayout.blocks.map(block =>
         block.block.processOpts(
-          Object.assign({}, block.baseOpts, opts[block.id])))
+          {
+            ...block.baseOpts,
+            ...opts[block.id],
+          }))
 
       return { processedOpts }
     })
@@ -209,7 +224,7 @@ class LayoutRenderer extends React.Component {
     if (!processedLayout || !data || !processedOpts) return null
 
     const children = processedLayout.blocks.map((block, i) =>
-      h(LayoutBlock, Object.assign({
+      h(LayoutBlock, {
         key: `${i}-${block.type}`,
         data: dataForBlocks[i] || [],
         extraProps,
@@ -226,7 +241,8 @@ class LayoutRenderer extends React.Component {
           }
 
         },
-      }, block)),
+        ...block,
+      }),
     )
 
     return (
@@ -255,9 +271,9 @@ module.exports = Object.assign(LayoutRenderer, {
     layout: PropTypes.string.isRequired,
     blockOpts: PropTypes.oneOfType([
       PropTypes.array,
-      PropTypes.object
+      PropTypes.object,
     ]).isRequired,
     onBlockOptsChange: PropTypes.func.isRequired,
     data: PropTypes.array.isRequired,
-  }
+  },
 })

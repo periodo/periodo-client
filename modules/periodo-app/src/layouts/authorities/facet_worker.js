@@ -29,11 +29,11 @@ module.exports = function a(self) {
 
   self.addEventListener('message', e => {
     switch (e.data.type) {
-      case "initialize":
-        dataset = indexItems(e.data.rawDataset)
-        break;
+    case "initialize":
+      dataset = indexItems(e.data.rawDataset)
+      break;
 
-      case "get_counts": {
+    case "get_counts": {
         const { label, periods } = e.data
           , { getter, renderLabel } = getters[label]
           , counts = new Map()
@@ -45,7 +45,7 @@ module.exports = function a(self) {
           counts.set(key, counts.get(key) + 1)
         })
 
-        const countArr = ([...counts])
+        const countArr = ([ ...counts ])
           .sort((a, b) => a[1] - b[1])
           .reverse()
 
@@ -57,10 +57,10 @@ module.exports = function a(self) {
 
         self.postMessage(countArr)
         break;
-      }
+    }
 
-      default:
-        break;
+    default:
+      break;
     }
   })
 }

@@ -14,7 +14,7 @@ class PatchHistory extends React.Component {
   constructor() {
     super();
 
-    this.state = { blockOpts: {} }
+    this.state = { blockOpts: {}}
   }
 
   render() {

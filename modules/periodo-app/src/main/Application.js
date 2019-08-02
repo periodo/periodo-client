@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Flex, Pre, Box, Grid, Heading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { connect } = require('react-redux')
-    , { ThemeProvider, injectGlobal } = require('styled-components')
+    , { ThemeProvider } = require('styled-components')
     , createStore = require('../store')
     , resources = require('../resources')
     , Footer = require('./components/Footer')
@@ -22,14 +22,14 @@ function getRouteGroups(resource, params, props) {
     return hierarchy.slice(0, -1).map(group => ({
       label: group.label,
       routes: Object.entries(group.resources).reduce(
-        (acc, [routeName, resource]) =>
+        (acc, [ routeName, resource ]) =>
           (resource.showInMenu || R.T)(props)
-            ? [...acc, {
-                route: new Route(routeName, params),
-                label: resource.label,
-              }]
+            ? [ ...acc, {
+              route: new Route(routeName, params),
+              label: resource.label,
+            }]
             : acc
-      , []),
+        , []),
     }))
   } catch(e) {
     return []
@@ -58,7 +58,10 @@ class Menu extends React.Component {
       const mappedProps = (
         nextProps.activeResource.mapStateToProps ||
         R.T
-      )(nextProps.storeState, { extra: nextProps.extra, params: nextProps.params })
+      )(nextProps.storeState, {
+        extra: nextProps.extra,
+        params: nextProps.params,
+      })
 
       return {
         active: {
@@ -119,16 +122,20 @@ class Menu extends React.Component {
             minWidth: 200,
             px: 2,
             py: 1,
-            css: Object.assign({
+            css: {
               '& [data-active="true"]::before': {
                 content: '"▸"',
                 position: 'absolute',
                 marginLeft: '-11px',
                 color: 'orangered',
               },
-            }, ghost && { opacity: .5 }),
+              ...ghost && { opacity: .5 },
+            },
           }, [
-            h(Heading, { key: 'heading' + '-i', level: 5 }, label),
+            h(Heading, {
+              key: 'heading' + '-i',
+              level: 5,
+            }, label),
           ].concat(routes.map(({ route, label }) =>
             h(Link, {
               display: 'block',
@@ -148,7 +155,7 @@ class Menu extends React.Component {
   }
 }
 
-Menu = connect(state => ({ storeState: state }))(Menu)
+const WrappedMenu = connect(state => ({ storeState: state }))(Menu)
 
 class MenuedResource extends React.Component{
   constructor() {
@@ -163,7 +170,7 @@ class MenuedResource extends React.Component{
 
     return (
       h(Box, [
-        h(Menu, {
+        h(WrappedMenu, {
           loading: this.props.loading,
           activeResource: this.props.activeResource,
           prevResource: this.props.prevResource,
@@ -204,7 +211,10 @@ class PeriodoApplication extends React.Component {
 
   componentDidCatch(err, info) {
     this.setState({
-      error: { err, info },
+      error: {
+        err,
+        info,
+      },
     })
   }
 
@@ -228,31 +238,31 @@ class PeriodoApplication extends React.Component {
             width: '100%',
             maxWidth: 1420,
           }, this.state.error
-              ? h(Box, [
-                  h(Heading, {
-                    level: '2',
-                    color: 'red.4',
-                    css: { 'letterSpacing': '4px' },
-                  }, 'OOPSIE!!!'),
-                  h(Heading, {
-                    level: '4',
-                    mt: 2,
-                  }, 'Error stack'),
-                  h(Pre, this.state.error.err.stack),
-                  h(Heading, {
-                    level: '4',
-                    mt: 2,
-                  }, 'Component stack'),
-                  h(Pre, this.state.error.info.componentStack.trim()),
-                ])
-              : this.state.activeResource && h(MenuedResource, {
-                  key: this.state.activeResource.name,
-                  loading: this.props.loading,
-                  activeResource: this.state.activeResource,
-                  prevResource: this.state.prevResource,
-                  params: this.props.params,
-                  extra: this.props.extra,
-                }, this.props.children)
+            ? h(Box, [
+              h(Heading, {
+                level: '2',
+                color: 'red.4',
+                css: { 'letterSpacing': '4px' },
+              }, 'OOPSIE!!!'),
+              h(Heading, {
+                level: '4',
+                mt: 2,
+              }, 'Error stack'),
+              h(Pre, this.state.error.err.stack),
+              h(Heading, {
+                level: '4',
+                mt: 2,
+              }, 'Component stack'),
+              h(Pre, this.state.error.info.componentStack.trim()),
+            ])
+            : this.state.activeResource && h(MenuedResource, {
+              key: this.state.activeResource.name,
+              loading: this.props.loading,
+              activeResource: this.state.activeResource,
+              prevResource: this.state.prevResource,
+              params: this.props.params,
+              extra: this.props.extra,
+            }, this.props.children)
           ),
 
           h(Footer, {

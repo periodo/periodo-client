@@ -13,7 +13,7 @@ const h = require('react-hyperscript')
 
 const lenses = {
   url: R.lensProp('url'),
-  locator: R.lensPath(['source', 'locator']),
+  locator: R.lensPath([ 'source', 'locator' ]),
   sameAs: R.lensProp('sameAs'),
   note: R.lensProp('note'),
   editorialNote: R.lensProp('editorialNote'),
@@ -61,7 +61,11 @@ module.exports = Validated(validatePeriod, props => {
             borderBottom: '1px solid #ccc',
           },
         }, [
-          h(Box, { width: .5, px: 3, py: 2 }, [
+          h(Box, {
+            width: .5,
+            px: 3,
+            py: 2,
+          }, [
             errors.label && Errors({ errors: errors.label }),
 
             h(LabelForm, {
@@ -70,7 +74,11 @@ module.exports = Validated(validatePeriod, props => {
             }),
           ]),
 
-          h(Box, { width: .5, px: 3, py: 2 }, [
+          h(Box, {
+            width: .5,
+            px: 3,
+            py: 2,
+          }, [
             h(InputBlock, {
               name: 'locator',
               label: 'Locator',
@@ -100,7 +108,11 @@ module.exports = Validated(validatePeriod, props => {
           ]),
         ]),
 
-        h(Heading, { level: 3, px: 3, py: 2 }, 'Related periods'),
+        h(Heading, {
+          level: 3,
+          px: 3,
+          py: 2,
+        }, 'Related periods'),
 
         h(RelatedPeriodsForm, {
           value,
@@ -117,7 +129,11 @@ module.exports = Validated(validatePeriod, props => {
             borderBottom: '1px solid #ccc',
           },
         }, [
-          h(Box, { width: .5, px: 3, py: 2 }, [
+          h(Box, {
+            width: .5,
+            px: 3,
+            py: 2,
+          }, [
             h(Heading, { level: 3 }, 'Spatial coverage'),
             h(SpatialCoverageForm, {
               onValueChange: R.pipe(
@@ -130,7 +146,11 @@ module.exports = Validated(validatePeriod, props => {
             }),
           ]),
 
-          h(Box, { width: .5, px: 3, py: 2 }, [
+          h(Box, {
+            width: .5,
+            px: 3,
+            py: 2,
+          }, [
             h(Heading, { level: 3 }, 'Temporal coverage'),
 
             errors.dates && Errors({ errors: errors.dates }),

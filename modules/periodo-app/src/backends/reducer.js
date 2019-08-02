@@ -13,9 +13,9 @@ const updateBackend = (backend, dataset, state) => {
   const identifier = backend.asIdentifier()
 
   return R.pipe(
-    R.set(R.lensPath(['available', identifier]), backend),
+    R.set(R.lensPath([ 'available', identifier ]), backend),
     R.set(
-      R.lensPath(['datasets', identifier]),
+      R.lensPath([ 'datasets', identifier ]),
       dataset
     )
   )(state)
@@ -57,7 +57,7 @@ module.exports = function backends(state=initialState(), action) {
         const { patches } = resp
 
         return R.set(
-          R.lensPath(['patches', storage.asIdentifier()]),
+          R.lensPath([ 'patches', storage.asIdentifier() ]),
           patches,
           state
         )
@@ -86,7 +86,7 @@ module.exports = function backends(state=initialState(), action) {
       },
 
       DeleteBackend(storage) {
-        const removeBackend = R.omit([storage.asIdentifier()])
+        const removeBackend = R.omit([ storage.asIdentifier() ])
 
         return R.pipe(
           R.over(R.lensProp('datasets'), removeBackend),

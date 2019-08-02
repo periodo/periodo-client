@@ -36,12 +36,18 @@ class LDInput extends React.Component {
           ml: 3,
           mb: 3,
         }, [
-          h(Box, { is: 'li', mt: 1 }, [
+          h(Box, {
+            is: 'li',
+            mt: 1,
+          }, [
             'A URL of a record in the ',
             h(Link, { href: 'https://worldcat.org' }, 'WorldCat database'),
           ]),
 
-          h(Box, { is: 'li', my: 1 }, [
+          h(Box, {
+            is: 'li',
+            my: 1,
+          }, [
             'A DOI contained in the ',
             h(Link, { href: 'https://search.crossref.org' }, 'CrossRef database'),
           ]),
@@ -73,7 +79,10 @@ class LDInput extends React.Component {
           },
         }, h(Icon, { name: 'refresh' })),
 
-        readyState && h(Box, { display: 'inline', ml: 1 }, readyState.case({
+        readyState && h(Box, {
+          display: 'inline',
+          ml: 1,
+        }, readyState.case({
           Pending: () => ([
             h(Spinner),
           ]),
@@ -96,19 +105,22 @@ const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
   h(Box, [
     value
       ? h(Box, [
-          h(Source, { value }),
-          h(Box, { mt: 3 }, [
-            h(Text, 'Incorrect source?'),
-            h(Box, [
-              h(Button$Danger, {
-                onClick: () => {
-                  onValueChange(null)
-                },
-              }, '‹ Reset'),
-            ]),
+        h(Source, { value }),
+        h(Box, { mt: 3 }, [
+          h(Text, 'Incorrect source?'),
+          h(Box, [
+            h(Button$Danger, {
+              onClick: () => {
+                onValueChange(null)
+              },
+            }, '‹ Reset'),
           ]),
-        ])
-      : h(LDInput, { dispatch, onValueChange }),
+        ]),
+      ])
+      : h(LDInput, {
+        dispatch,
+        onValueChange,
+      }),
   ])
 
 module.exports = connect()(LinkedDataSourceForm)

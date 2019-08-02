@@ -19,7 +19,7 @@ module.exports = class HistogramVisualization {
 
     let numYBins = Math.floor(height / (CIRCLE_RADIUS * 2))
 
-    const xBinScale = xScale.copy().range([0, numXBins])
+    const xBinScale = xScale.copy().range([ 0, numXBins ])
 
     if (isNaN(xBinScale.invert(1))) return []
 

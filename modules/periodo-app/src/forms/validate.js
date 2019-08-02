@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { Result } = require('periodo-common')
-    , { terminus, label } = require('periodo-utils')
+    , { terminus } = require('periodo-utils')
     , { isLinkedData } = require('../linked-data/utils/source_ld_match')
 
 function addError(obj, label, err) {
@@ -84,7 +84,7 @@ function validatePeriod(period) {
 
   const periodPresent = type =>
     R.prop(type, period) &&
-    R.hasIn([type, 'label']) &&
+    R.hasIn([ type, 'label' ]) &&
     terminus.earliestYear(R.prop(type, period)) !== null &&
     terminus.latestYear(R.prop(type, period)) !== null
 

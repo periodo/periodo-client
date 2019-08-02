@@ -30,7 +30,7 @@ const fns = [
 
 const Box = styled(tag)([], [
   ...fns,
-  props => Object.assign({}, props.css),
+  props => ({ ...props.css }),
 ])
 
 Box.defaultProps = {
@@ -93,10 +93,11 @@ const Heading = styled(_Heading)([], [
   }),
 ])
 
-const ResourceTitle = props => h(Heading, Object.assign({
+const ResourceTitle = props => h(Heading, {
   level: 2,
   mb: 3,
-}, props))
+  ...props,
+})
 
 
 

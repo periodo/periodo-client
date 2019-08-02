@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
-    , { terminus: { earliestYear } } = require('periodo-utils')
+    , { terminus: { earliestYear }} = require('periodo-utils')
 
 module.exports = {
   label: 'Human time checkmarks',

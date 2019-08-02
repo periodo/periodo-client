@@ -12,7 +12,10 @@ function PeriodDetail({ hoveredPeriod, selectedPeriod, gazetteers }) {
     },
   }, [
     period == null ? null : (
-      h(Period, { value: period, gazetteers })
+      h(Period, {
+        value: period,
+        gazetteers,
+      })
     ),
   ])
 }

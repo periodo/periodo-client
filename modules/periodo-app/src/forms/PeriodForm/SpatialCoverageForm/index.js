@@ -14,7 +14,7 @@ const SpatialCoverageForm = ({
   gazetteers,
 }) => {
 
-  const [focusedFeature, setFocusedFeature] = useState(undefined)
+  const [ focusedFeature, setFocusedFeature ] = useState(undefined)
 
   const inCoverage = feature => R.any(item => item.id === feature.id, coverage)
 
@@ -43,34 +43,41 @@ const SpatialCoverageForm = ({
 
       R.isEmpty(coverage)
         ? h(Box, {
-              height: '24px',
-              color: 'gray.6',
-              css: { lineHeight: '24px', fontStyle: 'italic' },
-            }, 'Search below for places to add')
+          height: '24px',
+          color: 'gray.6',
+          css: {
+            lineHeight: '24px',
+            fontStyle: 'italic',
+          },
+        }, 'Search below for places to add')
         : h(Tags, {
-            items: coverage,
-            onFocus: item => setFocusedFeature(gazetteers.find(item.id)),
-            onBlur: () => setFocusedFeature(undefined),
-            onDelete: item => onValueChange(
-              {spatialCoverage: R.without([item], coverage)}),
+          items: coverage,
+          onFocus: item => setFocusedFeature(gazetteers.find(item.id)),
+          onBlur: () => setFocusedFeature(undefined),
+          onDelete: item => onValueChange(
+            { spatialCoverage: R.without([ item ], coverage) }),
         }),
 
       h(LabeledMap, {
         focusedFeature,
-        features: coverage.map(({id}) => gazetteers.find(id)),
+        features: coverage.map(({ id }) => gazetteers.find(id)),
         mt: 1,
       }),
 
       h(PlaceSuggest, {
         gazetteers,
         onSuggestionHighlighted:
-          ({suggestion}) => setFocusedFeature(suggestion),
+          ({ suggestion }) => setFocusedFeature(suggestion),
         isSelected: inCoverage,
         onSelect: feature => {
-          const item = { id: feature.id, label: feature.properties.title }
-          onValueChange({ spatialCoverage: inCoverage(item)
-            ? R.without([item], coverage)
-            : R.union(coverage, [item]),
+          const item = {
+            id: feature.id,
+            label: feature.properties.title,
+          }
+          onValueChange({
+            spatialCoverage: inCoverage(item)
+              ? R.without([ item ], coverage)
+              : R.union(coverage, [ item ]),
           })
         },
       }),

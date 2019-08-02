@@ -35,7 +35,7 @@ function match(text='') {
 
 
 function isLinkedData(source) {
-  return !!match(R.path(['id'], source)) || !!match(R.path(['partOf', 'id'], source) || '');
+  return !!match(R.path([ 'id' ], source)) || !!match(R.path([ 'partOf', 'id' ], source) || '');
 }
 
 

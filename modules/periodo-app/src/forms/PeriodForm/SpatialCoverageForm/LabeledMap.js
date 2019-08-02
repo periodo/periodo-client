@@ -19,7 +19,7 @@ const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
     borderLeft: focusedFeature ? '1px solid #ccc' : null,
     width: focusedFeature ? 200 : '0px',
     height: 200,
-    css: {transition: 'width 0.25s'},
+    css: { transition: 'width 0.25s' },
   }),
 ])
 

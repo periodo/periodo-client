@@ -2,7 +2,8 @@
 
 const h = require('react-hyperscript')
 
-function ReviewSubmittedPatches(props) {
+// FIXME
+function ReviewSubmittedPatches() {
   return h('box', 'cool')
 }
 

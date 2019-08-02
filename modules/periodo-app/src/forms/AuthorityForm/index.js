@@ -13,7 +13,7 @@ const h = require('react-hyperscript')
 
 const lenses = {
   source: R.lensProp('source'),
-  locator: R.lensPath(['source', 'locator']),
+  locator: R.lensPath([ 'source', 'locator' ]),
   editorialNote: R.lensProp('editorialNote'),
 }
 
@@ -40,7 +40,10 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
 
     return (
       h(Box, [
-        errors.source && h(Errors, { mb: 2, errors: errors.source }),
+        errors.source && h(Errors, {
+          mb: 2,
+          errors: errors.source,
+        }),
 
         h(Flex, { justifyContent: 'space-between' }, [
           h(Box, { width: .48 }, [
@@ -53,7 +56,7 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
                 },
                 {
                   id: 'non-ld',
-                  label: h('span', [h('em', 'Not'), ' linked data']),
+                  label: h('span', [ h('em', 'Not'), ' linked data' ]),
                   renderTab: () => h(NonLDSourceForm, childProps),
                 },
               ],

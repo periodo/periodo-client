@@ -61,7 +61,7 @@ const pad = (map, bbox) => {
 
 const initializeMap = mix => {
 
-  const map = mix.create({backgroundColor: [0, 0, 0, 0]})
+  const map = mix.create({ backgroundColor: [ 0, 0, 0, 0 ]})
 
   const drawTile = map.createDraw({
     frag: glsl`
@@ -103,12 +103,15 @@ const initializeMap = mix => {
     },
     attributes: {
       position: map.prop('points'),
-      tcoord: [0,1,0,0,1,1,1,0], // sw,se,nw,ne
+      tcoord: [ 0,1,0,0,1,1,1,0 ], // sw,se,nw,ne
     },
-    elements: [0,1,2,1,2,3],
+    elements: [ 0,1,2,1,2,3 ],
     blend: {
       enable: true,
-      func: { src: 'src alpha', dst: 'one minus src alpha' },
+      func: {
+        src: 'src alpha',
+        dst: 'one minus src alpha',
+      },
     },
   })
 
@@ -137,7 +140,12 @@ const initializeMap = mix => {
       drawTile.props.push(prop)
       map.draw()
       resl({
-        manifest: { tile: { type: 'image', src: '/images/maptiles/'+file } },
+        manifest: {
+          tile: {
+            type: 'image',
+            src: '/images/maptiles/'+file,
+          },
+        },
         onDone(assets) {
           prop.texture = map.regl.texture(assets.tile)
           map.draw()
@@ -163,7 +171,10 @@ const initializeMap = mix => {
     },
     blend: {
       enable: true,
-      func: { src: 'src alpha', dst: 'one minus src alpha' },
+      func: {
+        src: 'src alpha',
+        dst: 'one minus src alpha',
+      },
     },
     attributes: {
       position: map.prop('positions'),
@@ -175,7 +186,7 @@ const initializeMap = mix => {
   const drawFocusedFeature = drawTriangle(PURPLE)
 
   const bbox = mesh => {
-    const box = [180,90,-180,-90]
+    const box = [ 180,90,-180,-90 ]
     for (let i = 0; i < mesh.triangle.positions.length; i++) {
       box[0] = Math.min(box[0], mesh.triangle.positions[i][0])
       box[1] = Math.min(box[1], mesh.triangle.positions[i][1])
@@ -192,15 +203,15 @@ const initializeMap = mix => {
     )
     let viewbox = undefined
     if (unfocusedFeatures.length > 0) {
-      const mesh = createMesh({features: unfocusedFeatures})
-      drawFeatures.props = [mesh.triangle]
+      const mesh = createMesh({ features: unfocusedFeatures })
+      drawFeatures.props = [ mesh.triangle ]
       viewbox = bbox(mesh)
     } else {
       drawFeatures.props = []
     }
     if (focusedFeature && focusedFeature.geometry) {
       const mesh = createMesh(focusedFeature)
-      drawFocusedFeature.props = [mesh.triangle]
+      drawFocusedFeature.props = [ mesh.triangle ]
       viewbox = bbox(mesh)
     } else {
       drawFocusedFeature.props = []
@@ -227,7 +238,10 @@ const _Map = ({ features=[], focusedFeature, height }) => {
 
   renderMix()
 
-  const mapNode = map.render({width, height})
+  const mapNode = map.render({
+    width,
+    height,
+  })
 
   map.display(features, focusedFeature)
 
@@ -238,16 +252,27 @@ const _Map = ({ features=[], focusedFeature, height }) => {
     }
   })
 
-  return h('div', { ref: outerRef, style: {height} }, [
-    h('div', { ref: innerRef, style: {position: 'absolute'} }),
+  return h('div', {
+    ref: outerRef,
+    style: { height },
+  }, [
+    h('div', {
+      ref: innerRef,
+      style: { position: 'absolute' },
+    }),
   ])
 }
 
 exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
   Box,
   {
-    css: {backgroundColor: '#6194b9'}, // ocean color
+    css: { backgroundColor: '#6194b9' }, // ocean color
     ...props,
   },
-  [ h(_Map, { key: 2, features, focusedFeature, height }) ]
+  [ h(_Map, {
+    key: 2,
+    features,
+    focusedFeature,
+    height,
+  }) ]
 )

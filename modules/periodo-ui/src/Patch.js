@@ -16,7 +16,10 @@ exports.Patch = function (props) {
     Dataset,
     R.merge(
       R.omit([ 'patch', 'data' ], props),
-      { value: data, compare: apply(patch, data) }
+      {
+        value: data,
+        compare: apply(patch, data),
+      }
     )
   )
 }

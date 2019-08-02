@@ -44,22 +44,24 @@ exports.Input = sys({
   width: '100%',
 }, 'minWidth', 'maxWidth', disabled)
 
-exports.Checkbox = props => h('input', Object.assign({
+exports.Checkbox = props => h('input', {
   type: 'checkbox',
-}, props))
+  ...props,
+})
 
 exports.Errors = props =>
-  h(Alert$Error, Object.assign({
+  h(Alert$Error, {
     mb: 1,
-  }, R.omit(['errors'], props)),
-    h(Box, { is: 'ul' }, props.errors.map(message =>
-      h(Box, { is: 'li' }, message)
-    ))
+    ...R.omit([ 'errors' ], props),
+  },
+  h(Box, { is: 'ul' }, props.errors.map(message =>
+    h(Box, { is: 'li' }, message)
+  ))
   )
 
 exports.Label = sys({
   is: 'label',
-  blacklist: ['isRequired'],
+  blacklist: [ 'isRequired' ],
   fontSize: 2,
   color: 'black',
   display: 'inline-block',

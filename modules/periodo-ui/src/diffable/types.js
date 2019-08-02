@@ -47,4 +47,8 @@ const Change = Type({
   },
 })
 
-module.exports = { Change, isIdentified, valueEquals }
+module.exports = {
+  Change,
+  isIdentified,
+  valueEquals,
+}

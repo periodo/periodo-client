@@ -49,7 +49,7 @@ function getPatchRepr(store, url) {
     firstComment = firstCommentNode.value
   }
 
-  return Object.assign({
+  return {
     url: url.id,
     patchURL: patchURL.id,
     numComments,
@@ -58,7 +58,8 @@ function getPatchRepr(store, url) {
     sourceDatasetURL: sourceDatasetURL.id,
     submitTime: new Date(submitTime),
     mergeTime: new Date(mergeTime),
-  }, agentsByRole)
+    ...agentsByRole,
+  }
 }
 
 module.exports = {

@@ -84,12 +84,15 @@ async function _fetchLinkedData(url, type="text/turtle") {
   }
 
   const text = await resp.text()
-      , { quads, prefixes={} } = await parser(text)
+      , { quads, prefixes={}} = await parser(text)
       , store = new N3.Store()
 
   store.addQuads(quads)
 
-  return { store, prefixes }
+  return {
+    store,
+    prefixes,
+  }
 }
 
 function fetchLinkedData(url, opts={}) {
@@ -131,7 +134,10 @@ function fetchLinkedData(url, opts={}) {
       }
     }
 
-    return { store, prefixes: {} }
+    return {
+      store,
+      prefixes: {},
+    }
   }
 }
 
@@ -142,10 +148,11 @@ function fetchORCIDs(orcids, opts) {
         orcid = 'https' + orcid.slice(4)
       }
 
-      const req = await dispatch(LinkedDataAction.FetchLinkedData(orcid, Object.assign({
+      const req = await dispatch(LinkedDataAction.FetchLinkedData(orcid, {
         tryCache: true,
         populateCache: true,
-      }, opts)))
+        ...opts,
+      }))
 
       const { store } = getResponse(req)
 
@@ -166,10 +173,11 @@ function fetchORCIDs(orcids, opts) {
 
 function fetchSource(url, opts) {
   return async dispatch => {
-    const req = await dispatch(LinkedDataAction.FetchLinkedData(url, Object.assign({
+    const req = await dispatch(LinkedDataAction.FetchLinkedData(url, {
       tryCache: false,
       populateCache: true,
-    }, opts)))
+      ...opts,
+    }))
 
     const { store } = getResponse(req)
         , source = makeSourceRepr(store, getGraphSubject(url))

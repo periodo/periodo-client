@@ -72,8 +72,11 @@ class AddPeriod extends React.Component {
             delete period.narrower
 
             let updatedRawDataset = R.assocPath(
-              ['authorities', authority.id, 'periods', id],
-              Object.assign({ id }, period),
+              [ 'authorities', authority.id, 'periods', id ],
+              {
+                id,
+                ...period,
+              },
               dataset.raw
             )
 
@@ -86,7 +89,7 @@ class AddPeriod extends React.Component {
             for (const npID of narrower) {
               if (! (npID in this.state.originalRelated.narrower)) {
                 updatedRawDataset = R.assocPath(
-                  ['authorities', authority.id, 'periods', npID, 'broader'],
+                  [ 'authorities', authority.id, 'periods', npID, 'broader' ],
                   id,
                   updatedRawDataset
                 )
@@ -99,7 +102,7 @@ class AddPeriod extends React.Component {
             for (const npID in this.state.originalRelated.narrower) {
               if (! narrower.includes(npID)) {
                 updatedRawDataset = R.dissocPath(
-                  ['authorities', authority.id, 'periods', npID, 'broader'],
+                  [ 'authorities', authority.id, 'periods', npID, 'broader' ],
                   updatedRawDataset
                 )
                 message += (
@@ -131,7 +134,10 @@ class AddPeriod extends React.Component {
               related = period[$$RelatedPeriods]
             }
 
-            this.setState({ period, related })
+            this.setState({
+              period,
+              related,
+            })
           },
         }),
       ])

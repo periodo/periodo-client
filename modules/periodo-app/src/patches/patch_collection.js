@@ -13,9 +13,9 @@ function groupByChangeType(patches) {
   patches.forEach(patch => {
     const type = PatchType.fromPatch(patch)
 
-    const authorityID = a => [type._name, a]
-        , periodID = (a, b) => [type._name, a, b]
-        , topLevel = () => [type._name]
+    const authorityID = a => [ type._name, a ]
+        , periodID = (a, b) => [ type._name, a, b ]
+        , topLevel = () => [ type._name ]
 
     const path = type.case({
       AddPeriod: authorityID,
@@ -27,7 +27,7 @@ function groupByChangeType(patches) {
 
     ret = R.over(
       R.lensPath(path),
-      (arr=[]) => [...arr, patch],
+      (arr=[]) => [ ...arr, patch ],
       ret
     )
   })
@@ -39,12 +39,12 @@ function groupByChangeType(patches) {
 function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
   return require('../db').backendIDMaps
     .where('[fromBackendName+toBackendName]')
-      .equals([fromBackendName.name, toBackendName.name])
+      .equals([ fromBackendName.name, toBackendName.name ])
     .toArray()
     .then(idMapObjects => {
       const idMap = Immutable.List(idMapObjects)
         .toMap()
-        .mapEntries(([, { fromID, toID }]) => [fromID, toID])
+        .mapEntries(([ , { fromID, toID }]) => [ fromID, toID ])
 
       return replaceIDs(dataset, idMap)
     })
@@ -83,16 +83,16 @@ async function filterByHash(patches, keepMatched, hashMatchFn) {
   })
 
   const matchingHashes = await (patchesByHash.size
-    ? hashMatchFn([...patchesByHash.keys()].sort())
+    ? hashMatchFn([ ...patchesByHash.keys() ].sort())
     : []
   )
 
-  return [...patchesByHash]
-    .filter(([hash]) =>
+  return [ ...patchesByHash ]
+    .filter(([ hash ]) =>
       keepMatched
         ? matchingHashes.indexOf(hash) !== -1
         : matchingHashes.indexOf(hash) === -1)
-    .map(([, patch]) => patch)
+    .map(([ , patch ]) => patch)
     .concat(additions)
 }
 

@@ -20,7 +20,7 @@ const _alternateLabels = R.memoizeWith(p => p.id, alternateLabels)
 class Search extends React.Component {
   toggleRadio(withAlternate) {
     const { opts, updateOpts } = this.props
-        , nextOpts = Object.assign({}, opts)
+        , nextOpts = { ...opts }
 
     if (withAlternate) {
       nextOpts.withAlternate = true
@@ -43,14 +43,17 @@ class Search extends React.Component {
       h(Container, [
         h(Label, { htmlFor: inputID }, 'Search'),
 
-        h(Flex, { mt: 1, mb: 2 }, [
+        h(Flex, {
+          mt: 1,
+          mb: 2,
+        }, [
           h(Flex, { mr: 3 }, [
             h('input', {
               id: randomID('radio1'),
               type: 'radio',
               name: radioName,
               checked: !withAlternate,
-              onChange: e => {
+              onChange: () => {
                 this.toggleRadio(false)
               },
             }),
@@ -63,7 +66,7 @@ class Search extends React.Component {
               type: 'radio',
               name: radioName,
               checked: !!withAlternate,
-              onChange: e => {
+              onChange: () => {
                 this.toggleRadio(true)
               },
             }),
@@ -79,7 +82,10 @@ class Search extends React.Component {
             const text = e.target.value
                 , invalidate = text.slice(-1) !== '|'
 
-            updateOpts(Object.assign({}, opts, { text }), invalidate)
+            updateOpts({
+              ...opts,
+              text,
+            }, invalidate)
           },
         }),
       ])

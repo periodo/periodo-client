@@ -10,15 +10,15 @@ module.exports = function sortWorker() {
 
   registerPromiseWorker(message => {
     switch (message.type) {
-      case 'initialize':
-        dataset = indexItems(message.rawDataset)
-        break;
+    case 'initialize':
+      dataset = indexItems(message.rawDataset)
+      break;
 
-      case 'getSort':
-        return sort(dataset.periods, message.field)
+    case 'getSort':
+      return sort(dataset.periods, message.field)
 
-      default:
-        break;
+    default:
+      break;
     }
   })
 }

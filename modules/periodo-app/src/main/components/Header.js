@@ -2,13 +2,11 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Flex, Box, Heading, Text } = require('periodo-ui')
+    , { Flex, Box, Heading } = require('periodo-ui')
     , Spinner = require('respin')
-    , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
-    , { Route } = require('org-shell')
 
 module.exports = props =>
-  h(Box.withComponent('header'), R.omit(['showSpinner'], props), [
+  h(Box.withComponent('header'), R.omit([ 'showSpinner' ], props), [
     h(Flex, {
       height: '100%',
       alignItems: 'center',

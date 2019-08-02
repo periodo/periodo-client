@@ -70,7 +70,7 @@ function findChanges(valuesA, valuesB) {
         change = Change.Mutation(objA, objB)
       }
 
-      return [...acc, change]
+      return [ ...acc, change ]
     } else {
       const countA = R.length(equivalentsA)
           , countB = R.length(equivalentsB)
@@ -90,12 +90,25 @@ const showChanges = component => R.map(
     Preservation:
       value => h(component, { value }),
     Mutation:
-      (value, compare) => h(component, { value, compare }),
+      (value, compare) => h(component, {
+        value,
+        compare,
+      }),
     Addition:
-      value => h(component, { value, bg: colors.insert }),
+      value => h(component, {
+        value,
+        bg: colors.insert,
+      }),
     Deletion:
-      value => h(component, { value, bg: colors.delete }),
+      value => h(component, {
+        value,
+        bg: colors.delete,
+      }),
   })
 )
 
-module.exports = { Diff, findChanges, showChanges }
+module.exports = {
+  Diff,
+  findChanges,
+  showChanges,
+}

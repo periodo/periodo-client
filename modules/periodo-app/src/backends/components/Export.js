@@ -8,8 +8,8 @@ const h = require('react-hyperscript')
 
 const ReadyState = Type({
   Pending: {},
-  Success: [String],
-  Failure: [String],
+  Success: [ String ],
+  Failure: [ String ],
 })
 
 class ExportData extends React.Component {
@@ -53,14 +53,17 @@ class ExportData extends React.Component {
         , { period, authority, backend } = this.props
         , toExport = period || authority || backend
 
-    const options = ['JSON-LD', 'Turtle']
+    const options = [ 'JSON-LD', 'Turtle' ]
 
     if (toExport === authority) {
       options.push('CSV')
     }
 
     return [
-      h(Heading, { key: 'title', level: 2 }, 'Export'),
+      h(Heading, {
+        key: 'title',
+        level: 2,
+      }, 'Export'),
       h(Flex, {
         key: 'tabs',
         my: 2,

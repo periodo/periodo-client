@@ -71,9 +71,9 @@ test('Adding Web backends', async t => {
   const store = makeMockStore()
 
   const actionType = BackendAction.CreateBackend(
-      BackendStorage.Web('http://example.com/'),
-      'test backend',
-      'Example PeriodO server'
+    BackendStorage.Web('http://example.com/'),
+    'test backend',
+    'Example PeriodO server'
   )
 
   await store.dispatch(actionType)
@@ -81,21 +81,21 @@ test('Adding Web backends', async t => {
   const action = store.getActions()[1]
       , timestamp = getResponse(action).backend.metadata.created
 
-    t.deepEqual(action, {
-      type: actionType,
-      readyState: ReadyState.Success(actionType.responseOf({
-        backend: Backend.BackendOf({
-          storage: BackendStorage.Web('http://example.com/'),
-          metadata: BackendMetadata.BackendMetadataOf({
-            label: 'test backend',
-            description: 'Example PeriodO server',
-            created: timestamp,
-            modified: timestamp,
-            accessed: timestamp,
-          }),
+  t.deepEqual(action, {
+    type: actionType,
+    readyState: ReadyState.Success(actionType.responseOf({
+      backend: Backend.BackendOf({
+        storage: BackendStorage.Web('http://example.com/'),
+        metadata: BackendMetadata.BackendMetadataOf({
+          label: 'test backend',
+          description: 'Example PeriodO server',
+          created: timestamp,
+          modified: timestamp,
+          accessed: timestamp,
         }),
-      })),
-    }, 'should allow adding Web backends')
+      }),
+    })),
+  }, 'should allow adding Web backends')
 
   await store.dispatch(BackendAction.GetAllBackends)
 
@@ -157,7 +157,7 @@ test('Updating backends', async t => {
 
   t.deepEqual(
     getResponse(R.last(store.getActions())),
-    actionType2.responseOf({ backends: [] }),
+    actionType2.responseOf({ backends: []}),
     'should list 0 available backends after deleting'
   );
 });

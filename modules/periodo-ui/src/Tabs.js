@@ -11,24 +11,24 @@ const TabItem = ({ label, isSelected, isLast, onClick }) =>
     onClick,
     fontSize: 4,
     textAlign: 'center',
-    css: Object.assign({
+    css: {
       textAlign: 'center',
       borderRadius: '6px 6px 0 0',
       flexGrow: 1,
       marginRight: isLast ? 0 : -1,
       fontWeight: 'bold',
-    }, isSelected
-      ? {
+      ...(isSelected
+        ? {
           borderBottomColor: 'transparent',
         }
-      : {
+        : {
           cursor: 'pointer',
           backgroundColor: '#eee',
           ':hover': {
             backgroundColor: '#ccc',
           },
-        }
-    ),
+        }),
+    },
   }, label)
 
 exports.Tabs = props =>

@@ -100,15 +100,17 @@ module.exports = class BackendHome extends React.Component {
           }, 'No periods in backend')
         )
         : (
-          h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
-          layout: periodLayout,
-        })))
+          h(AuthorityLayoutRenderer, {
+            ...childProps,
+            layout: periodLayout,
+          }))
     )
 
-    const renderAuthorityTab = () => h(AuthorityLayoutRenderer, Object.assign({}, childProps, {
+    const renderAuthorityTab = () => h(AuthorityLayoutRenderer, {
+      ...childProps,
       useAuthorities: true,
       layout: authorityLayout,
-    }))
+    })
 
     return (
       h(Box, [

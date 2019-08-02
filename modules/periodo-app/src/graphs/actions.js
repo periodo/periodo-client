@@ -26,8 +26,8 @@ const GraphsAction = module.exports = makeTypedAction({
 const graphURL = path => {
   const origin = (global.location
     && global.location.hostname.startsWith('client.'))
-      ? global.location.origin.replace('client.', 'data.')
-      : 'https://data.staging.perio.do' // assume we are testing if the origin
+    ? global.location.origin.replace('client.', 'data.')
+    : 'https://data.staging.perio.do' // assume we are testing if the origin
                                         // does not begin with 'client.'
   return `${origin}/graphs/${path}`
 }
@@ -35,7 +35,7 @@ const graphURL = path => {
 const indexFeatures = gazetteers => R.fromPairs(R.chain(
   gi => R.map(
     fi => {
-      const path = [gi, 'features', fi]
+      const path = [ gi, 'features', fi ]
       return [ R.path(path, gazetteers).id, path ]
     },
     R.range(0, gazetteers[gi].features.length)

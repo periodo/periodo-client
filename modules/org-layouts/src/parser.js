@@ -22,7 +22,7 @@ function camelCase(str) {
 const BLOCK_WHITELIST = [
   'type',
   'gridRow',
-  'gridColumn'
+  'gridColumn',
 ]
 
 const LAYOUT_WHITELIST = [
@@ -31,7 +31,7 @@ const LAYOUT_WHITELIST = [
   'gridTemplateRows',
 ]
 
-module.exports = function parse(string, opts={}) {
+module.exports = function parse(string) {
   const lines = string.split('\n')
       , len = lines.length
 
@@ -53,7 +53,7 @@ module.exports = function parse(string, opts={}) {
     if (cur[0] === '[') {
       if (!cur.endsWith(']')) {
         abort(
-`\`${cur}\`is not a valid identifier for a block.
+          `\`${cur}\`is not a valid identifier for a block.
 Names of blocks must begin with \`[\` and end with \`]\``
         )
       }
@@ -68,7 +68,7 @@ Names of blocks must begin with \`[\` and end with \`]\``
         abort(`\`${blockID}\` has already been used as a block identifier`)
       }
 
-      currentBlock = { id: blockID};
+      currentBlock = { id: blockID };
       currentBlockIdx++;
       layout.blocks.set(blockID, currentBlock)
       continue
@@ -81,7 +81,7 @@ Names of blocks must begin with \`[\` and end with \`]\``
 
     if (equalsIndex <= 0 || !k || !v) {
       abort(
-`Invalid property declaration in block \`[${currentBlock.id}]\`:
+        `Invalid property declaration in block \`[${currentBlock.id}]\`:
 
   ${cur}
 
@@ -115,5 +115,5 @@ equals sign, followed by a sequence of characters
     }
   })
 
-  return R.evolve({ blocks: map => [...map.values()] }, layout)
+  return R.evolve({ blocks: map => [ ...map.values() ]}, layout)
 }

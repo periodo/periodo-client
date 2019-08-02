@@ -3,7 +3,7 @@
 // Get the exact periods from the dataset, since the object identities will have
 // changed after coming from the web worker
 function restore(sortedPosByID, dataset) {
-  return new Map([...sortedPosByID].map(([ id, pos ]) => [ dataset.periodByID(id), pos ]))
+  return new Map([ ...sortedPosByID ].map(([ id, pos ]) => [ dataset.periodByID(id), pos ]))
 }
 
 // Add sorts for label, earliest start, and latest stop

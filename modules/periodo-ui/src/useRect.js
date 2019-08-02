@@ -7,14 +7,14 @@ const { useLayoutEffect, useCallback, useState } = require('react')
 
 module.exports = ref => {
 
-  const [rect, setRect] = useState(getRect(ref ? ref.current : null))
+  const [ rect, setRect ] = useState(getRect(ref ? ref.current : null))
 
   const handleResize = useCallback(() => {
     if (!ref.current) {
       return
     }
     setRect(getRect(ref.current))
-  }, [ref])
+  }, [ ref ])
 
   const debouncedHandler = debounce(handleResize, 200)
 
@@ -42,7 +42,7 @@ module.exports = ref => {
         window.removeEventListener('resize', debouncedHandler)
       }
     }
-  }, [ref.current])
+  }, [ ref.current ])
 
   return rect
 }

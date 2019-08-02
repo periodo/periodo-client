@@ -79,7 +79,7 @@ module.exports = blocks.List({
     start: 0,
     sortBy: 'label',
     selected: [],
-    shownColumns: ['start', 'stop', 'label', 'spatialCoverage', 'publicationDate'],
+    shownColumns: [ 'start', 'stop', 'label', 'spatialCoverage', 'publicationDate' ],
   },
   transducer: R.map(
     R.pipe(R.prop('periods'), R.values)

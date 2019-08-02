@@ -57,7 +57,7 @@ function matchFromPredicateList(store, subject, predicates) {
 module.exports = function makeSourceRepr(store, sourceNode) {
   const source = { id: sourceNode }
 
-  Object.entries(sourceFields).forEach(([field, preds]) => {
+  Object.entries(sourceFields).forEach(([ field, preds ]) => {
     const quads = matchFromPredicateList(store, sourceNode, preds)
 
     if (!quads) return;

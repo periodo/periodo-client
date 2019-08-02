@@ -40,8 +40,14 @@ module.exports = class TemporalCoverageForm extends React.Component {
         ]),
       ]),
 
-      h(Flex, { alignItems: 'center', mt: 2 }, [
-        h(Heading, { level: 4, mr: 2 }, 'Start'),
+      h(Flex, {
+        alignItems: 'center',
+        mt: 2,
+      }, [
+        h(Heading, {
+          level: 4,
+          mr: 2,
+        }, 'Start'),
         h(TerminusInput, {
           autoparse,
           terminus: start || emptyTerminus,
@@ -49,8 +55,14 @@ module.exports = class TemporalCoverageForm extends React.Component {
         }),
       ]),
 
-      h(Flex, { alignItems: 'center', mt: 3 }, [
-        h(Heading, { level: 4, mr: 2 }, 'Stop'),
+      h(Flex, {
+        alignItems: 'center',
+        mt: 3,
+      }, [
+        h(Heading, {
+          level: 4,
+          mr: 2,
+        }, 'Stop'),
         h(TerminusInput, {
           autoparse,
           terminus: stop || emptyTerminus,

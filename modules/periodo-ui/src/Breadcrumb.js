@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , { Box } = require('./Base')
 
 exports.Breadcrumb = props =>
-  h(Box, Object.assign({
+  h(Box, {
     is: 'ol',
     py: 1,
     px: 2,
@@ -14,7 +14,8 @@ exports.Breadcrumb = props =>
     css: {
       listStyleType: 'none',
     },
-  }, props), [].concat(props.children || []).map((el, i, arr) =>
+    ...props,
+  }, [].concat(props.children || []).map((el, i, arr) =>
     h(Box, {
       is: 'li',
       key: i,

@@ -13,7 +13,10 @@ module.exports = LocationStreamAware((props) => {
 
   return (
     h(Flex, [
-      h(Box, { flex: 1, mr: 4 }, [
+      h(Box, {
+        flex: 1,
+        mr: 4,
+      }, [
         h(Heading, {
           level: 2,
           mb: 2,

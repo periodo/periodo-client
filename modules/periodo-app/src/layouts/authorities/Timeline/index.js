@@ -54,24 +54,24 @@ const yaTickFormat = R.cond([
   //   * ka (thousand years ago)
   //   * Ma (million years ago)
   //   * Ga (billion years ago)
-  [R.gt(-50000), R.pipe(
+  [ R.gt(-50000), R.pipe(
     R.subtract(new Date().getFullYear()),
     d3.format('.2s'),
     R.flip(R.concat)('a'),
     x => x.replace('.0', '')
-  )],
+  ) ],
 
   // Late stone age to ISO8601 year -1: Tack on 'BC'. Add commas
   // for 10,000 to 50,000.
-  [R.gte(-1), R.pipe(
+  [ R.gte(-1), R.pipe(
     d => Math.abs(d),
     R.ifElse(R.lte(10000), d3.format(','), R.toString),
     R.flip(R.concat)('BC'),
-  )],
+  ) ],
 
   // Otherwise, just return the string. (e.g. 1243, 466, 1999). This
   // would not make sense for far-future dates
-  [R.T, R.toString],
+  [ R.T, R.toString ],
 ])
 
 const visualizations = {
@@ -166,8 +166,8 @@ class Timeline extends React.Component {
     this.plotG = this.plotGParent.append('g')
 
     this.scale = {
-      x: d3.scaleLinear().range([0, plotWidth]),
-      y: d3.scaleLinear().range([plotHeight, 0]),
+      x: d3.scaleLinear().range([ 0, plotWidth ]),
+      y: d3.scaleLinear().range([ plotHeight, 0 ]),
     }
 
     this.axisG = {
@@ -192,14 +192,18 @@ class Timeline extends React.Component {
       if (earliest != null && earliest < min) min = earliest;
       if (latest != null && latest > max) max = latest
 
-      periodsWithEndpoints.push({ period, earliest, latest })
+      periodsWithEndpoints.push({
+        period,
+        earliest,
+        latest,
+      })
     })
 
     const xScale = this.scale.x
-      .domain([domainUnit(min), domainUnit(max, false)])
+      .domain([ domainUnit(min), domainUnit(max, false) ])
 
     const yScale = this.scale.y
-      .domain([0, sortedPeriods.length])
+      .domain([ 0, sortedPeriods.length ])
 
     const xAxis = d3.axisBottom()
       .scale(xScale)

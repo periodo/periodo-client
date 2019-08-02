@@ -19,8 +19,8 @@ const columns = {
       return list.length
         ? contributorList.asString(list)
         : h(Span, {
-            color: 'gray',
-          }, '(not given)')
+          color: 'gray',
+        }, '(not given)')
     },
   },
 
@@ -63,7 +63,7 @@ module.exports = blocks.List({
     start: 0,
     selected: [],
     sortBy: 'title',
-    shownColumns: ['title', 'authors', 'yearPublished', 'numPeriods'],
+    shownColumns: [ 'title', 'authors', 'yearPublished', 'numPeriods' ],
   },
   columns,
 })

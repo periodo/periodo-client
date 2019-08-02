@@ -62,7 +62,10 @@ class ReviewPatch extends React.Component {
   async addComment() {
     const { dispatch, backend, patch } = this.props
 
-    this.setState({ message: null, submitting: true })
+    this.setState({
+      message: null,
+      submitting: true,
+    })
 
     const resp = await dispatch(PatchAction.AddPatchComment(
       backend,
@@ -120,7 +123,7 @@ class ReviewPatch extends React.Component {
   }
 
   render() {
-    const { fromDataset, toDataset, patchText, patch, mergeURL } = this.props
+    const { fromDataset, toDataset, patchText, patch } = this.props
         , { comment, submitting, deciding } = this.state
 
     if (!fromDataset) {
@@ -149,7 +152,10 @@ class ReviewPatch extends React.Component {
         }, 'Comments'),
 
         patch.comments.map((comment, i) =>
-          h(Box, { key: i, mb: 3 }, [
+          h(Box, {
+            key: i,
+            mb: 3,
+          }, [
             h(Link, { href: comment.author.url }, comment.author.label),
             h(Text, { color: 'gray.6' }, [
               new Date(comment.posted_at).toLocaleString(),

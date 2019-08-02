@@ -1,7 +1,6 @@
 "use strict";
 
-const { createStore, applyMiddleware, compose, combineReducers } = require('redux')
-    , thunk = require('redux-thunk').default
+const { createStore, applyMiddleware, combineReducers } = require('redux')
     , { typedAsyncActionMiddleware } = require('org-async-actions')
     , periodoDB = require('./db')
 

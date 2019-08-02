@@ -16,7 +16,7 @@ function extractSourceOrPartOf(key, opts) {
 
     if (Object.keys(val).length) return val
 
-    return extract(['partOf'].concat(key), opts)(period)
+    return extract([ 'partOf' ].concat(key), opts)(period)
   }
 }
 

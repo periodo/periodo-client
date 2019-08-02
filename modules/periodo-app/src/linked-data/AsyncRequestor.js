@@ -20,7 +20,7 @@ module.exports = function makeAsyncRequestor(Component) {
 
     onNextCompletion(fn) {
       this.setState(prev => ({
-        onNextCompletion: [...prev.onNextCompletion, fn],
+        onNextCompletion: [ ...prev.onNextCompletion, fn ],
       }))
     }
 
@@ -67,7 +67,9 @@ module.exports = function makeAsyncRequestor(Component) {
     }
 
     render () {
-      return h(Component, Object.assign({}, this.props, this.state, {
+      return h(Component, {
+        ...this.props,
+        ...this.state,
         clearRequest: (cb) => {
           this.curReq += 1;
           this.setState({ readyState: null }, cb)
@@ -75,7 +77,7 @@ module.exports = function makeAsyncRequestor(Component) {
 
         doRequest: this.doRequest.bind(this),
         onNextCompletion: this.onNextCompletion.bind(this),
-      }));
+      });
     }
   }
 }

@@ -15,7 +15,7 @@ type = period-list
 class AuthorityLayout extends React.Component {
   constructor() {
     super()
-    this.state = { blockOpts: {} }
+    this.state = { blockOpts: {}}
   }
 
   render() {
@@ -48,6 +48,9 @@ module.exports = ({ backend, authority }) =>
     h(Box, { width: .5 }, [
       h(Heading, { level: 2 }, 'Periods'),
 
-      h(AuthorityLayout, { backend, authority }),
+      h(AuthorityLayout, {
+        backend,
+        authority,
+      }),
     ]),
   ])

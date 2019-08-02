@@ -3,5 +3,8 @@
 const h = require('react-hyperscript')
 
 module.exports = (Component, overrides) =>
-  props => h(Component, Object.assign({}, overrides, props))
+  props => h(Component, {
+    ...overrides,
+    ...props,
+  })
 

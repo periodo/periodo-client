@@ -3,9 +3,13 @@
 const h = require('react-hyperscript')
     , { Box } = require('./Base')
 
-exports.InlineList = ({css, ...props}) => h(Box, {
+exports.InlineList = ({ css, ...props }) => h(Box, {
   ml: '1px',
-  css: { position: 'relative', overflow: 'hidden', ...css },
+  css: {
+    position: 'relative',
+    overflow: 'hidden',
+    ...css,
+  },
   ...props,
 }, [
   h(Box, {

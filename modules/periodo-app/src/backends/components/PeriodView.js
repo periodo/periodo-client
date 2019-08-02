@@ -2,9 +2,12 @@
 
 const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
-    , { BackendContext, Period } = require('periodo-ui')
+    , { Period } = require('periodo-ui')
 
 module.exports = ({ period, gazetteers }) =>
   h(Box, [
-    h(Period, { value: period, gazetteers }),
+    h(Period, {
+      value: period,
+      gazetteers,
+    }),
   ])

@@ -181,7 +181,7 @@ async function fetchServerResource(baseURL, resourceName) {
 
   if (!resp.ok) {
     throw new Error(
-    `Failed to fetch resource at ${url}.` +
+      `Failed to fetch resource at ${url}.` +
     '\n' +
     `${resp.status} ${resp.statusText}`)
   }
@@ -193,11 +193,11 @@ async function fetchServerResource(baseURL, resourceName) {
 function fetchBackend(storage, forceReload) {
   return async (dispatch, getState, { db }) => {
     const identifier = storage.asIdentifier()
-        , existingDataset = R.path(['backends', 'datasets', identifier], getState())
+        , existingDataset = R.path([ 'backends', 'datasets', identifier ], getState())
 
     if (existingDataset && !forceReload) {
       return {
-        backend: R.path(['backends', 'available', identifier], getState()),
+        backend: R.path([ 'backends', 'available', identifier ], getState()),
         dataset: existingDataset,
       }
     }
@@ -397,23 +397,26 @@ function fetchBackendHistory(storage) {
       },
     })
 
-    const [, patches ] = await Promise.all([ datasetPromise, patchesPromise ])
+    const [ , patches ] = await Promise.all([ datasetPromise, patchesPromise ])
 
-    const orcids = [...new Set(R.pipe(
-      R.chain(p => [p.submittedBy, p.mergedBy, p.updatedBy].filter(R.identity)),
+    const orcids = [ ...new Set(R.pipe(
+      R.chain(p => [ p.submittedBy, p.mergedBy, p.updatedBy ].filter(R.identity)),
       R.filter(R.contains('://orcid.org/'))
-    )(patches))]
+    )(patches)) ]
 
     await dispatch(LinkedDataAction.FetchORCIDs(orcids))
 
     const { nameByORCID } = getState().linkedData
 
     patches.forEach(p => {
-      ['submittedBy', 'mergedBy', 'updatedBy'].forEach(attr => {
+      [ 'submittedBy', 'mergedBy', 'updatedBy' ].forEach(attr => {
         if (!p[attr]) return;
 
         p[attr] = nameByORCID[p[attr]]
-          ? { url: p[attr], label: nameByORCID[p[attr]] }
+          ? {
+            url: p[attr],
+            label: nameByORCID[p[attr]],
+          }
           : { label: p[attr] }
       })
     })
@@ -543,19 +546,22 @@ function updateLocalDataset(storage, newRawDataset, message) {
 
     const patchData = formatPatch(dataset.raw, newRawDataset, message)
 
-    const updatedBackend = Object.assign({}, backend.metadata, backend.storage, {
+    const updatedBackend = {
+      ...backend.metadata,
+      ...backend.storage,
       dataset: newRawDataset,
       modified: new Date().getTime(),
-    })
+    }
 
     delete updatedBackend._name;
     delete updatedBackend._keys;
 
     await db.localBackends.put(updatedBackend);
 
-    await db.localBackendPatches.add(Object.assign({
+    await db.localBackendPatches.add({
       backendID: backend.storage.id,
-    }, patchData))
+      ...patchData,
+    })
 
     await _refetch()
 
@@ -608,7 +614,10 @@ function addOrcidCredential(storage, token, name) {
     })
 
     await dispatch(BackendAction.UpdateBackend(storage, {
-      orcidCredential: { token, name },
+      orcidCredential: {
+        token,
+        name,
+      },
     }))
 
     return {}

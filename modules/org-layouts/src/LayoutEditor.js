@@ -20,9 +20,12 @@ const BlockDefinitions = ({ blocks }) =>
           color: 'pink5',
           bg: 'gray2',
           px: '3px',
-        }, key)
+        }, key),
       ]),
-      h(Box, { is: 'p', my: 1 }, description),
+      h(Box, {
+        is: 'p',
+        my: 1,
+      }, description),
     ])
   , blocks)))
 
@@ -36,19 +39,19 @@ class LayoutEditor extends React.Component {
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gridGap: '.66em',
-        }
+        },
       }, [
         h('textarea', {
           style: {
             padding: '.7em',
           },
+          /*
+          TODO: Allow moving along grid tracks
           onSelect: e => {
-            /*
-             * TODO: Allow moving along grid tracks
             const { selectionStart, selectionEnd } = e.target
             console.log(selectionStart, selectionEnd);
-            */
           },
+          */
           rows: 25,
           value,
           onChange,

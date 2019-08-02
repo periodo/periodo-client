@@ -72,7 +72,10 @@ class SyncBackend extends React.Component {
         dispatch: this.props.dispatch,
         localBackend: this.props.backend,
         handleSelectPatch: (selectedPatch, compareComponent) => {
-          this.setState({ selectedPatch, compareComponent })
+          this.setState({
+            selectedPatch,
+            compareComponent,
+          })
         },
       })
     }

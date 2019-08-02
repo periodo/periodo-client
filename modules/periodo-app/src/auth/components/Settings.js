@@ -7,8 +7,16 @@ const h = require('react-hyperscript')
     , AuthAction = require('../actions')
     , BackendAction = require('../../backends/actions')
     , LinkedDataAction = require('../../linked-data/actions')
-    , { Heading, Box, Span, ResourceTitle, Alert$Success, Button$Danger, Button$Default } = require('periodo-ui')
     , { Link } = require('periodo-ui')
+
+const {
+  Heading,
+  Box,
+  Span,
+  ResourceTitle,
+  Button$Danger,
+  Button$Default,
+} = require('periodo-ui')
 
 class SignIn extends React.Component {
   constructor() {
@@ -27,7 +35,10 @@ class SignIn extends React.Component {
         , oauthToken = e.data.token
 
     dispatch(AuthAction.UpdateSettings(
-      R.flip(R.merge)({ oauthName, oauthToken })
+      R.flip(R.merge)({
+        oauthName,
+        oauthToken,
+      })
     ))
 
     this.oauthWindow.close()
@@ -55,7 +66,7 @@ class SignIn extends React.Component {
     e.preventDefault();
 
     dispatch(AuthAction.UpdateSettings(
-      R.omit(['oauthName', 'oauthToken'])
+      R.omit([ 'oauthName', 'oauthToken' ])
     ))
   }
 

@@ -5,5 +5,5 @@ module.exports = {
   blocks: {
     DOM: require('./DOMBlock'),
     List: require('./ListBlock'),
-  }
+  },
 }

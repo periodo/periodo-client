@@ -39,7 +39,7 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
     ], this.props)
 
     return (
-      h(Autosuggest, Object.assign({
+      h(Autosuggest, {
         suggestions,
         highlightFirstSuggestion: true,
         focusInputOnSuggestionClick: false,
@@ -59,26 +59,28 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
             value: '',
           })
         },
-        theme: Object.assign({
+        theme: {
           suggestionsList: {
             margin: 0,
             padding: 0,
             listStyleType: 'none',
           },
 
-          suggestionsContainerOpen: Object.assign({
+          suggestionsContainerOpen: {
             marginTop: '4px',
             background: 'white',
             height: 200,
             overflowY: 'scroll',
             zIndex: 1,
-          }, R.path(['theme', 'suggestionsContainerOpen'], this.props)),
-        }, R.omit(['suggestionsContainerOpen'], this.props.theme)),
+            ...R.path([ 'theme', 'suggestionsContainerOpen' ], this.props),
+          },
+          ...R.omit([ 'suggestionsContainerOpen' ], this.props.theme),
+        },
 
         renderInputComponent: props => h(Input, props),
 
         renderSuggestion: (item, { isHighlighted }) =>
-          h(Box, Object.assign({
+          h(Box, {
             px: 1,
             py: '6px',
             border: 1,
@@ -89,11 +91,12 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
                 cursor: 'pointer',
               },
             },
-          }, isHighlighted && { bg: 'gray.2' }), [
+            ...isHighlighted && { bg: 'gray.2' },
+          }, [
             item.name,
           ]),
 
-        inputProps: Object.assign({
+        inputProps: {
           value,
           placeholder: 'Begin typing to search',
           onChange: (e, { newValue }) => this.setState({ value: newValue }),
@@ -108,8 +111,10 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
               this.props.onBlur();
             }
           },
-        }, R.omit(['onBlur'], this.props.inputProps)),
-      }, autoSuggestProps))
+          ...R.omit([ 'onBlur' ], this.props.inputProps),
+        },
+        ...autoSuggestProps,
+      })
     )
   }
 }

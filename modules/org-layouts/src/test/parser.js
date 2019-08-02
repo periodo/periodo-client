@@ -1,7 +1,6 @@
 "use strict";
 
 const test = require('blue-tape')
-    , R = require('ramda')
     , parse = require('../parser')
 
 // TODO: Whitelist properties for particular layouts? Or not...
@@ -39,9 +38,9 @@ test('Parsing specification', async t => {
         gridColumn: '2/3',
         opts: {
           blockProp: 'baz',
-        }
+        },
       },
-    ]
+    ],
   }, 'should parse a spec string')
 
   t.deepEqual(parse(`
@@ -52,8 +51,8 @@ test('Parsing specification', async t => {
       {
         id: '0',
         type: 'test',
-      }
-    ]
+      },
+    ],
   }, 'should allow blank block names')
 
 })

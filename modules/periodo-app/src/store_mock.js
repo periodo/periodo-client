@@ -1,7 +1,6 @@
 "use strict";
 
 const FDBFactory = require('fake-indexeddb/lib/FDBFactory')
-    , thunk = require('redux-thunk').default
     , configureMockStore = require('redux-mock-store').default
     , { typedAsyncActionMiddleware } = require('org-async-actions')
 

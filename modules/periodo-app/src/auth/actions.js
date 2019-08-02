@@ -3,7 +3,7 @@
 const R = require('ramda')
     , { makeTypedAction } = require('org-async-actions')
 
-const AuthAction = module.exports = makeTypedAction({
+const AuthAction = makeTypedAction({
   GetAllSettings: {
     exec: getApplicationSettings,
     request: {},
@@ -33,7 +33,7 @@ function getApplicationSettings() {
 
 function updateApplicationSettings(fn) {
   return async (dispatch, getState, { db }) => {
-    const [settings] = await db.settings.toArray()
+    const [ settings ] = await db.settings.toArray()
         , { id } = settings
         , newSettings = fn(R.dissoc('id', settings))
 
@@ -42,3 +42,5 @@ function updateApplicationSettings(fn) {
     return { settings: newSettings }
   }
 }
+
+module.exports = AuthAction

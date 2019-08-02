@@ -25,7 +25,11 @@ const extractSpatialExtent = period => {
 
   // return identified value so that it is diffable
   return (description || places.length)
-    ? [ { id: 0, description, places } ]
+    ? [{
+      id: 0,
+      description,
+      places,
+    }]
     : []
 }
 
@@ -41,7 +45,10 @@ const extractIndex = R.pipe(
 )
 
 const extractAlternateLabels = period => R.map(
-  ([ language, value ]) => ({ language, value }),
+  ([ language, value ]) => ({
+    language,
+    value,
+  }),
   R.difference( // exclude original label
     extractIndex('localizedLabels', period),
     [ R.pair(period.language, period.label) ]
@@ -49,7 +56,7 @@ const extractAlternateLabels = period => R.map(
 )
 
 const extractRelatedPeriods = key => R.pipe(
-  R.pathOr({}, [$$RelatedPeriods, key]),
+  R.pathOr({}, [ $$RelatedPeriods, key ]),
   R.values,
   R.sort(period.byStartYear)
 )
@@ -143,7 +150,7 @@ const periodFields = [
 
   {
     label: 'Locator',
-    getValues: extract(['source', 'locator']),
+    getValues: extract([ 'source', 'locator' ]),
   },
 
   {

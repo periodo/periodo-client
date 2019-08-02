@@ -26,7 +26,10 @@ module.exports = class DatasetProxy {
       rawDataset: this.raw,
     })
 
-    return { worker, promiseWorker }
+    return {
+      worker,
+      promiseWorker,
+    }
   }
 
   periodByID(periodID) {

@@ -25,14 +25,20 @@ const matches = query => {
       return matched
     }
     if (matches(feature.properties.title)) {
-      return R.append({ ...feature, name: feature.properties.title }, matched)
+      return R.append({
+        ...feature,
+        name: feature.properties.title,
+      }, matched)
     }
     if (! feature.names) {
       return matched
     }
     for (const name of feature.names) {
       if (matches(name.toponym)) {
-        return R.append({ ...feature, name: name.toponym }, matched)
+        return R.append({
+          ...feature,
+          name: name.toponym,
+        }, matched)
       }
     }
     return matched
@@ -53,13 +59,13 @@ const renderSectionTitle = section =>
     border: 1,
     borderColor: 'transparent',
     fontWeight: 'bold',
-    css: {borderRadius: 1},
+    css: { borderRadius: 1 },
   }, [
     section.title,
   ])
 
 const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
-  Object.assign({
+  {
     px: 1,
     py: '6px',
     border: 1,
@@ -68,7 +74,8 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
       borderRadius: 1,
       cursor: 'pointer',
     },
-  }, isHighlighted && { bg: 'gray.2' }), [
+    ...isHighlighted && { bg: 'gray.2' },
+  }, [
     h(Span, {
       display: 'inline-block',
       width: '1em',
@@ -110,7 +117,10 @@ const PlaceSuggest = ({
     highlightFirstSuggestion: false,
     renderSectionTitle,
     renderSuggestion: (item, info) => renderSuggestion(
-      item, { isSelected: isSelected(item), ...info }
+      item, {
+        isSelected: isSelected(item),
+        ...info,
+      }
     ),
     getSectionSuggestions: section => section.suggestions,
     inputProps: {

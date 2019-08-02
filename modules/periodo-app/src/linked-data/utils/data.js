@@ -1,7 +1,10 @@
 "use strict"
 
 function asJSONLD(data) {
-  return Object.assign({ '@context': require('../context') }, data)
+  return {
+    '@context': require('../context'),
+    ...data,
+  }
 }
 
 function prefixLines(text, prefix) {
@@ -46,4 +49,7 @@ function asTurtle(data, shouldInlineBlankNodes) {
     .then(ttl => shouldInlineBlankNodes ? replaceBlankNodes(ttl) : ttl)
 }
 
-module.exports = { asJSONLD, asTurtle }
+module.exports = {
+  asJSONLD,
+  asTurtle,
+}

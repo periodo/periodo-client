@@ -26,17 +26,18 @@ function makeButton(color, startShade=5, extra) {
     color: 'white',
     fontWeight: 'bold',
   }, 'position',
-    props => Object.assign({
-      cursor: 'pointer',
-      backgroundImage: gradient(0, 1)(props),
-      ':hover': {
-        backgroundImage: gradient(1, 2)(props),
-      },
-      ':disabled': {
-        cursor: 'not-allowed',
-        opacity: .4,
-      },
-    }, extra),
+  props => ({
+    cursor: 'pointer',
+    backgroundImage: gradient(0, 1)(props),
+    ':hover': {
+      backgroundImage: gradient(1, 2)(props),
+    },
+    ':disabled': {
+      cursor: 'not-allowed',
+      opacity: .4,
+    },
+    ...extra,
+  }),
   )
 }
 
@@ -53,7 +54,7 @@ exports.Button$Default = exports.Button = makeButton('gray', 0, {
 
 
 exports.AriaButton = props =>
-  h(Box, Object.assign({
+  h(Box, {
     is: 'span',
     role: 'button',
     tabIndex: 0,
@@ -69,4 +70,5 @@ exports.AriaButton = props =>
       }
     },
     onClick: props.onSelect,
-  }, props), props.children)
+    ...props,
+  }, props.children)

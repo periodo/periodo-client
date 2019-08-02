@@ -17,20 +17,21 @@ class Suggestor extends React.Component {
   }
 
   render() {
-    const { editing} = this.state
+    const { editing } = this.state
         , { onSelect, getSuggestions, buttonCSS } = this.props
 
     return (
       h(Box, { css: { position: 'relative' }}, [
         h(DropdownMenuButton, {
-          css: Object.assign({
+          css: {
             position: 'relative',  // Fixes outline overlap for some reason
 
             whiteSpace: 'nowrap',
             minWidth: 60,
             borderRadius: 0,
             marginRight: '-1px',
-          }, buttonCSS),
+            ...buttonCSS,
+          },
           isOpen: editing,
           onClick: () => this.setState(prev => ({ editing: !prev.editing })),
         }, this.props.value),
@@ -47,7 +48,10 @@ class Suggestor extends React.Component {
             }
           },
         }, [
-          h(DropdownMenuMenu, { p: 1, width: 600 }, [
+          h(DropdownMenuMenu, {
+            p: 1,
+            width: 600,
+          }, [
             h(Autosuggest, {
               getSuggestions,
               onSelect: (...args) => {
@@ -107,9 +111,12 @@ module.exports = function LocalizedLabelInput(props) {
               .search(search)
               .reduce((acc=[], subtag) =>
                 subtag.type() === 'language'
-                  ? [...acc, { subtag, name: subtag.descriptions()[0] }]
+                  ? [ ...acc, {
+                    subtag,
+                    name: subtag.descriptions()[0],
+                  }]
                   : acc,
-                []
+              []
               ),
           value: lang.descriptions()[0],
           onSelect: ({ subtag }) =>
@@ -128,9 +135,12 @@ module.exports = function LocalizedLabelInput(props) {
               .search(search)
               .reduce((acc=[], subtag) =>
                 subtag.type() === 'script'
-                  ? [...acc, { subtag, name: subtag.descriptions()[0] }]
+                  ? [ ...acc, {
+                    subtag,
+                    name: subtag.descriptions()[0],
+                  }]
                   : acc,
-                []
+              []
               ),
           value: script ? script.descriptions()[0] : '(select script)',
           onSelect: ({ subtag }) => {
@@ -138,7 +148,7 @@ module.exports = function LocalizedLabelInput(props) {
               label,
               languageTag: langDefaultScriptTag === subtag.format()
                 ? langTag
-              : `${lang}-${subtag.format()}`,
+                : `${lang}-${subtag.format()}`,
             })
           },
         }),

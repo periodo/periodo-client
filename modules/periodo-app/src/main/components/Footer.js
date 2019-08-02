@@ -9,7 +9,11 @@ const h = require('react-hyperscript')
 const Logo = ({ href, title, src, height=44 }) =>
   h(Box, {}, [
     h('a', { href }, [
-      h('img', { title, src, height }),
+      h('img', {
+        title,
+        src,
+        height,
+      }),
     ]),
   ])
 
@@ -34,7 +38,10 @@ const Footer = props =>
           height: 60,
         }),
 
-        h(Box, { mt: 2, align: 'right' }, [
+        h(Box, {
+          mt: 2,
+          align: 'right',
+        }, [
           'Client version ',
           h(Link, { href }, version),
         ]),

@@ -109,13 +109,13 @@ class AspectTable extends React.Component {
   }
 
   render() {
-    const { aspect, aspectID, opts, updateOpts, flex } = this.props
+    const { aspect, aspectID, opts, updateOpts } = this.props
         , { counts } = this.state
         , { label } = aspect
         , render = aspect.render || R.identity
         , height = parseInt(opts.height || '256')
 
-    const selected = new Set(R.path(['selected', aspectID], opts) || [])
+    const selected = new Set(R.path([ 'selected', aspectID ], opts) || [])
 
     return (
       h(Flex, {
@@ -150,7 +150,7 @@ class AspectTable extends React.Component {
               },
               onClick: e => {
                 e.preventDefault();
-                updateOpts(R.dissocPath(['selected', aspectID]), true)
+                updateOpts(R.dissocPath([ 'selected', aspectID ]), true)
               },
             }, 'Clear')
           )),
@@ -174,7 +174,7 @@ class AspectTable extends React.Component {
             px: 1,
             width: '100%',
           }, [
-            h('tbody', counts.map(([value, count, label]) =>
+            h('tbody', counts.map(([ value, count, label ]) =>
               h('tr', [
                 h('td', count),
                 h('td', [
@@ -184,14 +184,14 @@ class AspectTable extends React.Component {
                       e.preventDefault();
                       updateOpts(R.pipe(
                         R.over(
-                          R.lensPath(['selected', aspectID]),
-                          () => [...(selected.has(value)
+                          R.lensPath([ 'selected', aspectID ]),
+                          () => [ ...(selected.has(value)
                             ? withoutValue(value, selected)
-                            : withValue(value, selected))]),
+                            : withValue(value, selected)) ]),
                         R.ifElse(
                           val => val.selected[aspectID].length,
                           R.identity,
-                          R.dissocPath(['selected', aspectID])),
+                          R.dissocPath([ 'selected', aspectID ])),
                         R.ifElse(
                           val => R.isEmpty(val.selected),
                           R.dissoc('selected'),
@@ -228,7 +228,7 @@ class Facets extends React.Component {
     }
 
     return (
-      h('div', { style }, Object.entries(aspects).map(([key, aspect]) =>
+      h('div', { style }, Object.entries(aspects).map(([ key, aspect ]) =>
         h(AspectTable, {
           key,
           data,
@@ -249,11 +249,11 @@ module.exports = {
   label: 'Facets',
   description: 'Filter items based on their attributes',
   makeFilter(opts) {
-    const { selected={} } = (opts || {})
+    const { selected={}} = (opts || {})
 
     if (R.isEmpty(selected)) return null
 
-    const fns = Object.entries(selected).map(([aspectID, vals]) => {
+    const fns = Object.entries(selected).map(([ aspectID, vals ]) => {
       const { getter } = aspects[aspectID]
 
       return period => vals.includes(getter(period))

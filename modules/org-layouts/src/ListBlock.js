@@ -81,9 +81,12 @@ const ListHeader = ({
             R.lensProp('limit'),
             e.target.value
           ))
-        }
-      }, [10, 25, 50, 100, 250].map(n =>
-        h('option', { key: n, value: n, }, n),
+        },
+      }, [ 10, 25, 50, 100, 250 ].map(n =>
+        h('option', {
+          key: n,
+          value: n,
+        }, n),
       )),
 
       h(Button, {
@@ -137,16 +140,16 @@ const ListHeader = ({
               updateOpts(opts =>
                 R.over(
                   R.lensProp('shownColumns'),
-                  (shownColumns.includes(key) ? R.without : R.flip(R.union))([key]),
+                  (shownColumns.includes(key) ? R.without : R.flip(R.union))([ key ]),
                   opts
                 )
               )
-            }
+            },
           }),
 
           columns[key].label,
         ])
-      ))
+      )),
     ]),
   ])
 
@@ -159,7 +162,7 @@ function DefaultRowNumbering({ number }) {
       fontSize: '12px',
       lineHeight: '24px',
       width: '5ch',
-    }
+    },
   }, number)
 }
 
@@ -176,14 +179,12 @@ function LinkedRowNumbering(props) {
           textDecoration: 'none',
           backgroundColor: colors.blue5,
           color: 'white',
-        }
+        },
       },
-      route: props.makeItemRoute(props)
+      route: props.makeItemRoute(props),
     }, props.number)
   )
 }
-
-const noop = () => null
 
 module.exports = function makeList(opts) {
   const {
@@ -195,11 +196,13 @@ module.exports = function makeList(opts) {
     navigateToItem,
   } = opts
 
-  const withDefaults = obj => Object.assign({
+  const withDefaults = obj => ({
     start: 0,
     limit: 25,
     shownColumns: Object.keys(columns),
-  }, defaultOpts, obj)
+    ...defaultOpts,
+    ...obj,
+  })
 
   const RowNumbering = makeItemRoute ? LinkedRowNumbering : DefaultRowNumbering
 
@@ -237,19 +240,22 @@ module.exports = function makeList(opts) {
       if (column) {
         if (column.sort) {
           const sortedData = await column.sort(data, this.props)
-          this.setState({ sortedData, start: 0 })
+          this.setState({
+            sortedData,
+            start: 0,
+          })
         } else {
           const sorter = natsort({
             insensitive: true,
             desc: sortDirection === 'desc',
           })
 
-          const sortedData = [...data].sort((a, b) => {
-            let [_a, _b] = [a, b]
+          const sortedData = [ ...data ].sort((a, b) => {
+            let [ _a, _b ] = [ a, b ]
               .map(column.getValue)
 
             if (column.getSortValue) {
-              [_a, _b] = [_a, _b].map(column.getSortValue)
+              [ _a, _b ] = [ _a, _b ].map(column.getSortValue)
             }
 
             if (_a == null) return 1
@@ -258,7 +264,10 @@ module.exports = function makeList(opts) {
             return sorter(_a, _b)
           })
 
-          this.setState({ sortedData, start: 0 })
+          this.setState({
+            sortedData,
+            start: 0,
+          })
         }
       } else {
         this.setState({ sortedData: data })
@@ -326,7 +335,7 @@ module.exports = function makeList(opts) {
             minHeight: limit * 24,
           },
         }, [
-          h(ListHeader, Object.assign({
+          h(ListHeader, {
             items,
             limit,
             shownItems,
@@ -337,7 +346,9 @@ module.exports = function makeList(opts) {
             lastPage: this.lastPage,
             columns,
             shownColumns,
-          }, this.props, this.state)),
+            ...this.props,
+            ...this.state,
+          }),
 
           h(Box, {
             is: 'table',
@@ -345,7 +356,7 @@ module.exports = function makeList(opts) {
               tableLayout: 'fixed',
               width: '100%',
               borderCollapse: 'collapse',
-            }
+            },
           }, [
 
             h(Box, {
@@ -364,7 +375,7 @@ module.exports = function makeList(opts) {
                   style: {
                     width: '42px',
                   },
-                })
+                }),
               ].concat(shownColumns.map(n =>
                 h(Box, {
                   is: 'th',
@@ -374,29 +385,27 @@ module.exports = function makeList(opts) {
                     width: columns[n].width || 'unset',
                   },
                   onClick: () => {
-                    updateOpts((opts={}) => Object.assign(
-                      {},
-                      opts,
-                      {
-                        sortBy: n,
-                        sortDirection: opts.sortBy === n
-                          ?  (!opts.sortDirection || opts.sortDirection === 'asc') ? 'desc' : 'asc'
-                          : 'asc'
-                      }
-                    ))
-                  }
+                    updateOpts((opts={}) => ({
+
+                      ...opts,
+                      sortBy: n,
+                      sortDirection: opts.sortBy === n
+                        ?  (!opts.sortDirection || opts.sortDirection === 'asc') ? 'desc' : 'asc'
+                        : 'asc',
+                    }))
+                  },
                 }, [
                   columns[n].label,
                   n === sortBy && (
                     sortDirection === 'desc' ? '▲' : '▼'
-                  )
+                  ),
                 ])
-              )))
+              ))),
             ]),
 
             h('tbody',
               shownItems.map(
-                (item, i) => h(Box, Object.assign({}, {
+                (item, i) => h(Box, {
                   is: 'tr',
                   key: item.id,
                   m: 0,
@@ -404,37 +413,39 @@ module.exports = function makeList(opts) {
                     height: '24px',
                     ':hover': {
                       backgroundColor: '#e4e2e0',
-                    }
-                  }
-                }, !navigateToItem ? null : {
-                  role: 'link',
-                  tabIndex: 0,
-                  style: {
-                    cursor: 'pointer',
+                    },
                   },
-                  onClick: e => {
-                    if (e.target.tagName === 'A') return true
-                    navigateToItem(item, this.props)
-                  },
-                  onKeyDown: e => {
-                    if (e.key === 'Enter') {
+                  ...(!navigateToItem ? null : {
+                    role: 'link',
+                    tabIndex: 0,
+                    style: {
+                      cursor: 'pointer',
+                    },
+                    onClick: e => {
+                      if (e.target.tagName === 'A') return true
                       navigateToItem(item, this.props)
-                    }
-                  },
-                }), [
-                    h(Box, {
-                      is: 'td',
-                      key: '_numbering',
-                      p: 0,
-                      css: {
-                        width: '.1%',
-                        whiteSpace: 'nowrap',
+                    },
+                    onKeyDown: e => {
+                      if (e.key === 'Enter') {
+                        navigateToItem(item, this.props)
                       }
-                    }, h(RowNumbering, Object.assign({}, this.props, {
-                      item,
-                      number: i + 1 + start,
-                      makeItemRoute,
-                    })))
+                    },
+                  }),
+                }, [
+                  h(Box, {
+                    is: 'td',
+                    key: '_numbering',
+                    p: 0,
+                    css: {
+                      width: '.1%',
+                      whiteSpace: 'nowrap',
+                    },
+                  }, h(RowNumbering, {
+                    ...this.props,
+                    item,
+                    number: i + 1 + start,
+                    makeItemRoute,
+                  })),
                 ].concat(R.values(R.pick(shownColumns, columns)).map(
                   col =>
                     h(Box, {
@@ -443,14 +454,14 @@ module.exports = function makeList(opts) {
                       px: 1,
                       py: 0,
                       css: {
-                      }
+                      },
                     }, (col.render || R.identity)(
                       col.getValue(item)
                     ))
-                  ))
+                ))
                 )
               )
-            )
+            ),
           ]),
 
           !(loaded && shownItems.length === 0) ? null : (

@@ -17,7 +17,7 @@ const jsonpatch = require('fast-json-patch')
  */
 function makePatch(before, after) {
   return jsonpatch.compare(before, after)
-    .reduce(({ patches=[], replaced=[] }, patch) => {
+    .reduce(({ patches=[], replaced=[]}, patch) => {
       const { path, op } = patch
           , { authorityID, periodID, attribute } = PatchType.fromPatch(patch)
 
@@ -27,17 +27,23 @@ function makePatch(before, after) {
       )
 
       if (!attribute || isSimpleAttributeChange) {
-        return { patches: patches.concat(patch), replaced }
+        return {
+          patches: patches.concat(patch),
+          replaced,
+        }
       }
 
       const attributePointer = pointer.compile(
         periodID
-          ? ['authorities', authorityID, 'periods', periodID, attribute]
-          : ['authorities', authorityID, attribute]
+          ? [ 'authorities', authorityID, 'periods', periodID, attribute ]
+          : [ 'authorities', authorityID, attribute ]
       )
 
       return replaced.includes(attributePointer)
-        ? { patches, replaced }
+        ? {
+          patches,
+          replaced,
+        }
         : {
           patches: patches.concat({
             op: 'add',
@@ -46,7 +52,10 @@ function makePatch(before, after) {
           }),
           replaced: replaced.concat(attributePointer),
         }
-    }, { patches: [], replaced: [] })
+    }, {
+      patches: [],
+      replaced: [],
+    })
     .patches
 }
 
@@ -58,7 +67,10 @@ function getAffected(patches) {
       periods: periods.concat(periodID || []),
       authorities: authorities.concat(authorityID || []),
     }
-  }, { authorities: [], periods: [] })
+  }, {
+    authorities: [],
+    periods: [],
+  })
 }
 
 

@@ -23,16 +23,17 @@ module.exports = function makeValidated(validationFn, Component) {
     }
 
     clearErrors(cb) {
-      this.setState({ errors: {} }, cb)
+      this.setState({ errors: {}}, cb)
     }
 
     render() {
       return (
-        h(Component, Object.assign({}, this.props, {
+        h(Component, {
+          ...this.props,
           errors: this.state.errors,
           validate: this.validate.bind(this),
           clearErrors: this.clearErrors.bind(this),
-        }))
+        })
       )
     }
   }

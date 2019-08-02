@@ -16,7 +16,8 @@ module.exports = LocationStreamAware((props) => {
     : props.dataset.periods
 
   return (
-    h(LayoutRenderer, R.omit(['dataset', 'backend', 'locationStream'], Object.assign({}, props, {
+    h(LayoutRenderer, R.omit([ 'dataset', 'backend', 'locationStream' ], {
+      ...props,
       blocks,
       data,
       extraProps: {
@@ -29,6 +30,6 @@ module.exports = LocationStreamAware((props) => {
         selectedPeriod,
         setSelectedPeriod,
       },
-    })))
+    }))
   )
 })

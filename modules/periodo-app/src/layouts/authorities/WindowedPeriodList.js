@@ -138,12 +138,13 @@ function ItemRow({
   return (
     h('div', {
       className: 'row',
-      style: Object.assign({}, style, {
+      style: {
+        ...style,
         backgroundColor: (
           hoveredPeriod === period ||
           selectedPeriod === period
         )? '#f0f0f0' : 'unset',
-      }),
+      },
       ['data-selected']: selectedPeriod === period,
       onMouseDown: () => {
         setSelectedPeriod(period)
@@ -273,15 +274,18 @@ class PeriodList extends React.Component {
     if (column) {
       if (column.sort) {
         const sortedData = await column.sort(data, this.props)
-        this.setState({ sortedData, start: 0 })
+        this.setState({
+          sortedData,
+          start: 0,
+        })
       } else {
         const sorter = natsort({
           insensitive: true,
           desc: sortDirection === 'desc',
         })
 
-        const sortedData = [...data].sort((a, b) => {
-          const [_a, _b] = [a, b].map(column.getValue)
+        const sortedData = [ ...data ].sort((a, b) => {
+          const [ _a, _b ] = [ a, b ].map(column.getValue)
 
           if (_a == null) return 1
           if (_b == null) return -1
@@ -289,7 +293,10 @@ class PeriodList extends React.Component {
           return sorter(_a, _b)
         })
 
-        this.setState({ sortedData, start: 0 })
+        this.setState({
+          sortedData,
+          start: 0,
+        })
       }
     }
   }
@@ -338,19 +345,17 @@ class PeriodList extends React.Component {
           },
         }, [
           h('span', ''),
-        ].concat(Object.entries(columns).map(([key, { label }]) =>
+        ].concat(Object.entries(columns).map(([ key, { label }]) =>
           h('span', {
             onClick: () => {
-              updateOpts((opts={}) => Object.assign(
-                {},
-                opts,
-                {
-                  sortBy: key,
-                  sortDirection: opts.sortBy === key
-                    ?  (!opts.sortDirection || opts.sortDirection === 'asc') ? 'desc' : 'asc'
-                    : 'asc',
-                }
-              ))
+              updateOpts((opts={}) => ({
+
+                ...opts,
+                sortBy: key,
+                sortDirection: opts.sortBy === key
+                  ?  (!opts.sortDirection || opts.sortDirection === 'asc') ? 'desc' : 'asc'
+                  : 'asc',
+              }))
             },
           }, [
             label,

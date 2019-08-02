@@ -9,11 +9,11 @@ const h = require('react-hyperscript')
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
 
 const RelatedPeriodsForm = ({
-    value,
-    onValueChange,
-    backendID,
-    dataset,
-    authority,
+  value,
+  onValueChange,
+  backendID,
+  dataset,
+  authority,
 }) => {
   const relatedPeriods = value[$$RelatedPeriods]
 
@@ -28,7 +28,10 @@ const RelatedPeriodsForm = ({
     borderBottom: '1px solid #ccc',
   }, [
 
-    h(Box, { width: .5, px: 3 }, [
+    h(Box, {
+      width: .5,
+      px: 3,
+    }, [
       h(RelatedPeriodList, {
         name: 'broader',
         label: 'Part of',
@@ -54,7 +57,10 @@ const RelatedPeriodsForm = ({
       }),
     ]),
 
-    h(Box, { width: .5, px: 3 }, [
+    h(Box, {
+      width: .5,
+      px: 3,
+    }, [
       h(RelatedPeriodList, {
         name: 'derived-from',
         label: 'Derived from',

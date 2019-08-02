@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Button$Primary, DropdownMenu, DropdownMenuItem } = require('periodo-ui')
-    , { LocationStreamAware, Route } = require('org-shell')
+    , { LocationStreamAware } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('../../patches/actions')
     , { PatchDirection } = require('../../patches/types')
@@ -17,7 +17,6 @@ const {
   ResourceTitle,
   Text,
   InfoText,
-  Link,
   Alert$Error,
   Alert$Success,
 } = require('periodo-ui')
@@ -36,7 +35,7 @@ class SubmitPatch extends React.Component {
   }
 
   async submitPatch() {
-    const { dispatch, locationStream, backend, backends } = this.props
+    const { dispatch, backend, backends } = this.props
         , { selectedPatch, selectedWebBackendID } = this.state
         , remoteBackend = backends[selectedWebBackendID]
 
@@ -72,7 +71,7 @@ class SubmitPatch extends React.Component {
   }
 
   render() {
-    const { settings, backends } = this.props
+    const { backends } = this.props
 
     const webBackends = Object.values(backends)
       .filter(b => b.storage._name === 'Web')
