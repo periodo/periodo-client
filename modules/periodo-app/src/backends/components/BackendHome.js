@@ -14,7 +14,7 @@ grid-gap = 1em 1.66em
 
 [Search]
 type = text-search
-grid-column = 1/3
+grid-column = 1/7
 grid-row = 1/2
 
 [Facets]
@@ -22,28 +22,33 @@ type = facets
 flex = true
 height = 156
 grid-column = 1/7
+grid-row = 3/4
+
+[SpatialCoverage]
+type = spatial-visualization
+grid-column = 1/4
 grid-row = 2/3
 
 [TimeRange]
 type = timespan-visualization
-grid-column = 3/7
-grid-row = 1/2
+grid-column = 4/7
+grid-row = 2/3
 height = 200
 
 [PeriodList]
 type = windowed-period-list
 grid-column = 1/7
-grid-row = 3/4
+grid-row = 4/5
 
 [PeriodDetail]
 type = period-detail
 grid-column = 1/4
-grid-row = 4/5
+grid-row = 5/6
 
 [AuthorityDetail]
 type = authority-detail
 grid-column = 4/7
-grid-row = 4/5
+grid-row = 5/6
 `
 
 const authorityLayout = `
