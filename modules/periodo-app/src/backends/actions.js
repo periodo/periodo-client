@@ -326,7 +326,7 @@ function fetchBackendPatch(storage, patchID) {
         const index = changelog.indexOf(change)
 
         const [ prevRawDatasetReq, patchReq ] = await Promise.all([
-          fetch(change.sourceDatasetURL, {
+          fetch(change.sourceDatasetURL + '&inline-context', {
             headers: new Headers({
               Accept: 'application/json',
             }),

@@ -10,7 +10,7 @@ const h = require('react-hyperscript')
     , Type = require('union-type')
     , { saveAs } = require('file-saver')
     , { Flex, Box, Link, Heading } = require('periodo-ui')
-    , { Authority, Period } = require('periodo-ui')
+    , { Authority, Dataset, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
     , { PatchType } = require('./types')
@@ -485,7 +485,7 @@ class Compare extends React.Component {
   }
 
   render() {
-    const { allPatches, filteredTypes, expandAll } = this.state
+    const { allPatches, filteredTypes, expandAll, localDataset, remoteDataset } = this.state
         , { selectAll } = this.props
         , editing = !!this.props.onChange
 
@@ -511,12 +511,20 @@ class Compare extends React.Component {
       filteredPatches
     )
 
-    // Then, partition by authority, so that changes to periods in the same
-    // authority can be grouped together
+    // Then, partition those by authority, so that changes to periods in the
+    // same authority can be grouped together
     const byAuthority = R.groupBy(R.path([ 'type', 'authorityID' ]), itemPatches)
 
-    // FIXME: Render other patches
-    other
+    const [ ldPatches, unknownPatches ] = R.partition(
+      ({ type }) => type.case({
+        ChangeLinkedData: R.T,
+        _: R.F,
+      }),
+      other
+    )
+
+    // TODO: What to do with unknownPatches?
+    unknownPatches
 
     return (
       h(Box, [
@@ -607,6 +615,13 @@ class Compare extends React.Component {
             })
           },
         }, selectAll ? 'Unselect all' : 'Select all'),
+
+        ldPatches.length === 0 ? null : (
+          h(Dataset, {
+            value: localDataset.raw,
+            compare: remoteDataset.raw,
+          })
+        ),
 
         h(Box, {
           is: 'table',

@@ -48,7 +48,7 @@ const PatchFate = Type({
 const PatchType = Type({
   Unknown: {},
 
-  ChangeContext: {},
+  ChangeLinkedData: {},
 
   AddAuthority: {
     authorityID: String,
@@ -91,9 +91,10 @@ PatchType.fromPatch = function fromPath(patch) {
     return patch[$$type] = PatchType.Unknown
   }
 
-  if (tok === '@context') {
-    return patch[$$type] = PatchType.ChangeContext
+  if (tok === 'id' || tok === 'type' || tok === '@context') {
+    return patch[$$type] = PatchType.ChangeLinkedData
   }
+
 
   if (tok !== 'authorities') {
     return patch[$$type] = PatchType.Unknown
@@ -165,7 +166,7 @@ PatchType.prototype.getLabel = function (minimal) {
   if (minimal) {
     return this.case({
       Unknown: () => 'Unknown change',
-      ChangeContext: () => 'Changed context',
+      ChangeLinkedData: () => 'Changed linked data attributes',
       AddAuthority: () => 'Added authority',
       RemoveAuthority: () => 'Removed authority',
       ChangeAuthority: () => 'Changed authority',
