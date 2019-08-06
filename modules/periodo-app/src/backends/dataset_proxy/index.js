@@ -9,15 +9,14 @@ module.exports = class DatasetProxy {
   constructor(raw) {
     this.raw = raw
     Object.assign(this, indexItems(raw))
-
-    if (typeof window !== 'undefined') {
-      this.globalWorker = this.spawnWorker()
-    }
-
     this.sorts = {}
   }
 
-  spawnWorker() {
+  getWorker() {
+    if (this._worker) {
+      return this._worker
+    }
+
     const worker = work(require('./worker'))
         , promiseWorker = new PromiseWorker(worker)
 
@@ -26,7 +25,7 @@ module.exports = class DatasetProxy {
       rawDataset: this.raw,
     })
 
-    return {
+    return this._worker = {
       worker,
       promiseWorker,
     }
@@ -42,7 +41,7 @@ module.exports = class DatasetProxy {
 
   async cachedSort(periods, field, rev=false) {
     if (!this.sorts[field]) {
-      this.sorts[field] = await getSort(this, this.globalWorker.promiseWorker, field)
+      this.sorts[field] = await getSort(this, this.getWorker().promiseWorker, field)
     }
 
     const map = this.sorts[field][rev ? 'reverse' : 'forward']
