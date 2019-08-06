@@ -102,20 +102,26 @@ function showValues(props) {
     values,
     component=PrimitiveValue,
     required=false,
-    ...childProps
+    ..._childProps
   } = props
+
+  // Omit props derived from field definition
+  const childProps = R.omit(
+    [ 'id', 'label', 'required', 'immutable', 'hideUnchanged' ],
+    _childProps)
+
 
   return {
     warnings: checkRequired(required, values),
     summary: null,
-    items: R.map(show(component, childProps), values),
+    items: values.map(value => show(component, childProps)(value)),
   }
 }
 
 function compareValues(fieldValue, compareTo) {
   const {
     values,
-    component,
+    component=PrimitiveValue,
     required=false,
     immutable=false,
     hideUnchanged=false,
@@ -218,16 +224,18 @@ function Field(props) {
 
 function DiffableItem (props) {
   const { fieldList, value, compare, ...rest } = props
-      , fieldsFor = processFieldSpec(fieldList, {
-        value,
-        compare,
-        ...rest,
-      })
+
+  const fieldsFor = processFieldSpec(fieldList, {
+    value,
+    compare,
+    ...rest,
+  })
 
   // Don't include props only meant for fields on the outer Box, but include
   // everything else (e.g. for styling or event handling)
   const outerProps = R.omit(
-    [ 'value', 'compare' ].concat(fieldList.map(f => f.usedProps)),
+    [ 'value', 'compare', 'fieldList' ]
+      .concat(...fieldList.map(f => f.useProps).filter(x => x)),
     props
   )
 
