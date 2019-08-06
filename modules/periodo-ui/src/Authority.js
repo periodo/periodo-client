@@ -27,6 +27,7 @@ const authorityFields = [
     label: 'Source',
     getValues: extract('source'),
     component: Source,
+    nested: true,
     required: true,
   },
 

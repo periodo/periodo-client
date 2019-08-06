@@ -192,7 +192,7 @@ function Warnings(props) {
 // another value can be compared to the value, using the `compare' prop.
 function Field(props) {
   const { value, compare, ...childProps } = props
-      , { label, hidden=false } = value
+      , { label, hidden=false, nested } = value
       , values = compare ? compareValues(value, compare) : showValues(value)
       , { warnings, summary, items } = values
       , hide = hidden && R.isEmpty(warnings)
@@ -201,6 +201,22 @@ function Field(props) {
 
   if (hide) {
     childProps.style = { display: 'none' }
+  }
+
+  let renderedItems
+
+  // FIXME: There is probably a better way to do this (render the changes
+  // for a diffable item within a diffable item), but this works for now.
+  if (compare && nested) {
+    renderedItems = value.values.map((_, i) =>
+      h(value.component, {
+        key: i,
+        value: value.values[i],
+        compare: compare.values[i],
+      })
+    )
+  } else {
+    renderedItems = items
   }
 
   return (
@@ -214,7 +230,7 @@ function Field(props) {
 
       summary,
 
-      ...items.map(item => h(Box, {
+      ...renderedItems.map(item => h(Box, {
         is: 'dd',
         ml: 3,
       }, item)),
