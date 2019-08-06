@@ -161,34 +161,32 @@ function PeriodCell(props) {
         }, period.label),
       ]),
 
-      (expandAll || expandedPeriods.has(period.id)) && patch.type.case({
-        AddAuthority: () => h(Period, {
-          p: 1,
-          bg: 'green0',
-          value: period,
+      (expandAll || expandedPeriods.has(period.id)) && h(Period, {
+        pb: 2,
+        px: 4,
+        mb: 2,
+        mx: 2,
+        showMap: false,
+        value: period,
+        ...patch.type.case({
+          AddAuthority: () => ({
+            bg: 'green.0',
+          }),
+          AddPeriod: () => ({
+            bg: 'green.0',
+          }),
+          ChangePeriod: () => ({
+            value: unpatchedPeriodByID(period.id),
+            compare: patchedPeriodByID(period.id),
+          }),
+          RemoveAuthority: () => ({
+            bg: 'red.0',
+          }),
+          RemovePeriod: () => ({
+            bg: 'red.0',
+          }),
+          _: () => null,
         }),
-        AddPeriod: () => h(Period, {
-          p: 1,
-          bg: 'green0',
-          value: period,
-        }),
-        ChangePeriod: () => h(Period, {
-          p: 1,
-          showMap: false,
-          value: unpatchedPeriodByID(period.id),
-          compare: patchedPeriodByID(period.id),
-        }),
-        RemoveAuthority: () => h(Period, {
-          p: 1,
-          bg: 'red0',
-          value: period,
-        }),
-        RemovePeriod: () => h(Period, {
-          p: 1,
-          bg: 'red0',
-          value: period,
-        }),
-        _: () => null,
       }),
     ])
   )
@@ -311,12 +309,21 @@ function AuthorityRow(props) {
           }, util.authority.displayTitle(authority)),
         ]),
         (expandAll || expandedAuthorities.has(authority.id)) && h(Authority, {
-          p: 1,
+          px: 4,
+          pb: 2,
+          mx: 2,
           value: authority,
           ...authorityPatches.length && authorityPatches[0].type.case({
-            AddAuthority: () => ({ bg: 'green0' }),
-            ChangeAuthority: () => ({ /* FIXME: compare to remote */ }),
-            RemoveAuthority: () => ({ bg: 'red0' }),
+            AddAuthority: () => ({
+              bg: 'green.0',
+            }),
+            ChangeAuthority: () => ({
+              value: patchedAuthorityByID(authority.id),
+              compare: unpatchedAuthorityByID(authority.id),
+            }),
+            RemoveAuthority: () => ({
+              bg: 'red.0',
+            }),
             _: () => ({}),
           }),
         }),
