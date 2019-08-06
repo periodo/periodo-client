@@ -65,6 +65,10 @@ function PeriodCell(props) {
     selectedPatches,
   } = props
 
+  // Determine the change type and period ID from the first patch in the bunch.
+  // If there are multiple patches associated with the period, they will be
+  // changes. (This means that there's no way to select individual changes to
+  // a period-- it's all or nothing.
   const patch = patches[0]
 
   const deferToAuthority = patch.type._name === 'AddAuthority'
@@ -326,14 +330,14 @@ function AuthorityRow(props) {
           borderLeft: 'none',
         },
       }, R.pipe(
-        R.map(({ period, patch, authority }) => h(PeriodCell, {
+        R.map(({ period, patches, authority }) => h(PeriodCell, {
+          ...props,
           key: period.id,
           period,
-          patch,
+          patches,
           authority,
           unpatchedPeriodByID,
           patchedPeriodByID,
-          ...props,
         })),
         R.ifElse(
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
