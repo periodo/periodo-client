@@ -2,12 +2,14 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
+    , React = require('react')
     , { Route } = require('org-shell')
     , BackendAction = require('./backends/actions')
     , AuthAction = require('./auth/actions')
     , PatchAction = require('./patches/actions')
     , LinkedDataAction = require('./linked-data/actions')
     , GraphsAction = require('./graphs/actions')
+    , Type = require('union-type')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
@@ -26,8 +28,8 @@ async function throwIfUnsuccessful(promise) {
   })
 }
 
-function hasEditableBackend({ backend }) {
-  return backend.isEditable()
+function hasEditableBackend({ extra: { storage }}) {
+  return storage.isEditable()
 }
 
 const Home = {
@@ -47,9 +49,6 @@ const Home = {
     'open-backend': {
       label: 'Open backend',
       Component: require('./backends/components/BackendSelect'),
-      async onBeforeRoute(dispatch) {
-        await dispatch(BackendAction.GetAllBackends)
-      },
       mapStateToProps: state => ({
         backends: R.pipe(
           R.values,
@@ -63,6 +62,13 @@ const Home = {
       Component: require('./auth/components/Settings'),
     },
   },
+  async loadData(props, log, finished) {
+    const { dispatch } = props
+
+    await log('Loading backend list', dispatch(BackendAction.GetAllBackends))
+
+    finished()
+  },
   async onBeforeRoute(dispatch) {
     await dispatch(AuthAction.GetAllSettings)
   },
@@ -71,6 +77,85 @@ const Home = {
       settings: state.auth.settings,
     }
   },
+}
+
+const ReadyState = Type({
+  Pending: {},
+  Success: {
+    result: R.T,
+  },
+  Failure: {
+    message: String,
+  },
+})
+
+function withLoadProgress(Component, resource) {
+  if (!resource.loadData) return Component
+
+  class ResourceLoader extends React.Component {
+    constructor() {
+      super();
+
+      this.state = {
+        loaded: false,
+        steps: {},
+      }
+
+      this.addStep = this.addStep.bind(this)
+    }
+
+    addStep(label, promise) {
+      return new Promise(async (resolve, reject) => {
+        this.setState(R.set(
+          R.lensPath([ 'steps', label ]),
+          {
+            label,
+            progress: ReadyState.Pending,
+          }
+        ))
+
+        try {
+          const result = await promise
+          this.setState(R.set(
+            R.lensPath([ 'steps', label, 'progress' ]),
+            ReadyState.Success(result),
+          ))
+          resolve(result)
+        } catch (e) {
+          this.setState(R.set(
+            R.lensPath([ 'steps', label, 'progress' ]),
+            ReadyState.Failure(e.message)
+          ))
+          reject(e)
+        }
+      })
+    }
+
+    componentDidMount() {
+      resource.loadData(
+        this.props,
+        this.addStep,
+        () => { this.setState({ loaded: true }) })
+    }
+
+    render() {
+      if (this.state.loaded) return h(Component, this.props)
+
+      return (
+        h(Box, Object.values(this.state.steps).map(({ label, progress }, i) =>
+          h(Box, {
+            key: i,
+          }, [
+            label,
+            '...',
+            progress._name,
+          ])
+        ))
+      )
+    }
+  }
+
+  return ResourceLoader
 }
 
 function withBackendContext(Component) {
@@ -104,8 +189,12 @@ const Backend = {
     'backend-home': {
       label: 'Browse',
       Component: require('./backends/components/BackendHome'),
-      async onBeforeRoute(dispatch) {
-        await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
+      async loadData(props, log, finished) {
+        const { dispatch } = props
+
+        await log('Fetching gazetteers', dispatch(GraphsAction.FetchGazetteers))
+
+        finished()
       },
       mapStateToProps(state) {
         return {
@@ -116,11 +205,20 @@ const Backend = {
     'backend-history': {
       label: 'Changelog',
       Component: require('./backends/components/History'),
-      async onBeforeRoute(dispatch, params) {
-        const storage = BackendStorage.fromIdentifier(params.backendID)
+      async loadData(props, log, finished) {
+        const { dispatch, params } = props
 
-        await throwIfUnsuccessful(
-          dispatch(BackendAction.GetBackendHistory(storage)))
+        let storage
+
+        await log('Determining backend type', new Promise(resolve => {
+          requireParam(params, 'backendID');
+          storage = BackendStorage.fromIdentifier(params.backendID)
+          resolve()
+        }))
+
+        await log('Fetching backend history', dispatch(BackendAction.GetBackendHistory(storage)))
+
+        finished()
       },
       mapStateToProps(state, props) {
         return {
@@ -136,15 +234,18 @@ const Backend = {
     'backend-patches': {
       label: 'Patch requests',
       Component: require('./patches/OpenPatches'),
-      showInMenu: ({ backend }) =>
-        backend.storage.case({
+      showInMenu: ({ extra: { storage }}) =>
+        storage.case({
           Web: () => true,
           _: () => false,
         }),
-      async onBeforeRoute(dispatch) {
-        const { patches } = await throwIfUnsuccessful(
-          dispatch(PatchAction.GetServerPatches)
-        )
+
+      async loadData(props, log, finished) {
+        const { dispatch, extra: { storage }} = props
+
+        const { patches } = await log('Fetching server patches',
+          throwIfUnsuccessful(dispatch(PatchAction.GetServerPatches(storage))))
+
 
         const creators = new Set(patches.map(R.prop('created_by')))
             , mergers = new Set(patches.map(R.prop('updated_by')))
@@ -152,12 +253,16 @@ const Backend = {
         const allORCIDs = [ ...new Set([ ...creators, ...mergers ]) ]
           .filter(R.startsWith('http'))
 
-        await dispatch(LinkedDataAction.FetchORCIDs(allORCIDs))
+        await log('Fetching ORCIDs',
+          dispatch(LinkedDataAction.FetchORCIDs(allORCIDs)))
 
-        return { patchRequests: patches }
+        finished()
       },
+
       mapStateToProps: (state, ownProps) => {
-        const { nameByORCID } = state.linkedData
+        const { extra: { storage }} = ownProps
+            , patches = state.patches.patchesByBackend[storage.asIdentifier()] || []
+            , { nameByORCID } = state.linkedData
 
         const urlize = url => ({
           label: nameByORCID[url],
@@ -170,7 +275,7 @@ const Backend = {
               R.over(R.lensProp('created_by'), urlize),
               R.over(R.lensProp('updated_by'), urlize),
             ),
-            ownProps.extra.patchRequests
+            patches
           ),
         }
       },
@@ -215,13 +320,18 @@ const Backend = {
   wrappers: [
     withBackendContext,
   ],
-  async onBeforeRoute(dispatch, params) {
+  onBeforeRoute(dispatch, params) {
     requireParam(params, 'backendID');
-
     const storage = BackendStorage.fromIdentifier(params.backendID)
 
-    await throwIfUnsuccessful(
-      dispatch(BackendAction.GetBackendDataset(storage, false)))
+    return { storage }
+  },
+  async loadData(props, log, finished) {
+    const { dispatch, extra: { storage }} = props
+
+    await log('Fetching backend', dispatch(BackendAction.GetBackendDataset(storage, false)))
+
+    finished()
   },
   mapStateToProps(state, props) {
     return {
@@ -427,13 +537,14 @@ function registerGroups(groups) {
       }
 
       const aggregated = R.pipe(
-        R.map(R.pick([ 'onBeforeRoute', 'mapStateToProps', 'wrappers' ])),
+        R.map(R.pick([ 'onBeforeRoute', 'mapStateToProps', 'wrappers', 'loadData' ])),
         R.reduce(
           R.mergeWith(R.flip(R.append)),
           {
             wrappers: [],
             onBeforeRoute: [],
             mapStateToProps: [],
+            loadData: [],
           }
         ),
         R.map(R.filter(R.identity))
@@ -458,10 +569,22 @@ function registerGroups(groups) {
       }
       defineName(resource.mapStateToProps, `${resourceKey}:combinedMapStateToProps`)
 
-      const OriginalComponent = resource.Component
+      resource.loadData = async (props, log, finished) => {
+        for (const fn of aggregated.loadData) {
+          let cont = false
+
+          await fn(props, log, () => { cont = true })
+
+          if (!cont) return
+        }
+
+        finished()
+      }
+
+      const OriginalComponent = withLoadProgress(resource.Component, resource)
 
       resource.Component = R.flatten(aggregated.wrappers).reduce(
-        (Component, wrapper) => wrapper(Component),
+        (Component, wrapper) => wrapper(Component, resource),
         OriginalComponent
       )
 

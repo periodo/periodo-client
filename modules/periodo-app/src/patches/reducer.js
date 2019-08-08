@@ -5,6 +5,7 @@ const R = require('ramda')
 
 const initialState = () => ({
   patches: {},
+  patchesByBackend: {},
 })
 
 module.exports = function patches(state=initialState(), action) {
@@ -22,8 +23,12 @@ module.exports = function patches(state=initialState(), action) {
         )
       },
 
-      GetServerPatches() {
-        return state
+      GetServerPatches(storage) {
+        return R.set(
+          R.lensPath([ 'patchesByBackend', storage.asIdentifier() ]),
+          resp.patches,
+          state
+        )
       },
 
       GenerateDatasetPatch() {

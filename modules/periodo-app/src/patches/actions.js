@@ -33,6 +33,7 @@ const PatchAction = module.exports = makeTypedAction({
   GetServerPatches: {
     exec: getServerPatches,
     request: {
+      storage: BackendStorage,
     },
     response: {
       patches: Object,
