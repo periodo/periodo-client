@@ -22,7 +22,7 @@
     "org-async-actions": "^1.0.0",
     "org-layouts": "^1.0.1",
     "org-n3-utils": "^2.0.1",
-    "org-shell": "^1.0.0",
+    "org-shell": "^6.0.0",
     "parse-link-header": "^1.0.1",
     "periodo-common": "^1.0.0",
     "periodo-date-parser": "^1.0.1",
