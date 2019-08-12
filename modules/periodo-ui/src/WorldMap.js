@@ -259,7 +259,7 @@ const _Map = ({ features=[], focusedFeature, height }) => {
     return function cleanup() {
       parent.removeChild(child)
     }
-  })
+  }, [ mapNode, features, focusedFeature ])
 
   return h('div', {
     ref: outerRef,
