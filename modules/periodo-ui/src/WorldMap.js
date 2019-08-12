@@ -254,9 +254,10 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   map.display(features, focusedFeature)
 
   useLayoutEffect(() => {
-    innerRef.current.appendChild(mapNode)
+    const parent = innerRef.current
+    const child = parent.appendChild(mapNode)
     return function cleanup() {
-      innerRef.current.removeChild(mapNode)
+      parent.removeChild(child)
     }
   })
 
