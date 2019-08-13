@@ -42,7 +42,7 @@ module.exports = ref => {
         window.removeEventListener('resize', debouncedHandler)
       }
     }
-  }, [ ref.current ])
+  }, [ ref ])
 
   return rect
 }

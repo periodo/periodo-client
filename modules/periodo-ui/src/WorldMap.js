@@ -22,6 +22,12 @@ const length = bbox => {
   return Math.max(lonDelta, latDelta)
 }
 
+
+const MINIMUM_ZOOM = 0.25
+const MAXIMUM_ZOOM = 21
+
+const bounded = zoom => Math.max(Math.min(zoom, MAXIMUM_ZOOM), MINIMUM_ZOOM)
+
 const ln360 = Math.log2(360)
 
 const bboxToZoom = bbox => {
@@ -29,7 +35,7 @@ const bboxToZoom = bbox => {
   const dy = bbox[3] - bbox[1]
   const d = Math.max(dx,dy)
   const zoom = ln360 - Math.log2(d) + 1
-  return Math.max(Math.min(zoom,21),1)
+  return bounded(zoom)
 }
 
 const zoomToBbox = (bbox,zoom) => {
@@ -56,7 +62,9 @@ const pad = (map, bbox) => {
     Math.round((-0.68 * Math.log(length(bbox))) + 3.91)
   ) + (map._size[0] > map._size[1] ? map._size[0]/map._size[1]*0.5 : 0)
 
-  return padding ? zoomToBbox(bbox, zoom - padding) : bbox
+  return padding
+    ? zoomToBbox(bbox, bounded(zoom - padding))
+    : bbox
 }
 
 const initializeMap = mix => {
@@ -246,11 +254,12 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   map.display(features, focusedFeature)
 
   useLayoutEffect(() => {
-    innerRef.current.appendChild(mapNode)
+    const parent = innerRef.current
+    const child = parent.appendChild(mapNode)
     return function cleanup() {
-      innerRef.current.removeChild(mapNode)
+      parent.removeChild(child)
     }
-  })
+  }, [ mapNode, features, focusedFeature ])
 
   return h('div', {
     ref: outerRef,
