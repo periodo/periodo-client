@@ -1,10 +1,11 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, WorldMap } = require('periodo-ui')
-    , FeatureLabel = require('./FeatureLabel')
+    , { Flex } = require('./Base')
+    , { WorldMap } = require('./WorldMap')
+    , { FeatureLabel } = require('./FeatureLabel')
 
-const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
+exports.LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
   border: '1px solid #ccc',
   borderBottom: 'none',
   ...props,
@@ -22,5 +23,3 @@ const LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
     css: { transition: 'width 0.25s' },
   }),
 ])
-
-module.exports = LabeledMap

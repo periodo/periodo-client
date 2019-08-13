@@ -17,17 +17,17 @@ type = text-search
 grid-column = 1/7
 grid-row = 1/2
 
+[SpatialCoverage]
+type = spatial-visualization
+grid-column = 1/4
+grid-row = 2/3
+
 [Facets]
 type = facets
 flex = true
 height = 156
 grid-column = 1/7
 grid-row = 3/4
-
-[SpatialCoverage]
-type = spatial-visualization
-grid-column = 1/4
-grid-row = 2/3
 
 [TimeRange]
 type = timespan-visualization

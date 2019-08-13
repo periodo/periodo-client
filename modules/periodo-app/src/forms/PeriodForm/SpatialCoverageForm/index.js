@@ -4,8 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { useState } = require('react')
     , { Box, Text, InputBlock, Label, Tags } = require('periodo-ui')
-    , LabeledMap = require('./LabeledMap')
-    , PlaceSuggest = require('./PlaceSuggest')
+    , { LabeledMap, PlaceSuggest } = require('periodo-ui')
 
 const SpatialCoverageForm = ({
   onValueChange,

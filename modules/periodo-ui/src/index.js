@@ -33,4 +33,6 @@ addUIModules([
   require('./WorldMap'),
   require('./Tags'),
   require('./BackendContext'),
+  require('./LabeledMap'),
+  require('./PlaceSuggest'),
 ])

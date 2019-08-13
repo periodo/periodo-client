@@ -2,7 +2,9 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box, Text, Heading, Italic, InlineList } = require('periodo-ui')
+    , { Box, Text, Heading } = require('./Base')
+    , { Italic } = require('./Typography')
+    , { InlineList } = require('./InlineList')
 
 const otherNames = feature => feature.names
   ? feature.names
@@ -17,7 +19,7 @@ const description = feature => feature.descriptions
       .join('; ')
   : ''
 
-const FeatureLabel = ({ feature, ...props }) => {
+exports.FeatureLabel = ({ feature, ...props }) => {
   const show = feature && feature.properties && feature.properties.title
   return h(Box, {
     p: show ? 2 : 0,
@@ -47,5 +49,3 @@ const FeatureLabel = ({ feature, ...props }) => {
     : []
   )
 }
-
-module.exports = FeatureLabel
