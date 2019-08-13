@@ -5,23 +5,21 @@ const h = require('react-hyperscript')
     , { WorldMap } = require('./WorldMap')
     , { FeatureLabel } = require('./FeatureLabel')
 
-exports.LabeledMap = ({
-  focusedFeatures,
-  features,
-  height=200,
-  ...props
-}) => h(Flex, {
+exports.LabeledMap = ({ focusedFeature, features, ...props }) => h(Flex, {
   border: '1px solid #ccc',
+  borderBottom: 'none',
   ...props,
 }, [
   h(WorldMap, {
-    focusedFeatures,
+    focusedFeature,
     features,
     flex: '1 1',
-    height,
   }),
   h(FeatureLabel, {
-    features: focusedFeatures,
-    height,
+    feature: focusedFeature,
+    borderLeft: focusedFeature ? '1px solid #ccc' : null,
+    width: focusedFeature ? 200 : '0px',
+    height: 200,
+    css: { transition: 'width 0.25s' },
   }),
 ])
