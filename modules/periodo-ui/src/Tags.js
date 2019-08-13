@@ -33,6 +33,8 @@ const Tag = ({ label, onDelete, ...props }) => h(Box, {
 // items must have { id, label }
 const Tags = ({
   items,
+  getItemKey = item => item.id,
+  getItemLabel = item => item.label,
   onFocus,
   onBlur,
   onDelete,
@@ -57,8 +59,8 @@ const Tags = ({
     css: { listStyleType: 'none' },
     ...props,
   }, items.map((item, index) => h(Tag, {
-    key: item.id,
-    label: item.label,
+    key: getItemKey(item),
+    label: getItemLabel(item),
     mr: 1,
     mb: 1,
     onFocus: () => {

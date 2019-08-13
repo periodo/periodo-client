@@ -77,7 +77,6 @@ class LayoutBlock extends React.Component {
           gridColumn,
           minWidth: 0,
           minHeight: 0,
-          overflow: 'hidden',
         },
       }, [
         h(Component, {
@@ -252,6 +251,7 @@ class LayoutRenderer extends React.Component {
           gridTemplateColumns: processedLayout.gridTemplateColumns,
           gridTemplateRows: processedLayout.gridTemplateRows,
           gridGap: processedLayout.gridGap,
+          overflow: 'hidden',
         },
       }, children)
     )
