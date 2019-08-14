@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { ORGShell, Route } = require('org-shell')
     , { Flex, Pre, Box, Grid, Heading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
-    , { connect } = require('react-redux')
+    , { Provider, connect } = require('react-redux')
     , { ThemeProvider } = require('styled-components')
     , createStore = require('../store')
     , resources = require('../resources')
@@ -15,13 +15,10 @@ const h = require('react-hyperscript')
 
 require('./global_css')
 
-function getRouteGroups(resource, { extra, params }) {
+function getRouteGroups(resource, { params }) {
   const hierarchy = resource.hierarchy || resources[''].hierarchy
 
-  const props = {
-    extra,
-    params,
-  }
+  const props = { params }
 
   try {
     return hierarchy.slice(0, -1).map(group => ({
@@ -59,14 +56,11 @@ class Menu extends React.Component {
   }
 
   render() {
-    const { activeResource, extra, params } = this.props
+    const { activeResource, params } = this.props
 
     if (!activeResource) return null;
 
-    const groups = getRouteGroups(activeResource, {
-      extra,
-      params,
-    })
+    const groups = getRouteGroups(activeResource, { params })
 
     return (
       h(Box, [
@@ -130,7 +124,6 @@ class MenuedResource extends React.Component{
           loading: this.props.loading,
           activeResource: this.props.activeResource,
           params: this.props.params,
-          extra: this.props.extra,
         }),
 
         renderedMenu ? h(Box, {}, this.props.children) : null,
@@ -211,7 +204,6 @@ class PeriodoApplication extends React.Component {
               loading: this.props.loading,
               activeResource: this.state.activeResource,
               params: this.props.params,
-              extra: this.props.extra,
             }, this.props.children)
           ),
 
@@ -227,8 +219,22 @@ class PeriodoApplication extends React.Component {
   }
 }
 
-module.exports = ORGShell({
-  createStore,
-  resources,
-  baseTitle: 'PeriodO',
-}, PeriodoApplication)
+module.exports = function Shell() {
+  const store = createStore()
+
+  const WrappedApplication = ORGShell({
+    extraArgs: {
+      dispatch: store.dispatch,
+      getState: store.getState,
+    },
+    resources,
+  }, PeriodoApplication)
+
+  return (
+    h(Provider, { store },
+      h(ThemeProvider, { theme },
+        h(WrappedApplication)
+      )
+    )
+  )
+}
