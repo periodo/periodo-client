@@ -34,31 +34,6 @@ class ReviewPatch extends React.Component {
     this.decideFate = this.decideFate.bind(this)
   }
 
-  componentDidMount() {
-    this.loadPatch()
-  }
-
-  async loadPatch() {
-    const { dispatch, backend, params: { patchURL }} = this.props
-
-    const resp = await dispatch(PatchAction.GetLocalPatch(
-      backend,
-      patchURL,
-    ))
-
-    handleCompletedAction(resp,
-      () => {
-      },
-      err => {
-        this.setState({
-          message: h(Alert$Error, {
-            mb: 2,
-          }, err.message),
-        })
-      }
-    )
-  }
-
   async addComment() {
     const { dispatch, backend, patch } = this.props
 
@@ -125,10 +100,6 @@ class ReviewPatch extends React.Component {
   render() {
     const { fromDataset, toDataset, patchText, patch } = this.props
         , { comment, submitting, deciding } = this.state
-
-    if (!fromDataset) {
-      return 'Loading patch...'
-    }
 
     return (
       h(Box, [

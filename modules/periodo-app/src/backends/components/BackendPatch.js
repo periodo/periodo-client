@@ -7,9 +7,9 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
 
 module.exports = function BackendPatch(props) {
-  const { backend } = props
-      , { prev, next } = props.extra.position
+  const { backend, patch } = props
 
+  const { prevDataset, dataset, position: { prev, next }} = patch
   return (
     h(Box, [
       h(Flex, {
@@ -36,8 +36,8 @@ module.exports = function BackendPatch(props) {
 
       h(Compare, {
         direction: PatchDirection.Pull,
-        localDataset: props.extra.prevDataset,
-        remoteDataset: props.extra.dataset,
+        localDataset: prevDataset,
+        remoteDataset: dataset,
       }),
     ])
   )

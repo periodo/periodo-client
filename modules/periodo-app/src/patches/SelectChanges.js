@@ -38,7 +38,7 @@ class SelectChanges extends React.Component {
 
     this.setState({ generatingPatch: true })
 
-    const patchReq = await dispatch(PatchAction.GenerateDatasetPatch(
+    const patchReq = await dispatch(PatchAction.GeneratePatch(
       localBackend.storage,
       remoteBackend,
       direction

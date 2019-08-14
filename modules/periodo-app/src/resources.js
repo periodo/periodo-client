@@ -10,10 +10,10 @@ const h = require('react-hyperscript')
     , LinkedDataAction = require('./linked-data/actions')
     , GraphsAction = require('./graphs/actions')
     , Type = require('union-type')
+    , { connect } = require('react-redux')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
-    , { connect } = require('react-redux')
     , { BackendContext } = require('periodo-ui')
 
 function requireParam(params, key, msg) {
@@ -28,7 +28,9 @@ async function throwIfUnsuccessful(promise) {
   })
 }
 
-function hasEditableBackend({ extra: { storage }}) {
+function hasEditableBackend({ params }) {
+  const storage = BackendStorage.fromIdentifier(params.backendID)
+
   return storage.isEditable()
 }
 
@@ -38,8 +40,8 @@ const Home = {
   resources: {
     '': {
       Component: () => h('div'),
-      onBeforeRoute(dispatch, params, redirect) {
-        redirect(new Route('open-backend'))
+      onBeforeRoute(params, redirectTo) {
+        redirectTo(new Route('open-backend'))
       },
     },
     /*
@@ -69,7 +71,7 @@ const Home = {
 
     finished()
   },
-  async onBeforeRoute(dispatch) {
+  async onBeforeRoute(params, redirectTo, { dispatch }) {
     await dispatch(AuthAction.GetAllSettings)
   },
   mapStateToProps(state) {
@@ -89,73 +91,75 @@ const ReadyState = Type({
   },
 })
 
-function withLoadProgress(Component, resource) {
-  if (!resource.loadData) return Component
+function withLoadProgress(resource) {
+  return Component => {
+    if (!resource.loadData) return Component
 
-  class ResourceLoader extends React.Component {
-    constructor() {
-      super();
+    class ResourceLoader extends React.Component {
+      constructor() {
+        super();
 
-      this.state = {
-        loaded: false,
-        steps: {},
+        this.state = {
+          loaded: false,
+          steps: {},
+        }
+
+        this.addStep = this.addStep.bind(this)
       }
 
-      this.addStep = this.addStep.bind(this)
-    }
+      addStep(label, promise) {
+        return new Promise(async (resolve, reject) => {
+          this.setState(R.set(
+            R.lensPath([ 'steps', label ]),
+            {
+              label,
+              progress: ReadyState.Pending,
+            }
+          ))
 
-    addStep(label, promise) {
-      return new Promise(async (resolve, reject) => {
-        this.setState(R.set(
-          R.lensPath([ 'steps', label ]),
-          {
-            label,
-            progress: ReadyState.Pending,
+          try {
+            const result = await promise
+            this.setState(R.set(
+              R.lensPath([ 'steps', label, 'progress' ]),
+              ReadyState.Success(result),
+            ))
+            resolve(result)
+          } catch (e) {
+            this.setState(R.set(
+              R.lensPath([ 'steps', label, 'progress' ]),
+              ReadyState.Failure(e.message)
+            ))
+            reject(e)
           }
-        ))
+        })
+      }
 
-        try {
-          const result = await promise
-          this.setState(R.set(
-            R.lensPath([ 'steps', label, 'progress' ]),
-            ReadyState.Success(result),
+      componentDidMount() {
+        resource.loadData(
+          this.props,
+          this.addStep,
+          () => { this.setState({ loaded: true }) })
+      }
+
+      render() {
+        if (this.state.loaded) return h(Component, this.props)
+
+        return (
+          h(Box, Object.values(this.state.steps).map(({ label, progress }, i) =>
+            h(Box, {
+              key: i,
+            }, [
+              label,
+              '...',
+              progress._name,
+            ])
           ))
-          resolve(result)
-        } catch (e) {
-          this.setState(R.set(
-            R.lensPath([ 'steps', label, 'progress' ]),
-            ReadyState.Failure(e.message)
-          ))
-          reject(e)
-        }
-      })
+        )
+      }
     }
 
-    componentDidMount() {
-      resource.loadData(
-        this.props,
-        this.addStep,
-        () => { this.setState({ loaded: true }) })
-    }
-
-    render() {
-      if (this.state.loaded) return h(Component, this.props)
-
-      return (
-        h(Box, Object.values(this.state.steps).map(({ label, progress }, i) =>
-          h(Box, {
-            key: i,
-          }, [
-            label,
-            '...',
-            progress._name,
-          ])
-        ))
-      )
-    }
+    return ResourceLoader
   }
-
-  return ResourceLoader
 }
 
 function withBackendContext(Component) {
@@ -177,9 +181,7 @@ function withBackendContext(Component) {
     }, h(Component, props))
   }
 
-  connect(mapStateToProps)(BackendKnower)
-
-  return BackendKnower
+  return connect(mapStateToProps)(BackendKnower)
 }
 
 const Backend = {
@@ -190,9 +192,19 @@ const Backend = {
       label: 'Browse',
       Component: require('./backends/components/BackendHome'),
       async loadData(props, log, finished) {
-        const { dispatch } = props
+        const { dispatch, storage } = props
 
-        await log('Fetching gazetteers', dispatch(GraphsAction.FetchGazetteers))
+        const gazetteers = log('Loading gazetteers', dispatch(GraphsAction.FetchGazetteers))
+
+        const resp = await dispatch(BackendAction.GetBackendDataset(storage, false))
+        const { dataset } = resp.readyState.response
+
+        const sorts = log('Initializing sorts', Promise.all([
+          dataset.cachedSort([], 'label'),
+          dataset.cachedSort([], 'start'),
+        ]))
+
+        await Promise.all([ gazetteers, sorts ])
 
         finished()
       },
@@ -206,23 +218,16 @@ const Backend = {
       label: 'Changelog',
       Component: require('./backends/components/History'),
       async loadData(props, log, finished) {
-        const { dispatch, params } = props
+        const { dispatch, storage } = props
 
-        let storage
-
-        await log('Determining backend type', new Promise(resolve => {
-          requireParam(params, 'backendID');
-          storage = BackendStorage.fromIdentifier(params.backendID)
-          resolve()
-        }))
-
-        await log('Fetching backend history', dispatch(BackendAction.GetBackendHistory(storage)))
+        await log('Loading backend history', throwIfUnsuccessful(
+          dispatch(PatchAction.GetBackendHistory(storage))))
 
         finished()
       },
       mapStateToProps(state, props) {
         return {
-          patches: state.backends.patches[props.params.backendID],
+          patches: R.path([ 'patches', 'byBackend', props.params.backendID, 'history' ])(state),
         }
       },
     },
@@ -234,35 +239,45 @@ const Backend = {
     'backend-patches': {
       label: 'Patch requests',
       Component: require('./patches/OpenPatches'),
-      showInMenu: ({ extra: { storage }}) =>
-        storage.case({
+      showInMenu: ({ params }) => {
+        const storage = BackendStorage.fromIdentifier(params.backendID)
+
+        return storage.case({
           Web: () => true,
           _: () => false,
-        }),
+        })
+      },
 
       async loadData(props, log, finished) {
-        const { dispatch, extra: { storage }} = props
+        const { dispatch, storage } = props
 
-        const { patches } = await log('Fetching server patches',
-          throwIfUnsuccessful(dispatch(PatchAction.GetServerPatches(storage))))
+        const resp = await log('Loading server patches',
+          throwIfUnsuccessful(dispatch(PatchAction.GetPatchRequestList(storage))))
 
+        const { patchRequests } = resp
 
-        const creators = new Set(patches.map(R.prop('created_by')))
-            , mergers = new Set(patches.map(R.prop('updated_by')))
+        const creators = new Set(patchRequests.map(R.prop('created_by')))
+            , mergers = new Set(patchRequests.map(R.prop('updated_by')))
 
         const allORCIDs = [ ...new Set([ ...creators, ...mergers ]) ]
           .filter(R.startsWith('http'))
 
-        await log('Fetching ORCIDs',
+        await log('Loading ORCIDs',
           dispatch(LinkedDataAction.FetchORCIDs(allORCIDs)))
 
         finished()
       },
 
       mapStateToProps: (state, ownProps) => {
-        const { extra: { storage }} = ownProps
-            , patches = state.patches.patchesByBackend[storage.asIdentifier()] || []
+        const { storage } = ownProps
             , { nameByORCID } = state.linkedData
+
+        const patchRequests = R.path([
+          'patches',
+          'byBackend',
+          storage.asIdentifier(),
+          'patchRequestList',
+        ])(state) || []
 
         const urlize = url => ({
           label: nameByORCID[url],
@@ -275,7 +290,7 @@ const Backend = {
               R.over(R.lensProp('created_by'), urlize),
               R.over(R.lensProp('updated_by'), urlize),
             ),
-            patches
+            patchRequests
           ),
         }
       },
@@ -284,17 +299,11 @@ const Backend = {
       label: 'Sync',
       Component: require('./backends/components/SyncBackend'),
       showInMenu: hasEditableBackend,
-      async onBeforeRoute(dispatch) {
-        await dispatch(BackendAction.GetAllBackends)
-      },
     },
     'backend-submit-patch': {
       label: 'Submit patch',
       Component: require('./backends/components/BackendSubmitPatch'),
       showInMenu: hasEditableBackend,
-      async onBeforeRoute(dispatch) {
-        await dispatch(BackendAction.GetAllBackends)
-      },
       mapStateToProps(state) {
         return {
           backends: state.backends.available,
@@ -320,21 +329,20 @@ const Backend = {
   wrappers: [
     withBackendContext,
   ],
-  onBeforeRoute(dispatch, params) {
+  onBeforeRoute(params) {
     requireParam(params, 'backendID');
-    const storage = BackendStorage.fromIdentifier(params.backendID)
-
-    return { storage }
   },
   async loadData(props, log, finished) {
-    const { dispatch, extra: { storage }} = props
+    const { dispatch, storage } = props
 
-    await log('Fetching backend', dispatch(BackendAction.GetBackendDataset(storage, false)))
+    await log('Loading backend', throwIfUnsuccessful(
+      dispatch(BackendAction.GetBackendDataset(storage, false))))
 
     finished()
   },
   mapStateToProps(state, props) {
     return {
+      storage: BackendStorage.fromIdentifier(props.params.backendID),
       backend: state.backends.available[props.params.backendID],
       dataset: state.backends.datasets[props.params.backendID],
     }
@@ -342,50 +350,77 @@ const Backend = {
 }
 
 const ReviewPatch = {
-  label: 'Review patch',
+  label: 'Patch request',
   parent: Backend,
   resources: {
     'review-patch': {
-      label: 'Review patch',
+      label: 'Review',
       Component: require('./patches/Review'),
     },
   },
-  async onBeforeRoute(dispatch, params) {
+  async onBeforeRoute(params) {
     requireParam(params, 'patchURL')
   },
+  async loadData(props, log, finished) {
+    const { dispatch, storage, params: { patchURL }} = props
+
+    const { backend } = await log('Loading backend', throwIfUnsuccessful(
+      dispatch(BackendAction.GetBackendDataset(storage, false))))
+
+    await log('Loading patch', throwIfUnsuccessful(
+      dispatch(PatchAction.GetPatchRequest(backend, patchURL))))
+
+    finished()
+  },
   mapStateToProps(state, props) {
-    const storage = BackendStorage.fromIdentifier(props.params.backendID)
+    const { storage } = props
         , patchURL = new URL(decodeURIComponent(props.params.patchURL), storage.url).href
 
-    const patch = state.patches.patches[patchURL]
+    const patch = R.path([
+      'patches',
+      'byBackend',
+      storage.asIdentifier(),
+      'patchRequests',
+      patchURL,
+    ])(state)
 
     return patch || {}
   },
 }
 
 const BackendPatch = {
-  label: 'Backend patch',
+  label: 'Patch',
   parent: Backend,
   resources: {
     'backend-patch': {
-      label: 'View patch',
+      label: 'View',
       Component: require('./backends/components/BackendPatch'),
-      showInMenu: hasEditableBackend,
     },
   },
-  async onBeforeRoute(dispatch, params) {
+
+  async onBeforeRoute(params) {
     requireParam(params, 'patchID')
+  },
 
-    const storage = BackendStorage.fromIdentifier(params.backendID)
+  async loadData(props, log, finished) {
+    const { storage, dispatch, params } = props
 
-    const patchReq = await throwIfUnsuccessful(
-      dispatch(BackendAction.GetBackendPatch(storage, params.patchID)))
+    await log('Loading patch', throwIfUnsuccessful(
+      dispatch(PatchAction.GetPatch(storage, params.patchID))))
 
-    return patchReq
+    finished()
   },
   mapStateToProps(state, props) {
+    const { storage, params: { patchID }} = props
+
     return {
-      patches: state.backends.patches[props.params.backendID],
+      patch: R.path([
+        'patches',
+        'byBackend',
+        storage.asIdentifier(),
+        'patches',
+        patchID,
+      ])(state),
     }
   },
 }
@@ -421,9 +456,16 @@ const Authority = {
       Component: () => h('h1', 'History'),
     },
   },
-  async onBeforeRoute(dispatch, params) {
+  onBeforeRoute(params) {
     requireParam(params, 'authorityID');
-    await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
+  },
+  async loadData(props, log, finished) {
+    const { dispatch } = props
+
+    await log('Loading gazetteers', throwIfUnsuccessful(
+      dispatch(GraphsAction.FetchGazetteers)))
+
+    finished()
   },
   mapStateToProps(state, props) {
     return {
@@ -458,7 +500,7 @@ const Period = {
       Component: () => h('h1', 'History'),
     },
   },
-  async onBeforeRoute(dispatch, params) {
+  async onBeforeRoute(params, redirectTo, { dispatch }) {
     requireParam(params, 'periodID')
     await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
   },
@@ -581,7 +623,10 @@ function registerGroups(groups) {
         finished()
       }
 
-      const OriginalComponent = withLoadProgress(resource.Component, resource)
+      const OriginalComponent = R.pipe(
+        withLoadProgress(resource),
+        connect(resource.mapStateToProps)
+      )(resource.Component)
 
       resource.Component = R.flatten(aggregated.wrappers).reduce(
         (Component, wrapper) => wrapper(Component, resource),
@@ -591,7 +636,6 @@ function registerGroups(groups) {
     })
 
     module.exports.push(group)
-
   })
 }
 
