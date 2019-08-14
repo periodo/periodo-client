@@ -311,12 +311,14 @@ const Authority = {
       Component: () => h('h1', 'History'),
     },
   },
-  onBeforeRoute(dispatch, params) {
+  async onBeforeRoute(dispatch, params) {
     requireParam(params, 'authorityID');
+    await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
   },
   mapStateToProps(state, props) {
     return {
       authority: props.dataset.authorityByID(props.params.authorityID),
+      gazetteers: state.graphs.gazetteers,
     }
   },
 }
