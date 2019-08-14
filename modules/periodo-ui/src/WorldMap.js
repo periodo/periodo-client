@@ -242,24 +242,26 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   const innerRef = useRef()
       , outerRef = useRef()
       , width = useRect(outerRef).width
-      , map = initializeMap(mix)
-
-  renderMix()
-
-  const mapNode = map.render({
-    width,
-    height,
-  })
-
-  map.display(features, focusedFeature)
+      , featureIds = features.map(feature => feature.id).join('|')
+      , focusedFeatureId = focusedFeature ? focusedFeature.id : null
 
   useLayoutEffect(() => {
+    renderMix()
+
+    const map = initializeMap(mix)
+    const mapNode = map.render({
+      width,
+      height,
+    })
+    map.display(features, focusedFeature)
+
     const parent = innerRef.current
     const child = parent.appendChild(mapNode)
+
     return function cleanup() {
       parent.removeChild(child)
     }
-  }, [ mapNode, features, focusedFeature ])
+  }, [ featureIds, focusedFeatureId, height, width ])
 
   return h('div', {
     ref: outerRef,
