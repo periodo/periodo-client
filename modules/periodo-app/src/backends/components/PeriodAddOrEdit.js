@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { RandomID } = require('periodo-common')
     , BackendAction = require('../actions')
     , PeriodForm = require('../../forms/PeriodForm')
-    , { LocationStreamAware, Route } = require('org-shell')
+    , { Navigable, Route } = require('org-shell')
     , { $$Authority } = require('periodo-utils/src/symbols')
 
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
@@ -50,7 +50,7 @@ class AddPeriod extends React.Component {
       dispatch,
       backend,
       dataset,
-      locationStream,
+      navigateTo,
       randomID,
       gazetteers,
     } = this.props
@@ -116,12 +116,10 @@ class AddPeriod extends React.Component {
               message
             ))
 
-            locationStream.write({
-              route: Route('authority-view', {
-                backendID: backend.asIdentifier(),
-                authorityID: authority.id,
-              }),
-            })
+            navigateTo(Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }))
           },
           onValueChange: period => {
             let { related } = this.state
@@ -145,4 +143,4 @@ class AddPeriod extends React.Component {
   }
 }
 
-module.exports = RandomID(LocationStreamAware(AddPeriod))
+module.exports = RandomID(Navigable(AddPeriod))

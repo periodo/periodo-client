@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , jsonpatch = require('fast-json-patch')
     , { Box, Heading } = require('periodo-ui')
     , { Button$Primary } = require('periodo-ui')
-    , { LocationStreamAware, Route } = require('org-shell')
+    , { Navigable, Route } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
     , { PatchDirection } = require('../../patches/types')
@@ -23,7 +23,7 @@ class SyncBackend extends React.Component {
   }
 
   async acceptPatch() {
-    const { dispatch, backend, dataset, locationStream } = this.props
+    const { dispatch, backend, dataset, navigateTo } = this.props
         , { selectedPatch } = this.state
 
     // FIXME? this could throw if patch is invalid... But how could the patch
@@ -41,11 +41,9 @@ class SyncBackend extends React.Component {
 
     handleCompletedAction(action,
       () => {
-        locationStream.write({
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        })
+        navigateTo(Route('backend-home', {
+          backendID: backend.asIdentifier(),
+        }))
       },
       err => {
         throw err;
@@ -89,4 +87,4 @@ class SyncBackend extends React.Component {
   }
 }
 
-module.exports = LocationStreamAware(SyncBackend);
+module.exports = Navigable(SyncBackend);

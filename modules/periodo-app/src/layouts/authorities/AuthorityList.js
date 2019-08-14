@@ -50,13 +50,13 @@ const columns = {
 module.exports = blocks.List({
   label: 'Authority List',
   description: 'Selectable list of period authorities.',
-  navigateToItem(item, { locationStream, backend }) {
+  navigateToItem(item, { navigateTo, backend }) {
     const route = Route('authority-view', {
       backendID: backend.asIdentifier(),
       authorityID: item.id,
     })
 
-    locationStream.write({ route })
+    navigateTo(route)
   },
   defaultOpts: {
     limit: 25,

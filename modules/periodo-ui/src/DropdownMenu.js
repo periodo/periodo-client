@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Box, Text } = require('./Base')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
-    , { Route, LocationStreamAware } = require('org-shell')
+    , { Route, Navigable } = require('org-shell')
     , { blacklist } = require('./util')
 
 exports.DropdownMenuItem = props =>
@@ -79,7 +79,7 @@ exports.DropdownMenuMenu = props =>
   }, props.children)
 
 
-exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Component {
+exports.DropdownMenu = Navigable(class DropdownMenu extends React.Component {
   constructor() {
     super();
 
@@ -90,7 +90,7 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
 
   render() {
     const { isOpen } = this.state
-        , { children, closeOnSelection, label, onSelection, openLeft, id, locationStream } = this.props
+        , { children, closeOnSelection, label, onSelection, openLeft, id, navigateTo } = this.props
 
     return (
       h(Box, {
@@ -99,14 +99,14 @@ exports.DropdownMenu = LocationStreamAware(class DropdownMenu extends React.Comp
           display: 'inline-block',
           userSelect: 'none',
         },
-        ...R.omit([ 'locationStream', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu' ], this.props),
+        ...R.omit([ 'navigateTo', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu' ], this.props),
       }, [
         h(MB.Wrapper, {
           onMenuToggle: e => { this.setState(e) },
           closeOnSelection,
           onSelection: (val, e) => {
             if (val instanceof Route) {
-              locationStream.write({ route: val });
+              navigateTo(val)
             } else {
               onSelection(val, e)
             }

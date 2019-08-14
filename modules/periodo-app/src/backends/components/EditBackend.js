@@ -2,13 +2,13 @@
 
 const h = require('react-hyperscript')
     , { Flex, Box, Heading } = require('periodo-ui')
-    , { Route, LocationStreamAware } = require('org-shell')
+    , { Route, Navigable } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
     , { BackendForm } = require('../../forms')
     , ORCIDSettings = require('../../auth/components/ORCID')
 
-module.exports = LocationStreamAware((props) => {
+module.exports = Navigable((props) => {
   const { backend } = props
 
   return (
@@ -31,9 +31,7 @@ module.exports = LocationStreamAware((props) => {
 
             handleCompletedAction(
               resp,
-              () => props.locationStream.write({
-                route: Route('open-backend'),
-              }),
+              () => { props.navigateTo(Route('open-backend')) },
               err => {
                 alert('Error deleting backend');
                 // eslint-disable-next-line no-console
@@ -49,11 +47,9 @@ module.exports = LocationStreamAware((props) => {
 
             handleCompletedAction(
               resp,
-              () => props.locationStream.write({
-                route: Route('backend-home', {
-                  backendID: props.backend.asIdentifier(),
-                }),
-              }),
+              () => props.navigateTo(Route('backend-home', {
+                backendID: props.backend.asIdentifier(),
+              })),
               err => {
                 alert('Error saving backend');
                 // eslint-disable-next-line no-console

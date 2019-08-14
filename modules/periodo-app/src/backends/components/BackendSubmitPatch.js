@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Button$Primary, DropdownMenu, DropdownMenuItem } = require('periodo-ui')
-    , { LocationStreamAware } = require('org-shell')
+    , { Navigable } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('../../patches/actions')
     , { PatchDirection } = require('../../patches/types')
@@ -174,4 +174,4 @@ class SubmitPatch extends React.Component {
   }
 }
 
-module.exports = LocationStreamAware(SubmitPatch);
+module.exports = Navigable(SubmitPatch);

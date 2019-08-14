@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { RandomID } = require('periodo-common')
     , BackendAction = require('../actions')
     , AuthorityForm = require('../../forms/AuthorityForm')
-    , { LocationStreamAware, Route } = require('org-shell')
+    , { Navigable, Route } = require('org-shell')
 
 class AuthorityAddOrEdit extends React.Component {
   constructor(props) {
@@ -23,7 +23,7 @@ class AuthorityAddOrEdit extends React.Component {
       dispatch,
       backend,
       dataset,
-      locationStream,
+      navigateTo,
       randomID,
     } = this.props
 
@@ -51,11 +51,9 @@ class AuthorityAddOrEdit extends React.Component {
                 : `Added authority ${id}`
             ))
 
-            locationStream.write({
-              route: Route('backend-home', {
-                backendID: backend.asIdentifier(),
-              }),
-            })
+            navigateTo(Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }))
           },
           onValueChange: authority => {
             this.setState({ authority })
@@ -66,4 +64,4 @@ class AuthorityAddOrEdit extends React.Component {
   }
 }
 
-module.exports = RandomID(LocationStreamAware(AuthorityAddOrEdit))
+module.exports = RandomID(Navigable(AuthorityAddOrEdit))
