@@ -1,46 +1,92 @@
 "use strict";
 
-const url = require('url')
+const R = require('ramda')
+    , url = require('url')
     , jsonpatch = require('fast-json-patch')
     , BackendAction = require('../backends/actions')
     , LinkedDataAction = require('../linked-data/actions')
     , parseLinkHeader = require('parse-link-header')
+    , Type = require('union-type')
+    , ns = require('../linked-data/ns')
+    , { normalizeDataset } = require('periodo-utils').dataset
     , { Backend, BackendStorage } = require('../backends/types')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
     , { PatchDirection, PatchFate } = require('./types')
+    , { rdfListToArray } = require('org-n3-utils')
+    , { getPatchRepr } = require('../linked-data/utils/patch')
+    , parseJSONLD = require('../linked-data/utils/parse_jsonld')
     , isURL = require('is-url')
     , DatasetProxy = require('../backends/dataset_proxy')
     , globals = require('../globals')
 
+function isDatasetProxy(obj) {
+  return obj instanceof DatasetProxy
+}
+
+function emptyRawDataset() {
+  return {
+    authorities: {},
+    type: 'rdf:Bag',
+  }
+}
+
+
 const PatchAction = module.exports = makeTypedAction({
-  GetLocalPatch: {
-    exec: getLocalPatch,
+  GetPatchRequest: {
+    exec: getPatchRequest,
     request: {
       remoteBackend: Backend,
       patchURL: String,
     },
     response: {
       patch: Object,
-      fromDataset: Object,
-      toDataset: Object,
+      fromDataset: isDatasetProxy,
+      toDataset: isDatasetProxy,
       patchText: Object,
       mergeURL: val => val === null || isURL(val),
     },
   },
 
-  GetServerPatches: {
-    exec: getServerPatches,
+  GetPatchRequestList: {
+    exec: getPatchRequestList,
     request: {
       storage: BackendStorage,
     },
     response: {
-      patches: Object,
+      patchRequests: Object,
     },
   },
-  GenerateDatasetPatch: {
-    exec: generateDatasetPatch,
+
+  GetBackendHistory: {
+    exec: getBackendHistory,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {
+      // TODO: make this "patch" type
+      patches: Type.ListOf(Object),
+    },
+  },
+
+  GetPatch: {
+    exec: getPatch,
+    request: {
+      storage: BackendStorage,
+      patchID: String,
+    },
+    response: {
+      dataset: isDatasetProxy,
+      prevDataset: isDatasetProxy,
+      patch: Object,
+      change: Object,
+      position: Object,
+    },
+  },
+
+  GeneratePatch: {
+    exec: generatePatch,
     request: {
       origin: BackendStorage,
       remote: BackendStorage,
@@ -87,7 +133,7 @@ const PatchAction = module.exports = makeTypedAction({
 
 
 // push means going from a->b; pull from b->a
-function generateDatasetPatch(
+function generatePatch(
   localBackend,
   remoteBackend,
   direction
@@ -172,7 +218,7 @@ function submitPatch(localBackend, remoteBackend, patch) {
   }
 }
 
-function getLocalPatch(remoteBackend, patchURL) {
+function getPatchRequest(remoteBackend, patchURL) {
   return async (dispatch, getState) => {
     const ret = {}
 
@@ -196,7 +242,13 @@ function getLocalPatch(remoteBackend, patchURL) {
 
     const patch = await patchResp.json()
 
-    const existing = getState().patches.patches[patchURL]
+    const existing = R.path([
+      'patches',
+      'byBackend',
+      remoteBackend.asIdentifier(),
+      'patchRequests',
+      patchURL,
+    ])(getState())
 
     // If we've already generated the source and destination datasets, only
     // refresh the patch resource itself. (Which may change in the case of,
@@ -249,8 +301,8 @@ function getLocalPatch(remoteBackend, patchURL) {
   }
 }
 
-async function getServerPatches() {
-  let patches = []
+async function getPatchRequestList() {
+  let patchRequests = []
 
   let patchURL = new URL('patches.json?limit=250', globals.periodoServerURL).href
 
@@ -258,7 +310,7 @@ async function getServerPatches() {
     const resp = await fetch(patchURL)
         , link = parseLinkHeader(resp.headers.get('Link'))
 
-    patches = [ ...patches, ...(await resp.json()) ]
+    patchRequests = [ ...patchRequests, ...(await resp.json()) ]
 
     if (link && link.next) {
       patchURL = link.next.url
@@ -267,8 +319,168 @@ async function getServerPatches() {
     }
   }
 
-  return { patches }
+  return { patchRequests }
 }
+
+function getBackendHistory(storage) {
+  return async (dispatch, getState, { db }) => {
+    const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, false))
+
+    const patchesPromise =  storage.case({
+      IndexedDB: async id => {
+        const patches = await db.localBackendPatches
+          .where('backendID')
+          .equals(id)
+          .toArray()
+
+        return patches.map(p => ({
+          id: p.id,
+          submittedBy: '(local)',
+          mergedBy: '(local)',
+          time: p.created,
+          patch: p.forward,
+        }))
+      },
+
+      Web: async backendURL => {
+        const url = new URL('history.jsonld?inline-context', backendURL)
+            , resp = await fetch(url)
+
+        if (!resp.ok) {
+          throw new Error(`Could not get changelog for backend at ${backendURL}`)
+        }
+
+        const data = await resp.json()
+
+        const { store } = await parseJSONLD(data)
+
+        const [ changeList ] = store.getObjects(null, ns('dc:provenance'))
+
+        const changes = rdfListToArray(store, changeList)
+          .map(getPatchRepr.bind(null, store))
+
+        return changes
+      },
+
+      _: () => {
+        throw new Error('not implemented');
+      },
+    })
+
+    const [ , patches ] = await Promise.all([ datasetPromise, patchesPromise ])
+
+    const orcids = [].concat(...patches.map(p => [ p.submittedBy, p.mergedBy, p.updatedBy ]))
+      .filter(x => x && x.includes('://orcid.org/'))
+
+    await dispatch(LinkedDataAction.FetchORCIDs([ ...new Set(orcids) ]))
+
+    const { nameByORCID } = getState().linkedData
+
+    patches.forEach(p => {
+      [ 'submittedBy', 'mergedBy', 'updatedBy' ].forEach(attr => {
+        if (!p[attr]) return;
+
+        p[attr] = nameByORCID[p[attr]]
+          ? {
+            url: p[attr],
+            label: nameByORCID[p[attr]],
+          }
+          : { label: p[attr] }
+      })
+    })
+
+    return { patches }
+  }
+}
+
+
+
+function getPatch(storage, patchID) {
+  return async (dispatch, getState, { db }) => {
+    return await storage.case({
+      IndexedDB: async backendID => {
+        const patch = await db.localBackendPatches.get(parseInt(patchID))
+
+        if (!patch) {
+          throw new Error(`No such patch: ${patchID}`)
+        }
+
+        if (!patch.backendID === backendID) {
+          throw new Error(`Patch ${patchID} is not a part of backend ${backendID}`)
+        }
+
+        const prevPatches = await db.localBackendPatches
+          .where('backendID')
+          .equals(backendID)
+          .until(p => p.created === patch.created)
+          .toArray()
+
+        const prevRawDataset = emptyRawDataset()
+
+        let postRawDataset = emptyRawDataset()
+
+        prevPatches.forEach(patch => {
+          const toApply = jsonpatch.deepClone(patch.forward)
+          jsonpatch.applyPatch(prevRawDataset, toApply);
+          jsonpatch.applyPatch(postRawDataset, toApply);
+        })
+
+        postRawDataset = jsonpatch.deepClone(postRawDataset)
+        jsonpatch.applyPatch(postRawDataset, jsonpatch.deepClone(patch.forward))
+
+        return {
+          dataset: new DatasetProxy(postRawDataset),
+          prevDataset: new DatasetProxy(prevRawDataset),
+          patch,
+
+          // FIXME: I added these for the Web backend but no the IndexedDB one.
+          // They should be able to be added.
+          change: {},
+          position: {},
+        }
+      },
+      Web: async () => {
+        await dispatch(PatchAction.GetBackendHistory(storage))
+
+        const changelog = getState().patches.byBackend[storage.asIdentifier()].history
+
+        const [ change ] = changelog.filter(c => c.url === patchID)
+
+        const index = changelog.indexOf(change)
+
+        const [ prevRawDatasetReq, patchReq ] = await Promise.all([
+          fetch(change.sourceDatasetURL + '&inline-context', {
+            headers: new Headers({
+              Accept: 'application/json',
+            }),
+          }),
+          fetch(change.patchURL),
+        ])
+
+        const prevRawDataset = await prevRawDatasetReq.json()
+            , patch = await patchReq.json()
+
+        const postRawDataset = jsonpatch.deepClone(prevRawDataset)
+        jsonpatch.applyPatch(postRawDataset, jsonpatch.deepClone(patch))
+
+        return {
+          dataset: new DatasetProxy(normalizeDataset(postRawDataset)),
+          prevDataset: new DatasetProxy(normalizeDataset(prevRawDataset)),
+          patch,
+          change,
+          position: {
+            index,
+            next: changelog[index + 1] || null,
+            prev: changelog[index - 1] || null,
+          },
+        }
+      },
+      _: () => true,
+    })
+  }
+}
+
+
 
 function addPatchComment(backend, patchURL, comment) {
   let commentURL = patchURL
@@ -305,7 +517,7 @@ function addPatchComment(backend, patchURL, comment) {
     }
 
     // Refresh patch
-    await dispatch(PatchAction.GetLocalPatch(backend, patchURL))
+    await dispatch(PatchAction.GetPatchRequest(backend, patchURL))
 
     return {}
   }
@@ -346,7 +558,7 @@ function decidePatchFate(backend, mergeURL, fate) {
 
     await dispatch(BackendAction.GetBackendDataset(backend.storage, true))
 
-    await dispatch(PatchAction.GetLocalPatch(
+    await dispatch(PatchAction.GetPatchRequest(
       backend,
       mergeURL.replace('merge', '')
     ))

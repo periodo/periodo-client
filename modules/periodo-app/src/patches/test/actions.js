@@ -52,7 +52,7 @@ test('Patch generation actions', async t => {
   await store.dispatch(
     BackendAction.UpdateLocalDataset(backendA, newRawDataset, ''))
 
-  const action1 = PatchAction.GenerateDatasetPatch(backendA, backendB, PatchDirection.Push)
+  const action1 = PatchAction.GeneratePatch(backendA, backendB, PatchDirection.Push)
 
   await store.dispatch(action1)
 
@@ -73,7 +73,7 @@ test('Patch generation actions', async t => {
     })),
   }, 'should patch additions')
 
-  const action2 = PatchAction.GenerateDatasetPatch(
+  const action2 = PatchAction.GeneratePatch(
     backendA,
     backendB,
     PatchDirection.Pull)

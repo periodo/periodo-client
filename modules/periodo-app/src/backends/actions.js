@@ -2,18 +2,12 @@
 
 const R = require('ramda')
     , url = require('url')
-    , ns = require('../linked-data/ns')
-    , jsonpatch = require('fast-json-patch')
     , Type = require('union-type')
     , { normalizeDataset, isDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
     , { Backend, BackendMetadata, BackendStorage } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { makeTypedAction, getResponse } = require('org-async-actions')
-    , LinkedDataAction = require('../linked-data/actions')
-    , { rdfListToArray } = require('org-n3-utils')
-    , { getPatchRepr } = require('../linked-data/utils/patch')
-    , parseJSONLD = require('../linked-data/utils/parse_jsonld')
     , DatasetProxy = require('./dataset_proxy')
 
 function isDatasetProxy(obj) {
@@ -45,32 +39,6 @@ const BackendAction = module.exports = makeTypedAction({
     response: {
       backend: Backend,
       dataset: isDatasetProxy,
-    },
-  },
-
-  GetBackendHistory: {
-    exec: fetchBackendHistory,
-    request: {
-      storage: BackendStorage,
-    },
-    response: {
-      // TODO: make this "patch" type
-      patches: Type.ListOf(Object),
-    },
-  },
-
-  GetBackendPatch: {
-    exec: fetchBackendPatch,
-    request: {
-      storage: BackendStorage,
-      patchID: String,
-    },
-    response: {
-      dataset: isDatasetProxy,
-      prevDataset: isDatasetProxy,
-      patch: Object,
-      change: Object,
-      position: Object,
     },
   },
 
@@ -255,13 +223,6 @@ function fetchBackend(storage, forceReload) {
 
     const dataset = new DatasetProxy(normalizeDataset(rawDataset))
 
-    if ((typeof window) !== 'undefined') {
-      await Promise.all([
-        dataset.cachedSort([], 'label'),
-        dataset.cachedSort([], 'start'),
-      ])
-    }
-
     return {
       backend: Backend.BackendOf({
         storage,
@@ -271,160 +232,6 @@ function fetchBackend(storage, forceReload) {
     }
   }
 }
-
-function fetchBackendPatch(storage, patchID) {
-  return async (dispatch, getState, { db }) => {
-    return await storage.case({
-      IndexedDB: async backendID => {
-        const patch = await db.localBackendPatches.get(parseInt(patchID))
-
-        if (!patch) {
-          throw new Error(`No such patch: ${patchID}`)
-        }
-
-        if (!patch.backendID === backendID) {
-          throw new Error(`Patch ${patchID} is not a part of backend ${backendID}`)
-        }
-
-        const prevPatches = await db.localBackendPatches
-          .where('backendID')
-          .equals(backendID)
-          .until(p => p.created === patch.created)
-          .toArray()
-
-        const prevRawDataset = emptyRawDataset()
-
-        let postRawDataset = emptyRawDataset()
-
-        prevPatches.forEach(patch => {
-          const toApply = jsonpatch.deepClone(patch.forward)
-          jsonpatch.applyPatch(prevRawDataset, toApply);
-          jsonpatch.applyPatch(postRawDataset, toApply);
-        })
-
-        postRawDataset = jsonpatch.deepClone(postRawDataset)
-        jsonpatch.applyPatch(postRawDataset, jsonpatch.deepClone(patch.forward))
-
-        return {
-          dataset: new DatasetProxy(postRawDataset),
-          prevDataset: new DatasetProxy(prevRawDataset),
-          patch,
-
-          // FIXME: I added these for the Web backend but no the IndexedDB one.
-          // They should be able to be added.
-          change: {},
-          position: {},
-        }
-      },
-      Web: async () => {
-        await dispatch(BackendAction.GetBackendHistory(storage))
-
-        const changelog = getState().backends.patches[storage.asIdentifier()]
-
-        const [ change ] = changelog.filter(c => c.url === patchID)
-
-        const index = changelog.indexOf(change)
-
-        const [ prevRawDatasetReq, patchReq ] = await Promise.all([
-          fetch(change.sourceDatasetURL + '&inline-context', {
-            headers: new Headers({
-              Accept: 'application/json',
-            }),
-          }),
-          fetch(change.patchURL),
-        ])
-
-        const prevRawDataset = await prevRawDatasetReq.json()
-            , patch = await patchReq.json()
-
-        const postRawDataset = jsonpatch.deepClone(prevRawDataset)
-        jsonpatch.applyPatch(postRawDataset, jsonpatch.deepClone(patch))
-
-        return {
-          dataset: new DatasetProxy(normalizeDataset(postRawDataset)),
-          prevDataset: new DatasetProxy(normalizeDataset(prevRawDataset)),
-          patch,
-          change,
-          position: {
-            index,
-            next: changelog[index + 1] || null,
-            prev: changelog[index - 1] || null,
-          },
-        }
-      },
-      _: R.T,
-    })
-  }
-}
-
-
-function fetchBackendHistory(storage) {
-  return async (dispatch, getState, { db }) => {
-    const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, false))
-
-    const patchesPromise =  storage.case({
-      IndexedDB: async id => {
-        const patches = await db.localBackendPatches
-          .where('backendID')
-          .equals(id)
-          .toArray()
-
-        return patches.map(p => ({
-          id: p.id,
-          submittedBy: '(local)',
-          mergedBy: '(local)',
-          time: p.created,
-          patch: p.forward,
-        }))
-      },
-
-      Web: async url => {
-        const resp = await fetchServerResource(url, 'history.jsonld?inline-context')
-            , data = await resp.json()
-
-        const { store } = await parseJSONLD(data)
-
-        const [ changeList ] = store.getObjects(null, ns('dc:provenance'))
-
-        const changes = rdfListToArray(store, changeList)
-          .map(getPatchRepr.bind(null, store))
-
-        return changes
-      },
-
-      _: () => {
-        throw new Error('not implemented');
-      },
-    })
-
-    const [ , patches ] = await Promise.all([ datasetPromise, patchesPromise ])
-
-    const orcids = [ ...new Set(R.pipe(
-      R.chain(p => [ p.submittedBy, p.mergedBy, p.updatedBy ].filter(R.identity)),
-      R.filter(R.contains('://orcid.org/'))
-    )(patches)) ]
-
-    await dispatch(LinkedDataAction.FetchORCIDs(orcids))
-
-    const { nameByORCID } = getState().linkedData
-
-    patches.forEach(p => {
-      [ 'submittedBy', 'mergedBy', 'updatedBy' ].forEach(attr => {
-        if (!p[attr]) return;
-
-        p[attr] = nameByORCID[p[attr]]
-          ? {
-            url: p[attr],
-            label: nameByORCID[p[attr]],
-          }
-          : { label: p[attr] }
-      })
-    })
-
-    return { patches }
-  }
-}
-
 
 function addBackend(storage, label='', description='') {
   const throwUnaddable = () => {

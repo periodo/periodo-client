@@ -4,34 +4,76 @@ const R = require('ramda')
     , PatchAction = require('./actions')
 
 const initialState = () => ({
-  patches: {},
-  patchesByBackend: {},
+  byBackend: {
+    // history: ...
+    // patches: ...
+    // patchRequestList: ...
+    // patchRequests: ...
+  },
 })
+
+function stripUnionTypeFields(obj) {
+  return Object.assign(...obj._keys.map(k => ({ [k]: obj[k] })))
+}
 
 module.exports = function patches(state=initialState(), action) {
   if (!PatchAction.prototype.isPrototypeOf(action.type)) return state
 
   return action.readyState.case({
     Success: resp => action.type.case({
-      GetLocalPatch(remoteBackend, patchPath) {
+      GetPatchRequest(remoteBackend, patchPath) {
         const patchURL = new URL(patchPath, remoteBackend.storage.url)
 
         return R.set(
-          R.lensPath([ 'patches', patchURL ]),
-          Object.assign(...resp._keys.map(k => ({ [k]: resp[k] }))),
+          R.lensPath([
+            'byBackend',
+            remoteBackend.asIdentifier(),
+            'patchRequests',
+            patchURL,
+          ]),
+          stripUnionTypeFields(resp),
           state
         )
       },
 
-      GetServerPatches(storage) {
+      GetPatchRequestList(storage) {
         return R.set(
-          R.lensPath([ 'patchesByBackend', storage.asIdentifier() ]),
+          R.lensPath([
+            'byBackend',
+            storage.asIdentifier(),
+            'patchRequestList',
+          ]),
+          resp.patchRequests,
+          state
+        )
+      },
+
+      GetBackendHistory(storage) {
+        return R.set(
+          R.lensPath([
+            'byBackend',
+            storage.asIdentifier(),
+            'history',
+          ]),
           resp.patches,
           state
         )
       },
 
-      GenerateDatasetPatch() {
+      GetPatch(storage, patchID) {
+        return R.set(
+          R.lensPath([
+            'byBackend',
+            storage.asIdentifier(),
+            'patches',
+            patchID,
+          ]),
+          stripUnionTypeFields(resp),
+          state
+        )
+      },
+
+      GeneratePatch() {
         return state
       },
 

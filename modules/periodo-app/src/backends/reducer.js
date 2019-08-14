@@ -53,20 +53,6 @@ module.exports = function backends(state=initialState(), action) {
         return updateBackend(backend, dataset, state)
       },
 
-      GetBackendHistory(storage) {
-        const { patches } = resp
-
-        return R.set(
-          R.lensPath([ 'patches', storage.asIdentifier() ]),
-          patches,
-          state
-        )
-      },
-
-      GetBackendPatch() {
-        return state
-      },
-
       UpdateBackend() {
         return state
       },
