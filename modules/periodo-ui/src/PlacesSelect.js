@@ -42,11 +42,12 @@ const PlacesSelect = ({
   onChange,
   places=[], // [ { id, label } ]
   gazetteers,
+  closable=false,
 }) => {
 
   const [ focusedFeature, setFocusedFeature ] = useState(null)
 
-  const [ closed, setClosed ] = useState(true)
+  const [ closed, setClosed ] = useState(closable ? true : false)
 
   const editLink = h(Link, {
     onClick: () => {
@@ -64,7 +65,7 @@ const PlacesSelect = ({
     places.length > 0
       ? h(Tags, {
         items: places,
-        editLink,
+        editLink: closable ? editLink : null,
         onFocus: ({ id }) => {
           setFocusedFeature(gazetteers.find(id))
           setClosed(false)
@@ -85,7 +86,7 @@ const PlacesSelect = ({
         h(Span, {
           color: 'gray.6',
         }, 'No places selected.'),
-        editLink,
+        closable ? editLink : null,
       ]),
 
     closed

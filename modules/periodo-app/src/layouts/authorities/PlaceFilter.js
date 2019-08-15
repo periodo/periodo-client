@@ -35,6 +35,7 @@ const PlaceFilter = ({
         }, true),
         places: filter ? Object.values(filter) : [],
         gazetteers,
+        closable: true,
       }),
     ])
   )

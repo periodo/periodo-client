@@ -7,9 +7,9 @@ const R = require('ramda')
     , glsl = require('glslify')
     , createMesh = require('earth-mesh')
     , h = require('react-hyperscript')
-    , { useRef, useLayoutEffect } = require('react')
+    , debounce = require('debounce')
+    , { createRef, Component } = require('react')
     , { Box } = require('./Base')
-    , useRect = require('./useRect')
 
 const tiles = require('../../../images/maptiles/manifest.json')
 
@@ -238,47 +238,64 @@ const initializeMap = mix => {
 const mix = mixmap(regl)
 const renderMix = R.once(() => document.body.appendChild(mix.render()))
 
-// create an identifying tag for an array of features
-// (for specifying a dependency on the array)
-const identify = features => features
-  .filter(feature => !!feature)
-  .map(feature => feature.id).join('|')
+const getWidth = element => element ? element.getBoundingClientRect().width : 0
 
-const _Map = ({ features=[], focusedFeatures=[], height }) => {
+const clear = node => {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild)
+  }
+}
 
-  const innerRef = useRef()
-      , outerRef = useRef()
-      , width = useRect(outerRef).width
-      , featureIds = identify(features)
-      , focusedFeatureIds = identify(focusedFeatures)
+const handleResize = (map, width, { height, features, focusedFeatures }) => {
+  map.resize(width, height)
+  map.display(features, focusedFeatures)
+}
 
-  useLayoutEffect(() => {
+class _Map extends Component {
+
+  constructor(props) {
+    super(props)
+    this.innerRef = createRef()
+    this.outerRef = createRef()
+  }
+
+  render() {
+    return h('div', {
+      ref: this.outerRef,
+      style: { height: this.props.height },
+    }, [
+      h('div', {
+        ref: this.innerRef,
+        style: { position: 'absolute' },
+      }),
+    ])
+  }
+
+  componentDidMount() {
     renderMix()
-
-    const map = initializeMap(mix)
-    const mapNode = map.render({
-      width,
-      height,
+    this.map = initializeMap(mix)
+    const mapNode = this.map.render({
+      width: getWidth(this.outerRef.current),
+      height: this.props.height,
     })
-    map.display(features, focusedFeatures)
+    this.innerRef.current.appendChild(mapNode)
+    this.map.display(this.props.features, this.props.focusedFeatures)
+    this.debouncedHandler = debounce(() => {
+      handleResize(this.map, getWidth(this.outerRef.current), this.props)
+    })
+    window.addEventListener('resize', this.debouncedHandler)
+  }
 
-    const parent = innerRef.current
-    const child = parent.appendChild(mapNode)
+  componentDidUpdate() {
+    handleResize(this.map, getWidth(this.outerRef.current), this.props)
+  }
 
-    return function cleanup() {
-      parent.removeChild(child)
-    }
-  }, [ featureIds, focusedFeatureIds, height, width ])
-
-  return h('div', {
-    ref: outerRef,
-    style: { height },
-  }, [
-    h('div', {
-      ref: innerRef,
-      style: { position: 'absolute' },
-    }),
-  ])
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.debouncedHandler)
+    this.map.resize(0, 0)
+    this.map.display([], [])
+    clear(this.innerRef.current)
+  }
 }
 
 exports.WorldMap = ({ features, focusedFeatures, height=200, ...props }) => h(

@@ -83,7 +83,6 @@ exports.FeatureLabel = ({ features, ...props }) => {
     p: show ? 2 : 0,
     borderLeft: show ? '1px solid #ccc' : null,
     width: show ? 200 : '0px',
-    css: { transition: 'width 0.25s' },
     ...props,
   },
   show
