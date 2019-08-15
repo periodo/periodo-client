@@ -324,6 +324,15 @@ async function getPatchRequestList() {
 
 function getBackendHistory(storage) {
   return async (dispatch, getState, { db }) => {
+    const existing = R.path([
+      'patches',
+      'byBackend',
+      storage.asIdentifier(),
+      'history',
+    ])(getState())
+
+    if (existing) return { patches: existing }
+
     const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, false))
 
     const patchesPromise =  storage.case({
