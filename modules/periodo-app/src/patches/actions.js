@@ -347,6 +347,7 @@ function getBackendHistory(storage) {
           submittedBy: '(local)',
           mergedBy: '(local)',
           time: p.created,
+          mergeTime: p.created,
           patch: p.forward,
         }))
       },
