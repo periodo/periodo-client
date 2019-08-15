@@ -2,7 +2,8 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Button$Primary, DropdownMenu, DropdownMenuItem } = require('periodo-ui')
+    , { Button$Primary } = require('periodo-ui')
+    , BackendSelector = require('./BackendSelector')
     , { Navigable } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('../../patches/actions')
@@ -13,7 +14,6 @@ const h = require('react-hyperscript')
 
 const {
   Box,
-  Heading,
   ResourceTitle,
   Text,
   InfoText,
@@ -92,7 +92,6 @@ class SubmitPatch extends React.Component {
       child = h(Box, [
         h(SelectChanges, {
           direction: PatchDirection.Push,
-          dispatch: this.props.dispatch,
           localBackend: this.props.backend,
           remoteBackend: backends[this.state.selectedWebBackendID],
           handleSelectPatch: (selectedPatch, compareComponent) => {
@@ -140,25 +139,17 @@ class SubmitPatch extends React.Component {
       child = h(Box, [
         h(Text, { mb: 3 }, 'Select a remote server to submit a patch to it.'),
 
-        h(DropdownMenu, {
-          label: selectedWebBackend
-            ? selectedWebBackend.metadata.label
-            : 'Available Web backends',
-          onSelection: val => {
+        h(BackendSelector, {
+          value: selectedWebBackend,
+          label: 'Available Web backends',
+          backends: webBackends,
+          onChange: val => {
             this.setState({
               message: null,
               selectedWebBackendID: val.asIdentifier(),
             })
           },
-        }, webBackends.map(backend =>
-          h(DropdownMenuItem, {
-            key: backend.asIdentifier(),
-            value: backend,
-          }, h(Box, [
-            h(Heading, { level: 4 }, backend.metadata.label),
-            h(Text, backend.storage.url),
-          ])),
-        )),
+        }),
 
         childChildren,
       ])
@@ -174,4 +165,4 @@ class SubmitPatch extends React.Component {
   }
 }
 
-module.exports = Navigable(SubmitPatch);
+module.exports = Navigable(SubmitPatch)

@@ -3,12 +3,11 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Box } = require('periodo-ui')
-    , { Button$Primary, InputBlock } = require('periodo-ui')
-    , { BackendStorage } = require('../backends/types')
+    , { Heading, Button$Primary, Alert$Error } = require('periodo-ui')
     , { handleCompletedAction } = require('org-async-actions')
+    , { connect } = require('react-redux')
     , PatchAction = require('./actions')
     , Compare = require('./Compare')
-    , globals = require('../globals')
 
 class SelectChanges extends React.Component {
   constructor() {
@@ -16,10 +15,11 @@ class SelectChanges extends React.Component {
 
     this.state = {
       fetchErr: null,
-      remoteBackend: null,
+
+      patch: null,
+      localDataset: null,
       remoteDataset: null,
-      url: globals.periodoServerURL,
-      generatingPatch: false,
+
       currentPatch: [],
     }
 
@@ -30,6 +30,9 @@ class SelectChanges extends React.Component {
   componentDidMount() {
     if (this.props.remoteBackend) {
       this.generatePatch(this.props.remoteBackend.storage)
+        .catch(error => {
+          this.setState({ error })
+        })
     }
   }
 
@@ -50,8 +53,8 @@ class SelectChanges extends React.Component {
         localDataset,
         remoteDataset,
       }),
-      err => {
-        throw err;
+      error => {
+        throw error
       }
     )
   }
@@ -62,54 +65,50 @@ class SelectChanges extends React.Component {
 
   render() {
     const { direction, handleSelectPatch } = this.props
-        , { patch, localDataset, remoteDataset, generatingPatch } = this.state
+        , { patch, error, localDataset, remoteDataset } = this.state
+
+    if (error) {
+      return (
+        h(Alert$Error, {
+          p: 3,
+        }, [
+          h(Heading, { level: 3 }, 'Error generating patch'),
+          h(Box, error.message || error.toString()),
+        ])
+      )
+    }
 
     if (patch) {
-      return h(Box, [
-        h(Compare, {
-          onChange: this.handleChange,
-          localDataset,
-          remoteDataset,
-          direction,
-          patch,
-        }),
+      return (
+        h(Box, [
+          h(Compare, {
+            onChange: this.handleChange,
+            localDataset,
+            remoteDataset,
+            direction,
+            patch,
+          }),
 
-        h(Button$Primary, {
-          disabled: !this.state.currentPatch.length,
-          onClick: () => handleSelectPatch(
-            this.state.currentPatch,
-            h(Compare, {
-              localDataset,
-              remoteDataset,
-              direction,
-              patch: this.state.currentPatch,
-            }),
-          ),
-        }, 'Continue'),
-      ])
+          h(Button$Primary, {
+            disabled: !this.state.currentPatch.length,
+            onClick: () => handleSelectPatch(
+              this.state.currentPatch,
+              h(Compare, {
+                localDataset,
+                remoteDataset,
+                direction,
+                patch: this.state.currentPatch,
+              }),
+            ),
+          }, 'Continue'),
+        ])
+      )
     }
 
-    if (generatingPatch) {
-      return h(Box, [
-        'Generating patch...',
-      ])
-    }
-
-    return (
-      h(Box, [
-
-        h(InputBlock, {
-          label: 'PeriodO server URL',
-          value: this.state.url,
-          onChange: e => this.setState({ url: e.target.value }),
-        }),
-
-        h(Button$Primary, {
-          onClick: () => this.generatePatch(BackendStorage.Web(this.state.url)),
-        }, 'Compare'),
-      ])
-    )
+    return h(Box, [
+      'Generating patch...',
+    ])
   }
 }
 
-module.exports = SelectChanges
+module.exports = connect()(SelectChanges)

@@ -3,11 +3,12 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , jsonpatch = require('fast-json-patch')
-    , { Box, Heading } = require('periodo-ui')
+    , { Box, Heading, Text } = require('periodo-ui')
     , { Button$Primary } = require('periodo-ui')
     , { Navigable, Route } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
+    , BackendSelector = require('./BackendSelector')
     , { PatchDirection } = require('../../patches/types')
     , SelectChanges = require('../../patches/SelectChanges')
 
@@ -52,35 +53,62 @@ class SyncBackend extends React.Component {
   }
 
   render() {
+    const { selectedPatch, selectedBackend } = this.state
+        , { backends } = this.props
+
     let child
 
-    if (this.state.selectedPatch) {
-      child = h(Box, [
-        this.state.compareComponent,
+    if (selectedPatch) {
+      child = (
+        h(Box, [
+          this.state.compareComponent,
 
-        h(Button$Primary, {
-          onClick: () => {
-            this.acceptPatch()
+          h(Button$Primary, {
+            onClick: () => {
+              this.acceptPatch()
+            },
+          }, 'Accept changes'),
+        ])
+      )
+    } else if (selectedBackend) {
+      child = (
+        h(SelectChanges, {
+          direction: PatchDirection.Pull,
+          localBackend: this.props.backend,
+          remoteBackend: selectedBackend,
+          handleSelectPatch: (selectedPatch, compareComponent) => {
+            this.setState({
+              selectedPatch,
+              compareComponent,
+            })
           },
-        }, 'Accept changes'),
-      ])
+        })
+      )
     } else {
-      child = h(SelectChanges, {
-        direction: PatchDirection.Pull,
-        dispatch: this.props.dispatch,
-        localBackend: this.props.backend,
-        handleSelectPatch: (selectedPatch, compareComponent) => {
-          this.setState({
-            selectedPatch,
-            compareComponent,
-          })
-        },
-      })
+      child = (
+        h(Box, [
+          h(Text, { mb: 3 }, 'Select a backend to sync changes from it'),
+
+          h(BackendSelector, {
+            value: selectedBackend,
+            label: 'Available backends',
+            backends: Object.values(backends).filter(b => b !== this.props.backend),
+            onChange: val => {
+              this.setState({
+                selectedBackend: val,
+              })
+            },
+          }),
+        ])
+      )
     }
 
     return (
       h(Box, [
-        h(Heading, { level: 2 }, 'Sync backend'),
+        h(Heading, {
+          level: 2,
+          mb: 3,
+        }, 'Sync backend'),
         child,
       ])
     )

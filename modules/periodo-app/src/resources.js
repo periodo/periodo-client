@@ -346,6 +346,11 @@ const Backend = {
       label: 'Sync',
       Component: require('./backends/components/SyncBackend'),
       showInMenu: hasEditableBackend,
+      mapStateToProps(state) {
+        return {
+          backends: state.backends.available,
+        }
+      },
     },
     'backend-submit-patch': {
       label: 'Submit patch',
