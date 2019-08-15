@@ -191,7 +191,7 @@ const initializeMap = mix => {
   })
 
   const drawFeatures = drawTriangle(YELLOW)
-  const drawFocusedFeature = drawTriangle(PURPLE)
+  const drawFocusedFeatures = drawTriangle(PURPLE)
 
   const bbox = mesh => {
     const box = [ 180,90,-180,-90 ]
@@ -204,25 +204,26 @@ const initializeMap = mix => {
     return box
   }
 
-  map.display = (features, focusedFeature) => {
-    const focusedFeatureId = focusedFeature ? focusedFeature.id : undefined
+  map.display = (features, focusedFeatures) => {
     const unfocusedFeatures = features.filter(
-      f => (f.id !== focusedFeatureId) && f.geometry
+      f => f.geometry && focusedFeatures.every(feature => feature.id !== f.id)
     )
     let viewbox = undefined
+    if (focusedFeatures.length > 0) {
+      const mesh = createMesh({ features: focusedFeatures })
+      drawFocusedFeatures.props = [ mesh.triangle ]
+      viewbox = bbox(mesh)
+    } else {
+      drawFocusedFeatures.props = []
+    }
     if (unfocusedFeatures.length > 0) {
       const mesh = createMesh({ features: unfocusedFeatures })
       drawFeatures.props = [ mesh.triangle ]
-      viewbox = bbox(mesh)
+      if (!viewbox) {
+        viewbox = bbox(mesh)
+      }
     } else {
       drawFeatures.props = []
-    }
-    if (focusedFeature && focusedFeature.geometry) {
-      const mesh = createMesh(focusedFeature)
-      drawFocusedFeature.props = [ mesh.triangle ]
-      viewbox = bbox(mesh)
-    } else {
-      drawFocusedFeature.props = []
     }
     if (viewbox) {
       map.setViewbox(pad(map, viewbox))
@@ -237,13 +238,19 @@ const initializeMap = mix => {
 const mix = mixmap(regl)
 const renderMix = R.once(() => document.body.appendChild(mix.render()))
 
-const _Map = ({ features=[], focusedFeature, height }) => {
+// create an identifying tag for an array of features
+// (for specifying a dependency on the array)
+const identify = features => features
+  .filter(feature => !!feature)
+  .map(feature => feature.id).join('|')
+
+const _Map = ({ features=[], focusedFeatures=[], height }) => {
 
   const innerRef = useRef()
       , outerRef = useRef()
       , width = useRect(outerRef).width
-      , featureIds = features.map(feature => feature.id).join('|')
-      , focusedFeatureId = focusedFeature ? focusedFeature.id : null
+      , featureIds = identify(features)
+      , focusedFeatureIds = identify(focusedFeatures)
 
   useLayoutEffect(() => {
     renderMix()
@@ -253,7 +260,7 @@ const _Map = ({ features=[], focusedFeature, height }) => {
       width,
       height,
     })
-    map.display(features, focusedFeature)
+    map.display(features, focusedFeatures)
 
     const parent = innerRef.current
     const child = parent.appendChild(mapNode)
@@ -261,7 +268,7 @@ const _Map = ({ features=[], focusedFeature, height }) => {
     return function cleanup() {
       parent.removeChild(child)
     }
-  }, [ featureIds, focusedFeatureId, height, width ])
+  }, [ featureIds, focusedFeatureIds, height, width ])
 
   return h('div', {
     ref: outerRef,
@@ -274,7 +281,7 @@ const _Map = ({ features=[], focusedFeature, height }) => {
   ])
 }
 
-exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
+exports.WorldMap = ({ features, focusedFeatures, height=200, ...props }) => h(
   Box,
   {
     css: { backgroundColor: '#6194b9' }, // ocean color
@@ -283,7 +290,7 @@ exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
   [ h(_Map, {
     key: 2,
     features,
-    focusedFeature,
+    focusedFeatures,
     height,
   }) ]
 )

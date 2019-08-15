@@ -36,4 +36,5 @@ addUIModules([
   require('./Icons'),
   require('./LabeledMap'),
   require('./PlaceSuggest'),
+  require('./PlacesSelect'),
 ])

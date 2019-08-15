@@ -26,7 +26,7 @@ const Tag = ({ label, onDelete, ...props }) => h(Box, {
     ml: 2,
     mt: 1,
     style: { cursor: 'pointer' },
-    onClick: onDelete,
+    onClick: () => { onDelete() },
   }, '✕'),
 ])
 
@@ -35,6 +35,7 @@ const Tags = ({
   items,
   getItemKey = item => item.id,
   getItemLabel = item => item.label,
+  editLink,
   onFocus,
   onBlur,
   onDelete,
@@ -51,14 +52,7 @@ const Tags = ({
     }
   }, [ focusedIndex ]);
 
-  return h(Box, {
-    is: 'ul',
-    innerRef: ref,
-    p: 0,
-    mb: -1,
-    css: { listStyleType: 'none' },
-    ...props,
-  }, items.map((item, index) => h(Tag, {
+  const children = items.map((item, index) => h(Tag, {
     key: getItemKey(item),
     label: getItemLabel(item),
     mr: 1,
@@ -74,10 +68,25 @@ const Tags = ({
     onDelete: () => {
       onBlur()
       onDelete(item)
-      setFocusedIndex(index - 1)
+      if (index === focusedIndex) {
+        setFocusedIndex(index - 1)
+      }
     },
   }))
-  )
+
+  if (editLink) {
+    children.push(editLink)
+  }
+
+  return h(Box, {
+    is: 'ul',
+    innerRef: ref,
+    p: 0,
+    mb: -1,
+    css: { listStyleType: 'none' },
+    ...props,
+  }, children)
+
 }
 
 module.exports = {

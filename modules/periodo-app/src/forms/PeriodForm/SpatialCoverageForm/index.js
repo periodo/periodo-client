@@ -1,10 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , { useState } = require('react')
-    , { Box, Text, InputBlock, Label, Tags } = require('periodo-ui')
-    , { LabeledMap, PlaceSuggest } = require('periodo-ui')
+    , { Box, Text, InputBlock, Label } = require('periodo-ui')
+    , { PlacesSelect } = require('periodo-ui')
 
 const SpatialCoverageForm = ({
   onValueChange,
@@ -12,10 +10,6 @@ const SpatialCoverageForm = ({
   coverage=[],
   gazetteers,
 }) => {
-
-  const [ focusedFeature, setFocusedFeature ] = useState(undefined)
-
-  const inCoverage = feature => R.any(item => item.id === feature.id, coverage)
 
   return h(Box, [
     h(InputBlock, {
@@ -40,45 +34,10 @@ const SpatialCoverageForm = ({
       h(Text, { mb: 1 },
         'A set of places that approximate the area of spatial coverage'),
 
-      R.isEmpty(coverage)
-        ? h(Box, {
-          height: '24px',
-          color: 'gray.6',
-          css: {
-            lineHeight: '24px',
-            fontStyle: 'italic',
-          },
-        }, 'Search below for places to add')
-        : h(Tags, {
-          items: coverage,
-          onFocus: item => setFocusedFeature(gazetteers.find(item.id)),
-          onBlur: () => setFocusedFeature(undefined),
-          onDelete: item => onValueChange(
-            { spatialCoverage: R.without([ item ], coverage) }),
-        }),
-
-      h(LabeledMap, {
-        focusedFeature,
-        features: coverage.map(({ id }) => gazetteers.find(id)),
-        mt: 1,
-      }),
-
-      h(PlaceSuggest, {
+      h(PlacesSelect, {
+        onChange: places => onValueChange({ spatialCoverage: places }),
+        places: coverage,
         gazetteers,
-        onSuggestionHighlighted:
-          ({ suggestion }) => setFocusedFeature(suggestion),
-        isSelected: inCoverage,
-        onSelect: feature => {
-          const item = {
-            id: feature.id,
-            label: feature.properties.title,
-          }
-          onValueChange({
-            spatialCoverage: inCoverage(item)
-              ? R.without([ item ], coverage)
-              : R.union(coverage, [ item ]),
-          })
-        },
       }),
     ]),
   ])

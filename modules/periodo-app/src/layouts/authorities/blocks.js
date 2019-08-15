@@ -1,4 +1,3 @@
-
 module.exports = {
   'text-search': require('./TextSearch'),
   'dataset-statistics': require('./Statistics'),
@@ -8,6 +7,7 @@ module.exports = {
   'time-cutoff': require('./HumanTimeCheckmark'),
   'timespan-visualization': require('./Timeline'),
   'spatial-visualization': require('./CoverageMap'),
+  'place-filter': require('./PlaceFilter'),
   'facets': require('./Facets'),
   'period-detail': require('./PeriodDetail'),
   'authority-detail': require('./AuthorityDetail'),

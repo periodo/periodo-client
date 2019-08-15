@@ -253,7 +253,7 @@ function SpatialExtentValue(props) {
   const {
     value: { description, places },
     gazetteers,
-    showMap=true,
+    showMap=false,
     compare,
   } = props
 

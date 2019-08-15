@@ -91,6 +91,7 @@ exports.PlaceSuggest = ({
   onSuggestionHighlighted,
   isSelected,
   onSelect,
+  ...props
 }) => h(Box, {
   border: 1,
   borderColor: 'gray.4',
@@ -128,6 +129,7 @@ exports.PlaceSuggest = ({
       id: 'coverage-area',
       border: 'none',
       placeholder: 'Begin typing to search for places',
+      ...props.inputProps,
     },
     onSuggestionHighlighted,
     onSelect,
