@@ -33,4 +33,5 @@ addUIModules([
   require('./WorldMap'),
   require('./Tags'),
   require('./BackendContext'),
+  require('./Icons'),
 ])

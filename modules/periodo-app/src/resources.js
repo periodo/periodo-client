@@ -14,7 +14,7 @@ const h = require('react-hyperscript')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
-    , { BackendContext } = require('periodo-ui')
+    , { BackendContext, LoadingIcon } = require('periodo-ui')
 
 function requireParam(params, key, msg) {
   if (key in params) return;
@@ -67,7 +67,8 @@ const Home = {
   async loadData(props, log, finished) {
     const { dispatch } = props
 
-    await log('Loading backend list', dispatch(BackendAction.GetAllBackends))
+    await log('Loading backend list', throwIfUnsuccessful(
+      dispatch(BackendAction.GetAllBackends)))
 
     finished()
   },
@@ -109,6 +110,7 @@ function withLoadProgress(resource) {
 
       addStep(label, promise) {
         return new Promise(async (resolve, reject) => {
+          if (this._unmounted) return
           this.setState(R.set(
             R.lensPath([ 'steps', label ]),
             {
@@ -119,12 +121,14 @@ function withLoadProgress(resource) {
 
           try {
             const result = await promise
+            if (this._unmounted) return
             this.setState(R.set(
               R.lensPath([ 'steps', label, 'progress' ]),
               ReadyState.Success(result),
             ))
             resolve(result)
           } catch (e) {
+            if (this._unmounted) return
             this.setState(R.set(
               R.lensPath([ 'steps', label, 'progress' ]),
               ReadyState.Failure(e.message)
@@ -134,24 +138,66 @@ function withLoadProgress(resource) {
         })
       }
 
+      componentWillUnmount() {
+        this._unmounted = true
+      }
+
       componentDidMount() {
-        resource.loadData(
-          this.props,
-          this.addStep,
-          () => { this.setState({ loaded: true }) })
+        const load = Promise.resolve(
+          resource.loadData(
+            this.props,
+            this.addStep,
+            () => {
+              if (this._unmounted) return
+              this.setState({ loaded: true })
+            }))
+
+        load.catch(e => {
+          this.setState({
+            error: e,
+          })
+        })
+
+        setTimeout(() => {
+          if (this._unmounted) return
+          this.setState({ showLoading: true })
+        }, 50)
       }
 
       render() {
+        if (this.state.error) throw this.state.error
         if (this.state.loaded) return h(Component, this.props)
+
+        if (!this.state.showLoading) return null
 
         return (
           h(Box, Object.values(this.state.steps).map(({ label, progress }, i) =>
-            h(Box, {
+            h('div', {
               key: i,
+              style: {
+                display: 'grid',
+                gridTemplateColumns: 'minmax(auto, 22px) 1fr',
+                marginBottom: '.33em',
+                fontSize: '16px',
+              },
             }, [
-              label,
-              '...',
-              progress._name,
+              h('div', {}, progress.case({
+                Pending: () => h(LoadingIcon),
+                Success: () => h('span', {
+                  style: {
+                    color: 'limegreen',
+                    fontWeight: 'bold',
+                  },
+                }, '✓'),
+                Failure: () => h('span', {
+                  style: {
+                    color: 'red',
+                    fontWeight: 'bold',
+                  },
+                }, '✕'),
+              })),
+
+              h('div', label),
             ])
           ))
         )
@@ -194,7 +240,8 @@ const Backend = {
       async loadData(props, log, finished) {
         const { dispatch, storage } = props
 
-        const gazetteers = log('Loading gazetteers', dispatch(GraphsAction.FetchGazetteers))
+        const gazetteers = log('Loading gazetteers', throwIfUnsuccessful(
+          dispatch(GraphsAction.FetchGazetteers)))
 
         const resp = await dispatch(BackendAction.GetBackendDataset(storage, false))
         const { dataset } = resp.readyState.response
@@ -404,6 +451,10 @@ const BackendPatch = {
 
   async loadData(props, log, finished) {
     const { storage, dispatch, params } = props
+
+    await log('Loading backend history', throwIfUnsuccessful(
+      dispatch(PatchAction.GetBackendHistory(storage))))
+
 
     await log('Loading patch', throwIfUnsuccessful(
       dispatch(PatchAction.GetPatch(storage, params.patchID))))
