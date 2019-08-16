@@ -14,6 +14,7 @@ const h = require('react-hyperscript')
     , linkifier = require('linkify-it')()
     , { permalinkURL } = require('../../../periodo-app/src/globals')
     , util = require('periodo-utils')
+    , styled = require('styled-components').default
 
 const abbreviate = id => {
   try {
@@ -30,15 +31,21 @@ const linkify = text => {
 
   const nodes = []
 
-  links.reverse().forEach(match => {
+  let pos = 0
+
+  links.forEach(match => {
     const minusOne = ',;.'.indexOf(match.url.slice(-1)) !== -1
         , href = minusOne ? match.url.slice(0, -1) : match.url
         , lastIndex = minusOne ? match.lastIndex - 1 : match.lastIndex
 
-    nodes.push(text.slice(0, match.index))
+    nodes.push(text.slice(pos, match.index))
     nodes.push(h(ExternalLink, { href }, href))
-    nodes.push(text.slice(lastIndex))
+    nodes.push(text.slice(match.index + href.length, lastIndex))
+
+    pos = lastIndex
   })
+
+  nodes.push(text.slice(pos, text.length))
 
   return nodes
 }
@@ -192,6 +199,11 @@ function JSONLDContextEntryValue(props) {
 
 // Diffable values -------------------------------------------------------------
 
+const WhitespacePreservedText = styled(Span)`
+  white-space: pre-line;
+  word-break: break-word;
+`
+
 function TextValue(props) {
   const {
     value: { text },
@@ -209,8 +221,9 @@ function TextValue(props) {
       })
     )
   }
+
   return (
-    h(Span, childProps, [
+    h(WhitespacePreservedText, childProps, [
       links ? linkify(text) : text,
     ])
   )

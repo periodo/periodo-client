@@ -83,6 +83,7 @@ const sourceFields = [
 
       return extractSourceOrPartOf('url')(period)
     },
+    component: LinkValue,
   },
 
   {
