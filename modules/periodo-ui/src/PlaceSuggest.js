@@ -2,7 +2,8 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box, Span, Autosuggest } = require('periodo-ui')
+    , { Box, Span } = require('./Base')
+    , { Autosuggest } = require('./Autosuggest')
 
 const escapeRegexCharacters = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -85,11 +86,12 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
   ]
 )
 
-const PlaceSuggest = ({
+exports.PlaceSuggest = ({
   gazetteers,
   onSuggestionHighlighted,
   isSelected,
   onSelect,
+  ...props
 }) => h(Box, {
   border: 1,
   borderColor: 'gray.4',
@@ -126,10 +128,10 @@ const PlaceSuggest = ({
     inputProps: {
       id: 'coverage-area',
       border: 'none',
+      placeholder: 'Begin typing to search for places',
+      ...props.inputProps,
     },
     onSuggestionHighlighted,
     onSelect,
   }),
 ])
-
-module.exports = PlaceSuggest

@@ -7,9 +7,9 @@ const R = require('ramda')
     , glsl = require('glslify')
     , createMesh = require('earth-mesh')
     , h = require('react-hyperscript')
-    , { useRef, useLayoutEffect } = require('react')
+    , debounce = require('debounce')
+    , { createRef, Component } = require('react')
     , { Box } = require('./Base')
-    , useRect = require('./useRect')
 
 const tiles = require('../../../images/maptiles/manifest.json')
 
@@ -22,6 +22,12 @@ const length = bbox => {
   return Math.max(lonDelta, latDelta)
 }
 
+
+const MINIMUM_ZOOM = 0.25
+const MAXIMUM_ZOOM = 21
+
+const bounded = zoom => Math.max(Math.min(zoom, MAXIMUM_ZOOM), MINIMUM_ZOOM)
+
 const ln360 = Math.log2(360)
 
 const bboxToZoom = bbox => {
@@ -29,7 +35,7 @@ const bboxToZoom = bbox => {
   const dy = bbox[3] - bbox[1]
   const d = Math.max(dx,dy)
   const zoom = ln360 - Math.log2(d) + 1
-  return Math.max(Math.min(zoom,21),1)
+  return bounded(zoom)
 }
 
 const zoomToBbox = (bbox,zoom) => {
@@ -56,7 +62,9 @@ const pad = (map, bbox) => {
     Math.round((-0.68 * Math.log(length(bbox))) + 3.91)
   ) + (map._size[0] > map._size[1] ? map._size[0]/map._size[1]*0.5 : 0)
 
-  return padding ? zoomToBbox(bbox, zoom - padding) : bbox
+  return padding
+    ? zoomToBbox(bbox, bounded(zoom - padding))
+    : bbox
 }
 
 const initializeMap = mix => {
@@ -157,17 +165,17 @@ const initializeMap = mix => {
     },
   })
 
-  const PURPLE = 'vec4(1.0,0.0,1.0,0.5)'
-  const YELLOW = 'vec4(1.0,1.0,0.0,0.5)'
+  const DEEP_PURPLE = 'vec4(0.3,0.0,0.3,0.5)'
+  const RED = 'vec4(1.0,0.0,0.0,0.5)'
 
-  const drawTriangle = color => map.createDraw({
+  const drawTriangle = (color, zindex) => map.createDraw({
     frag: `
     void main () {
       gl_FragColor = ${color};
     }
   `,
     uniforms: {
-      zindex: 100,
+      zindex,
     },
     blend: {
       enable: true,
@@ -182,8 +190,8 @@ const initializeMap = mix => {
     elements: map.prop('cells'),
   })
 
-  const drawFeatures = drawTriangle(YELLOW)
-  const drawFocusedFeature = drawTriangle(PURPLE)
+  const drawFeatures = drawTriangle(DEEP_PURPLE)
+  const drawFocusedFeature = drawTriangle(RED)
 
   const bbox = mesh => {
     const box = [ 180,90,-180,-90 ]
@@ -196,10 +204,9 @@ const initializeMap = mix => {
     return box
   }
 
-  map.display = (features, focusedFeature) => {
-    const focusedFeatureId = focusedFeature ? focusedFeature.id : undefined
+  map.display = (features, focusedFeatures) => {
     const unfocusedFeatures = features.filter(
-      f => (f.id !== focusedFeatureId) && f.geometry
+      f => f.geometry && focusedFeatures.every(feature => feature.id !== f.id)
     )
     let viewbox = undefined
     if (unfocusedFeatures.length > 0) {
@@ -209,12 +216,12 @@ const initializeMap = mix => {
     } else {
       drawFeatures.props = []
     }
-    if (focusedFeature && focusedFeature.geometry) {
-      const mesh = createMesh(focusedFeature)
-      drawFocusedFeature.props = [ mesh.triangle ]
+    if (focusedFeatures.length > 0) {
+      const mesh = createMesh({ features: focusedFeatures })
+      drawFocusedFeatures.props = [ mesh.triangle ]
       viewbox = bbox(mesh)
     } else {
-      drawFocusedFeature.props = []
+      drawFocusedFeatures.props = []
     }
     if (viewbox) {
       map.setViewbox(pad(map, viewbox))
@@ -229,41 +236,67 @@ const initializeMap = mix => {
 const mix = mixmap(regl)
 const renderMix = R.once(() => document.body.appendChild(mix.render()))
 
-const _Map = ({ features=[], focusedFeature, height }) => {
+const getWidth = element => element ? element.getBoundingClientRect().width : 0
 
-  const innerRef = useRef()
-      , outerRef = useRef()
-      , width = useRect(outerRef).width
-      , map = initializeMap(mix)
-
-  renderMix()
-
-  const mapNode = map.render({
-    width,
-    height,
-  })
-
-  map.display(features, focusedFeature)
-
-  useLayoutEffect(() => {
-    innerRef.current.appendChild(mapNode)
-    return function cleanup() {
-      innerRef.current.removeChild(mapNode)
-    }
-  })
-
-  return h('div', {
-    ref: outerRef,
-    style: { height },
-  }, [
-    h('div', {
-      ref: innerRef,
-      style: { position: 'absolute' },
-    }),
-  ])
+const clear = node => {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild)
+  }
 }
 
-exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
+const handleResize = (map, width, { height, features, focusedFeatures }) => {
+  map.resize(width, height)
+  map.display(features, focusedFeatures)
+}
+
+class _Map extends Component {
+
+  constructor(props) {
+    super(props)
+    this.innerRef = createRef()
+    this.outerRef = createRef()
+  }
+
+  render() {
+    return h('div', {
+      ref: this.outerRef,
+      style: { height: this.props.height },
+    }, [
+      h('div', {
+        ref: this.innerRef,
+        style: { position: 'absolute' },
+      }),
+    ])
+  }
+
+  componentDidMount() {
+    renderMix()
+    this.map = initializeMap(mix)
+    const mapNode = this.map.render({
+      width: getWidth(this.outerRef.current),
+      height: this.props.height,
+    })
+    this.innerRef.current.appendChild(mapNode)
+    this.map.display(this.props.features, this.props.focusedFeatures)
+    this.debouncedHandler = debounce(() => {
+      handleResize(this.map, getWidth(this.outerRef.current), this.props)
+    })
+    window.addEventListener('resize', this.debouncedHandler)
+  }
+
+  componentDidUpdate() {
+    handleResize(this.map, getWidth(this.outerRef.current), this.props)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.debouncedHandler)
+    this.map.resize(0, 0)
+    this.map.display([], [])
+    clear(this.innerRef.current)
+  }
+}
+
+exports.WorldMap = ({ features, focusedFeatures, height=200, ...props }) => h(
   Box,
   {
     css: { backgroundColor: '#6194b9' }, // ocean color
@@ -272,7 +305,7 @@ exports.WorldMap = ({ features, focusedFeature, height=200, ...props }) => h(
   [ h(_Map, {
     key: 2,
     features,
-    focusedFeature,
+    focusedFeatures,
     height,
   }) ]
 )
