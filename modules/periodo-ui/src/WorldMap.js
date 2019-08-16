@@ -165,8 +165,8 @@ const initializeMap = mix => {
     },
   })
 
-  const DEEP_PURPLE = 'vec4(0.3,0.0,0.3,0.5)'
-  const RED = 'vec4(1.0,0.0,0.0,0.5)'
+  const PURPLE = 'vec4(1.0,0.0,1.0,0.5)'
+  const YELLOW = 'vec4(1.0,1.0,0.0,0.5)'
 
   const drawTriangle = (color, zindex) => map.createDraw({
     frag: `
@@ -190,8 +190,8 @@ const initializeMap = mix => {
     elements: map.prop('cells'),
   })
 
-  const drawFeatures = drawTriangle(DEEP_PURPLE)
-  const drawFocusedFeature = drawTriangle(RED)
+  const drawFeatures = drawTriangle(YELLOW, 100)
+  const drawFocusedFeatures = drawTriangle(PURPLE, 200)
 
   const bbox = mesh => {
     const box = [ 180,90,-180,-90 ]
