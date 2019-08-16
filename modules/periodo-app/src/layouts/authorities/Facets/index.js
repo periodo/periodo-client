@@ -74,7 +74,7 @@ class AspectTable extends React.Component {
   }
 
   componentDidMount() {
-    this.worker = work(require('./facet_worker'))
+    this.worker = work(require('./worker'))
 
     this.worker.postMessage({
       type: 'initialize',

@@ -2,7 +2,7 @@
 
 const tags = require('language-tags')
     , { period: { authorityOf }, authority: { displayTitle }} = require('periodo-utils')
-    , indexItems = require('../../backends/dataset_proxy/index_items')
+    , indexItems = require('../../../backends/dataset_proxy/index_items')
 
 const languageDescription = tag => {
   const language = tags(tag || '').language()
