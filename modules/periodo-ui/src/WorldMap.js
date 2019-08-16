@@ -168,14 +168,14 @@ const initializeMap = mix => {
   const PURPLE = 'vec4(1.0,0.0,1.0,0.5)'
   const YELLOW = 'vec4(1.0,1.0,0.0,0.5)'
 
-  const drawTriangle = color => map.createDraw({
+  const drawTriangle = (color, zindex) => map.createDraw({
     frag: `
     void main () {
       gl_FragColor = ${color};
     }
   `,
     uniforms: {
-      zindex: 100,
+      zindex,
     },
     blend: {
       enable: true,
@@ -190,8 +190,8 @@ const initializeMap = mix => {
     elements: map.prop('cells'),
   })
 
-  const drawFeatures = drawTriangle(YELLOW)
-  const drawFocusedFeatures = drawTriangle(PURPLE)
+  const drawFeatures = drawTriangle(YELLOW, 100)
+  const drawFocusedFeatures = drawTriangle(PURPLE, 200)
 
   const bbox = mesh => {
     const box = [ 180,90,-180,-90 ]
@@ -209,21 +209,19 @@ const initializeMap = mix => {
       f => f.geometry && focusedFeatures.every(feature => feature.id !== f.id)
     )
     let viewbox = undefined
+    if (unfocusedFeatures.length > 0) {
+      const mesh = createMesh({ features: unfocusedFeatures })
+      drawFeatures.props = [ mesh.triangle ]
+      viewbox = bbox(mesh)
+    } else {
+      drawFeatures.props = []
+    }
     if (focusedFeatures.length > 0) {
       const mesh = createMesh({ features: focusedFeatures })
       drawFocusedFeatures.props = [ mesh.triangle ]
       viewbox = bbox(mesh)
     } else {
       drawFocusedFeatures.props = []
-    }
-    if (unfocusedFeatures.length > 0) {
-      const mesh = createMesh({ features: unfocusedFeatures })
-      drawFeatures.props = [ mesh.triangle ]
-      if (!viewbox) {
-        viewbox = bbox(mesh)
-      }
-    } else {
-      drawFeatures.props = []
     }
     if (viewbox) {
       map.setViewbox(pad(map, viewbox))
