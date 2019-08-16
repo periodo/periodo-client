@@ -525,7 +525,7 @@ const Authority = {
   },
   mapStateToProps(state, props) {
     return {
-      authority: props.dataset.authorityByID(props.params.authorityID),
+      authority: props.dataset && props.dataset.authorityByID(props.params.authorityID),
       gazetteers: state.graphs.gazetteers,
     }
   },
