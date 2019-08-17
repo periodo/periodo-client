@@ -25,7 +25,7 @@ const PlaceFilter = ({
   const { filter } = opts
 
   return (
-    h(Box, [
+    h(Box, { pl: 2 }, [
       h(Label, 'Filter by place'),
 
       h(PlacesSelect, {

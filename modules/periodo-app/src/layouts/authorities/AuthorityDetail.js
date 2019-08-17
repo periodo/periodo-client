@@ -1,17 +1,19 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Authority } = require('periodo-ui')
+    , { Authority, Label, Box } = require('periodo-ui')
     , { period: { authorityOf }} = require('periodo-utils')
 
 function AuthorityDetail({ hoveredPeriod, selectedPeriod }) {
   const period = hoveredPeriod || selectedPeriod || null
 
-  return h('div', {
+  return h(Box, {
+    pl: 2,
     style: {
       minHeight: 420,
     },
   }, [
+    period == null ? null : h(Label, {}, 'Authority'),
     period == null ? null : (
       h(Authority, { value: authorityOf(period) })
     ),

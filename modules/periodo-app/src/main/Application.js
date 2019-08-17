@@ -210,7 +210,8 @@ class PeriodoApplication extends React.Component {
           h(Footer, {
             height: '100%',
             bg: 'gray.1',
-            p: 2,
+            pt: 3,
+            px: 3,
             borderTop: '1px solid #ccc',
           }),
         ]),

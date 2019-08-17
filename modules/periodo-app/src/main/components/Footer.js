@@ -20,7 +20,7 @@ const Logo = ({ href, title, src, height=44 }) =>
 const Footer = props =>
   h(Box.withComponent('footer'), props, [
     h(Flex, {
-      justifyContent: 'space-around',
+      justifyContent: 'space-between',
       alignItems: 'center',
     }, [
       h(Logo, {

@@ -28,7 +28,7 @@ const Table = Box.withComponent('table').extend`
 module.exports = props =>
   h(Box, [
     h(ResourceTitle, 'Select backend'),
-    h(Table, {}, [
+    h(Table, { mb: 3 }, [
       h('thead', [
         h('tr', [
           h('th', 'Type'),
