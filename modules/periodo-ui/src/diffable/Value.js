@@ -39,7 +39,10 @@ const linkify = text => {
         , lastIndex = minusOne ? match.lastIndex - 1 : match.lastIndex
 
     nodes.push(text.slice(pos, match.index))
-    nodes.push(h(ExternalLink, { href }, href))
+    nodes.push(h(ExternalLink, {
+      key: nodes.length,
+      href,
+    }, href))
     nodes.push(text.slice(match.index + href.length, lastIndex))
 
     pos = lastIndex
