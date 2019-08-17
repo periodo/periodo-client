@@ -41,11 +41,15 @@ class Search extends React.Component {
 
     return (
       h(Container, [
-        h(Label, { htmlFor: inputID }, 'Search'),
+        h(Label, {
+          htmlFor: inputID,
+          pl: 2,
+        }, 'Search'),
 
         h(Flex, {
           mt: 1,
           mb: 2,
+          pl: 2,
         }, [
           h(Flex, { mr: 3 }, [
             h('input', {

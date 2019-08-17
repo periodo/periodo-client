@@ -10,14 +10,13 @@ module.exports = props =>
     h(Flex, {
       height: '100%',
       alignItems: 'center',
-      justifyContent: 'space-around',
+      justifyContent: 'space-between',
       p: 1,
     }, [
       h(Box, [
         h(Heading, {
           level: 1,
-          m: 0,
-          mr: 2,
+          mx: 3,
           fontSize: 3,
         }, [
 

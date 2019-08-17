@@ -33,7 +33,7 @@ const CoverageMap = ({
   return h(LabeledMap, {
     focusedFeatures: featuresOf(focusedPeriod, gazetteers),
     features: allFeatures(periods, gazetteers),
-    height: 250,
+    height: 241,
   })
 }
 

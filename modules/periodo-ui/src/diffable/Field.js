@@ -106,9 +106,15 @@ function showValues(props) {
   } = props
 
   // Omit props derived from field definition
-  const childProps = R.omit(
-    [ 'id', 'label', 'required', 'immutable', 'hideUnchanged' ],
-    _childProps)
+  const childProps = R.omit([
+    'hidden',
+    'hideUnchanged',
+    'id',
+    'immutable',
+    'label',
+    'nested',
+    'required',
+  ], _childProps)
 
 
   return {
