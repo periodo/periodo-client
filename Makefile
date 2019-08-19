@@ -46,7 +46,7 @@ test:
 	npm test
 
 clean:
-	test -f $(BIN)/lerna && $(BIN)/lerna clean --yes || exit 0
+	test -f $(NPM_BIN)/lerna && $(NPM_BIN)/lerna clean --yes || exit 0
 	rm -rf node_modules
 	rm -rf dist
 
