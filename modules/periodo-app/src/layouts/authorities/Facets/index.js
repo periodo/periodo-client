@@ -306,6 +306,7 @@ class Facets extends React.Component {
         type: 'get_counts',
         aspect: key,
         periods: remainingPeriods,
+        selected: new Set(selected[key] || []),
       }).then(({ countArr }) => {
         this.setState(R.set(
           R.lensPath([ 'countsByAspect', key ]),

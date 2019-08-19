@@ -63,7 +63,7 @@ module.exports = function a() {
     }
 
     case "get_counts": {
-      const { aspect, periods } = message
+      const { aspect, periods, selected } = message
           , { getter, renderLabel } = aspects[aspect]
           , counts = new Map()
 
@@ -72,6 +72,10 @@ module.exports = function a() {
 
         if (!counts.has(key)) counts.set(key, 0)
         counts.set(key, counts.get(key) + 1)
+      })
+
+      selected.forEach(key => {
+        if (!counts.has(key)) counts.set(key, 0)
       })
 
       const countArr = ([ ...counts ])
