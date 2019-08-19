@@ -35,9 +35,11 @@ class LayoutBlock extends React.Component {
       passedOpts,
       processedOpts,
       extraProps,
+      setBlockState,
       data,
       block: { Component },
       onOptsChange,
+      invalidate,
     } = this.props
 
     const opts = {
@@ -83,6 +85,8 @@ class LayoutBlock extends React.Component {
           opts,
           updateOpts,
           data,
+          setBlockState,
+          invalidate,
           ...processedOpts,
           ...extraProps,
         }),
@@ -116,11 +120,14 @@ class LayoutRenderer extends React.Component {
       dataForBlocks: processedOpts.map(() => []),
     }
 
+    this.blockState = processedOpts.map(() => ({}))
+
     this.dataResets = 0
 
     this.resetLayout = this.resetLayout.bind(this);
     this.resetData = this.resetData.bind(this);
     this.debouncedResetData = debounce(this.resetData, RESET_DEBOUNCE_TIME)
+    this.invalidate = this.invalidate.bind(this)
   }
 
   componentDidMount() {
@@ -136,7 +143,7 @@ class LayoutRenderer extends React.Component {
     )
 
     if (resetLayout) {
-      this.resetLayout(this.props)
+      this.resetLayout()
     }
 
     if (this.props.blockOpts !== prevProps.blockOpts) {
@@ -152,10 +159,20 @@ class LayoutRenderer extends React.Component {
     }
   }
 
-  resetLayout(props) {
+  resetLayout() {
+    const { blocks, layout, blockOpts } = this.props
+        , processedLayout = processLayout(blocks, layout)
+        , processedOpts = computeLayoutOptions(processedLayout, blockOpts)
+
     this.setState({
-      processedLayout: processLayout(props.blocks, props.layout),
+      processedLayout,
+      processedOpts,
+      blockState: processedOpts.map(() => {}),
     })
+  }
+
+  invalidate(i) {
+    setTimeout(() => this.debouncedResetData(i), 0)
   }
 
   // TODO: Add startFrom=0 argument in order to prevent having to run filters
@@ -167,13 +184,16 @@ class LayoutRenderer extends React.Component {
         , renderID = this.dataResets
         , numBlocks = processedLayout.blocks.length
 
-    let dataForBlocks = [ ...this.state.dataForBlocks ]
+    // let dataForBlocks = [ ...this.state.dataForBlocks ]
+
+    const dataForBlocks = [ this.props.data ]
 
     for (let i = 0; i < numBlocks; i++) {
-      await new Promise(resolve => {
+      await new Promise(async resolve => {
         const block = processedLayout.blocks[i]
             , blockOpts = processedOpts[i]
-            , lastData = dataForBlocks[i - 1] || this.props.data
+            , lastData = dataForBlocks[i]
+            , state = this.blockState[i]
 
         if (this.dataResets !== renderID) resolve()
 
@@ -182,15 +202,14 @@ class LayoutRenderer extends React.Component {
         const { makeFilter } = block.block
 
         if (makeFilter) {
-          const filterFn = makeFilter(blockOpts)
+          const filterFn = await makeFilter(blockOpts, state, lastData)
 
           if (filterFn) {
-            nextData = lastData.filter(filterFn)
+            nextData = await lastData.filter(filterFn)
           }
         }
 
-        dataForBlocks = [ ...dataForBlocks ]
-        dataForBlocks[i] = nextData
+        dataForBlocks.push(nextData)
 
         if (this.dataResets !== renderID) resolve()
 
@@ -229,6 +248,14 @@ class LayoutRenderer extends React.Component {
         extraProps,
         processedOpts: processedOpts[i],
         passedOpts: blockOpts[block.id],
+        setBlockState: (obj, cb) => {
+          const nextState = typeof obj === 'function'
+            ? obj(this.blockState[i])
+            : obj
+
+          this.blockState[i] = obj
+        },
+        invalidate: this.invalidate,
         onOptsChange: (newOpts, invalidate) => {
           onBlockOptsChange(
             R.isEmpty(newOpts)
@@ -236,7 +263,7 @@ class LayoutRenderer extends React.Component {
               : R.merge(currentOpts(), { [block.id]: newOpts }))
 
           if (invalidate) {
-            setTimeout(() => this.debouncedResetData(i), 0)
+            this.invalidate(i)
           }
 
         },
