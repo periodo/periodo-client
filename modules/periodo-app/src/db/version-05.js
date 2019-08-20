@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function dbVersion2(db) {
-  db.version(4).stores({
+  db.version(5).stores({
     localBackends: `
       ++id,
       created,
