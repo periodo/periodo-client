@@ -5,15 +5,22 @@ const Type = require('union-type')
 
 const BackendStorage = Type({
   Web: { url: isURL },
-  IndexedDB: { id: x => x === null || Number.isInteger(x) },
+  IndexedDB: {
+    id: x => x === null || Number.isInteger(x),
+  },
+  StaticFile: {
+    id: x => x === null || Number.isInteger(x),
+    file: x => x instanceof File,
+  },
   Memory: {},
   Canonical: {},
 })
 
 BackendStorage.prototype.asIdentifier = function () {
   return this.case({
-    IndexedDB: id => `local-${id}`,
     Web: url => `web-${url}`,
+    IndexedDB: id => `local-${id}`,
+    StaticFile: id => `file-${id}`,
     _: () => {
       throw new Error('not yet')
     },
@@ -37,6 +44,9 @@ BackendStorage.fromIdentifier = identifier => {
 
   case 'local':
     return BackendStorage.IndexedDB(parseInt(id));
+
+  case 'file':
+    throw new Error('Cannot create StaticFile storage objects through this constructor')
 
   default:
     throw new Error(`Unknown backend type: ${type}`)

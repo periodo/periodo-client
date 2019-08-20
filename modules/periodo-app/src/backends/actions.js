@@ -30,6 +30,16 @@ const BackendAction = module.exports = makeTypedAction({
     },
   },
 
+  GetFileStorage: {
+    exec: getFileStorage,
+    request: {
+      id: String,
+    },
+    response: {
+      storage: BackendStorage,
+    },
+  },
+
   GetBackendDataset: {
     exec: fetchBackend,
     request: {
@@ -129,6 +139,7 @@ function listAvailableBackends() {
     await Promise.all([
       db.localBackends.each(makeBackend(BackendStorage.IndexedDBOf)),
       db.remoteBackends.each(makeBackend(BackendStorage.WebOf)),
+      db.fileBackends.each(makeBackend(BackendStorage.StaticFileOf)),
     ])
 
     return { backends }
@@ -155,6 +166,27 @@ async function fetchServerResource(baseURL, resourceName) {
   }
 
   return resp;
+}
+
+
+function getFileStorage(id) {
+  return async (dispatch, getState, { db }) => {
+    let obj
+
+    try {
+      obj = await db.fileBackends.get(parseInt(id))
+    } catch (e) {
+      throw new Error(`No file backend with id ${id}`);
+    }
+
+    const storage = BackendStorage.StaticFile(parseInt(id), obj.file)
+
+    await new Promise(resolve => {
+      setTimeout(resolve, 500)
+    })
+
+    return { storage }
+  }
 }
 
 
@@ -211,6 +243,32 @@ function fetchBackend(storage, forceReload) {
         return [ metadata, rawDataset ]
       },
 
+      StaticFile: async (id, file) => {
+        const ct = await db.fileBackends
+          .where('id')
+          .equals(id)
+          .modify({ accessed: new Date() })
+
+        if (ct != 1) {
+          throw new Error(`No local backend with id ${id}`);
+        }
+
+        const backend = await db.fileBackends.get(id)
+
+        const text = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+
+          reader.onload = () => { resolve(reader.result) }
+          reader.onerror = () => { reject(reader.error) }
+
+          reader.readAsText(file)
+        })
+
+        const dataset = JSON.parse(text)
+
+        return [ backend, dataset ]
+      },
+
       Canonical: async url => {
         url;
         throw new NotImplementedError();
@@ -250,6 +308,14 @@ function addBackend(storage, label='', description='') {
 
         return db.localBackends
       },
+      StaticFile: id => {
+        if (id !== null) {
+          throw new Error('Cannot create backend with existing IndexedDB.')
+        }
+
+        return db.fileBackends
+      },
+
       _: throwUnaddable,
     })
 
@@ -264,8 +330,15 @@ function addBackend(storage, label='', description='') {
     }
 
     Object.assign(backendObj, storage.case({
-      Web: () => ({ url: storage.url }),
-      IndexedDB: () => ({ dataset: emptyRawDataset() }),
+      Web: () => ({
+        url: storage.url,
+      }),
+      IndexedDB: () => ({
+        dataset: emptyRawDataset(),
+      }),
+      StaticFile: (id, file) => ({
+        file,
+      }),
       _: () => null,
     }))
 
@@ -275,6 +348,7 @@ function addBackend(storage, label='', description='') {
     const backend = Backend.BackendOf({
       storage: storage.case({
         IndexedDB: () => BackendStorage.IndexedDB(id),
+        StaticFile: () => BackendStorage.StaticFile(id, backendObj.file),
         _: () => storage,
       }),
 
@@ -391,6 +465,12 @@ function deleteBackend(storage) {
           .delete(),
 
       IndexedDB: id =>
+        db.localBackends
+          .where('id')
+          .equals(id)
+          .delete(),
+
+      StaticFile: id =>
         db.localBackends
           .where('id')
           .equals(id)

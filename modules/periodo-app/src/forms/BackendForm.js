@@ -3,7 +3,8 @@
 const React = require('react')
     , h = require('react-hyperscript')
     , { Flex, Box, Input, Label, Link, Select, Textarea } = require('periodo-ui')
-    , { Button$Primary, Button$Danger } = require('periodo-ui')
+    , { Button$Primary, Button$Danger, Alert$Error } = require('periodo-ui')
+    , { isDataset } = require('periodo-utils').dataset
 
 
 module.exports = class BackendForm extends React.Component {
@@ -28,19 +29,81 @@ module.exports = class BackendForm extends React.Component {
     }
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleFileChange = this.handleFileChange.bind(this);
     this.isValidState = this.isValidState.bind(this);
   }
 
   handleChange(e) {
     if (e.target.name === 'type') {
-      this.setState({ type: e.target.value });
+      this.setState({
+        file: null,
+        url: '',
+        label: '',
+        description: '',
+        type: e.target.value,
+      });
     } else {
       this.setState({ [e.target.name]: e.target.value });
     }
   }
 
+  async handleFileChange(e) {
+    const el = e.target
+        , file = el.files[0]
+
+    this.setState({
+      file: null,
+      fileError: null,
+    })
+
+    let text
+
+    try {
+      text = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+
+        reader.onload = () => {
+          resolve(reader.result)
+        }
+
+        reader.onerror = () => {
+          reject(reader.error)
+        }
+
+        reader.readAsText(file)
+      })
+    } catch (e) {
+      this.setState({ fileError: 'Could not read file' })
+      return
+    }
+
+    try {
+      const obj = JSON.parse(text)
+
+      if (!isDataset(obj)) {
+        throw new Error()
+      }
+    } catch (e) {
+      this.setState({ fileError: 'File is not a valid PeriodO dataset' })
+      return
+    }
+
+    this.setState(prev => {
+      const updated = { file }
+
+      if (!prev.label) {
+        prev.label = file.name
+      }
+
+      return {
+        ...prev,
+        ...updated,
+      }
+    })
+  }
+
   isValidState() {
-    const { type, label, url } = this.state
+    const { type, label, url, file } = this.state
 
     let isValid = !!type && !!label
 
@@ -48,12 +111,16 @@ module.exports = class BackendForm extends React.Component {
       isValid = isValid && !!url;
     }
 
+    if (type === 'StaticFile') {
+      isValid = isValid && !!file
+    }
+
     return isValid;
   }
 
   render() {
     const { handleSave, handleDelete } = this.props
-        , { label, description, url, type } = this.state
+        , { label, description, url, type, fileError } = this.state
 
     return (
       h(Box, { width: 400 }, [
@@ -70,10 +137,31 @@ module.exports = class BackendForm extends React.Component {
           }, [
             h('option', { value: 'IndexedDB' }, 'Local (editable)'),
             h('option', { value: 'Web' }, 'Web (read-only)'),
+            h('option', { value: 'StaticFile' }, 'File (read-only)'),
           ]),
         ]),
 
         h('div', [
+          type === 'StaticFile' && h(Label, {
+            mt: 3,
+            htmlFor: 'file',
+            isRequired: true,
+          }, 'File'),
+
+          type === 'StaticFile' && h(Box, [
+            h(Input, {
+              id: 'file',
+              name: 'file',
+              type: 'file',
+              disabled: !!this.editing,
+              onChange: this.handleFileChange,
+            }),
+
+            fileError && h(Alert$Error, { mt: 2 }, [
+              fileError,
+            ]),
+          ]),
+
           h(Label, {
             mt: 3,
             htmlFor: 'label',

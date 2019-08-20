@@ -10,7 +10,7 @@ const h = require('react-hyperscript')
     , LinkedDataAction = require('./linked-data/actions')
     , GraphsAction = require('./graphs/actions')
     , Type = require('union-type')
-    , { connect } = require('react-redux')
+    , { ReactReduxContext, connect } = require('react-redux')
     , { Box } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
@@ -29,9 +29,7 @@ async function throwIfUnsuccessful(promise) {
 }
 
 function hasEditableBackend({ params }) {
-  const storage = BackendStorage.fromIdentifier(params.backendID)
-
-  return storage.isEditable()
+  return params.backendID.startsWith('local-')
 }
 
 const Home = {
@@ -230,6 +228,28 @@ function withBackendContext(Component) {
   return connect(mapStateToProps)(BackendKnower)
 }
 
+function getCurrentBackendStorage(props) {
+  const { params, getState } = props
+
+  let storage
+
+  const backend = R.path([
+    'backends',
+    'available',
+    params.backendID,
+  ], getState())
+
+  if (backend) {
+    storage = backend.storage
+  }
+
+  if (!storage && params.backendID.startsWith('web-')) {
+    storage = BackendStorage.fromIdentifier(params.backendID)
+  }
+
+  return storage
+}
+
 const Backend = {
   label: 'Backend',
   parent: Home,
@@ -238,13 +258,17 @@ const Backend = {
       label: 'Browse',
       Component: require('./backends/components/BackendHome'),
       async loadData(props, log, finished) {
-        const { dispatch, storage } = props
+        const { dispatch, getState } = props
+            , storage = getCurrentBackendStorage(props)
 
         const gazetteers = log('Loading gazetteers', throwIfUnsuccessful(
           dispatch(GraphsAction.FetchGazetteers)))
 
-        const resp = await dispatch(BackendAction.GetBackendDataset(storage, false))
-        const { dataset } = resp.readyState.response
+        const dataset = R.path([
+          'backends',
+          'datasets',
+          storage.asIdentifier(),
+        ], getState())
 
         const sorts = log('Initializing sorts', Promise.all([
           dataset.cachedSort([], 'label'),
@@ -265,7 +289,8 @@ const Backend = {
       label: 'Changelog',
       Component: require('./backends/components/History'),
       async loadData(props, log, finished) {
-        const { dispatch, storage } = props
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
 
         await log('Loading backend history', throwIfUnsuccessful(
           dispatch(PatchAction.GetBackendHistory(storage))))
@@ -287,16 +312,12 @@ const Backend = {
       label: 'Patch requests',
       Component: require('./patches/OpenPatches'),
       showInMenu: ({ params }) => {
-        const storage = BackendStorage.fromIdentifier(params.backendID)
-
-        return storage.case({
-          Web: () => true,
-          _: () => false,
-        })
+        return params.backendID.startsWith('web-')
       },
 
       async loadData(props, log, finished) {
-        const { dispatch, storage } = props
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
 
         const resp = await log('Loading server patches',
           throwIfUnsuccessful(dispatch(PatchAction.GetPatchRequestList(storage))))
@@ -385,7 +406,8 @@ const Backend = {
     requireParam(params, 'backendID');
   },
   async loadData(props, log, finished) {
-    const { dispatch, storage } = props
+    const { dispatch } = props
+        , storage = getCurrentBackendStorage(props)
 
     await log('Loading backend', throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendDataset(storage, false))))
@@ -394,7 +416,6 @@ const Backend = {
   },
   mapStateToProps(state, props) {
     return {
-      storage: BackendStorage.fromIdentifier(props.params.backendID),
       backend: state.backends.available[props.params.backendID],
       dataset: state.backends.datasets[props.params.backendID],
     }
@@ -414,7 +435,8 @@ const ReviewPatch = {
     requireParam(params, 'patchURL')
   },
   async loadData(props, log, finished) {
-    const { dispatch, storage, params: { patchURL }} = props
+    const { dispatch, params: { patchURL }} = props
+        , storage = getCurrentBackendStorage(props)
 
     const { backend } = await log('Loading backend', throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendDataset(storage, false))))
@@ -425,7 +447,7 @@ const ReviewPatch = {
     finished()
   },
   mapStateToProps(state, props) {
-    const { storage } = props
+    const storage = getCurrentBackendStorage(props)
         , patchURL = new URL(decodeURIComponent(props.params.patchURL), storage.url).href
 
     const patch = R.path([
@@ -455,7 +477,8 @@ const BackendPatch = {
   },
 
   async loadData(props, log, finished) {
-    const { storage, dispatch, params } = props
+    const { dispatch, params } = props
+        , storage = getCurrentBackendStorage(props)
 
     await log('Loading backend history', throwIfUnsuccessful(
       dispatch(PatchAction.GetBackendHistory(storage))))
@@ -467,7 +490,8 @@ const BackendPatch = {
     finished()
   },
   mapStateToProps(state, props) {
-    const { storage, params: { patchID }} = props
+    const storage = getCurrentBackendStorage(props)
+        , { params: { patchID }} = props
 
     return {
       patch: R.path([
@@ -679,9 +703,26 @@ function registerGroups(groups) {
         finished()
       }
 
+      function withReduxState(Component) {
+        function ReduxStoreComponent(props) {
+          return (
+            h(ReactReduxContext.Consumer, {}, ({ store }) =>
+              h(Component, {
+                ...props,
+                getState: store.getState,
+                dispatch: store.dispatch,
+              })
+            )
+          )
+        }
+
+        return ReduxStoreComponent
+      }
+
       const OriginalComponent = R.pipe(
+        connect(resource.mapStateToProps),
         withLoadProgress(resource),
-        connect(resource.mapStateToProps)
+        withReduxState,
       )(resource.Component)
 
       resource.Component = R.flatten(aggregated.wrappers).reduce(

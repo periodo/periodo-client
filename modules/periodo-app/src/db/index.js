@@ -12,6 +12,7 @@ module.exports = function periodoDB(dexieOpts) {
   require('./version-02')(db)
   require('./version-03')(db)
   require('./version-04')(db)
+  require('./version-05')(db)
 
   db.on('populate', () => {
     if (globals.periodoServerURL) {
