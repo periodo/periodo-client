@@ -12,11 +12,17 @@ const AddBackend = props =>
     h(ResourceTitle, 'Add backend'),
     h(BackendForm, {
       handleSave: async state => {
-        const { label, description='', type } = state
+        const { label, description='', type, file } = state
 
-        const storage = type === 'Web'
-          ? BackendStorage.WebOf(state)
-          : BackendStorage.IndexedDB(null)
+        let storage
+
+        if (type === 'Web') {
+          storage = BackendStorage.WebOf(state)
+        } else if (type === 'IndexedDB') {
+          storage = BackendStorage.IndexedDB(null)
+        } else if (type === 'StaticFile') {
+          storage = BackendStorage.StaticFile(null, file)
+        }
 
         const resp = await props.dispatch(
           BackendAction.CreateBackend(storage, label, description))

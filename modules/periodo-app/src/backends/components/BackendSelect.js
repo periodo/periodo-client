@@ -46,6 +46,7 @@ module.exports = props =>
               IndexedDB: () => 'Local',
               Memory: () => 'Memory',
               Canonical: () => 'Web',
+              StaticFile: () => 'File',
             })),
             h('td', [
               h(Link, {

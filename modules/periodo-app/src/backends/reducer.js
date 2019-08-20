@@ -47,6 +47,10 @@ module.exports = function backends(state=initialState(), action) {
         )
       },
 
+      GetFileStorage() {
+        return state
+      },
+
       GetBackendDataset() {
         const { backend, dataset } = resp
 

@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { ORGShell, Route } = require('org-shell')
     , { Flex, Pre, Box, Grid, Heading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
-    , { Provider, connect } = require('react-redux')
+    , { Provider } = require('react-redux')
     , { ThemeProvider } = require('styled-components')
     , createStore = require('../store')
     , resources = require('../resources')
@@ -15,10 +15,8 @@ const h = require('react-hyperscript')
 
 require('./global_css')
 
-function getRouteGroups(resource, { params }) {
+function getRouteGroups(resource, props) {
   const hierarchy = resource.hierarchy || resources[''].hierarchy
-
-  const props = { params }
 
   try {
     return hierarchy.slice(0, -1).map(group => ({
@@ -27,7 +25,7 @@ function getRouteGroups(resource, { params }) {
         (acc, [ routeName, resource ]) =>
           (resource.showInMenu || R.T)(props)
             ? [ ...acc, {
-              route: new Route(routeName, params),
+              route: new Route(routeName, props.params),
               label: resource.label,
             }]
             : acc
@@ -104,8 +102,6 @@ class Menu extends React.Component {
   }
 }
 
-const WrappedMenu = connect(state => ({ storeState: state }))(Menu)
-
 class MenuedResource extends React.Component{
   constructor() {
     super();
@@ -120,7 +116,7 @@ class MenuedResource extends React.Component{
 
     return (
       h(Box, [
-        h(WrappedMenu, {
+        h(Menu, {
           loading: this.props.loading,
           activeResource: this.props.activeResource,
           params: this.props.params,
