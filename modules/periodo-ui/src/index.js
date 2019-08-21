@@ -37,4 +37,5 @@ addUIModules([
   require('./LabeledMap'),
   require('./PlaceSuggest'),
   require('./PlacesSelect'),
+  require('./diffable/Value'),
 ])

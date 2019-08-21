@@ -512,6 +512,33 @@ const Authority = {
     'authority-view': {
       label: 'View',
       Component: require('./backends/components/Authority'),
+      async loadData(props, log, finished) {
+        const { dispatch, getState } = props
+            , storage = getCurrentBackendStorage(props)
+
+        const gazetteers = log('Loading gazetteers', throwIfUnsuccessful(
+          dispatch(GraphsAction.FetchGazetteers)))
+
+        const dataset = R.path([
+          'backends',
+          'datasets',
+          storage.asIdentifier(),
+        ], getState())
+
+        const sorts = log('Initializing sorts', Promise.all([
+          dataset.cachedSort([], 'label'),
+          dataset.cachedSort([], 'start'),
+        ]))
+
+        await Promise.all([ gazetteers, sorts ])
+
+        finished()
+      },
+      mapStateToProps(state) {
+        return {
+          gazetteers: state.graphs.gazetteers,
+        }
+      },
     },
 
     'authority-edit': {

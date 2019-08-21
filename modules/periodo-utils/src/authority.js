@@ -28,8 +28,9 @@ function describe(authority) {
     id: authority.id,
     source: displayTitle(authority),
     periods: periods.length,
-    earliest: terminusList.minYear(R.map(R.path(['start']))(periods)),
-    latest: terminusList.maxYear(R.map(R.path(['stop']))(periods)),
+    earliest: terminusList.minYear(R.map(R.path([ 'start' ]))(periods)),
+    latest: terminusList.maxYear(R.map(R.path([ 'stop' ]))(periods)),
+    editorialNote: authority.editorialNote || '',
   }
 }
 
@@ -50,7 +51,7 @@ function asCSV(authority) {
       'latest_stop': getLatestYear(stop),
       'spatialCoverages': (period.spatialCoverage || []).map(sc => sc.id).join('|'),
       'note': period.get('note'),
-      'editorial_note': period.get('editorialNote')
+      'editorial_note': period.get('editorialNote'),
     }
   }))
 }
