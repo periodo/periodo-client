@@ -121,7 +121,11 @@ module.exports = class AuthorityLayout extends React.Component {
         }),
       ]),
 
-      h(Text, { mb: 3 },
+      h(Text,
+        {
+          mb: 3,
+          maxWidth: '60em',
+        },
         h(LinkifiedTextValue, {
           value: { text: description.editorialNote },
         })
