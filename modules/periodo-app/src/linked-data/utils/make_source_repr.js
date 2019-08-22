@@ -19,6 +19,7 @@ const sourceFields = {
   creators: [
     expand('dc:creator'),
     expand('schema:creator'),
+    expand('schema:author'),
   ],
   contributors: [
     expand('dc:contributor'),
