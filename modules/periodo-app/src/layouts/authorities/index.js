@@ -7,9 +7,15 @@ const h = require('react-hyperscript')
     , { Navigable } = require('org-shell')
     , blocks = require('./blocks')
 
-module.exports = Navigable((props) => {
-  const [ hoveredPeriod, setHoveredPeriod ] = useState(null)
-      , [ selectedPeriod, setSelectedPeriod ] = useState(null)
+module.exports = Navigable(({ fixedPeriod, ...props }) => {
+
+  const [ hoveredPeriod, setHoveredPeriod ] = fixedPeriod
+    ? [ null, () => {} ]
+    : useState(null)
+
+  const [ selectedPeriod, setSelectedPeriod ] = fixedPeriod
+    ? [ fixedPeriod, () => {} ]
+    : useState(null)
 
   const data = props.useAuthorities
     ? props.dataset.authorities
@@ -29,6 +35,7 @@ module.exports = Navigable((props) => {
         setHoveredPeriod,
         selectedPeriod,
         setSelectedPeriod,
+        fixedPeriod,
       },
     }))
   )

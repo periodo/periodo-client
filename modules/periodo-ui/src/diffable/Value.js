@@ -12,7 +12,6 @@ const h = require('react-hyperscript')
     , { BackendContext } = require('../BackendContext')
     , { useContext } = require('react')
     , linkifier = require('linkify-it')()
-    , { permalinkURL } = require('../../../periodo-app/src/globals')
     , util = require('periodo-utils')
     , styled = require('styled-components').default
 
@@ -114,10 +113,12 @@ function LinkValue(props) {
 function PermalinkValue(props) {
   const { value } = props
 
-  if (value.startsWith('p0')) {
+  const permalink = util.permalink({ id: value })
+
+  if (permalink) {
     const childProps = {
       ...props,
-      value: `${ permalinkURL }${ value }`,
+      value: permalink,
     }
 
     return LinkValue(childProps)
@@ -140,6 +141,22 @@ function RelatedPeriodValue(props) {
 
   return (
     h(Link, childProps, period.label)
+  )
+}
+
+function RelatedAuthorityValue(props) {
+  const { value: authority } = props
+      , { backend } = useContext(BackendContext)
+
+  const childProps = {
+    route: Route('authority-view', {
+      backendID: backend.asIdentifier(),
+      authorityID: authority.id,
+    }),
+  }
+
+  return (
+    h(Link, childProps, util.authority.displayTitle(authority))
   )
 }
 
@@ -349,4 +366,5 @@ module.exports = {
   SpatialExtentValue,
   JSONLDContextValue,
   RelatedPeriodValue,
+  RelatedAuthorityValue,
 }
