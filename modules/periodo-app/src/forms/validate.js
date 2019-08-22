@@ -20,6 +20,11 @@ const VALID_AUTHORITY_FIELDS = [
   'editorialNote',
 ]
 
+const VALID_AUTHORITY_SOURCE_AGENT_FIELDS = [
+  'contributors',
+  'creators',
+]
+
 function validateAuthority(authority) {
   let errors = {}
 
@@ -47,6 +52,22 @@ function validateAuthority(authority) {
         cleanedAuthority[field] = val
       }
     })
+
+    const isLD = 'id' in cleanedAuthority.source
+
+    if (!isLD) {
+      VALID_AUTHORITY_SOURCE_AGENT_FIELDS.forEach(field => {
+        const val = cleanedAuthority.source[field]
+
+        if (val) {
+          cleanedAuthority.source[field] = val.filter(agent => {
+            const { name } = (agent || {})
+
+            return name && name.trim().length > 0
+          })
+        }
+      })
+    }
 
     return Result.Ok(cleanedAuthority)
 
