@@ -32,6 +32,12 @@ function intersection(...sets) {
 
 
 const aspects = {
+  authority: {
+    label: 'Authority',
+    getter: period => authorityOf(period).id,
+    render: identityWithDefault('(no value)'),
+  },
+
   language: {
     label: 'Language',
     getter: period => languageDescription(period.languageTag),
@@ -41,12 +47,6 @@ const aspects = {
   spatialCoverage: {
     label: 'Spatial coverage',
     getter: period => period.spatialCoverageDescription || null,
-    render: identityWithDefault('(no value)'),
-  },
-
-  authority: {
-    label: 'Authority',
-    getter: period => authorityOf(period).id,
     render: identityWithDefault('(no value)'),
   },
 }
@@ -93,7 +93,13 @@ class AspectTable extends React.Component {
         , render = aspect.render || R.identity
         , height = parseInt(opts.height || '256')
 
+    const hidden = new Set(opts.hidden|| [])
     const selected = new Set(R.path([ 'selected', aspectID ], opts) || [])
+    const flexBasis = R.path([ 'flexBasis', aspectID ], opts) || '0%'
+
+    if (hidden.has(aspectID)) {
+      return null
+    }
 
     const selectedRows = []
         , unselectedRows = []
@@ -144,6 +150,7 @@ class AspectTable extends React.Component {
       h(Flex, {
         style: {
           flex: 1,
+          flexBasis,
         },
         flexDirection: 'column',
         border: 1,

@@ -399,7 +399,7 @@ class PeriodList extends React.Component {
 }
 
 PeriodList.defaultProps = {
-  sortBy: 'label',
+  sortBy: 'start',
   sortDirection: 'asc',
 }
 

@@ -70,7 +70,15 @@ module.exports = class BackendHome extends React.Component {
       // layout: defaultLayout,
       // editingLayout: defaultLayout,
       // showEdit: false,
-      blockOpts: this.props.opts.Layout || {},
+      blockOpts: this.props.opts.Layout || {
+        Facets: {
+          flexBasis: {
+            authority: '50%',
+            language: '25%',
+            spatialCoverage: '25%',
+          },
+        },
+      },
     }
 
     this.persistBlockOpts = debounce(this.persistBlockOpts.bind(this), 50)
