@@ -272,19 +272,18 @@ class PeriodList extends React.Component {
         , column = columns[sortBy]
 
     if (column) {
+      let sortedData = null
+
       if (column.sort) {
-        const sortedData = await column.sort(data, this.props)
-        this.setState({
-          sortedData,
-          start: 0,
-        })
+        sortedData = await column.sort(data, this.props)
+
       } else {
         const sorter = natsort({
           insensitive: true,
           desc: sortDirection === 'desc',
         })
 
-        const sortedData = [ ...data ].sort((a, b) => {
+        sortedData = [ ...data ].sort((a, b) => {
           const [ _a, _b ] = [ a, b ].map(column.getValue)
 
           if (_a == null) return 1
@@ -292,11 +291,17 @@ class PeriodList extends React.Component {
 
           return sorter(_a, _b)
         })
+      }
 
-        this.setState({
-          sortedData,
-          start: 0,
-        })
+      this.setState({
+        sortedData,
+        start: 0,
+      })
+
+      if (this.props.fixedPeriod && this.listRef.current) {
+        this.listRef.current.scrollToItem(
+          sortedData.findIndex(({ id }) => id === this.props.fixedPeriod.id) + 4
+        )
       }
     }
   }

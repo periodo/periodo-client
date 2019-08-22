@@ -9,7 +9,10 @@ function originalLabel(period) {
 
   if (!label || !languageTag) return null;
 
-  return { label, languageTag }
+  return {
+    label,
+    languageTag,
+  }
 }
 
 const allLabels = period =>
@@ -18,14 +21,17 @@ const allLabels = period =>
     R.pipe(
       R.propOr({}, 'localizedLabels'),
       R.mapObjIndexed((labels, languageTag) =>
-        labels.map(label => ({ label, languageTag }))),
+        labels.map(label => ({
+          label,
+          languageTag,
+        }))),
       R.values,
       R.unnest
     )(period)
   )
 
 function alternateLabels(period) {
-  return R.without([originalLabel(period)], allLabels(period))
+  return R.without([ originalLabel(period) ], allLabels(period))
 }
 
 function authorityOf(period) {
@@ -34,7 +40,7 @@ function authorityOf(period) {
 
 function periodWithAuthority(period) {
   return {
-    period: R.path([$$Authority, 'periods', period.id], period),
+    period: R.path([ $$Authority, 'periods', period.id ], period),
     authority: authorityOf(period),
   }
 }

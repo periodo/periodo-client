@@ -113,7 +113,7 @@ module.exports = class AuthorityLayout extends React.Component {
         h(Span, {
           fontSize: 3,
           color: 'gray.6',
-        }, 'Permalink: '),
+        }, 'Permalink '),
 
         h(PermalinkValue, {
           value: description.id,
