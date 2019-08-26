@@ -28,7 +28,10 @@ class Search extends React.Component {
       nextOpts.withAlternate = undefined
     }
 
-    const invalidate = !!opts.withAlternate !== !!nextOpts.withAlternate
+    const invalidate = (
+      !!opts.text &&
+      !!opts.withAlternate !== !!nextOpts.withAlternate
+    )
 
     updateOpts(nextOpts, invalidate)
   }
