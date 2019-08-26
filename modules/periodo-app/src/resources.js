@@ -288,6 +288,13 @@ const Backend = {
     'backend-history': {
       label: 'Changelog',
       Component: require('./backends/components/History'),
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
+
       async loadData(props, log, finished) {
         const { dispatch } = props
             , storage = getCurrentBackendStorage(props)
@@ -337,7 +344,7 @@ const Backend = {
       },
 
       mapStateToProps: (state, ownProps) => {
-        const { storage } = ownProps
+        const storage = getCurrentBackendStorage(ownProps)
             , { nameByORCID } = state.linkedData
 
         const patchRequests = R.path([
@@ -560,6 +567,12 @@ const Authority = {
 
     'authority-history': {
       label: 'History',
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
       Component: () => h('h1', 'History'),
     },
   },
@@ -604,6 +617,12 @@ const Period = {
 
     'period-history': {
       label: 'History',
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
       Component: () => h('h1', 'History'),
     },
   },
