@@ -115,7 +115,7 @@ module.exports = class BackendHome extends React.Component {
             fontSize: 4,
             color: 'gray.8',
             textAlign: 'center',
-          }, 'No periods in backend')
+          }, 'No periods in data source')
         )
         : (
           h(AuthorityLayoutRenderer, {

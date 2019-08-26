@@ -134,7 +134,7 @@ module.exports = function Settings(props) {
         h(Heading, {
           level: 3,
           mb: 1,
-        }, 'Local data'),
+        }, 'In-browser data'),
 
         h(Button$Default, {
           mr: 2,
@@ -146,7 +146,7 @@ module.exports = function Settings(props) {
 
         h(Button$Danger, {
           onClick: async () => {
-            if (confirm('Continue deleting all backends? Local data will not be able to be recovered.')) {
+            if (confirm('Continue deleting all data sources? In-browser data is only stored on your own computer and will not be able to be recovered.')) {
               await dispatch(BackendAction.DeleteAllBackends);
               window.location.reload()
             }

@@ -176,7 +176,7 @@ function getFileStorage(id) {
     try {
       obj = await db.fileBackends.get(parseInt(id))
     } catch (e) {
-      throw new Error(`No file backend with id ${id}`);
+      throw new Error(`No file data source with id ${id}`);
     }
 
     const storage = BackendStorage.StaticFile(parseInt(id), obj.file)
@@ -210,7 +210,7 @@ function fetchBackend(storage, forceReload) {
           .modify({ accessed: new Date() })
 
         if (ct != 1) {
-          throw new Error(`No local backend with id ${id}`);
+          throw new Error(`No in-browser data source with id ${id}`);
         }
 
         const backend = await db.localBackends.get(id)
@@ -250,7 +250,7 @@ function fetchBackend(storage, forceReload) {
           .modify({ accessed: new Date() })
 
         if (ct != 1) {
-          throw new Error(`No local backend with id ${id}`);
+          throw new Error(`No file data source with id ${id}`);
         }
 
         const backend = await db.fileBackends.get(id)
@@ -303,14 +303,14 @@ function addBackend(storage, label='', description='') {
       Web: () => db.remoteBackends,
       IndexedDB: id => {
         if (id !== null) {
-          throw new Error('Cannot create backend with existing IndexedDB.')
+          throw new Error('Cannot create data source with existing IndexedDB.')
         }
 
         return db.localBackends
       },
       StaticFile: id => {
         if (id !== null) {
-          throw new Error('Cannot create backend with existing IndexedDB.')
+          throw new Error('Cannot create data source with existing file.')
         }
 
         return db.fileBackends
@@ -408,7 +408,7 @@ function updateLocalDataset(storage, newRawDataset, message) {
   storage.case({
     IndexedDB: () => null,
     _: () => {
-      throw new Error('Only indexedDB backends can be updated');
+      throw new Error('Only in-browser data sources can be updated');
     },
   })
 
@@ -496,7 +496,7 @@ function addOrcidCredential(storage, token, name) {
     storage.case({
       Web: () => null,
       _: () => {
-        throw new Error('Only Web backends contain ORCID credentials')
+        throw new Error('Only Web data sources contain ORCID credentials')
       },
     })
 

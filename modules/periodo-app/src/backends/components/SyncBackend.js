@@ -87,11 +87,11 @@ class SyncBackend extends React.Component {
     } else {
       child = (
         h(Box, [
-          h(Text, { mb: 3 }, 'Select a backend to sync changes from it'),
+          h(Text, { mb: 3 }, 'Select a data source to sync changes from it'),
 
           h(BackendSelector, {
             value: selectedBackend,
-            label: 'Available backends',
+            label: 'Available data sources',
             backends: Object.values(backends).filter(b => b !== this.props.backend),
             onChange: val => {
               this.setState({
@@ -108,7 +108,7 @@ class SyncBackend extends React.Component {
         h(Heading, {
           level: 2,
           mb: 3,
-        }, 'Sync backend'),
+        }, 'Sync data source'),
         child,
       ])
     )
