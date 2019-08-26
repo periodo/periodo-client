@@ -3,11 +3,11 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Tabs, Box } = require('periodo-ui')
+    , { Box, ResourceTitle } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
 
-const periodLayout = `
+const layout = `
 grid-template-columns = repeat(6, 1fr)
 grid-template-rows = repeat(6, auto)
 grid-gap = 1em 1.66em
@@ -56,11 +56,6 @@ grid-column = 4/7
 grid-row = 6/7
 `
 
-const authorityLayout = `
-[AuthorityList]
-type = authority-list
-`
-
 
 module.exports = class BackendHome extends React.Component {
   constructor(props) {
@@ -94,8 +89,7 @@ module.exports = class BackendHome extends React.Component {
   }
 
   render() {
-    const { backend, dataset, updateOpts, gazetteers } = this.props
-        , { Tab='Periods' } = this.props.opts
+    const { backend, dataset, gazetteers } = this.props
         , { blockOpts } = this.state
 
     const childProps = {
@@ -108,103 +102,76 @@ module.exports = class BackendHome extends React.Component {
       },
     }
 
-    const renderPeriodTab = () => (
-      dataset.periods.length === 0
-        ? (
-          h(Box, {
-            fontSize: 4,
-            color: 'gray.8',
-            textAlign: 'center',
-          }, 'No periods in data source')
-        )
-        : (
-          h(AuthorityLayoutRenderer, {
-            ...childProps,
-            layout: periodLayout,
-          }))
-    )
-
-    const renderAuthorityTab = () => h(AuthorityLayoutRenderer, {
-      ...childProps,
-      useAuthorities: true,
-      layout: authorityLayout,
-    })
-
     return (
       h(Box, [
-        /*
-        h(Flex, {
-          justifyContent: 'space-around',
-          pb: 2,
-        }, [
-          h(Text, { mx: 1 }, [
-            'Created: ' + new Date(backend.metadata.created).toLocaleString(),
-          ]),
-
-          h(Text, { mx: 1 }, [
-            'Last modified: ' + new Date(backend.metadata.modified).toLocaleString(),
-          ]),
-
-          h(Text, { mx: 1 }, [
-            'Last accessed: ' + new Date(backend.metadata.accessed).toLocaleString(),
-          ]),
-        ]),
-
-        h(Flex, [
-          h(Text, { mx: 1 }, [
-            h('button', {
-              onClick: () => this.setState(prev => ({ showEdit: !prev.showEdit })),
-            }, 'Edit layout'),
-          ]),
-
-          h(Text, { mx: 1 }, [
-            h('button', {
-              onClick: () => updateOpts(R.dissoc('Layout'))
-            }, 'Reset layout'),
-          ]),
-        ]),
-
-        this.state.showEdit && h(Box, { pt: 2 }, [
-          h(LayoutEditor, {
-            blocks,
-            value: this.state.editingLayout,
-            onChange: e => this.setState({ editingLayout: e.target.value }),
-          }),
-
-          h(Box, { pt: 2 }, [
-            h('button', {
-              disabled: this.state.layout === this.state.editingLayout,
-              onClick: () => this.setState({ layout: this.state.editingLayout })
-            }, 'Update')
-          ]),
-        ]),
-
-        h(Box, {
-          is: 'hr',
-          mt: 2,
-        }),
-        */
-
-        h(Tabs, {
-          pt: 2,
-          value: Tab,
-          onChange: val => {
-            updateOpts(R.assoc('Tab', val))
-          },
-          tabs: [
-            {
-              id: 'Periods',
-              label: 'Periods',
-              renderTab: renderPeriodTab,
-            },
-            {
-              id: 'Authorities',
-              label: 'Authorities',
-              renderTab: renderAuthorityTab,
-            },
-          ],
-        }),
+        h(ResourceTitle, 'Browse data source'),
+        dataset.periods.length === 0
+          ? (
+            h(Box, {
+              fontSize: 4,
+              color: 'gray.8',
+              textAlign: 'center',
+            }, 'No periods in data source')
+          )
+          : (
+            h(AuthorityLayoutRenderer, {
+              ...childProps,
+              layout,
+            })),
       ])
     )
   }
 }
+
+/*
+h(Flex, {
+  justifyContent: 'space-around',
+  pb: 2,
+}, [
+  h(Text, { mx: 1 }, [
+    'Created: ' + new Date(backend.metadata.created).toLocaleString(),
+  ]),
+
+  h(Text, { mx: 1 }, [
+    'Last modified: ' + new Date(backend.metadata.modified).toLocaleString(),
+  ]),
+
+  h(Text, { mx: 1 }, [
+    'Last accessed: ' + new Date(backend.metadata.accessed).toLocaleString(),
+  ]),
+]),
+
+h(Flex, [
+  h(Text, { mx: 1 }, [
+    h('button', {
+      onClick: () => this.setState(prev => ({ showEdit: !prev.showEdit })),
+    }, 'Edit layout'),
+  ]),
+
+  h(Text, { mx: 1 }, [
+    h('button', {
+      onClick: () => updateOpts(R.dissoc('Layout'))
+    }, 'Reset layout'),
+  ]),
+]),
+
+this.state.showEdit && h(Box, { pt: 2 }, [
+  h(LayoutEditor, {
+    blocks,
+    value: this.state.editingLayout,
+    onChange: e => this.setState({ editingLayout: e.target.value }),
+  }),
+
+  h(Box, { pt: 2 }, [
+    h('button', {
+      disabled: this.state.layout === this.state.editingLayout,
+      onClick: () => this.setState({ layout: this.state.editingLayout })
+    }, 'Update')
+  ]),
+]),
+
+h(Box, {
+  is: 'hr',
+  mt: 2,
+}),
+*/
