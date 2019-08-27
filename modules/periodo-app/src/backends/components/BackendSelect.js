@@ -27,7 +27,7 @@ const Table = Box.withComponent('table').extend`
 
 module.exports = props =>
   h(Box, [
-    h(ResourceTitle, 'Select backend'),
+    h(ResourceTitle, 'Select data source'),
     h(Table, { mb: 3 }, [
       h('thead', [
         h('tr', [
@@ -43,7 +43,7 @@ module.exports = props =>
           h('tr', { key: backend.storage.url || backend.storage.id }, [
             h('td', backend.storage.case({
               Web: () => 'Web',
-              IndexedDB: () => 'Local',
+              IndexedDB: () => 'In-browser',
               Memory: () => 'Memory',
               Canonical: () => 'Web',
               StaticFile: () => 'File',
@@ -65,7 +65,7 @@ module.exports = props =>
               py: 2,
               fontSize: 2,
               color: 'gray.7',
-            }, 'No backends currently defined. Add one below.'),
+            }, 'No data sources currently defined. Add one below.'),
           ]),
         ])
       ),

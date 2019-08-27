@@ -9,7 +9,7 @@ const h = require('react-hyperscript')
 
 const AddBackend = props =>
   h(Box, [
-    h(ResourceTitle, 'Add backend'),
+    h(ResourceTitle, 'Add data source'),
     h(BackendForm, {
       handleSave: async state => {
         const { label, description='', type, file } = state
@@ -31,7 +31,7 @@ const AddBackend = props =>
           resp,
           props.onSave || (() => null),
           err => {
-            alert('Error saving backend');
+            alert('Error saving data source');
             // eslint-disable-next-line no-console
             console.error(err);
           }

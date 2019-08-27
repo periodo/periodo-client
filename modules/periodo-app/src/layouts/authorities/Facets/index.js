@@ -9,6 +9,7 @@ const h = require('react-hyperscript')
     , { period: { authorityOf }} = require('periodo-utils')
     , work = require('webworkify')
     , { shallowEqualObjects } = require('shallow-equal')
+    , styled = require('styled-components').default
 
 const languageDescription = R.memoize(tag => {
   const language = tags(tag || '').language()
@@ -34,18 +35,21 @@ function intersection(...sets) {
 const aspects = {
   authority: {
     label: 'Authority',
+    flexBasis: 'calc(50% + .66em)',
     getter: period => authorityOf(period).id,
     render: identityWithDefault('(no value)'),
   },
 
   language: {
     label: 'Language',
+    flexBasis: '25%',
     getter: period => languageDescription(period.languageTag),
     render: identityWithDefault('(no value)'),
   },
 
   spatialCoverage: {
     label: 'Spatial coverage',
+    flexBasis: '25%',
     getter: period => period.spatialCoverageDescription || null,
     render: identityWithDefault('(no value)'),
   },
@@ -76,6 +80,12 @@ function withValue(val, set) {
   return newSet;
 }
 
+const AspectContainer = styled(Flex)`
+&:not(:last-of-type) {
+  margin-right: 1.66em;
+}
+`
+
 class AspectTable extends React.Component {
   constructor() {
     super()
@@ -89,13 +99,11 @@ class AspectTable extends React.Component {
 
   render() {
     const { aspect, aspectID, opts, updateOpts, counts } = this.props
-        , { label } = aspect
+        , { label, flexBasis } = aspect
         , render = aspect.render || R.identity
         , height = parseInt(opts.height || '256')
-
-    const hidden = new Set(opts.hidden|| [])
-    const selected = new Set(R.path([ 'selected', aspectID ], opts) || [])
-    const flexBasis = R.path([ 'flexBasis', aspectID ], opts) || '0%'
+        , hidden = new Set(opts.hidden|| [])
+        , selected = new Set(R.path([ 'selected', aspectID ], opts) || [])
 
     if (hidden.has(aspectID)) {
       return null
@@ -147,7 +155,7 @@ class AspectTable extends React.Component {
     }
 
     return (
-      h(Flex, {
+      h(AspectContainer, {
         style: {
           flex: 1,
           flexBasis,

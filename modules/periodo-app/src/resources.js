@@ -47,7 +47,7 @@ const Home = {
     },
     */
     'open-backend': {
-      label: 'Open backend',
+      label: 'Data sources',
       Component: require('./backends/components/BackendSelect'),
       mapStateToProps: state => ({
         backends: R.pipe(
@@ -65,7 +65,7 @@ const Home = {
   async loadData(props, log, finished) {
     const { dispatch } = props
 
-    await log('Loading backend list', throwIfUnsuccessful(
+    await log('Loading data source list', throwIfUnsuccessful(
       dispatch(BackendAction.GetAllBackends)))
 
     finished()
@@ -251,7 +251,7 @@ function getCurrentBackendStorage(props) {
 }
 
 const Backend = {
-  label: 'Backend',
+  label: 'Data source',
   parent: Home,
   resources: {
     'backend-home': {
@@ -288,11 +288,18 @@ const Backend = {
     'backend-history': {
       label: 'Changelog',
       Component: require('./backends/components/History'),
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
+
       async loadData(props, log, finished) {
         const { dispatch } = props
             , storage = getCurrentBackendStorage(props)
 
-        await log('Loading backend history', throwIfUnsuccessful(
+        await log('Loading data source history', throwIfUnsuccessful(
           dispatch(PatchAction.GetBackendHistory(storage))))
 
         finished()
@@ -337,7 +344,7 @@ const Backend = {
       },
 
       mapStateToProps: (state, ownProps) => {
-        const { storage } = ownProps
+        const storage = getCurrentBackendStorage(ownProps)
             , { nameByORCID } = state.linkedData
 
         const patchRequests = R.path([
@@ -409,7 +416,7 @@ const Backend = {
     const { dispatch } = props
         , storage = getCurrentBackendStorage(props)
 
-    await log('Loading backend', throwIfUnsuccessful(
+    await log('Loading data source', throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendDataset(storage, false))))
 
     finished()
@@ -438,7 +445,7 @@ const ReviewPatch = {
     const { dispatch, params: { patchURL }} = props
         , storage = getCurrentBackendStorage(props)
 
-    const { backend } = await log('Loading backend', throwIfUnsuccessful(
+    const { backend } = await log('Loading data source', throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendDataset(storage, false))))
 
     await log('Loading patch', throwIfUnsuccessful(
@@ -480,7 +487,7 @@ const BackendPatch = {
     const { dispatch, params } = props
         , storage = getCurrentBackendStorage(props)
 
-    await log('Loading backend history', throwIfUnsuccessful(
+    await log('Loading data source history', throwIfUnsuccessful(
       dispatch(PatchAction.GetBackendHistory(storage))))
 
 
@@ -560,6 +567,12 @@ const Authority = {
 
     'authority-history': {
       label: 'History',
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
       Component: () => h('h1', 'History'),
     },
   },
@@ -604,6 +617,12 @@ const Period = {
 
     'period-history': {
       label: 'History',
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
       Component: () => h('h1', 'History'),
     },
   },

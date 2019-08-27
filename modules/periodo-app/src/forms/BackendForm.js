@@ -135,7 +135,7 @@ module.exports = class BackendForm extends React.Component {
             value: type,
             onChange: this.handleChange,
           }, [
-            h('option', { value: 'IndexedDB' }, 'Local (editable)'),
+            h('option', { value: 'IndexedDB' }, 'In-browser (editable)'),
             h('option', { value: 'Web' }, 'Web (read-only)'),
             h('option', { value: 'StaticFile' }, 'File (read-only)'),
           ]),

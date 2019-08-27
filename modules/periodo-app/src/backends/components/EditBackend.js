@@ -20,12 +20,12 @@ module.exports = Navigable((props) => {
         h(Heading, {
           level: 2,
           mb: 2,
-        }, 'Backend details'),
+        }, 'Data source configuration'),
 
         h(BackendForm, {
           backend: props.backend,
           handleDelete: async () => {
-            if (!confirm('Really delete backend?')) return
+            if (!confirm('Really delete data source?')) return
 
             const resp = await props.dispatch(BackendAction.DeleteBackend(props.backend.storage))
 
@@ -33,7 +33,7 @@ module.exports = Navigable((props) => {
               resp,
               () => { props.navigateTo(Route('open-backend')) },
               err => {
-                alert('Error deleting backend');
+                alert('Error deleting data source');
                 // eslint-disable-next-line no-console
                 console.error(err);
               }
@@ -51,7 +51,7 @@ module.exports = Navigable((props) => {
                 backendID: props.backend.asIdentifier(),
               })),
               err => {
-                alert('Error saving backend');
+                alert('Error saving data source');
                 // eslint-disable-next-line no-console
                 console.error(err);
               }

@@ -105,7 +105,7 @@ class SubmitPatch extends React.Component {
       ])
     } else if (webBackends.length === 0) {
       child = h(InfoText, [
-        'In order to submit a patch to a Web server, you must create a Web backend',
+        'In order to submit a patch to a Web server, you must create a Web data source',
       ])
     } else {
       const { selectedWebBackendID } = this.state
@@ -141,7 +141,7 @@ class SubmitPatch extends React.Component {
 
         h(BackendSelector, {
           value: selectedWebBackend,
-          label: 'Available Web backends',
+          label: 'Available Web data sources',
           backends: webBackends,
           onChange: val => {
             this.setState({

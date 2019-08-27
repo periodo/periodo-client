@@ -10,7 +10,7 @@ const test = require('blue-tape')
     , reducer = require('../reducer')
     , { Backend, BackendMetadata, BackendStorage } = require('../types')
 
-test('Listing backends', async t => {
+test('Listing data sources', async t => {
   const store = makeMockStore()
 
   const action = BackendAction.GetAllBackends
@@ -29,12 +29,12 @@ test('Listing backends', async t => {
   );
 })
 
-test('Adding local backends', async t => {
+test('Adding in-browser data sources', async t => {
   const store = makeMockStore()
 
   const actionType = BackendAction.CreateBackend(
     BackendStorage.IndexedDB(null),
-    'test backend',
+    'test data source',
     ''
   )
 
@@ -50,7 +50,7 @@ test('Adding local backends', async t => {
       backend: Backend.BackendOf({
         storage: BackendStorage.IndexedDB(id),
         metadata: BackendMetadata.BackendMetadataOf({
-          label: 'test backend',
+          label: 'test data source',
           description: '',
           created: timestamp,
           modified: timestamp,
@@ -58,21 +58,21 @@ test('Adding local backends', async t => {
         }),
       }),
     })),
-  }, 'should allow adding backends')
+  }, 'should allow adding data sources')
 
   await store.dispatch(BackendAction.GetAllBackends)
 
   t.equal(4, store.getActions().length);
-  t.equal(1, getResponse(store.getActions()[3]).backends.length, 'should list 1 available backend after adding');
+  t.equal(1, getResponse(store.getActions()[3]).backends.length, 'should list 1 available data source after adding');
 
 });
 
-test('Adding Web backends', async t => {
+test('Adding Web data sources', async t => {
   const store = makeMockStore()
 
   const actionType = BackendAction.CreateBackend(
     BackendStorage.Web('http://example.com/'),
-    'test backend',
+    'test data source',
     'Example PeriodO server'
   )
 
@@ -87,7 +87,7 @@ test('Adding Web backends', async t => {
       backend: Backend.BackendOf({
         storage: BackendStorage.Web('http://example.com/'),
         metadata: BackendMetadata.BackendMetadataOf({
-          label: 'test backend',
+          label: 'test data source',
           description: 'Example PeriodO server',
           created: timestamp,
           modified: timestamp,
@@ -95,21 +95,21 @@ test('Adding Web backends', async t => {
         }),
       }),
     })),
-  }, 'should allow adding Web backends')
+  }, 'should allow adding Web data sources')
 
   await store.dispatch(BackendAction.GetAllBackends)
 
-  t.equal(1, getResponse(store.getActions()[3]).backends.length, 'should list 1 available backend after adding');
+  t.equal(1, getResponse(store.getActions()[3]).backends.length, 'should list 1 available data source after adding');
 })
 
-test('Updating backends', async t => {
+test('Updating data sources', async t => {
   const store = makeMockStore()
 
   store.replaceReducer(reducer);
 
   const actionType = BackendAction.CreateBackend(
     BackendStorage.IndexedDB(null),
-    'test backend',
+    'test data source',
     ''
   )
 
@@ -158,6 +158,6 @@ test('Updating backends', async t => {
   t.deepEqual(
     getResponse(R.last(store.getActions())),
     actionType2.responseOf({ backends: []}),
-    'should list 0 available backends after deleting'
+    'should list 0 available data sources after deleting'
   );
 });
