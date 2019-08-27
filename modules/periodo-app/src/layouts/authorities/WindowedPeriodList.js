@@ -11,6 +11,16 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
 
 const columns = {
+  label: {
+    label: 'Label',
+    sort: (periods, { dataset, sortDirection }) => {
+      return dataset.cachedSort(periods, 'label', sortDirection === "desc")
+    },
+    getValue(period) {
+      return period.label
+    },
+  },
+
   start: {
     label: 'Start',
     width: '100px',
@@ -35,16 +45,6 @@ const columns = {
 
     getValue(period) {
       return period.stop.label
-    },
-  },
-
-  label: {
-    label: 'Label',
-    sort: (periods, { dataset, sortDirection }) => {
-      return dataset.cachedSort(periods, 'label', sortDirection === "desc")
-    },
-    getValue(period) {
-      return period.label
     },
   },
 
