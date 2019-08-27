@@ -127,6 +127,30 @@ function PermalinkValue(props) {
   }
 }
 
+function DownloadValue(props) {
+  const { value } = props
+
+  const permalink = util.permalink({ id: value })
+
+  if (permalink) {
+    return h(Span, props,
+      R.intersperse(', ', [
+        {
+          label: 'JSON',
+          suffix: '.json',
+        }, {
+          label: 'Turtle',
+          suffix: '.ttl',
+        },
+      ].map(({ label, suffix }) => h(
+        ExternalLink, { href: permalink + suffix }, label
+      )))
+    )
+  } else {
+    return h(Italic, 'not yet downloadable')
+  }
+}
+
 function RelatedPeriodValue(props) {
   const { value: period } = props
       , { backend } = useContext(BackendContext)
@@ -367,4 +391,5 @@ module.exports = {
   JSONLDContextValue,
   RelatedPeriodValue,
   RelatedAuthorityValue,
+  DownloadValue,
 }

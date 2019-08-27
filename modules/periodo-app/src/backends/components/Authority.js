@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Heading, Box, Span, Text } = require('periodo-ui')
-    , { PermalinkValue, LinkifiedTextValue } = require('periodo-ui')
+    , { Heading, Box, Span, Text, DownloadValue } = require('periodo-ui')
+    , { PermalinkValue, LinkifiedTextValue  } = require('periodo-ui')
     , { authority: { describe }} = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
@@ -119,6 +119,14 @@ module.exports = class AuthorityLayout extends React.Component {
           value: description.id,
           fontSize: 3,
         }),
+      ]),
+
+      h(Box, {
+        mb: 2,
+        fontSize: 3,
+      }, [
+        h(Span, { color: 'gray.6' }, 'Download '),
+        h(DownloadValue, { value: description.id }),
       ]),
 
       h(Text,

@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Box, Span, Heading, Text } = require('periodo-ui')
     , { PermalinkValue, LinkifiedTextValue } = require('periodo-ui')
-    , { RelatedAuthorityValue } = require('periodo-ui')
+    , { RelatedAuthorityValue, DownloadValue } = require('periodo-ui')
     , { permalink } = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
@@ -129,6 +129,8 @@ module.exports = class PeriodLayout extends React.Component {
       }, [
         h(Span, { color: 'gray.6' }, 'Defined by '),
         h(RelatedAuthorityValue, { value: authority }),
+        h(Span, { color: 'gray.6' }, 'Download '),
+        h(DownloadValue, { value: period.id }),
       ]),
 
       h(Note, {
