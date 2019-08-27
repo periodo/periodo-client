@@ -70,6 +70,8 @@ function Note({ cite, ...props }) {
   })
 }
 
+const labelOf = x => (x && x.label) ? x.label : ''
+
 module.exports = class PeriodLayout extends React.Component {
   constructor(props) {
     super(props)
@@ -115,6 +117,25 @@ module.exports = class PeriodLayout extends React.Component {
         mb: 2,
       }, period.label),
 
+      h(Text, {
+        mb: 2,
+        fontSize: 3,
+      }, [
+        `${ labelOf(period.start) } – ${ labelOf(period.stop) }`,
+        period.spatialCoverageDescription
+          ? h(Span, { color: 'gray.4' }, ' | ')
+          : null,
+        `${ period.spatialCoverageDescription || '' }`,
+      ]),
+
+      h(Box, {
+        mb: 2,
+        fontSize: 3,
+      }, [
+        h(Span, { color: 'gray.6' }, 'Defined by '),
+        h(RelatedAuthorityValue, { value: authority }),
+      ]),
+
       h(Box, {
         mb: 2,
         fontSize: 3,
@@ -127,8 +148,6 @@ module.exports = class PeriodLayout extends React.Component {
         mb: 2,
         fontSize: 3,
       }, [
-        h(Span, { color: 'gray.6' }, 'Defined by '),
-        h(RelatedAuthorityValue, { value: authority }),
         h(Span, { color: 'gray.6' }, 'Download '),
         h(DownloadValue, { value: period.id }),
       ]),
