@@ -285,31 +285,6 @@ const Backend = {
         }
       },
     },
-    'backend-history': {
-      label: 'Changelog',
-      Component: require('./backends/components/History'),
-      showInMenu({ params }) {
-        return (
-          params.backendID.startsWith('web-') ||
-          params.backendID.startsWith('local-')
-        )
-      },
-
-      async loadData(props, log, finished) {
-        const { dispatch } = props
-            , storage = getCurrentBackendStorage(props)
-
-        await log('Loading data source history', throwIfUnsuccessful(
-          dispatch(PatchAction.GetBackendHistory(storage))))
-
-        finished()
-      },
-      mapStateToProps(state, props) {
-        return {
-          patches: R.path([ 'patches', 'byBackend', props.params.backendID, 'history' ])(state),
-        }
-      },
-    },
     'backend-add-authority': {
       label: 'Add authority',
       Component: require('./backends/components/AuthorityAddOrEdit'),
@@ -400,6 +375,31 @@ const Backend = {
         await dispatch(actions.getPatchesSubmittedFromBackend(storage))
       },
       */
+    },
+    'backend-history': {
+      label: 'History',
+      Component: require('./backends/components/History'),
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
+
+      async loadData(props, log, finished) {
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
+
+        await log('Loading data source history', throwIfUnsuccessful(
+          dispatch(PatchAction.GetBackendHistory(storage))))
+
+        finished()
+      },
+      mapStateToProps(state, props) {
+        return {
+          patches: R.path([ 'patches', 'byBackend', props.params.backendID, 'history' ])(state),
+        }
+      },
     },
     'backend-edit': {
       label: 'Settings',
