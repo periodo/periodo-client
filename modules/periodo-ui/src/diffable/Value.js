@@ -123,7 +123,7 @@ function PermalinkValue(props) {
 
     return LinkValue(childProps)
   } else {
-    return h(Italic, 'not yet assigned')
+    return h(Italic, { fontSize: 'small' }, 'not yet assigned')
   }
 }
 
@@ -147,7 +147,7 @@ function DownloadValue(props) {
       )))
     )
   } else {
-    return h(Italic, 'not yet downloadable')
+    return h(Italic, { fontSize: 'small' }, 'not yet downloadable')
   }
 }
 
