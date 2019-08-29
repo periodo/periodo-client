@@ -20,7 +20,7 @@ module.exports = Navigable((props) => {
         h(Heading, {
           level: 2,
           mb: 2,
-        }, 'Data source configuration'),
+        }, 'Data source settings'),
 
         h(BackendForm, {
           backend: props.backend,
