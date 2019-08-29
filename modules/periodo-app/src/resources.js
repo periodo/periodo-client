@@ -291,7 +291,7 @@ const Backend = {
       showInMenu: hasEditableBackend,
     },
     'backend-patches': {
-      label: 'Patch requests',
+      label: 'Review submitted changes',
       Component: require('./patches/OpenPatches'),
       showInMenu: ({ params }) => {
         return params.backendID.startsWith('web-')
@@ -346,7 +346,7 @@ const Backend = {
       },
     },
     'backend-sync': {
-      label: 'Sync',
+      label: 'Import changes',
       Component: require('./backends/components/SyncBackend'),
       showInMenu: hasEditableBackend,
       mapStateToProps(state) {
@@ -356,7 +356,7 @@ const Backend = {
       },
     },
     'backend-submit-patch': {
-      label: 'Submit patch',
+      label: 'Submit changes',
       Component: require('./backends/components/BackendSubmitPatch'),
       showInMenu: hasEditableBackend,
       mapStateToProps(state) {
@@ -366,7 +366,7 @@ const Backend = {
       },
     },
     'backend-patch-submissions': {
-      label: 'Review submitted patches',
+      label: 'Review submitted changes',
       Component: require('./backends/components/ReviewSubmittedPatches'),
       showInMenu: hasEditableBackend,
       /* FIXME
