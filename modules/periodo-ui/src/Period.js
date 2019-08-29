@@ -167,14 +167,6 @@ const periodFields = [
   },
 
   {
-    label: 'Permalink',
-    getValues: extract('id'),
-    component: PermalinkValue,
-    required: true,
-    immutable: true,
-  },
-
-  {
     label: 'Download',
     getValues: extract('id'),
     component: DownloadValue,
