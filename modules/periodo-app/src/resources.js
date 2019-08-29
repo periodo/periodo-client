@@ -560,11 +560,6 @@ const Authority = {
       Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
-    'authority-export': {
-      label: 'Export',
-      Component: require('./backends/components/Export'),
-    },
-
     'authority-history': {
       label: 'History',
       showInMenu({ params }) {
@@ -608,11 +603,6 @@ const Period = {
       label: 'Edit',
       showInMenu: hasEditableBackend,
       Component: require('./backends/components/PeriodAddOrEdit'),
-    },
-
-    'period-export': {
-      label: 'Export',
-      Component: require('./backends/components/Export'),
     },
 
     'period-history': {
