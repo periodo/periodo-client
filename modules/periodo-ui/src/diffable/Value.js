@@ -123,7 +123,31 @@ function PermalinkValue(props) {
 
     return LinkValue(childProps)
   } else {
-    return h(Italic, 'not yet assigned')
+    return h(Italic, { fontSize: 'small' }, 'not yet assigned')
+  }
+}
+
+function DownloadValue(props) {
+  const { value } = props
+
+  const permalink = util.permalink({ id: value })
+
+  if (permalink) {
+    return h(Span, props,
+      R.intersperse(', ', [
+        {
+          label: 'JSON',
+          suffix: '.json',
+        }, {
+          label: 'Turtle',
+          suffix: '.ttl',
+        },
+      ].map(({ label, suffix }) => h(
+        ExternalLink, { href: permalink + suffix }, label
+      )))
+    )
+  } else {
+    return h(Italic, { fontSize: 'small' }, 'not yet downloadable')
   }
 }
 
@@ -367,4 +391,5 @@ module.exports = {
   JSONLDContextValue,
   RelatedPeriodValue,
   RelatedAuthorityValue,
+  DownloadValue,
 }

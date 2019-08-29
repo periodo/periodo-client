@@ -51,8 +51,9 @@ class AuthorityAddOrEdit extends React.Component {
                 : `Added authority ${id}`
             ))
 
-            navigateTo(Route('backend-home', {
+            navigateTo(Route('authority-view', {
               backendID: backend.asIdentifier(),
+              authorityID: id,
             }))
           },
           onValueChange: authority => {

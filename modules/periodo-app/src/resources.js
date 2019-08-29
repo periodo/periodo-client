@@ -285,38 +285,13 @@ const Backend = {
         }
       },
     },
-    'backend-history': {
-      label: 'Changelog',
-      Component: require('./backends/components/History'),
-      showInMenu({ params }) {
-        return (
-          params.backendID.startsWith('web-') ||
-          params.backendID.startsWith('local-')
-        )
-      },
-
-      async loadData(props, log, finished) {
-        const { dispatch } = props
-            , storage = getCurrentBackendStorage(props)
-
-        await log('Loading data source history', throwIfUnsuccessful(
-          dispatch(PatchAction.GetBackendHistory(storage))))
-
-        finished()
-      },
-      mapStateToProps(state, props) {
-        return {
-          patches: R.path([ 'patches', 'byBackend', props.params.backendID, 'history' ])(state),
-        }
-      },
-    },
     'backend-add-authority': {
       label: 'Add authority',
       Component: require('./backends/components/AuthorityAddOrEdit'),
       showInMenu: hasEditableBackend,
     },
     'backend-patches': {
-      label: 'Patch requests',
+      label: 'Review submitted changes',
       Component: require('./patches/OpenPatches'),
       showInMenu: ({ params }) => {
         return params.backendID.startsWith('web-')
@@ -371,7 +346,7 @@ const Backend = {
       },
     },
     'backend-sync': {
-      label: 'Sync',
+      label: 'Import changes',
       Component: require('./backends/components/SyncBackend'),
       showInMenu: hasEditableBackend,
       mapStateToProps(state) {
@@ -381,7 +356,7 @@ const Backend = {
       },
     },
     'backend-submit-patch': {
-      label: 'Submit patch',
+      label: 'Submit changes',
       Component: require('./backends/components/BackendSubmitPatch'),
       showInMenu: hasEditableBackend,
       mapStateToProps(state) {
@@ -391,7 +366,7 @@ const Backend = {
       },
     },
     'backend-patch-submissions': {
-      label: 'Review submitted patches',
+      label: 'Review submitted changes',
       Component: require('./backends/components/ReviewSubmittedPatches'),
       showInMenu: hasEditableBackend,
       /* FIXME
@@ -400,6 +375,31 @@ const Backend = {
         await dispatch(actions.getPatchesSubmittedFromBackend(storage))
       },
       */
+    },
+    'backend-history': {
+      label: 'History',
+      Component: require('./backends/components/History'),
+      showInMenu({ params }) {
+        return (
+          params.backendID.startsWith('web-') ||
+          params.backendID.startsWith('local-')
+        )
+      },
+
+      async loadData(props, log, finished) {
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
+
+        await log('Loading data source history', throwIfUnsuccessful(
+          dispatch(PatchAction.GetBackendHistory(storage))))
+
+        finished()
+      },
+      mapStateToProps(state, props) {
+        return {
+          patches: R.path([ 'patches', 'byBackend', props.params.backendID, 'history' ])(state),
+        }
+      },
     },
     'backend-edit': {
       label: 'Settings',
@@ -560,11 +560,6 @@ const Authority = {
       Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
-    'authority-export': {
-      label: 'Export',
-      Component: require('./backends/components/Export'),
-    },
-
     'authority-history': {
       label: 'History',
       showInMenu({ params }) {
@@ -608,11 +603,6 @@ const Period = {
       label: 'Edit',
       showInMenu: hasEditableBackend,
       Component: require('./backends/components/PeriodAddOrEdit'),
-    },
-
-    'period-export': {
-      label: 'Export',
-      Component: require('./backends/components/Export'),
     },
 
     'period-history': {

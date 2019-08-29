@@ -2,7 +2,8 @@
 
 const h = require('react-hyperscript')
     , { DiffableItem, extract } = require('./diffable/Field')
-    , { LinkValue, PermalinkValue, LinkifiedTextValue } = require('./diffable/Value')
+    , { LinkValue, PermalinkValue } = require('./diffable/Value')
+    , { LinkifiedTextValue, DownloadValue } = require('./diffable/Value')
     , { Period } = require('./Period')
     , { Source } = require('./Source')
 
@@ -41,6 +42,14 @@ const authorityFields = [
     label: 'Same as',
     getValues: extract('sameAs'),
     component: LinkValue,
+  },
+
+  {
+    label: 'Download',
+    getValues: extract('id'),
+    component: DownloadValue,
+    required: true,
+    immutable: true,
   },
 ]
 

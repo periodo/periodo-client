@@ -16,6 +16,7 @@ const {
   SpatialExtentValue,
   LanguageSpecificValue,
   RelatedPeriodValue,
+  DownloadValue,
 } = require('./diffable/Value')
 
 
@@ -163,6 +164,14 @@ const periodFields = [
     label: 'Same as',
     getValues: extract('sameAs'),
     component: LinkValue,
+  },
+
+  {
+    label: 'Download',
+    getValues: extract('id'),
+    component: DownloadValue,
+    required: true,
+    immutable: true,
   },
 ]
 
