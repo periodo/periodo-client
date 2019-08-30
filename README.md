@@ -9,7 +9,7 @@ Compatible with all browsers that support ES2017 and IndexedDB. Safari has known
 
 To build a standalone version of the client which can be run from a static web directory, run `make production`.
 
-Run `make test` to run all tests. Because we use ES6/ES2017 features like arrow functions and `async`/`await`, you must have Node 8+ installed.
+Run `make test` to run all tests. Because we use recent JavaScript features like `async`/`await` and object rest/spread, you must have Node 11+ installed.
 
 
 # Layout of this project
@@ -23,7 +23,23 @@ Because browsers do not support IndexedDB for pages served from local file syste
 
 Once you have set up a server to serve the root directory, run `make watch` to rebuild the site during development. This will build the file `periodo-client.js` and rebuild it upon any changes to source files.
 
+## Publishing a new version
 
+We distribute the built version of the code via npm. To publish a new version, run the following commands:
+
+```
+npm version patch
+make publish
+```
+
+Replace `patch` with the type of release you want to make, according to [the docs for npm-version](https://docs.npmjs.com/cli/version) and the kind of change the new version is according to [semvar](https://docs.npmjs.com/misc/semver).
+
+## Committing `package-lock.json`
+
+Changes to `package-lock.json` should only ever be in a commit by themselves. Do not include changes to `package-lock.json` with commits that change other files.
+
+
+<!--
 # Code guidelines
 
 ## Writing modules
@@ -71,3 +87,4 @@ module.exports = function makeWrapper(optA, optB) {
   }
 }
 ```
+-->
