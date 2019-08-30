@@ -17,9 +17,13 @@ module.exports = Navigable(({ fixedPeriod, ...props }) => {
     ? [ fixedPeriod, () => {} ]
     : useState(null)
 
-  const data = props.useAuthorities
+  let data = props.useAuthorities
     ? props.dataset.authorities
     : props.dataset.periods
+
+  if (props.filter) {
+    data = data.filter(props.filter)
+  }
 
   return (
     h(LayoutRenderer, R.omit([ 'dataset', 'backend', 'navigateTo' ], {

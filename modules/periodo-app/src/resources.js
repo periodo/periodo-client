@@ -290,6 +290,37 @@ const Backend = {
       Component: require('./backends/components/AuthorityAddOrEdit'),
       showInMenu: hasEditableBackend,
     },
+    'backend-my-authorities': {
+      label: 'My authorities',
+      Component: require('./backends/components/MyAuthorities'),
+      showInMenu: hasEditableBackend,
+      async loadData(props, log, finished) {
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
+
+        await log('Loading data source history', throwIfUnsuccessful(
+          dispatch(PatchAction.GetBackendHistory(storage))))
+
+        finished()
+      },
+      mapStateToProps(state, props) {
+        const { dataset } = props
+            , patches = R.path([ 'patches', 'byBackend', props.params.backendID, 'history' ])(state)
+
+        if (!dataset) return {}
+
+        const editedAuthorities = new Set(patches.reduce((acc, patch) =>
+          [ ...acc, ...patch.affectedItems.authorities ],
+        []))
+
+        // FIXME: Must add logic for mapping IDs for local items that have been
+        // accepted and given permalinks
+
+        return {
+          authorityIDs: editedAuthorities,
+        }
+      },
+    },
     'backend-patches': {
       label: 'Review submitted changes',
       Component: require('./patches/OpenPatches'),
