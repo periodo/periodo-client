@@ -2,6 +2,7 @@
 
 const R = require('ramda')
     , url = require('url')
+    , N3 = require('n3')
     , jsonpatch = require('fast-json-patch')
     , BackendAction = require('../backends/actions')
     , LinkedDataAction = require('../linked-data/actions')
@@ -14,9 +15,8 @@ const R = require('ramda')
     , { makePatch } = require('./patch')
     , { filterByHash } = require('./patch_collection')
     , { PatchDirection, PatchFate } = require('./types')
-    , { rdfListToArray } = require('org-n3-utils')
+    , { rdfListToArray, parseToPromise } = require('org-n3-utils')
     , { getPatchRepr } = require('../linked-data/utils/patch')
-    , parseJSONLD = require('../linked-data/utils/parse_jsonld')
     , isURL = require('is-url')
     , DatasetProxy = require('../backends/dataset_proxy')
     , globals = require('../globals')
@@ -333,7 +333,8 @@ function getBackendHistory(storage) {
 
     if (existing) return { patches: existing }
 
-    const datasetPromise = dispatch(BackendAction.GetBackendDataset(storage, false))
+    const { dataset } = getResponse(
+      await dispatch(BackendAction.GetBackendDataset(storage, false)))
 
     const patchesPromise =  storage.case({
       IndexedDB: async id => {
@@ -348,26 +349,38 @@ function getBackendHistory(storage) {
           mergedBy: '(local)',
           time: p.created,
           mergeTime: p.created,
+          affectedItems: {
+            periods: p.affectedPeriods,
+            authorities: p.affectedAuthorities,
+          },
           patch: p.forward,
         }))
       },
 
       Web: async backendURL => {
-        const url = new URL('history.jsonld?inline-context', backendURL)
+        const url = new URL('history.nt?full', backendURL)
             , resp = await fetch(url)
 
         if (!resp.ok) {
-          throw new Error(`Could not get changelog for backend at ${backendURL}`)
+          throw new Error(`Could not get changelog for data source ${backendURL}`)
         }
 
-        const data = await resp.json()
+        const parser = new N3.Parser()
+            , store = new N3.Store()
 
-        const { store } = await parseJSONLD(data)
+        try {
+          const ntriples = await resp.text()
+              , { quads } = await parseToPromise(parser, ntriples)
+
+          store.addQuads(quads)
+        } catch (e) {
+          throw new Error(`Could not parse changelog for data source ${backendURL}`)
+        }
 
         const [ changeList ] = store.getObjects(null, ns('dc:provenance'))
 
         const changes = rdfListToArray(store, changeList)
-          .map(getPatchRepr.bind(null, store))
+          .map(getPatchRepr.bind(null, store, dataset))
 
         return changes
       },
@@ -377,7 +390,7 @@ function getBackendHistory(storage) {
       },
     })
 
-    const [ , patches ] = await Promise.all([ datasetPromise, patchesPromise ])
+    const patches = await patchesPromise
 
     const orcids = [].concat(...patches.map(p => [ p.submittedBy, p.mergedBy, p.updatedBy ]))
       .filter(x => x && x.includes('://orcid.org/'))

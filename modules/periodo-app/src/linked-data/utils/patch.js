@@ -18,7 +18,7 @@ function patchAgentsByRole(store, url) {
   )()
 }
 
-function getPatchRepr(store, url) {
+function getPatchRepr(store, dataset, url) {
   const used = store.getObjects(url, ns('prov:used'))
 
   const [ patchResourceURL, sourceDatasetURL ] =
@@ -49,9 +49,31 @@ function getPatchRepr(store, url) {
     firstComment = firstCommentNode.value
   }
 
+  const affectedItems = {
+    periods: [],
+    authorities: [],
+  }
+
+  store.getObjects(url, ns('prov:generated')).forEach(itemVersionNode => {
+    const itemNode = store.getObjects(itemVersionNode, ns('prov:specializationOf'))[0]
+
+    let itemID = itemNode.id.slice(itemNode.id.lastIndexOf('/') + 1)
+
+    if (!itemID.startsWith('p0')) {
+      itemID = 'p0' + itemID
+    }
+
+    if (itemID in dataset.periodsByID) {
+      affectedItems.periods.push(itemID)
+    } else if (itemID in dataset.authoritiesByID) {
+      affectedItems.authorities.push(itemID)
+    }
+  })
+
   return {
     url: url.id,
     patchURL: patchURL.id,
+    affectedItems,
     numComments,
     firstComment,
     patchRequestURL: patchRequestURL.id,
