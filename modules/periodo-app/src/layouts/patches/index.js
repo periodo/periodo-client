@@ -41,6 +41,16 @@ const PatchList = blocks.List({
       getValue: x => new Date(x.mergeTime).toLocaleString(),
     },
 
+    periods: {
+      label: 'Affected periods',
+      getValue: x => x.affectedItems.periods.length,
+    },
+
+    authorities: {
+      label: 'Affected authorities',
+      getValue: x => x.affectedItems.authorities.length,
+    },
+
     comment: {
       label: 'Comment',
       getValue: x => x.firstComment,
