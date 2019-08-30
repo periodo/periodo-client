@@ -1,22 +1,55 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Authority, Label, Box } = require('periodo-ui')
+    , { Authority, LinkIcon, Box, Heading, Link } = require('periodo-ui')
+    , { Route } = require('org-shell')
     , { period: { authorityOf }} = require('periodo-utils')
 
-function AuthorityDetail({ hoveredPeriod, selectedPeriod }) {
+function AuthorityDetail({
+  hoveredPeriod,
+  selectedPeriod,
+  backend,
+}) {
   const period = hoveredPeriod || selectedPeriod || null
+      , authority = period && authorityOf(period)
 
   return h(Box, {
     pl: 2,
     style: {
-      minHeight: 420,
+      minHeight: 600,
+      wordBreak: 'break-word',
     },
-  }, [
-    period == null ? null : h(Label, {}, 'Authority'),
-    period == null ? null : (
-      h(Authority, { value: authorityOf(period) })
-    ),
+  }, authority == null ? null : [
+    h(Heading, {
+      level: 4,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        borderBottom: '1px solid #ddd',
+        paddingBottom: '4px',
+      },
+    }, [
+      h(Link, {
+        mr: 2,
+        style: {
+          display: 'flex',
+        },
+        route: new Route('authority-view', {
+          backendID: backend.asIdentifier(),
+          authorityID: authority.id,
+        }),
+      }, [
+        h(LinkIcon, {
+          stroke: '#4dabf7',
+          strokeWidth: 3,
+          title: 'View authority page',
+        }),
+      ]),
+
+      'Authority',
+    ]),
+
+    h(Authority, { value: authority }),
   ])
 }
 
