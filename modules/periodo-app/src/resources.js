@@ -599,7 +599,33 @@ const Authority = {
           params.backendID.startsWith('local-')
         )
       },
-      Component: () => h('h1', 'History'),
+      async loadData(props, log, finished) {
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
+
+        await log('Loading data source history', throwIfUnsuccessful(
+          dispatch(PatchAction.GetBackendHistory(storage))))
+
+        finished()
+      },
+      mapStateToProps(state, props) {
+        const { authorityID } = props.params
+
+        const allPatches = R.path([
+          'patches',
+          'byBackend',
+          props.params.backendID,
+          'history',
+        ])(state)
+
+        const authorityPatches = allPatches.filter(patch =>
+          patch.affectedItems.authorities.includes(authorityID))
+
+        return {
+          patches: authorityPatches,
+        }
+      },
+      Component: require('./backends/components/History'),
     },
   },
   onBeforeRoute(params) {
@@ -644,7 +670,33 @@ const Period = {
           params.backendID.startsWith('local-')
         )
       },
-      Component: () => h('h1', 'History'),
+      async loadData(props, log, finished) {
+        const { dispatch } = props
+            , storage = getCurrentBackendStorage(props)
+
+        await log('Loading data source history', throwIfUnsuccessful(
+          dispatch(PatchAction.GetBackendHistory(storage))))
+
+        finished()
+      },
+      mapStateToProps(state, props) {
+        const { periodID } = props.params
+
+        const allPatches = R.path([
+          'patches',
+          'byBackend',
+          props.params.backendID,
+          'history',
+        ])(state)
+
+        const periodPatches = allPatches.filter(patch =>
+          patch.affectedItems.periods.includes(periodID))
+
+        return {
+          patches: periodPatches,
+        }
+      },
+      Component: require('./backends/components/History'),
     },
   },
   async onBeforeRoute(params, redirectTo, { dispatch }) {
