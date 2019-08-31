@@ -24,7 +24,7 @@ const permalink = ({ id }) => id && id.startsWith('p0')
   : null
 
 const downloadURL = ({ id }) => periodoServerURL.includes('://data.perio.do')
-  ? permalinkURL({ id })
+  ? permalink({ id })
   : id && id.startsWith('p0')
     ? `${ periodoServerURL }${ id.slice(2) }`
     : null
