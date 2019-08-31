@@ -130,9 +130,9 @@ function PermalinkValue(props) {
 function DownloadValue(props) {
   const { value } = props
 
-  const permalink = util.permalink({ id: value })
+  const downloadURL= util.downloadURL({ id: value })
 
-  if (permalink) {
+  if (downloadURL) {
     return h(Span, props,
       R.intersperse(', ', [
         {
@@ -143,7 +143,7 @@ function DownloadValue(props) {
           suffix: '.ttl',
         },
       ].map(({ label, suffix }) => h(
-        ExternalLink, { href: permalink + suffix }, label
+        ExternalLink, { href: downloadURL + suffix }, label
       )))
     )
   } else {

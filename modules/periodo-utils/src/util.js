@@ -1,7 +1,8 @@
 "use strict";
 
 const R = require('ramda')
-    , { permalinkURL } = require('../../periodo-app/src/globals')
+    , { permalinkURL
+      , periodoServerURL } = require('../../periodo-app/src/globals')
 
 function oneOf(...candidates) {
   return x => {
@@ -22,9 +23,16 @@ const permalink = ({ id }) => id && id.startsWith('p0')
   ? `${ permalinkURL }${ id }`
   : null
 
+const downloadURL = ({ id }) => periodoServerURL.includes('://data.perio.do')
+  ? permalinkURL({ id })
+  : id && id.startsWith('p0')
+    ? `${ periodoServerURL }${ id.slice(2) }`
+    : null
+
 module.exports = {
   oneOf,
   ensureArray,
   valueAsArray,
   permalink,
+  downloadURL,
 }
