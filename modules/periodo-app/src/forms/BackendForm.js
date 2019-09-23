@@ -142,6 +142,20 @@ module.exports = class BackendForm extends React.Component {
         ]),
 
         h('div', [
+          h(Label, {
+            mt: 3,
+            htmlFor: 'label',
+            isRequired: true,
+          }, 'Label'),
+
+          h(Input, {
+            id: 'label',
+            name: 'label',
+            type: 'text',
+            value: label || '',
+            onChange: this.handleChange,
+          }),
+
           type === 'StaticFile' && h(Label, {
             mt: 3,
             htmlFor: 'file',
@@ -161,20 +175,6 @@ module.exports = class BackendForm extends React.Component {
               fileError,
             ]),
           ]),
-
-          h(Label, {
-            mt: 3,
-            htmlFor: 'label',
-            isRequired: true,
-          }, 'Label'),
-
-          h(Input, {
-            id: 'label',
-            name: 'label',
-            type: 'text',
-            value: label || '',
-            onChange: this.handleChange,
-          }),
 
           type === 'Web' && h(Label, {
             mt: 3,
