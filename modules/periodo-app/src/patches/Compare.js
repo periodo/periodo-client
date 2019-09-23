@@ -626,8 +626,14 @@ class Compare extends React.Component {
           ]),
           h('thead', [
             h('tr', [
-              h('th', 'Authority'),
-              h('th', 'Period'),
+              h('th', {}, h(Heading, {
+                level: 4,
+                mb: 1,
+              }, 'Authority')),
+              h('th', {}, h(Heading, {
+                level: 4,
+                mb: 1,
+              }, 'Period')),
             ]),
           ]),
           h('tbody', Object.entries(byAuthority).map(([ authorityID, patches ]) =>
