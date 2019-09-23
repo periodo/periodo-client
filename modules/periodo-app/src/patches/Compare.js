@@ -496,9 +496,15 @@ class Compare extends React.Component {
   }
 
   render() {
-    const { allPatches, filteredTypes, expandAll, localDataset, remoteDataset } = this.state
-        , { selectAll } = this.props
-        , editing = !!this.props.onChange
+    const {
+      allPatches,
+      filteredTypes,
+      localDataset,
+      remoteDataset,
+      selectAll,
+    } = this.state
+
+    const editing = !!this.props.onChange
 
     const filteredPatches =
       filteredTypes.length
