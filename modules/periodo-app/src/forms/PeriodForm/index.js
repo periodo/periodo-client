@@ -47,7 +47,7 @@ module.exports = Validated(validatePeriod, props => {
       }, [
         h(Heading, {
           level: 3,
-        }, 'Add period'),
+        }, `${ value.id ? 'Edit' : 'Add' } period`),
       ]),
 
       h(Box, {
