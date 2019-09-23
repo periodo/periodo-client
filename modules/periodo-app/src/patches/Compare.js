@@ -588,30 +588,6 @@ class Compare extends React.Component {
             e.preventDefault();
 
             this.setState(prev => {
-              if (prev.expandAll) {
-                return {
-                  expandAll: false,
-                  expandedPeriods: new Set(),
-                  expandedAuthorities: new Set(),
-                  viewedAllPeriods: new Set(),
-                }
-              } else {
-                return {
-                  expandAll: true,
-                }
-              }
-            })
-          },
-        }, expandAll ? 'Collapse all' : 'Expand all'),
-
-        editing && h(Box, {
-          is: 'a',
-          href: '',
-          color: 'blue',
-          onClick: e => {
-            e.preventDefault();
-
-            this.setState(prev => {
               if (prev.selectAll) {
                 return {
                   selectAll: false,
