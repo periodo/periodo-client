@@ -56,7 +56,6 @@ const PlacesSelect = ({
         setFocusedFeature(null)
       }
     },
-    css: { cursor: 'pointer' },
     ml: 1,
   }, closed ? 'Select places' : 'Done')
 

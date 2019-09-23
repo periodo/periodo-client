@@ -350,13 +350,10 @@ function AuthorityRow(props) {
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
           list => [
             list.slice(0, 5),
-            h(Box, {
+            h(Link, {
               key: 'view-more',
-              is: 'a',
-              href: '',
               mt: 1,
               display: 'inline-block',
-              color: 'blue',
               onClick: e => {
                 e.preventDefault();
                 setState({
@@ -586,10 +583,10 @@ class Compare extends React.Component {
           ]),
         ]),
 
-        editing && h(Box, {
-          is: 'a',
-          href: '',
-          color: 'blue',
+        editing && h(Link, {
+          css: {
+            position: 'absolute',
+          },
           onClick: e => {
             e.preventDefault();
 
