@@ -107,7 +107,7 @@ class ReviewPatch extends React.Component {
 
         h(Heading, {
           level: 2,
-        }, 'Patch'),
+        }, 'Submitted changes'),
 
         h(Compare, {
           localDataset: fromDataset,
@@ -152,7 +152,7 @@ class ReviewPatch extends React.Component {
             level: 2,
             mt: 2,
             mb: 1,
-          }, 'Accept patch?'),
+          }, 'Accept changes?'),
 
           h(Button$Default, {
             mr: 1,

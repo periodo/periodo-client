@@ -54,8 +54,8 @@ class SubmitPatch extends React.Component {
           reviewComponent: null,
           message: (
             h(Alert$Success, {
-            }, 'Submitted patch')
               mb: 2,
+            }, 'Submitted changes')
           ),
         })
       },
@@ -88,7 +88,7 @@ class SubmitPatch extends React.Component {
           onClick: () => {
             this.submitPatch()
           },
-        }, 'Submit patch'),
+        }, 'Submit changes'),
       ])
     } else if (this.state.showCompare) {
       child = h(Box, [
@@ -107,7 +107,7 @@ class SubmitPatch extends React.Component {
       ])
     } else if (webBackends.length === 0) {
       child = h(InfoText, [
-        'In order to submit a patch to a Web server, you must create a Web data source',
+        'In order to submit a changes you must first create a web data source',
       ])
     } else {
       const { selectedWebBackendID } = this.state
@@ -139,11 +139,11 @@ class SubmitPatch extends React.Component {
       }
 
       child = h(Box, [
-        h(Text, { mb: 3 }, 'Select a remote server to submit a patch to it.'),
+        h(Text, { mb: 3 }, 'Select a web data source to submit changes to'),
 
         h(BackendSelector, {
           value: selectedWebBackend,
-          label: 'Available Web data sources',
+          label: 'Available web data sources',
           backends: webBackends,
           onChange: val => {
             this.setState({
@@ -159,7 +159,7 @@ class SubmitPatch extends React.Component {
 
     return (
       h(Box, [
-        h(ResourceTitle, 'Submit patch'),
+        h(ResourceTitle, 'Submit changes'),
         this.state.message,
         child,
       ])

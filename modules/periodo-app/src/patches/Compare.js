@@ -549,7 +549,7 @@ class Compare extends React.Component {
           borderColor: 'gray.4',
         }, [
           h(Box, [
-            h(Heading, { level: 4 }, 'Patch summary'),
+            h(Heading, { level: 4 }, 'Changes summary'),
             h(Box, {
               is: 'ul',
               ml: 3,
@@ -576,7 +576,7 @@ class Compare extends React.Component {
 
                 saveAs(patch, 'patch.jsonpatch')
               },
-            }, 'Download patch'),
+            }, 'Download changes'),
           ]),
         ]),
 

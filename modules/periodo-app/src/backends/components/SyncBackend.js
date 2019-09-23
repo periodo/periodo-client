@@ -88,7 +88,7 @@ class SyncBackend extends React.Component {
     } else {
       child = (
         h(Box, [
-          h(Text, { mb: 3 }, 'Select a data source to sync changes from it'),
+          h(Text, { mb: 3 }, 'Select a data source to import changes from'),
 
           h(BackendSelector, {
             value: selectedBackend,
@@ -109,7 +109,7 @@ class SyncBackend extends React.Component {
         h(Heading, {
           level: 2,
           mb: 3,
-        }, 'Sync data source'),
+        }, 'Import changes'),
         child,
       ])
     )

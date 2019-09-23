@@ -37,7 +37,7 @@ function ReviewPatches(props) {
               setOnlyOpen(!onlyOpen)
             },
           }),
-          'Open patches only',
+          'Open submissions only',
         ]),
       ]),
 
