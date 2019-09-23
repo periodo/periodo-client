@@ -64,6 +64,7 @@ class SyncBackend extends React.Component {
           this.state.compareComponent,
 
           h(Button$Primary, {
+            mt: 2,
             onClick: () => {
               this.acceptPatch()
             },

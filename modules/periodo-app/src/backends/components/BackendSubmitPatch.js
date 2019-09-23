@@ -55,6 +55,7 @@ class SubmitPatch extends React.Component {
           message: (
             h(Alert$Success, {
             }, 'Submitted patch')
+              mb: 2,
           ),
         })
       },
@@ -62,6 +63,7 @@ class SubmitPatch extends React.Component {
         this.setState({
           message: (
             h(Alert$Error, {
+              mb: 2,
             }, err.message)
           ),
         })

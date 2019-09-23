@@ -90,6 +90,7 @@ class SelectChanges extends React.Component {
           }),
 
           h(Button$Primary, {
+            mt: 2,
             disabled: !this.state.currentPatch.length,
             onClick: () => handleSelectPatch(
               this.state.currentPatch,
