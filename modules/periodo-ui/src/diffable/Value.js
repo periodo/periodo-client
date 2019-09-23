@@ -152,20 +152,29 @@ function DownloadValue(props) {
 }
 
 function RelatedPeriodValue(props) {
-  const { value: period } = props
+  const { value } = props
       , { backend } = useContext(BackendContext)
 
-  const childProps = {
-    route: Route('period-view', {
-      backendID: backend.asIdentifier(),
-      authorityID: util.period.authorityOf(period).id,
-      periodID: period.id,
-    }),
-  }
+  if (typeof(value) === 'object') {
+    const period = value
 
-  return (
-    h(Link, childProps, period.label)
-  )
+    const childProps = {
+      route: Route('period-view', {
+        backendID: backend.asIdentifier(),
+        authorityID: util.period.authorityOf(period).id,
+        periodID: period.id,
+      }),
+    }
+
+    return h(Link, childProps, period.label)
+
+  } else {
+    const url = util.downloadURL({ id: value })
+
+    return url
+      ? h(ExternalLink, { href: url }, url)
+      : h(Span, {}, value)
+  }
 }
 
 function RelatedAuthorityValue(props) {
