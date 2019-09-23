@@ -192,37 +192,6 @@ module.exports = class BackendForm extends React.Component {
               onChange: this.handleChange,
             }),
 
-            this.editing ? null : (
-              h(Box, [
-                h(Box, { level: 4 }, 'Shortcuts'),
-                h(Box, [
-                  h(Link, {
-                    href: '',
-                    onClick: e => {
-                      e.preventDefault();
-                      this.setState({
-                        label: 'this URL',
-                        url: window.location.origin,
-                      })
-                    },
-                  }, 'this URL'),
-                  ` (${window.location.origin})`,
-                ]),
-                h(Box, [
-                  h(Link, {
-                    href: '',
-                    onClick: e => {
-                      e.preventDefault();
-                      this.setState({
-                        label: 'the canonical PeriodO server',
-                        url: 'https://test.perio.do/',
-                      })
-                    },
-                  }, 'the canonical PeriodO server'),
-                  ` (https://test.perio.do/)`,
-                ]),
-              ])
-            ),
           ]),
 
           h(Label, {
