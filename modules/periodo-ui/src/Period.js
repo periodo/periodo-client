@@ -56,11 +56,26 @@ const extractAlternateLabels = period => R.map(
   )
 )
 
-const extractRelatedPeriods = key => R.pipe(
-  R.pathOr({}, [ $$RelatedPeriods, key ]),
-  R.values,
-  R.sort(period.byStartYear)
-)
+const extractRelatedPeriods = key => o => {
+  if (! ($$RelatedPeriods in o)) {
+    return []
+  }
+  if (! (key in o[$$RelatedPeriods])) {
+    return []
+  }
+  const relatedPeriods = []
+  const missingPeriods = []
+  for (const [ id, relatedPeriod ] of
+    Object.entries(o[$$RelatedPeriods][key])) {
+
+    if (relatedPeriod) {
+      relatedPeriods.push(relatedPeriod)
+    } else {
+      missingPeriods.push(id)
+    }
+  }
+  return R.sort(period.byStartYear, relatedPeriods).concat(missingPeriods)
+}
 
 const periodFields = [
   {
