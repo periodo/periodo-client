@@ -5,9 +5,9 @@ const R = require('ramda')
     , { oneOf } = require('./util')
 
 const paths = {
-  earliest: ['in', 'earliestYear'],
-  latest: ['in', 'latestYear'],
-  single: ['in', 'year'],
+  earliest: [ 'in', 'earliestYear' ],
+  latest: [ 'in', 'latestYear' ],
+  single: [ 'in', 'year' ],
 }
 
 const isMultipart = terminus => {
@@ -108,7 +108,7 @@ function wasAutoparsed(terminus) {
   }
 
   return parsed
-    ? R.equals(terminus, R.omit(['_type'])(parsed))
+    ? R.equals(terminus, R.omit([ '_type' ])(parsed))
     : terminus.in === null
 }
 
