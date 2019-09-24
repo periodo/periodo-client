@@ -5,9 +5,9 @@ const R = require('ramda')
     , { oneOf } = require('./util')
 
 const paths = {
-  earliest: ['in', 'earliestYear'],
-  latest: ['in', 'latestYear'],
-  single: ['in', 'year'],
+  earliest: [ 'in', 'earliestYear' ],
+  latest: [ 'in', 'latestYear' ],
+  single: [ 'in', 'year' ],
 }
 
 const isMultipart = terminus => {
@@ -72,6 +72,23 @@ function hasISOValue(terminus) {
   )
 }
 
+// ISO years must have > 3 digits
+const BAD_ISO_YEAR = /^(?<negative>-?)(?<digits>\d{0,3})$/
+
+// note that this mutates the terminus to fix it
+function ensureISOYear(terminus) {
+  Object.values(paths).forEach(path => {
+    const year = `${R.path(path, terminus)}`.trim()
+        , bad = year.match(BAD_ISO_YEAR)
+
+    if (bad) {
+      terminus[path[0]][path[1]] = (
+        `${bad.groups.negative}${bad.groups.digits.padStart(4, '0')}`
+      )
+    }
+  })
+}
+
 // Terminus -> Bool
 function wasAutoparsed(terminus) {
   // This was checking if the terminus is blank. If it was, it would return
@@ -91,7 +108,7 @@ function wasAutoparsed(terminus) {
   }
 
   return parsed
-    ? R.equals(terminus, R.omit(['_type'])(parsed))
+    ? R.equals(terminus, R.omit([ '_type' ])(parsed))
     : terminus.in === null
 }
 
@@ -100,6 +117,7 @@ module.exports = {
   earliestYear,
   latestYear,
   hasISOValue,
+  ensureISOYear,
   wasAutoparsed,
   isMultipart,
 }
