@@ -396,17 +396,6 @@ const Backend = {
         }
       },
     },
-    'backend-patch-submissions': {
-      label: 'Review submitted changes',
-      Component: require('./backends/components/ReviewSubmittedPatches'),
-      showInMenu: hasEditableBackend,
-      /* FIXME
-      async onBeforeRoute(dispatch) {
-        const storage = BackendStorage.fromIdentifier(params.backendID)
-        await dispatch(actions.getPatchesSubmittedFromBackend(storage))
-      },
-      */
-    },
     'backend-history': {
       label: 'History',
       Component: require('./backends/components/History'),
