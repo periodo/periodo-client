@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { Result } = require('periodo-common')
-    , { terminus } = require('periodo-utils')
+    , { terminus, ensureISOYear } = require('periodo-utils')
     , { isLinkedData } = require('../linked-data/utils/source_ld_match')
 
 function addError(obj, label, err) {
@@ -146,6 +146,10 @@ function validatePeriod(period) {
     // Clean up parsed terminus labels
     delete cleanedPeriod.start._type;
     delete cleanedPeriod.stop._type;
+
+    // Left-pad ISO years with zeroes
+    terminus.ensureISOYear(cleanedPeriod.start)
+    terminus.ensureISOYear(cleanedPeriod.stop)
 
     // Clean up related period arrays
     if (
