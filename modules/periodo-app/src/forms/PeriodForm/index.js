@@ -47,7 +47,7 @@ module.exports = Validated(validatePeriod, props => {
       }, [
         h(Heading, {
           level: 3,
-        }, 'Add period'),
+        }, `${ value.id ? 'Edit' : 'Add' } period`),
       ]),
 
       h(Box, {
@@ -175,7 +175,7 @@ module.exports = Validated(validatePeriod, props => {
 
             name: 'note',
             label: 'Note',
-            helpText: 'Notes derived from the source',
+            helpText: 'Explanatory notes attributed to the source authority',
             value: get(lenses.note),
             onChange: e => set(lenses.note, e.target.value),
           }),
@@ -188,7 +188,7 @@ module.exports = Validated(validatePeriod, props => {
 
             name: 'editorial-note',
             label: 'Editorial note',
-            helpText: 'Notes about the import process',
+            helpText: 'Notes explaining your editorial decisions',
             value: get(lenses.editorialNote),
             onChange: e => set(lenses.editorialNote, e.target.value),
           }),

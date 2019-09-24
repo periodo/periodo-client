@@ -11,6 +11,7 @@ exports.Link = Link(sys({
   ':hover': {
     textDecoration: 'underline',
   },
+  cursor: 'pointer',
 }))
 
 exports.ExternalLink = Link(sys({

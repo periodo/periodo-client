@@ -17,6 +17,7 @@ const {
   Button$Danger,
   Alert$Success,
   Alert$Error,
+  ResourceTitle,
 } = require('periodo-ui')
 
 
@@ -105,9 +106,7 @@ class ReviewPatch extends React.Component {
       h(Box, [
         this.state.message,
 
-        h(Heading, {
-          level: 2,
-        }, 'Patch'),
+        h(ResourceTitle, 'Submitted changes'),
 
         h(Compare, {
           localDataset: fromDataset,
@@ -117,8 +116,8 @@ class ReviewPatch extends React.Component {
         }),
 
         h(Heading, {
-          level: 2,
-          mt: 2,
+          level: 3,
+          mt: 4,
           mb: 1,
         }, 'Comments'),
 
@@ -149,10 +148,10 @@ class ReviewPatch extends React.Component {
 
         !patch.open ? null : h(Box, [
           h(Heading, {
-            level: 2,
-            mt: 2,
+            level: 3,
+            mt: 4,
             mb: 1,
-          }, 'Accept patch?'),
+          }, 'Accept changes?'),
 
           h(Button$Default, {
             mr: 1,

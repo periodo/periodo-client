@@ -350,13 +350,10 @@ function AuthorityRow(props) {
           list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
           list => [
             list.slice(0, 5),
-            h(Box, {
+            h(Link, {
               key: 'view-more',
-              is: 'a',
-              href: '',
               mt: 1,
               display: 'inline-block',
-              color: 'blue',
               onClick: e => {
                 e.preventDefault();
                 setState({
@@ -496,9 +493,15 @@ class Compare extends React.Component {
   }
 
   render() {
-    const { allPatches, filteredTypes, expandAll, localDataset, remoteDataset } = this.state
-        , { selectAll } = this.props
-        , editing = !!this.props.onChange
+    const {
+      allPatches,
+      filteredTypes,
+      localDataset,
+      remoteDataset,
+      selectAll,
+    } = this.state
+
+    const editing = !!this.props.onChange
 
     const filteredPatches =
       filteredTypes.length
@@ -549,7 +552,7 @@ class Compare extends React.Component {
           borderColor: 'gray.4',
         }, [
           h(Box, [
-            h(Heading, { level: 4 }, 'Patch summary'),
+            h(Heading, { level: 4 }, 'Changes summary'),
             h(Box, {
               is: 'ul',
               ml: 3,
@@ -576,38 +579,14 @@ class Compare extends React.Component {
 
                 saveAs(patch, 'patch.jsonpatch')
               },
-            }, 'Download patch'),
+            }, 'Download changes'),
           ]),
         ]),
 
-        editing && h(Box, {
-          is: 'a',
-          href: '',
-          color: 'blue',
-          onClick: e => {
-            e.preventDefault();
-
-            this.setState(prev => {
-              if (prev.expandAll) {
-                return {
-                  expandAll: false,
-                  expandedPeriods: new Set(),
-                  expandedAuthorities: new Set(),
-                  viewedAllPeriods: new Set(),
-                }
-              } else {
-                return {
-                  expandAll: true,
-                }
-              }
-            })
+        editing && h(Link, {
+          css: {
+            position: 'absolute',
           },
-        }, expandAll ? 'Collapse all' : 'Expand all'),
-
-        editing && h(Box, {
-          is: 'a',
-          href: '',
-          color: 'blue',
           onClick: e => {
             e.preventDefault();
 
@@ -647,8 +626,14 @@ class Compare extends React.Component {
           ]),
           h('thead', [
             h('tr', [
-              h('th', 'Authority'),
-              h('th', 'Period'),
+              h('th', {}, h(Heading, {
+                level: 4,
+                mb: 1,
+              }, 'Authority')),
+              h('th', {}, h(Heading, {
+                level: 4,
+                mb: 1,
+              }, 'Period')),
             ]),
           ]),
           h('tbody', Object.entries(byAuthority).map(([ authorityID, patches ]) =>
