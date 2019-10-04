@@ -26,15 +26,40 @@ const colors = {
   "Removed": "red",
 }
 
+function Checkbox(props) {
+  return h(Box, {
+    is: 'input',
+    type: 'checkbox',
+    style: { flex: 'none' },
+    ...props,
+  })
+}
+
 function Indicator({ label }) {
   return h('span', {
     style: {
+      flex: 'none',
       fontWeight: 'bold',
       color: colors[label] || 'black',
       width: 108,
       textAlign: 'center',
+      marginTop: '1px',
     },
   }, label)
+}
+
+function Summary(props) {
+  return h(Box, {
+    is: 'summary',
+    css: {
+      width: '100%',
+      cursor: 'pointer',
+      ':hover': {
+        backgroundColor: '#eee',
+      },
+    },
+    ...props,
+  })
 }
 
 function addOrRemove(items, key) {
@@ -56,11 +81,9 @@ function PeriodCell(props) {
     setState,
     period,
     authority,
-    expandAll,
     selectAll,
     unpatchedPeriodByID,
     patchedPeriodByID,
-    expandedPeriods,
     selectedPeriods,
     selectedPatches,
   } = props
@@ -86,108 +109,95 @@ function PeriodCell(props) {
   const checked = selectAll || !!(selectAllPeriods || explicitlySelected)
 
   return (
-    h(Box, [
-      h(Flex, { alignItems: 'center' }, [
-        editing && h(Box, {
-          is: 'input',
-          mx: 1,
-          type: 'checkbox',
-          checked,
-          onChange: () => setState(prev => {
-            // In the simple case, where the period is not a "subperiod" of a
-            // patch adding an authority, just toggle whether this patch is
-            // selected.
-            if (!deferToAuthority) {
-              return {
-                selectedPatches: patch.id in prev.selectedPatches
-                  ? R.dissoc(patch.id, prev.selectedPatches)
-                  : R.assoc(patch.id, true, prev.selectedPatches),
-              }
-            }
-
-            // If only the authority has been selected, by default,
-            // everything is checked. By unchecking one period, every period
-            // *but* this one will be selected.
-            if (selectAllPeriods) {
-              return {
-                selectedPeriods: R.assoc(patch.id, R.pipe(
-                  R.prop('periods'),
-                  R.dissoc(period.id),
-                  R.map(R.T)
-                )(authority))(prev.selectedPeriods),
-              }
-            }
-
-            // If this one has been explicitly selected, unselect it.
-            if (explicitlySelected) {
-              return {
-                selectedPeriods: R.dissocPath([ patch.id, period.id ], prev.selectedPeriods),
-              }
-            }
-
-            // Otherwise, neither the authority, nor the period has been
-            // selected. In that case, select both the period and the
-            // authority.
+    h(Flex, {
+      alignItems: 'flex-start',
+      py: 1,
+    }, [
+      editing && h(Checkbox, {
+        checked,
+        onChange: () => setState(prev => {
+          // In the simple case, where the period is not a "subperiod" of a
+          // patch adding an authority, just toggle whether this patch is
+          // selected.
+          if (!deferToAuthority) {
             return {
-              selectedPeriods: R.assocPath([ patch.id, period.id ], true, prev.selectedPeriods),
-              selectedPatches: R.assoc(patch.id, true, prev.selectedPatches),
+              selectedPatches: patch.id in prev.selectedPatches
+                ? R.dissoc(patch.id, prev.selectedPatches)
+                : R.assoc(patch.id, true, prev.selectedPatches),
             }
-          }),
+          }
+
+          // If only the authority has been selected, by default,
+          // everything is checked. By unchecking one period, every period
+          // *but* this one will be selected.
+          if (selectAllPeriods) {
+            return {
+              selectedPeriods: R.assoc(patch.id, R.pipe(
+                R.prop('periods'),
+                R.dissoc(period.id),
+                R.map(R.T)
+              )(authority))(prev.selectedPeriods),
+            }
+          }
+
+          // If this one has been explicitly selected, unselect it.
+          if (explicitlySelected) {
+            return {
+              selectedPeriods: R.dissocPath([ patch.id, period.id ], prev.selectedPeriods),
+            }
+          }
+
+          // Otherwise, neither the authority, nor the period has been
+          // selected. In that case, select both the period and the
+          // authority.
+          return {
+            selectedPeriods: R.assocPath([ patch.id, period.id ], true, prev.selectedPeriods),
+            selectedPatches: R.assoc(patch.id, true, prev.selectedPatches),
+          }
         }),
+      }),
 
 
-        h(Indicator, {
-          label: patch.type.case({
-            AddAuthority: () => 'New',
-            RemoveAuthority: () => 'Removed',
-            AddPeriod: () => 'New',
-            ChangePeriod: () => 'Changed',
-            RemovePeriod: () => 'Removed',
-            _: () => null,
-          }),
-        }),
-        h(Box, {
-          onClick: () => setState({
-            expandedPeriods: addOrRemove(expandedPeriods, period.id),
-          }),
-          p: '4px',
-          css: {
-            width: '100%',
-            cursor: 'pointer',
-            ':hover': {
-              backgroundColor: '#eee',
-            },
-          },
-        }, period.label),
-      ]),
-
-      (expandAll || expandedPeriods.has(period.id)) && h(Period, {
-        pb: 2,
-        px: 4,
-        mb: 2,
-        mx: 2,
-        showMap: false,
-        value: period,
-        ...patch.type.case({
-          AddAuthority: () => ({
-            bg: 'green.0',
-          }),
-          AddPeriod: () => ({
-            bg: 'green.0',
-          }),
-          ChangePeriod: () => ({
-            value: unpatchedPeriodByID(period.id),
-            compare: patchedPeriodByID(period.id),
-          }),
-          RemoveAuthority: () => ({
-            bg: 'red.0',
-          }),
-          RemovePeriod: () => ({
-            bg: 'red.0',
-          }),
+      h(Indicator, {
+        label: patch.type.case({
+          AddAuthority: () => 'New',
+          RemoveAuthority: () => 'Removed',
+          AddPeriod: () => 'New',
+          ChangePeriod: () => 'Changed',
+          RemovePeriod: () => 'Removed',
           _: () => null,
         }),
       }),
+
+      h(Box, { is: 'details' }, [
+        h(Summary, period.label),
+
+        h(Period, {
+          p: 3,
+          maxWidth: '568px',
+          showMap: false,
+          value: period,
+          ...patch.type.case({
+            AddAuthority: () => ({
+              bg: 'green.0',
+            }),
+            AddPeriod: () => ({
+              bg: 'green.0',
+            }),
+            ChangePeriod: () => ({
+              value: unpatchedPeriodByID(period.id),
+              compare: patchedPeriodByID(period.id),
+            }),
+            RemoveAuthority: () => ({
+              bg: 'red.0',
+            }),
+            RemovePeriod: () => ({
+              bg: 'red.0',
+            }),
+            _: () => null,
+          }),
+        }),
+      ]),
     ])
   )
 }
@@ -201,9 +211,7 @@ function AuthorityRow(props) {
     selectedPeriods,
     selectedPatches,
     viewedAllPeriods,
-    expandAll,
     selectAll,
-    expandedAuthorities,
     setState,
   } = props
 
@@ -261,18 +269,16 @@ function AuthorityRow(props) {
     }, [
       h(Box, {
         is: 'td',
+        p: 2,
         css: {
           border: '1px solid #ccc',
           borderRight: 'none',
         },
       }, [
         h(Flex, {
-          alignItems: 'center',
+          alignItems: 'flex-start',
         }, [
-          editing && authorityPatches.length > 0 && h(Box, {
-            is: 'input',
-            mx: 1,
-            type: 'checkbox',
+          editing && authorityPatches.length > 0 && h(Checkbox, {
             checked: selectAll || (patchID in selectedPatches),
             onChange: () => setState({
               selectedPatches: (patchID in selectedPatches)
@@ -294,45 +300,35 @@ function AuthorityRow(props) {
             _: () => null,
           }),
 
-          h(Box, {
-            onClick: () => setState({
-              expandedAuthorities: addOrRemove(expandedAuthorities, authority.id),
+          h(Box, { is: 'details' }, [
+            h(Summary, util.authority.displayTitle(authority)),
+
+            h(Authority, {
+              p: 3,
+              maxWidth: '568px',
+              value: authority,
+              ...authorityPatches.length && authorityPatches[0].type.case({
+                AddAuthority: () => ({
+                  bg: 'green.0',
+                }),
+                ChangeAuthority: () => ({
+                  value: patchedAuthorityByID(authority.id),
+                  compare: unpatchedAuthorityByID(authority.id),
+                }),
+                RemoveAuthority: () => ({
+                  bg: 'red.0',
+                }),
+                _: () => ({}),
+              }),
             }),
-            p: '8px 4px',
-            css: {
-              width: '100%',
-              cursor: 'pointer',
-              ':hover': {
-                backgroundColor: '#eee',
-              },
-            },
-          }, util.authority.displayTitle(authority)),
+          ]),
         ]),
-        (expandAll || expandedAuthorities.has(authority.id)) && h(Authority, {
-          px: 4,
-          pb: 2,
-          mx: 2,
-          value: authority,
-          ...authorityPatches.length && authorityPatches[0].type.case({
-            AddAuthority: () => ({
-              bg: 'green.0',
-            }),
-            ChangeAuthority: () => ({
-              value: patchedAuthorityByID(authority.id),
-              compare: unpatchedAuthorityByID(authority.id),
-            }),
-            RemoveAuthority: () => ({
-              bg: 'red.0',
-            }),
-            _: () => ({}),
-          }),
-        }),
       ]),
 
       h(Box, {
         is: 'td',
+        p: 2,
         css: {
-          padding: '4px 0',
           border: '1px solid #ccc',
           borderLeft: 'none',
         },
@@ -347,7 +343,7 @@ function AuthorityRow(props) {
           patchedPeriodByID,
         })),
         R.ifElse(
-          list => list.length > 5 && !(expandAll || viewedAllPeriods.has(authority.id)),
+          list => list.length > 5 && !viewedAllPeriods.has(authority.id),
           list => [
             list.slice(0, 5),
             h(Link, {
@@ -360,7 +356,7 @@ function AuthorityRow(props) {
                   viewedAllPeriods: addOrRemove(viewedAllPeriods, authority.id),
                 })
               },
-            }, `View ${list.length - 5} more`),
+            }, `See ${list.length - 5} more`),
           ],
           R.identity
         )
@@ -427,10 +423,7 @@ class Compare extends React.Component {
       selectedPeriods: {},
       selectedPatches: {},
       filteredTypes: [],
-      expandAll: false,
       selectAll: false,
-      expandedAuthorities: new Set(),
-      expandedPeriods: new Set(),
       viewedAllPeriods: new Set(),
       checkedAuthorities: new Set(),
     }
