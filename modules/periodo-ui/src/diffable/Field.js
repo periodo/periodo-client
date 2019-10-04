@@ -197,7 +197,7 @@ function Warnings(props) {
 // using an extractor function, and renders it as a <dt>/<dd> pair. Optionally,
 // another value can be compared to the value, using the `compare' prop.
 function Field(props) {
-  const { value, compare, ...childProps } = props
+  const { value, compare, css, ...childProps } = props
       , { label, hidden=false, nested } = value
       , values = compare ? compareValues(value, compare) : showValues(value)
       , { warnings, summary, items } = values
@@ -226,7 +226,13 @@ function Field(props) {
   }
 
   return (
-    h(Box, childProps, [
+    h(Box, {
+      css: {
+        overflowWrap: 'break-word',
+        ...css,
+      },
+      ...childProps,
+    }, [
       h(Box, {
         is: 'dt',
         fontWeight: 'bold',
