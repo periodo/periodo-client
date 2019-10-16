@@ -301,10 +301,10 @@ function getPatchRequest(remoteBackend, patchURL) {
   }
 }
 
-async function getPatchRequestList() {
+async function getPatchRequestList(storage) {
   let patchRequests = []
 
-  let patchURL = new URL('patches.json?limit=250', globals.periodoServerURL).href
+  let patchURL = new URL('patches.json?limit=250', storage.url).href
 
   while (patchURL) {
     const resp = await fetch(patchURL)
