@@ -6,6 +6,8 @@ const h = require('react-hyperscript')
     , Compare = require('./Compare')
     , { PatchDirection, PatchFate } = require('./types')
     , PatchAction = require('./actions')
+    , ORCIDSettings = require('../auth/components/ORCID')
+
 
 const {
   Box,
@@ -99,22 +101,32 @@ class ReviewPatch extends React.Component {
   }
 
   render() {
-    const { fromDataset, toDataset, patchText, patch } = this.props
-        , { comment, submitting, deciding } = this.state
+    const {
+      fromDataset,
+      toDataset,
+      patchText,
+      patch,
+      backend,
+      mergeURL,
+    } = this.props
 
-    return (
-      h(Box, [
-        this.state.message,
+    const { comment, submitting, deciding } = this.state
 
-        h(ResourceTitle, 'Submitted changes'),
+    let children = [
+      this.state.message,
 
-        h(Compare, {
-          localDataset: fromDataset,
-          remoteDataset: toDataset,
-          patch: patchText,
-          direction: PatchDirection.Pull,
-        }),
+      h(ResourceTitle, 'Submitted change'),
 
+      h(Compare, {
+        localDataset: fromDataset,
+        remoteDataset: toDataset,
+        patch: patchText,
+        direction: PatchDirection.Pull,
+      }),
+    ]
+
+    if (backend.metadata.orcidCredential) {
+      children = children.concat([
         h(Heading, {
           level: 3,
           mt: 4,
@@ -145,8 +157,23 @@ class ReviewPatch extends React.Component {
           disabled: !comment || submitting,
           onClick: this.addComment,
         }, 'Add comment'),
+      ])
+    } else {
+      children = children.concat([
+        h(Text, {
+          my: 3,
+        }, 'To comment on these changes, please log in.'),
 
-        !patch.open ? null : h(Box, [
+        h(ORCIDSettings, {
+          backend,
+          showAlerts: false,
+        }),
+      ])
+    }
+
+    if (patch.open && mergeURL) {
+      children = children.concat([
+        h(Box, [
           h(Heading, {
             level: 3,
             mt: 4,
@@ -163,14 +190,15 @@ class ReviewPatch extends React.Component {
             disabled: deciding,
             onClick: () => this.decideFate(PatchFate.Reject),
           }, 'Reject'),
-
         ]),
-
-        !deciding ? null : (
-          h('p', 'Loading...')
-        ),
       ])
-    )
+    }
+
+    if (deciding) {
+      children.push(h('p', 'Loading...'))
+    }
+
+    return h(Box, children)
   }
 }
 
