@@ -450,7 +450,7 @@ const Backend = {
 }
 
 const ReviewPatch = {
-  label: 'Submitted changes',
+  label: 'Submitted change',
   parent: Backend,
   resources: {
     'review-patch': {
