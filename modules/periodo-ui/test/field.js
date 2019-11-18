@@ -1,66 +1,103 @@
 "use strict";
 
 const test = require('tape')
-    , { Value } = require('../src/types')
-    , { extract, as } = require('../src/Field')
+    , { extract } = require('../src/diffable/Field')
 
-test('extract', t => {
+test('Extract function', t => {
   t.plan(7)
 
-  const o = { a: 1, b: [ 'foo', 'bar' ], c: { id: 1 }, d: null, f: true }
+  const o = {
+    a: 1,
+    b: [ 'foo', 'bar' ],
+    c: { id: 1 },
+    d: null,
+    f: true,
+  }
 
   t.deepEqual(
     extract('a')(o),
-    [ Value.Anonymous(1) ]
+    [ 1 ]
   )
+
   t.deepEqual(
     extract('b')(o),
-    [ Value.Anonymous('foo'), Value.Anonymous('bar') ]
+    [ 'foo', 'bar' ]
   )
+
   t.deepEqual(
     extract('c')(o),
-    [ Value.Identified({ id: 1 }) ]
+    [{ id: 1 }]
   )
+
   t.deepEqual(
     extract([ 'c', 'id' ])(o),
-    [ Value.Anonymous(1) ]
+    [ 1 ]
   )
+
   t.deepEqual(
     extract('d')(o),
     []
   )
+
   t.deepEqual(
     extract('e')(o),
     []
   )
+
   t.throws(() => extract('f')(o), /^TypeError/)
 })
 
-test('extract as', t => {
+test('Extract with key', t => {
   t.plan(5)
 
-  const o = { a: 1, b: [ 'foo', 'bar' ], c: { id: 1 }, d: null, f: true }
+  const o = {
+    a: 1,
+    b: [ 'foo', 'bar' ],
+    c: { id: 1 },
+    d: null,
+    f: true,
+  }
 
   t.deepEqual(
-    as('x')(extract('a'))(o),
-    [ Value.Identified({ id: 0, x: 1 }) ]
+    extract('a', { withKey: 'x' })(o),
+    [{
+      id: 0,
+      x: 1,
+    }]
   )
+
   t.deepEqual(
-    as('x')(extract('b'))(o),
-    [ Value.Identified({ id: 0, x: 'foo' })
-    , Value.Identified({ id: 1, x: 'bar' })
+    extract('b', { withKey: 'x' })(o),
+    [
+      {
+        id: 0,
+        x: 'foo',
+      },
+      {
+        id: 1,
+        x: 'bar',
+      },
     ]
   )
   t.deepEqual(
-    as('x')(extract('c'))(o),
-    [ Value.Identified({ id: 1 }) ]
+    extract('c', { withKey: 'x' })(o),
+    [
+      { id: 1 },
+    ]
   )
+
   t.deepEqual(
-    as('x')(extract([ 'c', 'id' ]))(o),
-    [ Value.Identified({ id: 0, x: 1 }) ]
+    extract([ 'c', 'id' ], { withKey: 'x' })(o),
+    [
+      {
+        id: 0,
+        x: 1,
+      },
+    ]
   )
+
   t.deepEqual(
-    as('x')(extract('d'))(o),
+    extract('d', { withKey: 'x' })(o),
     []
   )
 })

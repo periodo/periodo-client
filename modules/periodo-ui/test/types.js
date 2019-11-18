@@ -1,72 +1,163 @@
 "use strict";
 
 const test = require('tape')
-    , { Value, Change, valueEquality } = require('../src/types')
+    , { Change, valueEquals, isAnonymous, isIdentified } = require('../src/diffable/types')
 
-test('anonymous value construction', t => {
-  t.plan(9)
+test('Anonymous values', t => {
+  t.plan(8)
 
-  t.throws(() => Value.Anonymous(true), /^TypeError/)
-  t.throws(() => Value.Anonymous(null), /^TypeError/)
-  t.throws(() => Value.Anonymous(undefined), /^TypeError/)
-  t.throws(() => Value.Anonymous({ id: 'identifier' }), /^TypeError/)
+  t.false(
+    isAnonymous(true),
+    'cannot be booleans')
 
-  t.equal(Value.Anonymous(42)[0], 42)
-  t.equal(Value.Anonymous('foo')[0], 'foo')
+  t.false(
+    isAnonymous(null),
+    'cannot be null')
 
-  t.deepEqual(Value.Anonymous({ foo: 'bar' })[0], { foo: 'bar' })
-  t.deepEqual(Value.Anonymous({ id: '@id' })[0], { id: '@id' })
-  t.deepEqual(Value.Anonymous([ 1, 2 ])[0], [ 1, 2 ])
+  t.false(
+    isAnonymous(undefined),
+    'cannot be undefined')
+
+  t.false(
+    isAnonymous({ id: 'identifier' }),
+    'cannot be identified objects')
+
+  t.true(
+    isAnonymous(42),
+    'can be a number')
+
+  t.true(
+    isAnonymous('foo'),
+    'can be a string')
+
+  t.true(
+    isAnonymous({ foo: 'bar' }),
+    'can be an unidentified object')
+
+  t.true(
+    isAnonymous({ id: '@id' }),
+    'can be an object whose id is `@id`')
 })
 
-test('identified value construction', t => {
+test('Identified values', t => {
   t.plan(9)
 
-  t.throws(() => Value.Identified(true), /^TypeError/)
-  t.throws(() => Value.Identified(null), /^TypeError/)
-  t.throws(() => Value.Identified(undefined), /^TypeError/)
-  t.throws(() => Value.Identified(42), /^TypeError/)
-  t.throws(() => Value.Identified('foo'), /^TypeError/)
-  t.throws(() => Value.Identified({ foo: 'bar' }), /^TypeError/)
-  t.throws(() => Value.Identified([ 1, 2 ]), /^TypeError/)
-  t.throws(() => Value.Identified({ id: '@id' }), /^TypeError/)
+  t.false(
+    isIdentified(true),
+    'cannot be a boolean')
 
-  t.deepEqual(Value.Identified({ id: 'identifier' })[0], { id: 'identifier' })
+  t.false(
+    isIdentified(null),
+    'cannot be null')
+
+  t.false(
+    isIdentified(undefined),
+    'cannot be undefined')
+
+  t.false(
+    isIdentified(42),
+    'cannot be a number')
+
+  t.false(
+    isIdentified('foo'),
+    'cannot be a string')
+
+  t.false(
+    isIdentified({ foo: 'bar' }),
+    'cannot be an object without an `id` property')
+
+  t.false(
+    isIdentified([ 1, 2 ]),
+    'cannot be an array')
+
+  t.false(
+    isIdentified({ id: '@id' }),
+    'cannot be a an object whose `id` property is `@id`')
+
+  t.true(
+    isIdentified({ id: 'identifier' }),
+    'can be an object with an `id` property')
 })
 
-test('valueEquality', t => {
-  t.plan(5)
+test('Value equality', t => {
+  t.plan(3)
 
-  t.equal(valueEquality(
-    Value.Anonymous('foo'), Value.Anonymous('foo')), true)
-  t.equal(valueEquality(
-    Value.Anonymous(5), Value.Anonymous(5)), true)
-  t.equal(valueEquality(
-    Value.Anonymous({a:1}), Value.Anonymous({a:2})), false)
-  t.equal(valueEquality(
-    Value.Identified({id:9, a:1}), Value.Identified({id:9, a:2})), true)
-  t.equal(valueEquality(
-    Value.Anonymous({id:'@id', a:1}), Value.Anonymous({id:'@id', a:2})), false)
+  t.true(
+    valueEquals('foo', 'foo'),
+    'is true when two anonymous values have strict equality')
+
+  t.true(
+    valueEquals({ a: 1 }, { a: 1 }),
+    'is true when two anonymouse values which are equal according to `R.equals`')
+
+  t.true(
+    valueEquals(
+      {
+        id: 9,
+        a: 1,
+      },
+      {
+        id: 9,
+        a: 2,
+      }),
+    'is true when two identified values have the same `id` property')
+
 })
 
-test('change construction', t => {
+test('Changes', t => {
   t.plan(9)
 
-  t.equal(Change.Addition('foo')[0], 'foo')
-  t.equal(Change.Deletion('foo')[0], 'foo')
-  t.equal(Change.Preservation('foo')[0], 'foo')
+  t.equal(Change.Addition('foo').value, 'foo')
+  t.equal(Change.Deletion('foo').value, 'foo')
+  t.equal(Change.Preservation('foo').value, 'foo')
 
-  t.throws(() => Change.Mutation('foo', 'bar'), /^TypeError/)
+  t.throws(
+    () => Change.Mutation('foo', 'bar'),
+    /^TypeError/,
+    'are not valid when mutations contain non-identified values')
 
-  t.deepEqual(Change.Addition({ id: 1 })[0], { id: 1 })
-  t.deepEqual(Change.Deletion({ id: 1 })[0], { id: 1 })
   t.deepEqual(
-    Change.Mutation({ id: 1, x: 1 }, { id: 1, x: 2 })[0],
-    { id: 1, x: 1 }
+    Change.Addition({ id: 1 }).value,
+    { id: 1 })
+
+  t.deepEqual(
+    Change.Deletion({ id: 1 }).value,
+    { id: 1 })
+
+  t.deepEqual(
+    Change.Mutation(
+      {
+        id: 1,
+        x: 1,
+      },
+      {
+        id: 1,
+        x: 2,
+      }
+    ).from,
+    {
+      id: 1,
+      x: 1,
+    }
   )
   t.deepEqual(
-    Change.Mutation({ id: 1, x: 1 }, { id: 1, x: 2 })[1],
-    { id: 1, x: 2 }
+    Change.Mutation(
+      {
+        id: 1,
+        x: 1,
+      },
+      {
+        id: 1,
+        x: 2,
+      }
+    ).to,
+    {
+      id: 1,
+      x: 2,
+    }
   )
-  t.deepEqual(Change.Preservation({ id: 1 })[0], { id: 1 })
+
+  t.deepEqual(
+    Change.Preservation({ id: 1 }).value,
+    { id: 1 })
 })

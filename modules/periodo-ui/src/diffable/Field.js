@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { Box } = require('../Base')
     , { PrimitiveValue, show } = require('./Value')
     , { InfoText, WarnText } = require('../Typography')
-    , { Change, isIdentified } = require('./types')
+    , { Change, isIdentified, isValidValue } = require('./types')
     , { findChanges, showChanges } = require('./Diff')
 
 
@@ -18,16 +18,16 @@ function extract(path, opts={}) {
     const defaultValue = indexed ? {} : []
         , extracted = R.pathOr(defaultValue, path, item)
 
+    let ret
+
     if (indexed) {
-      const ret = {}
+      ret = {}
 
       Object.entries(extracted).forEach(([ k, v ]) => {
         ret[k] = v
       })
-
-      return ret
     } else {
-      let ret = [].concat(extracted)
+      ret = [].concat(extracted)
 
       if (withKey) {
         ret = ret.map((value, i) =>
@@ -38,9 +38,15 @@ function extract(path, opts={}) {
               [withKey]: value,
             })
       }
-
-      return ret
     }
+
+    [].concat(ret).forEach(val => {
+      if (!isValidValue(val)) {
+        throw new TypeError('Extracted invalid value: `' + JSON.stringify(val) + '`')
+      }
+    })
+
+    return ret
   }
 }
 

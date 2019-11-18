@@ -3,13 +3,21 @@
 const R = require('ramda')
     , regl = require('regl')
     , resl = require('resl')
-    , mixmap = require('mixmap')
     , glsl = require('glslify')
     , createMesh = require('earth-mesh')
     , h = require('react-hyperscript')
     , debounce = require('debounce')
     , { createRef, Component } = require('react')
     , { Box } = require('./Base')
+
+let mixmap
+  , mix
+
+// Skip on server
+if (typeof window !== 'undefined') {
+  mixmap = require('mixmap')
+  mix = mixmap(regl)
+}
 
 const tiles = require('../../../images/maptiles/manifest.json')
 
@@ -233,7 +241,6 @@ const initializeMap = mix => {
 }
 
 // shared webgl context, only needs to be rendered once
-const mix = mixmap(regl)
 const renderMix = R.once(() => document.body.appendChild(mix.render()))
 
 const getWidth = element => element ? element.getBoundingClientRect().width : 0
