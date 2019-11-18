@@ -89,7 +89,8 @@ test('Period authority utility functions', t => {
     latest: {
       iso: -205,
       label: '206 B.C.'
-    }
+    },
+    editorialNote: ''
   }, 'should describe an authority')
 });
 
