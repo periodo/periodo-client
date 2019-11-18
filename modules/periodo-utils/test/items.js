@@ -6,7 +6,7 @@ const test = require('tape')
 
 
 test('Period terminus utility functions', t => {
-  t.plan(6)
+  t.plan(7)
 
   const termini = require('./fixtures/termini.json')
 
@@ -26,6 +26,15 @@ test('Period terminus utility functions', t => {
     termini.map(util.terminus.hasISOValue),
     [true, true, true, true, true, false],
     'should detect whether a terminus has any ISO value'
+  )
+
+  const badISOYearTerminus = { in: { year: '30' }}
+  util.terminus.ensureISOYear(badISOYearTerminus)
+
+  t.deepEqual(
+    badISOYearTerminus,
+    { in: { year: '0030' } },
+    'should fix invalid ISO years having less than 4 numbers'
   )
 
   t.deepEqual(

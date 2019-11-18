@@ -73,7 +73,7 @@ function hasISOValue(terminus) {
 }
 
 // ISO years must have > 3 digits
-const BAD_ISO_YEAR = /^(?<negative>-?)(?<digits>\d{0,3})$/
+const BAD_ISO_YEAR = /^(-)?(\d{0,3})$/
 
 // note that this mutates the terminus to fix it
 function ensureISOYear(terminus) {
@@ -82,8 +82,10 @@ function ensureISOYear(terminus) {
         , bad = year.match(BAD_ISO_YEAR)
 
     if (bad) {
+      const [ , negative, digits ] = bad
+
       terminus[path[0]][path[1]] = (
-        `${bad.groups.negative}${bad.groups.digits.padStart(4, '0')}`
+        `${negative || ''}${digits.padStart(4, '0')}`
       )
     }
   })
