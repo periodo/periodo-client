@@ -1,134 +1,23 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , React = require('react')
-    , globals = require('../../globals')
-    , AuthAction = require('../actions')
     , BackendAction = require('../../backends/actions')
     , LinkedDataAction = require('../../linked-data/actions')
-    , { Link } = require('periodo-ui')
 
 const {
   Heading,
   Box,
-  Span,
   ResourceTitle,
   Button$Danger,
   Button$Default,
 } = require('periodo-ui')
 
-class SignIn extends React.Component {
-  constructor() {
-    super();
-
-    this.state = {
-      message: '',
-    }
-
-    this.handleMessage = this.handleMessage.bind(this)
-  }
-
-  handleMessage(e) {
-    const { dispatch } = this.props
-        , oauthName = e.data.name
-        , oauthToken = e.data.token
-
-    dispatch(AuthAction.UpdateSettings(
-      R.flip(R.merge)({
-        oauthName,
-        oauthToken,
-      })
-    ))
-
-    this.oauthWindow.close()
-    e.target.close()
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('message', this.handleMessage)
-  }
-
-  initOrcidAuth(e) {
-    e.preventDefault();
-
-    this.oauthWindow = window.open(
-      globals.orcidURL,
-      '_blank',
-      'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500');
-
-    window.addEventListener('message', this.handleMessage)
-  }
-
-  signOut(e) {
-    const { dispatch } = this.props
-
-    e.preventDefault();
-
-    dispatch(AuthAction.UpdateSettings(
-      R.omit([ 'oauthName', 'oauthToken' ])
-    ))
-  }
-
-  render() {
-    const { oauthName, oauthToken } = this.props
-
-    return (
-      h(Box, [
-        h(Heading, {
-          level: 3,
-          mb: 1,
-        }, 'Authorization'),
-
-        !oauthToken && (
-          h(Link, {
-            href: '',
-            onClick: this.initOrcidAuth.bind(this),
-            display: 'flex',
-            alignItems: 'center',
-          }, [
-            h('img', {
-              src: 'https://orcid.org/sites/default/files/images/orcid_24x24.png',
-              width: '24',
-              height: '24',
-              alt: 'ORCID logo',
-            }),
-            h(Span, { ml: 1 }, 'Log in with your ORCID'),
-          ])
-        ),
-
-        !!oauthToken && (
-          h(Box, [
-            h(Span, `Currently signed in as ${oauthName}`),
-            h(Link, {
-              ml: 1,
-              href: '',
-              onClick: this.signOut.bind(this),
-            }, 'Sign out'),
-          ])
-        ),
-
-
-      ])
-    )
-  }
-}
-
 module.exports = function Settings(props) {
   const { dispatch, settings } = props
-      , { oauthName, oauthToken } = settings
 
   return (
     h(Box, [
       h(ResourceTitle, 'Settings'),
-
-      h(Box, { mb: 3 }, [
-        h(SignIn, {
-          dispatch,
-          oauthName,
-          oauthToken,
-        }),
-      ]),
 
       h(Box, { mb: 3 }, [
         h(Heading, {
