@@ -87,8 +87,12 @@ $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rsync -r $(VERSIONED_DIRECTORY)/dist/ $(VERSIONED_DIRECTORY)
 	rm -rf $(VERSIONED_DIRECTORY)/dist
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
+	cp $(VERSIONED_DIRECTORY)/index.html $(VERSIONED_DIRECTORY)/index.dev.html
+	sed -i \
+		-e 's|$(JS_BUNDLE)|$(notdir $(MINIFIED_VERSIONED_JS_BUNDLE))|' \
+		$(VERSIONED_DIRECTORY)/index.html
 	sed -i \
 		-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
-		$(VERSIONED_DIRECTORY)/index.html
+		$(VERSIONED_DIRECTORY)/index.dev.html
 	cd dist && zip -r $(notdir $@) $(notdir $(VERSIONED_DIRECTORY))
 	rm -rf $(VERSIONED_DIRECTORY)
