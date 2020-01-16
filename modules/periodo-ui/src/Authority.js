@@ -50,6 +50,7 @@ const authorityFields = [
     component: DownloadValue,
     required: true,
     immutable: true,
+    includeCSV: true,
   },
 ]
 
