@@ -111,7 +111,7 @@ const ListWrapper = styled.div`
 .row__header span {
   z-index: 1;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 8px 7px;
 }
 
 `
