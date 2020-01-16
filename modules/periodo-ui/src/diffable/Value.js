@@ -128,21 +128,30 @@ function PermalinkValue(props) {
 }
 
 function DownloadValue(props) {
-  const { value } = props
+  const { value, includeCSV = false } = props
 
   const downloadURL= util.downloadURL({ id: value })
 
+  const types = [
+    {
+      label: 'JSON',
+      suffix: '.json',
+    }, {
+      label: 'Turtle',
+      suffix: '.ttl',
+    },
+  ]
+
+  if (includeCSV) {
+    types.push({
+      label: 'CSV',
+      suffix: '.csv',
+    })
+  }
+
   if (downloadURL) {
     return h(Span, props,
-      R.intersperse(', ', [
-        {
-          label: 'JSON',
-          suffix: '.json',
-        }, {
-          label: 'Turtle',
-          suffix: '.ttl',
-        },
-      ].map(({ label, suffix }) => h(
+      R.intersperse(', ', types.map(({ label, suffix }) => h(
         ExternalLink, { href: downloadURL + suffix }, label
       )))
     )
