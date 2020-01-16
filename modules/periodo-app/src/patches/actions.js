@@ -19,7 +19,6 @@ const R = require('ramda')
     , { getPatchRepr } = require('../linked-data/utils/patch')
     , isURL = require('is-url')
     , DatasetProxy = require('../backends/dataset_proxy')
-    , globals = require('../globals')
 
 function isDatasetProxy(obj) {
   return obj instanceof DatasetProxy
@@ -189,7 +188,9 @@ function withAuthHeaders(backend, extra) {
 
 function submitPatch(localBackend, remoteBackend, patch) {
   return async (dispatch, getState, { db }) => {
-    const resp = await fetch(new URL('d.jsonld', globals.periodoServerURL).href, {
+    const remoteDatasetURL = new URL('d.jsonld', remoteBackend.storage.url).href
+
+    const resp = await fetch(remoteDatasetURL, {
       body: JSON.stringify(patch),
       method: 'PATCH',
       headers: withAuthHeaders(remoteBackend, {
