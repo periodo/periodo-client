@@ -4,10 +4,10 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box } = require('periodo-ui')
-    , { RandomID } = require('periodo-common')
     , BackendAction = require('../actions')
     , AuthorityForm = require('../../forms/AuthorityForm')
     , { Navigable, Route } = require('org-shell')
+    , createSkolemID = require('../../linked-data/utils/generate_skolem_id')
 
 class AuthorityAddOrEdit extends React.Component {
   constructor(props) {
@@ -24,7 +24,6 @@ class AuthorityAddOrEdit extends React.Component {
       backend,
       dataset,
       navigateTo,
-      randomID,
     } = this.props
 
     return (
@@ -34,7 +33,7 @@ class AuthorityAddOrEdit extends React.Component {
           onValidated: async authority => {
 
             const isEdit = !!authority.id
-                , id = isEdit ? authority.id : randomID('authority')
+                , id = isEdit ? authority.id : createSkolemID()
 
             await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
@@ -65,4 +64,4 @@ class AuthorityAddOrEdit extends React.Component {
   }
 }
 
-module.exports = RandomID(Navigable(AuthorityAddOrEdit))
+module.exports = Navigable(AuthorityAddOrEdit)

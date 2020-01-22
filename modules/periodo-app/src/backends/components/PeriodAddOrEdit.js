@@ -4,11 +4,11 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box } = require('periodo-ui')
-    , { RandomID } = require('periodo-common')
     , BackendAction = require('../actions')
     , PeriodForm = require('../../forms/PeriodForm')
     , { Navigable, Route } = require('org-shell')
     , { $$Authority } = require('periodo-utils/src/symbols')
+    , createSkolemID = require('../../linked-data/utils/generate_skolem_id')
 
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
 
@@ -51,7 +51,6 @@ class AddPeriod extends React.Component {
       backend,
       dataset,
       navigateTo,
-      randomID,
       gazetteers,
     } = this.props
 
@@ -66,7 +65,7 @@ class AddPeriod extends React.Component {
           onValidated: async period => {
 
             const isEdit = !!period.id
-                , id = isEdit ? period.id : randomID('period')
+                , id = isEdit ? period.id : createSkolemID()
 
             const narrower = period.narrower
             delete period.narrower
@@ -143,4 +142,4 @@ class AddPeriod extends React.Component {
   }
 }
 
-module.exports = RandomID(Navigable(AddPeriod))
+module.exports = Navigable(AddPeriod)
