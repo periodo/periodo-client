@@ -166,16 +166,21 @@ function RelatedPeriodValue(props) {
 
   if (typeof(value) === 'object') {
     const period = value
+    const authority = util.period.authorityOf(period)
 
-    const childProps = {
-      route: Route('period-view', {
-        backendID: backend.asIdentifier(),
-        authorityID: util.period.authorityOf(period).id,
-        periodID: period.id,
-      }),
+    if (authority) {
+      const childProps = {
+        route: Route('period-view', {
+          backendID: backend.asIdentifier(),
+          authorityID: authority.id,
+          periodID: period.id,
+        }),
+      }
+      return h(Link, childProps, period.label)
+
+    } else {
+      return h(Span, {}, period.label)
     }
-
-    return h(Link, childProps, period.label)
 
   } else {
     const url = util.downloadURL({ id: value })
