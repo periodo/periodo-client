@@ -33,7 +33,7 @@ const PlaceFilter = ({
           ...opts,
           filter: places.length > 0 ? indexById(places) : null,
         }, true),
-        places: filter ? Object.values(filter) : [],
+        coverage: filter ? Object.values(filter) : [],
         gazetteers,
         closable: true,
       }),

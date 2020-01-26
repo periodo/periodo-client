@@ -8,6 +8,7 @@ const SpatialCoverageForm = ({
   onValueChange,
   description='',
   coverage=[],
+  suggestions=[],
   gazetteers,
 }) => {
 
@@ -36,7 +37,8 @@ const SpatialCoverageForm = ({
 
       h(PlacesSelect, {
         onChange: places => onValueChange({ spatialCoverage: places }),
-        places: coverage,
+        coverage,
+        suggestions,
         gazetteers,
       }),
     ]),
