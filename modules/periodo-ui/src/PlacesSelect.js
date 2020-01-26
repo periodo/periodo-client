@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { useState } = require('react')
-    , { Box, Span } = require('./Base')
+    , { Box } = require('./Base')
     , { Link } = require('./Links')
     , { Tags } = require('./Tags')
     , { LabeledMap } = require('./LabeledMap')
@@ -40,7 +40,8 @@ const togglePlace = (toggled, places) => {
 
 const PlacesSelect = ({
   onChange,
-  places=[], // [ { id, label } ]
+  coverage=[],    // [ { id, label } ]
+  suggestions=[], // [ { id, label } ]
   gazetteers,
   closable=false,
 }) => {
@@ -61,32 +62,26 @@ const PlacesSelect = ({
 
   return h(Box, {}, [
 
-    places.length > 0
-      ? h(Tags, {
-        items: places,
-        editLink: closable ? editLink : null,
-        onFocus: ({ id }) => {
-          setFocusedFeature(gazetteers.find(id))
-          setClosed(false)
-        },
-        onBlur: () => {
-          setFocusedFeature(null)
-        },
-        onDelete: deleted => {
-          onChange(places.filter(({ id }) => id !== deleted.id))
-        },
-      })
-      : h(Box, {
-        height: '24px',
-        css: {
-          lineHeight: '24px',
-        },
-      }, [
-        h(Span, {
-          color: 'gray.6',
-        }, 'No places selected.'),
-        closable ? editLink : null,
-      ]),
+    h(Tags, {
+      items: coverage,
+      suggestedItems: suggestions,
+      editLink: closable ? editLink : null,
+      emptyMessage: 'No places selected.',
+      suggestedTagsLabel: 'Suggested places: ',
+      onFocus: ({ id }) => {
+        setFocusedFeature(gazetteers.find(id))
+        setClosed(false)
+      },
+      onBlur: () => {
+        setFocusedFeature(null)
+      },
+      onAcceptSuggestion: accepted => {
+        onChange([ ...coverage, accepted ])
+      },
+      onDeleteItem: deleted => {
+        onChange(coverage.filter(({ id }) => id !== deleted.id))
+      },
+    }),
 
     closed
       ? null
@@ -94,7 +89,7 @@ const PlacesSelect = ({
 
         h(LabeledMap, {
           focusedFeatures: focusedFeature ? [ focusedFeature ] : [],
-          features: places.map(({ id }) => gazetteers.find(id)),
+          features: coverage.map(({ id }) => gazetteers.find(id)),
           mt: 1,
         }),
 
@@ -103,13 +98,13 @@ const PlacesSelect = ({
           inputProps: { autoFocus: true },
           onSuggestionHighlighted:
             ({ suggestion: feature }) => setFocusedFeature(feature),
-          isSelected: feature=> places.some(({ id }) => id === feature.id),
+          isSelected: feature => coverage.some(({ id }) => id === feature.id),
           onSelect: feature => {
             const place = {
               id: feature.id,
               label: feature.properties.title,
             }
-            onChange(togglePlace(place, places))
+            onChange(togglePlace(place, coverage))
           },
         }),
       ]),

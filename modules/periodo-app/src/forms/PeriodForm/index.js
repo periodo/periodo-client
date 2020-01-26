@@ -19,6 +19,32 @@ const lenses = {
   editorialNote: R.lensProp('editorialNote'),
 }
 
+const suggestPlaces = (authority, period) => {
+  if (! period.spatialCoverageDescription) {
+    return []
+  }
+  const coverage = Object.fromEntries(
+    (period.spatialCoverage || []).map(({ id, label }) => [ id, label ])
+  )
+  const suggestions = Object.values(authority.periods)
+    .filter(
+      p => p.spatialCoverageDescription === period.spatialCoverageDescription
+    )
+    .reduce((suggestions, p) => {
+      for (const { id, label } of (p.spatialCoverage || [])) {
+        if (! (coverage.hasOwnProperty(id) || suggestions.hasOwnProperty(id))) {
+          suggestions[id] = label
+        }
+      }
+      return suggestions
+    }, {})
+  return Object.entries(suggestions)
+    .map(([ id, label ]) => ({
+      id,
+      label,
+    }))
+}
+
 module.exports = Validated(validatePeriod, props => {
   const {
     value={},
@@ -142,6 +168,7 @@ module.exports = Validated(validatePeriod, props => {
               ),
               description: value.spatialCoverageDescription,
               coverage: value.spatialCoverage,
+              suggestions: suggestPlaces(authority, value),
               gazetteers,
             }),
           ]),
