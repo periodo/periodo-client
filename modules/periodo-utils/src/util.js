@@ -1,6 +1,7 @@
 "use strict";
 
 const R = require('ramda')
+    , qs = require('querystring')
     , { permalinkURL
       , periodoServerURL } = require('../../periodo-app/src/globals')
 
@@ -29,10 +30,30 @@ const downloadURL = ({ id }) => periodoServerURL.includes('://data.perio.do')
     ? `${ periodoServerURL }${ id.slice(2) }`
     : null
 
+function getLayoutOpts() {
+  if (window.location.hash.length == 0) {
+    return {}
+  }
+  const opts = Object.fromEntries(
+    Object.entries(qs.parse(window.location.hash.slice(1)))
+      .map(([ k, v ]) => [ k, JSON.parse(v) ])
+  )
+  return opts
+}
+
+function getLayoutParams() {
+  if (window.location.search.length == 0) {
+    return {}
+  }
+  return qs.parse(window.location.search.slice(1))
+}
+
 module.exports = {
   oneOf,
   ensureArray,
   valueAsArray,
   permalink,
   downloadURL,
+  getLayoutOpts,
+  getLayoutParams,
 }

@@ -7,8 +7,9 @@ const h = require('react-hyperscript')
     , { authorityOf } = require('periodo-utils/src/period')
     , { yearPublished } = require('periodo-utils/src/source')
     , styled = require('styled-components').default
-    , { Link } = require('periodo-ui')
+    , { Link, Text } = require('periodo-ui')
     , { Route } = require('org-shell')
+    , { getLayoutOpts, getLayoutParams } = require('periodo-utils')
 
 const columns = {
   label: {
@@ -23,7 +24,6 @@ const columns = {
 
   start: {
     label: 'Start',
-    width: '100px',
 
     sort: (periods, { dataset, sortDirection }) => {
       return dataset.cachedSort(periods, 'start', sortDirection === "desc")
@@ -37,7 +37,6 @@ const columns = {
 
   stop: {
     label: 'Stop',
-    width: '100px',
 
     sort: (periods, { dataset, sortDirection }) => {
       return dataset.cachedSort(periods, 'stop', sortDirection === "desc")
@@ -57,7 +56,6 @@ const columns = {
 
   publicationDate: {
     label: 'Pub. date',
-    width: '132px',
     getValue(period) {
       return yearPublished(authorityOf(period).source)
     },
@@ -78,21 +76,38 @@ const ListWrapper = styled.div`
 }
 
 .row :nth-child(1) {
-  width: 8ch;
+  min-width: 6ch;
+  max-width: 6ch;
 }
 
-.row :nth-child(2),
+.row :nth-child(2) {
+  min-width: 10ch;
+  max-width: 10ch;
+}
+
 .row :nth-child(3) {
-  width: 160px;
+  flex: 1;
+  min-width: 20ch;
 }
 
-.row :nth-child(4),
+.row :nth-child(4) {
+  min-width: 10ch;
+  width: 20ch;
+}
+
 .row :nth-child(5) {
-  flex: 1;
+  min-width: 10ch;
+  width: 20ch;
 }
 
 .row :nth-child(6) {
-  width: 132px;
+  min-width: 10ch;
+  width: 30ch;
+}
+
+.row :nth-child(7) {
+  min-width: 12ch;
+  width: 12ch;
 }
 
 .row__header {
@@ -131,6 +146,9 @@ function ItemRow({
     selectedPeriod,
     setHoveredPeriod,
     setSelectedPeriod,
+    layoutOpts,
+    layoutParams,
+    showEditLink,
   },
 }) {
   const period = periods[index]
@@ -157,16 +175,29 @@ function ItemRow({
       },
     }, [
       h('span', [
+        h(Text, {
+          color: 'gray.6',
+        }, index + 1),
+      ]),
+      h('span', [
         h(Link, {
-          style: {
-            display: 'flex',
-          },
           route: new Route('period-view', {
             backendID: backend.asIdentifier(),
             authorityID: authorityOf(period).id,
             periodID: period.id,
           }),
-        }, index + 1),
+        }, 'view'),
+        showEditLink
+          ? h(Link, {
+            ml: 2,
+            route: new Route('period-edit', {
+              backendID: backend.asIdentifier(),
+              authorityID: authorityOf(period).id,
+              periodID: period.id,
+              nextPage: layoutParams.page,
+            }, layoutOpts),
+          }, 'edit')
+          : null,
       ]),
     ].concat(Object.values(columns).map(({ getValue }) =>
       h('span', getValue(period))
@@ -320,6 +351,9 @@ class PeriodList extends React.Component {
       backend,
     } = this.props
 
+    const layoutOpts = getLayoutOpts()
+        , layoutParams = getLayoutParams()
+
     return (
       h(ListWrapper, {
         tabIndex: 0,
@@ -349,7 +383,8 @@ class PeriodList extends React.Component {
             width: this.state.headerWidth - 4,
           },
         }, [
-          h('span', ''),
+          h('span', ''), // count
+          h('span', ''), // view/edit
         ].concat(Object.entries(columns).map(([ key, { label }]) =>
           h('span', {
             onClick: () => {
@@ -391,6 +426,9 @@ class PeriodList extends React.Component {
             selectedPeriod,
             setHoveredPeriod,
             setSelectedPeriod,
+            layoutOpts,
+            layoutParams,
+            showEditLink: backend.asIdentifier().startsWith('local-'),
           },
           itemCount: periods == null ? 0 : periods.length,
           itemSize: 28,
