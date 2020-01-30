@@ -11,11 +11,11 @@ module.exports = Navigable(({ fixedPeriod, ...props }) => {
 
   const [ hoveredPeriod, setHoveredPeriod ] = fixedPeriod
     ? [ null, () => {} ]
-    : useState(null)
+    : useState(props.hoveredPeriod)
 
   const [ selectedPeriod, setSelectedPeriod ] = fixedPeriod
     ? [ fixedPeriod, () => {} ]
-    : useState(null)
+    : useState(props.selectedPeriod)
 
   let data = props.useAuthorities
     ? props.dataset.authorities

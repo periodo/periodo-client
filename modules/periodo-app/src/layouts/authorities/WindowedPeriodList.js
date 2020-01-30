@@ -209,6 +209,10 @@ function itemKey(index, data) {
   return data.periods[index].id
 }
 
+const findPeriodIndex = (period, sortedData) => (period && sortedData)
+  ? sortedData.findIndex(({ id }) => id === period.id)
+  : -1
+
 class PeriodList extends React.Component {
   constructor() {
     super()
@@ -221,6 +225,7 @@ class PeriodList extends React.Component {
     this.onKeyDown = this.onKeyDown.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
     this.handleScroll = this.handleScroll.bind(this)
+    this.updateScroll = this.updateScroll.bind(this)
 
     this.listRef = React.createRef()
   }
@@ -229,7 +234,15 @@ class PeriodList extends React.Component {
     this.setState({
       rect: this.el.getBoundingClientRect(),
       headerWidth: this.el.clientWidth,
+      scrollNeedsUpdate: true,
     })
+
+    if (this.props.opts
+        && this.props.opts.scrollTo
+        && this.props.selectedPeriod) {
+
+      window.scrollTo(0, this.el.offsetTop)
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -240,10 +253,9 @@ class PeriodList extends React.Component {
     )
 
     if (updateSort) {
-      this.listRef.current.scrollToItem(0)
-      this.props.setSelectedPeriod(null)
       this.updateSort()
     }
+    this.updateScroll()
   }
 
   onMouseMove(e) {
@@ -299,8 +311,13 @@ class PeriodList extends React.Component {
   }
 
   async updateSort() {
-    const { sortBy, sortDirection, data } = this.props
-        , column = columns[sortBy]
+    const {
+      sortBy,
+      sortDirection,
+      data,
+    } = this.props
+
+    const column = columns[sortBy]
 
     if (column) {
       let sortedData = null
@@ -327,13 +344,19 @@ class PeriodList extends React.Component {
       this.setState({
         sortedData,
         start: 0,
+        scrollNeedsUpdate: true,
       })
+    }
+  }
 
-      if (this.props.fixedPeriod && this.listRef.current) {
-        this.listRef.current.scrollToItem(
-          sortedData.findIndex(({ id }) => id === this.props.fixedPeriod.id) + 4
-        )
-      }
+  updateScroll() {
+    if (this.listRef.current && this.state.scrollNeedsUpdate) {
+      const index = findPeriodIndex(
+        this.props.selectedPeriod,
+        this.state.sortedData
+      )
+      this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
+      this.setState({ scrollNeedsUpdate: false })
     }
   }
 
@@ -408,6 +431,7 @@ class PeriodList extends React.Component {
         h(List, {
           height: 250,
           onScroll: this.handleScroll,
+          onItemsRendered: this.updateScroll,
           ref: this.listRef,
           innerRef: el => {
             if (!this.scrollEl && el) {
