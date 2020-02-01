@@ -447,6 +447,11 @@ const Backend = {
       dataset: state.backends.datasets[props.params.backendID],
     }
   },
+  modifyMenuLinkParams(params) {
+    // eslint-disable-next-line no-unused-vars
+    const { periodID, authorityID, ...rest } = params
+    return rest
+  },
 }
 
 const ReviewPatch = {
@@ -634,6 +639,11 @@ const Authority = {
       gazetteers: state.graphs.gazetteers,
     }
   },
+  modifyMenuLinkParams(params) {
+    // eslint-disable-next-line no-unused-vars
+    const { periodID, ...rest } = params
+    return rest
+  },
 }
 
 const Period = {
@@ -746,6 +756,10 @@ function registerGroups(groups) {
 
     if (group.mapStateToProps) {
       defineName(group.mapStateToProps, `${groupKey}:mapStateToProps`)
+    }
+
+    if (group.modifyMenuLinkParams) {
+      defineName(group.modifyMenuLinkParams, `${groupKey}:modifyMenuLinkParams`)
     }
 
     if (group.onBeforeRoute) {

@@ -25,7 +25,10 @@ function getRouteGroups(resource, props) {
         (acc, [ routeName, resource ]) =>
           (resource.showInMenu || R.T)(props)
             ? [ ...acc, {
-              route: new Route(routeName, props.params),
+              route: new Route(
+                routeName,
+                (group.modifyMenuLinkParams || R.identity)(props.params)
+              ),
               label: resource.label,
             }]
             : acc
