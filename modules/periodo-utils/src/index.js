@@ -12,5 +12,5 @@ module.exports = {
   symbols: require('./symbols'),
   terminus: require('./terminus'),
   terminusList: require('./terminus_list'),
-  ...require('./util')
+  ...require('./util'),
 }

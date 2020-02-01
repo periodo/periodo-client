@@ -136,7 +136,10 @@ module.exports = class AuthorityLayout extends React.Component {
         fontSize: 3,
       }, [
         h(Span, { color: 'gray.6' }, 'Download '),
-        h(DownloadValue, { value: description.id, includeCSV: true }),
+        h(DownloadValue, {
+          value: description.id,
+          includeCSV: true,
+        }),
       ]),
 
       h(Text,
