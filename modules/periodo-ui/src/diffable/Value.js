@@ -128,7 +128,7 @@ function PermalinkValue(props) {
 }
 
 function DownloadValue(props) {
-  const { value, includeCSV = false } = props
+  const { value, includeCSV = false, ...childProps } = props
 
   const downloadURL= util.downloadURL({ id: value })
 
@@ -150,7 +150,7 @@ function DownloadValue(props) {
   }
 
   if (downloadURL) {
-    return h(Span, props,
+    return h(Span, childProps,
       R.intersperse(', ', types.map(({ label, suffix }) => h(
         ExternalLink, { href: downloadURL + suffix }, label
       )))
