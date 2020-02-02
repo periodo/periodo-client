@@ -44,6 +44,7 @@ height = 200
 type = windowed-period-list
 grid-column = 1/7
 grid-row = 5/6
+scroll-to = true
 
 [PeriodDetail]
 type = period-detail
@@ -81,8 +82,16 @@ module.exports = class BackendHome extends React.Component {
   }
 
   render() {
-    const { backend, dataset, gazetteers } = this.props
-        , { blockOpts } = this.state
+    const {
+      backend,
+      dataset,
+      gazetteers,
+      params: { periodID },
+    } = this.props
+
+    const { blockOpts } = this.state
+
+    const selectedPeriod = dataset.periodByID(periodID)
 
     const childProps = {
       backend,
@@ -109,6 +118,7 @@ module.exports = class BackendHome extends React.Component {
             h(AuthorityLayoutRenderer, {
               ...childProps,
               layout,
+              selectedPeriod,
             })),
       ])
     )

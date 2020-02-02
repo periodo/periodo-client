@@ -95,7 +95,7 @@ const PlacesSelect = ({
 
         h(PlaceSuggest, {
           gazetteers,
-          inputProps: { autoFocus: true },
+          inputProps: { autoFocus: closable },
           onSuggestionHighlighted:
             ({ suggestion: feature }) => setFocusedFeature(feature),
           isSelected: feature => coverage.some(({ id }) => id === feature.id),
