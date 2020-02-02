@@ -233,7 +233,7 @@ function AuthorityRow(props) {
   const periods = R.pipe(
     R.chain(patch => {
       const periods = [].concat(patch.type.case({
-        AddAuthority: () => util.authority.periods(patch.patch.value),
+        AddAuthority: () => util.authority.periods(authority),
         RemoveAuthority: () => util.authority.periods(authority),
         ChangeAuthority: R.always([]),
         AddPeriod: (authorityID, periodID) => patchedPeriodByID(periodID),
