@@ -2,7 +2,7 @@
 
 const R = require('ramda')
     , { Result } = require('periodo-common')
-    , { terminus, ensureISOYear } = require('periodo-utils')
+    , { terminus } = require('periodo-utils')
     , { isLinkedData } = require('../linked-data/utils/source_ld_match')
 
 function addError(obj, label, err) {

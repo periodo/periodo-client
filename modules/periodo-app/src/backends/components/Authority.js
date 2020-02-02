@@ -46,6 +46,7 @@ height = 200
 type = windowed-period-list
 grid-column = 1/7
 grid-row = 5/6
+scroll-to = true
 
 [PeriodDetail]
 type = period-detail
@@ -88,8 +89,17 @@ module.exports = class AuthorityLayout extends React.Component {
   }
 
   render() {
-    const { backend, dataset, authority, gazetteers } = this.props
-        , { blockOpts } = this.state
+    const {
+      backend,
+      dataset,
+      authority,
+      gazetteers,
+      params: { periodID },
+    } = this.props
+
+    const { blockOpts } = this.state
+
+    const selectedPeriod = dataset.periodByID(periodID)
 
     const childProps = {
       backend,
@@ -126,7 +136,10 @@ module.exports = class AuthorityLayout extends React.Component {
         fontSize: 3,
       }, [
         h(Span, { color: 'gray.6' }, 'Download '),
-        h(DownloadValue, { value: description.id, includeCSV: true }),
+        h(DownloadValue, {
+          value: description.id,
+          includeCSV: true,
+        }),
       ]),
 
       h(Text,
@@ -150,6 +163,7 @@ module.exports = class AuthorityLayout extends React.Component {
           h(AuthorityLayoutRenderer, {
             ...childProps,
             layout: authorityLayout,
+            selectedPeriod,
           })
         ),
     ])
