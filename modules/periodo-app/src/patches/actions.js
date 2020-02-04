@@ -9,6 +9,7 @@ const R = require('ramda')
     , parseLinkHeader = require('parse-link-header')
     , Type = require('union-type')
     , ns = require('../linked-data/ns')
+    , { permalinkAwareFetch } = require('periodo-utils')
     , { normalizeDataset } = require('periodo-utils').dataset
     , { Backend, BackendStorage } = require('../backends/types')
     , { makeTypedAction, getResponse } = require('org-async-actions')
@@ -190,7 +191,7 @@ function submitPatch(localBackend, remoteBackend, patch) {
   return async (dispatch, getState, { db }) => {
     const remoteDatasetURL = new URL('d.jsonld', remoteBackend.storage.url).href
 
-    const resp = await fetch(remoteDatasetURL, {
+    const resp = await permalinkAwareFetch(remoteDatasetURL, {
       body: JSON.stringify(patch),
       method: 'PATCH',
       headers: withAuthHeaders(remoteBackend, {
@@ -227,7 +228,7 @@ function getPatchRequest(remoteBackend, patchURL) {
       patchURL = new URL(patchURL, remoteBackend.storage.url)
     }
 
-    const patchResp = await fetch(patchURL, {
+    const patchResp = await permalinkAwareFetch(patchURL, {
       headers: withAuthHeaders(remoteBackend),
     })
 
@@ -258,8 +259,8 @@ function getPatchRequest(remoteBackend, patchURL) {
       Object.assign(ret, existing, { patch })
     } else {
       const [ fromRawDatasetResp, patchTextResp ] = await Promise.all([
-        fetch(patch.created_from + '&inline-context'),
-        fetch(patch.text),
+        permalinkAwareFetch(patch.created_from + '&inline-context'),
+        permalinkAwareFetch(patch.text),
       ])
 
       if (!fromRawDatasetResp.ok) {
@@ -308,7 +309,7 @@ async function getPatchRequestList(storage) {
   let patchURL = new URL('patches.json?limit=250', storage.url).href
 
   while (patchURL) {
-    const resp = await fetch(patchURL)
+    const resp = await permalinkAwareFetch(patchURL)
         , link = parseLinkHeader(resp.headers.get('Link'))
 
     patchRequests = [ ...patchRequests, ...(await resp.json()) ]
@@ -360,7 +361,7 @@ function getBackendHistory(storage) {
 
       Web: async backendURL => {
         const url = new URL('history.nt?full', backendURL)
-            , resp = await fetch(url)
+            , resp = await permalinkAwareFetch(url)
 
         if (!resp.ok) {
           throw new Error(`Could not get changelog for data source ${backendURL}`)
@@ -473,12 +474,12 @@ function getPatch(storage, patchID) {
         const index = changelog.indexOf(change)
 
         const [ prevRawDatasetReq, patchReq ] = await Promise.all([
-          fetch(change.sourceDatasetURL + '&inline-context', {
+          permalinkAwareFetch(change.sourceDatasetURL + '&inline-context', {
             headers: new Headers({
               Accept: 'application/json',
             }),
           }),
-          fetch(change.patchURL),
+          permalinkAwareFetch(change.patchURL),
         ])
 
         const prevRawDataset = await prevRawDatasetReq.json()
@@ -513,7 +514,7 @@ function addPatchComment(backend, patchURL, comment) {
   commentURL += 'messages';
 
   return async dispatch => {
-    const resp = await fetch(commentURL, {
+    const resp = await permalinkAwareFetch(commentURL, {
       body: JSON.stringify({ message: comment }),
       method: 'POST',
       headers: withAuthHeaders(backend, {
@@ -554,7 +555,7 @@ function decidePatchFate(backend, mergeURL, fate) {
       Reject: () => mergeURL.replace('merge', 'reject'), // lol.
     })
 
-    const resp = await fetch(actionURL, {
+    const resp = await permalinkAwareFetch(actionURL, {
       method: 'POST',
       headers: withAuthHeaders(backend, {
         'Content-Type': 'application/json', // necessary? probably not.
