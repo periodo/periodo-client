@@ -30,6 +30,23 @@ const downloadURL = ({ id }) => periodoServerURL.includes('://data.perio.do')
     ? `${ periodoServerURL }${ id.slice(2) }`
     : null
 
+const permalinkAwareFetch = (resource, init) => {
+  let url = undefined
+
+  if (typeof resource === 'string') {
+    url = resource
+  } else if (typeof resource === 'object' &&
+             typeof resource.href === 'string') {
+    url = resource.href
+  }
+
+  if (url && url.startsWith(permalinkURL)) {
+    return fetch(url.replace(permalinkURL + 'p0', periodoServerURL), init)
+  } else {
+    return fetch(resource, init)
+  }
+}
+
 function getLayoutOpts() {
   if (window.location.hash.length == 0) {
     return {}
@@ -54,6 +71,7 @@ module.exports = {
   valueAsArray,
   permalink,
   downloadURL,
+  permalinkAwareFetch,
   getLayoutOpts,
   getLayoutParams,
 }
