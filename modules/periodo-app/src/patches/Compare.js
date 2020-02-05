@@ -312,8 +312,8 @@ function AuthorityRow(props) {
                   bg: 'green.0',
                 }),
                 ChangeAuthority: () => ({
-                  value: patchedAuthorityByID(authority.id),
-                  compare: unpatchedAuthorityByID(authority.id),
+                  value: unpatchedAuthorityByID(authority.id),
+                  compare: patchedAuthorityByID(authority.id),
                 }),
                 RemoveAuthority: () => ({
                   bg: 'red.0',
