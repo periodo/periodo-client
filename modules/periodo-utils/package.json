@@ -14,7 +14,6 @@
     "tape": "^4.8.0"
   },
   "dependencies": {
-    "iso-639-3": "^1.0.1",
     "periodo-date-parser": "^1.0.1",
     "ramda": "^0.24.1"
   }

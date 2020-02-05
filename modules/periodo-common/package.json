@@ -14,7 +14,6 @@
     "tape": "^4.8.0"
   },
   "dependencies": {
-    "ramda": "^0.24.1",
     "react-hyperscript": "github:periodo/react-hyperscript",
     "union-type": "github:ptgolden/union-type"
   }
