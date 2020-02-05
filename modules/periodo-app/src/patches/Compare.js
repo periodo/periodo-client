@@ -1,9 +1,5 @@
 "use strict";
 
-// TODO: Still no support for showing/selecting multiple changes to the same
-// item. I believe periods with multiple edits will show up twice as changed,
-// and only the first change for an authority will be selectable
-
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
