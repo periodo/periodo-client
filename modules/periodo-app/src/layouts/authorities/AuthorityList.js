@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , contributorList = require('periodo-utils/src/contributor_list')
     , source = require('periodo-utils/src/source')
-    , { blocks } = require('org-layouts')
+    , ListBlock = require('../ListBlock')
     , { Span } = require('periodo-ui')
     , { Route } = require('org-shell')
 
@@ -47,7 +47,7 @@ const columns = {
   },
 }
 
-module.exports = blocks.List({
+module.exports = ListBlock({
   label: 'Authority List',
   description: 'Selectable list of period authorities.',
   navigateToItem(item, { navigateTo, backend }) {

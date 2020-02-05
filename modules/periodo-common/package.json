@@ -4,17 +4,11 @@
   "private": true,
   "description": "",
   "main": "src/index.js",
-  "scripts": {
-    "test": "tape test/*.js"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "tape": "^4.8.0"
-  },
   "dependencies": {
-    "ramda": "^0.24.1",
+    "react": "^16.2.0",
     "react-hyperscript": "github:periodo/react-hyperscript",
     "union-type": "github:ptgolden/union-type"
   }
