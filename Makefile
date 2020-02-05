@@ -42,7 +42,7 @@ watch: node_modules | dist
 
 zip: $(VERSIONED_ZIPFILE)
 
-test:
+test: node_modules
 	npm test
 
 clean:
