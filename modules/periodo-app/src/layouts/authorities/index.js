@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { useState } = require('react')
-    , { LayoutRenderer } = require('org-layouts')
+    , LayoutRenderer = require('../LayoutRenderer')
     , { Navigable } = require('org-shell')
     , blocks = require('./blocks')
 

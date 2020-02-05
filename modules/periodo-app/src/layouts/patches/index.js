@@ -2,7 +2,8 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { LayoutRenderer, blocks } = require('org-layouts')
+    , LayoutRenderer = require('../LayoutRenderer')
+    , ListBlock = require('../ListBlock')
     , { Route, Navigable } = require('org-shell')
     , { Link } = require('periodo-ui')
 
@@ -15,7 +16,7 @@ function makeItemRoute(item, backend) {
   })
 }
 
-const PatchList = blocks.List({
+const PatchList = ListBlock({
   label: 'Patch list',
   description: 'List of patches',
   navigateToItem(item, { navigateTo, backend }) {

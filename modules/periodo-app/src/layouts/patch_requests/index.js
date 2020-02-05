@@ -3,7 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , Type = require('union-type')
-    , { LayoutRenderer, blocks } = require('org-layouts')
+    , LayoutRenderer = require('../LayoutRenderer')
+    , ListBlock = require('../ListBlock')
     , { Navigable, Route } = require('org-shell')
     , { Link } = require('periodo-ui')
 
@@ -36,7 +37,7 @@ function Status({ status }) {
   )
 }
 
-const PatchRequestList = blocks.List({
+const PatchRequestList = ListBlock({
   label: 'Patch request list',
   description: 'List of patch requests',
   navigateToItem(item, { navigateTo, backend }) {
