@@ -1,7 +1,6 @@
 "use strict";
 
-const d3 = require('d3')
-    , R = require('ramda')
+const R = require('ramda')
     , source = require('./source')
     , terminusList = require('./terminus_list')
     , { $$Authority } = require('./symbols')
@@ -34,30 +33,7 @@ function describe(authority) {
   }
 }
 
-function asCSV(authority) {
-  const { getEarliestYear, getLatestYear } = require('./terminus')
-
-  return d3.csv.format(authority.get('periods').map(period => {
-    const start = period.get('start')
-        , stop = period.get('stop')
-
-    return {
-      'label': period.get('label'),
-      'start_label': start.get('label'),
-      'earliest_start': getEarliestYear(start),
-      'latest_start': getLatestYear(start),
-      'stop_label': stop.get('label'),
-      'earliest_stop': getEarliestYear(stop),
-      'latest_stop': getLatestYear(stop),
-      'spatialCoverages': (period.spatialCoverage || []).map(sc => sc.id).join('|'),
-      'note': period.get('note'),
-      'editorial_note': period.get('editorialNote'),
-    }
-  }))
-}
-
 module.exports = {
-  asCSV,
   displayTitle,
   describe,
   periods,
