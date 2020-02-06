@@ -1,6 +1,6 @@
 "use strict";
 
-const { $$ActionType, $$ReadyState, $$TypedRequest } = require('./symbols')
+const { $$TypedRequest } = require('./symbols')
 
 function isTypedRequest(obj) {
   return (typeof obj === 'object') && $$TypedRequest in obj
@@ -19,7 +19,7 @@ function getResponse(action) {
     Success: resp => resp,
     _: () => {
       throw new Error('Ready state of action was not \'Success\'.')
-    }
+    },
   })
 }
 
@@ -28,7 +28,7 @@ function getError(action) {
     Failure: err => err,
     _: () => {
       throw new Error('Ready state of action was not \'Failure\'.')
-    }
+    },
   })
 }
 
@@ -40,7 +40,7 @@ function handleCompletedAction(action, onSuccess, onError) {
       throw new Error(
         'Ready state of action was pending. This can only be ' +
         'called on a completed action.')
-    }
+    },
   })
 }
 

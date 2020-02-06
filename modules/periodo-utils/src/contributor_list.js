@@ -10,5 +10,5 @@ function asString(contributors) {
 }
 
 module.exports = {
-  asString
+  asString,
 }

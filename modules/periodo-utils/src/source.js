@@ -7,7 +7,7 @@ const R = require('ramda')
 const creators = R.pipe(
   oneOf(
     R.prop('creators'),
-    R.path(['partOf', 'creators'])
+    R.path([ 'partOf', 'creators' ])
   ),
   x => x || []
 )
@@ -15,7 +15,7 @@ const creators = R.pipe(
 const contributors = R.pipe(
   oneOf(
     R.prop('contributors'),
-    R.path(['partOf', 'contributors'])
+    R.path([ 'partOf', 'contributors' ])
   ),
   x => x || []
 )
@@ -23,14 +23,14 @@ const contributors = R.pipe(
 const title = oneOf(
   R.prop('title'),
   R.prop('citation'),
-  R.path(['partOf', 'title']),
-  R.path(['partOf', 'citation'])
+  R.path([ 'partOf', 'title' ]),
+  R.path([ 'partOf', 'citation' ])
 )
 
 const yearPublished = R.pipe(
   oneOf(
     R.prop('yearPublished'),
-    R.path(['partOf', 'yearPublished'])
+    R.path([ 'partOf', 'yearPublished' ])
   ),
   v => v || null
 )

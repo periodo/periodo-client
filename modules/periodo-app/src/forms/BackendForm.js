@@ -2,7 +2,7 @@
 
 const React = require('react')
     , h = require('react-hyperscript')
-    , { Flex, Box, Input, Label, Link, Select, Textarea } = require('periodo-ui')
+    , { Flex, Box, Input, Label, Select, Textarea } = require('periodo-ui')
     , { Button$Primary, Button$Danger, Alert$Error } = require('periodo-ui')
     , { isDataset } = require('periodo-utils').dataset
 
