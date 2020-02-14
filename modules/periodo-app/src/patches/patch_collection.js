@@ -1,11 +1,8 @@
 "use strict";
 
-/* eslint camelcase:0 */
-
 const R = require('ramda')
     , { PatchType } = require('./types')
     , { hashPatch } = require('./patch')
-    , { replaceIDs } = require('../linked-data/utils/skolem_ids')
 
 function groupByChangeType(patches) {
   let ret = {}
@@ -34,22 +31,6 @@ function groupByChangeType(patches) {
 
   return ret
 }
-
-// FIXME: this doesn't work!
-function replaceMappedIDs(fromBackendName, toBackendName, dataset) {
-  return require('../db').backendIDMaps
-    .where('[fromBackendName+toBackendName]')
-      .equals([ fromBackendName.name, toBackendName.name ])
-    .toArray()
-    .then(idMapObjects => {
-      const idMap = Immutable.List(idMapObjects)
-        .toMap()
-        .mapEntries(([ , { fromID, toID }]) => [ fromID, toID ])
-
-      return replaceIDs(dataset, idMap)
-    })
-}
-
 
 async function filterByHash(patches, keepMatched, hashMatchFn) {
   const additions = []
@@ -108,7 +89,6 @@ function getOrcids(patches) {
 
 
 module.exports = {
-  replaceMappedIDs,
   groupByChangeType,
   filterByHash,
   getOrcids,

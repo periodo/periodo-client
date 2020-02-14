@@ -12,7 +12,9 @@ const RESET_DEBOUNCE_TIME = 275
 
 class LayoutBlock extends React.Component {
   shouldComponentUpdate(nextProps) {
-    const monitored = [ 'extraProps', 'processedOpts', 'passedOpts', 'defaultOpts' ]
+    const monitored = [
+      'extraProps', 'processedOpts', 'passedOpts', 'defaultOpts',
+    ]
 
     if (this.props.data !== nextProps.data) {
       return true
@@ -248,12 +250,12 @@ class LayoutRenderer extends React.Component {
         extraProps,
         processedOpts: processedOpts[i],
         passedOpts: blockOpts[block.id],
-        setBlockState: (obj, cb) => {
+        setBlockState: obj => {
           const nextState = typeof obj === 'function'
             ? obj(this.blockState[i])
             : obj
 
-          this.blockState[i] = obj
+          this.blockState[i] = nextState
         },
         invalidate: this.invalidate,
         onOptsChange: (newOpts, invalidate) => {

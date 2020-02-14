@@ -1,7 +1,5 @@
 "use strict";
 
-const R = require('ramda')
-
 function isDataset(obj, includeLegacy=false) {
   return (
     typeof obj === 'object' && (
@@ -9,14 +7,6 @@ function isDataset(obj, includeLegacy=false) {
       (!!includeLegacy && typeof obj.periodCollections === 'object')
     )
   )
-}
-
-function getAuthority(obj, authorityID) {
-  return R.path(['authorities', authorityID], obj)
-}
-
-function getPeriod(obj, authorityID, periodID) {
-  return R.path(['authorities', authorityID, 'periods', periodID], obj)
 }
 
 // The client should accept older versions of the dataset. This function
@@ -64,7 +54,5 @@ function normalizeDataset(dataset) {
 
 module.exports = {
   isDataset,
-  getAuthority: R.curry(getAuthority),
-  getPeriod: R.curry(getPeriod),
   normalizeDataset,
 }

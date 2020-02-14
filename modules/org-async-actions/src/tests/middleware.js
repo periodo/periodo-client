@@ -15,7 +15,7 @@ test('middleware', async t => {
       exec: () => ({
         something: 1,
       }),
-    }
+    },
   })
 
   const store = configureMockStore([
@@ -35,8 +35,8 @@ test('middleware', async t => {
       type: Actions.GetSomething,
       readyState: ReadyState.Success(action.responseOf({
         something: 1,
-      }))
-    }
+      })),
+    },
   ])
 
   t.ok(1)
