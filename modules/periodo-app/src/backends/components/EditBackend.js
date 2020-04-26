@@ -81,16 +81,6 @@ module.exports = Navigable((props) => {
           },
         }),
       ]),
-
-      props.backend.storage._name !== 'Web' ? null : (
-        h(Box, { flex: 1 }, [
-          h(Heading, {
-            level: 2,
-            mb: 2,
-          }, 'ORCID credentials'),
-          h(ORCIDSettings, { backend }),
-        ])
-      ),
     ])
   )
 })
