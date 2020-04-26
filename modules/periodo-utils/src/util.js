@@ -65,6 +65,17 @@ function getLayoutParams() {
   return qs.parse(window.location.search.slice(1))
 }
 
+const formatter = new Intl.DateTimeFormat('en', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: 'numeric',
+  hour12: false,
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+})
+
 module.exports = {
   oneOf,
   ensureArray,
@@ -74,4 +85,5 @@ module.exports = {
   permalinkAwareFetch,
   getLayoutOpts,
   getLayoutParams,
+  formatDate: formatter.format,
 }
