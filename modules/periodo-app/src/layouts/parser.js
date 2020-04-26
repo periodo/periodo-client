@@ -21,6 +21,7 @@ function camelCase(str) {
 
 const BLOCK_WHITELIST = [
   'type',
+  'section',
   'gridRow',
   'gridColumn',
 ]

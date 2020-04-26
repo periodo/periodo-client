@@ -8,10 +8,18 @@ const h = require('react-hyperscript')
 // layout, and return a normalized representation.
 module.exports = function processLayout(blockDefs, layoutString) {
   const parsedLayout = parseLayout(layoutString)
+
   return R.pipe(
     R.over(
       R.lensProp('blocks'),
-      R.map(({ id, type, opts, gridRow='auto', gridColumn='auto' }) => {
+      R.map(({
+        id,
+        type,
+        section,
+        opts,
+        gridRow='auto',
+        gridColumn='auto',
+      }) => {
           const {
             Component=() => h('div', {
               style: {
@@ -26,6 +34,7 @@ module.exports = function processLayout(blockDefs, layoutString) {
           return {
             id,
             type,
+            section,
             gridRow,
             gridColumn,
             block: {

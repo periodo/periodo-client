@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , PropTypes = require('prop-types')
     , debounce = require('debounce')
-    , { Box } = require('periodo-ui')
+    , { Box, SectionHeading, Section, Summary } = require('periodo-ui')
     , processLayout = require('./process_layout')
 
 const RESET_DEBOUNCE_TIME = 275
@@ -29,8 +29,6 @@ class LayoutBlock extends React.Component {
 
   render() {
     const {
-      gridRow,
-      gridColumn,
       defaultOpts,
       passedOpts,
       processedOpts,
@@ -73,13 +71,10 @@ class LayoutBlock extends React.Component {
     }
 
     return (
-      h('div', {
-        style: {
-          gridRow,
-          gridColumn,
-          minWidth: 0,
-          minHeight: 0,
-        },
+      h(Box, {
+        minWidth: 0,
+        minHeight: 0,
+        className: 'block',
       }, [
         h(Component, {
           opts,
@@ -184,8 +179,6 @@ class LayoutRenderer extends React.Component {
         , renderID = this.dataResets
         , numBlocks = processedLayout.blocks.length
 
-    // let dataForBlocks = [ ...this.state.dataForBlocks ]
-
     const dataForBlocks = [ this.props.data ]
 
     for (let i = 0; i < numBlocks; i++) {
@@ -241,47 +234,73 @@ class LayoutRenderer extends React.Component {
 
     if (!processedLayout || !data || !processedOpts) return null
 
-    const children = processedLayout.blocks.map((block, i) =>
-      h(LayoutBlock, {
-        key: `${i}-${block.type}`,
-        data: dataForBlocks[i] || [],
-        extraProps,
-        processedOpts: processedOpts[i],
-        passedOpts: blockOpts[block.id],
-        setBlockState: (obj, cb) => {
-          const nextState = typeof obj === 'function'
-            ? obj(this.blockState[i])
-            : obj
+    const sections = processedLayout.blocks.reduce((sections, block, i) => {
+      if (! (block.section in sections)) {
+        sections[block.section] = []
+      }
+      sections[block.section].push(
+        h(LayoutBlock, {
+          key: `${i}-${block.type}`,
+          data: dataForBlocks[i] || [],
+          extraProps,
+          processedOpts: processedOpts[i],
+          passedOpts: blockOpts[block.id],
+          invalidate: this.invalidate,
+          setBlockState: (obj) => {
+            const nextState = typeof obj === 'function'
+              ? obj(this.blockState[i])
+              : obj
+            this.blockState[i] = nextState
+          },
+          onOptsChange: (newOpts, invalidate) => {
+            onBlockOptsChange(
+              R.isEmpty(newOpts)
+                ? R.dissoc(block.id, currentOpts())
+                : R.merge(currentOpts(), { [block.id]: newOpts })
+            )
+            if (invalidate) {
+              this.invalidate(i)
+            }
+          },
+          ...block,
+        })
+      )
+      return sections
+    }, {})
 
-          this.blockState[i] = obj
-        },
-        invalidate: this.invalidate,
-        onOptsChange: (newOpts, invalidate) => {
-          onBlockOptsChange(
-            R.isEmpty(newOpts)
-              ? R.dissoc(block.id, currentOpts())
-              : R.merge(currentOpts(), { [block.id]: newOpts }))
-
-          if (invalidate) {
-            this.invalidate(i)
-          }
-
-        },
-        ...block,
-      }),
+    const children = Object.entries(sections).reduce(
+      (children, [ section, blocks ]) => [
+        ...children,
+        ...(section === 'hidden'
+          ? blocks.map((block, key) => [ h('div', { key }, [ block ]) ])
+          : section === 'undefined'
+            ? blocks.map(
+              (block, i) => h(Section, { key: `section-${i}` }, block)
+            )
+            : [
+              h(Box, {
+                is: 'details',
+                open: true,
+              }, [
+                h(Summary, {
+                  css: {
+                    display: 'flex',
+                    alignItems: 'center',
+                  },
+                },[
+                  h(SectionHeading, {
+                    display: 'inline-block',
+                    style: { lineHeight: 1 },
+                  }, section),
+                ]),
+                h(Section, blocks),
+              ]),
+            ]
+        ),
+      ], []
     )
 
-    return (
-      h(Box, {
-        css: { display: 'grid' },
-        style: {
-          gridTemplateColumns: processedLayout.gridTemplateColumns,
-          gridTemplateRows: processedLayout.gridTemplateRows,
-          gridGap: processedLayout.gridGap,
-          overflow: 'hidden',
-        },
-      }, children)
-    )
+    return h(Box, {}, children)
   }
 }
 
