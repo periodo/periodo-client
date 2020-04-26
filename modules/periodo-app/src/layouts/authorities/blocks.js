@@ -8,6 +8,7 @@ module.exports = {
   'timespan-visualization': require('./Timeline'),
   'spatial-visualization': require('./CoverageMap'),
   'place-filter': require('./PlaceFilter'),
+  'time-filter': require('./TimeFilter'),
   'facets': require('./Facets'),
   'period-detail': require('./PeriodDetail'),
   'authority-detail': require('./AuthorityDetail'),
