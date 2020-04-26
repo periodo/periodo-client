@@ -11,4 +11,5 @@ module.exports = {
   'facets': require('./Facets'),
   'period-detail': require('./PeriodDetail'),
   'authority-detail': require('./AuthorityDetail'),
+  'authority-period-detail': require('./AuthorityPeriodDetail'),
 }
