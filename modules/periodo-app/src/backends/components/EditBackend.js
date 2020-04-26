@@ -1,7 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Box, Heading } = require('periodo-ui')
+    , { Box, Breadcrumb, Link } = require('periodo-ui')
+    , { SectionHeading, Section } = require('periodo-ui')
     , { Route, Navigable } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
@@ -12,22 +13,41 @@ module.exports = Navigable((props) => {
   const { backend } = props
 
   return (
-    h(Flex, [
-      h(Box, {
-        flex: 1,
-        mr: 4,
+    h(Box, [
+
+      h(Breadcrumb, {
+        ml: 1,
+        mb: 3,
+        truncate: [ 1 ],
       }, [
-        h(Heading, {
-          level: 2,
-          mb: 2,
-        }, 'Data source settings'),
+        h(Link, {
+          route: Route('backend-home', {
+            backendID: backend.asIdentifier(),
+          }),
+        }, backend.metadata.label),
+        'Settings',
+      ]),
+
+      ...(
+        props.backend.storage._name === 'Web'
+          ? [
+            h(SectionHeading, 'ORCID credentials'),
+            h(Section, [ h(ORCIDSettings, { backend }) ]),
+          ]
+          : []
+      ),
+
+      h(SectionHeading, 'Data source settings'),
+      h(Section, [
 
         h(BackendForm, {
           backend: props.backend,
           handleDelete: async () => {
             if (!confirm('Really delete data source?')) return
 
-            const resp = await props.dispatch(BackendAction.DeleteBackend(props.backend.storage))
+            const resp = await props.dispatch(
+              BackendAction.DeleteBackend(props.backend.storage)
+            )
 
             handleCompletedAction(
               resp,
@@ -40,10 +60,12 @@ module.exports = Navigable((props) => {
             )
           },
           handleSave: async ({ label, description }) => {
-            const resp = await props.dispatch(BackendAction.UpdateBackend(props.backend.storage, {
-              label,
-              description,
-            }))
+            const resp = await props.dispatch(
+              BackendAction.UpdateBackend(props.backend.storage, {
+                label,
+                description,
+              })
+            )
 
             handleCompletedAction(
               resp,

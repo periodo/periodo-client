@@ -2,9 +2,8 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Button$Primary } = require('periodo-ui')
     , BackendSelector = require('./BackendSelector')
-    , { Navigable } = require('org-shell')
+    , { Navigable, Route } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('../../patches/actions')
     , { PatchDirection } = require('../../patches/types')
@@ -14,9 +13,13 @@ const h = require('react-hyperscript')
 
 const {
   Box,
-  ResourceTitle,
+  Flex,
+  Breadcrumb,
+  Section,
   Text,
+  Link,
   InfoText,
+  Button$Primary,
   Alert$Error,
   Alert$Success,
 } = require('periodo-ui')
@@ -53,9 +56,15 @@ class SubmitPatch extends React.Component {
           selectedPatch: null,
           reviewComponent: null,
           message: (
-            h(Alert$Success, {
-              mb: 2,
-            }, 'Submitted changes')
+            h(Flex, [
+              h(Alert$Success, { mb: 2 }, 'Submitted changes'),
+              h(Link, {
+                p: 2,
+                route: Route('backend-patches', {
+                  backendID: remoteBackend.asIdentifier(),
+                }),
+              }, 'Review submitted changes'),
+            ])
           ),
         })
       },
@@ -160,9 +169,18 @@ class SubmitPatch extends React.Component {
 
     return (
       h(Box, [
-        h(ResourceTitle, 'Submit changes'),
-        this.state.message,
-        child,
+        h(Breadcrumb, [
+          h(Link, {
+            route: Route('backend-home', {
+              backendID: this.props.backend.asIdentifier(),
+            }),
+          }, this.props.backend.metadata.label),
+          'Submit changes',
+        ]),
+        h(Section, [
+          this.state.message,
+          child,
+        ]),
       ])
     )
   }

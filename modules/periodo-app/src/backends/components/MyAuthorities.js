@@ -2,7 +2,8 @@
 
 const h = require('react-hyperscript')
     , { useState } = require('react')
-    , { Box } = require('periodo-ui')
+    , { Route } = require('org-shell')
+    , { Box, Breadcrumb, Link } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
 
 const layout = `
@@ -20,6 +21,16 @@ module.exports = function MyAuthorities({
 
   return (
     h(Box, [
+
+      h(Breadcrumb, [
+        h(Link, {
+          route: Route('backend-home', {
+            backendID: backend.asIdentifier(),
+          }),
+        }, backend.metadata.label),
+        'Browse authorities',
+      ]),
+
       h(AuthorityLayoutRenderer, {
         layout,
         dataset,

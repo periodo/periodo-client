@@ -2,7 +2,9 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box } = require('periodo-ui')
+    , { Route } = require('org-shell')
+    , { Box, Breadcrumb, Link, HelpText } = require('periodo-ui')
+    , util = require('periodo-utils')
     , PatchLayoutRenderer = require('../../layouts/patches')
 
 const layout = `
@@ -18,17 +20,64 @@ class PatchHistory extends React.Component {
   }
 
   render() {
-    const { patches, backend } = this.props
+    const { patches, backend, authority, period } = this.props
 
     return (
       h(Box, [
-        h(PatchLayoutRenderer, {
-          backend,
-          patches,
-          layout,
-          blockOpts: this.state.blockOpts,
-          onBlockOptsChange: blockOpts => this.setState({ blockOpts }),
-        }),
+
+        h(Breadcrumb, {
+          truncate: [ 1 ],
+        }, [
+          h(Link, {
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          }, backend.metadata.label),
+          ...(
+            authority
+              ? [
+                h(Link, {
+                  route: Route('authority-view', {
+                    backendID: backend.asIdentifier(),
+                    authorityID: authority.id,
+                  }),
+                }, util.authority.displayTitle(authority)),
+                ...(
+                  period
+                    ? [
+                      h(Link, {
+                        route: Route('period-view', {
+                          backendID: backend.asIdentifier(),
+                          authorityID: authority.id,
+                          periodID: period.id,
+                        }),
+                      }, period.label),
+                    ]
+                    : []
+                ),
+              ]
+              : []
+          ),
+          'History',
+        ]),
+
+        patches.length === 0
+          ? h(HelpText, `No history of changes to this ${
+            authority
+              ? period
+                ? 'period'
+                : 'authority'
+              : 'data source'
+          }.`)
+          : (
+            h(PatchLayoutRenderer, {
+              backend,
+              patches,
+              layout,
+              blockOpts: this.state.blockOpts,
+              onBlockOptsChange: blockOpts => this.setState({ blockOpts }),
+            })
+          ),
       ])
     )
   }

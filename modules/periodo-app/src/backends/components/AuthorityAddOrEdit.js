@@ -3,7 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box } = require('periodo-ui')
+    , { Box, Breadcrumb, Link } = require('periodo-ui')
+    , util = require('periodo-utils')
     , BackendAction = require('../actions')
     , AuthorityForm = require('../../forms/AuthorityForm')
     , { Navigable, Route } = require('org-shell')
@@ -26,8 +27,35 @@ class AuthorityAddOrEdit extends React.Component {
       navigateTo,
     } = this.props
 
+    const editing = this.state.authority && this.state.authority.id
+
     return (
       h(Box, [
+
+        h(Breadcrumb, { truncate: editing ? [ 1 ] : []}, [
+          h(Link, {
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          }, backend.metadata.label),
+
+          ...(
+            editing
+              ? [
+                h(Link, {
+                  route: Route('authority-view', {
+                    backendID: backend.asIdentifier(),
+                    authorityID: this.state.authority.id,
+                  }),
+                }, util.authority.displayTitle(this.state.authority)),
+                'Edit',
+              ]
+              : [
+                'Add authority',
+              ]
+          ),
+        ]),
+
         h(AuthorityForm, {
           value: this.state.authority,
           onValidated: async authority => {

@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , jsonpatch = require('fast-json-patch')
-    , { Box, Heading, Text } = require('periodo-ui')
-    , { Button$Primary } = require('periodo-ui')
+    , { Box, HelpText, Section } = require('periodo-ui')
+    , { Button$Primary, Breadcrumb, Link } = require('periodo-ui')
     , { Navigable, Route } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
@@ -88,7 +88,7 @@ class SyncBackend extends React.Component {
     } else {
       child = (
         h(Box, [
-          h(Text, { mb: 3 }, 'Select a data source to import changes from'),
+          h(HelpText, { mb: 2 }, 'Select a data source to import changes from'),
 
           h(BackendSelector, {
             value: selectedBackend,
@@ -106,11 +106,17 @@ class SyncBackend extends React.Component {
 
     return (
       h(Box, [
-        h(Heading, {
-          level: 2,
-          mb: 3,
-        }, 'Import changes'),
-        child,
+        h(Breadcrumb, [
+          h(Link, {
+            route: Route('backend-home', {
+              backendID: this.props.backend.asIdentifier(),
+            }),
+          }, this.props.backend.metadata.label),
+          'Import changes',
+        ]),
+        h(Section, [
+          child,
+        ]),
       ])
     )
   }

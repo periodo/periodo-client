@@ -3,6 +3,8 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { handleCompletedAction } = require('org-async-actions')
+    , { Route } = require('org-shell')
+    , { formatDate } = require('periodo-utils')
     , Compare = require('./Compare')
     , { PatchDirection, PatchFate } = require('./types')
     , PatchAction = require('./actions')
@@ -11,17 +13,20 @@ const h = require('react-hyperscript')
 
 const {
   Box,
+  Flex,
   Text,
   Link,
-  Heading,
+  Section,
+  SectionHeading,
+  Breadcrumb,
   TextareaBlock,
   Button$Default,
   Button$Danger,
   Alert$Success,
   Alert$Error,
-  ResourceTitle,
+  Status,
+  LoadingIcon,
 } = require('periodo-ui')
-
 
 class ReviewPatch extends React.Component {
   constructor() {
@@ -113,50 +118,63 @@ class ReviewPatch extends React.Component {
     const { comment, submitting, deciding } = this.state
 
     let children = [
+      h(Breadcrumb, [
+        h(Link, {
+          route: Route('backend-home', {
+            backendID: backend.asIdentifier(),
+          }),
+        }, backend.metadata.label),
+        `Change submitted ${ formatDate(new Date(patch.created_at)) }`,
+        'Review',
+      ]),
+
       this.state.message,
 
-      h(ResourceTitle, 'Submitted change'),
-
-      h(Compare, {
-        localDataset: fromDataset,
-        remoteDataset: toDataset,
-        patch: patchText,
-        direction: PatchDirection.Pull,
-      }),
+      h(Section, [
+        h(Status, patch),
+        h(Compare, {
+          localDataset: fromDataset,
+          remoteDataset: toDataset,
+          patch: patchText,
+          direction: PatchDirection.Pull,
+        }),
+      ]),
     ]
 
     if (backend.metadata.orcidCredential) {
       children = children.concat([
-        h(Heading, {
-          level: 3,
-          mt: 4,
-          mb: 1,
-        }, 'Comments'),
+        h(SectionHeading, 'Comments'),
+        h(Section, [
+          ...(
+            patch.comments.map((comment, i) =>
+              h(Box, {
+                key: i,
+                mb: 3,
+              }, [
+                h(Flex, { mb: 1 }, [
+                  h(Link, { href: comment.author.url }, comment.author.label),
+                  h(Text, {
+                    ml: 2,
+                    color: 'gray.6',
+                  }, formatDate(new Date(comment.posted_at))),
+                ]),
+                h(Text, comment.message),
+              ])
+            )
+          ),
 
-        patch.comments.map((comment, i) =>
-          h(Box, {
-            key: i,
-            mb: 3,
-          }, [
-            h(Link, { href: comment.author.url }, comment.author.label),
-            h(Text, { color: 'gray.6' }, [
-              new Date(comment.posted_at).toLocaleString(),
-            ]),
-            h(Text, comment.message),
-          ])
-        ),
+          h(TextareaBlock, {
+            value: comment,
+            onChange: e => {
+              this.setState({ comment: e.target.value })
+            },
+          }),
 
-        h(TextareaBlock, {
-          value: comment,
-          onChange: e => {
-            this.setState({ comment: e.target.value })
-          },
-        }),
-
-        h(Button$Default, {
-          disabled: !comment || submitting,
-          onClick: this.addComment,
-        }, 'Add comment'),
+          h(Button$Default, {
+            disabled: !comment || submitting,
+            onClick: this.addComment,
+          }, 'Add comment'),
+        ]),
       ])
     } else {
       children = children.concat([
@@ -174,11 +192,7 @@ class ReviewPatch extends React.Component {
     if (patch.open && mergeURL) {
       children = children.concat([
         h(Box, [
-          h(Heading, {
-            level: 3,
-            mt: 4,
-            mb: 1,
-          }, 'Accept changes?'),
+          h(SectionHeading, 'Accept changes?'),
 
           h(Button$Default, {
             mr: 1,
@@ -195,7 +209,14 @@ class ReviewPatch extends React.Component {
     }
 
     if (deciding) {
-      children.push(h('p', 'Loading...'))
+      children.push(
+        h(Box, { mt: 3 }, [
+          h('span', { style: { marginRight: '8px' }}, [
+            h(LoadingIcon),
+          ]),
+          'Merging changes',
+        ])
+      )
     }
 
     return h(Box, children)

@@ -1,32 +1,32 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box } = require('./Base')
+    , { Flex, Box } = require('./Base')
 
-exports.Breadcrumb = props =>
-  h(Box, {
+exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
+  h(Flex, {
     is: 'ol',
-    py: 1,
-    px: 2,
-    mb: 2,
-    bg: 'gray0',
-    fontSize: 4,
+    maxWidth: 'calc(100vw - 44px)',
+    ml: 1,
+    mb: 3,
     css: {
       listStyleType: 'none',
     },
     ...props,
-  }, [].concat(props.children || []).map((el, i, arr) =>
+  }, [].concat(children || []).map((el, i) =>
     h(Box, {
       is: 'li',
       key: i,
+      color: 'gray.7',
       css: {
         display: 'inline-block',
-        // TODO: Make this resize w/ flexbox
-        maxWidth: `${100 / arr.length}%`,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         textDecoration: 'none',
+        ...(
+          truncate.includes(i) ? {} : { flex: '0 0 auto' }
+        ),
         ':not(:first-of-type)': {
           '::before': {
             content: '"\\203a"',
