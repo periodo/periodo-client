@@ -27,12 +27,13 @@ module.exports = class HistogramVisualization {
       min: xBinScale.invert(i),
       max: xBinScale.invert(i + 1),
       periods: [],
+      highlight: false,
     }))
 
     let startWithBin = 0
       , maxCount = 0
 
-    periodsWithEndpoints.forEach(({ period, earliest, latest }) => {
+    periodsWithEndpoints.forEach(({ period, earliest, latest, selected }) => {
       while (earliest != null && latest != null && !inBin(xBins[startWithBin], earliest, latest)) {
         startWithBin++
       }
@@ -42,6 +43,9 @@ module.exports = class HistogramVisualization {
       do {
         const count = xBins[binIdx].periods.push(period)
         if (count > maxCount) maxCount = count
+        if (selected) {
+          xBins[binIdx].highlight = true
+        }
         binIdx++
       } while (binIdx < xBins.length && inBin(xBins[binIdx], earliest, latest))
     })
@@ -52,7 +56,7 @@ module.exports = class HistogramVisualization {
 
     const bins = []
 
-    xBins.forEach(({ periods }, i) => {
+    xBins.forEach(({ periods, highlight }, i) => {
       if (!periods.length) return
 
       let yBins = Math.floor((periods.length / maxCount) * numYBins)
@@ -64,6 +68,7 @@ module.exports = class HistogramVisualization {
         bins.push({
           cx: CIRCLE_RADIUS + (i * 2 * CIRCLE_RADIUS),
           cy: height - (CIRCLE_RADIUS + (j * 2 * CIRCLE_RADIUS)),
+          highlight,
         })
       }
     })
@@ -77,18 +82,19 @@ module.exports = class HistogramVisualization {
     group,
     periodsWithEndpoints,
   }) {
+
     const bins = this.getBins(xScale, yScale, periodsWithEndpoints)
 
     group.selectAll('circle').remove()
 
     group
       .selectAll('circle')
-        .data(bins)
+      .data(bins)
       .enter()
       .append('circle')
       .attr('cx', d => d.cx)
       .attr('cy', d => d.cy)
       .attr('r', CIRCLE_RADIUS)
-      .attr('fill', '#bbb')
+      .attr('fill', d => d.highlight ? '#ff000080' : '#bbb')
   }
 }
