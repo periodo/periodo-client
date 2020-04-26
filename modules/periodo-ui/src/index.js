@@ -38,6 +38,7 @@ addUIModules([
   require('./LabeledMap'),
   require('./PlaceSuggest'),
   require('./PlacesSelect'),
+  require('./Status'),
   require('./TimeSlider'),
   require('./diffable/Value'),
 ])

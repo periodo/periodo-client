@@ -2,51 +2,19 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , Type = require('union-type')
     , LayoutRenderer = require('../LayoutRenderer')
     , ListBlock = require('../ListBlock')
     , { Navigable, Route } = require('org-shell')
-    , { Link } = require('periodo-ui')
-
-const PatchStatus = Type({
-  Open: {},
-  Rejected: {},
-  Merged: {},
-})
-
-function Status({ status }) {
-  const type = PatchStatus[status]
-
-  const backgroundColor = type.case({
-    Open: () => '#fafad2',
-    Rejected: () => '#ff9a9a',
-    Merged: () => '#8fbd8f',
-  })
-
-  return (
-    h('span', {
-      style: {
-        textAlign: 'center',
-        width: '95%',
-        display: 'inline-block',
-        padding: '4px 4px 5px',
-        backgroundColor,
-        fontWeight: 'bold',
-      },
-    }, status)
-  )
-}
+    , { Link, Status } = require('periodo-ui')
 
 const PatchRequestList = ListBlock({
   label: 'Patch request list',
   description: 'List of patch requests',
-  navigateToItem(item, { navigateTo, backend }) {
-    const route = Route('review-patch', {
+  itemViewRoute(item, { backend }) {
+    return Route('review-patch', {
       backendID: backend.asIdentifier(),
       patchURL: item.url.replace(backend.storage.url, ''),
     })
-
-    navigateTo(route)
   },
 
   defaultOpts: {
@@ -58,12 +26,8 @@ const PatchRequestList = ListBlock({
     status: {
       label: 'Status',
       width: 100,
-      getValue: req => {
-        if (req.open) return 'Open'
-        if (req.merged) return 'Merged'
-        return 'Rejected'
-      },
-      render: status => h(Status, { status }),
+      getValue: req => req,
+      render: req => h(Status, req),
     },
 
     creator: {
