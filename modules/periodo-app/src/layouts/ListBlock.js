@@ -4,9 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , natsort = require('natsort')
-    , { Flex, Box, Text, Select } = require('periodo-ui')
-    , { colors } = require('periodo-ui').theme
-    , { Button, DropdownMenu, DropdownMenuItem, Link } = require('periodo-ui')
+    , { Flex, Box, Text, Select, Link } = require('periodo-ui')
+    , { Button, DropdownMenu, DropdownMenuItem } = require('periodo-ui')
     , Icon = require('react-geomicons').default
 
 const ListHeader = ({
@@ -24,10 +23,9 @@ const ListHeader = ({
   updateOpts,
 }) =>
   h(Flex, {
-    bg: 'gray.1',
-    p: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
+    mb: 3,
   }, [
     h(Box, {
       textAlign: 'left',
@@ -35,7 +33,7 @@ const ListHeader = ({
     }, [
       (!loaded || shownItems.length === 0) ? null : h(Text, {
         mx: 2,
-      }, `${start + 1}‒${start + shownItems.length} of ${items.length}`),
+      }, `${start + 1}–${start + shownItems.length} of ${items.length}`),
     ]),
 
     h(Flex, {
@@ -61,6 +59,7 @@ const ListHeader = ({
         borderRadius: 0,
         disabled: start === 0,
         onClick: prevPage,
+        ml: '-1px',
       }, h(Icon, {
         onMouseDown: e => {
           if (start === 0) {
@@ -73,7 +72,7 @@ const ListHeader = ({
       })),
 
       h(Select, {
-        bg: '#fafafa',
+        bg: 'gray.1',
         value: limit,
         minWidth: '60px',
         onChange: e => {
@@ -86,13 +85,14 @@ const ListHeader = ({
         h('option', {
           key: n,
           value: n,
-        }, n),
+        }, `Show ${n}`),
       )),
 
       h(Button, {
         borderRadius: 0,
         disabled: !loaded || start + shownItems.length >= items.length,
         onClick: nextPage,
+        mr: '-1px',
       }, h(Icon, {
         onMouseDown: e => {
           if (start + shownItems.length >= items.length) {
@@ -153,47 +153,14 @@ const ListHeader = ({
     ]),
   ])
 
-function DefaultRowNumbering({ number }) {
-  return h(Box, {
-    px: 1,
-    css: {
-      color: '#999',
-      display: 'inline-block',
-      fontSize: '12px',
-      lineHeight: '24px',
-      width: '5ch',
-    },
-  }, number)
-}
-
-function LinkedRowNumbering(props) {
-  return (
-    h(Link, {
-      px: 1,
-      css: {
-        display: 'inline-block',
-        fontSize: '12px',
-        lineHeight: '24px',
-        width: '5ch',
-        ':hover': {
-          textDecoration: 'none',
-          backgroundColor: colors.blue5,
-          color: 'white',
-        },
-      },
-      route: props.makeItemRoute(props),
-    }, props.number)
-  )
-}
-
 module.exports = function makeList(opts) {
   const {
     label,
     description,
     defaultOpts={},
     columns,
-    makeItemRoute,
-    navigateToItem,
+    itemViewRoute,
+    itemEditRoute,
   } = opts
 
   const withDefaults = obj => ({
@@ -203,8 +170,6 @@ module.exports = function makeList(opts) {
     ...defaultOpts,
     ...obj,
   })
-
-  const RowNumbering = makeItemRoute ? LinkedRowNumbering : DefaultRowNumbering
 
   class List extends React.Component {
     constructor(props) {
@@ -371,18 +336,19 @@ module.exports = function makeList(opts) {
                 h(Box, {
                   is: 'th',
                   key: 'first',
-                  p: 1,
                   style: {
-                    width: '42px',
+                    width: this.props.backend.isEditable() ? '112px' : '80px',
                   },
                 }),
               ].concat(shownColumns.map(n =>
                 h(Box, {
                   is: 'th',
                   key: n,
-                  p: 1,
+                  p: 2,
+                  fontWeight: 'bold',
                   style: {
                     width: columns[n].width || 'unset',
+                    cursor: 'pointer',
                   },
                   onClick: () => {
                     updateOpts((opts={}) => ({
@@ -409,50 +375,51 @@ module.exports = function makeList(opts) {
                   is: 'tr',
                   key: item.id,
                   m: 0,
+                  bg: 'gray.1',
                   css: {
                     height: '24px',
                     ':hover': {
-                      backgroundColor: '#e4e2e0',
+                      backgroundColor: 'white',
                     },
                   },
-                  ...(!navigateToItem ? null : {
-                    role: 'link',
-                    tabIndex: 0,
-                    style: {
-                      cursor: 'pointer',
-                    },
-                    onClick: e => {
-                      if (e.target.tagName === 'A') return true
-                      navigateToItem(item, this.props)
-                    },
-                    onKeyDown: e => {
-                      if (e.key === 'Enter') {
-                        navigateToItem(item, this.props)
-                      }
-                    },
-                  }),
                 }, [
                   h(Box, {
                     is: 'td',
                     key: '_numbering',
-                    p: 0,
+                    p: 2,
                     css: {
-                      width: '.1%',
                       whiteSpace: 'nowrap',
                     },
-                  }, h(RowNumbering, {
-                    ...this.props,
-                    item,
-                    number: i + 1 + start,
-                    makeItemRoute,
-                  })),
+                  }, [
+                    h(Text, {
+                      display: 'inline-block',
+                      color: 'gray.6',
+                      width: '4ch',
+                      textAlign: 'right',
+                    }, i + 1 + start),
+                    h(Link, {
+                      ml: 2,
+                      fontWeight: 100,
+                      route: itemViewRoute(item, this.props),
+                    }, 'view'),
+                    (
+                      this.props.backend.isEditable() && itemEditRoute
+                        ? (
+                          h(Link, {
+                            ml: 2,
+                            fontWeight: 100,
+                            route: itemEditRoute(item, this.props),
+                          }, 'edit')
+                        )
+                        : null
+                    ),
+                  ]),
                 ].concat(R.values(R.pick(shownColumns, columns)).map(
                   col =>
                     h(Box, {
                       is: 'td',
                       key: col.label,
-                      px: 1,
-                      py: 0,
+                      p: 2,
                       css: {
                       },
                     }, (col.render || R.identity)(
