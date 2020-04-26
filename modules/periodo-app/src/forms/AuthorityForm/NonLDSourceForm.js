@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { RandomID } = require('periodo-common')
-    , { Flex, Box, Label, Input } = require('periodo-ui')
+    , { Flex, Box, Label, Input, HelpText } = require('periodo-ui')
     , { InputBlock, TextareaBlock, Button$Default } = require('periodo-ui')
 
 const emptyCreator = { name: '' }
@@ -35,12 +35,12 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
 
 
     return (
-      h(Box, [
+      h(Box, { p: 3 }, [
         h(TextareaBlock, {
-          my: 3,
           name: 'citation',
           label: 'Citation (required)',
-          helpText: `Include any identifying information for this source. A full formatted citation is encouraged, but a title alone is sufficient.`,
+          helpText: `Include any identifying information for this source.
+A full citation is encouraged, but a title alone is sufficient.`,
           value: value.citation || '',
           rows: 4,
           onChange: this.handleChange,
@@ -86,9 +86,20 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
             key: field,
             mt: 3,
           }, [
-            h(Label, { htmlFor: this.props.randomID(field) + '-0' }, field[0].toUpperCase() + field.slice(1)),
+            h(Label, { htmlFor: this.props.randomID(field) + '-0' },
+              field[0].toUpperCase() + field.slice(1)),
+
+            h(HelpText, [
+              field === 'creators'
+                ? 'Creators are primarily responsible for the content of a source'
+                : '',
+            ]),
+
             h(Box, list.map((agent, i) =>
-              h(Flex, { key: field + i }, [
+              h(Flex, {
+                mt: i > 0 ? 3 : 0,
+                key: field + i,
+              }, [
                 h(Input, {
                   name: field,
                   id: this.props.randomID(field) + '-' + i,

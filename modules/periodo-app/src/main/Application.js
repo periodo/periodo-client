@@ -35,6 +35,7 @@ function getRouteGroups(resource, props) {
         , []),
     }))
   } catch(e) {
+    // eslint-disable-next-line no-console
     console.error(e)
     return []
   }
@@ -69,19 +70,18 @@ class Menu extends React.Component {
           mb: 3,
           py: 2,
           px: 3,
-          bg: 'gray.0',
-          border: 1,
-          borderColor: 'gray.4',
+          bg: 'white',
         }, groups.map(({ label, routes }, i) =>
           h(Box, {
             key: i,
-            minWidth: 200,
+            minWidth: 180,
             px: 2,
             py: 1,
             css: {
               '& [data-active="true"]::before': {
                 content: '"▸"',
                 position: 'absolute',
+                marginTop: '-1px',
                 marginLeft: '-11px',
                 color: 'orangered',
               },
@@ -89,16 +89,19 @@ class Menu extends React.Component {
           }, [
             h(Heading, {
               key: 'heading' + '-i',
-              level: 5,
+              level: 2,
+              fontSize: 2,
             }, label),
-          ].concat(routes.map(({ route, label }) =>
-            h(Link, {
+          ].concat(routes.map(({ route, label }) => {
+            const isActive = route.resourceName === activeResource.name
+            return h(Link, {
               display: 'block',
-              ['data-active']: route.resourceName === activeResource.name,
+              ['data-active']: isActive,
+              color: `blue.${ isActive ? 8 : 4 }`,
               key: route.resourceName,
               route,
             }, label)
-          )))
+          })))
         )),
       ])
     )
@@ -167,16 +170,14 @@ class PeriodoApplication extends React.Component {
         h(Grid, {
           minHeight: '100vh',
           gridTemplateRows: '56px 1fr 116px',
+          bg: 'gray.3',
         }, [
           h(Header, {
-            bg: 'gray.1',
-            borderBottom: '1px solid #ccc',
             showSpinner: this.props.loading,
           }),
 
           h(Box, {
-            bg: this.state.error ? 'red.0' : 'white',
-            p: 3,
+            px: 3,
             m: '0 auto',
             width: '100%',
             maxWidth: 1420,
@@ -208,10 +209,8 @@ class PeriodoApplication extends React.Component {
 
           h(Footer, {
             height: '100%',
-            bg: 'gray.1',
-            pt: 3,
             px: 3,
-            borderTop: '1px solid #ccc',
+            pt: 3,
           }),
         ]),
       ])

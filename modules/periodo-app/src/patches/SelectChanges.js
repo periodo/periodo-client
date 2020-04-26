@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box } = require('periodo-ui')
+    , { Box, LoadingIcon } = require('periodo-ui')
     , { Heading, Button$Primary, Alert$Error } = require('periodo-ui')
     , { handleCompletedAction } = require('org-async-actions')
     , { connect } = require('react-redux')
@@ -107,7 +107,10 @@ class SelectChanges extends React.Component {
     }
 
     return h(Box, [
-      'Generating patch...',
+      h('span', { style: { marginRight: '8px' }}, [
+        h(LoadingIcon),
+      ]),
+      'Getting changes',
     ])
   }
 }

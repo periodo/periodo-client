@@ -45,7 +45,7 @@ module.exports = class TerminusInput extends React.Component {
   }
 
   render() {
-    const { terminus, autoparse, onValueChange } = this.props
+    const { label, terminus, autoparse, onValueChange } = this.props
 
     return (
       h(Box, { width: 1 }, [
@@ -55,7 +55,8 @@ module.exports = class TerminusInput extends React.Component {
         }, [
           h(InputBlock, {
             name: 'label',
-            label: 'Label',
+            label: `${label} label`,
+            helpText: `${label} of the period as given in the original source`,
             width: .5,
             pr: 2,
             value: terminus.label || '',
@@ -72,7 +73,7 @@ module.exports = class TerminusInput extends React.Component {
                 onValueChange(toggleMultipart(terminus))
               },
             }),
-            'Two part date',
+            'Year range (not a single year)',
           ]),
         ]),
 
@@ -80,7 +81,9 @@ module.exports = class TerminusInput extends React.Component {
           isMultipart(terminus)
             ? h(InputBlock, {
               name: 'earliest',
-              label: 'Earliest',
+              label: `Earliest ${label.toLowerCase()} year`,
+              helpText: `Earliest ${label.toLowerCase()} of the period
+ as an ISO Gregorian year value`,
               width: .5,
               pr: 2,
               disabled: autoparse,
@@ -96,7 +99,8 @@ module.exports = class TerminusInput extends React.Component {
             })
             : h(InputBlock, {
               name: 'year',
-              label: 'Year',
+              label: `${label} year`,
+              helpText: `${label} of the period as an ISO Gregorian year value`,
               width: .5,
               pr: 2,
               disabled: autoparse,
@@ -113,7 +117,9 @@ module.exports = class TerminusInput extends React.Component {
 
           isMultipart(terminus) && h(InputBlock, {
             name: 'latest',
-            label: 'Latest',
+            label: `Latest ${label.toLowerCase()} year`,
+            helpText: `Latest ${label.toLowerCase()} of the period
+ as an ISO Gregorian year value`,
             width: .5,
             disabled: autoparse,
             value: R.path([ 'in', 'latestYear' ], terminus) || '',

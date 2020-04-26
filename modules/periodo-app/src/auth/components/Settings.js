@@ -5,26 +5,20 @@ const h = require('react-hyperscript')
     , LinkedDataAction = require('../../linked-data/actions')
 
 const {
-  Heading,
   Box,
-  ResourceTitle,
   Button$Danger,
   Button$Default,
+  Section,
+  SectionHeading,
 } = require('periodo-ui')
 
 module.exports = function Settings(props) {
-  const { dispatch, settings } = props
+  const { dispatch } = props
 
   return (
     h(Box, [
-      h(ResourceTitle, 'Settings'),
-
-      h(Box, { mb: 3 }, [
-        h(Heading, {
-          level: 3,
-          mb: 1,
-        }, 'In-browser data'),
-
+      h(SectionHeading, 'In-browser data'),
+      h(Section, [
         h(Button$Default, {
           mr: 2,
           onClick: async () => {

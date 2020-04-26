@@ -100,11 +100,12 @@ class SignIn extends React.Component {
 
         !!orcidCredential && (
           h(Box, [
-            h(Span, `Currently signed in as ${orcidCredential.name}`),
+            h(Span, `Currently signed in as ${orcidCredential.name}.`),
             h(Link, {
-              ml: 1,
+              ml: 2,
               href: '',
               onClick: this.signOut.bind(this),
+              fontWeight: 100,
             }, 'Sign out'),
           ])
         ),

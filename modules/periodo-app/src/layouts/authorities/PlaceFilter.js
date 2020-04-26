@@ -1,7 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box, Label, PlacesSelect } = require('periodo-ui')
+    , { Box, Label, PlacesSelect, HelpText } = require('periodo-ui')
+    , { RandomID } = require('periodo-common')
 
 const indexById = items => items.reduce(
   (index, item) => ({
@@ -20,13 +21,17 @@ const PlaceFilter = ({
   opts,
   updateOpts,
   gazetteers,
+  randomID,
 }) => {
 
   const { filter } = opts
+  const inputID = randomID('place-filter')
 
   return (
-    h(Box, { pl: 2 }, [
-      h(Label, 'Filter by place'),
+    h(Box, [
+      h(Label, { htmlFor: inputID }, 'By place'),
+
+      h(HelpText, 'Show periods linked to any of the selected places'),
 
       h(PlacesSelect, {
         onChange: places => updateOpts({
@@ -36,6 +41,7 @@ const PlaceFilter = ({
         coverage: filter ? Object.values(filter) : [],
         gazetteers,
         closable: true,
+        inputProps: { id: inputID },
       }),
     ])
   )
@@ -58,5 +64,5 @@ module.exports = {
       return false
     }
   },
-  Component: PlaceFilter,
+  Component: RandomID(PlaceFilter),
 }

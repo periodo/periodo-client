@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Flex, Box } = require('periodo-ui')
-    , { TextareaBlock, InputBlock, Tabs, Button$Primary, Errors } = require('periodo-ui')
+    , { Box, Section, SectionHeading, Errors, Tabs } = require('periodo-ui')
+    , { TextareaBlock, InputBlock, Button$Primary } = require('periodo-ui')
     , { isLinkedData } = require('../../linked-data/utils/source_ld_match')
     , Validated = require('../Validated')
     , { validateAuthority } = require('../validate')
@@ -17,46 +17,51 @@ const lenses = {
   editorialNote: R.lensProp('editorialNote'),
 }
 
-module.exports = Validated(validateAuthority, class AuthorityForm extends React.Component {
-  constructor(props) {
-    super();
+module.exports = Validated(
+  validateAuthority,
+  class AuthorityForm extends React.Component {
 
-    this.state = {
-      showLDForm: !props.value.source || isLinkedData(props.value.source),
-    }
-  }
+    constructor(props) {
+      super();
 
-  render() {
-    const { showLDForm } = this.state
-        , { value={}, onValueChange, errors } = this.props
-
-    const get = lens => R.view(lens, value) || ''
-        , set = (lens, val) => onValueChange(R.set(lens, val, value))
-
-    const childProps = {
-      value: get(lenses.source),
-      onValueChange: value => set(lenses.source, value),
+      this.state = {
+        showLDForm: !props.value.source || isLinkedData(props.value.source),
+      }
     }
 
-    return (
-      h(Box, [
-        errors.source && h(Errors, {
-          mb: 2,
-          errors: errors.source,
-        }),
+    render() {
+      const { showLDForm } = this.state
+      , { value={}, onValueChange, errors } = this.props
 
-        h(Flex, { justifyContent: 'space-between' }, [
-          h(Box, { width: .48 }, [
+      const get = lens => R.view(lens, value) || ''
+      , set = (lens, val) => onValueChange(R.set(lens, val, value))
+
+      const childProps = {
+        value: get(lenses.source),
+        onValueChange: value => set(lenses.source, value),
+      }
+
+      return (
+        h(Box, [
+
+          h(SectionHeading, 'Authority source'),
+
+          errors.source && h(Errors, {
+            mb: 2,
+            errors: errors.source,
+          }),
+
+          h(Section, [
             h(Tabs, {
               tabs: [
                 {
                   id: 'ld',
-                  label: 'Linked data',
+                  label: 'Most published sources',
                   renderTab: () => h(LDSourceForm, childProps),
                 },
                 {
                   id: 'non-ld',
-                  label: h('span', [ h('em', 'Not'), ' linked data' ]),
+                  label: 'Other sources',
                   renderTab: () => h(NonLDSourceForm, childProps),
                 },
               ],
@@ -67,42 +72,45 @@ module.exports = Validated(validateAuthority, class AuthorityForm extends React.
             }),
           ]),
 
-          h(Box, { width: .48 }, [
+          h(SectionHeading, 'Further information about the authority'),
+
+          h(Section, [
             h(InputBlock, {
               label: 'Locator',
-              mb: 4,
               disabled: !value.source,
               value: get(lenses.locator),
               onChange: e => set(lenses.locator, e.target.value),
               helpText: `
-                If all periods are defined on a single page within this source,
-                include that page number here. Otherwise, include a locator for
-                individual periods as you create them.
-              `,
+              If all periods are defined on a single page within the
+              source above, include that page number here. Otherwise,
+              include a locator for individual periods as you create
+              them.
+            `,
             }),
 
             h(TextareaBlock, {
-              mb: 4,
+              mt: 3,
               name: 'editorial-note',
               label: 'Editorial notes',
-              helpText: 'Notes about importing this source',
+              helpText: `
+              Notes explaining why this authority is interesting or
+              useful, and other good things to know
+            `,
               rows: 5,
               value: get(lenses.editorialNote),
               onChange: e => set(lenses.editorialNote, e.target.value),
             }),
-
-            h(Box, {
-              align: 'right',
-              bg: 'gray1',
-            }, [
-              h(Button$Primary, {
-                onClick: () => this.props.validate(value, this.props.onValidated),
-              }, 'Save'),
-            ]),
           ]),
-        ]),
 
-      ])
-    )
+          h(Box, {
+            py: 1,
+          }, [
+            h(Button$Primary, {
+              onClick: () => this.props.validate(value, this.props.onValidated),
+            }, 'Save'),
+          ]),
+        ])
+      )
+    }
   }
-})
+)

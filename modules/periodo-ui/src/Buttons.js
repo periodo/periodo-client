@@ -19,11 +19,10 @@ function makeButton(color, startShade=5, extra) {
     is: 'button',
     px: 3,
     py: 2,
-    m: 0,
     border: 1,
     borderColor: shade(3),
-    borderRadius: '4px',
     color: 'white',
+    fontSize: 1,
     fontWeight: 'bold',
   }, 'position',
   props => ({

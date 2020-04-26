@@ -174,7 +174,7 @@ const initializeMap = mix => {
   })
 
   const RED = 'vec4(1.0,0.0,0.0,0.5)'
-  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.5)'
+  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.25)'
 
   const drawTriangle = (color, zindex) => map.createDraw({
     frag: `

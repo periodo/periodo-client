@@ -5,7 +5,10 @@ const h = require('react-hyperscript')
     , React = require('react')
     , tags = require('language-tags')
     , { Input, Flex, Box } = require('periodo-ui')
-    , { Autosuggest, DropdownMenuButton, DropdownMenuMenu, Button } = require('periodo-ui')
+    , { Autosuggest
+      , DropdownMenuButton
+      , DropdownMenuMenu
+      , Button } = require('periodo-ui')
 
 class Suggestor extends React.Component {
   constructor() {
@@ -24,13 +27,13 @@ class Suggestor extends React.Component {
       h(Box, { css: { position: 'relative' }}, [
         h(DropdownMenuButton, {
           css: {
-            position: 'relative',  // Fixes outline overlap for some reason
-
             whiteSpace: 'nowrap',
             minWidth: 60,
-            borderRadius: 0,
-            marginRight: '-1px',
             ...buttonCSS,
+          },
+          style: {
+            paddingTop: '6px',
+            paddingBottom: '7px',
           },
           isOpen: editing,
           onClick: () => this.setState(prev => ({ editing: !prev.editing })),
@@ -90,9 +93,6 @@ module.exports = function LocalizedLabelInput(props) {
       , langDefaultScriptTag = lang.script() && lang.script().format()
 
   const script = (tag.script() || lang.script())
-      , scriptTag = script ? script.format() : ''
-
-  const isDefaultScript = scriptTag && scriptTag === langDefaultScriptTag
 
   return (
     h(Box, R.omit([
@@ -127,8 +127,8 @@ module.exports = function LocalizedLabelInput(props) {
         }),
 
         h(Suggestor, {
-          buttonCSS: isDefaultScript && {
-            color: '#999',
+          buttonCSS: {
+            marginLeft: '-1px',
           },
           getSuggestions: search =>
             tags
@@ -171,6 +171,10 @@ module.exports = function LocalizedLabelInput(props) {
           ml: '-1px',
           borderRadius: 0,
           onClick: addLabelAfter,
+          style: {
+            paddingTop: '6px',
+            paddingBottom: '7px',
+          },
         }, '+'),
 
         removeLabelAt && h(Button, {
@@ -178,6 +182,10 @@ module.exports = function LocalizedLabelInput(props) {
           ml: '-1px',
           borderRadius: 0,
           onClick: removeLabelAt,
+          style: {
+            paddingTop: '6px',
+            paddingBottom: '7px',
+          },
         }, '-'),
       ]),
     ])

@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , tags = require('language-tags')
     , PromiseWorker = require('promise-worker')
-    , { Flex, Box, Link } = require('periodo-ui')
+    , { Flex, Box, Link, Label, HelpText } = require('periodo-ui')
     , { period: { authorityOf }} = require('periodo-utils')
     , work = require('webworkify')
     , { shallowEqualObjects } = require('shallow-equal')
@@ -82,7 +82,7 @@ function withValue(val, set) {
 
 const AspectContainer = styled(Flex)`
 &:not(:last-of-type) {
-  margin-right: 1.66em;
+  margin-right: 16px;
 }
 `
 
@@ -98,11 +98,10 @@ class AspectTable extends React.Component {
   }
 
   render() {
-    const { aspect, aspectID, opts, updateOpts, counts } = this.props
+    const { aspect, aspectID, opts, updateOpts, counts, hidden } = this.props
         , { label, flexBasis } = aspect
         , render = aspect.render || R.identity
         , height = parseInt(opts.height || '256')
-        , hidden = new Set(opts.hidden|| [])
         , selected = new Set(R.path([ 'selected', aspectID ], opts) || [])
 
     if (hidden.has(aspectID)) {
@@ -122,6 +121,7 @@ class AspectTable extends React.Component {
             h('td', [
               h(Link, {
                 href: '',
+                color: `blue.${ isSelected ? 8 : 4 }`,
                 onClick: e => {
                   e.preventDefault();
                   updateOpts(R.pipe(
@@ -161,19 +161,15 @@ class AspectTable extends React.Component {
           flexBasis,
         },
         flexDirection: 'column',
-        border: 1,
-        borderRadius: '3px',
-        borderColor: 'gray.4',
         height,
       }, [
         h(Flex, {
           justifyContent: 'space-between',
           alignItems: 'center',
-          bg: 'gray.0',
+          bg: 'gray.1',
           p: 2,
-          borderRadius: '3px 3px 0 0',
           fontWeight: 'bold',
-          fontSize: 2,
+          fontSize: 1,
         }, [
           h('span', label),
 
@@ -211,23 +207,23 @@ class AspectTable extends React.Component {
             h(Table, {
               is: 'table',
               px: 1,
+              py: 1,
               width: '100%',
             }, [
               h('tbody', selectedRows),
             ])
           ),
 
-          selectedRows.length === 0 ? null : (
-            h('hr')
+          unselectedRows.length === 0 ? null : (
+            h(Table, {
+              is: 'table',
+              px: 1,
+              width: '100%',
+              bg: 'gray.1',
+            }, [
+              h('tbody', unselectedRows),
+            ])
           ),
-
-          h(Table, {
-            is: 'table',
-            px: 1,
-            width: '100%',
-          }, [
-            h('tbody', unselectedRows),
-          ]),
         ]),
       ])
     )
@@ -343,8 +339,29 @@ class Facets extends React.Component {
       style.display = 'flex'
     }
 
-    return (
-      h('div', { style }, Object.entries(aspects).map(([ key, aspect ]) =>
+    const hidden = new Set(opts.hidden|| [])
+
+    if (hidden.size === Object.keys(aspects).length) {
+      return null
+    }
+
+    const aspectsShown = Object.entries(aspects)
+      .filter(([ k ]) => ! hidden.has(k))
+      .map(([ , v ]) => v.label.toLowerCase())
+      .join(', ')
+      .replace(/,([^,]*)$/, ' or$1')
+
+    return (h('div'), [
+      h(Label, { key: 'label' },
+        `By ${aspectsShown}`),
+
+      h(HelpText, { key: 'help' },
+        `Show periods having the selected ${aspectsShown}`),
+
+      h('div', {
+        style,
+        key: 'aspect-table',
+      }, Object.entries(aspects).map(([ key, aspect ]) =>
         h(AspectTable, {
           key,
           data,
@@ -353,11 +370,12 @@ class Facets extends React.Component {
           aspect,
           aspectID: key,
           counts: countsByAspect[key],
+          hidden,
           opts,
           updateOpts,
         })
-      ))
-    )
+      )),
+    ])
   }
 }
 

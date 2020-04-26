@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Authority, LinkIcon, Box, Heading, Link } = require('periodo-ui')
+    , { Authority, Box, Heading, Link } = require('periodo-ui')
     , { Route } = require('org-shell')
     , { period: { authorityOf }} = require('periodo-utils')
 
@@ -9,19 +9,22 @@ function AuthorityDetail({
   hoveredPeriod,
   selectedPeriod,
   backend,
+  ...props
 }) {
   const period = hoveredPeriod || selectedPeriod || null
       , authority = period && authorityOf(period)
+      , editable = backend.asIdentifier().startsWith('local-')
 
   return h(Box, {
-    pl: 2,
     style: {
       minHeight: 600,
       wordBreak: 'break-word',
     },
+    ...props,
   }, authority == null ? null : [
     h(Heading, {
       level: 4,
+      fontSize: 2,
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -29,24 +32,32 @@ function AuthorityDetail({
         paddingBottom: '4px',
       },
     }, [
+      'Authority',
+
       h(Link, {
-        mr: 2,
-        style: {
-          display: 'flex',
-        },
+        ml: 2,
+        fontSize: 1,
+        fontWeight: 100,
         route: new Route('authority-view', {
           backendID: backend.asIdentifier(),
           authorityID: authority.id,
         }),
       }, [
-        h(LinkIcon, {
-          stroke: '#4dabf7',
-          strokeWidth: 3,
-          title: 'View authority page',
-        }),
+        'view',
       ]),
 
-      'Authority',
+      editable ? h(Link, {
+        ml: 2,
+        fontSize: 1,
+        fontWeight: 100,
+        route: new Route('authority-edit', {
+          backendID: backend.asIdentifier(),
+          authorityID: authority.id,
+        }),
+      }, [
+        'edit',
+      ]) : null,
+
     ]),
 
     h(Authority, { value: authority }),

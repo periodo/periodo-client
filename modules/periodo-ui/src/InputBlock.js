@@ -3,11 +3,13 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { RandomID } = require('periodo-common')
-    , { Box, Text } = require('./Base')
-    , { Label, Input, Textarea } = require('./FormElements')
+    , { Box, HelpText } = require('./Base')
+    , { Label, Input, Textarea, Select } = require('./FormElements')
+    , { Alert$Error } = require('./Alerts')
 
 const inputProps = [
   'name',
+  'type',
   'value',
   'onChange',
   'placeholder',
@@ -16,22 +18,45 @@ const inputProps = [
   'rows',
 ]
 
-const FormControlBlock = FormComponent => RandomID(props =>
-  h(Box, R.omit(inputProps.concat('randomID', 'label', 'helpText'), props), [
-    h(Label, {
-      htmlFor: props.randomID(props.name),
-    }, props.label),
+const FormControlBlock = FormComponent => RandomID(props => {
+  const {
+    randomID,
+    name,
+    isRequired,
+    label,
+    helpText,
+    options,
+    error,
+  } = props
 
-    props.helpText && h(Text, {
-      size: 1,
-      mb: '4px',
-    }, props.helpText),
+  return h(Box,
+    R.omit(inputProps.concat(
+      'randomID',
+      'label',
+      'helpText',
+      'isRequired'
+    ), props),
+    [
+      h(Label, {
+        htmlFor: randomID(name),
+        ...(isRequired ? { isRequired: true } : {}),
+      }, label),
 
-    h(FormComponent, Object.assign(R.pick(inputProps, props), {
-      id: props.randomID(props.name),
-    })),
-  ]))
+      helpText && h(HelpText, helpText),
+
+      h(FormComponent, Object.assign(R.pick(inputProps, props), {
+        id: randomID(name),
+      }), options),
+
+      error
+        ? h(Alert$Error, { mt: 2 }, [ error ])
+        : null,
+    ]
+  )
+})
 
 exports.InputBlock = FormControlBlock(Input)
 
 exports.TextareaBlock = FormControlBlock(Textarea)
+
+exports.SelectBlock = FormControlBlock(Select)

@@ -100,7 +100,7 @@ function validatePeriod(period) {
   let errors = {}
 
   if (!period.label) {
-    errors = addError(errors, 'label', 'A period must have a label');
+    errors = addError(errors, 'label', 'A period must have a label.');
   }
 
   const periodPresent = type =>
@@ -114,16 +114,28 @@ function validatePeriod(period) {
     terminus.earliestYear(t) > terminus.latestYear(t)
 
   if (!periodPresent('start') || !periodPresent('stop')) {
-    errors = addError(errors, 'dates', 'A period must have start and stop dates.');
-  } else if (terminus.latestYear(period.stop) < terminus.earliestYear(period.start)) {
-    errors = addError(errors, 'dates', 'A period\'s stop must come after its start.');
+    errors = addError(
+      errors, 'dates', 'A period must have start and stop dates.'
+    );
+  } else if (
+    terminus.latestYear(period.stop) < terminus.earliestYear(period.start)
+  ) {
+    errors = addError(
+      errors, 'dates', 'A period\'s stop must come after its start.'
+    );
   } else {
     if (badTerminusRange(period.start)) {
-      errors = addError(errors, 'dates', 'Date range for period start has a beginning later than its end.')
+      errors = addError(
+        errors, 'dates',
+        'A period\'s latest start must come after its earliest start.'
+      )
     }
 
     if (badTerminusRange(period.stop)) {
-      errors = addError(errors, 'dates', 'Date range for period stop has a beginning later than its end.')
+      errors = addError(
+        errors, 'dates',
+        'A period\'s latest stop must come after its earliest stop.'
+      )
     }
   }
 

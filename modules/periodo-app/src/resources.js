@@ -255,7 +255,7 @@ const Backend = {
   parent: Home,
   resources: {
     'backend-home': {
-      label: 'Browse',
+      label: 'Browse periods',
       Component: require('./backends/components/BackendHome'),
       async loadData(props, log, finished) {
         const { dispatch, getState } = props
@@ -285,15 +285,9 @@ const Backend = {
         }
       },
     },
-    'backend-add-authority': {
-      label: 'Add authority',
-      Component: require('./backends/components/AuthorityAddOrEdit'),
-      showInMenu: hasEditableBackend,
-    },
-    'backend-my-authorities': {
-      label: 'My authorities',
+    'backend-authorities': {
+      label: 'Browse authorities',
       Component: require('./backends/components/MyAuthorities'),
-      showInMenu: hasEditableBackend,
       async loadData(props, log, finished) {
         const { dispatch } = props
             , storage = getCurrentBackendStorage(props)
@@ -320,6 +314,11 @@ const Backend = {
           authorityIDs: editedAuthorities,
         }
       },
+    },
+    'backend-add-authority': {
+      label: 'Add authority',
+      Component: require('./backends/components/AuthorityAddOrEdit'),
+      showInMenu: hasEditableBackend,
     },
     'backend-patches': {
       label: 'Review submitted changes',
@@ -495,7 +494,7 @@ const ReviewPatch = {
 }
 
 const BackendPatch = {
-  label: 'Patch',
+  label: 'Change',
   parent: Backend,
   resources: {
     'backend-patch': {
@@ -543,7 +542,7 @@ const Authority = {
   resources: {
     'authority-view': {
       label: 'View',
-      Component: require('./backends/components/Authority'),
+      Component: require('./backends/components/AuthorityView'),
       async loadData(props, log, finished) {
         const { dispatch, getState } = props
             , storage = getCurrentBackendStorage(props)
