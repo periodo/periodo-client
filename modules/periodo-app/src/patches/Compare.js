@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Type = require('union-type')
     , { saveAs } = require('file-saver')
-    , { Flex, Box, Link, Heading } = require('periodo-ui')
+    , { Flex, Box, Link, Heading, Summary } = require('periodo-ui')
     , { Authority, Dataset, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
@@ -37,25 +37,11 @@ function Indicator({ label }) {
       flex: 'none',
       fontWeight: 'bold',
       color: colors[label] || 'black',
-      width: 108,
+      width: 92,
       textAlign: 'center',
       marginTop: '1px',
     },
   }, label)
-}
-
-function Summary(props) {
-  return h(Box, {
-    is: 'summary',
-    css: {
-      width: '100%',
-      cursor: 'pointer',
-      ':hover': {
-        backgroundColor: '#eee',
-      },
-    },
-    ...props,
-  })
 }
 
 function addOrRemove(items, key) {
@@ -541,7 +527,7 @@ class Compare extends React.Component {
           borderColor: 'gray.4',
         }, [
           h(Box, [
-            h(Heading, { level: 4 }, 'Changes summary'),
+            h(Heading, { level: 4 }, 'Change summary'),
             h(Box, {
               is: 'ul',
               ml: 3,
