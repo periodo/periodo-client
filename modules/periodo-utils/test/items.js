@@ -37,6 +37,15 @@ test('Period terminus utility functions', t => {
     'should fix invalid ISO years having less than 4 numbers'
   )
 
+  const extraspacedISOYearTerminus = { in: { year: '- 1000' }}
+  util.terminus.ensureISOYear(extraspacedISOYearTerminus)
+
+  t.deepEqual(
+    extraspacedISOYearTerminus,
+    { in: { year: '-1000' }},
+    'should fix invalid ISO years having extraneous spaces'
+  )
+
   t.deepEqual(
     termini.map(util.terminus.wasAutoparsed),
     [true, true, true, false, true, false],
