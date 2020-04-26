@@ -24,13 +24,12 @@ const suggestPlaces = (authority, period) => {
   if (! period.spatialCoverageDescription) {
     return []
   }
+  const scd = period.spatialCoverageDescription.trim()
   const coverage = Object.fromEntries(
     (period.spatialCoverage || []).map(({ id, label }) => [ id, label ])
   )
   const suggestions = Object.values(authority.periods)
-    .filter(
-      p => p.spatialCoverageDescription === period.spatialCoverageDescription
-    )
+    .filter(p => (p.spatialCoverageDescription || '').trim() === scd)
     .reduce((suggestions, p) => {
       for (const { id, label } of (p.spatialCoverage || [])) {
         if (! (coverage.hasOwnProperty(id) || suggestions.hasOwnProperty(id))) {
