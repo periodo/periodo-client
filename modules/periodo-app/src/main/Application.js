@@ -226,7 +226,7 @@ module.exports = function Shell() {
   const WrappedApplication = ORGShell({
     processOpts: {
       serializeValue: val => JSON.stringify(val),
-      deserializeValue: val => JSON.parse(val),
+      deserializeValue: val => JSON.parse(val || '{}'),
     },
     extraArgs: {
       dispatch: store.dispatch,
