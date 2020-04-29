@@ -101,11 +101,19 @@ module.exports = class BackendHome extends React.Component {
           ? h(HelpText, [
             'No authorities in this data source.',
             h(Link, {
-              ml: 1,
+              mx: 1,
               route: new Route('backend-add-authority', {
                 backendID: backend.asIdentifier(),
               }),
             }, 'Add an authority'),
+            'or',
+            h(Link, {
+              mx: 1,
+              route: new Route('backend-sync', {
+                backendID: backend.asIdentifier(),
+              }),
+            }, 'import changes'),
+            'from another data source.',
           ])
           : dataset.periods.length === 0
             ? h(HelpText, [
