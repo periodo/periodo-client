@@ -154,6 +154,7 @@ class LabelForm extends React.Component {
         alternateLabels.map((label, i) =>
           h(LocalizedLabelInput, {
             key: label.counter ? `new-${label.counter}` : i,
+            mt: i > 0 ? 3 : 0,
             label: label.label,
             languageTag: label.languageTag,
             onValueChange: value => {
