@@ -124,11 +124,6 @@ const ListWrapper = styled.div`
 }
 `
 
-/*
-display: grid;
-grid-template-columns: 5ch 100px 100px 1fr 1fr;
-*/
-
 function ItemRow({
   index,
   style,
@@ -146,6 +141,14 @@ function ItemRow({
 }) {
   const period = periods[index]
 
+  const toggleSelectedPeriod = () => {
+    setSelectedPeriod(
+      (selectedPeriod && selectedPeriod.id === period.id)
+        ? null
+        : period
+    )
+  }
+
   return (
     h('div', {
       className: 'row',
@@ -157,9 +160,7 @@ function ItemRow({
         )? '#ffffff' : '#f1f3f5',
       },
       ['data-selected']: selectedPeriod === period,
-      onMouseDown: () => {
-        setSelectedPeriod(period)
-      },
+      onMouseDown: toggleSelectedPeriod,
       onMouseEnter: () => {
         setHoveredPeriod(period)
       },
@@ -212,22 +213,29 @@ class PeriodList extends React.Component {
   constructor() {
     super()
 
-    this.state = { sortedData: null }
+    this.state = {
+      sortedData: null,
+      scrollNeedsUpdate: false,
+    }
 
     this.onKeyDown = this.onKeyDown.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
     this.handleScroll = this.handleScroll.bind(this)
     this.updateScroll = this.updateScroll.bind(this)
+    this.scrollWindowToList = this.scrollWindowToList.bind(this)
 
+    this.rootRef = React.createRef()
     this.listRef = React.createRef()
   }
 
   componentDidMount() {
-    if (this.props.opts
-        && this.props.opts.scrollTo
-        && this.props.selectedPeriod) {
-
-      window.scrollTo(0, this.el.offsetTop)
+    const scrollWindow = (
+      this.props.opts &&
+      this.props.opts.scrollTo &&
+      this.props.selectedPeriod
+    )
+    if (scrollWindow) {
+      this.scrollWindowToList()
     }
   }
 
@@ -237,11 +245,16 @@ class PeriodList extends React.Component {
       prevProps.sortDirection !== this.props.sortDirection ||
       prevProps.data !== this.props.data
     )
-
     if (updateSort) {
       this.updateSort()
     }
     this.updateScroll()
+  }
+
+  scrollWindowToList() {
+    if (this.rootRef.current) {
+      window.scrollTo(0, this.rootRef.current.offsetTop)
+    }
   }
 
   onMouseMove(e) {
@@ -279,7 +292,6 @@ class PeriodList extends React.Component {
       }
     }
   }
-
 
   handleScroll(e) {
     const { hoveredPeriod, setHoveredPeriod } = this.props
@@ -329,7 +341,6 @@ class PeriodList extends React.Component {
 
       this.setState({
         sortedData,
-        start: 0,
         scrollNeedsUpdate: true,
       })
     }
@@ -341,9 +352,7 @@ class PeriodList extends React.Component {
         this.props.selectedPeriod,
         this.state.sortedData
       )
-      if (index < 0) {
-        this.props.setSelectedPeriod(null)
-      }
+      this.props.setSelectedPeriodIsVisible(index >= 0)
       this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
       this.setState({ scrollNeedsUpdate: false })
     }
@@ -358,8 +367,9 @@ class PeriodList extends React.Component {
       updateOpts,
       hoveredPeriod,
       setHoveredPeriod,
-      setSelectedPeriod,
       selectedPeriod,
+      setSelectedPeriod,
+      setSelectedPeriodIsVisible,
       backend,
       opts: { fixed },
     } = this.props
@@ -369,7 +379,9 @@ class PeriodList extends React.Component {
 
     const itemCount = periods ? periods.length : 0
 
-    return (h('div'), [
+    return h('div', {
+      ref: this.rootRef,
+    }, [
       ...(fixed === 'true'
         ? []
         : [
@@ -397,7 +409,6 @@ class PeriodList extends React.Component {
             overflowY: 'unset',
             position: 'relative',
           },
-          innerRef: el => { this.el = el },
         }, [
           h('div', {
             style: {
@@ -413,8 +424,8 @@ class PeriodList extends React.Component {
             className: 'row row__header',
             style: { width },
           }, [
-            h('span', ''), // count
-            h('span', ''), // view/edit
+            h('span', { style: { cursor: 'default' }}, ''), // count
+            h('span', { style: { cursor: 'default' }}, ''), // view/edit
           ].concat(Object.entries(columns).map(
             ([ key, { label }]) => h('span', {
               onClick: () => {
@@ -458,6 +469,7 @@ class PeriodList extends React.Component {
               selectedPeriod,
               setHoveredPeriod,
               setSelectedPeriod,
+              setSelectedPeriodIsVisible,
               layoutOpts,
               layoutParams,
               showEditLink: backend.asIdentifier().startsWith('local-'),

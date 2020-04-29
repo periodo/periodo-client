@@ -6,14 +6,12 @@ const h = require('react-hyperscript')
     , { period: { authorityOf }} = require('periodo-utils')
 
 function PeriodDetail({
-  hoveredPeriod,
-  selectedPeriod,
+  period,
   gazetteers,
   backend,
   ...props
 }) {
-  const period = hoveredPeriod || selectedPeriod || null
-      , authority = period && authorityOf(period)
+  const authority = period && authorityOf(period)
       , editable = backend.asIdentifier().startsWith('local-')
 
   return h(Box, {

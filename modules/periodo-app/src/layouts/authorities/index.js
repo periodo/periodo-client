@@ -3,19 +3,35 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { useState } = require('react')
+    , { updateLayoutParams, period: { authorityOf }} = require('periodo-utils')
     , LayoutRenderer = require('../LayoutRenderer')
     , { Navigable } = require('org-shell')
     , blocks = require('./blocks')
 
+const noop = () => {}
+
 module.exports = Navigable(({ fixedPeriod, ...props }) => {
 
   const [ hoveredPeriod, setHoveredPeriod ] = fixedPeriod
-    ? [ null, () => {} ]
-    : useState(props.hoveredPeriod)
+    ? [ null, noop ]
+    : useState(null)
 
-  const [ selectedPeriod, setSelectedPeriod ] = fixedPeriod
-    ? [ fixedPeriod, () => {} ]
+  const [ selectedPeriod, _setSelectedPeriod ] = fixedPeriod
+    ? [ fixedPeriod, noop ]
     : useState(props.selectedPeriod)
+
+  const [ selectedPeriodIsVisible, setSelectedPeriodIsVisible ] = fixedPeriod
+    ? [ true, noop ]
+    : useState(!!props.selectedPeriod)
+
+  const setSelectedPeriod = period => {
+    _setSelectedPeriod(period)
+    setSelectedPeriodIsVisible(!!period)
+    updateLayoutParams({
+      periodID: period ? period.id : null,
+      authorityID: period ? authorityOf(period).id : null,
+    })
+  }
 
   let data = props.useAuthorities
     ? props.dataset.authorities
@@ -39,7 +55,8 @@ module.exports = Navigable(({ fixedPeriod, ...props }) => {
         setHoveredPeriod,
         selectedPeriod,
         setSelectedPeriod,
-        fixedPeriod,
+        selectedPeriodIsVisible,
+        setSelectedPeriodIsVisible,
       },
     }))
   )

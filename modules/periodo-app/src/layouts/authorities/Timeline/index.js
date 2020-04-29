@@ -10,6 +10,7 @@ function Timeline({
   dataset,
   data,
   selectedPeriod,
+  selectedPeriodIsVisible,
   opts: { visualization, height },
 }) {
 
@@ -38,7 +39,7 @@ function Timeline({
         visualization,
         dataset,
         data,
-        selectedPeriod,
+        selectedPeriod: selectedPeriodIsVisible ? selectedPeriod : null,
       }),
     ]),
   ])

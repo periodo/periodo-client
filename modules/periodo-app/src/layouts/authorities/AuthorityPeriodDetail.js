@@ -8,24 +8,24 @@ const h = require('react-hyperscript')
 function AuthorityPeriodDetail({
   hoveredPeriod,
   selectedPeriod,
+  selectedPeriodIsVisible,
   backend,
 }) {
-  if (! (hoveredPeriod || selectedPeriod)) {
+  if (! (hoveredPeriod || (selectedPeriod && selectedPeriodIsVisible))) {
     return h(Box, { mt: -3 })
   }
+  const period = hoveredPeriod || selectedPeriod
   return h(Flex, {
   }, [
     h(AuthorityDetail, {
       flex: 0.5,
       mr: 3,
-      hoveredPeriod,
-      selectedPeriod,
+      period,
       backend,
     }),
     h(PeriodDetail, {
       flex: 0.5,
-      hoveredPeriod,
-      selectedPeriod,
+      period,
       backend,
     }),
   ])
