@@ -96,12 +96,41 @@ const VALID_PERIOD_FIELDS = [
   'editorialNote',
 ]
 
+const hasEnglishLabel = period => (
+  period.localizedLabels &&
+  period.localizedLabels.en &&
+  period.localizedLabels.en.length > 0
+)
+
+const addLabel = (labelsByLanguage={}, label, languageTag) => ({
+  ...labelsByLanguage,
+  [languageTag]: Array.from(new Set([
+    ...(labelsByLanguage[languageTag] || []),
+    label,
+  ])),
+})
+
 function validatePeriod(period) {
   let errors = {}
 
   if (!period.label) {
     errors = addError(errors, 'label', 'A period must have a label.');
   }
+
+  if (period.languageTag !== 'en' && !hasEnglishLabel(period)) {
+    errors = addError(
+      errors,
+      'label',
+      'A period must have at least one English label.'
+    )
+  }
+
+  // copy preferred label to localized labels
+  period.localizedLabels = addLabel(
+    period.localizedLabels,
+    period.label,
+    period.languageTag
+  )
 
   const periodPresent = type =>
     R.prop(type, period) &&
