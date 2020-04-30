@@ -238,7 +238,7 @@ module.exports = class BackendForm extends React.Component {
           disabled: !this.isValidState(),
         }, this.editing ? 'Update' : 'Add'),
 
-        this.editing && h(Button$Danger, {
+        this.editing && handleDelete && h(Button$Danger, {
           onClick: () => handleDelete(),
         }, 'Delete'),
       ]),

@@ -8,9 +8,15 @@ const h = require('react-hyperscript')
     , BackendAction = require('../actions')
     , { BackendForm } = require('../../forms')
     , ORCIDSettings = require('../../auth/components/ORCID')
+    , { periodoServerURL } = require('../../globals')
+
 
 module.exports = Navigable((props) => {
   const { backend } = props
+
+  if (! backend) { // backend was deleted
+    return null
+  }
 
   return (
     h(Box, [
@@ -29,7 +35,7 @@ module.exports = Navigable((props) => {
       ]),
 
       ...(
-        props.backend.storage._name === 'Web'
+        backend.storage._name === 'Web'
           ? [
             h(SectionHeading, 'ORCID credentials'),
             h(Section, [ h(ORCIDSettings, { backend }) ]),
@@ -41,27 +47,29 @@ module.exports = Navigable((props) => {
       h(Section, [
 
         h(BackendForm, {
-          backend: props.backend,
-          handleDelete: async () => {
-            if (!confirm('Really delete data source?')) return
+          backend,
+          handleDelete: backend.storage.url === periodoServerURL
+            ? null
+            : async () => {
+              if (!confirm('Really delete data source?')) return
 
-            const resp = await props.dispatch(
-              BackendAction.DeleteBackend(props.backend.storage)
-            )
+              const resp = await props.dispatch(
+                BackendAction.DeleteBackend(backend.storage)
+              )
 
-            handleCompletedAction(
-              resp,
-              () => { props.navigateTo(Route('open-backend')) },
-              err => {
-                alert('Error deleting data source');
-                // eslint-disable-next-line no-console
-                console.error(err);
-              }
-            )
-          },
+              handleCompletedAction(
+                resp,
+                () => { props.navigateTo(Route('open-backend')) },
+                err => {
+                  alert('Error deleting data source');
+                  // eslint-disable-next-line no-console
+                  console.error(err);
+                }
+              )
+            },
           handleSave: async ({ label, description }) => {
             const resp = await props.dispatch(
-              BackendAction.UpdateBackend(props.backend.storage, {
+              BackendAction.UpdateBackend(backend.storage, {
                 label,
                 description,
               })
@@ -70,7 +78,7 @@ module.exports = Navigable((props) => {
             handleCompletedAction(
               resp,
               () => props.navigateTo(Route('backend-home', {
-                backendID: props.backend.asIdentifier(),
+                backendID: backend.asIdentifier(),
               })),
               err => {
                 alert('Error saving data source');
