@@ -90,11 +90,20 @@ class SubmitPatch extends React.Component {
     let child
 
     if (this.state.selectedPatch) {
+      const backend = backends[this.state.selectedWebBackendID]
       child = h(Box, [
         this.state.compareComponent,
 
+        h(Box, { my: 3 }, [
+          h(ORCIDSettings, {
+            backend,
+            showAlerts: false,
+          }),
+        ]),
+
         h(Button$Primary, {
           mt: 2,
+          disabled: !backend.metadata.orcidCredential,
           onClick: () => {
             this.submitPatch()
           },
@@ -117,53 +126,46 @@ class SubmitPatch extends React.Component {
       ])
     } else if (webBackends.length === 0) {
       child = h(InfoText, [
-        'In order to submit a changes you must first create a web data source',
+        'In order to submit changes you must first create a web data source',
       ])
     } else {
-      const { selectedWebBackendID } = this.state
-          , selectedWebBackend = backends[selectedWebBackendID]
+        // childChildren = h(Box, { mt: 3 }, [
+        //   // h(ORCIDSettings, {
+        //   //   backend: selectedWebBackend,
+        //   //   showAlerts: false,
+        //   // }),
 
-      // I'm incredibly sorry
-      let childChildren = null
-
-      if (selectedWebBackend) {
-        childChildren = h(Box, { mt: 3 }, [
-          h(ORCIDSettings, {
-            backend: selectedWebBackend,
-            showAlerts: false,
-          }),
-
-          !selectedWebBackend.metadata.orcidCredential ? null : (
-            h(Box, { mt: 3 }, [
-              h(Button$Primary, {
-                onClick: () => {
-                  this.setState({
-                    message: null,
-                    showCompare: true,
-                  })
-                },
-              }, 'Continue'),
-            ])
-          ),
-        ])
-      }
+        //   /*!selectedWebBackend.metadata.orcidCredential ? null : */(
+        //     h(Box, { mt: 3 }, [
+        //       h(Button$Primary, {
+        //         onClick: () => {
+        //           this.setState({
+        //             message: null,
+        //             showCompare: true,
+        //           })
+        //         },
+        //       }, 'Continue'),
+        //     ])
+        //   ),
+        // ])
+        // }
 
       child = h(Box, [
         h(Text, { mb: 3 }, 'Select a web data source to submit changes to'),
 
         h(BackendSelector, {
-          value: selectedWebBackend,
           label: 'Available web data sources',
           backends: webBackends,
           onChange: val => {
             this.setState({
               message: null,
+              showCompare: true,
               selectedWebBackendID: val.asIdentifier(),
             })
           },
         }),
 
-        childChildren,
+        //childChildren,
       ])
     }
 
