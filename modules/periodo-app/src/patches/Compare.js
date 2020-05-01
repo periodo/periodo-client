@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Type = require('union-type')
     , { saveAs } = require('file-saver')
-    , { Flex, Box, Link, Heading, Summary } = require('periodo-ui')
+    , { Flex, Box, Link, Heading, Details } = require('periodo-ui')
     , { Authority, Dataset, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
@@ -151,9 +151,7 @@ function PeriodCell(props) {
         }),
       }),
 
-      h(Box, { is: 'details' }, [
-        h(Summary, period.label),
-
+      h(Details, { summary: period.label }, [
         h(Period, {
           p: 3,
           maxWidth: '568px',
@@ -282,9 +280,7 @@ function AuthorityRow(props) {
             _: () => null,
           }),
 
-          h(Box, { is: 'details' }, [
-            h(Summary, util.authority.displayTitle(authority)),
-
+          h(Details, { summary: util.authority.displayTitle(authority) }, [
             h(Authority, {
               p: 3,
               maxWidth: '568px',
@@ -459,7 +455,6 @@ class Compare extends React.Component {
       this.state.selectedPeriods !== prevState.selectedPeriods ||
       this.state.selectedPatches !== prevState.selectedPatches ||
       this.state.selectAll !== prevState.selectAll
-
     )
 
     if (updateSelection) {

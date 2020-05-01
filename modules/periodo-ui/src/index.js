@@ -21,6 +21,7 @@ addUIModules([
   require('./Buttons'),
   require('./Dataset'),
   require('./Debug'),
+  require('./Details'),
   require('./DropdownMenu'),
   require('./FormElements'),
   require('./Icons'),

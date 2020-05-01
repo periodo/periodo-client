@@ -124,19 +124,6 @@ const Section = props => h(Box, {
   ...props,
 })
 
-const Summary = ({ css={}, ...props }) => h(Box, {
-  is: 'summary',
-  css: {
-    width: '100%',
-    cursor: 'pointer',
-    ':hover': {
-      backgroundColor: '#fff',
-    },
-    ...css,
-  },
-  ...props,
-})
-
 const Span = styled(tag.span)([], [
   ...fns,
 ])
@@ -164,6 +151,5 @@ module.exports = {
   Section,
   SectionHeading,
   Span,
-  Summary,
   Text,
 }
