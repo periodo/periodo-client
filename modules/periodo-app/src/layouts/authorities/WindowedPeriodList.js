@@ -449,6 +449,7 @@ class PeriodList extends React.Component {
 
           h(List, {
             height: 200,
+            style: { overscrollBehaviorY: 'contain' },
             onScroll: this.handleScroll,
             onItemsRendered: this.updateScroll,
             ref: this.listRef,

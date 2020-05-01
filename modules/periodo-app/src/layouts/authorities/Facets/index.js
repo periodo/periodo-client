@@ -194,6 +194,7 @@ class AspectTable extends React.Component {
           style: {
             height:'100%',
             overflowY: 'scroll',
+            overscrollBehaviorY: 'contain',
           },
         }, counts == null ? (
           h('div', {
