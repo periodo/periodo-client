@@ -387,6 +387,7 @@ module.exports = function makeList(opts) {
                     is: 'td',
                     key: '_numbering',
                     p: 2,
+                    verticalAlign: 'middle',
                     css: {
                       whiteSpace: 'nowrap',
                     },
@@ -420,8 +421,7 @@ module.exports = function makeList(opts) {
                       is: 'td',
                       key: col.label,
                       p: 2,
-                      css: {
-                      },
+                      verticalAlign: 'middle',
                     }, (col.render || R.identity)(
                       col.getValue(item)
                     ))
