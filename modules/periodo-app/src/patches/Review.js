@@ -144,44 +144,47 @@ ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
           direction: PatchDirection.Pull,
         }),
       ]),
+
+      h(SectionHeading, 'Comments'),
+      h(Section, [
+        ...(
+          patch.comments.map((comment, i) =>
+            h(Box, {
+              key: i,
+              mb: i < patch.comments.length - 1 ? 3 : 0,
+            }, [
+              h(Flex, { mb: 1 }, [
+                h(Link, { href: comment.author.url }, comment.author.label),
+                h(Text, {
+                  ml: 2,
+                  color: 'gray.6',
+                }, formatDate(new Date(comment.posted_at))),
+              ]),
+              h(Text, comment.message),
+            ])
+          )
+        ),
+
+        ...(backend.metadata.orcidCredential
+          ? [
+            h(TextareaBlock, {
+              value: comment,
+              onChange: e => {
+                this.setState({ comment: e.target.value })
+              },
+            }),
+
+            h(Button$Default, {
+              disabled: !comment || submitting,
+              onClick: this.addComment,
+            }, 'Add comment'),
+          ]
+          : []
+        ),
+      ]),
     ]
 
-    if (backend.metadata.orcidCredential) {
-      children = children.concat([
-        h(SectionHeading, 'Comments'),
-        h(Section, [
-          ...(
-            patch.comments.map((comment, i) =>
-              h(Box, {
-                key: i,
-                mb: 3,
-              }, [
-                h(Flex, { mb: 1 }, [
-                  h(Link, { href: comment.author.url }, comment.author.label),
-                  h(Text, {
-                    ml: 2,
-                    color: 'gray.6',
-                  }, formatDate(new Date(comment.posted_at))),
-                ]),
-                h(Text, comment.message),
-              ])
-            )
-          ),
-
-          h(TextareaBlock, {
-            value: comment,
-            onChange: e => {
-              this.setState({ comment: e.target.value })
-            },
-          }),
-
-          h(Button$Default, {
-            disabled: !comment || submitting,
-            onClick: this.addComment,
-          }, 'Add comment'),
-        ]),
-      ])
-    } else {
+    if (! backend.metadata.orcidCredential) {
       children = children.concat([
         h(Text, {
           my: 3,
