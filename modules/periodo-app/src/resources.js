@@ -472,14 +472,25 @@ const ReviewPatch = {
     const { backend } = await log('Loading data source', throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendDataset(storage, false))))
 
-    await log('Loading patch', throwIfUnsuccessful(
+    const { patch } = await log('Loading patch', throwIfUnsuccessful(
       dispatch(PatchAction.GetPatchRequest(backend, patchURL))))
+
+    await log('Loading ORCIDs',
+      dispatch(LinkedDataAction.FetchORCIDs([ ...new Set([
+        patch.created_by,
+        patch.updated_by,
+      ]) ]))
+    )
 
     finished()
   },
   mapStateToProps(state, props) {
     const storage = getCurrentBackendStorage(props)
-        , patchURL = new URL(decodeURIComponent(props.params.patchURL), storage.url).href
+        , { nameByORCID } = state.linkedData
+
+    const patchURL = new URL(
+      decodeURIComponent(props.params.patchURL), storage.url
+    ).href
 
     const patch = R.path([
       'patches',
@@ -488,6 +499,16 @@ const ReviewPatch = {
       'patchRequests',
       patchURL,
     ])(state)
+
+    const urlize = url => ({
+      label: nameByORCID[url],
+      url,
+    })
+
+    if (patch) {
+      patch.patch.created_by = urlize(patch.patch.created_by)
+      patch.patch.updated_by = urlize(patch.patch.updated_by)
+    }
 
     return patch || {}
   },

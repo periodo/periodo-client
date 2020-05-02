@@ -124,8 +124,13 @@ class ReviewPatch extends React.Component {
             backendID: backend.asIdentifier(),
           }),
         }, backend.metadata.label),
-        `Change submitted ${ formatDate(new Date(patch.created_at)) }`,
-        'Review',
+        h(Link, {
+          route: Route('backend-patches', {
+            backendID: backend.asIdentifier(),
+          }),
+        }, 'Review submitted changes'),
+        `Change submitted ${ formatDate(new Date(patch.created_at)) }
+${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
       ]),
 
       this.state.message,
