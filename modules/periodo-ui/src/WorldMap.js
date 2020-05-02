@@ -304,17 +304,21 @@ class _Map extends Component {
     window.addEventListener('resize', this.debouncedHandler)
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const { map } = this.state
+    const { height, features, focusedFeatures } = this.props
 
-    if (nextProps.height !== this.props.height) {
-      map.resize(getWidth(this.outerContainer.current), nextProps.height)
+    const featuresChanged = (
+      prevProps.features !== features ||
+      prevProps.focusedFeatures !== focusedFeatures
+    )
+
+    if (prevProps.height !== height || featuresChanged) {
+      map.resize(getWidth(this.outerContainer.current), height)
     }
 
-    if (nextProps.features !== this.props.features ||
-        nextProps.focusedFeatures !== this.props.focusedFeatures) {
-
-      map.display(nextProps.features, nextProps.focusedFeatures)
+    if (featuresChanged) {
+      map.display(features, focusedFeatures)
     }
   }
 
