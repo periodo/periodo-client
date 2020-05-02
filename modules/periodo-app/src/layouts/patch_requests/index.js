@@ -30,7 +30,15 @@ const PatchRequestList = ListBlock({
       render: req => h(Status, req),
     },
 
+    comment: {
+      label: 'Comment',
+      getValue: x => (
+        x.first_comment || h('span', { style: { fontStyle: 'italic' }}, 'none')
+      ),
+    },
+
     creator: {
+      width: '10em',
       label: 'Creator',
       getSortValue: x => x.label,
       getValue: x => x.created_by,
@@ -43,6 +51,7 @@ const PatchRequestList = ListBlock({
     },
 
     submitted: {
+      width: '7em',
       label: 'Submitted',
       getValue: x => new Date(x.created_at).toLocaleString(),
     },
