@@ -29,6 +29,7 @@ addUIModules([
   require('./InputBlock'),
   require('./LabeledMap'),
   require('./Links'),
+  require('./Pager'),
   require('./Patch'),
   require('./Period'),
   require('./PlaceSuggest'),
