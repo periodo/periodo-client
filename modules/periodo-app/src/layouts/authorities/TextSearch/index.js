@@ -113,20 +113,33 @@ module.exports = {
 
     if (!text) return null
 
-    const regex = text && new RegExp(text, 'i')
+    let test = t => t
+      ? t.toLowerCase().includes(text.replace(/\W/g, '').toLowerCase())
+      : false
 
-    let test
-
-    if (opts.withAlternate) {
-      test = period => (
-        regex.test(period.label) ||
-        _alternateLabels(period).some(({ label }) => regex.test(label))
-      )
-    } else {
-      test = period => regex.test(period.label)
+    try {
+      const regex = new RegExp(text, 'i')
+      test = t => regex.test(t)
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        // ignore
+      } else {
+        throw e
+      }
     }
 
-    return test
+    let filter
+
+    if (opts.withAlternate) {
+      filter = period => (
+        test(period.label) ||
+        _alternateLabels(period).some(({ label }) => test(label))
+      )
+    } else {
+      filter = period => test(period.label)
+    }
+
+    return filter
   },
   Component: RandomID(Search),
 }
