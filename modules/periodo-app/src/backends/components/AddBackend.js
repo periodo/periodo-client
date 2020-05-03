@@ -30,12 +30,16 @@ const AddBackend = props => {
             storage = BackendStorage.StaticFile(null, file)
           }
 
-          const resp = await props.dispatch(
+          const action = await props.dispatch(
             BackendAction.CreateBackend(storage, label, description))
 
           handleCompletedAction(
-            resp,
-            props.onSave || (() => null),
+            action,
+            () => {
+              if (props.onSave) {
+                props.onSave(action.readyState.response.backend)
+              }
+            },
             err => {
               if (err.message &&
                   err.message === 'Key already exists in the object store.') {

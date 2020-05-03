@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Box, Link, Text } = require('periodo-ui')
     , { SectionHeading, Section } = require('periodo-ui')
-    , { Route } = require('org-shell')
+    , { Route, Navigable } = require('org-shell')
     , { themeGet } = require('styled-system')
     , AddBackend = require('./AddBackend')
 
@@ -31,7 +31,7 @@ const Table = Box.withComponent('table').extend`
   }
 `
 
-module.exports = props =>
+module.exports = Navigable(props =>
   h(Box, [
     h(SectionHeading, 'Select data source'),
     h(Section, [
@@ -91,8 +91,11 @@ module.exports = props =>
 
     h(AddBackend, {
       ...props,
-      onSave: () => {
-        window.location.reload();
+      onSave: backend => {
+        props.navigateTo(Route('backend-home', {
+          backendID: backend.asIdentifier(),
+        }))
       },
     }),
   ])
+)
