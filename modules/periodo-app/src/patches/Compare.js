@@ -5,7 +5,8 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Type = require('union-type')
     , { saveAs } = require('file-saver')
-    , { Flex, Box, Link, Heading, Details } = require('periodo-ui')
+    , { Flex, Box, Link, Heading, Details, InputBlock } = require('periodo-ui')
+    , { Pager, PagerControls, PagerCounter, HelpText } = require('periodo-ui')
     , { Authority, Dataset, Period } = require('periodo-ui')
     , util = require('periodo-utils')
     , { makePatch } = require('./patch')
@@ -343,15 +344,51 @@ function AuthorityRow(props) {
   )
 }
 
+function ToggleSelectAll({ selectAll, total, setState }) {
+  return h(Link, {
+    css: {
+      position: 'absolute',
+    },
+    onClick: e => {
+      e.preventDefault()
+      setState(prev => {
+        if (prev.selectAll) {
+          return {
+            selectAll: false,
+            selectedPatches: new Set(),
+            selectedPeriods: new Set(),
+          }
+        } else {
+          return {
+            selectAll: true,
+          }
+        }
+      })
+    },
+  }, `${ selectAll ? 'Unselect' : 'Select' } ${
+    total === 1
+      ? 'all'
+      : total === 2
+        ? 'both'
+        : `all ${ total }`
+  }`)
+}
+
 class Compare extends React.Component {
   constructor() {
     super();
 
-    this.state = {}
+    this.state = {
+      filter: null,
+      limit: 10,
+    }
 
     this.getPatchFromSelection = this.getPatchFromSelection.bind(this);
     this.datasetPeriodByID = this.datasetPeriodByID.bind(this);
     this.datasetAuthorityByID = this.datasetAuthorityByID.bind(this);
+    this.updateFilter = this.updateFilter.bind(this)
+    this.filterAccepts = this.filterAccepts.bind(this)
+    this.renderAuthorityRow = this.renderAuthorityRow.bind(this)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -412,6 +449,7 @@ class Compare extends React.Component {
 
     return allPatches
       .filter(patch => selectAll ? true : patch.id in selectedPatches)
+      .filter(patch => this.filterAccepts(patch.type.authorityID))
       .map(({ type, patch, id }) => {
         if (type._name !== 'AddAuthority') return patch;
         if (!(id in selectedPeriods)) return patch;
@@ -462,6 +500,32 @@ class Compare extends React.Component {
     }
   }
 
+  updateFilter(e) {
+    const rawQuery = e.target.value
+    this.setState({ filter: rawQuery ? new RegExp(rawQuery, 'i') : null })
+  }
+
+  filterAccepts(authorityID) {
+    const { filter, patchedDataset } = this.state
+    if (! filter) {
+      return true
+    }
+    const authority = patchedDataset.authorityByID(authorityID)
+    return filter.test(util.authority.displayTitle(authority))
+  }
+
+  renderAuthorityRow(authorityID, patches, editing) {
+    return h(AuthorityRow, {
+      key: authorityID,
+      editing,
+      setState: this.setState.bind(this),
+      datasetAuthorityByID: this.datasetAuthorityByID,
+      datasetPeriodByID: this.datasetPeriodByID,
+      patches,
+      ...this.state,
+    })
+  }
+
   render() {
     const {
       allPatches,
@@ -497,7 +561,12 @@ class Compare extends React.Component {
 
     // Then, partition those by authority, so that changes to periods in the
     // same authority can be grouped together
-    const byAuthority = R.groupBy(R.path([ 'type', 'authorityID' ]), itemPatches)
+    const byAuthority = R.groupBy(
+      R.path([ 'type', 'authorityID' ]), itemPatches
+    )
+
+    const authorityPatches = Object.entries(byAuthority)
+      .filter(([ authorityID ]) => this.filterAccepts(authorityID))
 
     const [ ldPatches, unknownPatches ] = R.partition(
       ({ type }) => type.case({
@@ -509,6 +578,8 @@ class Compare extends React.Component {
 
     // TODO: What to do with unknownPatches?
     unknownPatches
+
+    const that = this
 
     return (
       h(Box, [
@@ -553,29 +624,6 @@ class Compare extends React.Component {
           ]),
         ]),
 
-        editing && h(Link, {
-          css: {
-            position: 'absolute',
-          },
-          onClick: e => {
-            e.preventDefault();
-
-            this.setState(prev => {
-              if (prev.selectAll) {
-                return {
-                  selectAll: false,
-                  selectedPatches: new Set(),
-                  selectedPeriods: new Set(),
-                }
-              } else {
-                return {
-                  selectAll: true,
-                }
-              }
-            })
-          },
-        }, selectAll ? 'Unselect all' : 'Select all'),
-
         ldPatches.length === 0 ? null : (
           h(Dataset, {
             value: localDataset.raw,
@@ -583,41 +631,112 @@ class Compare extends React.Component {
           })
         ),
 
-        h(Box, {
-          is: 'table',
-          css: {
-            width: '100%',
-            borderCollapse: 'collapse',
-          },
-        }, [
-          h('colgroup', [
-            h('col', { style: { width: "50%" }}),
-            h('col', { style: { width: "50%" }}),
-          ]),
-          h('thead', [
-            h('tr', [
-              h('th', {}, h(Heading, {
-                level: 4,
-                mb: 1,
-              }, 'Authority')),
-              h('th', {}, h(Heading, {
-                level: 4,
-                mb: 1,
-              }, 'Period')),
-            ]),
-          ]),
-          h('tbody', Object.entries(byAuthority).map(([ authorityID, patches ]) =>
-            h(AuthorityRow, {
-              key: authorityID,
-              editing,
-              setState: this.setState.bind(this),
-              datasetAuthorityByID: this.datasetAuthorityByID,
-              datasetPeriodByID: this.datasetPeriodByID,
-              patches,
-              ...this.state,
-            })
-          )),
-        ]),
+        editing && h(InputBlock, {
+          name: 'filter',
+          label: 'Filter changes by authority',
+          helpText: 'Show only changes to authorities with matching sources',
+          placeholder: 'e.g. library',
+          value: this.state.filter ? this.state.filter.source : '',
+          onChange: this.updateFilter,
+          mb: 3,
+        }),
+
+        authorityPatches.length === 0
+          ? h(HelpText, 'No authorities with matching sources.')
+          : h(Pager, {
+            total: authorityPatches.length,
+            limit: this.state.limit,
+            render({
+              start,
+              limit,
+              total,
+              shown,
+              toPrevPage,
+              toNextPage,
+              toFirstPage,
+              toLastPage,
+            }) {
+
+              const authorityRows = authorityPatches
+                    .sort((a, b) => b[0].localeCompare(a[0])) // sort by authority ID
+                    .slice(start, start + shown)
+                    .map(([ authorityID, patches ]) => that.renderAuthorityRow(
+                      authorityID,
+                      patches,
+                      editing
+                    ))
+
+              return (
+                h(Box, {
+                  tabIndex: 0,
+                  onKeyDown: e => {
+                    if (e.key === 'ArrowLeft') toPrevPage();
+                    if (e.key === 'ArrowRight') toNextPage();
+                  },
+                }, [
+                  h(Flex, {
+                    alignItems: 'center',
+                    mb: 3,
+                  }, [
+
+                    h(PagerCounter, {
+                      flex: 1,
+                      start,
+                      total,
+                      shown,
+                    }),
+
+                    h(PagerControls, {
+                      flex: 0,
+                      start,
+                      limit,
+                      total,
+                      shown,
+                      toPrevPage,
+                      toNextPage,
+                      toFirstPage,
+                      toLastPage,
+                      onLimitChange: limit => that.setState({ limit }),
+                    }),
+
+                    h('div', { style: { flex: 1 }}, ''),
+                  ]),
+
+                  editing && h(ToggleSelectAll, {
+                    selectAll,
+                    total,
+                    setState: that.setState.bind(that),
+                  }),
+
+                  h(Box, {
+                    is: 'table',
+                    css: {
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                    },
+                  }, [
+                    h('colgroup', [
+                      h('col', { style: { width: "50%" }}),
+                      h('col', { style: { width: "50%" }}),
+                    ]),
+                    h('thead', [
+                      h('tr', [
+                        h('th', {}, h(Heading, {
+                          level: 4,
+                          mb: 1,
+                        }, 'Authority')),
+                        h('th', {}, h(Heading, {
+                          level: 4,
+                          mb: 1,
+                        }, 'Period')),
+                      ]),
+                    ]),
+                    h('tbody', authorityRows),
+                  ]),
+                ])
+              )
+            },
+          }),
       ])
     )
   }

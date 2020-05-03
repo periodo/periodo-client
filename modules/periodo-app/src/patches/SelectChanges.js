@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Box, LoadingIcon } = require('periodo-ui')
+    , { Section, Box, LoadingIcon, HelpText } = require('periodo-ui')
     , { Heading, Button$Primary, Alert$Error } = require('periodo-ui')
     , { handleCompletedAction } = require('org-async-actions')
     , { connect } = require('react-redux')
@@ -78,9 +78,17 @@ class SelectChanges extends React.Component {
       )
     }
 
+    const action = direction.case({
+      Push: () => 'submitted',
+      Pull: () => 'imported',
+    })
+
     if (patch) {
-      return (
-        h(Box, [
+      return patch.length > 0
+        ? h(Section, [
+          h(HelpText, { mb: 3 },
+            `Select the changes to be ${ action }`),
+
           h(Compare, {
             onChange: this.handleChange,
             localDataset,
@@ -103,7 +111,7 @@ class SelectChanges extends React.Component {
             ),
           }, 'Continue'),
         ])
-      )
+        : h(HelpText, `There are no changes to be ${ action }.`)
     }
 
     return h(Box, [

@@ -1,8 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, PagerControls } = require('periodo-ui')
-    , Counter = require('./Counter')
+    , R = require('ramda')
+    , { Flex, PagerControls, PagerCounter } = require('periodo-ui')
     , ColumnSelector = require('./ColumnSelector')
 
 function ListControls({
@@ -20,17 +20,18 @@ function ListControls({
 }) {
   return h(Flex, {
     alignItems: 'center',
-    justifyContent: 'space-between',
     mb: 3,
   }, [
 
-    h(Counter, {
+    h(PagerCounter, {
+      flex: 1,
       start,
       total,
       shown,
     }),
 
     h(PagerControls, {
+      flex: 0,
       start,
       limit,
       total,
@@ -39,10 +40,12 @@ function ListControls({
       toPrevPage,
       toNextPage,
       toLastPage,
-      updateOpts,
+      onLimitChange: limit => updateOpts(R.set(R.lensProp('limit'), limit)),
     }),
 
     h(ColumnSelector, {
+      flex: 1,
+      textAlign: 'right',
       columns,
       shownColumns,
       updateOpts,

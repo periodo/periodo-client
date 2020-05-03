@@ -18,7 +18,7 @@ const {
   Section,
   Text,
   Link,
-  InfoText,
+  HelpText,
   Button$Primary,
   Alert$Error,
   Alert$Success,
@@ -91,66 +91,46 @@ class SubmitPatch extends React.Component {
 
     if (this.state.selectedPatch) {
       const backend = backends[this.state.selectedWebBackendID]
-      child = h(Box, [
-        this.state.compareComponent,
+      child = h(Section, [
+        this.state.message,
+        h(Box, [
+          this.state.compareComponent,
 
-        h(Box, { my: 3 }, [
-          h(ORCIDSettings, {
-            backend,
-            showAlerts: false,
-          }),
+          h(Box, { my: 3 }, [
+            h(ORCIDSettings, {
+              backend,
+              showAlerts: false,
+            }),
+          ]),
+
+          h(Button$Primary, {
+            mt: 2,
+            disabled: !backend.metadata.orcidCredential,
+            onClick: () => {
+              this.submitPatch()
+            },
+          }, 'Submit changes'),
         ]),
-
-        h(Button$Primary, {
-          mt: 2,
-          disabled: !backend.metadata.orcidCredential,
-          onClick: () => {
-            this.submitPatch()
-          },
-        }, 'Submit changes'),
       ])
     } else if (this.state.showCompare) {
-      child = h(Box, [
-        h(SelectChanges, {
-          direction: PatchDirection.Push,
-          localBackend: this.props.backend,
-          remoteBackend: backends[this.state.selectedWebBackendID],
-          handleSelectPatch: (selectedPatch, compareComponent) => {
-            this.setState({
-              message: null,
-              selectedPatch,
-              compareComponent,
-            })
-          },
-        }),
-      ])
+      child = h(SelectChanges, {
+        direction: PatchDirection.Push,
+        localBackend: this.props.backend,
+        remoteBackend: backends[this.state.selectedWebBackendID],
+        handleSelectPatch: (selectedPatch, compareComponent) => {
+          this.setState({
+            message: null,
+            selectedPatch,
+            compareComponent,
+          })
+        },
+      })
     } else if (webBackends.length === 0) {
-      child = h(InfoText, [
-        'In order to submit changes you must first create a web data source',
+      child = h(HelpText, [
+        'In order to submit changes, you must first create a web data source.',
       ])
     } else {
-        // childChildren = h(Box, { mt: 3 }, [
-        //   // h(ORCIDSettings, {
-        //   //   backend: selectedWebBackend,
-        //   //   showAlerts: false,
-        //   // }),
-
-        //   /*!selectedWebBackend.metadata.orcidCredential ? null : */(
-        //     h(Box, { mt: 3 }, [
-        //       h(Button$Primary, {
-        //         onClick: () => {
-        //           this.setState({
-        //             message: null,
-        //             showCompare: true,
-        //           })
-        //         },
-        //       }, 'Continue'),
-        //     ])
-        //   ),
-        // ])
-        // }
-
-      child = h(Box, [
+      child = h(Section, [
         h(Text, { mb: 3 }, 'Select a web data source to submit changes to'),
 
         h(BackendSelector, {
@@ -164,8 +144,6 @@ class SubmitPatch extends React.Component {
             })
           },
         }),
-
-        //childChildren,
       ])
     }
 
@@ -179,10 +157,7 @@ class SubmitPatch extends React.Component {
           }, this.props.backend.metadata.label),
           'Submit changes',
         ]),
-        h(Section, [
-          this.state.message,
-          child,
-        ]),
+        child,
       ])
     )
   }

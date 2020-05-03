@@ -88,7 +88,7 @@ module.exports = function makeList(opts) {
         shownColumns,
         sortBy,
         sortDirection,
-        opts: { limit },
+        limit,
         updateOpts,
       } = this.props
 
@@ -132,7 +132,6 @@ module.exports = function makeList(opts) {
 
               h(Box, {
                 is: 'table',
-                minHeight: limit * 34,
                 css: {
                   tableLayout: 'fixed',
                   width: '100%',

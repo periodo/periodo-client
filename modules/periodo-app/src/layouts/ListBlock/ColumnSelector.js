@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Box, DropdownMenu, DropdownMenuItem } = require('periodo-ui')
 
-function ColumnSelector({ columns, shownColumns, updateOpts }) {
+function ColumnSelector({ columns, shownColumns, updateOpts, ...props }) {
 
   const toggleColumn = key => () => {
     updateOpts(opts =>
@@ -19,10 +19,7 @@ function ColumnSelector({ columns, shownColumns, updateOpts }) {
     )
   }
 
-  return h(Box, {
-    textAlign: 'right',
-    flex: '1 1 auto',
-  }, [
+  return h(Box, props, [
     h(DropdownMenu, {
       closeOnSelection: false,
       openLeft: true,
