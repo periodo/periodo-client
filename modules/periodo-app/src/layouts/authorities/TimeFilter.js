@@ -45,8 +45,8 @@ module.exports = {
     }
   },
   processOpts: opts => ({
+    yearRange: TimeSlider.getDefaultYearRange(),
     ...opts,
-    yearRange: opts.yearRange || TimeSlider.DEFAULT_YEAR_RANGE,
   }),
   Component: TimeFilter,
 }

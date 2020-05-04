@@ -69,6 +69,8 @@ const toDomainRange = ([ minYear, maxYear ]) => {
 
 const toYearRange = domainRange => domainRange.map(i => domain[i].year)
 
+const defaultYearRange = toYearRange(defaultRange)
+
 const rootStyle = {
   position: 'relative',
   width: '100%',
@@ -224,6 +226,6 @@ function TimeSlider({ yearRange=[], onChange }) {
   ])
 }
 
-TimeSlider.DEFAULT_YEAR_RANGE = toYearRange(defaultRange)
+TimeSlider.getDefaultYearRange = () => [ ...defaultYearRange ]
 
 exports.TimeSlider = TimeSlider

@@ -55,13 +55,17 @@ module.exports = class AuthorityLayout extends React.Component {
   constructor(props) {
     super(props)
 
-    const yearRange = TimeSlider.DEFAULT_YEAR_RANGE
+    const defaultYearRange = TimeSlider.getDefaultYearRange()
 
     const authorityDescription = util.authority.describe(props.authority)
 
-    if (authorityDescription.earliest !== null) {
-      yearRange[0] = authorityDescription.earliest.iso
-    }
+    const yearRange = [
+      authorityDescription.earliest
+        ? authorityDescription.earliest.iso
+        : defaultYearRange[0],
+      defaultYearRange[1],
+    ]
+
     this.state = {
       blockOpts: this.props.opts.Layout || {
         Facets: {
@@ -72,9 +76,7 @@ module.exports = class AuthorityLayout extends React.Component {
             spatialCoverage: '67%',
           },
         },
-        TimeFilter: {
-          yearRange,
-        },
+        TimeFilter: { yearRange },
       },
     }
 
