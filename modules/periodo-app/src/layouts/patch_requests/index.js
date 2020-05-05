@@ -10,6 +10,7 @@ const h = require('react-hyperscript')
 const PatchRequestList = ListBlock({
   label: 'Patch request list',
   description: 'List of patch requests',
+  emptyMessage: 'No open submissions',
   itemViewRoute(item, { backend }) {
     return Route('review-patch', {
       backendID: backend.asIdentifier(),

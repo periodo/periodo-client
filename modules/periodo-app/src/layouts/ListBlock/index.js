@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , natsort = require('natsort')
-    , { Box, Text, Pager } = require('periodo-ui')
+    , { Box, Pager, HelpText } = require('periodo-ui')
     , ListControls = require('./ListControls')
     , ListHeader = require('./ListHeader')
     , ListRow = require('./ListRow')
@@ -16,6 +16,7 @@ module.exports = function makeList(opts) {
     columns,
     itemViewRoute,
     itemEditRoute,
+    emptyMessage,
   } = opts
 
   const withDefaults = obj => ({
@@ -95,6 +96,10 @@ module.exports = function makeList(opts) {
       const { sortedData: items } = this.state
           , total = items ? items.length : 0
 
+      if (total === 0) {
+        return h(HelpText, emptyMessage || 'No items to display')
+      }
+
       return h(Pager, {
         total,
         limit,
@@ -166,22 +171,6 @@ module.exports = function makeList(opts) {
                   )
                 ),
               ]),
-
-              items && shown > 0 ? null : (
-                h(Text, {
-                  align: 'center',
-                  fontSize: 4,
-                  p: 2,
-                }, 'No items to display')
-              ),
-
-              items ? null : (
-                h(Text, {
-                  align: 'center',
-                  fontSize: 4,
-                  p: 2,
-                }, 'Loading...')
-              ),
             ])
           )
         },
