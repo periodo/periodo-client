@@ -121,7 +121,7 @@ module.exports = function makeList(opts) {
                 if (e.key === 'ArrowRight') toNextPage();
               },
             }, [
-              h(ListControls, {
+              total > 10 && h(ListControls, {
                 start,
                 limit,
                 total,
