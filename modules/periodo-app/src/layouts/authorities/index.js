@@ -11,11 +11,14 @@ const noop = () => {}
 
 module.exports = Navigable(({
   fixedPeriod,
+  selectedPeriod: selectedPeriodFromProps,
   dataset,
   backend,
   navigateTo,
   totalCount,
   gazetteers,
+  useAuthorities,
+  filter,
   ...props
 }) => {
 
@@ -25,11 +28,11 @@ module.exports = Navigable(({
 
   const [ selectedPeriod, _setSelectedPeriod ] = fixedPeriod
     ? [ fixedPeriod, noop ]
-    : useState(props.selectedPeriod)
+    : useState(selectedPeriodFromProps)
 
   const [ selectedPeriodIsVisible, setSelectedPeriodIsVisible ] = fixedPeriod
     ? [ true, noop ]
-    : useState(!!props.selectedPeriod)
+    : useState(!!selectedPeriodFromProps)
 
   const setSelectedPeriod = period => {
     _setSelectedPeriod(period)
@@ -37,12 +40,10 @@ module.exports = Navigable(({
     updateLayoutParams({ periodID: period ? period.id : null })
   }
 
-  let data = props.useAuthorities
-    ? props.dataset.authorities
-    : props.dataset.periods
+  let data = useAuthorities ? dataset.authorities : dataset.periods
 
-  if (props.filter) {
-    data = data.filter(props.filter)
+  if (filter) {
+    data = data.filter(filter)
   }
 
   return (
