@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , Icon = require('react-geomicons').default
-    , { useState } = require('react')
+    , { useState, useEffect } = require('react')
     , { Button } = require('./Buttons')
     , { Flex, Box, Text } = require('./Base')
     , { Select } = require('./FormElements')
@@ -10,6 +10,8 @@ const h = require('react-hyperscript')
 function Pager({ total, limit, render }) {
 
   const [ start, setStart ] = useState(0)
+
+  useEffect(() => setStart(0), [ total, limit ])
 
   function toPrevPage() {
     setStart(Math.max(0, start - limit))
