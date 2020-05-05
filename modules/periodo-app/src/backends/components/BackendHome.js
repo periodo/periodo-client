@@ -77,18 +77,6 @@ module.exports = class BackendHome extends React.Component {
 
     const { blockOpts } = this.state
 
-    const selectedPeriod = dataset.periodByID(periodID)
-
-    const childProps = {
-      backend,
-      dataset,
-      blockOpts,
-      gazetteers,
-      onBlockOptsChange: updatedOpts => {
-        this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
-      },
-    }
-
     return (
       h(Box, [
 
@@ -126,9 +114,16 @@ module.exports = class BackendHome extends React.Component {
               }, 'Browse authorities'),
             ])
             : h(AuthorityLayoutRenderer, {
-              ...childProps,
+              backend,
+              dataset,
+              gazetteers,
               layout,
-              selectedPeriod,
+              totalCount: dataset.periods.length,
+              selectedPeriod: dataset.periodByID(periodID),
+              blockOpts,
+              onBlockOptsChange: updatedOpts => {
+                this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
+              },
             }),
       ])
     )

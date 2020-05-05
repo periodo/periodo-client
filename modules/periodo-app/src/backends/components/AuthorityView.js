@@ -103,18 +103,6 @@ module.exports = class AuthorityLayout extends React.Component {
 
     const { blockOpts } = this.state
 
-    const selectedPeriod = dataset.periodByID(periodID)
-
-    const childProps = {
-      backend,
-      dataset,
-      gazetteers,
-      blockOpts,
-      onBlockOptsChange: updatedOpts => {
-        this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
-      },
-    }
-
     const description = util.authority.describe(authority)
 
     return h(Box, [
@@ -179,9 +167,16 @@ module.exports = class AuthorityLayout extends React.Component {
         ])
         : (
           h(AuthorityLayoutRenderer, {
-            ...childProps,
-            layout: authorityLayout,
-            selectedPeriod,
+            backend,
+            dataset,
+            gazetteers,
+            layout,
+            totalCount: description.periods,
+            selectedPeriod: dataset.periodByID(periodID),
+            blockOpts,
+            onBlockOptsChange: updatedOpts => {
+              this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
+            },
           })
         ),
     ])
