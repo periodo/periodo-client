@@ -1,16 +1,23 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , { useState } = require('react')
-    , { updateLayoutParams, period: { authorityOf }} = require('periodo-utils')
+    , { updateLayoutParams } = require('periodo-utils')
     , LayoutRenderer = require('../LayoutRenderer')
     , { Navigable } = require('org-shell')
     , blocks = require('./blocks')
 
 const noop = () => {}
 
-module.exports = Navigable(({ fixedPeriod, ...props }) => {
+module.exports = Navigable(({
+  fixedPeriod,
+  dataset,
+  backend,
+  navigateTo,
+  totalCount,
+  gazetteers,
+  ...props
+}) => {
 
   const [ hoveredPeriod, setHoveredPeriod ] = fixedPeriod
     ? [ null, noop ]
@@ -27,10 +34,7 @@ module.exports = Navigable(({ fixedPeriod, ...props }) => {
   const setSelectedPeriod = period => {
     _setSelectedPeriod(period)
     setSelectedPeriodIsVisible(!!period)
-    updateLayoutParams({
-      periodID: period ? period.id : null,
-      authorityID: period ? authorityOf(period).id : null,
-    })
+    updateLayoutParams({ periodID: period ? period.id : null })
   }
 
   let data = props.useAuthorities
@@ -42,15 +46,16 @@ module.exports = Navigable(({ fixedPeriod, ...props }) => {
   }
 
   return (
-    h(LayoutRenderer, R.omit([ 'dataset', 'backend', 'navigateTo' ], {
+    h(LayoutRenderer, {
       ...props,
       blocks,
       data,
       extraProps: {
-        backend: props.backend,
-        dataset: props.dataset,
-        gazetteers: props.gazetteers,
-        navigateTo: props.navigateTo,
+        backend,
+        dataset,
+        totalCount,
+        gazetteers,
+        navigateTo,
         hoveredPeriod,
         setHoveredPeriod,
         selectedPeriod,
@@ -58,6 +63,6 @@ module.exports = Navigable(({ fixedPeriod, ...props }) => {
         selectedPeriodIsVisible,
         setSelectedPeriodIsVisible,
       },
-    }))
+    })
   )
 })

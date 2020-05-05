@@ -1,7 +1,6 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , LayoutRenderer = require('../LayoutRenderer')
     , ListBlock = require('../ListBlock')
     , { Navigable, Route } = require('org-shell')
@@ -59,15 +58,21 @@ const PatchRequestList = ListBlock({
   },
 })
 
-module.exports = Navigable(props =>
-  h(LayoutRenderer, R.omit([ 'patchRequests', 'backend', 'navigateTo' ], {
-    ...props,
-    blocks: {
-      'request-list': PatchRequestList,
-    },
-    data: props.patchRequests,
-    extraProps: {
-      backend: props.backend,
-      navigateTo: props.navigateTo,
-    },
-  })))
+module.exports = Navigable(
+  ({
+    patchRequests,
+    backend,
+    navigateTo,
+    ...props
+  }) => (
+    h(LayoutRenderer, {
+      ...props,
+      blocks: { 'request-list': PatchRequestList },
+      data: patchRequests,
+      extraProps: {
+        backend,
+        navigateTo,
+      },
+    })
+  )
+)
