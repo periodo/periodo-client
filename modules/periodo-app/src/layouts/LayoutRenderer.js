@@ -123,9 +123,12 @@ class LayoutRenderer extends React.Component {
     this.resetData = this.resetData.bind(this);
     this.debouncedResetData = debounce(this.resetData, RESET_DEBOUNCE_TIME)
     this.invalidate = this.invalidate.bind(this)
+
+    this._isMounted = false
   }
 
   componentDidMount() {
+    this._isMounted = true
     this.resetData()
   }
 
@@ -152,6 +155,10 @@ class LayoutRenderer extends React.Component {
     if (resetData) {
       this.resetData()
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
   }
 
   resetLayout() {
@@ -206,7 +213,9 @@ class LayoutRenderer extends React.Component {
 
         if (this.dataResets !== renderID) resolve()
 
-        this.setState({ dataForBlocks })
+        if (this._isMounted) {
+          this.setState({ dataForBlocks })
+        }
         setTimeout(resolve, 0)
       })
     }
