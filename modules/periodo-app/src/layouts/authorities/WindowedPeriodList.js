@@ -371,6 +371,7 @@ class PeriodList extends React.Component {
       setSelectedPeriod,
       setSelectedPeriodIsVisible,
       backend,
+      totalCount,
       opts: { fixed },
     } = this.props
 
@@ -378,6 +379,9 @@ class PeriodList extends React.Component {
         , layoutParams = getLayoutParams()
 
     const itemCount = periods ? periods.length : 0
+        , filteredCount = totalCount === undefined
+          ? undefined
+          : totalCount - itemCount
 
     return h('div', {
       ref: this.rootRef,
@@ -385,8 +389,14 @@ class PeriodList extends React.Component {
       ...(fixed === 'true'
         ? []
         : [
-          h(Label, { key: 'label' },
-            `${itemCount} periods`),
+
+          h(Label, { key: 'label' }, `${itemCount} periods`),
+
+          filteredCount !== undefined && filteredCount > 0 && h(Text, {
+            color: 'gray.6',
+            fontSize: 1,
+          }, `${ filteredCount } periods not shown.
+ Adjust filters to see more`),
 
           h(HelpText, {
             key: 'help',
@@ -398,7 +408,7 @@ class PeriodList extends React.Component {
         ]
       ),
 
-      h(AutoSizer, {
+      itemCount > 0 && h(AutoSizer, {
         key: 'list-wrapper',
         style: { height: 234 },
       }, [
