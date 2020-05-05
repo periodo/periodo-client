@@ -87,7 +87,7 @@ module.exports = class BackendHome extends React.Component {
 
         dataset.authorities.length === 0
           ? h(HelpText, [
-            'No authorities in this data source.',
+            'No periods in this data source.',
             h(Link, {
               mx: 1,
               route: new Route('backend-add-authority', {
