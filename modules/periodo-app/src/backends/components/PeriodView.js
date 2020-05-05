@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { Route } = require('org-shell')
     , { Box, Span, Heading, Text, Section, Breadcrumb } = require('periodo-ui')
-    , { Link, PermalinkValue, LinkifiedTextValue } = require('periodo-ui')
+    , { Link, PermalinkValue, Note, EditorialNote } = require('periodo-ui')
     , { RelatedAuthorityValue, DownloadValue } = require('periodo-ui')
     , util = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
@@ -25,42 +25,6 @@ section = Period details
 type = authority-period-detail
 section = Period details
 `
-
-function EditorialNote({ text, ...props }) {
-  return h(Box,
-    {
-      mt: 3,
-      maxWidth: '60em',
-      ...props,
-    },
-    h(LinkifiedTextValue, {
-      value: { text },
-    })
-  )
-}
-
-function Note({ cite, ...props }) {
-  return EditorialNote({
-    is: 'blockquote',
-    borderLeft: '4px solid',
-    borderColor: 'gray.3',
-    css: {
-      fontStyle: 'italic',
-      quotes: "'“' '”' '‘' '’'",
-      '::before': {
-        color: '#ced4da',
-        content: 'open-quote',
-        fontSize: '2em',
-        lineHeight: '0.1em',
-        marginRight: '0.25em',
-        verticalAlign: '-0.4em',
-      },
-    },
-    pl: 1,
-    cite,
-    ...props,
-  })
-}
 
 const labelOf = x => (x && x.label) ? x.label : ''
 
@@ -158,7 +122,6 @@ module.exports = class PeriodLayout extends React.Component {
         ]),
 
         h(Box, {
-          mb: 2,
           fontSize: 3,
         }, [
           h(Span, { color: 'gray.6' }, 'Download '),

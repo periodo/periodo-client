@@ -4,15 +4,15 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Route } = require('org-shell')
-    , { Heading, Box, Span, Text, Link, DownloadValue } = require('periodo-ui')
-    , { PermalinkValue, LinkifiedTextValue, Section  } = require('periodo-ui')
+    , { Heading, Box, Span, Link, DownloadValue } = require('periodo-ui')
+    , { PermalinkValue, Section, EditorialNote  } = require('periodo-ui')
     , { Breadcrumb } = require('periodo-ui')
     , { TimeSlider, HelpText  } = require('periodo-ui')
     , util = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
 
-const authorityLayout = `
+const layout = `
 [Search]
 type = period-search
 section = Filter periods
@@ -151,7 +151,7 @@ module.exports = class AuthorityLayout extends React.Component {
         ]),
 
         h(Box, {
-          mb: 2,
+          mb: description.editorialNote ? 2 : 0,
           fontSize: 3,
         }, [
           h(Span, { color: 'gray.6' }, 'Download '),
@@ -161,15 +161,9 @@ module.exports = class AuthorityLayout extends React.Component {
           }),
         ]),
 
-        h(Text,
-          {
-            mb: 3,
-            maxWidth: '60em',
-          },
-          h(LinkifiedTextValue, {
-            value: { text: description.editorialNote },
-          })
-        ),
+        description.editorialNote && h(EditorialNote, {
+          text: description.editorialNote,
+        }),
       ]),
 
       description.periods === 0
