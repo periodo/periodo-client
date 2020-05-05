@@ -286,25 +286,27 @@ class LayoutRenderer extends React.Component {
             ? blocks.map(
               (block, i) => h(Section, { key: `section-${i}` }, block)
             )
-            : [
-              h(Box, {
-                is: 'details',
-                open: true,
-              }, [
-                h(Summary, {
-                  css: {
-                    display: 'flex',
-                    alignItems: 'center',
-                  },
-                },[
-                  h(SectionHeading, {
-                    display: 'inline-block',
-                    style: { lineHeight: 1 },
-                  }, section),
+            : section === 'untitled'
+              ? [ h(Section, blocks) ]
+              : [
+                h(Box, {
+                  is: 'details',
+                  open: true,
+                }, [
+                  h(Summary, {
+                    css: {
+                      display: 'flex',
+                      alignItems: 'center',
+                    },
+                  },[
+                    h(SectionHeading, {
+                      display: 'inline-block',
+                      style: { lineHeight: 1 },
+                    }, section),
+                  ]),
+                  h(Section, blocks),
                 ]),
-                h(Section, blocks),
-              ]),
-            ]
+              ]
         ),
       ], []
     )
