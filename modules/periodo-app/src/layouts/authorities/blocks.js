@@ -1,5 +1,6 @@
 module.exports = {
-  'text-search': require('./TextSearch'),
+  'period-search': require('./PeriodSearch'),
+  'authority-search': require('./AuthoritySearch'),
   'dataset-statistics': require('./Statistics'),
   'windowed-period-list': require('./WindowedPeriodList'),
   'authority-list': require('./AuthorityList'),

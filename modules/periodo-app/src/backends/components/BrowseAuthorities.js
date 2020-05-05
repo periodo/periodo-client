@@ -7,11 +7,16 @@ const h = require('react-hyperscript')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
 
 const layout = `
+[Search]
+type = authority-search
+section = untitled
+
 [AuthorityList]
 type = authority-list
+section = untitled
 `
 
-module.exports = function MyAuthorities({
+module.exports = function BrowseAuthorities({
   dataset,
   backend,
   authorityIDs,

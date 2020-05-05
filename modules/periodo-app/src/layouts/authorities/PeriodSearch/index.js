@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { alternateLabels } = require('periodo-utils/src/period')
+    , { textMatcher, period: { alternateLabels }} = require('periodo-utils')
     , { Box, Flex, Input, Label, HelpText } = require('periodo-ui')
     , { RandomID } = require('periodo-common')
     , styled = require('styled-components').default
@@ -89,15 +89,12 @@ class Search extends React.Component {
           type: 'text',
           id: inputID,
           value: text || '',
-          placeholder: 'e.g. Bronze',
+          placeholder: 'e.g. bronze',
           onChange: e => {
-            const text = e.target.value
-                , invalidate = text.slice(-1) !== '|'
-
             updateOpts({
               ...opts,
-              text,
-            }, invalidate)
+              text: e.target.value,
+            }, true)
           },
         }),
       ])
@@ -106,27 +103,14 @@ class Search extends React.Component {
 }
 
 module.exports = {
-  label: 'Text search',
-  description: 'Search for periods by text.',
+  label: 'Period search',
+  description: 'Search for periods by label',
   makeFilter(opts) {
     const text = opts && opts.text
 
     if (!text) return null
 
-    let test = t => t
-      ? t.toLowerCase().includes(text.replace(/\W/g, '').toLowerCase())
-      : false
-
-    try {
-      const regex = new RegExp(text, 'i')
-      test = t => regex.test(t)
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        // ignore
-      } else {
-        throw e
-      }
-    }
+    const test = textMatcher(text)
 
     let filter
 

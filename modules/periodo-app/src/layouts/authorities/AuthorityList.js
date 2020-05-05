@@ -60,6 +60,7 @@ const columns = {
 module.exports = ListBlock({
   label: 'Authority List',
   description: 'Selectable list of period authorities.',
+  emptyMessage: 'No authorities with matching sources',
   itemViewRoute(item, { backend }) {
     return Route('authority-view', {
       backendID: backend.asIdentifier(),

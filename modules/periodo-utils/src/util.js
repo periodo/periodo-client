@@ -95,6 +95,33 @@ const formatter = new Intl.DateTimeFormat('en', {
   timeZoneName: 'short',
 })
 
+function textMatcher(query) {
+  // match everything by default
+  if (!query) {
+    return () => true
+  }
+  // fallback to String.includes if query is not a valid regex
+  let test = text => text
+    ? text.toLowerCase().includes(query.replace(/\W/g, '').toLowerCase())
+    : false
+  // otherwise use RegExp.test
+  try {
+      const regex = new RegExp(
+        // ignore pipe at the end of a regex as it is likely incomplete
+        query.slice(-1) === '|' ? query.slice(0, -1) : query,
+        'i'
+      )
+      test = text => regex.test(text)
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      // ignore
+    } else {
+      throw e
+    }
+  }
+  return test
+}
+
 module.exports = {
   oneOf,
   ensureArray,
@@ -106,4 +133,5 @@ module.exports = {
   getLayoutParams,
   updateLayoutParams,
   formatDate: formatter.format,
+  textMatcher,
 }

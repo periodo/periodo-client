@@ -287,7 +287,7 @@ const Backend = {
     },
     'backend-authorities': {
       label: 'Browse authorities',
-      Component: require('./backends/components/MyAuthorities'),
+      Component: require('./backends/components/BrowseAuthorities'),
       async loadData(props, log, finished) {
         const { dispatch } = props
             , storage = getCurrentBackendStorage(props)

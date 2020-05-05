@@ -14,7 +14,7 @@ const h = require('react-hyperscript')
 
 const authorityLayout = `
 [Search]
-type = text-search
+type = period-search
 section = Filter periods
 
 [PlaceFilter]

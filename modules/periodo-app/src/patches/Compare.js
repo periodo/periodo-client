@@ -379,6 +379,7 @@ class Compare extends React.Component {
     super();
 
     this.state = {
+      filterQuery: null,
       filter: null,
       limit: 10,
     }
@@ -501,8 +502,11 @@ class Compare extends React.Component {
   }
 
   updateFilter(e) {
-    const rawQuery = e.target.value
-    this.setState({ filter: rawQuery ? new RegExp(rawQuery, 'i') : null })
+    const filterQuery = e.target.value
+    this.setState({
+      filterQuery,
+      filter: filterQuery ? util.textMatcher(filterQuery) : null,
+    })
   }
 
   filterAccepts(authorityID) {
@@ -511,7 +515,7 @@ class Compare extends React.Component {
       return true
     }
     const authority = patchedDataset.authorityByID(authorityID)
-    return filter.test(util.authority.displayTitle(authority))
+    return filter(util.authority.displayTitle(authority))
   }
 
   renderAuthorityRow(authorityID, patches, editing) {
@@ -636,7 +640,7 @@ class Compare extends React.Component {
           label: 'Filter changes by authority',
           helpText: 'Show only changes to authorities with matching sources',
           placeholder: 'e.g. library',
-          value: this.state.filter ? this.state.filter.source : '',
+          value: this.state.filterQuery ? this.state.filterQuery : '',
           onChange: this.updateFilter,
           mb: 3,
         }),
