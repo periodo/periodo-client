@@ -40,7 +40,6 @@ height = 200
 [PeriodList]
 type = windowed-period-list
 section = Periods
-scroll-to = true
 
 [AuthorityPeriodDetail]
 type = authority-period-detail

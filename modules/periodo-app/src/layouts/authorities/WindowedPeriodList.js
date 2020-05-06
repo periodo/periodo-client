@@ -222,22 +222,9 @@ class PeriodList extends React.Component {
     this.onMouseMove = this.onMouseMove.bind(this)
     this.handleScroll = this.handleScroll.bind(this)
     this.updateScroll = this.updateScroll.bind(this)
-    this.scrollWindowToList = this.scrollWindowToList.bind(this)
 
-    this.rootRef = { current: null }
     this.wrapperRef = { current: null }
     this.listRef = { current: null }
-  }
-
-  componentDidMount() {
-    const scrollWindow = (
-      this.props.opts &&
-      this.props.opts.scrollTo &&
-      this.props.selectedPeriod
-    )
-    if (scrollWindow) {
-      this.scrollWindowToList()
-    }
   }
 
   componentDidUpdate(prevProps) {
@@ -250,12 +237,6 @@ class PeriodList extends React.Component {
       this.updateSort()
     }
     this.updateScroll()
-  }
-
-  scrollWindowToList() {
-    if (this.rootRef.current) {
-      window.scrollTo(0, this.rootRef.current.offsetTop)
-    }
   }
 
   onMouseMove(e) {
@@ -388,9 +369,7 @@ class PeriodList extends React.Component {
           ? undefined
           : totalCount - itemCount
 
-    return h('div', {
-      ref: el => this.rootRef.current = el,
-    }, [
+    return h('div', [
       ...(fixed === 'true'
         ? []
         : [
