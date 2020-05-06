@@ -224,8 +224,9 @@ class PeriodList extends React.Component {
     this.updateScroll = this.updateScroll.bind(this)
     this.scrollWindowToList = this.scrollWindowToList.bind(this)
 
-    this.rootRef = React.createRef()
-    this.listRef = React.createRef()
+    this.rootRef = { current: null }
+    this.wrapperRef = { current: null }
+    this.listRef = { current: null }
   }
 
   componentDidMount() {
@@ -347,12 +348,16 @@ class PeriodList extends React.Component {
   }
 
   updateScroll() {
-    if (this.listRef.current && this.state.scrollNeedsUpdate) {
+    if (this.wrapperRef.current &&
+        this.listRef.current &&
+        this.state.scrollNeedsUpdate) {
+
       const index = findPeriodIndex(
         this.props.selectedPeriod,
         this.state.sortedData
       )
       this.props.setSelectedPeriodIsVisible(index >= 0)
+      this.wrapperRef.current.focus()
       this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
       this.setState({ scrollNeedsUpdate: false })
     }
@@ -384,7 +389,7 @@ class PeriodList extends React.Component {
           : totalCount - itemCount
 
     return h('div', {
-      ref: this.rootRef,
+      ref: el => this.rootRef.current = el,
     }, [
       ...(fixed === 'true'
         ? []
@@ -410,11 +415,15 @@ class PeriodList extends React.Component {
 
       itemCount > 0 && h(AutoSizer, {
         key: 'list-wrapper',
-        style: { height: 234 },
+        disableHeight: true,
       }, [
         ({ width }) => h(ListWrapper, {
           tabIndex: 0,
           onKeyDown: this.onKeyDown,
+          innerRef: el => {
+            this.wrapperRef.current = el
+            this.updateScroll()
+          },
           style: {
             overflowY: 'unset',
             position: 'relative',
@@ -462,7 +471,10 @@ class PeriodList extends React.Component {
             style: { overscrollBehaviorY: 'contain' },
             onScroll: this.handleScroll,
             onItemsRendered: this.updateScroll,
-            ref: this.listRef,
+            ref: list => {
+              this.listRef.current = list
+              this.updateScroll()
+            },
             innerRef: el => {
               if (!this.scrollEl && el) {
                 this.scrollEl = el.parentNode
