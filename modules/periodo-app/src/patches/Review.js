@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , { handleCompletedAction } = require('org-async-actions')
     , { Route } = require('org-shell')
     , { formatDate } = require('periodo-utils')
+    , { linkify } = require('periodo-ui')
     , Compare = require('./Compare')
     , { PatchDirection, PatchFate } = require('./types')
     , PatchAction = require('./actions')
@@ -160,7 +161,7 @@ ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
                   color: 'gray.6',
                 }, formatDate(new Date(comment.posted_at))),
               ]),
-              h(Text, comment.message),
+              h(Text, linkify(comment.message)),
             ])
           )
         ),

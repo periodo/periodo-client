@@ -43,4 +43,5 @@ addUIModules([
   require('./Typography'),
   require('./WorldMap'),
   require('./diffable/Value'),
+  require('./util'),
 ])

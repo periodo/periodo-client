@@ -11,7 +11,7 @@ const h = require('react-hyperscript')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { BackendContext } = require('../BackendContext')
     , { useContext } = require('react')
-    , linkifier = require('linkify-it')()
+    , { linkify } = require('../util')
     , util = require('periodo-utils')
     , styled = require('styled-components').default
 
@@ -21,35 +21,6 @@ const abbreviate = id => {
   } catch (e) {
     return 'invalid'
   }
-}
-
-const linkify = text => {
-  const links = linkifier.match(text)
-
-  if (! links) { return [ text ] }
-
-  const nodes = []
-
-  let pos = 0
-
-  links.forEach(match => {
-    const minusOne = ',;.'.indexOf(match.url.slice(-1)) !== -1
-        , href = minusOne ? match.url.slice(0, -1) : match.url
-        , lastIndex = minusOne ? match.lastIndex - 1 : match.lastIndex
-
-    nodes.push(text.slice(pos, match.index))
-    nodes.push(h(ExternalLink, {
-      key: nodes.length,
-      href,
-    }, href))
-    nodes.push(text.slice(match.index + href.length, lastIndex))
-
-    pos = lastIndex
-  })
-
-  nodes.push(text.slice(pos, text.length))
-
-  return nodes
 }
 
 function asYearOrRange({ year, earliestYear, latestYear }) {
