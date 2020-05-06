@@ -323,7 +323,7 @@ class PeriodList extends React.Component {
 
       this.setState({
         sortedData,
-        scrollNeedsUpdate: true,
+        scrollNeedsUpdate: !!this.props.selectedPeriod,
       })
     }
   }
