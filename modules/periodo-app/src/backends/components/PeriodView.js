@@ -57,16 +57,6 @@ module.exports = class PeriodLayout extends React.Component {
     const { backend, dataset, authority, period, gazetteers } = this.props
         , { blockOpts } = this.state
 
-    const childProps = {
-      backend,
-      dataset,
-      gazetteers,
-      blockOpts,
-      onBlockOptsChange: updatedOpts => {
-        this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
-      },
-    }
-
     return h(Box, [
 
       h(Breadcrumb, {
@@ -142,7 +132,14 @@ module.exports = class PeriodLayout extends React.Component {
       ]),
 
       h(AuthorityLayoutRenderer, {
-        ...childProps,
+        data: Object.values(authority.periods),
+        backend,
+        dataset,
+        gazetteers,
+        blockOpts,
+        onBlockOptsChange: updatedOpts => {
+          this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
+        },
         layout: periodLayout,
         fixedPeriod: period,
       }),

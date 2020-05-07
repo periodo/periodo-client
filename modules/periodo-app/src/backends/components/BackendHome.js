@@ -113,6 +113,7 @@ module.exports = class BackendHome extends React.Component {
               }, 'Browse authorities'),
             ])
             : h(AuthorityLayoutRenderer, {
+              data: dataset.periods,
               backend,
               dataset,
               gazetteers,

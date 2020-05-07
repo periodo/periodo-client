@@ -54,11 +54,12 @@ module.exports = function BrowseAuthorities({
           'from another data source.',
         ])
         : h(AuthorityLayoutRenderer, {
+          data: dataset.authorities.filter(
+            authority => authorityIDs.has(authority.id)
+          ),
           layout,
           dataset,
           backend,
-          filter: authority => authorityIDs.has(authority.id),
-          useAuthorities: true,
           blockOpts,
           onBlockOptsChange: setBlockOpts,
         }),

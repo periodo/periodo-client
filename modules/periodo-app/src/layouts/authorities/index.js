@@ -10,15 +10,13 @@ const h = require('react-hyperscript')
 const noop = () => {}
 
 module.exports = Navigable(({
+  data,
   fixedPeriod,
   selectedPeriod: selectedPeriodFromProps,
   dataset,
   backend,
   navigateTo,
-  totalCount,
   gazetteers,
-  useAuthorities,
-  filter,
   ...props
 }) => {
 
@@ -40,12 +38,6 @@ module.exports = Navigable(({
     updateLayoutParams({ periodID: period ? period.id : null })
   }
 
-  let data = useAuthorities ? dataset.authorities : dataset.periods
-
-  if (filter) {
-    data = data.filter(filter)
-  }
-
   return (
     h(LayoutRenderer, {
       ...props,
@@ -54,7 +46,7 @@ module.exports = Navigable(({
       extraProps: {
         backend,
         dataset,
-        totalCount,
+        totalCount: data ? data.length : 0,
         gazetteers,
         navigateTo,
         hoveredPeriod,

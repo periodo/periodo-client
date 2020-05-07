@@ -166,6 +166,7 @@ module.exports = class AuthorityLayout extends React.Component {
         ])
         : (
           h(AuthorityLayoutRenderer, {
+            data: Object.values(authority.periods),
             backend,
             dataset,
             gazetteers,
