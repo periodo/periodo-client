@@ -118,6 +118,9 @@ class ReviewPatch extends React.Component {
 
     const { comment, submitting, deciding } = this.state
 
+    const match = patch.url.match(/\d+/)
+        , patchNumber = match ? ` #${ match[0] }` : ''
+
     let children = [
       h(Breadcrumb, [
         h(Link, {
@@ -130,12 +133,14 @@ class ReviewPatch extends React.Component {
             backendID: backend.asIdentifier(),
           }),
         }, 'Review submitted changes'),
-        `Change submitted ${ formatDate(new Date(patch.created_at)) }
+        `Change${ patchNumber }
+ submitted ${ formatDate(new Date(patch.created_at)) }
 ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
       ]),
 
       this.state.message,
 
+      h(SectionHeading, `Change${ patchNumber }`),
       h(Section, [
         h(Status, patch),
         h(Compare, {
