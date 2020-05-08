@@ -239,6 +239,7 @@ class Facets extends React.Component {
       countsByAspect: {},
     }
     this.runCalculations = this.runCalculations.bind(this)
+    this._isMounted = false
   }
 
   shouldComponentUpdate(prevProps, prevState) {
@@ -250,12 +251,14 @@ class Facets extends React.Component {
   }
 
   componentDidMount() {
+    this._isMounted = true
     this.props.setBlockState({
       runCalculations: this.runCalculations,
     })
   }
 
   componentWillUnmount() {
+    this._isMounted = false
     if (this.workers) {
       this.workers.forEach(w => {
         w.worker.terminate()
@@ -290,7 +293,9 @@ class Facets extends React.Component {
 
     let idsByWorker
 
-    this.setState({ countsByAspect: {}})
+    if (this._isMounted) {
+      this.setState({ countsByAspect: {}})
+    }
 
     if (R.isEmpty(selected)) {
       idsByWorker = workers.map(() => new Set(periods.map(p => p.id)))
@@ -320,10 +325,12 @@ class Facets extends React.Component {
         periods: remainingPeriods,
         selected: new Set(selected[key] || []),
       }).then(({ countArr }) => {
-        this.setState(R.set(
-          R.lensPath([ 'countsByAspect', key ]),
-          countArr,
-        ))
+        if (this._isMounted) {
+          this.setState(R.set(
+            R.lensPath([ 'countsByAspect', key ]),
+            countArr,
+          ))
+        }
       })
     })
 
