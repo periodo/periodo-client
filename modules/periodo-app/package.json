@@ -19,6 +19,7 @@
     "jsonld": "^1.0.4",
     "language-tags": "^1.0.5",
     "lov-ns": "^1.1.1",
+    "nanostate": "^1.2.1",
     "natsort": "^1.0.6",
     "n3": "^1.0.0-beta.1",
     "org-async-actions": "^1.0.0",
