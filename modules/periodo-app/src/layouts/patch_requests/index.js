@@ -4,7 +4,8 @@ const h = require('react-hyperscript')
     , LayoutRenderer = require('../LayoutRenderer')
     , ListBlock = require('../ListBlock')
     , { Navigable, Route } = require('org-shell')
-    , { Link, Status } = require('periodo-ui')
+    , { Link, Status, Text } = require('periodo-ui')
+    , { patchNumber } = require('periodo-utils')
 
 const PatchRequestList = ListBlock({
   label: 'Patch request list',
@@ -23,8 +24,15 @@ const PatchRequestList = ListBlock({
   },
 
   columns: {
+    number: {
+      label: '#',
+      width: '5ch',
+      getValue: req => req,
+      render: req => h(Text, { fontWeight: 'bold' }, patchNumber(req.url)),
+    },
+
     status: {
-      label: 'Status',
+      label: '     Status',
       width: 100,
       getValue: req => req,
       render: req => h(Status, req),

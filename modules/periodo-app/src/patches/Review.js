@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { handleCompletedAction } = require('org-async-actions')
     , { Route } = require('org-shell')
-    , { formatDate } = require('periodo-utils')
+    , { formatDate, patchNumber } = require('periodo-utils')
     , { linkify } = require('periodo-ui')
     , Compare = require('./Compare')
     , { PatchDirection, PatchFate } = require('./types')
@@ -118,8 +118,7 @@ class ReviewPatch extends React.Component {
 
     const { comment, submitting, deciding } = this.state
 
-    const match = patch.url.match(/\d+/)
-        , patchNumber = match ? ` #${ match[0] }` : ''
+    const number = patchNumber(patch.url)
 
     let children = [
       h(Breadcrumb, [
@@ -133,14 +132,14 @@ class ReviewPatch extends React.Component {
             backendID: backend.asIdentifier(),
           }),
         }, 'Review submitted changes'),
-        `Change${ patchNumber }
- submitted ${ formatDate(new Date(patch.created_at)) }
+        `Change ${ number ? `#${ number }` : '' }
+submitted ${ formatDate(new Date(patch.created_at)) }
 ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
       ]),
 
       this.state.message,
 
-      h(SectionHeading, `Change${ patchNumber }`),
+      number ? h(SectionHeading, `Change #${ number }`) : null,
       h(Section, [
         h(Status, patch),
         h(Compare, {
@@ -174,6 +173,7 @@ ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
         ...(backend.metadata.orcidCredential
           ? [
             h(TextareaBlock, {
+              mt: patch.comments.length ? 3 : 0,
               value: comment,
               onChange: e => {
                 this.setState({ comment: e.target.value })

@@ -122,6 +122,11 @@ function textMatcher(query) {
   return test
 }
 
+const patchNumber = patchURL => {
+  const match = patchURL.match(/\d+/)
+  return match ? match[0] : ''
+}
+
 module.exports = {
   oneOf,
   ensureArray,
@@ -134,4 +139,5 @@ module.exports = {
   updateLayoutParams,
   formatDate: formatter.format,
   textMatcher,
+  patchNumber,
 }
