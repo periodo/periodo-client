@@ -14,6 +14,7 @@ VERSIONED_DIRECTORY := dist/$(PROJECT_NAME)-$(VERSION)
 VERSIONED_JS_BUNDLE := $(VERSIONED_DIRECTORY).js
 MINIFIED_VERSIONED_JS_BUNDLE = $(VERSIONED_DIRECTORY).min.js
 VERSIONED_ZIPFILE := $(VERSIONED_DIRECTORY).zip
+PKG := $(VERSIONED_DIRECTORY)/$(PROJECT_NAME)-$(VERSION).tgz
 
 BROWSERIFY_ENTRY = modules/periodo-app/src/index.js
 
@@ -35,12 +36,10 @@ ZIPPED_FILES = $(VERSIONED_JS_BUNDLE) \
 #  Phony targets  #
 ###################
 
-all: zip
+all: $(VERSIONED_ZIPFILE)
 
 watch: node_modules | dist
 	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
-
-zip: $(VERSIONED_ZIPFILE)
 
 test: node_modules
 	npm test
@@ -50,14 +49,20 @@ clean:
 	rm -rf node_modules
 	rm -rf dist
 
-publish: clean zip
-	unzip $(VERSIONED_ZIPFILE) -d dist
-	cd $(VERSIONED_DIRECTORY) && npm publish
+stage: HOST = data.staging.perio.do
+publish: HOST = data.perio.do
+stage publish: clean upload
+
+upload: DIR = /var/www/$(HOST)/client_packages/
+upload: $(PKG) $(PKG).sha256
+	rsync -vuh -e ssh $^ $(HOST):$(DIR)
+	ssh $(HOST) ln -f $(DIR)$(PROJECT_NAME)-$(VERSION).tgz $(DIR)$(PROJECT_NAME)-latest.tgz
+	ssh $(HOST) "sed 's/$(VERSION)/latest/' $(DIR)$(PROJECT_NAME)-$(VERSION).tgz.sha256 > $(DIR)$(PROJECT_NAME)-latest.tgz.sha256"
 
 serve:
 	python3 -m http.server 5002
 
-.PHONY: all watch zip serve test clean
+.PHONY: all watch serve test clean upload stage publish
 
 
 #############
@@ -77,8 +82,17 @@ $(VERSIONED_JS_BUNDLE): node_modules $(JS_FILES) | dist
 $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
 	$(NPM_BIN)/terser $< -o $@ --compress
 
+$(VERSIONED_DIRECTORY): $(VERSIONED_ZIPFILE)
+	unzip $(VERSIONED_ZIPFILE) -d dist
+
 $(VERSIONED_DIRECTORY)/package.json: package.json
 	jq '{ name, version, author, contributors, license, description }' $< > $@
+
+$(PKG): $(VERSIONED_DIRECTORY)
+	cd $< && npm pack
+
+$(PKG).sha256: $(PKG)
+	sha256sum $< | sed "s/dist\/$(PROJECT_NAME)-$(VERSION)\///" > $@
 
 $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rm -rf $@ $(VERSIONED_DIRECTORY)
