@@ -295,9 +295,10 @@ class LayoutRenderer extends React.Component {
                 }, [
                   h(Summary, {
                     css: {
-                      display: 'flex',
-                      alignItems: 'center',
+                      '::marker': { color: '#495057' },
+                      '::-webkit-details-marker': { color: '#495057' },
                     },
+                    fontSize: '1.5rem', // h3
                   },[
                     h(SectionHeading, {
                       display: 'inline-block',
