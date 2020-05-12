@@ -8,20 +8,22 @@ const R = require('ramda')
 const ReadyState = Type({
   Pending: {},
   Success: { response: Object },
-  Failure: { error: Error},
+  Failure: { error: Error },
 })
 
-const ActionRequest = Type({ ActionRequest: {
-  type: isUnionTypeRecord,
-  readyState: ReadyState,
-}})
+const ActionRequest = Type({
+  ActionRequest: {
+    type: isUnionTypeRecord,
+    readyState: ReadyState,
+  },
+})
 
 function makeTypedAction(obj) {
   const requestTypeDef = {}
       , responseTypeDef = {}
       , execs = {}
 
-  Object.entries(obj).forEach(([name, { request, response, exec }]) => {
+  Object.entries(obj).forEach(([ name, { request, response, exec }]) => {
     if (!request) {
       throw new Error(`Action \`${name}\` has not declared a request type.`)
     }
@@ -43,7 +45,10 @@ function makeTypedAction(obj) {
         , extraKeys = R.difference(Object.keys(obj), resp._keys)
 
     if (extraKeys.length) {
-      throw new Error(`Extra keys in response for action \`${this._name}\`: ${extraKeys.join(', ')}`)
+      throw new Error(
+        `Extra keys in response for action \`${this._name}\`:`
+        + extraKeys.join(', ')
+      )
     }
 
     return resp
@@ -75,11 +80,12 @@ function makeTypedAction(obj) {
           return new Proxy(ctor, {
             apply(target, _this, args) {
               if (target.length !== args.length) {
-                throw new Error(`Wrong number of arguments passed to action \`${prop}\``)
+                throw new Error(
+                  `Wrong number of arguments passed to action \`${prop}\``)
               }
 
               return target.apply(_this, args)
-            }
+            },
           })
         }
 

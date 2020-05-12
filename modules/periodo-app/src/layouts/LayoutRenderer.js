@@ -12,7 +12,9 @@ const RESET_DEBOUNCE_TIME = 275
 
 class LayoutBlock extends React.Component {
   shouldComponentUpdate(nextProps) {
-    const monitored = [ 'extraProps', 'processedOpts', 'passedOpts', 'defaultOpts' ]
+    const monitored = [
+      'extraProps', 'processedOpts', 'passedOpts', 'defaultOpts',
+    ]
 
     if (this.props.data !== nextProps.data) {
       return true

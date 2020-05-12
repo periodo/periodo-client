@@ -2,10 +2,12 @@
 
 const R = require('ramda')
     , { isTypedRequest } = require('./utils')
-    , { ActionRequest, ReadyState } = require('./types')
+    , { ReadyState } = require('./types')
 
 
-const enforceTypedAsyncActions = extraArgs => ({ dispatch, getState }) => next => action => {
+const enforceTypedAsyncActions = extraArgs => (
+  { dispatch, getState }) => next => action => {
+
   if (!action.readyState && !isTypedRequest(action)) {
     throw new Error('Actions should be called by creating a union type record.')
   }

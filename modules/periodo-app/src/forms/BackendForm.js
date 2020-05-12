@@ -4,7 +4,7 @@ const React = require('react')
     , h = require('react-hyperscript')
     , isURL = require('is-url')
     , { InputBlock, SelectBlock, TextareaBlock } = require('periodo-ui')
-    , { Box, Flex } = require('periodo-ui')
+    , { Flex, Box  } = require('periodo-ui')
     , { Button$Primary, Button$Danger } = require('periodo-ui')
     , { isDataset } = require('periodo-utils').dataset
 

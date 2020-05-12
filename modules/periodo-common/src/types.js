@@ -3,6 +3,6 @@
 const Type = require('union-type')
 
 exports.Result = Type({
-  Ok: [() => true],
-  Err: [() => true],
+  Ok: [ () => true ],
+  Err: [ () => true ],
 })

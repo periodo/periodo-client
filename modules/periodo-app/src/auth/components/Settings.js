@@ -29,7 +29,10 @@ module.exports = function Settings(props) {
 
         h(Button$Danger, {
           onClick: async () => {
-            if (confirm('Continue deleting all data sources? In-browser data is only stored on your own computer and will not be able to be recovered.')) {
+            if (confirm(
+              'Continue deleting all data sources?'
+              + ' In-browser data is only stored on your own computer'
+              + ' and can not be recovered.')) {
               await dispatch(BackendAction.DeleteAllBackends);
               window.location.reload()
             }

@@ -17,9 +17,10 @@ function makeRandomID(Component) {
     }
 
     render() {
-      return h(Component, Object.assign({}, this.props, {
-        randomID: this.randomID
-      }))
+      return h(Component, {
+        ...this.props,
+        randomID: this.randomID,
+      })
     }
   }
 }

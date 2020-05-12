@@ -25,7 +25,10 @@ const spatialCoverages = R.pipe(
   R.groupBy(R.prop('spatialCoverageDescription')),
   R.pickBy(R.identity),
   R.map(spatialCoverageCounts),
-  R.mapObjIndexed((uses, label) => ({ uses, label })),
+  R.mapObjIndexed((uses, label) => ({
+    uses,
+    label,
+  })),
   R.values
 )
 
