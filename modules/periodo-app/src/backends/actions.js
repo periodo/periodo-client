@@ -342,6 +342,28 @@ function addBackend(storage, label='', description='') {
       _: () => null,
     }))
 
+    const attemptPersist = await storage.case({
+      IndexedDB: async () => {
+        const checkIfPersisted = (
+          typeof window !== 'undefined' &&
+          'navigator' in window &&
+          'storage' in window.navigator &&
+          'persisted' in window.navigator.storage
+        )
+
+        if (!checkIfPersisted) return false
+
+        const persisted = await window.navigator.storage.persisted()
+
+        return !persisted
+      },
+      _: () => false,
+    })
+
+    if (attemptPersist) {
+      await window.navigator.storage.persist()
+    }
+
     const id = await table.add(backendObj);
 
 
