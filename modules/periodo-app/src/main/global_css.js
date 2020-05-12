@@ -15,10 +15,10 @@ injectGlobal`
   small, strike, strong, sub, sup, tt, var,
   b, u, i, center,
   dl, dt, dd, ol, ul, li,
-  fieldset, form, label, legend,
+  fieldset, form, button, label, legend,
   table, caption, tbody, tfoot, thead, tr, th, td,
-  article, aside, canvas, details, embed, 
-  figure, figcaption, footer, header, hgroup, 
+  article, aside, canvas, details, embed,
+  figure, figcaption, footer, header, hgroup,
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video {
       margin: 0;
@@ -27,6 +27,6 @@ injectGlobal`
       font-size: 100%;
       font: inherit;
       vertical-align: baseline;
+      line-height: 1.3;
   }
 `
-

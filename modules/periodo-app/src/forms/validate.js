@@ -96,12 +96,41 @@ const VALID_PERIOD_FIELDS = [
   'editorialNote',
 ]
 
+const hasEnglishLabel = period => (
+  period.localizedLabels &&
+  period.localizedLabels.en &&
+  period.localizedLabels.en.length > 0
+)
+
+const addLabel = (labelsByLanguage={}, label, languageTag) => ({
+  ...labelsByLanguage,
+  [languageTag]: Array.from(new Set([
+    ...(labelsByLanguage[languageTag] || []),
+    label,
+  ])),
+})
+
 function validatePeriod(period) {
   let errors = {}
 
   if (!period.label) {
-    errors = addError(errors, 'label', 'A period must have a label');
+    errors = addError(errors, 'label', 'A period must have a label.');
   }
+
+  if (period.languageTag !== 'en' && !hasEnglishLabel(period)) {
+    errors = addError(
+      errors,
+      'label',
+      'A period must have at least one English label.'
+    )
+  }
+
+  // copy preferred label to localized labels
+  period.localizedLabels = addLabel(
+    period.localizedLabels,
+    period.label,
+    period.languageTag
+  )
 
   const periodPresent = type =>
     R.prop(type, period) &&
@@ -114,16 +143,28 @@ function validatePeriod(period) {
     terminus.earliestYear(t) > terminus.latestYear(t)
 
   if (!periodPresent('start') || !periodPresent('stop')) {
-    errors = addError(errors, 'dates', 'A period must have start and stop dates.');
-  } else if (terminus.latestYear(period.stop) < terminus.earliestYear(period.start)) {
-    errors = addError(errors, 'dates', 'A period\'s stop must come after its start.');
+    errors = addError(
+      errors, 'dates', 'A period must have start and stop dates.'
+    );
+  } else if (
+    terminus.latestYear(period.stop) < terminus.earliestYear(period.start)
+  ) {
+    errors = addError(
+      errors, 'dates', 'A period\'s stop must come after its start.'
+    );
   } else {
     if (badTerminusRange(period.start)) {
-      errors = addError(errors, 'dates', 'Date range for period start has a beginning later than its end.')
+      errors = addError(
+        errors, 'dates',
+        'A period\'s latest start must come after its earliest start.'
+      )
     }
 
     if (badTerminusRange(period.stop)) {
-      errors = addError(errors, 'dates', 'Date range for period stop has a beginning later than its end.')
+      errors = addError(
+        errors, 'dates',
+        'A period\'s latest stop must come after its earliest stop.'
+      )
     }
   }
 

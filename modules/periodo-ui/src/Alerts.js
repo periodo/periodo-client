@@ -5,10 +5,11 @@ const { Box } = require('./Base')
 
 function makeAlert(color) {
   return extend(Box, {
+    display: 'inline-block',
     p: 2,
     border: 1,
-    borderRadius: '4px',
-    fontSize: 2,
+    fontSize: 1,
+    fontWeight: 'bold',
 
     bg: `${color}.2`,
     color: `${color}.9`,

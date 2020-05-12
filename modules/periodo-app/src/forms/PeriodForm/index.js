@@ -3,8 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , LabelForm = require('./LabelForm')
-    , { Flex, Box, Heading } = require('periodo-ui')
-    , { InputBlock, TextareaBlock, Button$Primary, Errors } = require('periodo-ui')
+    , { Box, Alert$Error, Errors } = require('periodo-ui')
+    , { SectionHeading, Section } = require('periodo-ui')
+    , { InputBlock, TextareaBlock, Button$Primary } = require('periodo-ui')
     , RelatedPeriodsForm = require('./RelatedPeriodsForm')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
     , SpatialCoverageForm = require('./SpatialCoverageForm')
@@ -23,13 +24,12 @@ const suggestPlaces = (authority, period) => {
   if (! period.spatialCoverageDescription) {
     return []
   }
+  const scd = period.spatialCoverageDescription.trim()
   const coverage = Object.fromEntries(
     (period.spatialCoverage || []).map(({ id, label }) => [ id, label ])
   )
   const suggestions = Object.values(authority.periods)
-    .filter(
-      p => p.spatialCoverageDescription === period.spatialCoverageDescription
-    )
+    .filter(p => (p.spatialCoverageDescription || '').trim() === scd)
     .reduce((suggestions, p) => {
       for (const { id, label } of (p.spatialCoverage || [])) {
         if (! (coverage.hasOwnProperty(id) || suggestions.hasOwnProperty(id))) {
@@ -60,180 +60,129 @@ module.exports = Validated(validatePeriod, props => {
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
 
   return (
-    h(Box, {}, [
-      h(Box, {
-        py: 2,
-        px: 3,
-        border: 1,
-        borderColor: '#ccc',
-        css: {
-          borderRadius: '6px 6px 0 0',
-        },
-        bg: 'gray.0',
-      }, [
-        h(Heading, {
-          level: 3,
-        }, `${ value.id ? 'Edit' : 'Add' } period`),
+    h(Box, [
+
+      h(SectionHeading, 'Labels'),
+
+      h(Section, [
+        errors.label && Errors({ errors: errors.label }),
+
+        h(LabelForm, {
+          period: value,
+          onValueChange,
+        }),
       ]),
 
-      h(Box, {
-        css: {
-          borderLeft: '1px solid #ccc',
-          borderRight: '1px solid #ccc',
-        },
-      }, [
-        h(Flex, {
-          css: {
-            borderBottom: '1px solid #ccc',
-          },
-        }, [
-          h(Box, {
-            width: .5,
-            px: 3,
-            py: 2,
-          }, [
-            errors.label && Errors({ errors: errors.label }),
+      h(SectionHeading, 'Related periods'),
 
-            h(LabelForm, {
-              period: value,
-              onValueChange,
-            }),
-          ]),
-
-          h(Box, {
-            width: .5,
-            px: 3,
-            py: 2,
-          }, [
-            h(InputBlock, {
-              name: 'locator',
-              label: 'Locator',
-              placeholder: 'Position within the source (e.g. page 75)',
-              value: get(lenses.locator),
-              onChange: e => set(lenses.locator, e.target.value),
-            }),
-
-            h(InputBlock, {
-              mt: 2,
-              name: 'url',
-              label: 'URL',
-              placeholder: 'URL for a webpage for this period',
-              value: get(lenses.url),
-              onChange: e => set(lenses.url, e.target.value),
-            }),
-
-            h(InputBlock, {
-              mt: 2,
-              name: 'sameAs',
-              label: 'Same as (not editable)',
-              disabled: true,
-              placeholder: 'Linked data for this period',
-              value: get(lenses.sameAs),
-              onChange: R.always(null),
-            }),
-          ]),
-        ]),
-
-        h(Heading, {
-          level: 3,
-          px: 3,
-          py: 2,
-        }, 'Related periods'),
-
+      h(Section, [
         h(RelatedPeriodsForm, {
           value,
           onValueChange,
           backendID,
           dataset,
           authority,
-          pb: 2,
-          borderBottom: '1px solid #ccc',
+        }),
+      ]),
+
+      h(SectionHeading, 'Spatial coverage'),
+
+      h(Section, [
+        h(SpatialCoverageForm, {
+          onValueChange: R.pipe(
+            R.merge(value),
+            onValueChange
+          ),
+          description: value.spatialCoverageDescription,
+          coverage: value.spatialCoverage,
+          suggestions: suggestPlaces(authority, value),
+          gazetteers,
+        }),
+      ]),
+
+      h(SectionHeading, 'Temporal coverage'),
+
+      h(Section, [
+        errors.dates && Errors({ errors: errors.dates }),
+
+        h(TemporalCoverageForm, {
+          onValueChange: R.pipe(
+            R.merge(value),
+            onValueChange
+          ),
+          start: value.start,
+          stop: value.stop,
+        }),
+      ]),
+
+      h(SectionHeading, 'Additional source information'),
+
+      h(Section, [
+        h(InputBlock, {
+          name: 'locator',
+          label: 'Locator',
+          helpText: 'Position within the source where this period is defined',
+          placeholder: 'e.g. page 75',
+          value: get(lenses.locator),
+          onChange: e => set(lenses.locator, e.target.value),
         }),
 
-        h(Flex, {
-          css: {
-            borderBottom: '1px solid #ccc',
-          },
-        }, [
-          h(Box, {
-            width: .5,
-            px: 3,
-            py: 2,
-          }, [
-            h(Heading, { level: 3 }, 'Spatial coverage'),
-            h(SpatialCoverageForm, {
-              onValueChange: R.pipe(
-                R.merge(value),
-                onValueChange
-              ),
-              description: value.spatialCoverageDescription,
-              coverage: value.spatialCoverage,
-              suggestions: suggestPlaces(authority, value),
-              gazetteers,
-            }),
-          ]),
+        h(InputBlock, {
+          mt: 3,
+          name: 'url',
+          label: 'URL',
+          helpText: 'URL of a webpage defining this period',
+          value: get(lenses.url),
+          onChange: e => set(lenses.url, e.target.value.trim()),
+        }),
 
-          h(Box, {
-            width: .5,
-            px: 3,
-            py: 2,
-          }, [
-            h(Heading, { level: 3 }, 'Temporal coverage'),
+        h(InputBlock, {
+          mt: 3,
+          name: 'sameAs',
+          label: 'Same as',
+          disabled: true,
+          helpText: 'Non-PeriodO linked data identifier for this period (not editable)',
+          value: get(lenses.sameAs),
+          onChange: R.always(null),
+        }),
+      ]),
 
-            errors.dates && Errors({ errors: errors.dates }),
+      h(SectionHeading, 'Notes'),
 
-            h(TemporalCoverageForm, {
-              onValueChange: R.pipe(
-                R.merge(value),
-                onValueChange
-              ),
-              start: value.start,
-              stop: value.stop,
-            }),
-          ]),
-        ]),
+      h(Section, [
+        h(TextareaBlock, {
+          rows: 5,
+          name: 'note',
+          label: 'Note',
+          helpText: 'Explanatory notes given in the original source',
+          value: get(lenses.note),
+          onChange: e => set(lenses.note, e.target.value),
+        }),
 
-        h(Flex, [
-          h(TextareaBlock, {
-            px: 3,
-            py: 2,
-            width: .5,
-            rows: 5,
-
-            name: 'note',
-            label: 'Note',
-            helpText: 'Explanatory notes attributed to the source authority',
-            value: get(lenses.note),
-            onChange: e => set(lenses.note, e.target.value),
-          }),
-
-          h(TextareaBlock, {
-            px: 3,
-            py: 2,
-            width: .5,
-            rows: 5,
-
-            name: 'editorial-note',
-            label: 'Editorial note',
-            helpText: 'Notes explaining your editorial decisions',
-            value: get(lenses.editorialNote),
-            onChange: e => set(lenses.editorialNote, e.target.value),
-          }),
-        ]),
+        h(TextareaBlock, {
+          mt: 3,
+          rows: 5,
+          name: 'editorial-note',
+          label: 'Editorial note',
+          helpText: 'Notes explaining your editorial decisions',
+          value: get(lenses.editorialNote),
+          onChange: e => set(lenses.editorialNote, e.target.value),
+        }),
       ]),
 
       h(Box, {
-        bg: 'gray0',
-        p: 2,
-        border: 1,
-        borderColor: '#ccc',
-        css: {
-          borderRadius: '0 0 6px 6px',
-        },
+        py: 1,
       }, [
         h(Button$Primary, {
           onClick: () => props.validate(value, props.onValidated),
         }, 'Save'),
+
+        Object.keys(errors).length > 0
+          ? h(Alert$Error, {
+            display: 'inline-block',
+            ml: 1,
+          }, 'Please correct the errors above.')
+          : null,
       ]),
     ])
   )

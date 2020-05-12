@@ -22,10 +22,15 @@ const fns = [
   ss.maxHeight,
   ss.minWidth,
   ss.minHeight,
+  ss.lineHeight,
 
   ss.alignSelf,
   ss.flex,
   ss.textAlign,
+  ss.verticalAlign,
+
+  ss.position,
+  ss.layout,
 ]
 
 const Box = styled(tag)([], [
@@ -89,7 +94,7 @@ const Heading = styled(_Heading)([], [
   ...fns,
   props => ({
     fontWeight: 'bold',
-    fontSize: sizeForLevel[props.level] || '12px',
+    fontSize: props.fontSize || sizeForLevel[props.level] || '12px',
   }),
 ])
 
@@ -99,7 +104,25 @@ const ResourceTitle = props => h(Heading, {
   ...props,
 })
 
+const SectionHeading = props => h(Heading, {
+  level: 3,
+  mt: 2,
+  mb: 2,
+  ...props,
+})
 
+const Section = props => h(Box, {
+  p: 3,
+  mb: 3,
+  bg: 'white',
+  className: 'section',
+  css: {
+    '.block + .block': {
+      marginTop: '16px',
+    },
+  },
+  ...props,
+})
 
 const Span = styled(tag.span)([], [
   ...fns,
@@ -109,13 +132,24 @@ const Text = styled(tag.p)([], [
   ...fns,
 ])
 
+const HelpText = props => h(Text, {
+  size: 1,
+  color: 'gray.7',
+  mb: '4px',
+  ...props,
+})
+
+
 module.exports = {
   Box,
   Flex,
   Grid,
-  Pre,
   Heading,
+  HelpText,
+  Pre,
   ResourceTitle,
+  Section,
+  SectionHeading,
   Span,
   Text,
 }

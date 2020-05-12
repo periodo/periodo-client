@@ -7,8 +7,7 @@ const h = require('react-hyperscript')
     , LocalizedLabelInput = require('./LocalizedLabelInput')
     , { alternateLabels } = require('periodo-utils/src/period')
     , { RandomID } = require('periodo-common')
-    , { Box } = require('periodo-ui')
-    , { Label } = require('periodo-ui')
+    , { Box, Label, HelpText } = require('periodo-ui')
 
 const defaultLabel = () => ({
   label: '',
@@ -118,10 +117,13 @@ class LabelForm extends React.Component {
           isRequired: true,
         }, 'Original label'),
 
+        h(HelpText, 'Name of the period as given in the original source'),
+
         h(LocalizedLabelInput, {
           id: randomID('label'),
           label: period.label || '',
           languageTag: period.languageTag || 'en',
+          mb: 3,
           onValueChange: ({ label, languageTag }) => {
             const tag = tags(languageTag)
                 , language = lexvoLanguageURL(tag.language().format())
@@ -143,16 +145,18 @@ class LabelForm extends React.Component {
         }),
 
         h(Label, {
-          mt: 2,
+          mt: 3,
           htmlFor: randomID('alt-labels'),
         }, 'Alternate labels'),
+
+        h(HelpText, 'Alternate or translated names for the period'),
 
         alternateLabels.map((label, i) =>
           h(LocalizedLabelInput, {
             key: label.counter ? `new-${label.counter}` : i,
+            mt: i > 0 ? 3 : 0,
             label: label.label,
             languageTag: label.languageTag,
-            mb: 1,
             onValueChange: value => {
               this.setState({
                 // I would just set the new label directly, but I want to

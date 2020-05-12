@@ -3,8 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { alternateLabels } = require('periodo-utils/src/period')
-    , { Box, Flex, Input, Label } = require('periodo-ui')
+    , { textMatcher, period: { alternateLabels }} = require('periodo-utils')
+    , { Box, Flex, Input, Label, HelpText } = require('periodo-ui')
     , { RandomID } = require('periodo-common')
     , styled = require('styled-components').default
 
@@ -12,6 +12,8 @@ const Container = styled(Box)`
 input[type="radio"] {
   margin: 0;
   margin-right: 4px;
+  vertical-align: middle;
+  margin-top: -6px;
 }
 `
 
@@ -44,17 +46,17 @@ class Search extends React.Component {
 
     return (
       h(Container, [
-        h(Label, {
-          htmlFor: inputID,
-          pl: 2,
-        }, 'Search'),
+        h(Label, { htmlFor: inputID }, 'By label'),
+
+        h(HelpText,
+          'Show periods with matching labels'
+          + '—regular expressions are supported'),
 
         h(Flex, {
-          mt: 1,
-          mb: 2,
-          pl: 2,
+          my: 1,
+          height: 20,
         }, [
-          h(Flex, { mr: 3 }, [
+          h(Box, { mr: 3 }, [
             h('input', {
               id: randomID('radio1'),
               type: 'radio',
@@ -64,10 +66,10 @@ class Search extends React.Component {
                 this.toggleRadio(false)
               },
             }),
-            h('label', { htmlFor: randomID('radio1') }, 'Labels'),
+            h('label', { htmlFor: randomID('radio1') }, 'Match labels'),
           ]),
 
-          h(Flex, [
+          h(Box, [
             h('input', {
               id: randomID('radio2'),
               type: 'radio',
@@ -77,7 +79,9 @@ class Search extends React.Component {
                 this.toggleRadio(true)
               },
             }),
-            h('label', { htmlFor: randomID('radio2') }, 'Labels + alternate labels'),
+            h('label', {
+              htmlFor: randomID('radio2'),
+            }, 'Match labels + alternate labels'),
           ]),
         ]),
 
@@ -85,14 +89,12 @@ class Search extends React.Component {
           type: 'text',
           id: inputID,
           value: text || '',
+          placeholder: 'e.g. bronze',
           onChange: e => {
-            const text = e.target.value
-                , invalidate = text.slice(-1) !== '|'
-
             updateOpts({
               ...opts,
-              text,
-            }, invalidate)
+              text: e.target.value,
+            }, true)
           },
         }),
       ])
@@ -101,27 +103,27 @@ class Search extends React.Component {
 }
 
 module.exports = {
-  label: 'Text search',
-  description: 'Search for periods by text.',
+  label: 'Period search',
+  description: 'Search for periods by label',
   makeFilter(opts) {
     const text = opts && opts.text
 
     if (!text) return null
 
-    const regex = text && new RegExp(text, 'i')
+    const test = textMatcher(text)
 
-    let test
+    let filter
 
     if (opts.withAlternate) {
-      test = period => (
-        regex.test(period.label) ||
-        _alternateLabels(period).some(({ label }) => regex.test(label))
+      filter = period => (
+        test(period.label) ||
+        _alternateLabels(period).some(({ label }) => test(label))
       )
     } else {
-      test = period => regex.test(period.label)
+      filter = period => test(period.label)
     }
 
-    return test
+    return filter
   },
   Component: RandomID(Search),
 }

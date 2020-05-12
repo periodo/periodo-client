@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , TerminusInput = require('./TerminusInput')
-    , { Label, Flex, Heading, Box } = require('periodo-ui')
+    , { Label, Flex, Box } = require('periodo-ui')
     , { Checkbox } = require('periodo-ui')
     , { wasAutoparsed } = require('periodo-utils/src/terminus')
 
@@ -44,12 +44,9 @@ module.exports = class TemporalCoverageForm extends React.Component {
         alignItems: 'center',
         mt: 2,
       }, [
-        h(Heading, {
-          level: 4,
-          mr: 2,
-        }, 'Start'),
         h(TerminusInput, {
           autoparse,
+          label: 'Start',
           terminus: start || emptyTerminus,
           onValueChange: start => onValueChange({ start }),
         }),
@@ -59,12 +56,9 @@ module.exports = class TemporalCoverageForm extends React.Component {
         alignItems: 'center',
         mt: 3,
       }, [
-        h(Heading, {
-          level: 4,
-          mr: 2,
-        }, 'Stop'),
         h(TerminusInput, {
           autoparse,
+          label: 'Stop',
           terminus: stop || emptyTerminus,
           onValueChange: stop => onValueChange({ stop }),
         }),

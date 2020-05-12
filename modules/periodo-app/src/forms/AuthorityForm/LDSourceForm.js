@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , Icon = require('react-geomicons').default
     , Spinner = require('respin')
     , { connect } = require('react-redux')
-    , { Box, Text, Textarea } = require('periodo-ui')
+    , { Box, Text, Textarea, HelpText } = require('periodo-ui')
     , { asURL, match } = require('../../linked-data/utils/source_ld_match')
     , LinkedDataAction = require('../../linked-data/actions')
     , { Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
@@ -28,30 +28,36 @@ class LDInput extends React.Component {
         , sourceMatch = match(input)
 
     return (
-      h(Box, [
-        h(Text, 'Paste text in the block below that contains one of the following'),
+      h(Box, { p: 3 }, [
+        h(HelpText,
+          'Paste into the field below a'),
 
         h(Box, {
           is: 'ul',
           ml: 3,
-          mb: 3,
+          mb: 1,
         }, [
-          h(Box, {
+          h(HelpText, {
             is: 'li',
             mt: 1,
           }, [
-            'A URL of a record in the ',
+            'URL from the ',
             h(Link, { href: 'https://worldcat.org' }, 'WorldCat database'),
+            ', or a',
           ]),
 
-          h(Box, {
+          h(HelpText, {
             is: 'li',
-            my: 1,
+            mt: 1,
           }, [
-            'A DOI contained in the ',
+            'DOI from the ',
             h(Link, { href: 'https://search.crossref.org' }, 'CrossRef database'),
+            ',',
           ]),
         ]),
+
+        h(HelpText,
+          'then press the button below to load bibliographic data.'),
 
         h(Textarea, {
           rows: 6,
@@ -104,7 +110,7 @@ class LDInput extends React.Component {
 const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
   h(Box, [
     value
-      ? h(Box, [
+      ? h(Box, { p: 3 },  [
         h(Source, { value }),
         h(Box, { mt: 3 }, [
           h(Text, 'Incorrect source?'),

@@ -1,52 +1,21 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
-    , Type = require('union-type')
     , LayoutRenderer = require('../LayoutRenderer')
     , ListBlock = require('../ListBlock')
     , { Navigable, Route } = require('org-shell')
-    , { Link } = require('periodo-ui')
-
-const PatchStatus = Type({
-  Open: {},
-  Rejected: {},
-  Merged: {},
-})
-
-function Status({ status }) {
-  const type = PatchStatus[status]
-
-  const backgroundColor = type.case({
-    Open: () => '#fafad2',
-    Rejected: () => '#ff9a9a',
-    Merged: () => '#8fbd8f',
-  })
-
-  return (
-    h('span', {
-      style: {
-        textAlign: 'center',
-        width: '95%',
-        display: 'inline-block',
-        padding: '4px 4px 5px',
-        backgroundColor,
-        fontWeight: 'bold',
-      },
-    }, status)
-  )
-}
+    , { Link, Status, Text } = require('periodo-ui')
+    , { patchNumber } = require('periodo-utils')
 
 const PatchRequestList = ListBlock({
   label: 'Patch request list',
   description: 'List of patch requests',
-  navigateToItem(item, { navigateTo, backend }) {
-    const route = Route('review-patch', {
+  emptyMessage: 'No open submissions',
+  itemViewRoute(item, { backend }) {
+    return Route('review-patch', {
       backendID: backend.asIdentifier(),
       patchURL: item.url.replace(backend.storage.url, ''),
     })
-
-    navigateTo(route)
   },
 
   defaultOpts: {
@@ -55,18 +24,29 @@ const PatchRequestList = ListBlock({
   },
 
   columns: {
+    number: {
+      label: '#',
+      width: '5ch',
+      getValue: req => req,
+      render: req => h(Text, { fontWeight: 'bold' }, patchNumber(req.url)),
+    },
+
     status: {
-      label: 'Status',
+      label: '     Status',
       width: 100,
-      getValue: req => {
-        if (req.open) return 'Open'
-        if (req.merged) return 'Merged'
-        return 'Rejected'
-      },
-      render: status => h(Status, { status }),
+      getValue: req => req,
+      render: req => h(Status, req),
+    },
+
+    comment: {
+      label: 'Comment',
+      getValue: x => (
+        x.first_comment || h('span', { style: { fontStyle: 'italic' }}, 'none')
+      ),
     },
 
     creator: {
+      width: '10em',
       label: 'Creator',
       getSortValue: x => x.label,
       getValue: x => x.created_by,
@@ -79,21 +59,28 @@ const PatchRequestList = ListBlock({
     },
 
     submitted: {
+      width: '7em',
       label: 'Submitted',
       getValue: x => new Date(x.created_at).toLocaleString(),
     },
   },
 })
 
-module.exports = Navigable(props =>
-  h(LayoutRenderer, R.omit([ 'patchRequests', 'backend', 'navigateTo' ], {
-    ...props,
-    blocks: {
-      'request-list': PatchRequestList,
-    },
-    data: props.patchRequests,
-    extraProps: {
-      backend: props.backend,
-      navigateTo: props.navigateTo,
-    },
-  })))
+module.exports = Navigable(
+  ({
+    patchRequests,
+    backend,
+    navigateTo,
+    ...props
+  }) => (
+    h(LayoutRenderer, {
+      ...props,
+      blocks: { 'request-list': PatchRequestList },
+      data: patchRequests,
+      extraProps: {
+        backend,
+        navigateTo,
+      },
+    })
+  )
+)

@@ -7,14 +7,14 @@ const h = require('react-hyperscript')
 const Tag = ({ label, onDelete, ...props }) => h(Box, {
   is: 'li',
   tabIndex: 0,
-  bg: 'gray.3',
+  bg: 'gray.2',
   borderRadius: '2px',
   css: {
     cursor: 'default',
-    border: '1px solid gray',
+    border: '1px solid #adb5bd',
   },
   display: 'inline-block',
-  height: '26px',
+  minHeight: '26px',
   px: 2,
   py: 1,
   onKeyUp: e => {
@@ -29,6 +29,7 @@ const Tag = ({ label, onDelete, ...props }) => h(Box, {
     color: 'gray.6',
     ml: 2,
     mt: 1,
+    verticalAlign: 'top',
     style: { cursor: 'pointer' },
     onClick: () => { onDelete() },
   }, '✕'),
@@ -40,7 +41,7 @@ const SuggestedTag = ({ label, onAccept, ...props }) => h(Box, {
   borderRadius: '2px',
   css: {
     cursor: 'default',
-    border: '1px dashed gray',
+    border: '1px dashed #adb5bd',
   },
   display: 'inline-block',
   height: '26px',

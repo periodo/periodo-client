@@ -174,7 +174,7 @@ const initializeMap = mix => {
   })
 
   const RED = 'vec4(1.0,0.0,0.0,0.5)'
-  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.5)'
+  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.25)'
 
   const drawTriangle = (color, zindex) => map.createDraw({
     frag: `
@@ -251,55 +251,85 @@ const clear = node => {
   }
 }
 
-const handleResize = (map, width, { height, features, focusedFeatures }) => {
-  map.resize(width, height)
-  map.display(features, focusedFeatures)
-}
-
 class _Map extends Component {
 
   constructor(props) {
     super(props)
-    this.innerRef = createRef()
-    this.outerRef = createRef()
+
+    this.state = {
+      map: undefined,
+      ready: false,
+    }
+
+    this.handleResize = this.handleResize.bind(this);
+
+    this.innerContainer = createRef()
+    this.outerContainer = createRef()
   }
 
   render() {
     return h('div', {
-      ref: this.outerRef,
+      ref: this.outerContainer,
       style: { height: this.props.height },
     }, [
       h('div', {
-        ref: this.innerRef,
+        ref: this.innerContainer,
         style: { position: 'absolute' },
       }),
     ])
   }
 
+  handleResize() {
+    const { map } = this.state
+    const { height, features, focusedFeatures } = this.props
+
+    map.resize(getWidth(this.outerContainer.current), height)
+    map.display(features, focusedFeatures)
+  }
+
   componentDidMount() {
     renderMix()
-    this.map = initializeMap(mix)
-    const mapNode = this.map.render({
-      width: getWidth(this.outerRef.current),
-      height: this.props.height,
-    })
-    this.innerRef.current.appendChild(mapNode)
-    this.map.display(this.props.features, this.props.focusedFeatures)
-    this.debouncedHandler = debounce(() => {
-      handleResize(this.map, getWidth(this.outerRef.current), this.props)
-    })
+
+    const map = initializeMap(mix)
+    this.innerContainer.current.appendChild(
+      map.render({
+        width: getWidth(this.outerContainer.current),
+        height: this.props.height,
+      })
+    )
+    map.display(this.props.features, this.props.focusedFeatures)
+    this.setState({ map })
+
+    this.debouncedHandler = debounce(this.handleResize)
     window.addEventListener('resize', this.debouncedHandler)
   }
 
-  componentDidUpdate() {
-    handleResize(this.map, getWidth(this.outerRef.current), this.props)
+  componentDidUpdate(prevProps) {
+    const { map } = this.state
+    const { height, features, focusedFeatures } = this.props
+
+    const featuresChanged = (
+      prevProps.features !== features ||
+      prevProps.focusedFeatures !== focusedFeatures
+    )
+
+    if (prevProps.height !== height || featuresChanged) {
+      map.resize(getWidth(this.outerContainer.current), height)
+    }
+
+    if (featuresChanged) {
+      map.display(features, focusedFeatures)
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.debouncedHandler)
-    this.map.resize(0, 0)
-    this.map.display([], [])
-    clear(this.innerRef.current)
+
+    const { map } = this.state
+    map.resize(0, 0)
+    map.display([], [])
+
+    clear(this.innerContainer.current)
   }
 }
 

@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Route } = require('org-shell')
     , { RandomID } = require('periodo-common')
-    , { Flex, Box, Link, Text, Label, Span } = require('periodo-ui')
+    , { Box, Link, Text, HelpText, Label, Span, Tag } = require('periodo-ui')
     , { Autosuggest, BackendContext } = require('periodo-ui')
     , util = require('periodo-utils')
     , { useContext } = require('react')
@@ -107,7 +107,10 @@ const RelatedPeriod = ({
   const authority = util.period.authorityOf(period)
       , { backend } = useContext(BackendContext)
 
-  return h(Box, props, [
+  return h(Box, {
+    display: 'inline-block',
+    ...props,
+  }, [
     h(Link, {
       route: Route('period-view', {
         backendID: backend.asIdentifier(),
@@ -119,20 +122,6 @@ const RelatedPeriod = ({
     h(Text, util.authority.displayTitle(authority)),
   ])
 }
-
-const Deletable = ({ children, onDelete, ...props }) => h(Flex, {
-  ...props,
-}, [
-  h(Box, {
-    flex: '0 0',
-    mr: 2,
-    color: 'gray.6',
-    style: { cursor: 'pointer' },
-    onClick: () => onDelete(),
-  }, '✕'),
-
-  h(Box, { flex: '1 1' }, children),
-])
 
 const RelatedPeriodList = ({
   name,
@@ -160,35 +149,22 @@ const RelatedPeriodList = ({
     }, [
       h(Label, { htmlFor: randomID(name) }, label),
 
-      helpText && h(Text, {
-        size: 1,
-        mb: 1,
-      }, helpText),
+      helpText && h(HelpText, helpText),
 
-      h(Box, {
-        mt: -1,
-        mb: '-1px',
-      }, [
+      h(Box, { is: 'ol' }, [
         periods.length
           ? periods.map(
-            (period, key) => h(Deletable, {
-              key,
-              px: 1,
-              py: 2,
+            (period, index) => h(Tag, {
+              key: `related-period-${index}`,
+              label: h(RelatedPeriod, { period }),
+              mr: 1,
+              mb: 1,
               onDelete: () => onValueChange(
                 periods.filter(({ id }) => id !== period.id)
               ),
-              ...(atLimit ? {} : { borderBottom: '1px dotted #ced4da' }),
-            }, [
-              h(RelatedPeriod, { period }),
-            ]
-            )
+            })
           )
-          : h(Box, {
-            py: 2,
-            color: 'gray.6',
-            css: { fontStyle: 'italic' },
-          }, 'Search below for periods to add'),
+          : null,
       ]),
 
       atLimit
@@ -220,7 +196,6 @@ const RelatedPeriodList = ({
           inputProps: {
             placeholder: 'Begin typing to search for periods to add',
             id: randomID(name),
-            borderRadius: '0 0 2px 2px',
           },
           onSelect: item => onValueChange(isSelected(item)
             ? periods.filter(({ id }) => id !== item.id)

@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box, Text, InputBlock, Label } = require('periodo-ui')
+    , { Box, HelpText, InputBlock, Label } = require('periodo-ui')
     , { PlacesSelect } = require('periodo-ui')
 
 const SpatialCoverageForm = ({
@@ -14,11 +14,10 @@ const SpatialCoverageForm = ({
 
   return h(Box, [
     h(InputBlock, {
-      mt: 2,
       name: 'description',
       label: 'Description',
       helpText:
-        'A description of the spatial coverage as it appeared in the source',
+        'Description of the spatial coverage as given in the original source',
       value: description,
       onChange: e => onValueChange({
         spatialCoverageDescription: e.target.value,
@@ -26,14 +25,14 @@ const SpatialCoverageForm = ({
     }),
 
     h(Box, {
-      mt: 2,
+      mt: 3,
     }, [
       h(Label, {
         htmlFor: 'coverage-area',
       }, 'Coverage area'),
 
-      h(Text, { mb: 1 },
-        'A set of places that approximate the area of spatial coverage'),
+      h(HelpText,
+        'Set of places that approximate the area of spatial coverage'),
 
       h(PlacesSelect, {
         onChange: places => onValueChange({ spatialCoverage: places }),

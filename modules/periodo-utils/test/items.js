@@ -7,40 +7,49 @@ const test = require('tape')
 
 
 test('Period terminus utility functions', t => {
-  t.plan(7)
+  t.plan(8)
 
   const termini = require('./fixtures/termini.json')
 
   t.deepEqual(
     termini.map(util.terminus.earliestYear),
-    [1200, 0, 501, -99, (new Date().getFullYear()), null],
+    [ 1200, 0, 501, -99, (new Date().getFullYear()), null ],
     'should find smallest year in terminus'
   )
 
   t.deepEqual(
     termini.map(util.terminus.latestYear),
-    [1200, 0, 600, -99, (new Date().getFullYear()), null],
+    [ 1200, 0, 600, -99, (new Date().getFullYear()), null ],
     'should find largest year in terminus'
   )
 
   t.deepEqual(
     termini.map(util.terminus.hasISOValue),
-    [true, true, true, true, true, false],
+    [ true, true, true, true, true, false ],
     'should detect whether a terminus has any ISO value'
   )
 
-  const badISOYearTerminus = { in: { year: '30' }}
-  util.terminus.ensureISOYear(badISOYearTerminus)
+  const unpaddedISOYearTerminus = { in: { year: '30' }}
+  util.terminus.ensureISOYear(unpaddedISOYearTerminus)
 
   t.deepEqual(
-    badISOYearTerminus,
-    { in: { year: '0030' } },
+    unpaddedISOYearTerminus,
+    { in: { year: '0030' }},
     'should fix invalid ISO years having less than 4 numbers'
+  )
+
+  const extraspacedISOYearTerminus = { in: { year: '- 1000' }}
+  util.terminus.ensureISOYear(extraspacedISOYearTerminus)
+
+  t.deepEqual(
+    extraspacedISOYearTerminus,
+    { in: { year: '-1000' }},
+    'should fix invalid ISO years having extraneous spaces'
   )
 
   t.deepEqual(
     termini.map(util.terminus.wasAutoparsed),
-    [true, true, true, false, true, false],
+    [ true, true, true, false, true, false ],
     'should detect whether a terminus was autoparsed or not'
   )
 
@@ -70,14 +79,20 @@ test('Period terminus sequence utility functions', t => {
 
   t.deepEqual(
     util.terminusList.maxYear(termini),
-    { label: 'present', iso: (new Date().getFullYear()) },
+    {
+      label: 'present',
+      iso: (new Date().getFullYear()),
+    },
     'should be able to find the latest terminus in a group'
   )
 
 
   t.deepEqual(
     util.terminusList.minYear(termini),
-    { label: 'one hundred bee cee', iso: -99 },
+    {
+      label: 'one hundred bee cee',
+      iso: -99,
+    },
     'should be able to find the earliest terminus in a group'
   )
 })
@@ -94,13 +109,13 @@ test('Period authority utility functions', t => {
     periods: 2,
     earliest: {
       iso: -799,
-      label: '800 B.C.'
+      label: '800 B.C.',
     },
     latest: {
       iso: -205,
-      label: '206 B.C.'
+      label: '206 B.C.',
     },
-    editorialNote: ''
+    editorialNote: '',
   }, 'should describe an authority')
 });
 
@@ -114,9 +129,9 @@ test('Authority sequence utility functions', t => {
           spatialCoverageDescription: 'Middle East',
           spatialCoverage: [
             { id: 'a' },
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     },
     {
       periods: [
@@ -124,9 +139,9 @@ test('Authority sequence utility functions', t => {
           spatialCoverageDescription: 'Middle East',
           spatialCoverage: [
             { id: 'a' },
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     },
     {
       periods: [
@@ -135,19 +150,19 @@ test('Authority sequence utility functions', t => {
           spatialCoverage: [
             { id: 'a' },
             { id: 'b' },
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     },
     {
       periods: [
         {
           spatialCoverageDescription: 'Middle East 2',
           spatialCoverage: [
-            { id: 'a' }
-          ]
-        }
-      ]
+            { id: 'a' },
+          ],
+        },
+      ],
     },
   ];
 
@@ -174,16 +189,25 @@ test('Authority sequence utility functions', t => {
       {
         label: 'Middle East',
         uses: [
-          { count: 2, countries: ['a'] },
-          { count: 1, countries: ['a', 'b']}
-        ]
+          {
+            count: 2,
+            countries: [ 'a' ],
+          },
+          {
+            count: 1,
+            countries: [ 'a', 'b' ],
+          },
+        ],
       },
       {
         label: 'Middle East 2',
         uses: [
-          { count: 1, countries: ['a'] }
-        ]
-      }
+          {
+            count: 1,
+            countries: [ 'a' ],
+          },
+        ],
+      },
     ], 'Should group spatial coverage collections');
 });
 
@@ -204,16 +228,31 @@ test('Multi label periods', t => {
   t.deepEqual(
     util.period.allLabels(multiLabelPeriod),
     [
-      { label: 'Progressive Era', languageTag: 'en' },
-      { label: 'The Progressive Era', languageTag: 'en' },
-      { label: 'Ère progressiste', languageTag: 'fr' },
+      {
+        label: 'Progressive Era',
+        languageTag: 'en',
+      },
+      {
+        label: 'The Progressive Era',
+        languageTag: 'en',
+      },
+      {
+        label: 'Ère progressiste',
+        languageTag: 'fr',
+      },
     ], 'should get all labels from a period');
 
 
   t.deepEqual(
     util.period.alternateLabels(multiLabelPeriod),
     [
-      { label: 'The Progressive Era', languageTag: 'en' },
-      { label: 'Ère progressiste', languageTag: 'fr' },
+      {
+        label: 'The Progressive Era',
+        languageTag: 'en',
+      },
+      {
+        label: 'Ère progressiste',
+        languageTag: 'fr',
+      },
     ], 'should get only alternate labels from a period')
 });

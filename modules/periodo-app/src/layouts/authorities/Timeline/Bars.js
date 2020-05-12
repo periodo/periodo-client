@@ -1,7 +1,5 @@
 "use strict";
 
-const d3 = require('d3')
-
 module.exports = class BarVisualization {
   update({
     xScale,
@@ -9,17 +7,6 @@ module.exports = class BarVisualization {
     group,
     periodsWithEndpoints,
   }) {
-    const rects = group
-      .selectAll('rect')
-      .data(periodsWithEndpoints, d => d.period.id)
-
-    rects.exit()
-      .transition()
-        .duration(250)
-        .ease(d3.easeSin)
-        .style('opacity', 0)
-      .transition()
-        .remove()
 
     const width = d => {
       let w = xScale(d.latest) - xScale(d.earliest)
@@ -38,32 +25,20 @@ module.exports = class BarVisualization {
     const x = d => xScale(d.earliest)
         , y = (d, i) => yScale(i + 1)
 
-    const t = d3.transition()
-      .duration(400)
-      .ease(d3.easeSin)
+    const fill = d => d.selected ? '#ff000080' : '#bbb'
 
-    rects
-      .transition(t)
-      .attr('x', x)
-      .attr('y', y)
-      .attr('width', width)
-      .attr('height', height)
+    group.selectAll('rect').remove()
 
-    rects.enter()
+    group
+      .selectAll('rect')
+      .data(periodsWithEndpoints, d => d.period.id)
+      .enter()
       .append('rect')
       .attr('x', x)
       .attr('y', y)
       .attr('width', width)
-      .attr('fill', d3.schemeCategory10[0])
+      .attr('fill', fill)
       .attr('height', height)
-      .style('opacity', 0)
-      .transition()
-        .delay(this.notFirst ? 350 : 0)
-        .duration(500)
-        .ease(d3.easeSin)
       .style('opacity', 1)
-
-    this.notFirst = true;
   }
 }
-

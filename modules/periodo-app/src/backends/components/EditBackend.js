@@ -1,54 +1,84 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Flex, Box, Heading } = require('periodo-ui')
+    , { Box, Breadcrumb, Link } = require('periodo-ui')
+    , { SectionHeading, Section } = require('periodo-ui')
     , { Route, Navigable } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
     , { BackendForm } = require('../../forms')
     , ORCIDSettings = require('../../auth/components/ORCID')
+    , { periodoServerURL } = require('../../globals')
+
 
 module.exports = Navigable((props) => {
   const { backend } = props
 
+  if (! backend) { // backend was deleted
+    return null
+  }
+
   return (
-    h(Flex, [
-      h(Box, {
-        flex: 1,
-        mr: 4,
+    h(Box, [
+
+      h(Breadcrumb, {
+        ml: 1,
+        mb: 3,
+        truncate: [ 1 ],
       }, [
-        h(Heading, {
-          level: 2,
-          mb: 2,
-        }, 'Data source settings'),
+        h(Link, {
+          route: Route('backend-home', {
+            backendID: backend.asIdentifier(),
+          }),
+        }, backend.metadata.label),
+        'Settings',
+      ]),
+
+      ...(
+        backend.storage._name === 'Web'
+          ? [
+            h(SectionHeading, 'ORCID credentials'),
+            h(Section, [ h(ORCIDSettings, { backend }) ]),
+          ]
+          : []
+      ),
+
+      h(SectionHeading, 'Data source settings'),
+      h(Section, [
 
         h(BackendForm, {
-          backend: props.backend,
-          handleDelete: async () => {
-            if (!confirm('Really delete data source?')) return
+          backend,
+          handleDelete: backend.storage.url === periodoServerURL
+            ? null
+            : async () => {
+              if (!confirm('Really delete data source?')) return
 
-            const resp = await props.dispatch(BackendAction.DeleteBackend(props.backend.storage))
+              const resp = await props.dispatch(
+                BackendAction.DeleteBackend(backend.storage)
+              )
 
-            handleCompletedAction(
-              resp,
-              () => { props.navigateTo(Route('open-backend')) },
-              err => {
-                alert('Error deleting data source');
-                // eslint-disable-next-line no-console
-                console.error(err);
-              }
-            )
-          },
+              handleCompletedAction(
+                resp,
+                () => { props.navigateTo(Route('open-backend')) },
+                err => {
+                  alert('Error deleting data source');
+                  // eslint-disable-next-line no-console
+                  console.error(err);
+                }
+              )
+            },
           handleSave: async ({ label, description }) => {
-            const resp = await props.dispatch(BackendAction.UpdateBackend(props.backend.storage, {
-              label,
-              description,
-            }))
+            const resp = await props.dispatch(
+              BackendAction.UpdateBackend(backend.storage, {
+                label,
+                description,
+              })
+            )
 
             handleCompletedAction(
               resp,
               () => props.navigateTo(Route('backend-home', {
-                backendID: props.backend.asIdentifier(),
+                backendID: backend.asIdentifier(),
               })),
               err => {
                 alert('Error saving data source');
@@ -59,16 +89,6 @@ module.exports = Navigable((props) => {
           },
         }),
       ]),
-
-      props.backend.storage._name !== 'Web' ? null : (
-        h(Box, { flex: 1 }, [
-          h(Heading, {
-            level: 2,
-            mb: 2,
-          }, 'ORCID credentials'),
-          h(ORCIDSettings, { backend }),
-        ])
-      ),
     ])
   )
 })

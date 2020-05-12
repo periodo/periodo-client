@@ -65,6 +65,68 @@ function getLayoutParams() {
   return qs.parse(window.location.search.slice(1))
 }
 
+function updateLayoutParams(updatedParams) {
+  const prevParams = getLayoutParams()
+      , { pathname, hash } = window.location
+
+  const params = Object.fromEntries(
+    Object.entries({
+      ...prevParams,
+      ...updatedParams,
+    })
+    .filter(([ , v ]) => v !== null)
+  )
+
+  history.replaceState(
+    null,
+    '',
+    `${ pathname }?${ qs.stringify(params) }${ hash }`
+  );
+}
+
+const formatter = new Intl.DateTimeFormat('en', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: 'numeric',
+  hour12: false,
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+})
+
+function textMatcher(query) {
+  // match everything by default
+  if (!query) {
+    return () => true
+  }
+  // fallback to String.includes if query is not a valid regex
+  let test = text => text
+    ? text.toLowerCase().includes(query.replace(/\W/g, '').toLowerCase())
+    : false
+  // otherwise use RegExp.test
+  try {
+      const regex = new RegExp(
+        // ignore pipe at the end of a regex as it is likely incomplete
+        query.slice(-1) === '|' ? query.slice(0, -1) : query,
+        'i'
+      )
+      test = text => regex.test(text)
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      // ignore
+    } else {
+      throw e
+    }
+  }
+  return test
+}
+
+const patchNumber = patchURL => {
+  const match = patchURL.match(/\d+/)
+  return match ? match[0] : ''
+}
+
 module.exports = {
   oneOf,
   ensureArray,
@@ -74,4 +136,8 @@ module.exports = {
   permalinkAwareFetch,
   getLayoutOpts,
   getLayoutParams,
+  updateLayoutParams,
+  formatDate: formatter.format,
+  textMatcher,
+  patchNumber,
 }

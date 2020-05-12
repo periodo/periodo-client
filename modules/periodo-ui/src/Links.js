@@ -5,7 +5,7 @@ const { Link } = require('org-shell')
 
 exports.Link = Link(sys({
   is: 'a',
-  color: 'blue.4',
+  color: 'blue.5',
 }, 'space', 'display', 'fontSize', 'fontWeight', {
   textDecoration: 'none',
   ':hover': {
@@ -16,7 +16,7 @@ exports.Link = Link(sys({
 
 exports.ExternalLink = Link(sys({
   is: 'a',
-  color: 'blue.4',
+  color: 'blue.5',
   target: '_blank',
 }, 'space', 'display', 'fontSize', 'fontWeight', {
   textDecoration: 'none',

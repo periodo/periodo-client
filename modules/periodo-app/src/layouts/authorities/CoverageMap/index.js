@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { LabeledMap } = require('periodo-ui')
+    , { Label, HelpText, Span, LabeledMap } = require('periodo-ui')
 
 const featuresOf = (period, gazetteers) => {
   if (!period) return []
@@ -22,19 +22,36 @@ const allFeatures = (periods, gazetteers) => Object.values(
 )
 
 const CoverageMap = ({
+  opts,
   data: periods,
-  hoveredPeriod,
   selectedPeriod,
+  selectedPeriodIsVisible,
   gazetteers,
 }) => {
 
-  const focusedPeriod = hoveredPeriod || selectedPeriod || null
+  return (h('div'), [
+    h(Label, { key: 'label' }, 'Spatial coverage'),
 
-  return h(LabeledMap, {
-    focusedFeatures: featuresOf(focusedPeriod, gazetteers),
-    features: allFeatures(periods, gazetteers),
-    height: 241,
-  })
+    h(HelpText, { key: 'help' }, [
+      'Places covered by the listed periods',
+      ...(selectedPeriod
+        ? [
+          ', with the selected period in ',
+          h(Span, { color: '#ff0000' }, 'red'),
+        ]
+        : []
+      ),
+    ]),
+
+    h(LabeledMap, {
+      key: 'map',
+      height: opts.height ? parseInt(opts.height) : undefined,
+      focusedFeatures: selectedPeriodIsVisible
+        ? featuresOf(selectedPeriod, gazetteers)
+        : [],
+      features: allFeatures(periods, gazetteers),
+    }),
+  ])
 }
 
 module.exports = {

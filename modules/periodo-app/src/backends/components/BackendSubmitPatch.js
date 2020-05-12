@@ -2,9 +2,9 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Button$Primary } = require('periodo-ui')
+    , nanostate = require('nanostate')
     , BackendSelector = require('./BackendSelector')
-    , { Navigable } = require('org-shell')
+    , { Navigable, Route } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , PatchAction = require('../../patches/actions')
     , { PatchDirection } = require('../../patches/types')
@@ -14,24 +14,53 @@ const h = require('react-hyperscript')
 
 const {
   Box,
-  ResourceTitle,
+  Flex,
+  Breadcrumb,
+  Section,
   Text,
-  InfoText,
+  Link,
+  HelpText,
+  TextareaBlock,
+  Button$Primary,
   Alert$Error,
   Alert$Success,
 } = require('periodo-ui')
 
 
+const defaultState = {
+  selectedWebBackendID: null,
+  selectedPatch: null,
+  compareComponent: null,
+  patchURL: null,
+  comment: '',
+}
+
 class SubmitPatch extends React.Component {
   constructor() {
     super()
 
-    this.state = {
-      showCompare: false,
-      selectedWebBackendID: null,
-      selectedPatch: null,
-      reviewComponent: null,
-    }
+    this.state = defaultState
+
+    this.machine = nanostate(
+      'chooseRemote', {
+        chooseRemote: { next: 'selectChanges' },
+        selectChanges: { next: 'confirmChanges' },
+        confirmChanges: { next: 'submitChanges' },
+        submitChanges: {
+          success: 'writeComment',
+          failure: 'confirmChanges',
+        },
+        writeComment: { next: 'postComment' },
+        postComment: {
+          success: 'done',
+          failure: 'writeComment',
+        },
+        done: {},
+      }
+    )
+
+    this.machine.on('submitChanges', () => this.submitPatch())
+    this.machine.on('postComment', () => this.postComment())
   }
 
   async submitPatch() {
@@ -39,35 +68,73 @@ class SubmitPatch extends React.Component {
         , { selectedPatch, selectedWebBackendID } = this.state
         , remoteBackend = backends[selectedWebBackendID]
 
-    const action = await dispatch(PatchAction.SubmitPatch(
+    const submitted = await dispatch(PatchAction.SubmitPatch(
       backend,
       remoteBackend,
       selectedPatch
     ))
 
-    handleCompletedAction(action,
-      () => {
+    handleCompletedAction(submitted,
+      ({ patchURL }) => {
+        this.machine.emit('success')
         this.setState({
-          showCompare: false,
-          selectedWebBackendID: null,
-          selectedPatch: null,
-          reviewComponent: null,
-          message: (
-            h(Alert$Success, {
-              mb: 2,
-            }, 'Submitted changes')
+          patchURL,
+          message: h(
+            Alert$Success,
+            { mb: 2 },
+            'Successfully submitted changes'
           ),
         })
       },
-      err => {
+      () => {
+        this.machine.emit('failure')
         this.setState({
           message: (
             h(Alert$Error, {
               mb: 2,
-            }, err.message)
+            }, 'Submission failed')
           ),
         })
-        throw err;
+      }
+    )
+  }
+
+  async postComment() {
+    const { dispatch, backends } = this.props
+        , { selectedWebBackendID } = this.state
+        , remoteBackend = backends[selectedWebBackendID]
+
+    const commented = await dispatch(PatchAction.AddPatchComment(
+      remoteBackend,
+      this.state.patchURL,
+      this.state.comment,
+    ))
+
+    handleCompletedAction(commented,
+      () => {
+        this.machine.emit('success')
+        this.setState({
+          comment: '',
+          message: (
+            h(Flex, [
+              h(Alert$Success, 'Successfully submitted comment.'),
+              h(Link, {
+                p: 2,
+                route: Route('backend-patches', {
+                  backendID: remoteBackend.asIdentifier(),
+                }),
+              }, 'Review submitted changes'),
+            ])
+          ),
+        })
+      },
+      () => {
+        this.machine.emit('failure')
+        this.setState({
+          message: h(Alert$Error, {
+            mb: 2,
+          }, 'Comment submission failed'),
+        })
       }
     )
   }
@@ -80,88 +147,110 @@ class SubmitPatch extends React.Component {
 
     let child
 
-    if (this.state.selectedPatch) {
-      child = h(Box, [
-        this.state.compareComponent,
+    switch (this.machine.state) {
 
-        h(Button$Primary, {
-          mt: 2,
-          onClick: () => {
-            this.submitPatch()
-          },
-        }, 'Submit changes'),
-      ])
-    } else if (this.state.showCompare) {
-      child = h(Box, [
-        h(SelectChanges, {
-          direction: PatchDirection.Push,
-          localBackend: this.props.backend,
-          remoteBackend: backends[this.state.selectedWebBackendID],
-          handleSelectPatch: (selectedPatch, compareComponent) => {
-            this.setState({
-              message: null,
-              selectedPatch,
-              compareComponent,
-            })
-          },
-        }),
-      ])
-    } else if (webBackends.length === 0) {
-      child = h(InfoText, [
-        'In order to submit a changes you must first create a web data source',
-      ])
-    } else {
-      const { selectedWebBackendID } = this.state
-          , selectedWebBackend = backends[selectedWebBackendID]
-
-      // I'm incredibly sorry
-      let childChildren = null
-
-      if (selectedWebBackend) {
-        childChildren = h(Box, { mt: 3 }, [
-          h(ORCIDSettings, {
-            backend: selectedWebBackend,
-            showAlerts: false,
+    case 'chooseRemote': {
+      if (webBackends.length === 0) {
+        child = h(HelpText, [
+          `In order to submit changes,
+ you must first create a web data source.`,
+        ])
+      } else {
+        child = h(Section, [
+          h(Text, { mb: 3 }, 'Select a web data source to submit changes to'),
+          h(BackendSelector, {
+            label: 'Available web data sources',
+            backends: webBackends,
+            onChange: val => {
+              this.machine.emit('next')
+              this.setState({
+                selectedWebBackendID: val.asIdentifier(),
+              })
+            },
           }),
-
-          !selectedWebBackend.metadata.orcidCredential ? null : (
-            h(Box, { mt: 3 }, [
-              h(Button$Primary, {
-                onClick: () => {
-                  this.setState({
-                    message: null,
-                    showCompare: true,
-                  })
-                },
-              }, 'Continue'),
-            ])
-          ),
         ])
       }
+      break
+    }
 
-      child = h(Box, [
-        h(Text, { mb: 3 }, 'Select a web data source to submit changes to'),
+    case 'selectChanges': {
+      child = h(SelectChanges, {
+        direction: PatchDirection.Push,
+        localBackend: this.props.backend,
+        remoteBackend: backends[this.state.selectedWebBackendID],
+        handleSelectPatch: (selectedPatch, compareComponent) => {
+          this.machine.emit('next')
+          this.setState({
+            selectedPatch,
+            compareComponent,
+          })
+        },
+      })
+      break
+    }
 
-        h(BackendSelector, {
-          value: selectedWebBackend,
-          label: 'Available web data sources',
-          backends: webBackends,
-          onChange: val => {
-            this.setState({
-              message: null,
-              selectedWebBackendID: val.asIdentifier(),
-            })
+    case 'confirmChanges': {
+      const backend = backends[this.state.selectedWebBackendID]
+      child = h(Section, [
+        this.state.message,
+        h(Box, [
+          this.state.compareComponent,
+
+          h(Box, { my: 3 }, [
+            h(ORCIDSettings, {
+              backend,
+              showAlerts: false,
+            }),
+          ]),
+
+          h(Button$Primary, {
+            mt: 2,
+            disabled: !backend.metadata.orcidCredential,
+            onClick: () => this.machine.emit('next'),
+          }, 'Submit changes'),
+        ]),
+      ])
+      break
+    }
+
+    case 'writeComment': {
+      child = h(Section, [
+        this.state.message,
+        h(TextareaBlock, {
+          helpText: 'Describe the changes submitted in a brief comment',
+          value: this.state.comment,
+          onChange: e => {
+            this.setState({ comment: e.target.value })
           },
         }),
 
-        childChildren,
+        h(Button$Primary, {
+          disabled: !this.state.comment,
+          onClick: () => this.machine.emit('next'),
+        }, 'Add comment'),
+
       ])
+      break
     }
+
+    case 'done': {
+      child = h(Section, [
+        this.state.message,
+      ])
+      break
+    }
+    } // end switch
 
     return (
       h(Box, [
-        h(ResourceTitle, 'Submit changes'),
-        this.state.message,
+        h(Breadcrumb, [
+          h(Link, {
+            route: Route('backend-home', {
+              backendID: this.props.backend.asIdentifier(),
+            }),
+          }, this.props.backend.metadata.label),
+          'Submit changes',
+        ]),
         child,
       ])
     )

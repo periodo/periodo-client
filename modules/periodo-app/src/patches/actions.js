@@ -555,6 +555,11 @@ function decidePatchFate(backend, mergeURL, fate) {
       Reject: () => mergeURL.replace('merge', 'reject'), // lol.
     })
 
+    const gerund = fate.case({
+      Accept: () => 'accepting',
+      Reject: () => 'rejecting',
+    })
+
     const resp = await permalinkAwareFetch(actionURL, {
       method: 'POST',
       headers: withAuthHeaders(backend, {
@@ -575,7 +580,7 @@ function decidePatchFate(backend, mergeURL, fate) {
 
     default:
       if (!resp.ok) {
-        const err = new Error('Error posting comment')
+        const err = new Error(`Error ${ gerund } change`)
         err.resp = resp;
         throw err;
       }

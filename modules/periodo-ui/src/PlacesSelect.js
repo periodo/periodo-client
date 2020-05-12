@@ -44,6 +44,7 @@ const PlacesSelect = ({
   suggestions=[], // [ { id, label } ]
   gazetteers,
   closable=false,
+  inputProps={},
 }) => {
 
   const [ focusedFeature, setFocusedFeature ] = useState(null)
@@ -58,6 +59,7 @@ const PlacesSelect = ({
       }
     },
     ml: 1,
+    fontWeight: 100,
   }, closed ? 'Select places' : 'Done')
 
   return h(Box, {}, [
@@ -85,7 +87,7 @@ const PlacesSelect = ({
 
     closed
       ? null
-      : h(Box, { maxWidth: '600px' }, [
+      : h(Box, { maxWidth: '800px' }, [
 
         h(LabeledMap, {
           focusedFeatures: focusedFeature ? [ focusedFeature ] : [],
@@ -95,7 +97,10 @@ const PlacesSelect = ({
 
         h(PlaceSuggest, {
           gazetteers,
-          inputProps: { autoFocus: closable },
+          inputProps: {
+            autoFocus: closable,
+            ...inputProps,
+          },
           onSuggestionHighlighted:
             ({ suggestion: feature }) => setFocusedFeature(feature),
           isSelected: feature => coverage.some(({ id }) => id === feature.id),

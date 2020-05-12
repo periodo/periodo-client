@@ -3,69 +3,54 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, ResourceTitle } = require('periodo-ui')
+    , { Route } = require('org-shell')
+    , { Box, HelpText, Link, Breadcrumb } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
 
 const layout = `
-grid-template-columns = repeat(6, 1fr)
-grid-template-rows = repeat(6, auto)
-grid-gap = 1em 1.66em
-
 [Search]
-type = text-search
-grid-column = 1/7
-grid-row = 1/2
+type = period-search
+section = Filter periods
 
 [PlaceFilter]
 type = place-filter
-grid-column = 1/7
-grid-row = 2/3
+section = Filter periods
+
+[TimeFilter]
+type = time-filter
+section = Filter periods
 
 [Facets]
 type = facets
+section = Filter periods
 flex = true
-height = 156
-grid-column = 1/7
-grid-row = 3/4
+height = 200
 
 [SpatialCoverage]
 type = spatial-visualization
-grid-column = 4/7
-grid-row = 4/5
+section = Period coverage
+height = 200
 
 [TimeRange]
 type = timespan-visualization
-grid-column = 1/4
-grid-row = 4/5
+section = Period coverage
 height = 200
 
 [PeriodList]
 type = windowed-period-list
-grid-column = 1/7
-grid-row = 5/6
-scroll-to = true
+section = Periods
 
-[PeriodDetail]
-type = period-detail
-grid-column = 1/4
-grid-row = 6/7
-
-[AuthorityDetail]
-type = authority-detail
-grid-column = 4/7
-grid-row = 6/7
+[AuthorityPeriodDetail]
+type = authority-period-detail
+section = Periods
 `
-
 
 module.exports = class BackendHome extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      // layout: defaultLayout,
-      // editingLayout: defaultLayout,
-      // showEdit: false,
       blockOpts: this.props.opts.Layout || {},
     }
 
@@ -91,89 +76,56 @@ module.exports = class BackendHome extends React.Component {
 
     const { blockOpts } = this.state
 
-    const selectedPeriod = dataset.periodByID(periodID)
-
-    const childProps = {
-      backend,
-      dataset,
-      blockOpts,
-      gazetteers,
-      onBlockOptsChange: updatedOpts => {
-        this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
-      },
-    }
-
     return (
       h(Box, [
-        h(ResourceTitle, 'Browse data source'),
-        dataset.periods.length === 0
-          ? (
-            h(Box, {
-              fontSize: 4,
-              color: 'gray.8',
-              textAlign: 'center',
-            }, 'No periods in data source')
-          )
-          : (
-            h(AuthorityLayoutRenderer, {
-              ...childProps,
+
+        h(Breadcrumb, [
+          backend.metadata.label,
+          'Browse periods',
+        ]),
+
+        dataset.authorities.length === 0
+          ? h(HelpText, [
+            'No periods in this data source.',
+            h(Link, {
+              mx: 1,
+              route: new Route('backend-add-authority', {
+                backendID: backend.asIdentifier(),
+              }),
+            }, 'Add an authority'),
+            'or',
+            h(Link, {
+              mx: 1,
+              route: new Route('backend-sync', {
+                backendID: backend.asIdentifier(),
+              }),
+            }, 'import changes'),
+            'from another data source.',
+          ])
+          : dataset.periods.length === 0
+            ? h(HelpText, [
+              'No periods in this data source.',
+              h(Link, {
+                ml: 1,
+                route: new Route('backend-authorities', {
+                  backendID: backend.asIdentifier(),
+                }),
+              }, 'Browse authorities'),
+            ])
+            : h(AuthorityLayoutRenderer, {
+              data: dataset.periods,
+              backend,
+              dataset,
+              gazetteers,
               layout,
-              selectedPeriod,
-            })),
+              totalCount: dataset.periods.length,
+              selectedPeriod: dataset.periodByID(periodID),
+              blockOpts,
+              onBlockOptsChange: updatedOpts => {
+                this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
+              },
+            }),
       ])
     )
   }
 }
-
-/*
-h(Flex, {
-  justifyContent: 'space-around',
-  pb: 2,
-}, [
-  h(Text, { mx: 1 }, [
-    'Created: ' + new Date(backend.metadata.created).toLocaleString(),
-  ]),
-
-  h(Text, { mx: 1 }, [
-    'Last modified: ' + new Date(backend.metadata.modified).toLocaleString(),
-  ]),
-
-  h(Text, { mx: 1 }, [
-    'Last accessed: ' + new Date(backend.metadata.accessed).toLocaleString(),
-  ]),
-]),
-
-h(Flex, [
-  h(Text, { mx: 1 }, [
-    h('button', {
-      onClick: () => this.setState(prev => ({ showEdit: !prev.showEdit })),
-    }, 'Edit layout'),
-  ]),
-
-  h(Text, { mx: 1 }, [
-    h('button', {
-      onClick: () => updateOpts(R.dissoc('Layout'))
-    }, 'Reset layout'),
-  ]),
-]),
-
-this.state.showEdit && h(Box, { pt: 2 }, [
-  h(LayoutEditor, {
-    blocks,
-    value: this.state.editingLayout,
-    onChange: e => this.setState({ editingLayout: e.target.value }),
-  }),
-
-  h(Box, { pt: 2 }, [
-    h('button', {
-      disabled: this.state.layout === this.state.editingLayout,
-      onClick: () => this.setState({ layout: this.state.editingLayout })
-    }, 'Update')
-  ]),
-]),
-
-h(Box, {
-  is: 'hr',
-  mt: 2,
-}),
-*/

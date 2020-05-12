@@ -8,10 +8,9 @@ const h = require('react-hyperscript')
 exports.LabeledMap = ({
   focusedFeatures,
   features,
-  height=200,
+  height=300,
   ...props
 }) => h(Flex, {
-  border: '1px solid #ccc',
   ...props,
 }, [
   h(WorldMap, {

@@ -93,10 +93,8 @@ exports.PlaceSuggest = ({
   onSelect,
   ...props
 }) => h(Box, {
-  border: 1,
-  borderColor: 'gray.4',
-  borderRadius: '0 0 2px 2px',
-  pt: '2px',
+  pt: 1,
+  bg: 'gray.1',
   css: { position: 'relative' },
 }, [
   h(Autosuggest, {

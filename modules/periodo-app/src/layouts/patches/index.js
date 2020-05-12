@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , LayoutRenderer = require('../LayoutRenderer')
     , ListBlock = require('../ListBlock')
     , { Route, Navigable } = require('org-shell')
-    , { Link } = require('periodo-ui')
+    , { Link, Text } = require('periodo-ui')
 
 function makeItemRoute(item, backend) {
   return Route('backend-patch', {
@@ -19,8 +19,8 @@ function makeItemRoute(item, backend) {
 const PatchList = ListBlock({
   label: 'Patch list',
   description: 'List of patches',
-  navigateToItem(item, { navigateTo, backend }) {
-    navigateTo(makeItemRoute(item, backend))
+  itemViewRoute(item, { backend }) {
+    return makeItemRoute(item, backend)
   },
 
   defaultOpts: {
@@ -29,7 +29,16 @@ const PatchList = ListBlock({
   },
 
   columns: {
+
+    comment: {
+      label: 'Comment',
+      getValue: x => (
+        x.firstComment || h('span', { style: { fontStyle: 'italic' }}, 'none')
+      ),
+    },
+
     creator: {
+      width: '10em',
       label: 'Creator',
       getValue: x => x.submittedBy || {},
       render: ({ url, label }) => url
@@ -37,24 +46,34 @@ const PatchList = ListBlock({
         : h('span', label || '(undefined)'),
     },
 
-    merged: {
-      label: 'Merged at',
-      getValue: x => new Date(x.mergeTime).toLocaleString(),
-    },
-
     periods: {
+      width: '6em',
       label: 'Affected periods',
       getValue: x => x.affectedItems.periods.length,
+      render(value) {
+        return h(Text, {
+          width: '4ch',
+          textAlign: 'right',
+        }, value)
+      },
     },
 
     authorities: {
+      width: '6em',
       label: 'Affected authorities',
       getValue: x => x.affectedItems.authorities.length,
+      render(value) {
+        return h(Text, {
+          width: '3ch',
+          textAlign: 'right',
+        }, value)
+      },
     },
 
-    comment: {
-      label: 'Comment',
-      getValue: x => x.firstComment,
+    merged: {
+      width: '7em',
+      label: 'Merged at',
+      getValue: x => new Date(x.mergeTime).toLocaleString(),
     },
   },
 })

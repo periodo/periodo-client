@@ -1,46 +1,61 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , { useState } = require('react')
+    , { updateLayoutParams } = require('periodo-utils')
     , LayoutRenderer = require('../LayoutRenderer')
     , { Navigable } = require('org-shell')
     , blocks = require('./blocks')
 
-module.exports = Navigable(({ fixedPeriod, ...props }) => {
+const noop = () => {}
+
+module.exports = Navigable(({
+  data,
+  fixedPeriod,
+  selectedPeriod: selectedPeriodFromProps,
+  dataset,
+  backend,
+  navigateTo,
+  gazetteers,
+  ...props
+}) => {
 
   const [ hoveredPeriod, setHoveredPeriod ] = fixedPeriod
-    ? [ null, () => {} ]
-    : useState(props.hoveredPeriod)
+    ? [ null, noop ]
+    : useState(null)
 
-  const [ selectedPeriod, setSelectedPeriod ] = fixedPeriod
-    ? [ fixedPeriod, () => {} ]
-    : useState(props.selectedPeriod)
+  const [ selectedPeriod, _setSelectedPeriod ] = fixedPeriod
+    ? [ fixedPeriod, noop ]
+    : useState(selectedPeriodFromProps)
 
-  let data = props.useAuthorities
-    ? props.dataset.authorities
-    : props.dataset.periods
+  const [ selectedPeriodIsVisible, setSelectedPeriodIsVisible ] = fixedPeriod
+    ? [ true, noop ]
+    : useState(!!selectedPeriodFromProps)
 
-  if (props.filter) {
-    data = data.filter(props.filter)
+  const setSelectedPeriod = period => {
+    _setSelectedPeriod(period)
+    setSelectedPeriodIsVisible(!!period)
+    updateLayoutParams({ periodID: period ? period.id : null })
   }
 
   return (
-    h(LayoutRenderer, R.omit([ 'dataset', 'backend', 'navigateTo' ], {
+    h(LayoutRenderer, {
       ...props,
       blocks,
       data,
       extraProps: {
-        backend: props.backend,
-        dataset: props.dataset,
-        gazetteers: props.gazetteers,
-        navigateTo: props.navigateTo,
+        backend,
+        dataset,
+        totalCount: data ? data.length : 0,
+        gazetteers,
+        navigateTo,
         hoveredPeriod,
         setHoveredPeriod,
         selectedPeriod,
         setSelectedPeriod,
-        fixedPeriod,
+        selectedPeriodIsVisible,
+        setSelectedPeriodIsVisible,
       },
-    }))
+    })
   )
 })

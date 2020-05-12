@@ -4,10 +4,11 @@ const h = require('react-hyperscript')
     , React = require('react')
     , natsort = require('natsort')
     , { FixedSizeList: List } = require('react-window')
+    , AutoSizer = require('react-virtualized-auto-sizer')
     , { authorityOf } = require('periodo-utils/src/period')
     , { yearPublished } = require('periodo-utils/src/source')
     , styled = require('styled-components').default
-    , { Link, Text } = require('periodo-ui')
+    , { Link, Text, Label, HelpText } = require('periodo-ui')
     , { Route } = require('org-shell')
     , { getLayoutOpts, getLayoutParams } = require('periodo-utils')
 
@@ -63,58 +64,50 @@ const columns = {
 }
 
 const ListWrapper = styled.div`
-.row {
-  display: flex;
-  align-items: center;
-}
-
-.row span {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  padding: 0 7px;
-}
-
-.row :nth-child(1) {
-  min-width: 6ch;
-  max-width: 6ch;
-}
-
-.row :nth-child(2) {
-  min-width: 10ch;
-  max-width: 10ch;
-}
-
-.row :nth-child(3) {
-  flex: 1;
-  min-width: 20ch;
-}
-
-.row :nth-child(4) {
-  min-width: 10ch;
-  width: 20ch;
-}
-
-.row :nth-child(5) {
-  min-width: 10ch;
-  width: 20ch;
-}
-
-.row :nth-child(6) {
-  min-width: 10ch;
-  width: 30ch;
-}
-
-.row :nth-child(7) {
-  min-width: 12ch;
-  width: 12ch;
-}
 
 .row__header {
   font-weight: bold;
-  margin-bottom: 1px;
-
   z-index: 1;
+}
+
+.row__header span {
+  z-index: 1;
+  cursor: pointer;
+  padding: 8px 7px !important;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  background-color: #f1f3f5;
+}
+
+.row :nth-child(1) {
+  flex: 0 0 6ch;
+}
+
+.row :nth-child(2) {
+  flex: 0 0 10ch;
+}
+
+.row :nth-child(3) {
+  flex: 1 0 20ch;
+}
+
+.row :nth-child(4) {
+  flex: 0 1 20ch;
+}
+
+.row :nth-child(5) {
+  flex: 0 1 20ch;
+}
+
+.row :nth-child(6) {
+  flex: 1 1 30ch;
+}
+
+.row :nth-child(7) {
+  flex: 0 0 12ch;
 }
 
 .row[data-selected="true"] {
@@ -123,18 +116,13 @@ const ListWrapper = styled.div`
   border-bottom: 1px solid #999;
 }
 
-.row__header span {
-  z-index: 1;
-  cursor: pointer;
-  padding: 8px 7px;
+.row span {
+  overflow: hidden;
+  padding: 0 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 `
-
-/*
-display: grid;
-grid-template-columns: 5ch 100px 100px 1fr 1fr;
-*/
 
 function ItemRow({
   index,
@@ -153,6 +141,14 @@ function ItemRow({
 }) {
   const period = periods[index]
 
+  const toggleSelectedPeriod = () => {
+    setSelectedPeriod(
+      (selectedPeriod && selectedPeriod.id === period.id)
+        ? null
+        : period
+    )
+  }
+
   return (
     h('div', {
       className: 'row',
@@ -161,12 +157,10 @@ function ItemRow({
         backgroundColor: (
           hoveredPeriod === period ||
           selectedPeriod === period
-        )? '#f0f0f0' : 'unset',
+        )? '#ffffff' : '#f1f3f5',
       },
       ['data-selected']: selectedPeriod === period,
-      onMouseDown: () => {
-        setSelectedPeriod(period)
-      },
+      onMouseDown: toggleSelectedPeriod,
       onMouseEnter: () => {
         setHoveredPeriod(period)
       },
@@ -181,6 +175,7 @@ function ItemRow({
       ]),
       h('span', [
         h(Link, {
+          fontWeight: 100,
           route: new Route('period-view', {
             backendID: backend.asIdentifier(),
             authorityID: authorityOf(period).id,
@@ -190,6 +185,7 @@ function ItemRow({
         showEditLink
           ? h(Link, {
             ml: 2,
+            fontWeight: 100,
             route: new Route('period-edit', {
               backendID: backend.asIdentifier(),
               authorityID: authorityOf(period).id,
@@ -218,8 +214,8 @@ class PeriodList extends React.Component {
     super()
 
     this.state = {
-      rect: null,
       sortedData: null,
+      scrollNeedsUpdate: false,
     }
 
     this.onKeyDown = this.onKeyDown.bind(this)
@@ -227,22 +223,8 @@ class PeriodList extends React.Component {
     this.handleScroll = this.handleScroll.bind(this)
     this.updateScroll = this.updateScroll.bind(this)
 
-    this.listRef = React.createRef()
-  }
-
-  componentDidMount() {
-    this.setState({
-      rect: this.el.getBoundingClientRect(),
-      headerWidth: this.el.clientWidth,
-      scrollNeedsUpdate: true,
-    })
-
-    if (this.props.opts
-        && this.props.opts.scrollTo
-        && this.props.selectedPeriod) {
-
-      window.scrollTo(0, this.el.offsetTop)
-    }
+    this.wrapperRef = { current: null }
+    this.listRef = { current: null }
   }
 
   componentDidUpdate(prevProps) {
@@ -251,7 +233,6 @@ class PeriodList extends React.Component {
       prevProps.sortDirection !== this.props.sortDirection ||
       prevProps.data !== this.props.data
     )
-
     if (updateSort) {
       this.updateSort()
     }
@@ -293,7 +274,6 @@ class PeriodList extends React.Component {
       }
     }
   }
-
 
   handleScroll(e) {
     const { hoveredPeriod, setHoveredPeriod } = this.props
@@ -343,25 +323,32 @@ class PeriodList extends React.Component {
 
       this.setState({
         sortedData,
-        start: 0,
-        scrollNeedsUpdate: true,
+        scrollNeedsUpdate: !!this.props.selectedPeriod,
       })
     }
   }
 
   updateScroll() {
-    if (this.listRef.current && this.state.scrollNeedsUpdate) {
+    if (this.wrapperRef.current &&
+        this.listRef.current &&
+        this.state.scrollNeedsUpdate) {
+
       const index = findPeriodIndex(
         this.props.selectedPeriod,
         this.state.sortedData
       )
+      this.props.setSelectedPeriodIsVisible(index >= 0)
       this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
       this.setState({ scrollNeedsUpdate: false })
+
+      if (! this.props.opts.fixed) {
+        this.wrapperRef.current.focus()
+      }
     }
   }
 
   render() {
-    const { rect, sortedData: periods } = this.state
+    const { sortedData: periods } = this.state
 
     const {
       sortBy,
@@ -369,99 +356,138 @@ class PeriodList extends React.Component {
       updateOpts,
       hoveredPeriod,
       setHoveredPeriod,
-      setSelectedPeriod,
       selectedPeriod,
+      setSelectedPeriod,
+      setSelectedPeriodIsVisible,
       backend,
+      totalCount,
+      opts: { fixed },
     } = this.props
 
     const layoutOpts = getLayoutOpts()
         , layoutParams = getLayoutParams()
 
-    return (
-      h(ListWrapper, {
-        tabIndex: 0,
-        onKeyDown: this.onKeyDown,
-        style: {
-          overflowY: rect == null ? 'scroll' : 'unset',
-          position: 'relative',
-          border: '1px solid #ccc',
-          padding: '1px',
-        },
-        innerRef: el => { this.el = el },
-      }, rect == null ? null : [
-        h('div', {
-          style: {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            height: 'calc(1em + 20px)',
-            backgroundColor: '#F8F9FA',
-            borderBottom: '1px solid #ccc',
+    const itemCount = periods ? periods.length : 0
+        , filteredCount = totalCount === undefined
+          ? undefined
+          : totalCount - itemCount
+
+    return h('div', [
+      ...(fixed === 'true'
+        ? []
+        : [
+
+          h(Label, { key: 'label' }, `${itemCount} periods`),
+
+          filteredCount !== undefined && filteredCount > 0 && h(Text, {
+            color: 'gray.6',
+            fontSize: 1,
+          }, `${ filteredCount } periods not shown.
+ Adjust filters to see more`),
+
+          h(HelpText, {
+            key: 'help',
+            mb: 2,
+          }, [
+            'Click a period to select it, ',
+            'then use up and down arrows to change the selection',
+          ]),
+        ]
+      ),
+
+      itemCount > 0 && h(AutoSizer, {
+        key: 'list-wrapper',
+        disableHeight: true,
+      }, [
+        ({ width }) => h(ListWrapper, {
+          tabIndex: 0,
+          onKeyDown: this.onKeyDown,
+          innerRef: el => {
+            this.wrapperRef.current = el
+            this.updateScroll()
           },
-        }),
-        h('div', {
-          className: 'row row__header',
           style: {
-            width: this.state.headerWidth - 4,
+            overflowY: 'unset',
+            position: 'relative',
           },
         }, [
-          h('span', ''), // count
-          h('span', ''), // view/edit
-        ].concat(Object.entries(columns).map(([ key, { label }]) =>
-          h('span', {
-            onClick: () => {
-              updateOpts((opts={}) => ({
-
-                ...opts,
-                sortBy: key,
-                sortDirection: opts.sortBy === key
-                  ?  (!opts.sortDirection || opts.sortDirection === 'asc') ? 'desc' : 'asc'
-                  : 'asc',
-              }))
+          h('div', {
+            style: {
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 'calc(1em + 20px)',
+              backgroundColor: '#f1f3f5',
             },
+          }),
+          h('div', {
+            className: 'row row__header',
+            style: { width },
           }, [
-            label,
-            sortBy !== key ? null : (
-              sortDirection === 'desc' ? '▲' : '▼'
-            ),
-          ])
-        ))),
+            h('span', { style: { cursor: 'default' }}, ''), // count
+            h('span', { style: { cursor: 'default' }}, ''), // view/edit
+          ].concat(Object.entries(columns).map(
+            ([ key, { label }]) => h('span', {
+              onClick: () => {
+                updateOpts((opts={}) => ({
+                  ...opts,
+                  sortBy: key,
+                  sortDirection: opts.sortBy === key
+                    ? (!opts.sortDirection || opts.sortDirection === 'asc')
+                      ? 'desc'
+                      : 'asc'
+                    : 'asc',
+                }))
+              },
+            }, [
+              label,
+              sortBy !== key ? null : (
+                sortDirection === 'desc' ? '▲' : '▼'
+              ),
+            ])
+          ))),
 
-        h(List, {
-          height: 250,
-          onScroll: this.handleScroll,
-          onItemsRendered: this.updateScroll,
-          ref: this.listRef,
-          innerRef: el => {
-            if (!this.scrollEl && el) {
-              this.scrollEl = el.parentNode
+          h(List, {
+            height: 200,
+            style: { overscrollBehaviorY: 'contain' },
+            onScroll: this.handleScroll,
+            onItemsRendered: this.updateScroll,
+            ref: list => {
+              this.listRef.current = list
+              this.updateScroll()
+            },
+            innerRef: el => {
+              if (!this.scrollEl && el) {
+                this.scrollEl = el.parentNode
 
-              this.scrollEl.addEventListener('mousemove', this.onMouseMove)
-              this.scrollEl.addEventListener('mouseleave', () => {
-                this.mouseOffset = null
-              })
-            }
-          },
-          itemData: {
-            backend,
-            periods,
-            hoveredPeriod,
-            selectedPeriod,
-            setHoveredPeriod,
-            setSelectedPeriod,
-            layoutOpts,
-            layoutParams,
-            showEditLink: backend.asIdentifier().startsWith('local-'),
-          },
-          itemCount: periods == null ? 0 : periods.length,
-          itemSize: 28,
-          width: rect.width - 4,
-          overscanCount: 25,
-          itemKey,
-        }, ItemRow),
-      ])
-    )
+                this.scrollEl.addEventListener('mousemove', this.onMouseMove)
+                this.scrollEl.addEventListener('mouseleave', () => {
+                  this.mouseOffset = null
+                })
+              }
+            },
+            itemData: {
+              backend,
+              periods,
+              hoveredPeriod,
+              selectedPeriod,
+              setHoveredPeriod,
+              setSelectedPeriod,
+              setSelectedPeriodIsVisible,
+              layoutOpts,
+              layoutParams,
+              showEditLink: backend.asIdentifier().startsWith('local-'),
+            },
+            itemCount,
+            itemSize: 28,
+            width,
+            overscanCount: 25,
+            itemKey,
+          }, ItemRow),
+        ]),
+      ]),
+    ])
   }
 }
 

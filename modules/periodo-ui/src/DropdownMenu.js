@@ -108,7 +108,9 @@ exports.DropdownMenu = Navigable(class DropdownMenu extends React.Component {
             if (val instanceof Route) {
               navigateTo(val)
             } else {
-              onSelection(val, e)
+              if (onSelection) {
+                onSelection(val, e)
+              }
             }
           },
         }, [

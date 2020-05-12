@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Flex, Box } = require('periodo-ui')
+    , { Box } = require('periodo-ui')
     , { period } = require('periodo-utils')
     , RelatedPeriodList = require('./RelatedPeriodList')
 
@@ -23,55 +23,43 @@ const RelatedPeriodsForm = ({
     onValueChange(value)
   }
 
-  return h(Flex, {
-    pb: 2,
-    borderBottom: '1px solid #ccc',
-  }, [
+  return h(Box, [
+    h(RelatedPeriodList, {
+      name: 'broader',
+      label: 'Part of',
+      helpText: 'Broader period containing this one',
+      periods: Object.values(relatedPeriods.broader),
+      suggestionFilter:
+        ({ id }) => value.id !== id && ! value.narrower.includes(id),
+      limit: 1,
+      authorities: [ authority ],
+      backendID,
+      onValueChange: update('broader'),
+    }),
 
-    h(Box, {
-      width: .5,
-      px: 3,
-    }, [
-      h(RelatedPeriodList, {
-        name: 'broader',
-        label: 'Part of',
-        helpText: 'Broader period containing this one',
-        periods: Object.values(relatedPeriods.broader),
-        suggestionFilter:
-          ({ id }) => value.id !== id && ! value.narrower.includes(id),
-        limit: 1,
-        authorities: [ authority ],
-        backendID,
-        onValueChange: update('broader'),
-      }),
-      h(RelatedPeriodList, {
-        mt: 2,
-        name: 'narrower',
-        label: 'Has parts',
-        helpText: 'Narrower periods contained by this one',
-        periods: R.sort(period.byStartYear, Object.values(relatedPeriods.narrower)),
-        suggestionFilter: ({ id }) => value.id !== id && value.broader !== id,
-        authorities: [ authority ],
-        backendID,
-        onValueChange: update('narrower'),
-      }),
-    ]),
+    h(RelatedPeriodList, {
+      mt: 3,
+      name: 'narrower',
+      label: 'Has parts',
+      helpText: 'Narrower periods contained by this one',
+      periods: R.sort(period.byStartYear, Object.values(relatedPeriods.narrower)),
+      suggestionFilter: ({ id }) => value.id !== id && value.broader !== id,
+      authorities: [ authority ],
+      backendID,
+      onValueChange: update('narrower'),
+    }),
 
-    h(Box, {
-      width: .5,
-      px: 3,
-    }, [
-      h(RelatedPeriodList, {
-        name: 'derived-from',
-        label: 'Derived from',
-        helpText: 'Other periods from which this one was derived',
-        periods: Object.values(relatedPeriods.derivedFrom),
-        suggestionFilter: ({ id }) => value.id !== id,
-        authorities: Object.values(dataset.authorities),
-        backendID,
-        onValueChange: update('derivedFrom'),
-      }),
-    ]),
+    h(RelatedPeriodList, {
+      mt: 3,
+      name: 'derived-from',
+      label: 'Derived from',
+      helpText: 'Other periods from which this one was derived',
+      periods: Object.values(relatedPeriods.derivedFrom),
+      suggestionFilter: ({ id }) => value.id !== id,
+      authorities: Object.values(dataset.authorities),
+      backendID,
+      onValueChange: update('derivedFrom'),
+    }),
   ])
 }
 
