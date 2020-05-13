@@ -227,7 +227,9 @@ function fetchBackend(storage, forceReload) {
 
         if (!isSavedLocally) {
           metadata = {
-            label: 'Anonymous Web URL',
+            label: url.includes('://data.perio.do')
+              ? 'Canonical'
+              : 'Anonymous Web URL',
             description: '',
             created: resp.headers.get('Date'),
             modified: resp.headers.get('Last-Modified'),
