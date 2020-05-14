@@ -17,12 +17,12 @@ const layout = `
 type = period-search
 section = Filter periods
 
-[PlaceFilter]
-type = place-filter
-section = Filter periods
-
 [TimeFilter]
 type = time-filter
+section = Filter periods
+
+[PlaceFilter]
+type = place-filter
 section = Filter periods
 
 [Facets]
