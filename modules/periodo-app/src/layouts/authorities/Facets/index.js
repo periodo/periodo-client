@@ -392,12 +392,15 @@ module.exports = {
   label: 'Facets',
   description: 'Filter items based on their attributes',
   async makeFilter(opts, state, periods) {
-    const { selected={}} = (opts || {})
-        , { runCalculations } = state
+    if (periods) {
+      const { selected={}} = (opts || {})
+          , { runCalculations } = state
 
-    const matchingIDs = await runCalculations(selected, periods)
-
-    return period => matchingIDs.has(period.id)
+      const matchingIDs = await runCalculations(selected, periods)
+      return period => matchingIDs.has(period.id)
+    } else {
+      return () => true
+    }
   },
   Component: Facets,
 }
