@@ -273,6 +273,7 @@ class _Map extends Component {
       style: { height: this.props.height },
     }, [
       h('div', {
+        className: 'mapCanvas',
         ref: this.innerContainer,
         style: { position: 'absolute' },
       }),
