@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , PropTypes = require('prop-types')
     , debounce = require('debounce')
-    , { Box, SectionHeading, Section, Summary } = require('periodo-ui')
+    , { Box, SectionHeading, Section, Details } = require('periodo-ui')
     , processLayout = require('./process_layout')
 
 const RESET_DEBOUNCE_TIME = 275
@@ -291,22 +291,23 @@ class LayoutRenderer extends React.Component {
             : section === 'untitled'
               ? [ h(Section, blocks) ]
               : [
-                h(Box, {
-                  is: 'details',
+                h(Details, {
                   open: true,
-                }, [
-                  h(Summary, {
+                  summary: h(
+                    SectionHeading, {
+                      display: 'inline-block',
+                      style: { lineHeight: 1 },
+                    },
+                    section
+                  ),
+                  summaryProps: {
                     css: {
                       '::marker': { color: '#495057' },
                       '::-webkit-details-marker': { color: '#495057' },
                     },
                     fontSize: '1.5rem', // h3
-                  },[
-                    h(SectionHeading, {
-                      display: 'inline-block',
-                      style: { lineHeight: 1 },
-                    }, section),
-                  ]),
+                  },
+                }, [
                   h(Section, blocks),
                 ]),
               ]
