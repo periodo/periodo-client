@@ -6,8 +6,9 @@ const h = require('react-hyperscript')
 
 function Details({
   summary,
-  children,
   summaryProps={},
+  children,
+  onToggle,
   ...props
 }) {
   const [ open, setOpen ] = useState(props.open || false)
@@ -21,9 +22,13 @@ function Details({
       onClick: e => {
         e.preventDefault()
         setOpen(prevOpen => !prevOpen)
+        if (onToggle) { onToggle() }
       },
     }, [ summary ]),
-    open ? Children.only(children) : null,
+
+    (typeof children === 'function')
+      ? children(!open) // hidden: true
+      : open ? Children.only(children) : null,
   ])
 }
 

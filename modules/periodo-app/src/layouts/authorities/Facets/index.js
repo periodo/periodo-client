@@ -4,12 +4,11 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , tags = require('language-tags')
-    , PromiseWorker = require('promise-worker')
     , { Flex, Box, Link, Label, HelpText } = require('periodo-ui')
     , { period: { authorityOf }} = require('periodo-utils')
-    , work = require('webworkify')
     , { shallowEqualObjects } = require('shallow-equal')
     , styled = require('styled-components').default
+    , FacetCalculator = require('./FacetCalculator')
 
 const languageDescription = R.memoize(tag => {
   const language = tags(tag || '').language()
@@ -20,17 +19,6 @@ const languageDescription = R.memoize(tag => {
 function identityWithDefault(defaultLabel) {
   return x => x || defaultLabel
 }
-
-function union(...sets) {
-  return sets.reduce((acc, s) => new Set([ ...acc, ...s ]), new Set())
-}
-
-function intersection(...sets) {
-  const all = union(...sets)
-
-  return new Set([ ...all ].filter(x => sets.every(s => s.has(x))))
-}
-
 
 const aspects = {
   authority: {
@@ -207,6 +195,7 @@ class AspectTable extends React.Component {
           selectedRows.length === 0 ? null : (
             h(Table, {
               is: 'table',
+              className: 'selected',
               px: 1,
               py: 1,
               width: '100%',
@@ -232,13 +221,20 @@ class AspectTable extends React.Component {
 }
 
 class Facets extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.state = {
       countsByAspect: {},
     }
-    this.runCalculations = this.runCalculations.bind(this)
+    this.resetAspectCounts = this.resetAspectCounts.bind(this)
+    this.setAspectCount = this.setAspectCount.bind(this)
+    this.facetCalculator = new FacetCalculator(
+      this.props.dataset,
+      Object.keys(aspects),
+      this.resetAspectCounts,
+      this.setAspectCount
+    )
     this._isMounted = false
   }
 
@@ -252,92 +248,37 @@ class Facets extends React.Component {
 
   componentDidMount() {
     this._isMounted = true
-    this.props.setBlockState({
-      runCalculations: this.runCalculations,
-    })
+    this.props.setBlockState({ facetCalculator: this.facetCalculator })
+    this.props.updateOpts(this.props.opts, true) // invalidate data on re-mount
   }
 
   componentWillUnmount() {
     this._isMounted = false
-    if (this.workers) {
-      this.workers.forEach(w => {
-        w.worker.terminate()
-      })
-    }
+    this.facetCalculator.shutdown()
   }
 
-  async getWorkers() {
-    if (this.workers) return this.workers
-
-    const { dataset } = this.props
-
-    this.workers = Object.keys(aspects).map(() => {
-      const worker = work(require('./worker'))
-
-      return {
-        worker,
-        promiseWorker: new PromiseWorker(worker),
-      }
-    })
-
-    await Promise.all(this.workers.map(w => w.promiseWorker.postMessage({
-      type: 'initialize',
-      rawDataset: dataset.raw,
-    })))
-
-    return this.workers
-  }
-
-  async runCalculations(selected={}, periods) {
-    const workers = await this.getWorkers()
-
-    let idsByWorker
-
+  resetAspectCounts() {
     if (this._isMounted) {
       this.setState({ countsByAspect: {}})
     }
+  }
 
-    if (R.isEmpty(selected)) {
-      idsByWorker = workers.map(() => new Set(periods.map(p => p.id)))
+  setAspectCount(aspect, count) {
+    if (this._isMounted) {
+      this.setState(({ countsByAspect: prevCountsByAspect }) => ({
+        countsByAspect: {
+          ...prevCountsByAspect,
+          [aspect]: count,
+        },
+      }))
     }
-
-    if (!idsByWorker) {
-      const matchers = Object.keys(aspects).map((key, i) =>
-        workers[i].promiseWorker.postMessage({
-          type: 'get_matching',
-          aspect: key,
-          selected: new Set(selected[key] || []),
-          periods,
-        }))
-
-      idsByWorker = (await Promise.all(matchers)).map(resp => resp.ids)
-    }
-
-    const matchingIDs = intersection(...idsByWorker)
-
-    Object.keys(aspects).map((key, i) => {
-      const matchingIDsForAspect = intersection(...idsByWorker.filter((_, j) => i !== j))
-          , remainingPeriods = periods.filter(period => matchingIDsForAspect.has(period.id))
-
-      workers[i].promiseWorker.postMessage({
-        type: 'get_counts',
-        aspect: key,
-        periods: remainingPeriods,
-        selected: new Set(selected[key] || []),
-      }).then(({ countArr }) => {
-        if (this._isMounted) {
-          this.setState(R.set(
-            R.lensPath([ 'countsByAspect', key ]),
-            countArr,
-          ))
-        }
-      })
-    })
-
-    return new Set(matchingIDs)
   }
 
   render() {
+    if (this.props.hidden) {
+      return null
+    }
+
     const { opts, data, updateOpts, dataset } = this.props
         , { countsByAspect } = this.state
 
@@ -392,15 +333,14 @@ module.exports = {
   label: 'Facets',
   description: 'Filter items based on their attributes',
   async makeFilter(opts, state, periods) {
-    if (periods) {
-      const { selected={}} = (opts || {})
-          , { runCalculations } = state
+    if (! periods) return null
 
-      const matchingIDs = await runCalculations(selected, periods)
-      return period => matchingIDs.has(period.id)
-    } else {
-      return () => true
-    }
+    const { selected={}} = (opts || {})
+        , { facetCalculator } = state
+
+    const matchingIDs = await facetCalculator.runCalculations(selected, periods)
+    return period => matchingIDs.has(period.id)
   },
   Component: Facets,
+  keepMounted: true,
 }

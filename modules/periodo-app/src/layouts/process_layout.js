@@ -29,6 +29,7 @@ module.exports = function processLayout(blockDefs, layoutString) {
             makeFilter=null,
             processOpts=R.defaultTo({}, R.identity),
             defaultOpts={},
+            keepMounted=false,
           } = (blockDefs[type] || {})
 
           return {
@@ -41,6 +42,7 @@ module.exports = function processLayout(blockDefs, layoutString) {
               Component,
               makeFilter,
               processOpts,
+              keepMounted,
             },
             defaultOpts: {
               ...defaultOpts,

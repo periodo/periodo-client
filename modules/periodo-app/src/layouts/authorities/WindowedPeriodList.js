@@ -348,6 +348,10 @@ class PeriodList extends React.Component {
   }
 
   render() {
+    if (this.props.hidden) {
+      return null
+    }
+
     const { sortedData: periods } = this.state
 
     const {
@@ -501,4 +505,5 @@ module.exports = {
   label: 'Virtualized period list',
   description: 'Scrollable list of periods.',
   Component: PeriodList,
+  keepMounted: true,
 }

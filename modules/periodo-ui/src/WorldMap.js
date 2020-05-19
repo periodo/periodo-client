@@ -261,7 +261,8 @@ class _Map extends Component {
       ready: false,
     }
 
-    this.handleResize = this.handleResize.bind(this);
+    this.handleResize = this.handleResize.bind(this)
+    this.handleLayoutChanged = this.handleLayoutChanged.bind(this)
 
     this.innerContainer = createRef()
     this.outerContainer = createRef()
@@ -288,6 +289,11 @@ class _Map extends Component {
     map.display(features, focusedFeatures)
   }
 
+  handleLayoutChanged() {
+    const { map } = this.state
+    map.draw()
+  }
+
   componentDidMount() {
     renderMix()
 
@@ -301,8 +307,9 @@ class _Map extends Component {
     map.display(this.props.features, this.props.focusedFeatures)
     this.setState({ map })
 
-    this.debouncedHandler = debounce(this.handleResize)
-    window.addEventListener('resize', this.debouncedHandler)
+    this.debouncedResizeHandler = debounce(this.handleResize)
+    window.addEventListener('resize', this.debouncedResizeHandler)
+    document.addEventListener('layoutChanged', this.handleLayoutChanged)
   }
 
   componentDidUpdate(prevProps) {
@@ -324,7 +331,8 @@ class _Map extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.debouncedHandler)
+    document.removeEventListener('layoutChanged', this.handleLayoutChanged)
+    window.removeEventListener('resize', this.debouncedResizeHandler)
 
     const { map } = this.state
     map.resize(0, 0)
