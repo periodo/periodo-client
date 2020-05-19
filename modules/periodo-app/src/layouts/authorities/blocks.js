@@ -4,7 +4,6 @@ module.exports = {
   'dataset-statistics': require('./Statistics'),
   'windowed-period-list': require('./WindowedPeriodList'),
   'authority-list': require('./AuthorityList'),
-  'time-cutoff': require('./HumanTimeCheckmark'),
   'timespan-visualization': require('./Timeline'),
   'spatial-visualization': require('./CoverageMap'),
   'place-filter': require('./PlaceFilter'),
