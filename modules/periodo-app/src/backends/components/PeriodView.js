@@ -33,12 +33,7 @@ module.exports = class PeriodLayout extends React.Component {
     super(props)
 
     this.state = {
-      blockOpts: this.props.opts.Layout || {
-        Facets: {
-          selected: { authority: [ props.authority.id ]},
-          hidden: [ 'authority', 'language', 'spatialCoverage' ],
-        },
-      },
+      blockOpts: this.props.opts.Layout || {},
     }
 
     this.persistBlockOpts = debounce(this.persistBlockOpts.bind(this), 50)

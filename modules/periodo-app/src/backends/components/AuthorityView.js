@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Heading, Box, Span, Link, DownloadValue } = require('periodo-ui')
     , { PermalinkValue, Section, EditorialNote  } = require('periodo-ui')
     , { Breadcrumb } = require('periodo-ui')
-    , { TimeSlider, HelpText  } = require('periodo-ui')
+    , { HelpText  } = require('periodo-ui')
     , util = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
@@ -28,8 +28,9 @@ section = Filter periods
 [Facets]
 type = facets
 section = Filter periods
-flex = true
 height = 200
+hiddenAspects = authority
+aspectProportions = 33%,67%
 
 [SpatialCoverage]
 type = spatial-visualization
@@ -54,31 +55,7 @@ module.exports = class AuthorityLayout extends React.Component {
   constructor(props) {
     super(props)
 
-    const defaultYearRange = TimeSlider.getDefaultYearRange()
-
-    const authorityDescription = util.authority.describe(props.authority)
-
-    const yearRange = [
-      authorityDescription.earliest
-        ? authorityDescription.earliest.iso
-        : defaultYearRange[0],
-      defaultYearRange[1],
-    ]
-
-    this.state = {
-      blockOpts: this.props.opts.Layout || {
-        Facets: {
-          selected: { authority: [ props.authority.id ]},
-          hidden: [ 'authority' ],
-          flexBasis: {
-            language: '33%',
-            spatialCoverage: '67%',
-          },
-        },
-        TimeFilter: { yearRange },
-      },
-    }
-
+    this.state = { blockOpts: this.props.opts.Layout || {}}
     this.persistBlockOpts = debounce(this.persistBlockOpts.bind(this), 50)
   }
 
@@ -171,7 +148,9 @@ module.exports = class AuthorityLayout extends React.Component {
             dataset,
             gazetteers,
             layout,
-            totalCount: description.periods,
+            defaultYearRangeStart: description.earliest
+              ? description.earliest.iso
+              : null,
             selectedPeriod: dataset.periodByID(periodID),
             blockOpts,
             onBlockOptsChange: updatedOpts => {

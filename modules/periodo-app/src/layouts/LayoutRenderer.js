@@ -5,92 +5,13 @@ const h = require('react-hyperscript')
     , React = require('react')
     , PropTypes = require('prop-types')
     , debounce = require('debounce')
-    , { Box, SectionHeading, Section, Summary } = require('periodo-ui')
+    , { Box, SectionHeading, Section, Details } = require('periodo-ui')
+    , LayoutBlock = require('./LayoutBlock')
     , processLayout = require('./process_layout')
 
 const RESET_DEBOUNCE_TIME = 275
 
-class LayoutBlock extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    const monitored = [
-      'extraProps', 'processedOpts', 'passedOpts', 'defaultOpts',
-    ]
-
-    if (this.props.data !== nextProps.data) {
-      return true
-    }
-
-    for (const key of monitored) {
-      if (!R.equals(this.props[key], nextProps[key])) {
-        return true
-      }
-    }
-
-    return false;
-  }
-
-  render() {
-    const {
-      defaultOpts,
-      passedOpts,
-      processedOpts,
-      extraProps,
-      setBlockState,
-      data,
-      block: { Component },
-      onOptsChange,
-      invalidate,
-    } = this.props
-
-    const opts = {
-      ...defaultOpts,
-      ...passedOpts,
-    }
-
-    const updateOpts = (fn, invalidate) => {
-      const updated = typeof fn === 'object'
-        ? ({
-          ...opts,
-          ...fn,
-        })
-        : fn(opts)
-
-      const newOpts = {}
-
-      for (const k in updated) {
-        const addToNewOpts = (
-          updated[k] != undefined &&
-          defaultOpts[k] !== updated[k] &&
-          !!(defaultOpts[k] || updated[k])
-        )
-
-        if (addToNewOpts) {
-          newOpts[k] = updated[k]
-        }
-      }
-
-      onOptsChange(newOpts, invalidate)
-    }
-
-    return (
-      h(Box, {
-        minWidth: 0,
-        minHeight: 0,
-        className: 'block',
-      }, [
-        h(Component, {
-          opts,
-          updateOpts,
-          data,
-          setBlockState,
-          invalidate,
-          ...processedOpts,
-          ...extraProps,
-        }),
-      ])
-    )
-  }
-}
+const layoutChangedEvent = new Event('layoutChanged')
 
 function computeLayout(blocks, layoutDefinition) {
   return processLayout(blocks, layoutDefinition)
@@ -102,6 +23,67 @@ function computeLayoutOptions(layout, opts={}) {
       ...block.baseOpts,
       ...opts[block.id],
     }))
+}
+
+function renderSection (section, blocksProps) {
+  switch (section) {
+  case 'hidden':
+    return blocksProps.map(
+      (props, key) => h('div', { key }, [
+        h(LayoutBlock, {
+          ...props,
+          hidden: true,
+        }),
+      ])
+    )
+
+  case 'undefined':
+    return blocksProps.map(
+      (props, i) => h(Section, { key: `section-${i}` }, [
+        h(LayoutBlock, props),
+      ])
+    )
+
+  case 'untitled':
+    return [ h(Section, blocksProps.map(props => h(LayoutBlock, props))) ]
+
+  default:
+    return [
+      h(Details, {
+        open: true,
+        onToggle: () => document.dispatchEvent(layoutChangedEvent),
+        summary: h(
+          SectionHeading, {
+            display: 'inline-block',
+            style: { lineHeight: 1 },
+          },
+          section
+        ),
+        summaryProps: {
+          css: {
+            '::marker': { color: '#495057' },
+            '::-webkit-details-marker': { color: '#495057' },
+          },
+          fontSize: '1.5rem', // h3
+        },
+      }, [
+        hidden => {
+          const blocks = blocksProps
+            .map(
+              props => (hidden && !props.block.keepMounted)
+                ? null
+                : h(LayoutBlock, {
+                  ...props,
+                  hidden,
+                })
+            )
+            .filter(block => block !== null)
+
+          return blocks.length > 0 ? h(Section, blocks) : null
+        },
+      ]),
+    ]
+  }
 }
 
 class LayoutRenderer extends React.Component {
@@ -188,7 +170,9 @@ class LayoutRenderer extends React.Component {
         , renderID = this.dataResets
         , numBlocks = processedLayout.blocks.length
 
-    const dataForBlocks = [ this.props.data ]
+    const dataForBlocks = [ ...this.state.dataForBlocks ]
+
+    dataForBlocks[0] = this.props.data
 
     for (let i = 0; i < numBlocks; i++) {
       await new Promise(async resolve => {
@@ -197,7 +181,9 @@ class LayoutRenderer extends React.Component {
             , lastData = dataForBlocks[i]
             , state = this.blockState[i]
 
-        if (this.dataResets !== renderID) resolve()
+        if (this.dataResets !== renderID) {
+          return resolve()
+        }
 
         let nextData = lastData
 
@@ -211,9 +197,11 @@ class LayoutRenderer extends React.Component {
           }
         }
 
-        dataForBlocks.push(nextData)
+        dataForBlocks[i+1] = nextData
 
-        if (this.dataResets !== renderID) resolve()
+        if (this.dataResets !== renderID) {
+          return resolve()
+        }
 
         if (this._isMounted) {
           this.setState({ dataForBlocks })
@@ -250,7 +238,7 @@ class LayoutRenderer extends React.Component {
         sections[block.section] = []
       }
       sections[block.section].push(
-        h(LayoutBlock, {
+        {
           key: `${i}-${block.type}`,
           data: dataForBlocks[i] || [],
           extraProps,
@@ -274,43 +262,15 @@ class LayoutRenderer extends React.Component {
             }
           },
           ...block,
-        })
+        }
       )
       return sections
     }, {})
 
     const children = Object.entries(sections).reduce(
-      (children, [ section, blocks ]) => [
+      (children, [ section, blocksProps ]) => [
         ...children,
-        ...(section === 'hidden'
-          ? blocks.map((block, key) => [ h('div', { key }, [ block ]) ])
-          : section === 'undefined'
-            ? blocks.map(
-              (block, i) => h(Section, { key: `section-${i}` }, block)
-            )
-            : section === 'untitled'
-              ? [ h(Section, blocks) ]
-              : [
-                h(Box, {
-                  is: 'details',
-                  open: true,
-                }, [
-                  h(Summary, {
-                    css: {
-                      '::marker': { color: '#495057' },
-                      '::-webkit-details-marker': { color: '#495057' },
-                    },
-                    fontSize: '1.5rem', // h3
-                  },[
-                    h(SectionHeading, {
-                      display: 'inline-block',
-                      style: { lineHeight: 1 },
-                    }, section),
-                  ]),
-                  h(Section, blocks),
-                ]),
-              ]
-        ),
+        ...renderSection(section, blocksProps),
       ], []
     )
 
@@ -327,6 +287,7 @@ module.exports = Object.assign(LayoutRenderer, {
       Component: PropTypes.any.isRequired,
       makeFilter: PropTypes.func,
       processOpts: PropTypes.func,
+      keepMounted: PropTypes.bool,
     })).isRequired,
     layout: PropTypes.string.isRequired,
     blockOpts: PropTypes.oneOfType([

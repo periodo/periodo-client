@@ -4,16 +4,31 @@ const h = require('react-hyperscript')
     , { useState, Children } = require('react')
     , { Box } = require('./Base')
 
-function Details({ summary, children }) {
-  const [ open, setOpen ] = useState(false)
+function Details({
+  summary,
+  summaryProps={},
+  children,
+  onToggle,
+  ...props
+}) {
+  const [ open, setOpen ] = useState(props.open || false)
 
   return h(Box, {
     is: 'details',
     open,
-    onToggle: () => setOpen(prevOpen => !prevOpen),
   }, [
-    h(Summary, [ summary ]),
-    open ? Children.only(children) : null,
+    h(Summary, {
+      ...summaryProps,
+      onClick: e => {
+        e.preventDefault()
+        setOpen(prevOpen => !prevOpen)
+        if (onToggle) { onToggle() }
+      },
+    }, [ summary ]),
+
+    (typeof children === 'function')
+      ? children(!open) // hidden: true
+      : open ? Children.only(children) : null,
   ])
 }
 

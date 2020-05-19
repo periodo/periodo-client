@@ -16,6 +16,7 @@ module.exports = Navigable(({
   dataset,
   backend,
   navigateTo,
+  defaultYearRangeStart,
   gazetteers,
   ...props
 }) => {
@@ -47,6 +48,7 @@ module.exports = Navigable(({
         backend,
         dataset,
         totalCount: data ? data.length : 0,
+        defaultYearRangeStart,
         gazetteers,
         navigateTo,
         hoveredPeriod,
