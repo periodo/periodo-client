@@ -29,16 +29,24 @@ function renderSection (section, blocksProps) {
   switch (section) {
   case 'hidden':
     return blocksProps.map(
-      (props, key) => h('div', { key }, [ h(LayoutBlock, props) ])
+      (props, key) => h('div', { key }, [
+        h(LayoutBlock, {
+          ...props,
+          hidden: true,
+        }),
+      ])
     )
+
   case 'undefined':
     return blocksProps.map(
       (props, i) => h(Section, { key: `section-${i}` }, [
         h(LayoutBlock, props),
       ])
     )
+
   case 'untitled':
     return [ h(Section, blocksProps.map(props => h(LayoutBlock, props))) ]
+
   default:
     return [
       h(Details, {
@@ -162,7 +170,9 @@ class LayoutRenderer extends React.Component {
         , renderID = this.dataResets
         , numBlocks = processedLayout.blocks.length
 
-    const dataForBlocks = [ this.props.data ]
+    const dataForBlocks = [ ...this.state.dataForBlocks ]
+
+    dataForBlocks[0] = this.props.data
 
     for (let i = 0; i < numBlocks; i++) {
       await new Promise(async resolve => {
@@ -171,7 +181,9 @@ class LayoutRenderer extends React.Component {
             , lastData = dataForBlocks[i]
             , state = this.blockState[i]
 
-        if (this.dataResets !== renderID) resolve()
+        if (this.dataResets !== renderID) {
+          return resolve()
+        }
 
         let nextData = lastData
 
@@ -185,9 +197,11 @@ class LayoutRenderer extends React.Component {
           }
         }
 
-        dataForBlocks.push(nextData)
+        dataForBlocks[i+1] = nextData
 
-        if (this.dataResets !== renderID) resolve()
+        if (this.dataResets !== renderID) {
+          return resolve()
+        }
 
         if (this._isMounted) {
           this.setState({ dataForBlocks })
