@@ -26,6 +26,7 @@ class LayoutBlock extends React.Component {
 
   render() {
     const {
+      id,
       defaultOpts,
       passedOpts,
       processedOpts,
@@ -70,9 +71,10 @@ class LayoutBlock extends React.Component {
 
     return (
       h(Box, {
+        id,
+        className: 'block',
         minWidth: 0,
         minHeight: 0,
-        className: 'block',
       }, [
         h(Component, {
           opts,
