@@ -9,7 +9,9 @@ const initialState = () => ({
 })
 
 module.exports = function linkedData(state=initialState(), action) {
-  if (!LinkedDataAction.prototype.isPrototypeOf(action.type)) return state
+  if(!Object.prototype.isPrototypeOf.call(LinkedDataAction.prototype, action.type)) {
+    return state
+  }
 
   return action.readyState.case({
     Success: resp => action.type.case({

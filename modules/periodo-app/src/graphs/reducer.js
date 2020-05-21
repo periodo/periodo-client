@@ -10,7 +10,9 @@ const initialState = () => {
 }
 
 module.exports = function linkedData(state=initialState(), action) {
-  if (! GraphsAction.prototype.isPrototypeOf(action.type)) return state
+  if(!Object.prototype.isPrototypeOf.call(GraphsAction.prototype, action.type)) {
+    return state
+  }
 
   return action.readyState.case({
     Success: resp => action.type.case({

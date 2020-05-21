@@ -122,7 +122,7 @@ function withLoadProgress(resource) {
             if (this._unmounted) return
             this.setState(R.set(
               R.lensPath([ 'steps', label, 'progress' ]),
-              ReadyState.Success(result),
+              ReadyState.Success(result)
             ))
             resolve(result)
           } catch (e) {
@@ -368,7 +368,7 @@ const Backend = {
           patchRequests: R.map(
             R.pipe(
               R.over(R.lensProp('created_by'), urlize),
-              R.over(R.lensProp('updated_by'), urlize),
+              R.over(R.lensProp('updated_by'), urlize)
             ),
             patchRequests
           ),
@@ -864,7 +864,7 @@ function registerGroups(groups) {
       const OriginalComponent = R.pipe(
         connect(resource.mapStateToProps),
         withLoadProgress(resource),
-        withReduxState,
+        withReduxState
       )(resource.Component)
 
       resource.Component = R.flatten(aggregated.wrappers).reduce(

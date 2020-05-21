@@ -107,7 +107,7 @@ class SubmitPatch extends React.Component {
     const commented = await dispatch(PatchAction.AddPatchComment(
       remoteBackend,
       this.state.patchURL,
-      this.state.comment,
+      this.state.comment
     ))
 
     handleCompletedAction(commented,

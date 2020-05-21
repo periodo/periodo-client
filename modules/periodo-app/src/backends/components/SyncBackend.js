@@ -31,7 +31,7 @@ class SyncBackend extends React.Component {
     // be invalid?
     const newRawDataset = jsonpatch.applyPatch(
       JSON.parse(JSON.stringify(dataset.raw)),
-      JSON.parse(JSON.stringify(selectedPatch)),
+      JSON.parse(JSON.stringify(selectedPatch))
     ).newDocument
 
     const action = await dispatch(BackendAction.UpdateLocalDataset(

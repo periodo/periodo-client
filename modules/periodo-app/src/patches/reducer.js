@@ -17,7 +17,9 @@ function stripUnionTypeFields(obj) {
 }
 
 module.exports = function patches(state=initialState(), action) {
-  if (!PatchAction.prototype.isPrototypeOf(action.type)) return state
+  if(!Object.prototype.isPrototypeOf.call(PatchAction.prototype, action.type)) {
+    return state
+  }
 
   return action.readyState.case({
     Success: resp => action.type.case({

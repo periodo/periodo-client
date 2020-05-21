@@ -64,6 +64,6 @@ module.exports = function processLayout(blockDefs, layoutString) {
     R.over(
       R.lensProp('gridTemplateRows'),
       R.defaultTo('')
-    ),
+    )
   )(parsedLayout)
 }

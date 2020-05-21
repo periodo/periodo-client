@@ -73,7 +73,7 @@ const yaTickFormat = R.cond([
   [ R.gte(-1), R.pipe(
     d => Math.abs(d),
     R.ifElse(R.lte(10000), d3.format(','), R.toString),
-    R.flip(R.concat)('BC'),
+    R.flip(R.concat)('BC')
   ) ],
 
   // Otherwise, just return the string. (e.g. 1243, 466, 1999). This

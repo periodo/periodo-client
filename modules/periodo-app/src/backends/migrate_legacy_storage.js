@@ -76,7 +76,7 @@ function migrateLegacyFileBackend() {
 }
 
 function openLegacyDB(name, dexieOpts) {
-  if (!openDatabases.hasOwnProperty(name)) {
+  if (!Object.prototype.hasOwnProperty.call(openDatabases, name)) {
     const db = new Dexie(name, dexieOpts)
 
     switch (name) {

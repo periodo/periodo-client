@@ -22,7 +22,9 @@ const updateBackend = (backend, dataset, state) => {
 }
 
 module.exports = function backends(state=initialState(), action) {
-  if (!BackendAction.prototype.isPrototypeOf(action.type)) return state;
+  if(!Object.prototype.isPrototypeOf.call(BackendAction.prototype, action.type)) {
+    return state
+  }
 
   return action.readyState.case({
     Success: resp => action.type.case({

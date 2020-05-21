@@ -37,12 +37,12 @@ const extractSpatialExtent = period => {
 const projectKeys = R.pipe(
   R.toPairs,
   R.map(([ k, v ]) => [ k, ensureArray(v) ]),
-  R.chain(([ k, vs ]) => vs.map(R.pair(k))),
+  R.chain(([ k, vs ]) => vs.map(R.pair(k)))
 )
 
 const extractIndex = R.pipe(
   R.propOr({}),
-  projectKeys,
+  projectKeys
 )
 
 const extractAlternateLabels = period => R.map(

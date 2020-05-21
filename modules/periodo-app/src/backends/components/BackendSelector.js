@@ -25,7 +25,7 @@ module.exports = function BackendSelector({
       }, h(Box, [
         h(Heading, { level: 4 }, backend.metadata.label),
         h(Text, backend.storage.url),
-      ])),
+      ]))
     ))
   )
 }

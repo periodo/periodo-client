@@ -101,7 +101,7 @@ function PagerControls({
       h('option', {
         key: n,
         value: n,
-      }, `Show ${n}`),
+      }, `Show ${n}`)
     )),
 
     h(Button, {

@@ -8,7 +8,9 @@ const initialState = () => ({
 })
 
 module.exports = function auth(state=initialState(), action) {
-  if (!AuthAction.prototype.isPrototypeOf(action.type)) return state
+  if(!Object.prototype.isPrototypeOf.call(AuthAction.prototype, action.type)) {
+    return state
+  }
 
   return action.readyState.case({
     Success: resp => action.type.case({

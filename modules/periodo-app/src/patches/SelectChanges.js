@@ -107,7 +107,7 @@ class SelectChanges extends React.Component {
                 remoteDataset,
                 direction,
                 patch: this.state.currentPatch,
-              }),
+              })
             ),
           }, 'Continue'),
         ])

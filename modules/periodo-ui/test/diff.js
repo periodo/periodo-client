@@ -64,7 +64,7 @@ test('findChanges', t => {
   t.deepEqual(
     findChanges(
       [ 'a', { id: 5 } ],
-      [ { id: 5, a: 1 }, 'b' ],
+      [ { id: 5, a: 1 }, 'b' ]
     ),
     [
       Change.Deletion('a'),
@@ -80,7 +80,7 @@ test('findChanges', t => {
   t.deepEqual(
     findChanges(
       [ 'a' ],
-      [ 'a', 'a' ],
+      [ 'a', 'a' ]
     ),
     [
       Change.Preservation('a'),
@@ -92,7 +92,7 @@ test('findChanges', t => {
   t.deepEqual(
     findChanges(
       [ 'a', 'a' ],
-      [ 'a' ],
+      [ 'a' ]
     ),
     [
       Change.Preservation('a'),
@@ -104,7 +104,7 @@ test('findChanges', t => {
   t.deepEqual(
     findChanges(
       [ 'a', 'a' ],
-      [],
+      []
     ),
     [
       Change.Deletion('a'),
@@ -122,7 +122,7 @@ test('findChanges', t => {
         { id: 1 },
         { id: 1, a: 1, b: 1 },
         { id: 1, a: 2 },
-      ],
+      ]
     ),
     [
       Change.Mutation(
@@ -142,7 +142,7 @@ test('findChanges', t => {
       ],
       [
         { id: 1 },
-      ],
+      ]
     ),
     [
       Change.Mutation(
