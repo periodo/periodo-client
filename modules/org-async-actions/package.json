@@ -7,7 +7,7 @@
   "author": "Patrick Golden <ptgolden@email.unc.edu>",
   "license": "CC0",
   "dependencies": {
-    "ramda": "^0.24.1",
+    "ramda": "^0.27.0",
     "union-type": "github:ptgolden/union-type"
   }
 }

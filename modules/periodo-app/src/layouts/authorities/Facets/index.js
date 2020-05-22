@@ -10,7 +10,7 @@ const h = require('react-hyperscript')
     , AspectTable = require('./AspectTable')
     , FacetCalculator = require('./FacetCalculator')
 
-const languageDescription = R.memoize(tag => {
+const languageDescription = R.memoizeWith(R.toString, tag => {
   const language = tags(tag || '').language()
 
   return language ? language.descriptions()[0] : '(bad value)'
