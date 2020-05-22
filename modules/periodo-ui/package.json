@@ -19,7 +19,7 @@
     "debounce": "^1.0.2",
     "diff-match-patch": "^1.0.0",
     "earth-mesh": "^2.1.0",
-    "fast-json-patch": "^2.0.4",
+    "fast-json-patch": "^2.2.1",
     "glslify": "^7.0.0",
     "language-tags": "^1.0.5",
     "linkify-it": "^2.0.3",
