@@ -3,10 +3,9 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , Icon = require('react-geomicons').default
     , Spinner = require('respin')
     , { connect } = require('react-redux')
-    , { Box, Text, Textarea, HelpText } = require('periodo-ui')
+    , { Box, Text, Textarea, HelpText, RefreshIcon } = require('periodo-ui')
     , { asURL, match } = require('../../linked-data/utils/source_ld_match')
     , LinkedDataAction = require('../../linked-data/actions')
     , { Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
@@ -83,7 +82,7 @@ class LDInput extends React.Component {
               })
             })
           },
-        }, h(Icon, { name: 'refresh' })),
+        }, h(RefreshIcon)),
 
         readyState && h(Box, {
           display: 'inline',
