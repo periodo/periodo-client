@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "license": "CC0",
   "dependencies": {
-    "d3": "^4.13.0",
+    "d3": "^5.16.0",
     "debounce": "^1.2.0",
     "dexie": "^1.5.1",
     "fast-json-patch": "^2.2.1",
