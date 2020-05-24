@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "glsl-hsl2rgb": "^1.1.0",
-    "tape": "^4.13.2"
+    "tape": "^5.0.0"
   },
   "dependencies": {
     "clean-tag": "^1.1.0",

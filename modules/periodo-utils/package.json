@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "tape": "^4.13.2"
+    "tape": "^5.0.0"
   },
   "dependencies": {
     "ramda": "^0.27.0"
