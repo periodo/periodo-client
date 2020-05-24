@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "glsl-hsl2rgb": "^1.1.0",
-    "tape": "^4.13.2"
+    "tape": "^5.0.0"
   },
   "dependencies": {
     "clean-tag": "^1.1.0",
@@ -22,15 +22,15 @@
     "fast-json-patch": "^2.2.1",
     "glslify": "^7.0.0",
     "language-tags": "^1.0.5",
-    "linkify-it": "^2.2.0",
+    "linkify-it": "^3.0.2",
     "mixmap": "^1.5.2",
     "open-color": "1.7.0",
     "org-shell": "^6.0.4",
     "ramda": "^0.27.0",
     "react": "^16.13.1",
-    "react-aria-menubutton": "^5.1.1",
-    "react-autosuggest": "^9.4.3",
-    "react-compound-slider": "^0.22.0",
+    "react-aria-menubutton": "^6.3.0",
+    "react-autosuggest": "^10.0.2",
+    "react-compound-slider": "^2.5.0",
     "react-dom": "^16.13.1",
     "react-hyperscript": "github:periodo/react-hyperscript",
     "regl": "^1.5.0",
