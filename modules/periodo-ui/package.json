@@ -22,7 +22,7 @@
     "fast-json-patch": "^2.2.1",
     "glslify": "^7.0.0",
     "language-tags": "^1.0.5",
-    "linkify-it": "^2.2.0",
+    "linkify-it": "^3.0.2",
     "mixmap": "^1.5.2",
     "open-color": "1.7.0",
     "org-shell": "^6.0.4",
