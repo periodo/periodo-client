@@ -64,6 +64,19 @@ const BackendAction = module.exports = makeTypedAction({
     },
   },
 
+  GenerateBackendExport: {
+    exec: generateBackendExport,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {
+      backend: Object,
+      patches: Object,
+      dataset: Object,
+      dexieVersion: Number,
+    },
+  },
+
   UpdateLocalDataset: {
     exec: updateLocalDataset,
     request: {
@@ -473,6 +486,50 @@ function updateLocalDataset(storage, newRawDataset, message) {
       dataset: new DatasetProxy(newRawDataset),
       patchData,
     }
+  }
+}
+
+
+function generateBackendExport(storage) {
+  return async (dispatch, getState, { db }) => {
+    let id
+
+    storage.case({
+      IndexedDB: _id => { id = _id },
+      _: () => {
+        throw new Error(
+          `Cannot export data source of type ${storage._type}.`
+        )
+      },
+    })
+
+    const backend = await db.localBackends.get(id)
+
+    const patches = await db.localBackendPatches
+      .where('backendID')
+      .equals(id)
+      .toArray()
+
+    delete backend.id
+    delete backend.orcidCredential
+
+    patches.forEach(patch => {
+      delete patch.id
+      delete patch.backendID
+    })
+
+    const { dataset } = backend
+
+    delete backend.dataset
+
+    const backup = {
+      backend,
+      dataset,
+      patches,
+      dexieVersion: db.verno,
+    }
+
+    return backup
   }
 }
 
