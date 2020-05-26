@@ -9,6 +9,7 @@ const R = require('ramda')
     , { NotImplementedError } = require('../errors')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , DatasetProxy = require('./dataset_proxy')
+    , { stripUnionTypeFields } = require('periodo-common')
 
 function isDatasetProxy(obj) {
   return obj instanceof DatasetProxy
@@ -228,7 +229,7 @@ function fetchBackend(storage, forceReload) {
         const ct = await db.localBackends
           .where('id')
           .equals(id)
-          .modify({ accessed: new Date() })
+          .modify({ accessed: Date.now() })
 
         if (ct != 1) {
           throw new Error(`No in-browser data source with id ${id}`);
@@ -468,7 +469,9 @@ function updateLocalDataset(storage, newRawDataset, message) {
 
     await _refetch()
 
-    const patchData = formatPatch(dataset.raw, newRawDataset, message)
+    let patchData = formatPatch(dataset.raw, newRawDataset, message)
+
+    patchData = stripUnionTypeFields(patchData)
 
     const updatedBackend = {
       ...backend.metadata,
