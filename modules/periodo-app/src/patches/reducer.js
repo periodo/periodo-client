@@ -2,6 +2,7 @@
 
 const R = require('ramda')
     , PatchAction = require('./actions')
+    , { stripUnionTypeFields } = require('periodo-common')
 
 const initialState = () => ({
   byBackend: {
@@ -11,10 +12,6 @@ const initialState = () => ({
     // patchRequests: ...
   },
 })
-
-function stripUnionTypeFields(obj) {
-  return Object.assign(...obj._keys.map(k => ({ [k]: obj[k] })))
-}
 
 module.exports = function patches(state=initialState(), action) {
   if (!PatchAction.prototype.isPrototypeOf(action.type)) return state
