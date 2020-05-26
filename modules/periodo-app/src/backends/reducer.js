@@ -79,6 +79,10 @@ module.exports = function backends(state=initialState(), action) {
         return state
       },
 
+      ImportBackend() {
+        return state
+      },
+
       DeleteBackend(storage) {
         const removeBackend = R.omit([ storage.asIdentifier() ])
 

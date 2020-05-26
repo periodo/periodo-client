@@ -5,7 +5,7 @@ const R = require('ramda')
     , Type = require('union-type')
     , { normalizeDataset, isDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
-    , { Backend, BackendMetadata, BackendStorage } = require('./types')
+    , { Backend, BackendMetadata, BackendStorage, BackendBackup } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , DatasetProxy = require('./dataset_proxy')
@@ -75,6 +75,14 @@ const BackendAction = module.exports = makeTypedAction({
       dataset: Object,
       dexieVersion: Number,
     },
+  },
+
+  ImportBackend: {
+    exec: importBackend,
+    request: {
+      backup: Object,
+    },
+    response: {},
   },
 
   UpdateLocalDataset: {
@@ -530,6 +538,46 @@ function generateBackendExport(storage) {
     }
 
     return backup
+  }
+}
+
+
+function importBackend(backupData) {
+  return async (dispatch, getState, { db }) => {
+    let backup
+
+    try {
+      backup = BackendBackup.fromObject(backupData)
+    } catch (e) {
+      throw new Error('Not a valid backup')
+    }
+
+    // TODO: Deal with dexie versions, if we ever go past the one now
+
+    const { metadata, dataset, patches } = stripUnionTypeFields(backup)
+
+    let backendID
+
+    await db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
+      backendID = await db.localBackends.add({
+        ...metadata,
+        dataset,
+      })
+
+      const patchesWithBackend = patches.map(patch => ({
+        ...patch,
+        backendID,
+      }))
+
+      db.localBackendPatches.bulkAdd(patchesWithBackend)
+    })
+
+    const storage = BackendStorage.IndexedDB(backendID)
+
+    await dispatch(BackendAction.GetAllBackends)
+    await dispatch(BackendAction.GetBackendDataset(storage, true))
+
+    return {}
   }
 }
 
