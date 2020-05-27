@@ -24,10 +24,12 @@ const {
   Button$Primary,
   Alert$Error,
   Alert$Success,
+  LoadingIcon,
 } = require('periodo-ui')
 
 
 const defaultState = {
+  pending: false,
   selectedWebBackendID: null,
   selectedPatch: null,
   compareComponent: null,
@@ -68,6 +70,8 @@ class SubmitPatch extends React.Component {
         , { selectedPatch, selectedWebBackendID } = this.state
         , remoteBackend = backends[selectedWebBackendID]
 
+    this.setState({ pending: true })
+
     const submitted = await dispatch(PatchAction.SubmitPatch(
       backend,
       remoteBackend,
@@ -78,6 +82,7 @@ class SubmitPatch extends React.Component {
       ({ patchURL }) => {
         this.machine.emit('success')
         this.setState({
+          pending: false,
           patchURL,
           message: h(
             Alert$Success,
@@ -89,6 +94,7 @@ class SubmitPatch extends React.Component {
       () => {
         this.machine.emit('failure')
         this.setState({
+          pending: false,
           message: (
             h(Alert$Error, {
               mb: 2,
@@ -104,6 +110,8 @@ class SubmitPatch extends React.Component {
         , { selectedWebBackendID } = this.state
         , remoteBackend = backends[selectedWebBackendID]
 
+    this.setState({ pending: true })
+
     const commented = await dispatch(PatchAction.AddPatchComment(
       remoteBackend,
       this.state.patchURL,
@@ -114,6 +122,7 @@ class SubmitPatch extends React.Component {
       () => {
         this.machine.emit('success')
         this.setState({
+          pending: false,
           comment: '',
           message: (
             h(Flex, [
@@ -131,6 +140,7 @@ class SubmitPatch extends React.Component {
       () => {
         this.machine.emit('failure')
         this.setState({
+          pending: false,
           message: h(Alert$Error, {
             mb: 2,
           }, 'Comment submission failed'),
@@ -205,8 +215,8 @@ class SubmitPatch extends React.Component {
 
           h(Button$Primary, {
             mt: 2,
-            disabled: !backend.metadata.orcidCredential,
             onClick: () => this.machine.emit('next'),
+            disabled: (!backend.metadata.orcidCredential) || this.state.pending,
           }, 'Submit changes'),
         ]),
       ])
@@ -225,7 +235,7 @@ class SubmitPatch extends React.Component {
         }),
 
         h(Button$Primary, {
-          disabled: !this.state.comment,
+          disabled: (!this.state.comment) || this.state.pending,
           onClick: () => this.machine.emit('next'),
         }, 'Add comment'),
 
@@ -237,6 +247,18 @@ class SubmitPatch extends React.Component {
       child = h(Section, [
         this.state.message,
       ])
+      break
+    }
+
+    default: {
+      child = this.state.pending
+        ? h(Section, [
+          h('span', { style: { marginRight: '8px' }}, [
+            h(LoadingIcon),
+          ]),
+          'Submitting…',
+        ])
+        : null
       break
     }
     } // end switch
