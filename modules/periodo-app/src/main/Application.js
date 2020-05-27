@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { ORGShell, Route } = require('org-shell')
-    , { Flex, Pre, Box, Grid, Heading, theme } = require('periodo-ui')
+    , { Flex, Pre, Box, Grid, Heading, Section, SectionHeading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { Provider } = require('react-redux')
     , { ThemeProvider } = require('styled-components')
@@ -165,6 +165,77 @@ class PeriodoApplication extends React.Component {
   }
 
   render() {
+    const { showIndexedDBUnsupportedMessage } = this.props
+
+    let mainEl
+
+    if (this.state.error) {
+      mainEl = (
+        h(Box, [
+          h(Heading, {
+            level: '2',
+            color: 'red.4',
+            css: { 'letterSpacing': '4px' },
+          }, 'Client error'),
+          h(Box, {
+            my: 2,
+            style: {
+              fontWeight: 'bold',
+              fontSize: '16px',
+            },
+          }, [
+            this.state.error.err.toString(),
+          ]),
+          h(Heading, {
+            level: '4',
+            mt: 2,
+          }, 'Error stack'),
+          h(Pre, {
+            ml: 2,
+          }, [
+            this.state.error.err.stack,
+          ]),
+          h(Heading, {
+            level: '4',
+            mt: 2,
+          }, 'Component stack'),
+          h(Pre, this.state.error.info.componentStack.trim()),
+        ])
+      )
+    } else if (showIndexedDBUnsupportedMessage) {
+      mainEl = (
+        h(Box, [
+          h(SectionHeading, 'Browser incompatible'),
+          h(Section, [
+            h(Box, {
+              as: 'p',
+              mb: 3,
+            }, [
+              'Your browser does not support the ',
+              h('a', {
+                href: 'https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API',
+              }, 'IndexedDB'),
+              ' standard, which PeriodO requires to operate. The most recent versions of all major Web browsers (Firefox, Safari, Chrome, Opera) all support IndexedDB. Please try another browser and reopen PeriodO.',
+            ]),
+
+            h(Box, {
+              as: 'p',
+              mb: 3,
+            }, [
+              '(Note: if you have opened PeriodO in a "private" or "incognito" tab, IndexedDB may not be available. If that is the case, reopen PeriodO in a normal tab).',
+            ]),
+          ]),
+        ])
+      )
+    } else {
+      mainEl = this.state.activeResource && h(MenuedResource, {
+        key: this.state.activeResource.name,
+        loading: this.props.loading,
+        activeResource: this.state.activeResource,
+        params: this.props.params,
+      }, this.props.children)
+    }
+
     return (
       h(ThemeProvider, { theme }, [
         h(Grid, {
@@ -181,31 +252,7 @@ class PeriodoApplication extends React.Component {
             m: '0 auto',
             width: '100%',
             maxWidth: 1420,
-          }, this.state.error
-            ? h(Box, [
-              h(Heading, {
-                level: '2',
-                color: 'red.4',
-                css: { 'letterSpacing': '4px' },
-              }, 'Client error'),
-              h(Heading, {
-                level: '4',
-                mt: 2,
-              }, 'Error stack'),
-              h(Pre, this.state.error.err.stack),
-              h(Heading, {
-                level: '4',
-                mt: 2,
-              }, 'Component stack'),
-              h(Pre, this.state.error.info.componentStack.trim()),
-            ])
-            : this.state.activeResource && h(MenuedResource, {
-              key: this.state.activeResource.name,
-              loading: this.props.loading,
-              activeResource: this.state.activeResource,
-              params: this.props.params,
-            }, this.props.children)
-          ),
+          }, mainEl ),
 
           h(Footer, {
             height: '100%',
@@ -218,25 +265,79 @@ class PeriodoApplication extends React.Component {
   }
 }
 
-module.exports = function Shell() {
-  const store = createStore()
+class IndexedDBChecker extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      done: false,
+      indexedDBSupported: null,
+    }
+  }
 
-  const WrappedApplication = ORGShell({
-    processOpts: {
-      serializeValue: val => JSON.stringify(val),
-      deserializeValue: val => JSON.parse(val || '{}'),
-    },
-    extraArgs: {
-      dispatch: store.dispatch,
-      getState: store.getState,
-    },
-    resources,
-  }, PeriodoApplication)
+  componentDidMount() {
+    const { db } = this.props
+
+    db.open()
+      .then(
+        () => {
+          this.setState({
+            done: true,
+            indexedDBSupported: true,
+          })
+        },
+        () => {
+          this.setState({
+            done: true,
+            indexedDBSupported: false,
+          })
+        }
+      )
+  }
+
+  render() {
+    const { done, indexedDBSupported } = this.state
+        , { store } = this.props
+
+    if (!done) {
+      return (
+        h(PeriodoApplication)
+      )
+    }
+
+    if (!indexedDBSupported) {
+      return (
+        h(PeriodoApplication, {
+          showIndexedDBUnsupportedMessage: true,
+        })
+      )
+    }
+
+    const WrappedApplication = ORGShell({
+      processOpts: {
+        serializeValue: val => JSON.stringify(val),
+        deserializeValue: val => JSON.parse(val || '{}'),
+      },
+      extraArgs: {
+        dispatch: store.dispatch,
+        getState: store.getState,
+      },
+      resources,
+    }, PeriodoApplication)
+
+    return h(WrappedApplication)
+  }
+}
+
+module.exports = function Shell() {
+  const { store, db } = createStore()
 
   return (
     h(Provider, { store },
       h(ThemeProvider, { theme },
-        h(WrappedApplication)
+        h(IndexedDBChecker, {
+          db,
+          store,
+        })
       )
     )
   )

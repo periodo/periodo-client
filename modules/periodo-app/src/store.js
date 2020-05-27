@@ -5,7 +5,9 @@ const { createStore, applyMiddleware, combineReducers } = require('redux')
     , periodoDB = require('./db')
 
 module.exports = function () {
-  return createStore(
+  const db = periodoDB()
+
+  const store = createStore(
     combineReducers({
       backends: require('./backends/reducer'),
       auth: require('./auth/reducer'),
@@ -13,6 +15,11 @@ module.exports = function () {
       patches: require('./patches/reducer'),
       graphs: require('./graphs/reducer'),
     }),
-    applyMiddleware(typedAsyncActionMiddleware({ db: periodoDB() }))
+    applyMiddleware(typedAsyncActionMiddleware({ db }))
   )
+
+  return {
+    store,
+    db,
+  }
 }
