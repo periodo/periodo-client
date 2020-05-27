@@ -14,7 +14,8 @@ const h = require('react-hyperscript')
 
 
 module.exports = Navigable((props) => {
-  const { backend, dispatch } = props
+  const { backend, dispatch, authState } = props
+      , { authorized, authInfo } = authState
 
   if (! backend) { // backend was deleted
     return null
@@ -60,12 +61,27 @@ module.exports = Navigable((props) => {
       ]),
 
       ...(
-        backend.storage._name === 'Web'
-          ? [
+        backend.storage.case({
+          Web: () => ([
             h(SectionHeading, 'ORCID credentials'),
-            h(Section, [ h(ORCIDSettings, { backend }) ]),
-          ]
-          : []
+            h(Section, [
+              h(ORCIDSettings, { backend }),
+
+              !authorized ? null : (
+                h(Box, { mt: 2 }, [
+                  'Permissions:',
+                  h(Box, {
+                    as: 'ul',
+                    ml: 2,
+                  }, authInfo.permissions.map(name =>
+                    h('li', name)
+                  )),
+                ])
+              ),
+            ]),
+          ]),
+          _: [],
+        })
       ),
 
       h(SectionHeading, 'Data source settings'),
