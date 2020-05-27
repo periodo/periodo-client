@@ -228,6 +228,16 @@ function withBackendContext(Component) {
   return connect(mapStateToProps)(BackendKnower)
 }
 
+function checkServerAuthentication(log, props) {
+  const storage = getCurrentBackendStorage(props)
+
+  return storage.case({
+    Web: () => log('Checking server authentication',
+      props.dispatch(BackendAction.CheckServerAuthentication(storage))),
+    _: () => Promise.resolve(),
+  })
+}
+
 function getCurrentBackendStorage(props) {
   const { params, getState } = props
 
@@ -389,6 +399,11 @@ const Backend = {
       label: 'Submit changes',
       Component: require('./backends/components/BackendSubmitPatch'),
       showInMenu: hasEditableBackend,
+      async loadData(props, log, finished) {
+        await checkServerAuthentication(log, props)
+
+        finished()
+      },
       mapStateToProps(state) {
         return {
           backends: state.backends.available,
@@ -423,6 +438,18 @@ const Backend = {
     'backend-edit': {
       label: 'Settings',
       Component: require('./backends/components/EditBackend'),
+      async loadData(props, log, finished) {
+        if (props.params.backendID.startsWith('web-')) {
+          await checkServerAuthentication(log, props)
+        }
+
+        finished()
+      },
+      mapStateToProps(state, props) {
+        return {
+          authState: state.backends.authentication[props.params.backendID] || {},
+        }
+      },
     },
   },
   wrappers: [
@@ -472,15 +499,19 @@ const ReviewPatch = {
     const { backend } = await log('Loading data source', throwIfUnsuccessful(
       dispatch(BackendAction.GetBackendDataset(storage, false))))
 
+    const serverResp = checkServerAuthentication(log, props)
+
     const { patch } = await log('Loading patch', throwIfUnsuccessful(
       dispatch(PatchAction.GetPatchRequest(backend, patchURL))))
 
-    await log('Loading ORCIDs',
+    const orcidsResp = log('Loading ORCIDs',
       dispatch(LinkedDataAction.FetchORCIDs([ ...new Set([
         patch.created_by,
         patch.updated_by,
       ]) ]))
     )
+
+    await Promise.all([ serverResp, orcidsResp ])
 
     finished()
   },

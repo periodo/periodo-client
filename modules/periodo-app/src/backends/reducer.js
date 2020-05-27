@@ -7,6 +7,7 @@ const initialState = () => ({
   available: {},
   datasets: {},
   patches: {},
+  authentication: {},
 })
 
 const updateBackend = (backend, dataset, state) => {
@@ -67,12 +68,29 @@ module.exports = function backends(state=initialState(), action) {
         return updateBackend(backend, dataset, state)
       },
 
+      CheckServerAuthentication(storage) {
+        const { authorized, authInfo } = resp
+
+        return R.set(
+          R.lensPath([ 'authentication', storage.asIdentifier() ]),
+          {
+            authorized,
+            authInfo,
+          },
+          state
+        )
+      },
+
       AddOrcidCredential() {
         return state
       },
 
-      RemoveOrcidCredential() {
-        return state
+      RemoveOrcidCredential(storage) {
+        return R.set(
+          R.lensPath([ 'authentication', storage.asIdentifier() ]),
+          null,
+          state
+        )
       },
 
       GenerateBackendExport() {

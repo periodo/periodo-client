@@ -109,6 +109,17 @@ const BackendAction = module.exports = makeTypedAction({
     response: {},
   },
 
+  CheckServerAuthentication: {
+    exec: checkServerAuthentication,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {
+      authorized: Boolean,
+      authInfo: Object,
+    },
+  },
+
   AddOrcidCredential: {
     exec: addOrcidCredential,
     request: {
@@ -621,6 +632,70 @@ function deleteBackend(storage) {
   }
 }
 
+function checkServerAuthentication(storage) {
+  const notAuthorized = {
+    authorized: false,
+    authInfo: {
+      id: null,
+      name: null,
+      permissions: null,
+    },
+  }
+
+  return async (dispatch, getState) => {
+    const cont = storage.case({
+      Web: () => true,
+      _: () => false,
+    })
+
+    if (!cont) return notAuthorized
+
+    const identifier = storage.asIdentifier()
+        , backend = R.path([ 'backends', 'available', identifier ], getState())
+
+    let token
+
+    if (backend) {
+      token = (backend.metadata.orcidCredential || {}).token
+    }
+
+    if (!token) {
+      return notAuthorized
+    }
+
+    // At this point, we know the backend exists and that it has an ORCID token
+    // associated with it. Those tokens can expire if someone authenticates
+    // from another browser context, so now we check it.
+    const authURL = new URL('identity', storage.url)
+
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    })
+
+    const resp = await fetch(authURL, { headers })
+
+    // This backend previously had a token stored, but it is no longer valid,
+    // so we need to remove it.
+    if (!resp.ok) {
+      await dispatch(BackendAction.RemoveOrcidCredential(storage))
+
+      return notAuthorized
+    }
+
+    const { id, name, permissions } = await resp.json()
+
+    return {
+      authorized: true,
+      authInfo: {
+        id,
+        name,
+        permissions,
+      },
+    }
+  }
+}
+
 function addOrcidCredential(storage, token, name) {
   return async dispatch => {
     storage.case({
@@ -636,6 +711,8 @@ function addOrcidCredential(storage, token, name) {
         name,
       },
     }))
+
+    await dispatch(BackendAction.CheckServerAuthentication(storage))
 
     return {}
   }
