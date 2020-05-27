@@ -13,18 +13,17 @@ const layout = `
 type = period-search
 section = Filter periods
 
-[PlaceFilter]
-type = place-filter
-section = Filter periods
-
 [TimeFilter]
 type = time-filter
+section = Filter periods
+
+[PlaceFilter]
+type = place-filter
 section = Filter periods
 
 [Facets]
 type = facets
 section = Filter periods
-flex = true
 height = 200
 
 [SpatialCoverage]
@@ -118,7 +117,6 @@ module.exports = class BackendHome extends React.Component {
               dataset,
               gazetteers,
               layout,
-              totalCount: dataset.periods.length,
               selectedPeriod: dataset.periodByID(periodID),
               blockOpts,
               onBlockOptsChange: updatedOpts => {

@@ -14,7 +14,9 @@ const indexById = items => items.reduce(
 
 const accepts = (filter, item) => {
   if (!filter) return true
-  return item && item.id && filter.hasOwnProperty(item.id)
+  return (item &&
+          item.id &&
+          Object.prototype.hasOwnProperty.call(filter, item.id))
 }
 
 const PlaceFilter = ({

@@ -54,7 +54,7 @@ class ReviewPatch extends React.Component {
     const resp = await dispatch(PatchAction.AddPatchComment(
       backend,
       patch.url,
-      this.state.comment,
+      this.state.comment
     ))
 
     handleCompletedAction(resp,
@@ -102,7 +102,7 @@ class ReviewPatch extends React.Component {
             mb: 2,
           }, err.message),
         })
-      },
+      }
     )
   }
 

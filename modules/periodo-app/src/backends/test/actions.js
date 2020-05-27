@@ -131,7 +131,7 @@ test('Updating data sources', async t => {
   await store.dispatch(BackendAction.UpdateLocalDataset(
     backend.storage,
     updatedRawDataset,
-    '',
+    ''
   ))
 
   t.equal(store.getActions().length, 6);

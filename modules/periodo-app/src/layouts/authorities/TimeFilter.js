@@ -1,36 +1,60 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , { Box, Label, HelpText, TimeSlider } = require('periodo-ui')
     , { terminus: { earliestYear }} = require('periodo-utils')
 
-const TimeFilter = ({
-  opts,
-  updateOpts,
-}) => {
-  return (
-    h(Box, [
-      h(Label, 'By time'),
+class TimeFilter extends React.Component {
 
-      h(HelpText, 'Show periods that start within the selected range'),
+  constructor (props) {
+    super(props)
 
-      h(TimeSlider, {
-        yearRange: opts.yearRange,
-        onChange: yearRange => {
-          updateOpts({
-            ...opts,
-            yearRange,
-          }, true)
-        },
-      }),
-    ])
-  )
+    const defaultYearRange = TimeSlider.getDefaultYearRange()
+        , { defaultYearRangeStart=null } = props
+
+    this.defaultYearRange = (
+      defaultYearRangeStart === null
+        ? defaultYearRange
+        : [ defaultYearRangeStart, defaultYearRange[1] ]
+    )
+  }
+
+  componentDidMount () {
+    this.props.setBlockState({ defaultYearRange: this.defaultYearRange })
+  }
+
+  render () {
+
+    const { opts, updateOpts } = this.props
+        , yearRange = opts.yearRange || this.defaultYearRange
+
+    return (
+      h(Box, [
+        h(Label, 'By time'),
+
+        h(HelpText, 'Show periods that start within the selected range'),
+
+        h(TimeSlider, {
+          yearRange,
+          onChange: yearRange => {
+            updateOpts({
+              ...opts,
+              yearRange,
+            }, true)
+          },
+        }),
+      ])
+    )
+  }
 }
 
 module.exports = {
   label: 'Time filter',
   description: 'Filter periods by specifying a temporal range',
-  makeFilter({ yearRange }) {
+  makeFilter(opts, state) {
+
+    const yearRange = opts.yearRange || state.defaultYearRange || null
 
     if (! yearRange) return null
 
@@ -44,9 +68,5 @@ module.exports = {
       )
     }
   },
-  processOpts: opts => ({
-    yearRange: TimeSlider.getDefaultYearRange(),
-    ...opts,
-  }),
   Component: TimeFilter,
 }

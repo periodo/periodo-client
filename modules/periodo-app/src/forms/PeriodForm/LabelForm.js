@@ -79,7 +79,7 @@ class LabelForm extends React.Component {
 
     const newLabel = R.pipe(
       R.assoc('label', ''),
-      R.assoc('counter', counter),
+      R.assoc('counter', counter)
     )(after || defaultLabel())
 
     // We don't need to call onValueChange after the state is updated, like in

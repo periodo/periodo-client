@@ -36,7 +36,7 @@ function makeButton(color, startShade=5, extra) {
       opacity: .4,
     },
     ...extra,
-  }),
+  })
   )
 }
 

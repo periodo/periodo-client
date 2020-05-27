@@ -30,7 +30,7 @@ class SignIn extends React.Component {
     await dispatch(BackendAction.AddOrcidCredential(
       backend.storage,
       token,
-      name,
+      name
     ))
 
     this.setState({

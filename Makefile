@@ -80,7 +80,7 @@ $(VERSIONED_JS_BUNDLE): node_modules $(JS_FILES) | dist
 	$(BROWSERIFY_PREAMBLE) NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
 
 $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
-	$(NPM_BIN)/terser $< -o $@ --compress
+	$(NPM_BIN)/terser $< -o $@ --compress --keep-fnames
 
 $(VERSIONED_DIRECTORY): $(VERSIONED_ZIPFILE)
 	unzip $(VERSIONED_ZIPFILE) -d dist

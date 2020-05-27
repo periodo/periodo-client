@@ -4,14 +4,13 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , tags = require('language-tags')
-    , PromiseWorker = require('promise-worker')
-    , { Flex, Box, Link, Label, HelpText } = require('periodo-ui')
+    , { Label, HelpText } = require('periodo-ui')
     , { period: { authorityOf }} = require('periodo-utils')
-    , work = require('webworkify')
     , { shallowEqualObjects } = require('shallow-equal')
-    , styled = require('styled-components').default
+    , AspectTable = require('./AspectTable')
+    , FacetCalculator = require('./FacetCalculator')
 
-const languageDescription = R.memoize(tag => {
+const languageDescription = R.memoizeWith(R.toString, tag => {
   const language = tags(tag || '').language()
 
   return language ? language.descriptions()[0] : '(bad value)'
@@ -20,17 +19,6 @@ const languageDescription = R.memoize(tag => {
 function identityWithDefault(defaultLabel) {
   return x => x || defaultLabel
 }
-
-function union(...sets) {
-  return sets.reduce((acc, s) => new Set([ ...acc, ...s ]), new Set())
-}
-
-function intersection(...sets) {
-  const all = union(...sets)
-
-  return new Set([ ...all ].filter(x => sets.every(s => s.has(x))))
-}
-
 
 const aspects = {
   authority: {
@@ -55,190 +43,21 @@ const aspects = {
   },
 }
 
-const Table = Box.extend([], {
-  overflowY: 'scroll',
-  '& td': {
-    padding: '2px 5px',
-  },
-  '& td:first-of-type': {
-    color: '#999',
-  },
-  '& td:last-of-type': {
-    width: '100%',
-  },
-})
-
-function withoutValue(val, set) {
-  const newSet = new Set(set)
-  newSet.delete(val)
-  return newSet;
-}
-
-function withValue(val, set) {
-  const newSet = new Set(set)
-  newSet.add(val)
-  return newSet;
-}
-
-const AspectContainer = styled(Flex)`
-&:not(:last-of-type) {
-  margin-right: 16px;
-}
-`
-
-class AspectTable extends React.Component {
-  constructor() {
-    super()
-  }
-
-  shouldComponentUpdate(prevProps) {
-    return (
-      prevProps.counts !== this.props.counts
-    )
-  }
-
-  render() {
-    const { aspect, aspectID, opts, updateOpts, counts, hidden } = this.props
-        , { label, flexBasis } = aspect
-        , render = aspect.render || R.identity
-        , height = parseInt(opts.height || '256')
-        , selected = new Set(R.path([ 'selected', aspectID ], opts) || [])
-
-    if (hidden.has(aspectID)) {
-      return null
-    }
-
-    const selectedRows = []
-        , unselectedRows = []
-
-    if (counts) {
-      counts.forEach(([ value, count, label ]) => {
-        const isSelected = selected.has(value)
-
-        const el = (
-          h('tr', [
-            h('td', count),
-            h('td', [
-              h(Link, {
-                href: '',
-                color: `blue.${ isSelected ? 8 : 4 }`,
-                onClick: e => {
-                  e.preventDefault();
-                  updateOpts(R.pipe(
-                    R.over(
-                      R.lensPath([ 'selected', aspectID ]),
-                      () => [ ...(isSelected
-                        ? withoutValue(value, selected)
-                        : withValue(value, selected)) ]),
-                    R.ifElse(
-                      val => val.selected[aspectID].length,
-                      R.identity,
-                      R.dissocPath([ 'selected', aspectID ])),
-                    R.ifElse(
-                      val => R.isEmpty(val.selected),
-                      R.dissoc('selected'),
-                      R.identity)
-                  ), true)
-
-                },
-              }, render(label === undefined ? value : label)),
-            ]),
-          ])
-        )
-
-        if (isSelected) {
-          selectedRows.push(el)
-        } else {
-          unselectedRows.push(el)
-        }
-      })
-    }
-
-    return (
-      h(AspectContainer, {
-        style: {
-          flex: 1,
-          flexBasis,
-        },
-        flexDirection: 'column',
-        height,
-      }, [
-        h(Flex, {
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          bg: 'gray.1',
-          p: 2,
-          fontWeight: 'bold',
-          fontSize: 1,
-        }, [
-          h('span', label),
-
-          h('span', {}, selected.size === 0 ? null : (
-            h('a', {
-              href: '',
-              style: {
-                color: 'red',
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: 100,
-              },
-              onClick: e => {
-                e.preventDefault();
-                updateOpts(R.dissocPath([ 'selected', aspectID ]), true)
-              },
-            }, 'Clear')
-          )),
-        ]),
-
-        h('div', {
-          style: {
-            height:'100%',
-            overflowY: 'scroll',
-            overscrollBehaviorY: 'contain',
-          },
-        }, counts == null ? (
-          h('div', {
-            style: {
-              textAlign: 'center',
-              padding: '1em',
-            },
-          }, '. . .')
-        ): [
-          selectedRows.length === 0 ? null : (
-            h(Table, {
-              is: 'table',
-              px: 1,
-              py: 1,
-              width: '100%',
-            }, [
-              h('tbody', selectedRows),
-            ])
-          ),
-
-          unselectedRows.length === 0 ? null : (
-            h(Table, {
-              is: 'table',
-              px: 1,
-              width: '100%',
-              bg: 'gray.1',
-            }, [
-              h('tbody', unselectedRows),
-            ])
-          ),
-        ]),
-      ])
-    )
-  }
-}
-
 class Facets extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.state = {
       countsByAspect: {},
     }
-    this.runCalculations = this.runCalculations.bind(this)
+    this.resetAspectCounts = this.resetAspectCounts.bind(this)
+    this.setAspectCount = this.setAspectCount.bind(this)
+    this.facetCalculator = new FacetCalculator(
+      this.props.dataset,
+      Object.keys(aspects),
+      this.resetAspectCounts,
+      this.setAspectCount
+    )
     this._isMounted = false
   }
 
@@ -252,133 +71,77 @@ class Facets extends React.Component {
 
   componentDidMount() {
     this._isMounted = true
-    this.props.setBlockState({
-      runCalculations: this.runCalculations,
-    })
+    this.props.setBlockState({ facetCalculator: this.facetCalculator })
+    this.props.updateOpts(this.props.opts, true) // invalidate data on re-mount
   }
 
   componentWillUnmount() {
     this._isMounted = false
-    if (this.workers) {
-      this.workers.forEach(w => {
-        w.worker.terminate()
-      })
-    }
+    this.facetCalculator.shutdown()
   }
 
-  async getWorkers() {
-    if (this.workers) return this.workers
-
-    const { dataset } = this.props
-
-    this.workers = Object.keys(aspects).map(() => {
-      const worker = work(require('./worker'))
-
-      return {
-        worker,
-        promiseWorker: new PromiseWorker(worker),
-      }
-    })
-
-    await Promise.all(this.workers.map(w => w.promiseWorker.postMessage({
-      type: 'initialize',
-      rawDataset: dataset.raw,
-    })))
-
-    return this.workers
-  }
-
-  async runCalculations(selected={}, periods) {
-    const workers = await this.getWorkers()
-
-    let idsByWorker
-
+  resetAspectCounts() {
     if (this._isMounted) {
       this.setState({ countsByAspect: {}})
     }
+  }
 
-    if (R.isEmpty(selected)) {
-      idsByWorker = workers.map(() => new Set(periods.map(p => p.id)))
+  setAspectCount(aspect, count) {
+    if (this._isMounted) {
+      this.setState(({ countsByAspect: prevCountsByAspect }) => ({
+        countsByAspect: {
+          ...prevCountsByAspect,
+          [aspect]: count,
+        },
+      }))
     }
-
-    if (!idsByWorker) {
-      const matchers = Object.keys(aspects).map((key, i) =>
-        workers[i].promiseWorker.postMessage({
-          type: 'get_matching',
-          aspect: key,
-          selected: new Set(selected[key] || []),
-          periods,
-        }))
-
-      idsByWorker = (await Promise.all(matchers)).map(resp => resp.ids)
-    }
-
-    const matchingIDs = intersection(...idsByWorker)
-
-    Object.keys(aspects).map((key, i) => {
-      const matchingIDsForAspect = intersection(...idsByWorker.filter((_, j) => i !== j))
-          , remainingPeriods = periods.filter(period => matchingIDsForAspect.has(period.id))
-
-      workers[i].promiseWorker.postMessage({
-        type: 'get_counts',
-        aspect: key,
-        periods: remainingPeriods,
-        selected: new Set(selected[key] || []),
-      }).then(({ countArr }) => {
-        if (this._isMounted) {
-          this.setState(R.set(
-            R.lensPath([ 'countsByAspect', key ]),
-            countArr,
-          ))
-        }
-      })
-    })
-
-    return new Set(matchingIDs)
   }
 
   render() {
-    const { opts, data, updateOpts, dataset } = this.props
-        , { countsByAspect } = this.state
-
-    const style = {}
-
-    if (opts.flex) {
-      style.display = 'flex'
-    }
-
-    const hidden = new Set(opts.hidden|| [])
-
-    if (hidden.size === Object.keys(aspects).length) {
+    if (this.props.hidden) {
       return null
     }
 
+    const { opts, data, updateOpts, dataset } = this.props
+        , { countsByAspect } = this.state
+
+    const hiddenAspects = new Set(
+      opts.hiddenAspects ? opts.hiddenAspects.split(',') : []
+    )
+
     const aspectsShown = Object.entries(aspects)
-      .filter(([ k ]) => ! hidden.has(k))
+      .filter(([ k ]) => ! hiddenAspects.has(k))
+
+    const aspectsDescription = aspectsShown
       .map(([ , v ]) => v.label.toLowerCase())
       .join(', ')
       .replace(/,([^,]*)$/, ' or$1')
 
+    const aspectProportions = opts.aspectProportions
+      ? opts.aspectProportions.split(',')
+      : []
+
     return (h('div'), [
       h(Label, { key: 'label' },
-        `By ${aspectsShown}`),
+        `By ${aspectsDescription}`),
 
       h(HelpText, { key: 'help' },
-        `Show periods having the selected ${aspectsShown}`),
+        `Show periods having the selected ${aspectsDescription}`),
 
       h('div', {
-        style,
+        style: { display: 'flex' },
         key: 'aspect-table',
-      }, Object.entries(aspects).map(([ key, aspect ]) =>
+      }, aspectsShown.map(([ key, aspect ], i) =>
         h(AspectTable, {
           key,
           data,
-          flex: opts.flex,
           rawDataset: dataset.raw,
-          aspect,
+          aspect: {
+            ...aspect,
+            flexBasis: aspectProportions[i] || aspect.flexBasis,
+          },
           aspectID: key,
           counts: countsByAspect[key],
-          hidden,
           opts,
           updateOpts,
         })
@@ -392,12 +155,14 @@ module.exports = {
   label: 'Facets',
   description: 'Filter items based on their attributes',
   async makeFilter(opts, state, periods) {
+    if (! periods) return null
+
     const { selected={}} = (opts || {})
-        , { runCalculations } = state
+        , { facetCalculator } = state
 
-    const matchingIDs = await runCalculations(selected, periods)
-
+    const matchingIDs = await facetCalculator.runCalculations(selected, periods)
     return period => matchingIDs.has(period.id)
   },
   Component: Facets,
+  keepMounted: true,
 }

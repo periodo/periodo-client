@@ -1,11 +1,11 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , Icon = require('react-geomicons').default
     , { useState, useEffect } = require('react')
     , { Button } = require('./Buttons')
     , { Flex, Box, Text } = require('./Base')
     , { Select } = require('./FormElements')
+    , { FirstIcon, PrevIcon, NextIcon, LastIcon } = require('./Icons')
 
 function Pager({ total, limit, render }) {
 
@@ -65,15 +65,13 @@ function PagerControls({
       borderRadius: 0,
       disabled: start === 0,
       onClick: toFirstPage,
-    }, h(Icon, {
+    }, h(FirstIcon, {
       onMouseDown: e => {
         if (start === 0) {
           e.stopPropagation();
           e.preventDefault();
         }
       },
-      name: 'previous',
-      color: 'black',
     })),
 
     h(Button, {
@@ -81,15 +79,13 @@ function PagerControls({
       disabled: start === 0,
       onClick: toPrevPage,
       ml: '-1px',
-    }, h(Icon, {
+    }, h(PrevIcon, {
       onMouseDown: e => {
         if (start === 0) {
           e.stopPropagation();
           e.preventDefault();
         }
       },
-      name: 'triangleLeft',
-      color: 'black',
     })),
 
     h(Select, {
@@ -101,7 +97,7 @@ function PagerControls({
       h('option', {
         key: n,
         value: n,
-      }, `Show ${n}`),
+      }, `Show ${n}`)
     )),
 
     h(Button, {
@@ -109,30 +105,26 @@ function PagerControls({
       disabled: start + shown >= total,
       onClick: toNextPage,
       mr: '-1px',
-    }, h(Icon, {
+    }, h(NextIcon, {
       onMouseDown: e => {
         if (start + shown >= total) {
           e.stopPropagation();
           e.preventDefault();
         }
       },
-      name: 'triangleRight',
-      color: 'black',
     })),
 
     h(Button, {
       borderRadius: 0,
       disabled: start + shown >= total,
       onClick: toLastPage,
-    }, h(Icon, {
+    }, h(LastIcon, {
       onMouseDown: e => {
         if (start + shown >= total) {
           e.stopPropagation();
           e.preventDefault();
         }
       },
-      name: 'next',
-      color: 'black',
     })),
   ])
 }

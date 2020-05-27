@@ -32,7 +32,8 @@ const suggestPlaces = (authority, period) => {
     .filter(p => (p.spatialCoverageDescription || '').trim() === scd)
     .reduce((suggestions, p) => {
       for (const { id, label } of (p.spatialCoverage || [])) {
-        if (! (coverage.hasOwnProperty(id) || suggestions.hasOwnProperty(id))) {
+        if (! (Object.prototype.hasOwnProperty.call(coverage, id)
+               || Object.prototype.hasOwnProperty.call(suggestions, id))) {
           suggestions[id] = label
         }
       }
