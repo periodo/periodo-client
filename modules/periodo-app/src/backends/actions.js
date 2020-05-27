@@ -471,7 +471,7 @@ function updateLocalDataset(storage, newRawDataset, message) {
 
     let patchData = formatPatch(dataset.raw, newRawDataset, message)
 
-    patchData = stripUnionTypeFields(patchData)
+    patchData = stripUnionTypeFields(patchData, false)
 
     const updatedBackend = {
       ...backend.metadata,
@@ -557,7 +557,7 @@ function importBackend(backupData) {
 
     // TODO: Deal with dexie versions, if we ever go past the one now
 
-    const { metadata, dataset, patches } = stripUnionTypeFields(backup)
+    const { metadata, dataset, patches } = stripUnionTypeFields(backup, false)
 
     let backendID
 

@@ -32,7 +32,7 @@ module.exports = Navigable((props) => {
           handleCompletedAction(
             resp,
             exportData => {
-              const exportJSON = new Blob([ JSON.stringify(stripUnionTypeFields(exportData)) ])
+              const exportJSON = new Blob([ JSON.stringify(stripUnionTypeFields(exportData, false)) ])
 
               let dateLabel = new Date(backend.metadata.modified)
               dateLabel = dateLabel.toISOString().split('T')[0]

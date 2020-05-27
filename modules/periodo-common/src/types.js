@@ -7,12 +7,19 @@ exports.Result = Type({
   Err: [ () => true ],
 })
 
-exports.stripUnionTypeFields = function stripUnionTypeFields(obj) {
-  return JSON.parse(JSON.stringify(obj), (key, val) => {
-    if (typeof val !== 'object') return val
+exports.stripUnionTypeFields = function stripUnionTypeFields(obj, shallow=true) {
+  if (shallow) {
+    delete obj._keys;
+    delete obj._name;
 
-    delete val._keys;
-    delete val._name;
+    return obj
+  }
+
+  return JSON.parse(JSON.stringify(obj), (key, val) => {
+    if (val && typeof val === 'object') {
+      delete val._keys;
+      delete val._name;
+    }
 
     return val
   })
