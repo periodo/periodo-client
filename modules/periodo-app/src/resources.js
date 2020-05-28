@@ -3,7 +3,6 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Route } = require('org-shell')
     , BackendAction = require('./backends/actions')
     , AuthAction = require('./auth/actions')
     , PatchAction = require('./patches/actions')
@@ -36,16 +35,6 @@ const Home = {
   label: 'Home',
   parent: null,
   resources: {
-    '': {
-      Component: () => h('div'),
-      onBeforeRoute(params, redirectTo) {
-        redirectTo(new Route('open-backend'))
-      },
-    },
-    /*
-    help: {
-    },
-    */
     'open-backend': {
       label: 'Data sources',
       Component: require('./backends/components/BackendSelect'),
@@ -107,7 +96,7 @@ function withLoadProgress(resource) {
       }
 
       addStep(label, promise) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           if (this._unmounted) return
           this.setState(R.set(
             R.lensPath([ 'steps', label ]),
@@ -117,22 +106,25 @@ function withLoadProgress(resource) {
             }
           ))
 
-          try {
-            const result = await promise
-            if (this._unmounted) return
-            this.setState(R.set(
-              R.lensPath([ 'steps', label, 'progress' ]),
-              ReadyState.Success(result)
-            ))
-            resolve(result)
-          } catch (e) {
-            if (this._unmounted) return
-            this.setState(R.set(
-              R.lensPath([ 'steps', label, 'progress' ]),
-              ReadyState.Failure(e.message)
-            ))
-            reject(e)
-          }
+          promise
+            .then(result => {
+              if (!this._unmounted) {
+                this.setState(R.set(
+                  R.lensPath([ 'steps', label, 'progress' ]),
+                  ReadyState.Success(result)
+                ))
+              }
+              resolve(result)
+            })
+            .catch(e => {
+              if (!this._unmounted) {
+                this.setState(R.set(
+                  R.lensPath([ 'steps', label, 'progress' ]),
+                  ReadyState.Failure(e.message)
+                ))
+              }
+              reject(e)
+            })
         })
       }
 
