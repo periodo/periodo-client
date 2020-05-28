@@ -17,8 +17,6 @@ module.exports = function processLayout(blockDefs, layoutString) {
         type,
         section,
         opts,
-        gridRow='auto',
-        gridColumn='auto',
       }) => {
           const {
             Component=() => h('div', {
@@ -36,8 +34,6 @@ module.exports = function processLayout(blockDefs, layoutString) {
             id,
             type,
             section,
-            gridRow,
-            gridColumn,
             block: {
               Component,
               makeFilter,
@@ -50,20 +46,6 @@ module.exports = function processLayout(blockDefs, layoutString) {
             },
           }
       })
-    ),
-    R.over(
-      R.lensProp('gridGap'),
-      R.defaultTo('')
-    ),
-
-    R.over(
-      R.lensProp('gridTemplateColumns'),
-      R.defaultTo('')
-    ),
-
-    R.over(
-      R.lensProp('gridTemplateRows'),
-      R.defaultTo('')
     )
   )(parsedLayout)
 }
