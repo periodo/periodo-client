@@ -96,7 +96,7 @@ function withLoadProgress(resource) {
       }
 
       addStep(label, promise) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           if (this._unmounted) return
           this.setState(R.set(
             R.lensPath([ 'steps', label ]),
@@ -106,22 +106,25 @@ function withLoadProgress(resource) {
             }
           ))
 
-          try {
-            const result = await promise
-            if (this._unmounted) return
-            this.setState(R.set(
-              R.lensPath([ 'steps', label, 'progress' ]),
-              ReadyState.Success(result)
-            ))
-            resolve(result)
-          } catch (e) {
-            if (this._unmounted) return
-            this.setState(R.set(
-              R.lensPath([ 'steps', label, 'progress' ]),
-              ReadyState.Failure(e.message)
-            ))
-            reject(e)
-          }
+          promise
+            .then(result => {
+              if (!this._unmounted) {
+                this.setState(R.set(
+                  R.lensPath([ 'steps', label, 'progress' ]),
+                  ReadyState.Success(result)
+                ))
+              }
+              resolve(result)
+            })
+            .catch(e => {
+              if (!this._unmounted) {
+                this.setState(R.set(
+                  R.lensPath([ 'steps', label, 'progress' ]),
+                  ReadyState.Failure(e.message)
+                ))
+              }
+              reject(e)
+            })
         })
       }
 
