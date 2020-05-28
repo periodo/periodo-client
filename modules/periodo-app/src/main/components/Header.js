@@ -24,6 +24,7 @@ module.exports = props =>
             href: '',
           }, h('img', {
             src: 'images/periodo-logo.svg',
+            alt: 'PeriodO logo',
             height: 32,
           })),
         ]),

@@ -6,11 +6,12 @@ const h = require('react-hyperscript')
    , href = `https://github.com/periodo/periodo-client/tree/v${version}`
 
 
-const Logo = ({ href, title, src, height=44, ...props }) =>
+const Logo = ({ href, title, alt, src, height=44, ...props }) =>
   h(Box, props, [
     h('a', { href }, [
       h('img', {
         title,
+        alt,
         src,
         height,
       }),
@@ -26,6 +27,7 @@ const Footer = props =>
       h(Logo, {
         href: 'http://imls.gov',
         title: 'Institute of Museum and Library Services',
+        alt: 'Institute of Museum and Library Services logo',
         src: 'images/imls_logo_2c.svg',
         height: 80,
       }),
@@ -35,6 +37,7 @@ const Footer = props =>
           mt: 2,
           href: 'http://neh.gov',
           title: 'National Endowment for the Humanities',
+          alt: 'National Endowment for the Humanities logo',
           src: 'images/neh-logo.svg',
           height: 60,
         }),
