@@ -6,7 +6,7 @@ PROJECT_NAME := periodo-client
 
 NPM_BIN := node_modules/.bin
 
-VERSION := $(shell git describe --abbrev=0 | cut -c 2-)
+VERSION := $(shell git describe | cut -c 2-)
 
 JS_BUNDLE := $(PROJECT_NAME).js
 
@@ -90,6 +90,7 @@ $(VERSIONED_DIRECTORY)/package.json: package.json
 
 $(PKG): $(VERSIONED_DIRECTORY)
 	cd $< && npm pack
+	cp $</periodo-client-*.tgz $(PKG)
 
 $(PKG).sha256: $(PKG)
 	sha256sum $< | sed "s/dist\/$(PROJECT_NAME)-$(VERSION)\///" > $@
