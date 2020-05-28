@@ -24,29 +24,6 @@ module.exports = Navigable((props) => {
   return (
     h(Box, [
 
-      h(Button, {
-        async onClick() {
-          const resp = await dispatch(
-            BackendAction.GenerateBackendExport(backend.storage)
-          )
-
-          handleCompletedAction(
-            resp,
-            exportData => {
-              const exportJSON = new Blob([ JSON.stringify(stripUnionTypeFields(exportData, false)) ])
-
-              let dateLabel = new Date(backend.metadata.modified)
-              dateLabel = dateLabel.toISOString().split('T')[0]
-
-              saveAs(exportJSON, `periodo-backup_${backend.metadata.label}_${dateLabel}.json`)
-            },
-            err => {
-              console.error(err)
-            }
-          )
-        },
-      }, 'Export'),
-
       h(Breadcrumb, {
         ml: 1,
         mb: 3,
@@ -80,7 +57,7 @@ module.exports = Navigable((props) => {
               ),
             ]),
           ]),
-          _: [],
+          _: () => [],
         })
       ),
 
@@ -130,6 +107,45 @@ module.exports = Navigable((props) => {
           },
         }),
       ]),
+
+
+      ...(
+        backend.storage.case({
+          IndexedDB: () => [
+            h(SectionHeading, 'Back up data source'),
+            h(Section, [
+              h(Box, {
+                as: 'p',
+                mb: 3,
+              }, 'Back up this data source to import later.'),
+              h(Button, {
+                async onClick() {
+                  const resp = await dispatch(
+                    BackendAction.GenerateBackendExport(backend.storage)
+                  )
+
+                  handleCompletedAction(
+                    resp,
+                    exportData => {
+                      const exportJSON = new Blob([ JSON.stringify(stripUnionTypeFields(exportData, false)) ])
+
+                      let dateLabel = new Date()
+                      dateLabel = dateLabel.toISOString().split('T')[0]
+
+                      saveAs(exportJSON, `periodo-backup_${backend.metadata.label}_${dateLabel}.json`)
+                    },
+                    err => {
+                      console.error(err)
+                    }
+                  )
+                },
+              }, 'Create backup'),
+
+            ]),
+          ],
+          _: () => [],
+        })
+      ),
     ])
   )
 })

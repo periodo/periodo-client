@@ -17,53 +17,6 @@ function AddBackend({
 
   return (
     h(Box, [
-      h(Box, [
-        h('input', {
-          type: 'file',
-          ref: inputRef,
-          style: {
-            display: 'none',
-          },
-          async onChange(e) {
-            const el = e.target
-                , file = el.files[0]
-
-            let backup
-
-            try {
-              backup = await new Promise((resolve, reject) => {
-                const reader = new FileReader()
-
-                reader.onload = () => {
-                  try {
-                    resolve(JSON.parse(reader.result))
-                  } catch (e) {
-                    reject(e)
-                  }
-                }
-
-                reader.onerror = () => {
-                  reject(reader.error)
-                }
-
-                reader.readAsText(file)
-              })
-            } catch (e) {
-              el.value = null
-              alert('Could not load backup')
-            }
-
-            el.value = null
-
-            dispatch(BackendAction.ImportBackend(backup))
-          },
-        }),
-        h(Button, {
-          onClick() {
-            inputRef.current.click()
-          },
-        }, 'Restore from backup'),
-      ]),
 
       h(SectionHeading, 'Add data source'),
       h(Section, [
@@ -105,6 +58,62 @@ function AddBackend({
             )
           },
         }),
+      ]),
+
+      h(SectionHeading, 'Restore from backup'),
+      h(Section, [
+        h(Box, {
+          as: 'p',
+          mb: 3,
+        }, 'Restore a previously backed up local data source'),
+
+        h(Box, [
+          h('input', {
+            type: 'file',
+            ref: inputRef,
+            style: {
+              display: 'none',
+            },
+            async onChange(e) {
+              const el = e.target
+                  , file = el.files[0]
+
+              let backup
+
+              try {
+                backup = await new Promise((resolve, reject) => {
+                  const reader = new FileReader()
+
+                  reader.onload = () => {
+                    try {
+                      resolve(JSON.parse(reader.result))
+                    } catch (e) {
+                      reject(e)
+                    }
+                  }
+
+                  reader.onerror = () => {
+                    reject(reader.error)
+                  }
+
+                  reader.readAsText(file)
+                })
+              } catch (e) {
+                el.value = null
+                alert('Could not load backup')
+              }
+
+              el.value = null
+
+              dispatch(BackendAction.ImportBackend(backup))
+            },
+          }),
+          h(Button, {
+            onClick() {
+              inputRef.current.click()
+            },
+          }, 'Choose backup file'),
+        ]),
       ]),
     ])
   )
