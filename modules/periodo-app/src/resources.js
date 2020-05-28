@@ -3,6 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
+    , { Route } = require('org-shell')
     , BackendAction = require('./backends/actions')
     , AuthAction = require('./auth/actions')
     , PatchAction = require('./patches/actions')
@@ -35,6 +36,13 @@ const Home = {
   label: 'Home',
   parent: null,
   resources: {
+    '': {
+      Component: () => h('div'),
+      onBeforeRoute(params, redirectTo) {
+        redirectTo(new Route('open-backend'))
+      },
+      showInMenu: () => false,
+    },
     'open-backend': {
       label: 'Data sources',
       Component: require('./backends/components/BackendSelect'),
