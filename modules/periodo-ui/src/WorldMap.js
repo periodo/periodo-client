@@ -256,13 +256,13 @@ class _Map extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      map: undefined,
-      ready: false,
-    }
+    this.state = { map: undefined }
 
-    this.handleResize = this.handleResize.bind(this)
-    this.handleLayoutChanged = this.handleLayoutChanged.bind(this)
+    this.draw = this.draw.bind(this)
+    this.redraw = this.redraw.bind(this)
+    this.show = this.show.bind(this)
+    this.hide = this.hide.bind(this)
+    this.debouncedShow = debounce(this.show)
 
     this.innerContainer = createRef()
     this.outerContainer = createRef()
@@ -281,19 +281,6 @@ class _Map extends Component {
     ])
   }
 
-  handleResize() {
-    const { map } = this.state
-    const { height, features, focusedFeatures } = this.props
-
-    map.resize(getWidth(this.outerContainer.current), height)
-    map.display(features, focusedFeatures)
-  }
-
-  handleLayoutChanged() {
-    const { map } = this.state
-    map.draw()
-  }
-
   componentDidMount() {
     renderMix()
 
@@ -307,36 +294,59 @@ class _Map extends Component {
     map.display(this.props.features, this.props.focusedFeatures)
     this.setState({ map })
 
-    this.debouncedResizeHandler = debounce(this.handleResize)
-    window.addEventListener('resize', this.debouncedResizeHandler)
-    document.addEventListener('layoutChanged', this.handleLayoutChanged)
+    window.addEventListener('resize', this.debouncedShow)
+
+    window.addEventListener('touchmove', this.redraw)
+    window.addEventListener('touchcancel', this.redraw)
+    window.addEventListener('touchend', this.redraw)
+
+    document.addEventListener('layoutChanged', this.redraw)
+  }
+
+  draw() {
+    this.state.map.draw()
+  }
+
+  redraw() {
+    this.draw()
+    window.requestAnimationFrame(this.draw)
+  }
+
+  show() {
+    const { height, features, focusedFeatures } = this.props
+    this.state.map.resize(getWidth(this.outerContainer.current), height)
+    this.state.map.display(features, focusedFeatures)
+  }
+
+  hide() {
+    this.state.map.resize(0, 0)
+    this.state.map.display([], [])
   }
 
   componentDidUpdate(prevProps) {
-    const { map } = this.state
     const { height, features, focusedFeatures } = this.props
 
-    const featuresChanged = (
+    const reshow = (
+      prevProps.height !== height ||
       prevProps.features !== features ||
       prevProps.focusedFeatures !== focusedFeatures
     )
 
-    if (prevProps.height !== height || featuresChanged) {
-      map.resize(getWidth(this.outerContainer.current), height)
-    }
-
-    if (featuresChanged) {
-      map.display(features, focusedFeatures)
+    if (reshow) {
+      this.show()
     }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('layoutChanged', this.handleLayoutChanged)
-    window.removeEventListener('resize', this.debouncedResizeHandler)
+    document.removeEventListener('layoutChanged', this.redraw)
 
-    const { map } = this.state
-    map.resize(0, 0)
-    map.display([], [])
+    window.removeEventListener('touchmove', this.redraw)
+    window.removeEventListener('touchcancel', this.redraw)
+    window.removeEventListener('touchend', this.redraw)
+
+    window.removeEventListener('resize', this.debouncedShow)
+
+    this.hide()
 
     clear(this.innerContainer.current)
   }
