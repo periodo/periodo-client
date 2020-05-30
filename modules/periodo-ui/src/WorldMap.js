@@ -1,7 +1,6 @@
 "use strict";
 
-const R = require('ramda')
-    , regl = require('regl')
+const regl = require('regl')
     , resl = require('resl')
     , glsl = require('glslify')
     , createMesh = require('earth-mesh')
@@ -9,6 +8,7 @@ const R = require('ramda')
     , debounce = require('debounce')
     , { createRef, Component } = require('react')
     , { Box } = require('./Base')
+    , { AriaButton } = require('./Buttons')
 
 let mixmap
   , mix
@@ -240,9 +240,6 @@ const initializeMap = mix => {
   return map
 }
 
-// shared webgl context, only needs to be rendered once
-const renderMix = R.once(() => document.body.appendChild(mix.render()))
-
 const getWidth = element => element ? element.getBoundingClientRect().width : 0
 
 const clear = node => {
@@ -251,6 +248,34 @@ const clear = node => {
   }
 }
 
+const ZoomButton = ({
+  top='2px',
+  left='2px',
+  children,
+  ...props
+}) => h(AriaButton, {
+  position: 'absolute',
+  css: {
+    top,
+    left,
+    cursor: 'pointer',
+    backgroundImage: 'linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 85%)',
+    ':hover': {
+      backgroundImage: 'linear-gradient(to bottom, #f1f3f5 0%, #e9ecef 85%)',
+    },
+    userSelect: 'none',
+  },
+  bg: 'white',
+  pb: '4px',
+  fontSize: 4,
+  lineHeight: 1,
+  textAlign: 'center',
+  width: 30,
+  border: 1,
+  borderColor: 'gray.3',
+  ...props,
+}, children)
+
 class _Map extends Component {
 
   constructor(props) {
@@ -258,6 +283,10 @@ class _Map extends Component {
 
     this.state = { map: undefined }
 
+    this.onKeyDown = this.onKeyDown.bind(this)
+    this.zoomIn = this.zoomIn.bind(this)
+    this.zoomOut = this.zoomOut.bind(this)
+    this.setZoom = this.setZoom.bind(this)
     this.draw = this.draw.bind(this)
     this.redraw = this.redraw.bind(this)
     this.show = this.show.bind(this)
@@ -271,19 +300,27 @@ class _Map extends Component {
   render() {
     return h('div', {
       ref: this.outerContainer,
-      style: { height: this.props.height },
+      style: {
+        position: 'relative',
+        height: this.props.height,
+      },
     }, [
       h('div', {
         className: 'mapCanvas',
         ref: this.innerContainer,
         style: { position: 'absolute' },
       }),
+      h(ZoomButton, {
+        onSelect: this.zoomIn,
+      }, '+'),
+      h(ZoomButton, {
+        top: '34px',
+        onSelect: this.zoomOut,
+      }, '−'),
     ])
   }
 
   componentDidMount() {
-    renderMix()
-
     const map = initializeMap(mix)
     this.innerContainer.current.appendChild(
       map.render({
@@ -295,16 +332,44 @@ class _Map extends Component {
     this.setState({ map })
 
     window.addEventListener('resize', this.debouncedShow)
-
-    window.addEventListener('touchmove', this.redraw)
-    window.addEventListener('touchcancel', this.redraw)
-    window.addEventListener('touchend', this.redraw)
-
+    window.addEventListener('keydown', this.onKeyDown)
     document.addEventListener('layoutChanged', this.redraw)
   }
 
+  onKeyDown(e) {
+    if (e.code === 'Equal') {
+      this.zoomIn()
+    } else if (e.code === 'Minus') {
+      this.zoomOut()
+    }
+  }
+
+  zoomIn() {
+    if (this.state.map) {
+      this.setZoom(
+        Math.min(6, Math.round(this.state.map.getZoom() + 1))
+      )
+    }
+  }
+
+  zoomOut() {
+    if (this.state.map) {
+      this.setZoom(
+        this.state.map.getZoom() - 1
+      )
+    }
+  }
+
+  setZoom(zoom) {
+    if (this.state.map) {
+      this.state.map.setZoom(zoom)
+    }
+  }
+
   draw() {
-    this.state.map.draw()
+    if (this.state.map) {
+      this.state.map.draw()
+    }
   }
 
   redraw() {
@@ -313,14 +378,18 @@ class _Map extends Component {
   }
 
   show() {
-    const { height, features, focusedFeatures } = this.props
-    this.state.map.resize(getWidth(this.outerContainer.current), height)
-    this.state.map.display(features, focusedFeatures)
+    if (this.state.map) {
+      const { height, features, focusedFeatures } = this.props
+      this.state.map.resize(getWidth(this.outerContainer.current), height)
+      this.state.map.display(features, focusedFeatures)
+    }
   }
 
   hide() {
-    this.state.map.resize(0, 0)
-    this.state.map.display([], [])
+    if (this.state.map) {
+      this.state.map.resize(0, 0)
+      this.state.map.display([], [])
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -339,11 +408,7 @@ class _Map extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('layoutChanged', this.redraw)
-
-    window.removeEventListener('touchmove', this.redraw)
-    window.removeEventListener('touchcancel', this.redraw)
-    window.removeEventListener('touchend', this.redraw)
-
+    window.removeEventListener('keydown', this.onKeyDown)
     window.removeEventListener('resize', this.debouncedShow)
 
     this.hide()
@@ -352,16 +417,18 @@ class _Map extends Component {
   }
 }
 
-exports.WorldMap = ({ features, focusedFeatures, height=200, ...props }) => h(
-  Box,
-  {
-    css: { backgroundColor: '#6194b9' }, // ocean color
-    ...props,
-  },
-  [ h(_Map, {
-    key: 2,
+exports.WorldMap = ({
+  features,
+  focusedFeatures,
+  height=200,
+  ...props
+}) => h(Box, {
+  bg: '#6194b9', // ocean color
+  ...props,
+}, [
+  h(_Map, {
     features,
     focusedFeatures,
     height,
-  }) ]
-)
+  }),
+])
