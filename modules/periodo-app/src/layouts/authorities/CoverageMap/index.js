@@ -41,6 +41,7 @@ const CoverageMap = ({
         ]
         : []
       ),
+      '. Use mouse or touch to pan',
     ]),
 
     h(LabeledMap, {
