@@ -3,6 +3,7 @@
 const h = require('react-hyperscript')
     , BackendAction = require('../../backends/actions')
     , LinkedDataAction = require('../../linked-data/actions')
+    , PersistenceNotice = require('../../backends/components/PersistenceWarning')
 
 const {
   Box,
@@ -38,6 +39,11 @@ module.exports = function Settings(props) {
             }
           },
         }, 'Clear all data'),
+      ]),
+
+      h(SectionHeading, 'Browser storage'),
+      h(Section, [
+        h(PersistenceNotice),
       ]),
     ])
   )

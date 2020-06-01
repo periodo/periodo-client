@@ -9,6 +9,7 @@ module.exports = function () {
 
   const store = createStore(
     combineReducers({
+      main: require('./main/reducer'),
       backends: require('./backends/reducer'),
       auth: require('./auth/reducer'),
       linkedData: require('./linked-data/reducer'),

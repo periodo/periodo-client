@@ -12,6 +12,7 @@ const h = require('react-hyperscript')
     , resources = require('../resources')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
+    , Action = require('./actions')
 
 require('./global_css')
 
@@ -268,41 +269,36 @@ class PeriodoApplication extends React.Component {
 class IndexedDBChecker extends React.Component {
   constructor() {
     super();
+
     this.state = {
-      done: false,
-      indexedDBSupported: null,
+      initialized: false,
     }
   }
 
-  componentDidMount() {
-    const { db } = this.props
+  async componentDidMount() {
+    const { store: { dispatch }} = this.props
 
-    db.open()
-      .then(
-        () => {
-          this.setState({
-            done: true,
-            indexedDBSupported: true,
-          })
-        },
-        () => {
-          this.setState({
-            done: true,
-            indexedDBSupported: false,
-          })
-        }
-      )
+    await Promise.allSettled([
+      dispatch(Action.InitIndexedDB),
+      dispatch(Action.CheckPersistence),
+    ])
+
+    this.setState({
+      initialized: true,
+    })
   }
 
   render() {
-    const { done, indexedDBSupported } = this.state
-        , { store } = this.props
+    const { store } = this.props
+        , { initialized } = this.state
 
-    if (!done) {
+    if (!initialized) {
       return (
         h(PeriodoApplication)
       )
     }
+
+    const { indexedDBSupported } = store.getState().main.browser
 
     if (!indexedDBSupported) {
       return (
