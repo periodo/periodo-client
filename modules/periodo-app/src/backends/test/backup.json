@@ -1,0 +1,59 @@
+{
+  "backend": {
+    "label": "asdfasdf",
+    "description": "asdfasdf",
+    "created": 1589478971142,
+    "modified": 1589479119640,
+    "accessed": 1590518256728
+  },
+  "patches": [
+    {
+      "forward": [
+        {
+          "op": "add",
+          "path": "/authorities/http:~1~1localhost:5002~1.well-known~1genid~10d58bf0987cc6232c8dbba2ce24979b1",
+          "value": {
+            "id": "http://localhost:5002/.well-known/genid/0d58bf0987cc6232c8dbba2ce24979b1",
+            "type": "Authority",
+            "periods": {},
+            "source": {
+              "citation": "afsdl;jf;kalsdjf"
+            }
+          }
+        }
+      ],
+      "backward": [
+        {
+          "op": "remove",
+          "path": "/authorities/http:~1~1localhost:5002~1.well-known~1genid~10d58bf0987cc6232c8dbba2ce24979b1"
+        }
+      ],
+      "message": "Added authority http://localhost:5002/.well-known/genid/0d58bf0987cc6232c8dbba2ce24979b1\nAdded authority http://localhost:5002/.well-known/genid/0d58bf0987cc6232c8dbba2ce24979b1.",
+      "forwardHashes": [
+        "28ea21d3f9e21cb255abbf844b7e876a"
+      ],
+      "backwardHashes": [
+        "1e688ee2341cf048091a7810f94513be"
+      ],
+      "created": 1589479119640,
+      "affectedAuthorities": [
+        "http://localhost:5002/.well-known/genid/0d58bf0987cc6232c8dbba2ce24979b1"
+      ],
+      "affectedPeriods": []
+    }
+  ],
+  "dataset": {
+    "authorities": {
+      "http://localhost:5002/.well-known/genid/0d58bf0987cc6232c8dbba2ce24979b1": {
+        "id": "http://localhost:5002/.well-known/genid/0d58bf0987cc6232c8dbba2ce24979b1",
+        "type": "Authority",
+        "periods": {},
+        "source": {
+          "citation": "afsdl;jf;kalsdjf"
+        }
+      }
+    },
+    "type": "rdf:Bag"
+  },
+  "dexieVersion": 5
+}

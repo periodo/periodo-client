@@ -4,7 +4,7 @@ const jsonpatch = require('fast-json-patch')
     , pointer = require('json-pointer')
     , md5 = require('spark-md5')
     , stringify = require('json-stable-stringify')
-    , { PatchType } = require('./types')
+    , { PatchType, LocalPatch } = require('./types')
 
 
 /* Generate a JSON Patch to transform
@@ -90,7 +90,7 @@ function formatPatch(oldData, newData, message) {
     ? (message + '\n' + description)
     : description
 
-  return {
+  return LocalPatch.LocalPatchOf({
     forward,
     backward,
     message,
@@ -99,7 +99,7 @@ function formatPatch(oldData, newData, message) {
     created: new Date().getTime(),
     affectedAuthorities: affected.authorities,
     affectedPeriods: affected.periods,
-  }
+  })
 }
 
 module.exports = {

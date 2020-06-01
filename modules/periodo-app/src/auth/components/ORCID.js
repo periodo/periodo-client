@@ -22,7 +22,10 @@ class SignIn extends React.Component {
     const { dispatch, backend } = this.props
         , { name, token } = e.data
 
+    if (!this.oauthWindow) return
+
     this.oauthWindow.close()
+    this.oauthWindow = null;
 
     await dispatch(BackendAction.AddOrcidCredential(
       backend.storage,

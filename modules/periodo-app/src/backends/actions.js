@@ -5,10 +5,11 @@ const R = require('ramda')
     , Type = require('union-type')
     , { normalizeDataset, isDataset } = require('periodo-utils').dataset
     , { formatPatch } = require('../patches/patch')
-    , { Backend, BackendMetadata, BackendStorage } = require('./types')
+    , { Backend, BackendMetadata, BackendStorage, BackendBackup } = require('./types')
     , { NotImplementedError } = require('../errors')
     , { makeTypedAction, getResponse } = require('org-async-actions')
     , DatasetProxy = require('./dataset_proxy')
+    , { stripUnionTypeFields } = require('periodo-common')
 
 function isDatasetProxy(obj) {
   return obj instanceof DatasetProxy
@@ -64,6 +65,27 @@ const BackendAction = module.exports = makeTypedAction({
     },
   },
 
+  GenerateBackendExport: {
+    exec: generateBackendExport,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {
+      backend: Object,
+      patches: Object,
+      dataset: Object,
+      dexieVersion: Number,
+    },
+  },
+
+  ImportBackend: {
+    exec: importBackend,
+    request: {
+      backup: Object,
+    },
+    response: {},
+  },
+
   UpdateLocalDataset: {
     exec: updateLocalDataset,
     request: {
@@ -85,6 +107,17 @@ const BackendAction = module.exports = makeTypedAction({
       withObj: Object,
     },
     response: {},
+  },
+
+  CheckServerAuthentication: {
+    exec: checkServerAuthentication,
+    request: {
+      storage: BackendStorage,
+    },
+    response: {
+      authorized: Boolean,
+      authInfo: Object,
+    },
   },
 
   AddOrcidCredential: {
@@ -207,7 +240,7 @@ function fetchBackend(storage, forceReload) {
         const ct = await db.localBackends
           .where('id')
           .equals(id)
-          .modify({ accessed: new Date() })
+          .modify({ accessed: Date.now() })
 
         if (ct != 1) {
           throw new Error(`No in-browser data source with id ${id}`);
@@ -344,6 +377,28 @@ function addBackend(storage, label='', description='') {
       _: () => null,
     }))
 
+    const attemptPersist = await storage.case({
+      IndexedDB: async () => {
+        const checkIfPersisted = (
+          typeof window !== 'undefined' &&
+          'navigator' in window &&
+          'storage' in window.navigator &&
+          'persisted' in window.navigator.storage
+        )
+
+        if (!checkIfPersisted) return false
+
+        const persisted = await window.navigator.storage.persisted()
+
+        return !persisted
+      },
+      _: () => false,
+    })
+
+    if (attemptPersist) {
+      await window.navigator.storage.persist()
+    }
+
     const id = await table.add(backendObj);
 
 
@@ -427,7 +482,9 @@ function updateLocalDataset(storage, newRawDataset, message) {
 
     await _refetch()
 
-    const patchData = formatPatch(dataset.raw, newRawDataset, message)
+    let patchData = formatPatch(dataset.raw, newRawDataset, message)
+
+    patchData = stripUnionTypeFields(patchData, false)
 
     const updatedBackend = {
       ...backend.metadata,
@@ -453,6 +510,90 @@ function updateLocalDataset(storage, newRawDataset, message) {
       dataset: new DatasetProxy(newRawDataset),
       patchData,
     }
+  }
+}
+
+
+function generateBackendExport(storage) {
+  return async (dispatch, getState, { db }) => {
+    let id
+
+    storage.case({
+      IndexedDB: _id => { id = _id },
+      _: () => {
+        throw new Error(
+          `Cannot export data source of type ${storage._type}.`
+        )
+      },
+    })
+
+    const backend = await db.localBackends.get(id)
+
+    const patches = await db.localBackendPatches
+      .where('backendID')
+      .equals(id)
+      .toArray()
+
+    delete backend.id
+    delete backend.orcidCredential
+
+    patches.forEach(patch => {
+      delete patch.id
+      delete patch.backendID
+    })
+
+    const { dataset } = backend
+
+    delete backend.dataset
+
+    const backup = {
+      backend,
+      dataset,
+      patches,
+      dexieVersion: db.verno,
+    }
+
+    return backup
+  }
+}
+
+
+function importBackend(backupData) {
+  return async (dispatch, getState, { db }) => {
+    let backup
+
+    try {
+      backup = BackendBackup.fromObject(backupData)
+    } catch (e) {
+      throw new Error('Not a valid backup')
+    }
+
+    // TODO: Deal with dexie versions, if we ever go past the one now
+
+    const { metadata, dataset, patches } = stripUnionTypeFields(backup, false)
+
+    let backendID
+
+    await db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
+      backendID = await db.localBackends.add({
+        ...metadata,
+        dataset,
+      })
+
+      const patchesWithBackend = patches.map(patch => ({
+        ...patch,
+        backendID,
+      }))
+
+      db.localBackendPatches.bulkAdd(patchesWithBackend)
+    })
+
+    const storage = BackendStorage.IndexedDB(backendID)
+
+    await dispatch(BackendAction.GetAllBackends)
+    await dispatch(BackendAction.GetBackendDataset(storage, true))
+
+    return {}
   }
 }
 
@@ -493,6 +634,70 @@ function deleteBackend(storage) {
   }
 }
 
+function checkServerAuthentication(storage) {
+  const notAuthorized = {
+    authorized: false,
+    authInfo: {
+      id: null,
+      name: null,
+      permissions: null,
+    },
+  }
+
+  return async (dispatch, getState) => {
+    const cont = storage.case({
+      Web: () => true,
+      _: () => false,
+    })
+
+    if (!cont) return notAuthorized
+
+    const identifier = storage.asIdentifier()
+        , backend = R.path([ 'backends', 'available', identifier ], getState())
+
+    let token
+
+    if (backend) {
+      token = (backend.metadata.orcidCredential || {}).token
+    }
+
+    if (!token) {
+      return notAuthorized
+    }
+
+    // At this point, we know the backend exists and that it has an ORCID token
+    // associated with it. Those tokens can expire if someone authenticates
+    // from another browser context, so now we check it.
+    const authURL = new URL('identity', storage.url)
+
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    })
+
+    const resp = await fetch(authURL, { headers })
+
+    // This backend previously had a token stored, but it is no longer valid,
+    // so we need to remove it.
+    if (!resp.ok) {
+      await dispatch(BackendAction.RemoveOrcidCredential(storage))
+
+      return notAuthorized
+    }
+
+    const { id, name, permissions } = await resp.json()
+
+    return {
+      authorized: true,
+      authInfo: {
+        id,
+        name,
+        permissions,
+      },
+    }
+  }
+}
+
 function addOrcidCredential(storage, token, name) {
   return async dispatch => {
     storage.case({
@@ -508,6 +713,8 @@ function addOrcidCredential(storage, token, name) {
         name,
       },
     }))
+
+    await dispatch(BackendAction.CheckServerAuthentication(storage))
 
     return {}
   }

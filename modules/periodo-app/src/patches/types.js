@@ -182,7 +182,29 @@ PatchType.prototype.getLabel = function (minimal) {
   })
 }
 
+function isJSONPatch(val) {
+  return (
+    typeof val === 'object' &&
+    typeof val.op === 'string' &&
+    typeof val.path === 'string'
+  )
+}
+
+const LocalPatch = Type({
+  LocalPatch: {
+    forward: Type.ListOf(isJSONPatch),
+    backward: Type.ListOf(isJSONPatch),
+    message: String,
+    forwardHashes: Type.ListOf(String),
+    backwardHashes: Type.ListOf(String),
+    created: Date,
+    affectedAuthorities: Type.ListOf(String),
+    affectedPeriods: Type.ListOf(String),
+  },
+})
+
 module.exports = {
+  LocalPatch,
   PatchDirection,
   PatchFate,
   PatchType,

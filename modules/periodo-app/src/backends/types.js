@@ -2,6 +2,7 @@
 
 const Type = require('union-type')
     , isURL = require('is-url')
+    , { LocalPatch } = require('../patches/types')
 
 const BackendStorage = Type({
   Web: { url: isURL },
@@ -84,9 +85,33 @@ Backend.prototype.isEditable = function () {
   return this.storage.isEditable();
 }
 
+const BackendBackup = Type({
+  BackendBackup: {
+    metadata: BackendMetadata,
+    dexieVersion: Number,
+    dataset: Object,
+    patches: Type.ListOf(LocalPatch),
+  },
+})
+
+BackendBackup.fromObject = object => {
+  const { dataset, dexieVersion } = object
+
+  const metadata = BackendMetadata.BackendMetadataOf(object.backend)
+
+  const patches = object.patches.map(patch => LocalPatch.LocalPatchOf(patch))
+
+  return BackendBackup.BackendBackupOf({
+    dataset,
+    metadata,
+    patches,
+    dexieVersion,
+  })
+}
 
 module.exports = {
   Backend,
   BackendMetadata,
   BackendStorage,
+  BackendBackup,
 }

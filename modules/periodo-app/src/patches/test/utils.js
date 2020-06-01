@@ -2,7 +2,7 @@
 
 const test = require('blue-tape')
     , R = require('ramda')
-    , { PatchType } = require('../types')
+    , { PatchType, LocalPatch } = require('../types')
 
 test('Formatting and hashing patches', async t => {
   const { formatPatch } = require('../patch');
