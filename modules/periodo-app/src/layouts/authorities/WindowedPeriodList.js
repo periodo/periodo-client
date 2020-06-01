@@ -161,6 +161,7 @@ function ItemRow({
       },
       ['data-selected']: selectedPeriod === period,
       onMouseDown: toggleSelectedPeriod,
+      onTouchStart: toggleSelectedPeriod,
       onMouseEnter: () => {
         setHoveredPeriod(period)
       },

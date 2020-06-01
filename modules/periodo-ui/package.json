@@ -23,7 +23,7 @@
     "glslify": "^7.0.0",
     "language-tags": "^1.0.5",
     "linkify-it": "^3.0.2",
-    "mixmap": "^1.5.2",
+    "mixmap": "github:periodo/mixmap",
     "open-color": "1.7.0",
     "org-shell": "^6.0.4",
     "ramda": "^0.27.0",

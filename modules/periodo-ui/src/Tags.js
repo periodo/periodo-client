@@ -71,6 +71,10 @@ const Message = ({ text, ...props }) =>  h(Span, {
   ...props,
 }, text)
 
+const listItem = child => h(
+  'li', { style: { display: 'inline-block' }}, [ child ]
+)
+
 // items must have { id, label }
 const Tags = ({
   items,
@@ -148,18 +152,21 @@ const Tags = ({
   const children = [
     ...(tags.length
       ? tags
-      : [ h(Message, { text: emptyMessage }) ]),
+      : [ listItem(h(Message, { text: emptyMessage })) ]
+    ),
 
     (suggestedTags.length && suggestedTagsLabel)
-      ? h(Message, {
-        text: suggestedTagsLabel,
-        ml: tags.length ? 1 : 0,
-      })
+      ? listItem(
+        h(Message, {
+          text: suggestedTagsLabel,
+          ml: tags.length ? 1 : 0,
+        })
+      )
       : null,
 
     ...suggestedTags,
 
-    editLink ? editLink : null,
+    editLink ? listItem(editLink) : null,
   ]
 
   return h(Box, {
