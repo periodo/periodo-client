@@ -17,6 +17,8 @@ function makeAlert(color) {
   })
 }
 
+exports.Alert$Warning = makeAlert('yellow')
+
 exports.Alert$Success = makeAlert('green')
 
 exports.Alert$Error = makeAlert('red')

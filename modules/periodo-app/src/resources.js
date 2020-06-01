@@ -11,7 +11,7 @@ const h = require('react-hyperscript')
     , GraphsAction = require('./graphs/actions')
     , Type = require('union-type')
     , { ReactReduxContext, connect } = require('react-redux')
-    , { Box } = require('periodo-ui')
+    , { Box, Alert$Warning, Link } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
     , { BackendContext, LoadingIcon } = require('periodo-ui')
@@ -28,7 +28,7 @@ async function throwIfUnsuccessful(promise) {
   })
 }
 
-function hasEditableBackend({ params }) {
+function isLocalBackend({ params }) {
   return params.backendID.startsWith('local-')
 }
 
@@ -211,18 +211,45 @@ function withBackendContext(Component) {
     const { backendID } = ownProps.params
 
     return {
+      storagePersisted: state.main.browser.isPersisted,
       backend: state.backends.available[backendID],
       dataset: state.backends.datasets[backendID],
     }
   }
 
   function BackendKnower(props) {
+    let showPersistenceWarning = false
+
+    if (props.backend) {
+      showPersistenceWarning = props.backend.storage.case({
+        IndexedDB: () => !props.storagePersisted,
+        _: () => false,
+      })
+    }
+
     return h(BackendContext.Provider, {
       value: {
         dataset: props.dataset,
         backend: props.backend,
       },
-    }, h(Component, props))
+    }, [
+      !showPersistenceWarning ? null : (
+        h(Alert$Warning, {
+          width: '100%',
+          mb: 2,
+        }, [
+          'Warning: Using local data source without persistent data storage. See the ',
+          h(Link, {
+            route: new Route('settings'),
+          }, 'settings page'),
+          ' for details',
+        ])
+      ),
+      h(Component, {
+        key: 'component',
+        ...props,
+      }),
+    ])
   }
 
   return connect(mapStateToProps)(BackendKnower)
@@ -263,6 +290,7 @@ function getCurrentBackendStorage(props) {
 const Backend = {
   label: 'Data source',
   parent: Home,
+  isLocalBackend,
   resources: {
     'backend-home': {
       label: 'Browse periods',
@@ -328,7 +356,7 @@ const Backend = {
     'backend-add-authority': {
       label: 'Add authority',
       Component: require('./backends/components/AuthorityAddOrEdit'),
-      showInMenu: hasEditableBackend,
+      showInMenu: isLocalBackend,
     },
     'backend-patches': {
       label: 'Review submitted changes',
@@ -388,7 +416,7 @@ const Backend = {
     'backend-sync': {
       label: 'Import changes',
       Component: require('./backends/components/SyncBackend'),
-      showInMenu: hasEditableBackend,
+      showInMenu: isLocalBackend,
       mapStateToProps(state) {
         return {
           backends: state.backends.available,
@@ -398,7 +426,7 @@ const Backend = {
     'backend-submit-patch': {
       label: 'Submit changes',
       Component: require('./backends/components/BackendSubmitPatch'),
-      showInMenu: hasEditableBackend,
+      showInMenu: isLocalBackend,
       async loadData(props, log, finished) {
         await checkServerAuthentication(log, props)
 
@@ -626,13 +654,13 @@ const Authority = {
 
     'authority-edit': {
       label: 'Edit',
-      showInMenu: hasEditableBackend,
+      showInMenu: isLocalBackend,
       Component: require('./backends/components/AuthorityAddOrEdit'),
     },
 
     'authority-add-period': {
       label: 'Add period',
-      showInMenu: hasEditableBackend,
+      showInMenu: isLocalBackend,
       Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
@@ -708,7 +736,7 @@ const Period = {
 
     'period-edit': {
       label: 'Edit',
-      showInMenu: hasEditableBackend,
+      showInMenu: isLocalBackend,
       Component: require('./backends/components/PeriodAddOrEdit'),
     },
 
