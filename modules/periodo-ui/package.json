@@ -26,6 +26,8 @@
     "mixmap": "github:periodo/mixmap",
     "open-color": "1.7.0",
     "org-shell": "^6.0.4",
+    "periodo-common": "^1.0.0",
+    "periodo-utils": "^5.0.0",
     "ramda": "^0.27.0",
     "react": "^16.13.1",
     "react-aria-menubutton": "^6.3.0",
