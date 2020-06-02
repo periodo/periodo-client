@@ -10,10 +10,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "glsl-hsl2rgb": "^1.1.0",
-    "tape": "^5.0.0"
-  },
   "dependencies": {
     "clean-tag": "^1.1.0",
     "debounce": "^1.2.0",
