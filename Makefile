@@ -18,6 +18,9 @@ PKG := $(VERSIONED_DIRECTORY)/$(PROJECT_NAME)-$(VERSION).tgz
 
 BROWSERIFY_ENTRY = modules/periodo-app/src/index.js
 
+LINKED_MODULES := $(wildcard modules/*)
+LINKED_MODULE_SYMLINKS := $(subst modules/,node_modules/,$(LINKED_MODULES))
+
 JS_FILES := $(shell find modules/ -type f -name '*js' -not -path '*/node_modules/*')
 ASSET_FILES := $(shell find images/ -type f)
 PACKAGE_JSON_FILES := $(shell find . -name package.json -not -path '*/node_modules/*')
@@ -38,14 +41,13 @@ ZIPPED_FILES = $(VERSIONED_JS_BUNDLE) \
 
 all: $(VERSIONED_ZIPFILE)
 
-watch: node_modules | dist
+watch: node_modules $(LINKED_MODULE_SYMLINKS) | dist
 	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
 
-test: node_modules
+test: node_modules $(LINKED_MODULE_SYMLINKS)
 	npm test
 
 clean:
-	test -f $(NPM_BIN)/lerna && $(NPM_BIN)/lerna clean --yes || exit 0
 	rm -rf node_modules
 	rm -rf dist
 
@@ -74,9 +76,11 @@ dist:
 
 node_modules: package.json
 	npm install || rm -rf $@
-	$(NPM_BIN)/lerna bootstrap --hoist || rm -rf $@
 
-$(VERSIONED_JS_BUNDLE): node_modules $(JS_FILES) | dist
+node_modules/%: modules/%
+	ln -s ../$< $@
+
+$(VERSIONED_JS_BUNDLE): node_modules $(LINKED_MODULE_SYMLINKS) $(JS_FILES) | dist
 	$(BROWSERIFY_PREAMBLE) NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@
 
 $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)

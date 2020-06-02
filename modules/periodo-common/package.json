@@ -6,10 +6,5 @@
   "main": "src/index.js",
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "react": "^16.13.1",
-    "react-hyperscript": "github:periodo/react-hyperscript",
-    "union-type": "github:ptgolden/union-type"
-  }
+  "license": "ISC"
 }
