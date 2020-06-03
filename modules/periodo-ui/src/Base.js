@@ -1,70 +1,25 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , styled = require('styled-components').default
+    , { Flex, Box, Text } = require('rebass')
     , ss = require('styled-system')
-    , tag = require('clean-tag').default
+    , styled = require('@emotion/styled').default
 
-const fns = [
-  ss.display,
-  ss.space,
-  ss.color,
-  ss.borders,
-  ss.borderColor,
-  ss.borderRadius,
 
-  ss.fontWeight,
-  ss.fontSize,
+const Pre = props =>
+  h(Box, {
+    as: 'pre',
+    sx: {
+      whiteSpace: 'pre-wrap',
+      fontFamily: 'monospace',
+    },
+    ...props,
+  })
 
-  ss.width,
-  ss.height,
-  ss.maxWidth,
-  ss.maxHeight,
-  ss.minWidth,
-  ss.minHeight,
-  ss.lineHeight,
-
-  ss.alignSelf,
-  ss.flex,
-  ss.textAlign,
-  ss.verticalAlign,
-
-  ss.position,
-  ss.layout,
-]
-
-const Box = styled(tag)([], [
-  ...fns,
-  props => ({ ...props.css }),
-])
-
-Box.defaultProps = {
-  blacklist: Object.keys(ss.propTypes).concat([
-    'css',
-  ]),
-}
-
-const Pre = styled(tag.pre)([], [
-  ...fns,
-  {
-    whiteSpace: 'pre-wrap',
-    fontFamily: 'monospace',
-  },
-])
-
-const Flex = Box.extend([], [
-  { display: 'flex' },
-  ss.alignItems,
-  ss.justifyContent,
-  ss.flexWrap,
-  ss.flexDirection,
-])
-
-const Grid = Box.extend([], [
+const Grid = styled(Box)(
   { display: 'grid' },
-  ss.gridTemplateColumns,
-  ss.gridTemplateRows,
-])
+  ss.grid
+)
 
 const tagsForLevel = {
   1: 'h1',
@@ -84,61 +39,64 @@ const sizeForLevel = {
   6: '0.8rem',
 }
 
-const _Heading = props => {
-  const tag = tagsForLevel[props.level] || 'h1'
+const Heading = props => {
+  const { level=1 } = props
+      , tag = tagsForLevel[level]
 
-  return h(tag, props)
+  return (
+    h(Text, {
+      as: tag,
+      sx: {
+        fontWeight: 'bold',
+        fontSize: sizeForLevel[level],
+      },
+    })
+  )
 }
 
-const Heading = styled(_Heading)([], [
-  ...fns,
-  props => ({
-    fontWeight: 'bold',
-    fontSize: props.fontSize || sizeForLevel[props.level] || '12px',
-  }),
-])
+const ResourceTitle = props =>
+  h(Heading, {
+    level: 2,
+    mb: 3,
+    ...props,
+  })
 
-const ResourceTitle = props => h(Heading, {
-  level: 2,
-  mb: 3,
-  ...props,
-})
+const SectionHeading = props =>
+  h(Heading, {
+    level: 3,
+    my: 2,
+    ...props,
+  })
 
-const SectionHeading = props => h(Heading, {
-  level: 3,
-  mt: 2,
-  mb: 2,
-  ...props,
-})
-
-const Section = props => h(Box, {
-  p: 3,
-  mb: 3,
-  bg: 'white',
-  className: 'section',
-  css: {
-    '.block + .block': {
-      marginTop: '16px',
+const Section = props =>
+  h(Box, {
+    className: 'section',
+    sx:  {
+      p: 3,
+      mb: 3,
+      bg: 'white',
+      '.block + .block': {
+        marginTop: 3,
+      },
     },
-  },
-  ...props,
-})
+    ...props,
+  })
 
-const Span = styled(tag.span)([], [
-  ...fns,
-])
+const Span = props =>
+  h(Box, {
+    as: 'span',
+    ...props,
+  })
 
-const Text = styled(tag.p)([], [
-  ...fns,
-])
-
-const HelpText = props => h(Text, {
-  size: 1,
-  color: 'gray.7',
-  mb: '4px',
-  ...props,
-})
-
+const HelpText = props =>
+  h(Text, {
+    sx: {
+      fontSize: 1,
+      color: 'gray.7',
+      mb: 1,
+    },
+    ...props,
+  })
 
 module.exports = {
   Box,

@@ -12,11 +12,12 @@ function addUIModules(mods) {
 exports.theme = require('./theme')
 
 addUIModules([
+  require('./Base'),
+  /*
   require('./Alerts'),
   require('./Authority'),
   require('./Autosuggest'),
   require('./BackendContext'),
-  require('./Base'),
   require('./Breadcrumb'),
   require('./Buttons'),
   require('./Dataset'),
@@ -44,4 +45,5 @@ addUIModules([
   require('./WorldMap'),
   require('./diffable/Value'),
   require('./util'),
+  */
 ])

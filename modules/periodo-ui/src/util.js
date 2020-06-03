@@ -1,17 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , ss = require('styled-system')
     , linkifier = require('linkify-it')()
     , { ExternalLink } = require('./Links')
-
-const ssProps = Object.values(ss.propTypes)
-  .map(Object.keys)
-  .reduce((a, b) => a.concat(b))
-
-function blacklist(...keys) {
-  return ssProps.concat(keys)
-}
 
 const linkify = text => {
   const links = linkifier.match(text)
@@ -43,6 +34,5 @@ const linkify = text => {
 }
 
 module.exports = {
-  blacklist,
   linkify,
 }
