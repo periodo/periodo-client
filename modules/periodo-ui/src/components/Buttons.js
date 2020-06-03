@@ -1,9 +1,11 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , sys = require('system-components').default
-    , { themeGet } = require('styled-system')
+    , { themeGet } = require('@styled-system/theme-get')
+    , { useTheme } = require('emotion-theming')
     , { Box } = require('./Base')
+
+// FIXME: use variants?
 
 function makeButton(color, startShade=5, extra) {
   const shade = n => `${color}.${startShade + n}`
@@ -15,29 +17,35 @@ function makeButton(color, startShade=5, extra) {
       ${themeGet('colors.' + shade(n))(props)} 85%
     )`
 
-  return sys({
-    is: 'button',
-    px: 3,
-    py: 2,
-    border: 1,
-    borderColor: shade(3),
-    color: 'white',
-    fontSize: 1,
-    fontWeight: 'bold',
-  }, 'position',
-  props => ({
-    cursor: 'pointer',
-    backgroundImage: gradient(0, 1)(props),
-    ':hover': {
-      backgroundImage: gradient(1, 2)(props),
-    },
-    ':disabled': {
-      cursor: 'not-allowed',
-      opacity: .4,
-    },
-    ...extra,
-  })
-  )
+  return function (props) {
+    const theme = useTheme()
+
+    return (
+      h(Box, {
+        as: 'button',
+        sx: {
+          px: 3,
+          py: 2,
+          border: 1,
+          borderColor: shade(3),
+          color: 'white',
+          fontSize: 1,
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          backgroundImage: gradient(0, 1)({ theme }),
+          ':hover': {
+            backgroundImage: gradient(1, 2)({ theme }),
+          },
+          ':disabled': {
+            cursor: 'not-allowed',
+            opacity: .4,
+          },
+          ...extra,
+        },
+        ...props,
+      })
+    )
+  }
 }
 
 

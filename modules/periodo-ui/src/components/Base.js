@@ -50,6 +50,7 @@ const Heading = props => {
         fontWeight: 'bold',
         fontSize: sizeForLevel[level],
       },
+      ...props,
     })
   )
 }
