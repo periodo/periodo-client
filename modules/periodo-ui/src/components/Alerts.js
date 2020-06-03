@@ -1,20 +1,25 @@
 "use strict";
 
-const { Box } = require('./Base')
-    , extend = require('./extend')
+const h = require('react-hyperscript')
+    , { Box } = require('./Base')
+
+// FIXME: Change these to variants
 
 function makeAlert(color) {
-  return extend(Box, {
-    display: 'inline-block',
-    p: 2,
-    border: 1,
-    fontSize: 1,
-    fontWeight: 'bold',
+  return props =>
+    h(Box, {
+      sx: {
+        p: 2,
+        border: 1,
+        fontSize: 1,
+        fontWeight: 'bold',
 
-    bg: `${color}.2`,
-    color: `${color}.9`,
-    borderColor: `${color}.6`,
-  })
+        bg: `${color}.2`,
+        color: `${color}.9`,
+        borderColor: `${color}.6`,
+      },
+      ...props,
+    })
 }
 
 exports.Alert$Warning = makeAlert('yellow')

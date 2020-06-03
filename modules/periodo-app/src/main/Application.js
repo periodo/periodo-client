@@ -7,14 +7,16 @@ const h = require('react-hyperscript')
     , { Flex, Pre, Box, Heading, Section, SectionHeading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { Provider } = require('react-redux')
-    , { ThemeProvider } = require('styled-components')
     , createStore = require('../store')
-    , resources = require('../resources')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , Action = require('./actions')
 
+/*
+    , { ThemeProvider } = require('styled-components')
+, resources = require('../resources')
 require('./global_css')
+*/
 
 function getRouteGroups(resource, props) {
   const hierarchy = resource.hierarchy || resources[''].hierarchy
@@ -325,6 +327,8 @@ class IndexedDBChecker extends React.Component {
 
 module.exports = function Shell() {
   const { store, db } = createStore()
+
+  return h(require('./Test'))
 
   return (
     h(Provider, { store },

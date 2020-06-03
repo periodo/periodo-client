@@ -13,13 +13,13 @@ exports.theme = require('./theme')
 
 addUIModules([
   require('./components/Base'),
-  /*
   require('./components/Alerts'),
+  require('./components/Buttons'),
+  /*
   require('./components/Authority'),
   require('./components/Autosuggest'),
   require('./components/BackendContext'),
   require('./components/Breadcrumb'),
-  require('./components/Buttons'),
   require('./components/Dataset'),
   require('./components/Debug'),
   require('./components/Details'),
