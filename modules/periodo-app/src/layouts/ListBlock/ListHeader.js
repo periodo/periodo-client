@@ -13,22 +13,22 @@ function ListHeader({
   toFirstPage,
 }) {
   return h(Box, {
-    is: 'thead',
+    as: 'thead',
     mb: 1,
   }, [
     h(Box, {
-      is: 'tr',
+      as: 'tr',
       bg: 'gray.1',
       textAlign: 'left',
     }, [
       h(Box, {
-        is: 'th',
+        as: 'th',
         key: 'first',
         style: { width: firstColumnWidth },
       }),
     ].concat(shownColumns.map(n =>
       h(Box, {
-        is: 'th',
+        as: 'th',
         key: n,
         p: 2,
         fontWeight: 'bold',

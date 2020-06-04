@@ -1,12 +1,14 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , { Flex, Box, Heading } = require('periodo-ui')
     , Spinner = require('respin')
 
-module.exports = props =>
-  h(Box.withComponent('header'), R.omit([ 'showSpinner' ], props), [
+module.exports = ({ showSpinner, ...props }) =>
+  h(Box, {
+    as: 'header',
+    ...props,
+  }, [
     h(Flex, {
       height: '100%',
       alignItems: 'center',
@@ -31,7 +33,7 @@ module.exports = props =>
       ]),
 
       h(Box, { width: 22 }, [
-        props.showSpinner && h(Spinner, { size: 22 }),
+        showSpinner && h(Spinner, { size: 22 }),
       ]),
 
       h(Box, ' '),

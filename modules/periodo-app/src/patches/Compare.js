@@ -25,7 +25,7 @@ const colors = {
 
 function Checkbox(props) {
   return h(Box, {
-    is: 'input',
+    as: 'input',
     type: 'checkbox',
     style: { flex: 'none' },
     ...props,
@@ -245,11 +245,11 @@ function AuthorityRow(props) {
 
   return (
     h(Box, {
-      is: 'tr',
+      as: 'tr',
       css: { verticalAlign: 'top' },
     }, [
       h(Box, {
-        is: 'td',
+        as: 'td',
         p: 2,
         css: {
           border: '1px solid #ccc',
@@ -305,7 +305,7 @@ function AuthorityRow(props) {
       ]),
 
       h(Box, {
-        is: 'td',
+        as: 'td',
         p: 2,
         css: {
           border: '1px solid #ccc',
@@ -599,12 +599,12 @@ class Compare extends React.Component {
           h(Box, [
             h(Heading, { level: 4 }, 'Change summary'),
             h(Box, {
-              is: 'ul',
+              as: 'ul',
               ml: 3,
             }, [
               Object.entries(countsByType).map(([ label, count ]) =>
                 h(Box, {
-                  is: 'li',
+                  as: 'li',
                   key: label,
                 }, `${label} (${count})`)
               ),
@@ -713,7 +713,7 @@ class Compare extends React.Component {
                   }),
 
                   h(Box, {
-                    is: 'table',
+                    as: 'table',
                     css: {
                       width: '100%',
                       borderCollapse: 'collapse',

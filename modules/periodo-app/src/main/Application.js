@@ -7,14 +7,14 @@ const h = require('react-hyperscript')
     , { Flex, Pre, Box, Heading, Section, SectionHeading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { Provider } = require('react-redux')
+    , { ThemeProvider } = require('emotion-theming')
     , createStore = require('../store')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , Action = require('./actions')
+    , resources = require('../resources')
 
 /*
-    , { ThemeProvider } = require('styled-components')
-, resources = require('../resources')
 require('./global_css')
 */
 
@@ -327,8 +327,6 @@ class IndexedDBChecker extends React.Component {
 
 module.exports = function Shell() {
   const { store, db } = createStore()
-
-  return h(require('./Test'))
 
   return (
     h(Provider, { store },

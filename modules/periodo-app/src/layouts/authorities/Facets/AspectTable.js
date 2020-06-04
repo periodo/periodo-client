@@ -3,21 +3,26 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , styled = require('styled-components').default
+    , styled = require('@emotion/styled').default
     , { Box, Flex, Link } = require('periodo-ui')
 
-const Table = Box.extend([], {
-  overflowY: 'scroll',
-  '& td': {
-    padding: '2px 5px',
-  },
-  '& td:first-of-type': {
-    color: '#999',
-  },
-  '& td:last-of-type': {
-    width: '100%',
-  },
-})
+const Table = props =>
+  h(Box, {
+    as: 'table',
+    sx: {
+      overflowY: 'scroll',
+      '& td': {
+        padding: '2px 5px',
+      },
+      '& td:first-of-type': {
+        color: '#999',
+      },
+      '& td:last-of-type': {
+        width: '100%',
+      },
+    },
+    ...props,
+  })
 
 function withoutValue(val, set) {
   const newSet = new Set(set)
@@ -31,17 +36,20 @@ function withValue(val, set) {
   return newSet;
 }
 
-const AspectContainer = styled(Flex)`
-&:not(:last-of-type) {
-  margin-right: 16px;
-}
+const AspectContainer = props =>
+  h(Flex, {
+    sx: {
+      '&:not(:last-of-type)': {
+        mr: '16px',
+      },
+    },
+    ...props,
+  })
+
+styled(Flex)`
 `
 
 class AspectTable extends React.Component {
-  constructor() {
-    super()
-  }
-
   shouldComponentUpdate(prevProps) {
     return (
       prevProps.counts !== this.props.counts
@@ -153,7 +161,6 @@ class AspectTable extends React.Component {
         ): [
           selectedRows.length === 0 ? null : (
             h(Table, {
-              is: 'table',
               className: 'selected',
               px: 1,
               py: 1,
@@ -165,7 +172,6 @@ class AspectTable extends React.Component {
 
           unselectedRows.length === 0 ? null : (
             h(Table, {
-              is: 'table',
               px: 1,
               width: '100%',
               bg: 'gray.1',

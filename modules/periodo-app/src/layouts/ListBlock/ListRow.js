@@ -15,7 +15,7 @@ function ListRow({
   itemEditRoute,
 }) {
   return h(Box, {
-    is: 'tr',
+    as: 'tr',
     key: item.id,
     m: 0,
     bg: 'gray.1',
@@ -24,7 +24,7 @@ function ListRow({
     },
   }, [
     h(Box, {
-      is: 'td',
+      as: 'td',
       key: '_numbering',
       p: 2,
       verticalAlign: 'middle',
@@ -55,7 +55,7 @@ function ListRow({
     ]),
   ].concat(R.values(R.pick(shownColumns, columns)).map(
     col => h(Box, {
-      is: 'td',
+      as: 'td',
       key: col.label,
       p: 2,
       verticalAlign: 'middle',

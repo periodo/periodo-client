@@ -32,12 +32,12 @@ class LDInput extends React.Component {
           'Paste into the field below a'),
 
         h(Box, {
-          is: 'ul',
+          as: 'ul',
           ml: 3,
           mb: 1,
         }, [
           h(HelpText, {
-            is: 'li',
+            as: 'li',
             mt: 1,
           }, [
             'URL from the ',
@@ -46,7 +46,7 @@ class LDInput extends React.Component {
           ]),
 
           h(HelpText, {
-            is: 'li',
+            as: 'li',
             mt: 1,
           }, [
             'DOI from the ',
