@@ -4,3 +4,5 @@ modules/**/node_modules/
 periodo-client.js
 dist/*
 .DS_Store
+mkcert
+*.pem
