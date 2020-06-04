@@ -10,13 +10,11 @@ const regl = require('regl')
     , { Box } = require('./Base')
     , { AriaButton } = require('./Buttons')
 
-let mixmap
-  , mix
+let createMap
 
 // Skip on server
 if (typeof window !== 'undefined') {
-  mixmap = require('mixmap')
-  mix = mixmap(regl)
+  createMap = require('mixmap')
 }
 
 const tiles = require('../../../images/maptiles/manifest.json')
@@ -75,9 +73,9 @@ const pad = (map, bbox) => {
     : bbox
 }
 
-const initializeMap = mix => {
+const initializeMap = () => {
 
-  const map = mix.create({ backgroundColor: [ 0, 0, 0, 0 ]})
+  const map = createMap(regl, { backgroundColor: [ 0, 0, 0, 0 ]})
 
   const drawTile = map.createDraw({
     frag: glsl`
@@ -321,7 +319,7 @@ class _Map extends Component {
   }
 
   componentDidMount() {
-    const map = initializeMap(mix)
+    const map = initializeMap()
     this.innerContainer.current.appendChild(
       map.render({
         width: getWidth(this.outerContainer.current),
