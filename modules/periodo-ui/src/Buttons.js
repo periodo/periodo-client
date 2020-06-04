@@ -52,12 +52,15 @@ exports.Button$Default = exports.Button = makeButton('gray', 0, {
 })
 
 
-const AriaButton = props =>
+const AriaButton = ({ css, ...props }) =>
   h(Box, {
     is: 'span',
     role: 'button',
     tabIndex: 0,
-    cursor: 'pointer',
+    css: {
+      cursor: 'pointer',
+      ...css,
+    },
     onKeyPress: e => {
       if (e.key === ' ') {
         e.preventDefault();
@@ -81,6 +84,8 @@ exports.LinkButton = props =>
     display: 'inline-block',
     px: 2,
     py: 1,
-    ':hover': { textDecoration: 'underline' },
+    css: {
+      ':hover': { textDecoration: 'underline' },
+    },
     ...props,
   })
