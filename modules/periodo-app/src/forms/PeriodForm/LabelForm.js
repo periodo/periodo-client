@@ -162,7 +162,7 @@ class LabelForm extends React.Component {
                 // I would just set the new label directly, but I want to
                 // preserve the `counter` property, so merging it is.
                 alternateLabels: R.adjust(
-                  R.flip(R.merge)(value), i, alternateLabels
+                  i, R.flip(R.mergeRight)(value), alternateLabels
                 ),
               }, this.updateLocalizedLabels)
             },
