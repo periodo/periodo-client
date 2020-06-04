@@ -45,75 +45,86 @@ const PlacesSelect = ({
   gazetteers,
   closable=false,
   inputProps={},
+  ...props
 }) => {
 
   const [ focusedFeature, setFocusedFeature ] = useState(null)
 
   const [ closed, setClosed ] = useState(closable ? true : false)
 
-  const editLink = h(Link, {
-    onClick: () => {
-      setClosed(!closed)
-      if (!closed) {
-        setFocusedFeature(null)
-      }
-    },
-    ml: 1,
-    fontWeight: 100,
-  }, closed ? 'Select places' : 'Done')
-
-  return h(Box, {}, [
-
-    h(Tags, {
-      items: coverage,
-      suggestedItems: suggestions,
-      editLink: closable ? editLink : null,
-      emptyMessage: 'No places selected.',
-      suggestedTagsLabel: 'Suggested places: ',
-      onFocus: ({ id }) => {
-        setFocusedFeature(gazetteers.find(id))
-        setClosed(false)
+  const editLink = (
+    h(Link, {
+      css: {
+        ml: 1,
+        fontWeight: 100,
       },
-      onBlur: () => {
-        setFocusedFeature(null)
-      },
-      onAcceptSuggestion: accepted => {
-        onChange([ ...coverage, accepted ])
-      },
-      onDeleteItem: deleted => {
-        onChange(coverage.filter(({ id }) => id !== deleted.id))
-      },
-    }),
+      onClick: () => {
+        setClosed(!closed)
 
-    closed
-      ? null
-      : h(Box, { maxWidth: '800px' }, [
+        if (!closed) {
+          setFocusedFeature(null)
+        }
+      },
+    }, closed ? 'Select places' : 'Done')
+  )
 
-        h(LabeledMap, {
-          focusedFeatures: focusedFeature ? [ focusedFeature ] : [],
-          features: coverage.map(({ id }) => gazetteers.find(id)),
-          mt: 1,
-        }),
+  return (
+    h(Box, {
+      ...props,
+    }, [
+      h(Tags, {
+        items: coverage,
+        suggestedItems: suggestions,
+        editLink: closable ? editLink : null,
+        emptyMessage: 'No places selected.',
+        suggestedTagsLabel: 'Suggested places: ',
+        onFocus: ({ id }) => {
+          setFocusedFeature(gazetteers.find(id))
+          setClosed(false)
+        },
+        onBlur: () => {
+          setFocusedFeature(null)
+        },
+        onAcceptSuggestion: accepted => {
+          onChange([ ...coverage, accepted ])
+        },
+        onDeleteItem: deleted => {
+          onChange(coverage.filter(({ id }) => id !== deleted.id))
+        },
+      }),
 
-        h(PlaceSuggest, {
-          gazetteers,
-          inputProps: {
-            autoFocus: closable,
-            ...inputProps,
+      closed ? null : (
+        h(Box, {
+          sx: {
+            maxWidth: '800px',
           },
-          onSuggestionHighlighted:
+        }, [
+          h(LabeledMap, {
+            focusedFeatures: focusedFeature ? [ focusedFeature ] : [],
+            features: coverage.map(({ id }) => gazetteers.find(id)),
+            mt: 1,
+          }),
+
+          h(PlaceSuggest, {
+            gazetteers,
+            inputProps: {
+              autoFocus: closable,
+              ...inputProps,
+            },
+            onSuggestionHighlighted:
             ({ suggestion: feature }) => setFocusedFeature(feature),
-          isSelected: feature => coverage.some(({ id }) => id === feature.id),
-          onSelect: feature => {
+            isSelected: feature => coverage.some(({ id }) => id === feature.id),
+            onSelect: feature => {
             const place = {
               id: feature.id,
               label: feature.properties.title,
             }
             onChange(togglePlace(place, coverage))
-          },
-        }),
-      ]),
-  ])
+            },
+          }),
+        ])
+      ),
+    ]))
 }
 
 exports.PlacesSelect = PlacesSelect

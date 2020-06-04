@@ -81,17 +81,17 @@ exports.Autosuggest = class _Autosuggest extends React.Component {
 
         renderSuggestion: (item, { isHighlighted }) =>
           h(Box, {
-            px: 1,
-            py: '6px',
-            border: 1,
-            borderColor: 'transparent',
-            css: {
+            sx: {
+              px: 1,
+              py: '6px',
+              border: 1,
+              borderColor: 'transparent',
               borderRadius: 1,
               ':hover': {
                 cursor: 'pointer',
               },
+              ...isHighlighted && { bg: 'gray.2' },
             },
-            ...isHighlighted && { bg: 'gray.2' },
           }, [
             item.name,
           ]),

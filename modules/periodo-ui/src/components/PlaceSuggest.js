@@ -55,23 +55,25 @@ const getSuggestions = gazetteers => (query = '') => gazetteers
 
 const renderSectionTitle = section =>
   h(Box, {
-    px: 1,
-    py: '6px',
-    border: 1,
-    borderColor: 'transparent',
-    fontWeight: 'bold',
-    css: { borderRadius: 1 },
+    sx: {
+      px: 1,
+      py: '6px',
+      border: 1,
+      borderColor: 'transparent',
+      fontWeight: 'bold',
+      borderRadius: 1,
+    },
   }, [
     section.title,
   ])
 
-const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
-  {
-    px: 1,
-    py: '6px',
-    border: 1,
-    borderColor: 'transparent',
-    css: {
+const renderSuggestion = (item, { isHighlighted, isSelected }) =>
+  h(Box, {
+    sx: {
+      px: 1,
+      py: '6px',
+      border: 1,
+      borderColor: 'transparent',
       borderRadius: 1,
       cursor: 'pointer',
     },
@@ -79,23 +81,28 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
   }, [
     h(Span, {
       display: 'inline-block',
-      width: '1em',
-      color: 'gray.6',
+      sx: {
+        width: '1em',
+        color: 'gray.6',
+      },
     }, isSelected ? '✓' : ' '),
     item.name,
-  ]
-)
+  ])
 
 exports.PlaceSuggest = ({
   gazetteers,
   onSuggestionHighlighted,
   isSelected,
   onSelect,
+  inputProps,
   ...props
 }) => h(Box, {
-  pt: 1,
-  bg: 'gray.1',
-  css: { position: 'relative' },
+  sx: {
+    pt: 1,
+    bg: 'gray.1',
+    position: 'relative',
+  },
+  ...props,
 }, [
   h(Autosuggest, {
     theme: {
@@ -127,7 +134,7 @@ exports.PlaceSuggest = ({
       id: 'coverage-area',
       border: 'none',
       placeholder: 'Begin typing to search for places',
-      ...props.inputProps,
+      ...inputProps,
     },
     onSuggestionHighlighted,
     onSelect,

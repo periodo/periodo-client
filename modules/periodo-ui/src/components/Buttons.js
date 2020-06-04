@@ -17,7 +17,7 @@ function makeButton(color, startShade=5, extra) {
       ${themeGet('colors.' + shade(n))(props)} 85%
     )`
 
-  return function (props) {
+  return props => {
     const theme = useTheme()
 
     return (
@@ -41,6 +41,7 @@ function makeButton(color, startShade=5, extra) {
             opacity: .4,
           },
           ...extra,
+          ...props.sx,
         },
         ...props,
       })

@@ -7,13 +7,13 @@ const h = require('react-hyperscript')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
     , { Route, Navigable } = require('org-shell')
-    , { blacklist } = require('./util')
+    , { blacklist } = require('../util')
 
 exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
     h(Box, {
-      p: '10px 12px',
-      css: {
+      sx: {
+        p: '10px 12px',
         minWidth: 200,
         ':hover': {
           cursor: 'pointer',
@@ -26,12 +26,13 @@ exports.DropdownMenuItem = props =>
 
 exports.DropdownMenuHeader = props =>
   h(Box, {
-    p: 1,
-    bg: 'gray2',
-    mb: 1,
-    css: {
+    sx: {
+      p: 1,
+      bg: 'gray2',
+      mb: 1,
       borderBottom: '1px solid #ccc',
     },
+    ...props,
   }, [
     h(Text, {
       css: {
@@ -41,41 +42,40 @@ exports.DropdownMenuHeader = props =>
   ])
 
 
-exports.DropdownMenuButton = Button.extend([], [
-  props => ({
-    paddingRight: '16px',
-    opacity: props.isOpen ? .8 : 1,
-    ':after': {
-      content: '"▼"',
-      opacity: props.isOpen ? .8 : 1,
-      fontSize: '11px',
-      position: 'relative',
-      left: '5px',
-      bottom: '1px',
-    },
-  }),
-])
-
-exports.DropdownMenuButton.defaultProps.blacklist = blacklist('isOpen')
-
-
-exports.DropdownMenuMenu = props =>
-  h(Box, {
-    p: 0,
-    border: 1,
-    borderColor: '#ccc',
-    bg: 'white',
+exports.DropdownMenuButton = ({ isOpen, ...props }) =>
+  h(Button, {
     css: {
+      paddingRight: '16px',
+      opacity: isOpen ? .8 : 1,
+      ':after': {
+        content: '"▼"',
+        opacity: isOpen ? .8 : 1,
+        fontSize: '11px',
+        position: 'relative',
+        left: '5px',
+        bottom: '1px',
+      },
+    },
+    ...props,
+  })
+
+
+exports.DropdownMenuMenu = ({ openLeft, ...props }) =>
+  h(Box, {
+    sx: {
+      p: 0,
+      border: 1,
+      borderColor: '#ccc',
+      bg: 'white',
       borderRadius: 2,
       position: 'absolute',
       boxShadow: '2px 1px 4px #ddd',
-      [props.openLeft ? 'right' : 'left']: 0,
+      [openLeft ? 'right' : 'left']: 0,
       marginTop: '3px',
       whiteSpace: 'nowrap',
       zIndex: 1,
-      ...props.css,
     },
-    ...R.omit([ 'openLeft', 'css' ], props),
+    ...props,
   }, props.children)
 
 
@@ -90,16 +90,27 @@ exports.DropdownMenu = Navigable(class DropdownMenu extends React.Component {
 
   render() {
     const { isOpen } = this.state
-        , { children, closeOnSelection, label, onSelection, openLeft, id, navigateTo } = this.props
+
+    const {
+      children,
+      closeOnSelection,
+      label,
+      onSelection,
+      openLeft,
+      id,
+      navigateTo,
+      focusMenu,
+      ...rest
+    } = this.props
 
     return (
       h(Box, {
-        css: {
+        sx: {
           position: 'relative',
           display: 'inline-block',
           userSelect: 'none',
         },
-        ...R.omit([ 'navigateTo', 'closeOnSelection', 'label', 'onSelection', 'openLeft', 'id', 'focusMenu' ], this.props),
+        ...rest,
       }, [
         h(MB.Wrapper, {
           onMenuToggle: e => { this.setState(e) },
@@ -120,12 +131,12 @@ exports.DropdownMenu = Navigable(class DropdownMenu extends React.Component {
               display: 'inline-block',
             },
             ref: () => {
-              if (this.props.focusMenu) {
+              if (focusMenu) {
                 document.getElementById(id).focus();
               }
             },
           }, h(exports.DropdownMenuButton, {
-            is: 'div',
+            as: 'div',
             p: '10px 20px 10px 11px',
             isOpen,
             active: isOpen,
@@ -146,7 +157,9 @@ exports.DropdownMenu = Navigable(class DropdownMenu extends React.Component {
 
 exports.DropdownMenuSeparator = () =>
   h(Box, {
-    is: 'hr',
-    mx: '8px',
-    my: '8px',
+    as: 'hr',
+    sx: {
+      mx: '8px',
+      my: '8px',
+    },
   })

@@ -10,17 +10,18 @@ exports.LabeledMap = ({
   features,
   height=300,
   ...props
-}) => h(Flex, {
-  ...props,
-}, [
-  h(WorldMap, {
-    focusedFeatures,
-    features,
-    flex: '1 1',
-    height,
-  }),
-  h(FeatureLabel, {
-    features: focusedFeatures,
-    height,
-  }),
-])
+}) =>
+  h(Flex, {
+    ...props,
+  }, [
+    h(WorldMap, {
+      focusedFeatures,
+      features,
+      flex: '1 1',
+      height,
+    }),
+    h(FeatureLabel, {
+      features: focusedFeatures,
+      height,
+    }),
+  ])

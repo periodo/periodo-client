@@ -30,18 +30,20 @@ function Pager({ total, limit, render }) {
     setStart(page * limit)
   }
 
-  return h('div', [
-    render({
-      start,
-      limit,
-      total,
-      shown: (start + limit) > total ? (total - start) : limit,
-      toPrevPage,
-      toNextPage,
-      toFirstPage,
-      toLastPage,
-    }),
-  ])
+  return (
+    h('div', [
+      render({
+        start,
+        limit,
+        total,
+        shown: (start + limit) > total ? (total - start) : limit,
+        toPrevPage,
+        toNextPage,
+        toFirstPage,
+        toLastPage,
+      }),
+    ])
+  )
 }
 
 function PagerControls({
@@ -56,85 +58,93 @@ function PagerControls({
   onLimitChange,
   ...props
 }) {
-  return h(Flex, {
-    justifyContent: 'center',
-    flex: '1 1 auto',
-    ...props,
-  }, [
-    h(Button, {
-      borderRadius: 0,
-      disabled: start === 0,
-      onClick: toFirstPage,
-    }, h(FirstIcon, {
-      onMouseDown: e => {
-        if (start === 0) {
-          e.stopPropagation();
-          e.preventDefault();
-        }
+  return (
+    h(Flex, {
+      sx: {
+        justifyContent: 'center',
+        flex: '1 1 auto',
       },
-    })),
+      ...props,
+    }, [
+      h(Button, {
+        borderRadius: 0,
+        disabled: start === 0,
+        onClick: toFirstPage,
+      }, h(FirstIcon, {
+        onMouseDown: e => {
+          if (start === 0) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        },
+      })),
 
-    h(Button, {
-      borderRadius: 0,
-      disabled: start === 0,
-      onClick: toPrevPage,
-      ml: '-1px',
-    }, h(PrevIcon, {
-      onMouseDown: e => {
-        if (start === 0) {
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      },
-    })),
+      h(Button, {
+        borderRadius: 0,
+        disabled: start === 0,
+        onClick: toPrevPage,
+        ml: '-1px',
+      }, h(PrevIcon, {
+        onMouseDown: e => {
+          if (start === 0) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        },
+      })),
 
-    h(Select, {
-      bg: 'gray.1',
-      value: limit,
-      minWidth: '60px',
-      onChange: e => onLimitChange(parseInt(e.target.value)),
-    }, [ 10, 25, 50, 100, 250 ].map(n =>
-      h('option', {
-        key: n,
-        value: n,
-      }, `Show ${n}`)
-    )),
+      h(Select, {
+        bg: 'gray.1',
+        value: limit,
+        minWidth: '60px',
+        onChange: e => onLimitChange(parseInt(e.target.value)),
+      }, [ 10, 25, 50, 100, 250 ].map(n =>
+        h('option', {
+          key: n,
+          value: n,
+        }, `Show ${n}`)
+      )),
 
-    h(Button, {
-      borderRadius: 0,
-      disabled: start + shown >= total,
-      onClick: toNextPage,
-      mr: '-1px',
-    }, h(NextIcon, {
-      onMouseDown: e => {
-        if (start + shown >= total) {
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      },
-    })),
+      h(Button, {
+        borderRadius: 0,
+        disabled: start + shown >= total,
+        onClick: toNextPage,
+        mr: '-1px',
+      }, h(NextIcon, {
+        onMouseDown: e => {
+          if (start + shown >= total) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        },
+      })),
 
-    h(Button, {
-      borderRadius: 0,
-      disabled: start + shown >= total,
-      onClick: toLastPage,
-    }, h(LastIcon, {
-      onMouseDown: e => {
-        if (start + shown >= total) {
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      },
-    })),
-  ])
+      h(Button, {
+        borderRadius: 0,
+        disabled: start + shown >= total,
+        onClick: toLastPage,
+      }, h(LastIcon, {
+        onMouseDown: e => {
+          if (start + shown >= total) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        },
+      })),
+    ])
+  )
 }
 
 function PagerCounter({ start, total, shown, ...props }) {
-  return h(Box, props, [
-    shown === 0
-      ? null
-      : h(Text, `${ start + 1 }–${ start + shown } of ${ total }`),
-  ])
+  return (
+    h(Box, props, [
+      shown === 0 ? null : (
+        h(Text, [
+          `${ start + 1 }–${ start + shown } of ${ total }`,
+        ])
+      ),
+    ])
+  )
 }
 
 module.exports = {

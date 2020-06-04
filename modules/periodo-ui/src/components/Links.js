@@ -1,26 +1,25 @@
 "use strict";
 
-const { Link } = require('org-shell')
-    , sys = require('system-components').default
+const h = require('react-hyperscript')
+    , { Link: ORGLink } = require('org-shell')
+    , { Text } = require('./Base')
 
-exports.Link = Link(sys({
-  is: 'a',
-  color: 'blue.5',
-}, 'space', 'display', 'fontSize', 'fontWeight', {
-  textDecoration: 'none',
-  ':hover': {
-    textDecoration: 'underline',
-  },
-  cursor: 'pointer',
-}))
+const Link = exports.Link = ORGLink(props =>
+  h(Text, {
+    as: 'a',
+    sx: {
+      color: 'blue.5',
+      textDecoration: 'none',
+      cursor: 'pointer',
+      ':hover': {
+        textDecoration: 'underline',
+      },
+    },
+    ...props,
+  }))
 
-exports.ExternalLink = Link(sys({
-  is: 'a',
-  color: 'blue.5',
-  target: '_blank',
-}, 'space', 'display', 'fontSize', 'fontWeight', {
-  textDecoration: 'none',
-  ':hover': {
-    textDecoration: 'underline',
-  },
-}))
+exports.ExternalLink = props =>
+  h(Link, {
+    target: '_blank',
+    ...props,
+  })
