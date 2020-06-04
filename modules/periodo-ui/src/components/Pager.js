@@ -61,8 +61,8 @@ function PagerControls({
   return (
     h(Flex, {
       sx: {
-        justifyContent: 'center',
-        flex: '1 1 auto',
+        alignItems: 'center',
+        justifyContent: 'space-between',
       },
       ...props,
     }, [
