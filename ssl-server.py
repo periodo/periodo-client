@@ -14,4 +14,7 @@ if __name__ == '__main__':
     httpsd.socket = context.wrap_socket(httpsd.socket, server_side=True)
     print(f'Serving HTTPS on {addr} port {port} (https://{addr}:{port}/) ...')
     print('Listening on ' + addr + ':' + str(port))
-    httpsd.serve_forever()
+    try:
+        httpsd.serve_forever()
+    except KeyboardInterrupt:
+        pass
