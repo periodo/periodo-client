@@ -679,19 +679,18 @@ class Compare extends React.Component {
                   },
                 }, [
                   h(Flex, {
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     mb: 3,
                   }, [
 
                     h(PagerCounter, {
-                      flex: 1,
                       start,
                       total,
                       shown,
                     }),
 
                     h(PagerControls, {
-                      flex: 0,
                       start,
                       limit,
                       total,
@@ -703,7 +702,7 @@ class Compare extends React.Component {
                       onLimitChange: limit => that.setState({ limit }),
                     }),
 
-                    h('div', { style: { flex: 1 }}, ''),
+                    h('div', ''),
                   ]),
 
                   editing && h(ToggleSelectAll, {

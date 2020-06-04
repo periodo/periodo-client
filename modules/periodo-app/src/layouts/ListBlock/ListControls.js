@@ -20,18 +20,17 @@ function ListControls({
 }) {
   return h(Flex, {
     alignItems: 'center',
+    justifyContent: 'space-between',
     mb: 3,
   }, [
 
     h(PagerCounter, {
-      flex: 1,
       start,
       total,
       shown,
     }),
 
     h(PagerControls, {
-      flex: 0,
       start,
       limit,
       total,
@@ -44,7 +43,6 @@ function ListControls({
     }),
 
     h(ColumnSelector, {
-      flex: 1,
       textAlign: 'right',
       columns,
       shownColumns,
