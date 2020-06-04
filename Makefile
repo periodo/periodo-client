@@ -34,9 +34,6 @@ ZIPPED_FILES = $(VERSIONED_JS_BUNDLE) \
 	       LICENSE \
 	       LICENSE-3RD-PARTY
 
-MKCERT_U := https://github.com/FiloSottile/mkcert/releases/download/
-MKCERT_V := v1.4.1
-OS := $(shell uname | tr '[:upper:]' '[:lower:]')
 
 ###################
 #  Phony targets  #
@@ -67,10 +64,7 @@ upload: $(PKG) $(PKG).sha256
 serve:
 	python3 -m http.server 5002
 
-serve_ssl: localhost+2.pem localhost+2-key.pem
-	python3 ssl-server.py
-
-.PHONY: all watch serve serve_ssl test clean upload stage publish
+.PHONY: all watch serve test clean upload stage publish
 
 
 #############
@@ -121,11 +115,3 @@ $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 		$(VERSIONED_DIRECTORY)/index.dev.html
 	cd dist && zip -r $(notdir $@) $(notdir $(VERSIONED_DIRECTORY))
 	rm -rf $(VERSIONED_DIRECTORY)
-
-mkcert:
-	wget $(MKCERT_U)$(MKCERT_V)/mkcert-$(MKCERT_V)-$(OS)-amd64 -O mkcert
-	chmod +x mkcert
-
-localhost+2.pem localhost+2-key.pem: mkcert
-	./mkcert -install
-	./mkcert localhost 127.0.0.1 ::1

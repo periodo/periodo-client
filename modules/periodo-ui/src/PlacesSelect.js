@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { useState } = require('react')
     , { Box } = require('./Base')
-    , { LinkButton } = require('./Buttons')
+    , { Link } = require('./Links')
     , { Tags } = require('./Tags')
     , { LabeledMap } = require('./LabeledMap')
     , { PlaceSuggest } = require('./PlaceSuggest')
@@ -51,17 +51,18 @@ const PlacesSelect = ({
 
   const [ closed, setClosed ] = useState(closable ? true : false)
 
-  const editLink = h(LinkButton, {
-    onSelect: () => {
+  const editLink = h(Link, {
+    onClick: () => {
       setClosed(!closed)
       if (!closed) {
         setFocusedFeature(null)
       }
     },
     ml: 1,
+    fontWeight: 100,
   }, closed ? 'Select places' : 'Done')
 
-  return h('div', [
+  return h(Box, {}, [
 
     h(Tags, {
       items: coverage,
@@ -78,9 +79,6 @@ const PlacesSelect = ({
       },
       onAcceptSuggestion: accepted => {
         onChange([ ...coverage, accepted ])
-      },
-      onAcceptAllSuggestions: () => {
-        onChange([ ...coverage, ...suggestions ])
       },
       onDeleteItem: deleted => {
         onChange(coverage.filter(({ id }) => id !== deleted.id))

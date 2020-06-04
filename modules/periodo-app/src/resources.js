@@ -886,7 +886,7 @@ function registerGroups(groups) {
 
       resource.mapStateToProps = (state, ownProps) => {
         return aggregated.mapStateToProps.reduce(
-          (props, fn) => R.mergeRight(props, fn(state, R.mergeRight(ownProps, props))),
+          (props, fn) => R.merge(props, fn(state, R.merge(ownProps, props))),
           {}
         )
       }
@@ -951,9 +951,9 @@ registerGroups({
 })
 
 module.exports = module.exports.reduce((acc, group) =>
-  R.mergeRight(
+  R.merge(
     acc,
-    R.map(resource => R.mergeRight(resource, ({
+    R.map(resource => R.merge(resource, ({
       Component: makeResourceComponent(resource, group),
       makeTitle: () => `${group.label} | ${resource.label}`,
     })), group.resources)

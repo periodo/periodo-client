@@ -84,7 +84,7 @@ function countChanges(changes) {
       Mutation: () => 'changed',
       Preservation: () => 'unchanged',
     })),
-    R.mergeRight({
+    R.merge({
       added: 0,
       deleted: 0,
       changed: 0,

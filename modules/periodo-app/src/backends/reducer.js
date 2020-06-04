@@ -45,7 +45,7 @@ module.exports = function backends(state=initialState(), action) {
         // contained in there. Instead, just merge.
         return R.over(
           R.lensProp('available'),
-          R.flip(R.mergeRight)(availableBackends),
+          R.flip(R.merge)(availableBackends),
           state
         )
       },

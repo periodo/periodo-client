@@ -255,7 +255,7 @@ class LayoutRenderer extends React.Component {
             onBlockOptsChange(
               R.isEmpty(newOpts)
                 ? R.dissoc(block.id, currentOpts())
-                : R.mergeRight(currentOpts(), { [block.id]: newOpts })
+                : R.merge(currentOpts(), { [block.id]: newOpts })
             )
             if (invalidate) {
               this.invalidate(i)
