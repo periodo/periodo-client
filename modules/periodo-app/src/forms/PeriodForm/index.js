@@ -91,7 +91,7 @@ module.exports = Validated(validatePeriod, props => {
       h(Section, [
         h(SpatialCoverageForm, {
           onValueChange: R.pipe(
-            R.mergeRight(value),
+            R.merge(value),
             onValueChange
           ),
           description: value.spatialCoverageDescription,
@@ -108,7 +108,7 @@ module.exports = Validated(validatePeriod, props => {
 
         h(TemporalCoverageForm, {
           onValueChange: R.pipe(
-            R.mergeRight(value),
+            R.merge(value),
             onValueChange
           ),
           start: value.start,

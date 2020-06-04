@@ -28,7 +28,7 @@ module.exports = function linkedData(state=initialState(), action) {
 
         return R.over(
           R.lensProp('nameByORCID'),
-          R.flip(R.mergeRight)(nameByORCID),
+          R.flip(R.merge)(nameByORCID),
           state
         )
       },

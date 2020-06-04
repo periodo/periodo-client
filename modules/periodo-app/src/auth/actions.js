@@ -37,7 +37,7 @@ function updateApplicationSettings(fn) {
         , { id } = settings
         , newSettings = fn(R.dissoc('id', settings))
 
-    await db.settings.put(R.mergeRight(newSettings, { id }))
+    await db.settings.put(R.merge(newSettings, { id }))
 
     return { settings: newSettings }
   }
