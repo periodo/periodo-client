@@ -14,7 +14,7 @@ exports.Patch = function (props) {
 
   return h(
     Dataset,
-    R.merge(
+    R.mergeRight(
       R.omit([ 'patch', 'data' ], props),
       {
         value: data,
