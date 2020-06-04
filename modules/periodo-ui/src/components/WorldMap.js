@@ -1,10 +1,10 @@
 "use strict";
 
-const regl = require('regl')
+const h = require('react-hyperscript')
+    , regl = require('regl')
     , resl = require('resl')
     , glsl = require('glslify')
     , createMesh = require('earth-mesh')
-    , h = require('react-hyperscript')
     , debounce = require('debounce')
     , { createRef, Component } = require('react')
     , { Box } = require('./Base')
@@ -19,7 +19,7 @@ if (typeof window !== 'undefined') {
   mix = mixmap(regl)
 }
 
-const tiles = require('../../../images/maptiles/manifest.json')
+const tiles = require('../../../../images/maptiles/manifest.json')
 
 const length = bbox => {
   const lonDelta = bbox[2] - bbox[0]
@@ -253,28 +253,29 @@ const ZoomButton = ({
   left='2px',
   children,
   ...props
-}) => h(AriaButton, {
-  position: 'absolute',
-  css: {
-    top,
-    left,
-    cursor: 'pointer',
-    backgroundImage: 'linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 85%)',
-    ':hover': {
-      backgroundImage: 'linear-gradient(to bottom, #f1f3f5 0%, #e9ecef 85%)',
+}) =>
+  h(AriaButton, {
+    position: 'absolute',
+    sx: {
+      top,
+      left,
+      cursor: 'pointer',
+      backgroundImage: 'linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 85%)',
+      ':hover': {
+        backgroundImage: 'linear-gradient(to bottom, #f1f3f5 0%, #e9ecef 85%)',
+      },
+      userSelect: 'none',
     },
-    userSelect: 'none',
-  },
-  bg: 'white',
-  pb: '4px',
-  fontSize: 4,
-  lineHeight: 1,
-  textAlign: 'center',
-  width: 30,
-  border: 1,
-  borderColor: 'gray.3',
-  ...props,
-}, children)
+    bg: 'white',
+    pb: '4px',
+    fontSize: 4,
+    lineHeight: 1,
+    textAlign: 'center',
+    width: 30,
+    border: 1,
+    borderColor: 'gray.3',
+    ...props,
+  }, children)
 
 class _Map extends Component {
 
@@ -298,26 +299,28 @@ class _Map extends Component {
   }
 
   render() {
-    return h('div', {
-      ref: this.outerContainer,
-      style: {
-        position: 'relative',
-        height: this.props.height,
-      },
-    }, [
+    return (
       h('div', {
-        className: 'mapCanvas',
-        ref: this.innerContainer,
-        style: { position: 'absolute' },
-      }),
-      h(ZoomButton, {
-        onSelect: this.zoomIn,
-      }, '+'),
-      h(ZoomButton, {
-        top: '34px',
-        onSelect: this.zoomOut,
-      }, '−'),
-    ])
+        ref: this.outerContainer,
+        style: {
+          position: 'relative',
+          height: this.props.height,
+        },
+      }, [
+        h('div', {
+          className: 'mapCanvas',
+          ref: this.innerContainer,
+          style: { position: 'absolute' },
+        }),
+        h(ZoomButton, {
+          onSelect: this.zoomIn,
+        }, '+'),
+        h(ZoomButton, {
+          top: '34px',
+          onSelect: this.zoomOut,
+        }, '−'),
+      ])
+    )
   }
 
   componentDidMount() {
@@ -422,13 +425,17 @@ exports.WorldMap = ({
   focusedFeatures,
   height=200,
   ...props
-}) => h(Box, {
-  bg: '#6194b9', // ocean color
-  ...props,
-}, [
-  h(_Map, {
-    features,
-    focusedFeatures,
-    height,
-  }),
-])
+}) =>
+  h(Box, {
+    sx: {
+      // FIXME: Move to theme
+      bg: '#6194b9', // ocean color
+    },
+    ...props,
+  }, [
+    h(_Map, {
+      features,
+      focusedFeatures,
+      height,
+    }),
+  ])

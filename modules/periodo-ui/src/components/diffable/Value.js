@@ -11,9 +11,8 @@ const h = require('react-hyperscript')
     , { Diff, findChanges, showChanges } = require('./Diff')
     , { BackendContext } = require('../BackendContext')
     , { useContext } = require('react')
-    , { linkify } = require('../util')
+    , { linkify } = require('../../util')
     , util = require('periodo-utils')
-    , styled = require('styled-components').default
 
 const abbreviate = id => {
   try {
@@ -237,10 +236,14 @@ function JSONLDContextEntryValue(props) {
 
 // Diffable values -------------------------------------------------------------
 
-const WhitespacePreservedText = styled(Span)`
-  white-space: pre-line;
-  word-break: break-word;
-`
+const WhitespacePreservedText = props =>
+  h(Span, {
+    sx: {
+      whiteSpace: 'pre-line',
+      wordBreak: 'break-word',
+    },
+    ...props,
+  })
 
 function TextValue(props) {
   const {

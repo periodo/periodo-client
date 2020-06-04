@@ -77,153 +77,166 @@ const rootStyle = {
   height: 80,
 }
 
-const StyledRail = props => h(Box, {
-  position: 'absolute',
-  width: '100%',
-  height: 10,
-  mt: '35px',
-  borderRadius: 5,
-  bg: 'gray.1',
-  style: {
-    cursor: 'pointer',
-  },
-  ...props,
-})
+const StyledRail = props =>
+  h(Box, {
+    sx: {
+      position: 'absolute',
+      width: '100%',
+      height: 10,
+      mt: '35px',
+      borderRadius: 5,
+      bg: 'gray.1',
+      cursor: 'pointer',
+    },
+    ...props,
+  })
 
 const Handle = ({
   handle: { id, value, percent },
   getHandleProps,
-}) => h(Box, {
-  bg: 'blue.4',
-  border: 0,
-  borderRadius: '50%',
-  color: '#333',
-  height: 20,
-  ml: '-9px',
-  mt: '30px',
-  position: 'absolute',
-  textAlign: 'center',
-  width: 20,
-  style: {
-    cursor: 'pointer',
-    left: `${percent}%`,
-    zIndex: 2,
-  },
-  ...getHandleProps(id),
-}, [
+  ...props
+}) =>
   h(Box, {
-    fontSize: 0,
-    position: 'absolute',
-    width: 100,
-    ml: '-39px',
-    mt: '-20px',
+    sx: {
+      bg: 'blue.4',
+      border: 0,
+      borderRadius: '50%',
+      color: '#333',
+      height: 20,
+      ml: '-9px',
+      mt: '30px',
+      position: 'absolute',
+      textAlign: 'center',
+      width: 20,
+      cursor: 'pointer',
+      left: `${percent}%`,
+      zIndex: 2,
+    },
+    ...getHandleProps(id),
+    ...props,
   }, [
-    domain[value].label,
-  ]),
-])
+    h(Box, {
+      sx: {
+        fontSize: 0,
+        position: 'absolute',
+        width: 100,
+        ml: '-39px',
+        mt: '-20px',
+      },
+    }, [
+      domain[value].label,
+    ]),
+  ])
 
 const Track = ({
   source,
   target,
   getTrackProps,
-}) => h(Box, {
-  bg: 'blue.4',
-  borderRadius: 5,
-  height: 10,
-  mt: '35px',
-  position: 'absolute',
-  width: `${target.percent - source.percent}%`,
-  style: {
-    cursor: 'pointer',
-    left: `${source.percent}%`,
-    zIndex: 1,
-  },
-  ...getTrackProps(),
-})
+}) =>
+  h(Box, {
+    sx: {
+      bg: 'blue.4',
+      borderRadius: 5,
+      height: 10,
+      mt: '35px',
+      position: 'absolute',
+      width: `${target.percent - source.percent}%`,
+      cursor: 'pointer',
+      left: `${source.percent}%`,
+      zIndex: 1,
+    },
+    ...getTrackProps(),
+  })
 
 const Tick = ({
   tick,
   count,
-}) => h('div', [
-  h(Box, {
-    bg: 'gray.5',
-    height: 8,
-    ml: '-0.5px',
-    mt: '50px',
-    position: 'absolute',
-    width: '1px',
-    style: {
-      left: `${tick.percent}%`,
-    },
-  }),
-  h(Box, {
-    fontSize: 10,
-    ml: `${-(100 / count) / 2}%`,
-    mt: '60px',
-    position: 'absolute',
-    textAlign: 'center',
-    width: `${100 / count}%`,
-    style: {
-      left: `${tick.percent}%`,
-    },
-  }, [
-    domain[tick.value].label,
-  ]),
-])
-
-function TimeSlider({ yearRange=[], onChange }) {
-  return h(Box, {
-    pl: '10px',
-    pr: '16px',
-  }, [
-    h(Slider, {
-      rootStyle,
-      domain: [ 0, domain.length - 1 ],
-      step: 1,
-      mode: 2,
-      values: toDomainRange(yearRange),
-      onChange: values => onChange(toYearRange(values)),
+}) =>
+  h('div', [
+    h(Box, {
+      sx: {
+        bg: 'gray.5',
+        height: 8,
+        ml: '-0.5px',
+        mt: '50px',
+        position: 'absolute',
+        width: '1px',
+        left: `${tick.percent}%`,
+      },
+    }),
+    h(Box, {
+      sx: {
+        fontSize: 10,
+        ml: `${-(100 / count) / 2}%`,
+        mt: '60px',
+        position: 'absolute',
+        textAlign: 'center',
+        width: `${100 / count}%`,
+        left: `${tick.percent}%`,
+      },
     }, [
-
-      h(Rail, [
-        ({ getRailProps }) => h(StyledRail, getRailProps()),
-      ]),
-
-      h(Handles, [
-        ({ handles, getHandleProps }) => h('div',
-          { className: 'slider-handles' },
-          handles.map(handle => h(Handle, {
-            key: handle.id,
-            handle,
-            getHandleProps,
-          }))),
-      ]),
-
-      h(Tracks, {
-        left: false,
-        right: false,
-      }, [
-        ({ tracks, getTrackProps }) => h('div',
-          { className: 'slider-tracks' },
-          tracks.map(({ id, source, target }) => h(Track, {
-            key: id,
-            source,
-            target,
-            getTrackProps,
-          }))),
-      ]),
-
-      h(Ticks, { count: domain.length }, [
-        ({ ticks }) => h('div',
-          { className: 'slider-ticks' },
-          ticks.map(tick => h(Tick, {
-            key: tick.id,
-            count: ticks.length,
-            tick,
-          }))),
-      ]),
+      domain[tick.value].label,
     ]),
   ])
+
+function TimeSlider({ yearRange=[], onChange, ...props }) {
+  return (
+    h(Box, {
+      sx: {
+        pl: '10px',
+        pr: '16px',
+      },
+      ...props,
+    }, [
+      h(Slider, {
+        rootStyle,
+        domain: [ 0, domain.length - 1 ],
+        step: 1,
+        mode: 2,
+        values: toDomainRange(yearRange),
+        onChange: values => onChange(toYearRange(values)),
+      }, [
+
+        h(Rail, [
+          ({ getRailProps }) => h(StyledRail, getRailProps()),
+        ]),
+
+        h(Handles, [
+          ({ handles, getHandleProps }) => h('div',
+            { className: 'slider-handles' },
+            handles.map(handle => h(Handle, {
+              key: handle.id,
+              handle,
+              getHandleProps,
+            }))),
+        ]),
+
+        h(Tracks, {
+          left: false,
+          right: false,
+        }, [
+          ({ tracks, getTrackProps }) => h('div',
+            { className: 'slider-tracks' },
+            tracks.map(({ id, source, target }) => h(Track, {
+              key: id,
+              source,
+              target,
+              getTrackProps,
+            }))),
+        ]),
+
+        h(Ticks, { count: domain.length }, [
+          ({ ticks }) => h('div',
+            { className: 'slider-ticks' },
+            ticks.map(tick => h(Tick, {
+              key: tick.id,
+              count: ticks.length,
+              tick,
+            }))),
+        ]),
+      ]),
+    ])
+  )
 }
 
 TimeSlider.getDefaultYearRange = () => [ ...defaultYearRange ]

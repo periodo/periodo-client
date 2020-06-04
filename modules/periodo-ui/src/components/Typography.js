@@ -1,20 +1,30 @@
 "use strict";
 
-const { Span } = require('./Base')
-    , { themeGet } = require('styled-system')
+const h = require('react-hyperscript')
+    , { Span } = require('./Base')
 
-const Italic = exports.Italic = Span.extend([], [
-  { fontStyle: 'italic' },
-])
+exports.Italic = props =>
+  h(Span, {
+    sx: {
+      fontStyle: 'italic',
+    },
+    ...props,
+  })
 
-exports.InfoText = Italic.extend([], [
-  props => ({
-    color: themeGet('colors.gray.8')(props),
-  }),
-])
+exports.InfoText = props =>
+  h(Span, {
+    sx: {
+      fontStyle: 'italic',
+      color: 'gray.8',
+    },
+    ...props,
+  })
 
-exports.WarnText = Italic.extend([], [
-  props => ({
-    color: themeGet('colors.red.5')(props),
-  }),
-])
+exports.InfoText = props =>
+  h(Span, {
+    sx: {
+      fontStyle: 'italic',
+      color: 'red.5',
+    },
+    ...props,
+  })

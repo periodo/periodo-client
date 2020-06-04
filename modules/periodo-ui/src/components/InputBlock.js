@@ -22,36 +22,45 @@ const FormControlBlock = FormComponent => RandomID(props => {
   const {
     randomID,
     name,
-    isRequired,
+    isRequired=false,
     label,
     helpText,
     options,
     error,
   } = props
 
-  return h(Box,
-    R.omit(inputProps.concat(
-      'randomID',
-      'label',
-      'helpText',
-      'isRequired'
-    ), props),
-    [
+  const outerProps = R.omit([
+    ...inputProps,
+    'randomID',
+    'label',
+    'helpText',
+    'isRequired',
+  ], props)
+
+  const formProps = R.pick(inputProps, props)
+
+  return (
+    h(Box, outerProps, [
       h(Label, {
         htmlFor: randomID(name),
-        ...(isRequired ? { isRequired: true } : {}),
+        isRequired,
       }, label),
 
       helpText && h(HelpText, helpText),
 
-      h(FormComponent, Object.assign(R.pick(inputProps, props), {
+      h(FormComponent, {
         id: randomID(name),
-      }), options),
+        ...formProps,
+      }, options),
 
-      error
-        ? h(Alert$Error, { mt: 2 }, [ error ])
-        : null,
-    ]
+      !error ? null : (
+        h(Alert$Error, {
+          mt: 2,
+        }, [
+          error,
+        ])
+      ),
+    ])
   )
 })
 

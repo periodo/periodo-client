@@ -10,16 +10,13 @@ const apply = (patch, data) => applyPatch(
 ).newDocument
 
 exports.Patch = function (props) {
-  const { patch, data } = props
+  const { patch, data, ...rest } = props
 
-  return h(
-    Dataset,
-    R.merge(
-      R.omit([ 'patch', 'data' ], props),
-      {
-        value: data,
-        compare: apply(patch, data),
-      }
-    )
+  return (
+    h(Dataset, {
+      ...rest,
+      value: data,
+      compare: apply(patch, data),
+    })
   )
 }

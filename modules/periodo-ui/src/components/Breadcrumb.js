@@ -5,20 +5,20 @@ const h = require('react-hyperscript')
 
 exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
   h(Flex, {
-    is: 'ol',
-    maxWidth: 'calc(100vw - 44px)',
-    ml: 1,
-    mb: 3,
-    css: {
+    as: 'ol',
+    sx: {
+      maxWidth: 'calc(100vw - 44px)',
+      ml: 1,
+      mb: 3,
       listStyleType: 'none',
     },
     ...props,
   }, [].concat(children || []).map((el, i) =>
     h(Box, {
-      is: 'li',
+      as: 'li',
       key: i,
-      color: 'gray.7',
-      css: {
+      sx: {
+        color: 'gray.7',
         display: 'inline-block',
         overflow: 'hidden',
         textOverflow: 'ellipsis',

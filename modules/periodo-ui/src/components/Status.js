@@ -11,8 +11,15 @@ const PatchStatus = Type({
 })
 
 function Status({ open, merged }) {
+  let type
 
-  const type = PatchStatus[open ? 'Open' : merged ? 'Merged' : 'Rejected']
+  if (open) {
+    type = PatchStatus.Open
+  } else if (merged) {
+    type = PatchStatus.Merged
+  } else {
+    type = PatchStatus.Rejected
+  }
 
   const bg = type.case({
     Open: () => '#fafad2',
@@ -28,10 +35,12 @@ function Status({ open, merged }) {
 
   return (
     h(Box, {
-      textAlign: 'center',
-      p: 1,
-      bg,
-      fontWeight: 'bold',
+      sx: {
+        textAlign: 'center',
+        p: 1,
+        bg,
+        fontWeight: 'bold',
+      },
     }, label)
   )
 }

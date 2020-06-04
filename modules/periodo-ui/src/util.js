@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , linkifier = require('linkify-it')()
-    , { ExternalLink } = require('./Links')
+    , { ExternalLink } = require('./components/Links')
 
 const linkify = text => {
   const links = linkifier.match(text)
