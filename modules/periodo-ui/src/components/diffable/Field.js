@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box } = require('../Base')
+    , { Box, Text } = require('../Base')
     , { PrimitiveValue, show } = require('./Value')
     , { InfoText, WarnText } = require('../Typography')
     , { Change, isIdentified, isValidValue } = require('./types')
@@ -238,8 +238,8 @@ function Field(props) {
       },
       ...childProps,
     }, [
-      h(Box, {
-        is: 'dt',
+      h(Text, {
+        as: 'dt',
         fontWeight: 'bold',
       }, label),
 
@@ -247,10 +247,12 @@ function Field(props) {
 
       summary,
 
-      ...renderedItems.map(item => h(Box, {
-        is: 'dd',
-        ml: 3,
-      }, item)),
+      ...renderedItems.map(item =>
+        h(Box, {
+          as: 'dd',
+          ml: 3,
+        }, item)
+      ),
     ])
   )
 }

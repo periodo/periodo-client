@@ -3,6 +3,7 @@
 const h = require('react-hyperscript')
     , ui = require('periodo-ui')
     , { ThemeProvider } = require('emotion-theming')
+    , exampleData = require('./example-data')
 
 function Space() {
   return (
@@ -97,6 +98,12 @@ module.exports = function Test() {
 
           h(Space),
         ]),
+      ]),
+
+      h(UISection, [
+        h(ui.Period, {
+          value: exampleData.period.minimal,
+        }),
       ]),
     ])
   )
