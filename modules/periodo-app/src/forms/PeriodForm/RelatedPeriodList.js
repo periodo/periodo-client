@@ -151,7 +151,7 @@ const RelatedPeriodList = ({
 
       helpText && h(HelpText, helpText),
 
-      h(Box, { is: 'ol' }, [
+      h(Box, { as: 'ol' }, [
         periods.length
           ? periods.map(
             (period, index) => h(Tag, {

@@ -4,35 +4,33 @@ const h = require('react-hyperscript')
     , { Box, Link, Text } = require('periodo-ui')
     , { SectionHeading, Section } = require('periodo-ui')
     , { Route, Navigable } = require('org-shell')
-    , { themeGet } = require('styled-system')
     , AddBackend = require('./AddBackend')
 
-const Table = Box.withComponent('table').extend`
-  width: 100%;
-  border-spacing: 4px 0;
-  border-collapse: collapse;
+const Table = props =>
+  h(Box, {
+    sx: {
+      width: '100%',
+      borderSpacing: '4px 0',
+      borderCollapse: 'collapse',
+      '& td, & th': {
+        padding: '8px 16px',
+      },
 
-  & td, & th {
-    padding: 8px 16px;
-  }
+      '& tr:hover': {
+        backgroundColor: 'gray.1',
+      },
 
-  & tr {
-    background-color: ${themeGet('colors.gray.1')};
-  }
+      '& th': {
+        backgroundColor: 'gray.1',
+        textAlign: 'left',
+        fontWeight: 'bold',
+      },
+    },
+    ...props,
+  })
 
-  & tr:hover {
-    background-color: white;
-  }
-
-  & th {
-    background-color: ${themeGet('colors.gray.1')};
-    text-align: left;
-    font-weight: bold;
-  }
-`
 
 function BackendSelect(props) {
-
   return (
     h(Box, [
       h(SectionHeading, 'Select data source'),

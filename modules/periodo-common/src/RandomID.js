@@ -25,6 +25,8 @@ function makeRandomID(Component) {
   }
 }
 
+// TODO: make `useRandomID` hook
+
 module.exports = {
   RandomID: makeRandomID,
 }

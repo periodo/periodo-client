@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { textMatcher, period: { alternateLabels }} = require('periodo-utils')
     , { Box, Flex, Input, Label, HelpText } = require('periodo-ui')
     , { RandomID } = require('periodo-common')
-    , styled = require('styled-components').default
+    , styled = require('@emotion/styled').default
 
 const Container = styled(Box)`
 input[type="radio"] {

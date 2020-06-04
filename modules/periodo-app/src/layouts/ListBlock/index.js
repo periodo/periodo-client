@@ -136,7 +136,7 @@ module.exports = function makeList(opts) {
               }),
 
               h(Box, {
-                is: 'table',
+                as: 'table',
                 css: {
                   tableLayout: 'fixed',
                   width: '100%',
