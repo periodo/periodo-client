@@ -182,8 +182,8 @@ const Tags = ({
 
   return (
     h(Box, {
-      is: 'ul',
-      // TODO: I don't think we have to use innerRef anymore?
+      as: 'ul',
+      // TODO: I don't think we have to use innerRef anymore? But check if this works
       ref,
       sx: {
         p: 0,

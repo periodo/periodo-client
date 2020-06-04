@@ -63,7 +63,7 @@ exports.Button$Default = exports.Button = makeButton('gray', 0, {
 
 exports.AriaButton = props =>
   h(Box, {
-    is: 'span',
+    as: 'span',
     role: 'button',
     tabIndex: 0,
     onKeyPress: e => {

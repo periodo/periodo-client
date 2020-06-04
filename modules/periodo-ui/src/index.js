@@ -32,6 +32,7 @@ addUIModules([
   require('./components/Notes'),
   require('./components/Pager'),
   require('./components/Patch'),
+  require('./components/Period'),
   require('./components/PlaceSuggest'),
   require('./components/PlacesSelect'),
   require('./components/Source'),

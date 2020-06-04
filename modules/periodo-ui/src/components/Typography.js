@@ -20,7 +20,7 @@ exports.InfoText = props =>
     ...props,
   })
 
-exports.InfoText = props =>
+exports.WarnText = props =>
   h(Span, {
     sx: {
       fontStyle: 'italic',
