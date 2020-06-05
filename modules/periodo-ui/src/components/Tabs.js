@@ -14,7 +14,8 @@ const TabItem = ({
   h(Box, {
     sx: {
       p: 2,
-      border: 1,
+      borderStyle: 'solid',
+      borderWidth: 1,
       borderColor: 'gray.4',
       fontSize: 1,
       fontWeight: 'bold',
@@ -43,9 +44,10 @@ const TabSpacer = ({ isLast, ...rest }) =>
     sx: {
       marginLeft: '-1px',
       width: isLast ? 0 : '16px',
-      height: '36px',
-      borderBottom: 1,
-      borderColor: 'gray.4',
+      height: '34px',
+      borderBottomStyle: 'solid',
+      borderBottomWidth: 1,
+      borderBottomColor: 'gray.4',
     },
     ...rest,
   })

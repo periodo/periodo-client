@@ -26,8 +26,10 @@ function makeButton(color, startShade=5, extra) {
         sx: {
           px: 3,
           py: 2,
-          border: 1,
+          borderWidth: 1,
+          borderStyle: 'solid',
           borderColor: shade(3),
+          borderRadius: 4,
           color: 'white',
           fontSize: 1,
           fontWeight: 'bold',
