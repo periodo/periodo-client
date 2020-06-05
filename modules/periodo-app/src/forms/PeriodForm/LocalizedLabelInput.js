@@ -4,11 +4,16 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , tags = require('language-tags')
-    , { Input, Flex, Box } = require('periodo-ui')
-    , { Autosuggest
-      , DropdownMenuButton
-      , DropdownMenuMenu
-      , Button } = require('periodo-ui')
+
+const {
+  Input,
+  Flex,
+  Box,
+  Autosuggest,
+  DropdownMenuButton,
+  DropdownMenuMenu,
+  Button,
+} = require('periodo-ui')
 
 class Suggestor extends React.Component {
   constructor() {
@@ -24,16 +29,20 @@ class Suggestor extends React.Component {
         , { onSelect, getSuggestions, buttonCSS } = this.props
 
     return (
-      h(Box, { css: { position: 'relative' }}, [
+      h(Box, {
+        css: {
+          position: 'relative',
+          flexShrink: 0,
+        },
+      }, [
         h(DropdownMenuButton, {
-          css: {
+          style: {
+            position: 'relative',
             whiteSpace: 'nowrap',
             minWidth: 60,
-            ...buttonCSS,
-          },
-          style: {
             paddingTop: '6px',
             paddingBottom: '7px',
+            ...buttonCSS,
           },
           isOpen: editing,
           onClick: () => this.setState(prev => ({ editing: !prev.editing })),

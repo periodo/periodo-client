@@ -158,12 +158,20 @@ class LabelForm extends React.Component {
             label: label.label,
             languageTag: label.languageTag,
             onValueChange: value => {
-              this.setState({
-                // I would just set the new label directly, but I want to
-                // preserve the `counter` property, so merging it is.
-                alternateLabels: R.adjust(
-                  R.flip(R.merge)(value), i, alternateLabels
-                ),
+              this.setState(prevState => {
+                const { alternateLabels, ...rest } = prevState
+
+                const nextAlternateLabels = [ ...alternateLabels ]
+
+                nextAlternateLabels[i] = {
+                  ...nextAlternateLabels[i],
+                  ...value,
+                }
+
+                return {
+                  ...rest,
+                  alternateLabels: nextAlternateLabels,
+                }
               }, this.updateLocalizedLabels)
             },
             addLabelAfter: () => this.addLabelAfter(i),

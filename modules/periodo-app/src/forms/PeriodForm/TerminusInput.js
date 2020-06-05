@@ -38,9 +38,9 @@ function parse(label) {
 }
 
 module.exports = class TerminusInput extends React.Component {
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.autoparse && nextProps.autoparse) {
-      this.props.onValueChange(parse(nextProps.terminus.labe))
+  componentDidUpdate(prevProps) {
+    if (!prevProps.autoparse && this.props.autoparse) {
+      this.props.onValueChange(parse(this.props.terminus.label))
     }
   }
 
