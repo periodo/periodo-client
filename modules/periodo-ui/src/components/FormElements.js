@@ -78,6 +78,9 @@ exports.Checkbox = props =>
   h(Box, {
     as: 'input',
     type: 'checkbox',
+    sx: {
+      ...disabledStyle,
+    },
     ...props,
   })
 

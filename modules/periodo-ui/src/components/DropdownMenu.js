@@ -2,12 +2,10 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , R = require('ramda')
     , { Box, Text } = require('./Base')
     , { Button } = require('./Buttons')
     , MB = require('react-aria-menubutton')
     , { Route, Navigable } = require('org-shell')
-    , { blacklist } = require('../util')
 
 exports.DropdownMenuItem = props =>
   h(MB.MenuItem, { value: props.value }, [
@@ -44,7 +42,8 @@ exports.DropdownMenuHeader = props =>
 
 exports.DropdownMenuButton = ({ isOpen, ...props }) =>
   h(Button, {
-    css: {
+    sx: {
+      position: 'relative',
       paddingRight: '16px',
       opacity: isOpen ? .8 : 1,
       ':after': {
@@ -58,7 +57,6 @@ exports.DropdownMenuButton = ({ isOpen, ...props }) =>
     },
     ...props,
   })
-
 
 exports.DropdownMenuMenu = ({ openLeft, ...props }) =>
   h(Box, {
@@ -144,7 +142,7 @@ exports.DropdownMenu = Navigable(class DropdownMenu extends React.Component {
 
           h(MB.Menu, {}, [
             h(exports.DropdownMenuMenu, {
-              is: 'ul',
+              as: 'ul',
               openLeft,
             }, children),
           ]),
