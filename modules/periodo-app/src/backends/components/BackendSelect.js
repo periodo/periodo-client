@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
 
 const Table = props =>
   h(Box, {
+    as: 'table',
     sx: {
       width: '100%',
       borderSpacing: '4px 0',
