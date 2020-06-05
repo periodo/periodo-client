@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { ORGShell, Route } = require('org-shell')
-    , { Flex, Pre, Box, Heading, Section, SectionHeading, theme } = require('periodo-ui')
+    , { Flex, Pre, Box, Grid, Heading, Section, SectionHeading, theme } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { Provider } = require('react-redux')
     , { ThemeProvider } = require('emotion-theming')
@@ -241,9 +241,10 @@ class PeriodoApplication extends React.Component {
 
     return (
       h(ThemeProvider, { theme }, [
-        h(Box, {
+        h(Grid, {
           minHeight: '100vh',
           bg: 'gray.3',
+          gridTemplateRows: '56px 1fr 116px',
         }, [
           h(Header, {
             showSpinner: this.props.loading,
