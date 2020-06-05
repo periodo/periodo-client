@@ -14,9 +14,6 @@ const h = require('react-hyperscript')
     , Action = require('./actions')
     , resources = require('../resources')
 
-/*
-require('./global_css')
-*/
 
 function getRouteGroups(resource, props) {
   const hierarchy = resource.hierarchy || resources[''].hierarchy
