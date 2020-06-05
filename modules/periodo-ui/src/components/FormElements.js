@@ -1,6 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , { forwardRef } = require('react')
     , { Box } = require('./Base')
     , { Alert$Error } = require('./Alerts')
 
@@ -56,9 +57,10 @@ exports.Textarea = props =>
     ...props,
   })
 
-exports.Input = props =>
+exports.Input = forwardRef((props, ref) =>
   h(Box, {
     as: 'input',
+    ref,
     sx: {
       p: 2,
       m: 0,
@@ -69,7 +71,7 @@ exports.Input = props =>
       ...disabledStyle,
     },
     ...props,
-  })
+  }))
 
 // FIXME: Need anything more here?
 exports.Checkbox = props =>
