@@ -98,8 +98,9 @@ exports.Errors = ({ errors, ...props }) =>
     }), errors.map((message, i) =>
       h(Box, {
         as: 'li',
+        key: i,
         mt: i > 0 ? 1 : 0,
-      })
+      }, message)
     ),
   ])
 
