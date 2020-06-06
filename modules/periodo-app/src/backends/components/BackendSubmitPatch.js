@@ -21,7 +21,7 @@ const {
   Link,
   HelpText,
   TextareaBlock,
-  Button$Primary,
+  Button,
   Alert$Error,
   Alert$Success,
   LoadingIcon,
@@ -213,7 +213,8 @@ class SubmitPatch extends React.Component {
             }),
           ]),
 
-          h(Button$Primary, {
+          h(Button, {
+            variant: 'primary',
             mt: 2,
             onClick: () => this.machine.emit('next'),
             disabled: (!backend.metadata.orcidCredential) || this.state.pending,
@@ -234,7 +235,8 @@ class SubmitPatch extends React.Component {
           },
         }),
 
-        h(Button$Primary, {
+        h(Button, {
+          variant: 'primary',
           disabled: (!this.state.comment) || this.state.pending,
           onClick: () => this.machine.emit('next'),
         }, 'Add comment'),

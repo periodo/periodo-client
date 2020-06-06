@@ -8,7 +8,7 @@ const h = require('react-hyperscript')
     , { Box, Text, Textarea, HelpText, RefreshIcon } = require('periodo-ui')
     , { asURL, match } = require('../../linked-data/utils/source_ld_match')
     , LinkedDataAction = require('../../linked-data/actions')
-    , { Button$Primary, Button$Danger, Source, Link } = require('periodo-ui')
+    , { Button, Source, Link } = require('periodo-ui')
 
 
 class LDInput extends React.Component {
@@ -65,7 +65,8 @@ class LDInput extends React.Component {
           },
         }),
 
-        h(Button$Primary, {
+        h(Button, {
+          variant: 'primary',
           disabled: sourceMatch === null,
           onClick: () => {
             const url = asURL(sourceMatch)
@@ -114,7 +115,8 @@ const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
         h(Box, { mt: 3 }, [
           h(Text, 'Incorrect source?'),
           h(Box, [
-            h(Button$Danger, {
+            h(Button, {
+              variant: 'danger',
               onClick: () => {
                 onValueChange(null)
               },

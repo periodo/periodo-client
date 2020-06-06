@@ -5,7 +5,7 @@ const React = require('react')
     , isURL = require('is-url')
     , { InputBlock, SelectBlock, TextareaBlock } = require('periodo-ui')
     , { Flex, Box  } = require('periodo-ui')
-    , { Button$Primary, Button$Danger } = require('periodo-ui')
+    , { Button } = require('periodo-ui')
     , { isDataset } = require('periodo-utils').dataset
 
 
@@ -231,14 +231,16 @@ module.exports = class BackendForm extends React.Component {
         mt: 3,
         justifyContent: 'space-between',
       }, [
-        h(Button$Primary, {
+        h(Button, {
+          variant: 'primary',
           onClick: this.isValidState()
             ? (() => this.checkValues(handleSave))
             : () => null,
           disabled: !this.isValidState(),
         }, this.editing ? 'Update' : 'Add'),
 
-        this.editing && handleDelete && h(Button$Danger, {
+        this.editing && handleDelete && h(Button, {
+          variant: 'danger',
           onClick: () => handleDelete(),
         }, 'Delete'),
       ]),

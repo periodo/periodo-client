@@ -21,8 +21,7 @@ const {
   SectionHeading,
   Breadcrumb,
   TextareaBlock,
-  Button$Default,
-  Button$Danger,
+  Button,
   Alert$Success,
   Alert$Error,
   Status,
@@ -180,7 +179,7 @@ ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
               },
             }),
 
-            h(Button$Default, {
+            h(Button, {
               disabled: !comment || submitting,
               onClick: this.addComment,
             }, 'Add comment'),
@@ -208,13 +207,14 @@ ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
         h(Box, [
           h(SectionHeading, 'Accept changes?'),
 
-          h(Button$Default, {
+          h(Button, {
             mr: 1,
             disabled: deciding,
             onClick: () => this.decideFate(PatchFate.Accept),
           }, 'Accept'),
 
-          h(Button$Danger, {
+          h(Button, {
+            variant: 'danger',
             disabled: deciding,
             onClick: () => this.decideFate(PatchFate.Reject),
           }, 'Reject'),
