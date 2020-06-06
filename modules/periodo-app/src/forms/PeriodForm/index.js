@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , LabelForm = require('./LabelForm')
-    , { Box, Alert$Error, Errors } = require('periodo-ui')
+    , { Box, Alert, Errors } = require('periodo-ui')
     , { SectionHeading, Section } = require('periodo-ui')
     , { InputBlock, TextareaBlock, Button } = require('periodo-ui')
     , RelatedPeriodsForm = require('./RelatedPeriodsForm')
@@ -180,7 +180,8 @@ module.exports = Validated(validatePeriod, props => {
         }, 'Save'),
 
         Object.keys(errors).length > 0
-          ? h(Alert$Error, {
+          ? h(Alert, {
+            variant: 'error',
             display: 'inline-block',
             ml: 1,
           }, 'Please correct the errors above.')

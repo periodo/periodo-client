@@ -11,7 +11,7 @@ const h = require('react-hyperscript')
     , GraphsAction = require('./graphs/actions')
     , Type = require('union-type')
     , { ReactReduxContext, connect } = require('react-redux')
-    , { Box, Alert$Warning, Link } = require('periodo-ui')
+    , { Box, Alert, Link } = require('periodo-ui')
     , { BackendStorage } = require('./backends/types')
     , { handleCompletedAction } = require('org-async-actions')
     , { BackendContext, LoadingIcon } = require('periodo-ui')
@@ -234,7 +234,8 @@ function withBackendContext(Component) {
       },
     }, [
       !showPersistenceWarning ? null : (
-        h(Alert$Warning, {
+        h(Alert, {
+          variant: 'warning',
           width: '100%',
           mb: 2,
         }, [

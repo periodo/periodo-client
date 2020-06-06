@@ -43,9 +43,18 @@ module.exports = function Test() {
       ]),
 
       h(UISection, [
-        h(ui.Alert$Success, { my: 2 }, 'Success'),
-        h(ui.Alert$Warning, { my: 2 }, 'Warning'),
-        h(ui.Alert$Error, { my: 2 }, 'Error'),
+        h(ui.Alert, {
+          variant: 'success',
+          my: 2,
+        }, 'Success'),
+        h(ui.Alert, {
+          variant: 'warning',
+          my: 2,
+        }, 'Warning'),
+        h(ui.Alert, {
+          variant: 'error',
+          my: 2,
+        }, 'Error'),
       ]),
 
       h(UISection, [

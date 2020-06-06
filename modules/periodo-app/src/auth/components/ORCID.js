@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , BackendAction = require('../../backends/actions')
-    , { Box, Span, Alert$Success } = require('periodo-ui')
+    , { Box, Span, Alert } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { connect } = require('react-redux')
 
@@ -34,7 +34,7 @@ class SignIn extends React.Component {
     ))
 
     this.setState({
-      message: h(Alert$Success, 'Successfully authenticated'),
+      message: h(Alert, { variant: 'success' }, 'Successfully authenticated'),
     })
   }
 
@@ -67,7 +67,7 @@ class SignIn extends React.Component {
     await dispatch(BackendAction.RemoveOrcidCredential(backend.storage))
 
     this.setState({
-      message: h(Alert$Success, 'Successfully signed out'),
+      message: h(Alert, { variant: 'success' }, 'Successfully signed out'),
     })
   }
 
