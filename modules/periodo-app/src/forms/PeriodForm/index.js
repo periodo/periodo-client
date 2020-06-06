@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , LabelForm = require('./LabelForm')
     , { Box, Alert$Error, Errors } = require('periodo-ui')
     , { SectionHeading, Section } = require('periodo-ui')
-    , { InputBlock, TextareaBlock, Button$Primary } = require('periodo-ui')
+    , { InputBlock, TextareaBlock, Button } = require('periodo-ui')
     , RelatedPeriodsForm = require('./RelatedPeriodsForm')
     , TemporalCoverageForm = require('./TemporalCoverageForm')
     , SpatialCoverageForm = require('./SpatialCoverageForm')
@@ -174,7 +174,8 @@ module.exports = Validated(validatePeriod, props => {
       h(Box, {
         py: 1,
       }, [
-        h(Button$Primary, {
+        h(Button, {
+          variant: 'primary',
           onClick: () => props.validate(value, props.onValidated),
         }, 'Save'),
 

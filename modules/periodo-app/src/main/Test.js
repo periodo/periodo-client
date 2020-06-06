@@ -49,9 +49,15 @@ module.exports = function Test() {
       ]),
 
       h(UISection, [
-        h(ui.Button$Primary, { m: 2 }, 'Primary button'),
-        h(ui.Button$Danger, { m: 2 }, 'Danger button'),
-        h(ui.Button$Default, { m: 2 }, 'Default button'),
+        h(ui.Button, {
+          variant: 'primary',
+          m: 2,
+        }, 'Primary button'),
+        h(ui.Button, {
+          variant: 'danger',
+          m: 2,
+        }, 'Danger button'),
+        h(ui.Button, { m: 2 }, 'Default button'),
         h(ui.AriaButton, { m: 2 }, 'Aria (fake) button'),
       ]),
 

@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , { RandomID } = require('periodo-common')
     , { Flex, Box, Label, Input, HelpText } = require('periodo-ui')
-    , { InputBlock, TextareaBlock, Button$Default } = require('periodo-ui')
+    , { InputBlock, TextareaBlock, Button } = require('periodo-ui')
 
 const emptyCreator = { name: '' }
 
@@ -110,7 +110,7 @@ A full citation is encouraged, but a title alone is sufficient.`,
                   },
                 }),
 
-                h(Button$Default, {
+                h(Button, {
                   size: 1,
                   ml: 1,
                   fontWeight: 'bold',
@@ -123,7 +123,7 @@ A full citation is encouraged, but a title alone is sufficient.`,
                   },
                 }, '+'),
 
-                h(Button$Default, {
+                h(Button, {
                   size: 1,
                   ml: 1,
                   fontWeight: 'bold',

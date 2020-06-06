@@ -7,8 +7,7 @@ const h = require('react-hyperscript')
 
 const {
   Box,
-  Button$Danger,
-  Button$Default,
+  Button,
   Section,
   SectionHeading,
 } = require('periodo-ui')
@@ -20,7 +19,7 @@ module.exports = function Settings(props) {
     h(Box, [
       h(SectionHeading, 'In-browser data'),
       h(Section, [
-        h(Button$Default, {
+        h(Button, {
           mr: 2,
           onClick: async () => {
             await dispatch(LinkedDataAction.ClearLinkedDataCache);
@@ -28,7 +27,8 @@ module.exports = function Settings(props) {
           },
         }, 'Clear linked data cache'),
 
-        h(Button$Danger, {
+        h(Button, {
+          variant: 'danger',
           onClick: async () => {
             if (confirm(
               'Continue deleting all data sources?'

@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Box, Section, SectionHeading, Errors, Tabs } = require('periodo-ui')
-    , { TextareaBlock, InputBlock, Button$Primary } = require('periodo-ui')
+    , { TextareaBlock, InputBlock, Button } = require('periodo-ui')
     , { isLinkedData } = require('../../linked-data/utils/source_ld_match')
     , Validated = require('../Validated')
     , { validateAuthority } = require('../validate')
@@ -105,7 +105,8 @@ module.exports = Validated(
           h(Box, {
             py: 1,
           }, [
-            h(Button$Primary, {
+            h(Button, {
+              variant: 'primary',
               onClick: () => this.props.validate(value, this.props.onValidated),
             }, 'Save'),
           ]),

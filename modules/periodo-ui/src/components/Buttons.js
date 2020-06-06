@@ -1,67 +1,30 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { themeGet } = require('@styled-system/theme-get')
-    , { useTheme } = require('emotion-theming')
     , { Box } = require('./Base')
 
-// FIXME: use variants?
-
-function makeButton(color, startShade=5, extra) {
-  const shade = n => `${color}.${startShade + n}`
-
-  const gradient = (m, n) => props => `
-    linear-gradient(
-      to bottom,
-      ${themeGet('colors.' + shade(m))(props)} 0%,
-      ${themeGet('colors.' + shade(n))(props)} 85%
-    )`
-
-  return ({ sx, ...props }) => {
-    const theme = useTheme()
-
-    return (
-      h(Box, {
-        as: 'button',
-        sx: {
-          px: 3,
-          py: 2,
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: shade(3),
-          borderRadius: 4,
-          color: 'white',
-          fontSize: 1,
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          backgroundImage: gradient(0, 1)({ theme }),
-          ':hover': {
-            backgroundImage: gradient(1, 2)({ theme }),
-          },
-          ':disabled': {
-            cursor: 'not-allowed',
-            opacity: .4,
-          },
-          ...extra,
-          ...sx,
-        },
-        ...props,
-      })
-    )
-  }
-}
-
-
-exports.Button$Primary = makeButton('blue')
-
-
-exports.Button$Danger = makeButton('red')
-
-
-exports.Button$Default = exports.Button = makeButton('gray', 0, {
-  color: 'black',
-})
-
+exports.Button = ({ sx, variant='default', ...props }) =>
+  h(Box, {
+    as: 'button',
+    tx: 'buttons',
+    variant,
+    sx: {
+      px: 3,
+      py: 2,
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderRadius: 4,
+      fontSize: 1,
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      ':disabled': {
+        cursor: 'not-allowed',
+        opacity: .4,
+      },
+      ...sx,
+    },
+    ...props,
+  })
 
 exports.AriaButton = props =>
   h(Box, {

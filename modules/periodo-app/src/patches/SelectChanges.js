@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Section, Box, LoadingIcon, HelpText } = require('periodo-ui')
-    , { Heading, Button$Primary, Alert$Error } = require('periodo-ui')
+    , { Heading, Button, Alert$Error } = require('periodo-ui')
     , { handleCompletedAction } = require('org-async-actions')
     , { connect } = require('react-redux')
     , PatchAction = require('./actions')
@@ -97,7 +97,8 @@ class SelectChanges extends React.Component {
             patch,
           }),
 
-          h(Button$Primary, {
+          h(Button, {
+            variant: 'primary',
             mt: 2,
             disabled: !this.state.currentPatch.length,
             onClick: () => handleSelectPatch(
