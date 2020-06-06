@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , { RandomID } = require('periodo-common')
     , { Box, HelpText } = require('./Base')
     , { Label, Input, Textarea, Select } = require('./FormElements')
-    , { Alert$Error } = require('./Alerts')
+    , { Alert } = require('./Alerts')
 
 const inputProps = [
   'name',
@@ -54,7 +54,8 @@ const FormControlBlock = FormComponent => RandomID(props => {
       }, options),
 
       !error ? null : (
-        h(Alert$Error, {
+        h(Alert, {
+          variant: 'error',
           mt: 2,
         }, [
           error,

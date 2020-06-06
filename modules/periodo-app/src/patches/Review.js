@@ -22,8 +22,7 @@ const {
   Breadcrumb,
   TextareaBlock,
   Button,
-  Alert$Success,
-  Alert$Error,
+  Alert,
   Status,
   LoadingIcon,
 } = require('periodo-ui')
@@ -62,7 +61,8 @@ class ReviewPatch extends React.Component {
       },
       err => {
         this.setState({
-          message: h(Alert$Error, {
+          message: h(Alert, {
+            variant: 'error',
             mb: 2,
           }, err.message),
         })
@@ -90,14 +90,16 @@ class ReviewPatch extends React.Component {
     handleCompletedAction(resp,
       () => {
         this.setState({
-          message: h(Alert$Success, {
+          message: h(Alert, {
+            variant: 'success',
             mb: 2,
           }, `Successfully ${fate._name.toLowerCase()}ed patch`),
         })
       },
       err => {
         this.setState({
-          message: h(Alert$Error, {
+          message: h(Alert, {
+            variant: 'error',
             mb: 2,
           }, err.message),
         })

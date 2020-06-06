@@ -17,6 +17,7 @@ const gradient = (color, m, n) => theme => {
 
 module.exports = {
   colors: oc,
+
   buttons: {
     default: {
       color: 'black',
@@ -43,6 +44,26 @@ module.exports = {
         backgroundImage: gradient('red', 8, 9),
       },
       borderColor: 'red.9',
+    },
+  },
+
+  alerts: {
+    success: {
+      bg: 'green.2',
+      color: 'green.9',
+      borderColor: 'green.6',
+    },
+
+    warning: {
+      bg: 'yellow.2',
+      color: 'yellow.9',
+      borderColor: 'yellow.6',
+    },
+
+    error: {
+      bg: 'red.2',
+      color: 'red.9',
+      borderColor: 'red.6',
     },
   },
 }

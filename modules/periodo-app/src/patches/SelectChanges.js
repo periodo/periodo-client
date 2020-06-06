@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { Section, Box, LoadingIcon, HelpText } = require('periodo-ui')
-    , { Heading, Button, Alert$Error } = require('periodo-ui')
+    , { Heading, Button, Alert } = require('periodo-ui')
     , { handleCompletedAction } = require('org-async-actions')
     , { connect } = require('react-redux')
     , PatchAction = require('./actions')
@@ -69,7 +69,8 @@ class SelectChanges extends React.Component {
 
     if (error) {
       return (
-        h(Alert$Error, {
+        h(Alert, {
+          variant: 'error',
           p: 3,
         }, [
           h(Heading, { level: 3 }, 'Error generating patch'),

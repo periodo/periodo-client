@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { forwardRef } = require('react')
     , { Box } = require('./Base')
-    , { Alert$Error } = require('./Alerts')
+    , { Alert } = require('./Alerts')
 
 const disabledStyle = {
   ':disabled': {
@@ -85,7 +85,8 @@ exports.Checkbox = props =>
   })
 
 exports.Errors = ({ errors, ...props }) =>
-  h(Alert$Error, {
+  h(Alert, {
+    variant: 'error',
     mb: 1,
     ...props,
   }, [

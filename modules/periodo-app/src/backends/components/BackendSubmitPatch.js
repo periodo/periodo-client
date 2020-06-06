@@ -22,8 +22,7 @@ const {
   HelpText,
   TextareaBlock,
   Button,
-  Alert$Error,
-  Alert$Success,
+  Alert,
   LoadingIcon,
 } = require('periodo-ui')
 
@@ -84,10 +83,11 @@ class SubmitPatch extends React.Component {
         this.setState({
           pending: false,
           patchURL,
-          message: h(
-            Alert$Success,
-            { mb: 2 },
-            'Successfully submitted changes'
+          message: (
+            h(Alert, {
+              mb: 2,
+              variant: 'success',
+            }, 'Successfully submitted changes')
           ),
         })
       },
@@ -96,7 +96,8 @@ class SubmitPatch extends React.Component {
         this.setState({
           pending: false,
           message: (
-            h(Alert$Error, {
+            h(Alert, {
+              variant: 'error',
               mb: 2,
             }, 'Submission failed')
           ),
@@ -126,7 +127,7 @@ class SubmitPatch extends React.Component {
           comment: '',
           message: (
             h(Flex, [
-              h(Alert$Success, 'Successfully submitted comment.'),
+              h(Alert, { variant: 'success' }, 'Successfully submitted comment.'),
               h(Link, {
                 p: 2,
                 route: Route('backend-patches', {
@@ -141,7 +142,8 @@ class SubmitPatch extends React.Component {
         this.machine.emit('failure')
         this.setState({
           pending: false,
-          message: h(Alert$Error, {
+          message: h(Alert, {
+            variant: 'error',
             mb: 2,
           }, 'Comment submission failed'),
         })
