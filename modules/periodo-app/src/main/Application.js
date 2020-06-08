@@ -1,138 +1,19 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , React = require('react')
-    , { ORGShell, Route } = require('org-shell')
-    , { Flex, Pre, Box, Grid, Heading, Section, SectionHeading, theme } = require('periodo-ui')
-    , { Link } = require('periodo-ui')
+    , { ORGShell } = require('org-shell')
     , { Provider } = require('react-redux')
     , { ThemeProvider } = require('emotion-theming')
+    , { Box, ClientError, Grid, NavigationMenu, theme } = require('periodo-ui')
     , createStore = require('../store')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
+    , IndexedDBMessage = require('./components/IndexedDBMessage')
     , Action = require('./actions')
-    , resources = require('../resources')
+    , { resources, getRouteGroups } = require('../resources')
 
 
-function getRouteGroups(resource, props) {
-  const hierarchy = resource.hierarchy || resources[''].hierarchy
-
-  try {
-    return hierarchy.slice(0, -1).map(group => ({
-      label: group.label,
-      routes: Object.entries(group.resources).reduce(
-        (acc, [ routeName, resource ]) =>
-          (resource.showInMenu || R.T)(props)
-            ? [ ...acc, {
-              route: new Route(
-                routeName,
-                (group.modifyMenuLinkParams || R.identity)(props.params)
-              ),
-              label: resource.label,
-            }]
-            : acc
-        , []),
-    }))
-  } catch(e) {
-    // eslint-disable-next-line no-console
-    console.error(e)
-    return []
-  }
-}
-
-class Menu extends React.Component {
-  constructor() {
-    super();
-
-    this.state = {
-      active: null,
-    }
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return nextProps.activeResource !== this.props.activeResource
-  }
-
-  componentDidMount() {
-  }
-
-  render() {
-    const { activeResource, params } = this.props
-
-    if (!activeResource) return null;
-
-    const groups = getRouteGroups(activeResource, { params })
-
-    return (
-      h(Box, [
-        h(Flex, {
-          mb: 3,
-          py: 2,
-          px: 3,
-          bg: 'white',
-        }, groups.map(({ label, routes }, i) =>
-          h(Box, {
-            key: i,
-            minWidth: 180,
-            px: 2,
-            py: 1,
-            css: {
-              '& [data-active="true"]::before': {
-                content: '"▸"',
-                position: 'absolute',
-                marginTop: '-1px',
-                marginLeft: '-11px',
-                color: 'orangered',
-              },
-            },
-          }, [
-            h(Heading, {
-              key: 'heading' + '-i',
-              level: 2,
-              fontSize: 2,
-            }, label),
-          ].concat(routes.map(({ route, label }) => {
-            const isActive = route.resourceName === activeResource.name
-            return h(Link, {
-              display: 'block',
-              ['data-active']: isActive,
-              color: `blue.${ isActive ? 8 : 4 }`,
-              key: route.resourceName,
-              route,
-            }, label)
-          })))
-        )),
-      ])
-    )
-  }
-}
-
-class MenuedResource extends React.Component{
-  constructor() {
-    super();
-
-    this.state = {
-      renderedMenu: true,
-    }
-  }
-
-  render() {
-    const { renderedMenu } = this.state
-
-    return (
-      h(Box, [
-        h(Menu, {
-          loading: this.props.loading,
-          activeResource: this.props.activeResource,
-          params: this.props.params,
-        }),
-
-        renderedMenu ? h(Box, {}, this.props.children) : null,
-      ])
-    )
-  }
-}
 
 class PeriodoApplication extends React.Component {
   constructor() {
@@ -146,9 +27,22 @@ class PeriodoApplication extends React.Component {
 
   static getDerivedStateFromProps(nextProps, nextState) {
     if (nextProps.activeResource !== nextState.activeResource) {
+      let menuEl = null
+
+      if (nextProps.activeResource) {
+        const routeGroups = getRouteGroups(nextProps.activeResource, nextProps)
+
+        menuEl = h(NavigationMenu, {
+          activeResource: nextProps.activeResource,
+          routeGroups,
+          mb: 3,
+        })
+      }
+
       return {
         error: null,
         activeResource: nextProps.activeResource,
+        menuEl,
       }
     }
 
@@ -166,74 +60,17 @@ class PeriodoApplication extends React.Component {
 
   render() {
     const { showIndexedDBUnsupportedMessage } = this.props
+        , { menuEl, error } = this.state
 
-    let mainEl
+    const children = [ menuEl ]
 
-    if (this.state.error) {
-      mainEl = (
-        h(Box, [
-          h(Heading, {
-            level: '2',
-            color: 'red.4',
-            css: { 'letterSpacing': '4px' },
-          }, 'Client error'),
-          h(Box, {
-            my: 2,
-            style: {
-              fontWeight: 'bold',
-              fontSize: '16px',
-            },
-          }, [
-            this.state.error.err.toString(),
-          ]),
-          h(Heading, {
-            level: '4',
-            mt: 2,
-          }, 'Error stack'),
-          h(Pre, {
-            ml: 2,
-          }, [
-            this.state.error.err.stack,
-          ]),
-          h(Heading, {
-            level: '4',
-            mt: 2,
-          }, 'Component stack'),
-          h(Pre, this.state.error.info.componentStack.trim()),
-        ])
+    if (error) {
+      children.push(h(ClientError, { error: this.state.error })
       )
     } else if (showIndexedDBUnsupportedMessage) {
-      mainEl = (
-        h(Box, [
-          h(SectionHeading, 'Browser incompatible'),
-          h(Section, [
-            h(Box, {
-              as: 'p',
-              mb: 3,
-            }, [
-              'Your browser does not support the ',
-              h('a', {
-                href: 'https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API',
-              }, 'IndexedDB'),
-              ' standard, which PeriodO requires to operate. The most recent versions of all major Web browsers (Firefox, Safari, Chrome, Opera) all support IndexedDB. Please try another browser and reopen PeriodO.',
-            ]),
-
-            h(Box, {
-              as: 'p',
-              mb: 3,
-            }, [
-              '(Note: if you have opened PeriodO in a "private" or "incognito" tab, IndexedDB may not be available. If that is the case, reopen PeriodO in a normal tab).',
-            ]),
-          ]),
-        ])
-      )
+      children.push(h(IndexedDBMessage))
     } else {
-      mainEl = this.state.activeResource && h(MenuedResource, {
-        key: this.state.activeResource.name,
-        loading: this.props.loading,
-        activeResource: this.state.activeResource,
-        params: this.props.params,
-      }, this.props.children)
+      children.push(this.props.children)
     }
 
     return (
@@ -252,7 +89,7 @@ class PeriodoApplication extends React.Component {
             m: '0 auto',
             width: '100%',
             maxWidth: 1420,
-          }, mainEl ),
+          }, children ),
 
           h(Footer, {
             height: '100%',
