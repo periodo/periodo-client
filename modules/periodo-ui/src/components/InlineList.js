@@ -21,7 +21,7 @@ exports.InlineList = props => {
           ml: '-1px',
           listStyleType: 'none',
         },
-      }, children.map((child, i) =>
+      }, [].concat(children).map((child, i) =>
         h(Box, {
           as: 'li',
           key: i,
