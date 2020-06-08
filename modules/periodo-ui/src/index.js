@@ -39,6 +39,7 @@ addUIModules([
   require('./components/PlacesSelect'),
   require('./components/Source'),
   require('./components/Status'),
+  require('./components/Table'),
   require('./components/Tabs'),
   require('./components/Tags'),
   require('./components/TimeSlider'),
