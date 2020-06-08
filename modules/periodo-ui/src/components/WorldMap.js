@@ -431,8 +431,7 @@ exports.WorldMap = ({
     },
     ...props,
   }, [
-    // FIXME: Something not working with mixmap?
-    null && h(_Map, {
+    h(_Map, {
       features,
       focusedFeatures,
       height,
