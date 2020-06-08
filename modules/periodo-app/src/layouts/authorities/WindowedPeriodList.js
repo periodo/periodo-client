@@ -68,6 +68,7 @@ const ListWrapper = styled.div`
 .row__header {
   font-weight: bold;
   z-index: 1;
+  background-color: ${props => props.theme.colors.elements.table.header};
 }
 
 .row__header span {
@@ -79,7 +80,6 @@ const ListWrapper = styled.div`
 .row {
   display: flex;
   align-items: center;
-  background-color: #f1f3f5;
 }
 
 .row > span:nth-of-type(1) {
@@ -110,8 +110,16 @@ const ListWrapper = styled.div`
   flex: 0 0 12ch;
 }
 
-.row[data-selected="true"] {
-  background-color: #f0f0f0;
+.row__item {
+  background-color: ${props => props.theme.colors.elements.table.body};
+}
+
+.row__item[data-selected="true"],
+.row__item[data-hovered="true"] {
+  background-color: ${props => props.theme.colors.elements.table.hover};
+}
+
+.row__item[data-selected="true"] {
   border-top: 1px solid #999;
   border-bottom: 1px solid #999;
 }
@@ -151,15 +159,10 @@ function ItemRow({
 
   return (
     h('div', {
-      className: 'row',
-      style: {
-        ...style,
-        backgroundColor: (
-          hoveredPeriod === period ||
-          selectedPeriod === period
-        )? '#ffffff' : '#f1f3f5',
-      },
+      className: 'row row__item',
+      style,
       ['data-selected']: selectedPeriod === period,
+      ['data-hovered']: hoveredPeriod === period,
       onMouseDown: toggleSelectedPeriod,
       onTouchStart: toggleSelectedPeriod,
       onMouseEnter: () => {

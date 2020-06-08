@@ -4,25 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , styled = require('@emotion/styled').default
-    , { Box, Flex, Link } = require('periodo-ui')
-
-const Table = props =>
-  h(Box, {
-    as: 'table',
-    sx: {
-      overflowY: 'scroll',
-      '& td': {
-        padding: '2px 5px',
-      },
-      '& td:first-of-type': {
-        color: '#999',
-      },
-      '& td:last-of-type': {
-        width: '100%',
-      },
-    },
-    ...props,
-  })
+    , { Box, Flex, Link, Table } = require('periodo-ui')
 
 function withoutValue(val, set) {
   const newSet = new Set(set)
@@ -121,7 +103,7 @@ class AspectTable extends React.Component {
         h(Flex, {
           justifyContent: 'space-between',
           alignItems: 'center',
-          bg: 'gray.1',
+          bg: 'elements.table.header',
           p: 2,
           fontWeight: 'bold',
           fontSize: 1,
@@ -158,10 +140,21 @@ class AspectTable extends React.Component {
               padding: '1em',
             },
           }, '. . .')
-        ): [
+        ): h(Box, {
+          sx: {
+            '& table td:first-of-type': {
+              color: 'gray.6',
+            },
+            '& table td:last-of-type': {
+              width: '100%',
+            },
+          },
+        }, [
           selectedRows.length === 0 ? null : (
             h(Table, {
-              className: 'selected',
+              className: 'selected', // FIXME: necessary anywhere?
+              compact: true,
+              bg: 'accent',
               px: 1,
               py: 1,
               width: '100%',
@@ -172,14 +165,14 @@ class AspectTable extends React.Component {
 
           unselectedRows.length === 0 ? null : (
             h(Table, {
+              compact: true,
               px: 1,
               width: '100%',
-              bg: 'gray.1',
             }, [
               h('tbody', unselectedRows),
             ])
           ),
-        ]),
+        ])),
       ])
     )
   }
