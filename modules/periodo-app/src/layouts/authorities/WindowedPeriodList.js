@@ -82,31 +82,31 @@ const ListWrapper = styled.div`
   background-color: #f1f3f5;
 }
 
-.row :nth-child(1) {
+.row > span:nth-of-type(1) {
   flex: 0 0 6ch;
 }
 
-.row :nth-child(2) {
+.row span:nth-of-type(2) {
   flex: 0 0 10ch;
 }
 
-.row :nth-child(3) {
+.row span:nth-of-type(3) {
   flex: 1 0 20ch;
 }
 
-.row :nth-child(4) {
+.row span:nth-of-type(4) {
   flex: 0 1 20ch;
 }
 
-.row :nth-child(5) {
+.row span:nth-of-type(5) {
   flex: 0 1 20ch;
 }
 
-.row :nth-child(6) {
+.row span:nth-of-type(6) {
   flex: 1 1 30ch;
 }
 
-.row :nth-child(7) {
+.row span:nth-of-type(7) {
   flex: 0 0 12ch;
 }
 
@@ -407,7 +407,7 @@ class PeriodList extends React.Component {
         ({ width }) => h(ListWrapper, {
           tabIndex: 0,
           onKeyDown: this.onKeyDown,
-          innerRef: el => {
+          ref: el => {
             this.wrapperRef.current = el
             this.updateScroll()
           },
