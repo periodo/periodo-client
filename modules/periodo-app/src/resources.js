@@ -70,6 +70,11 @@ const Home = {
   async onBeforeRoute(params, redirectTo, { dispatch }) {
     await dispatch(AuthAction.GetAllSettings)
   },
+
+  modifyMenuLinkParams() {
+    return {}
+  },
+
   mapStateToProps(state) {
     return {
       settings: state.auth.settings,
