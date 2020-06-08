@@ -21,6 +21,7 @@ const Logo = ({ href, title, alt, src, height=44, ...props }) =>
 const Footer = props =>
   h(Box, {
     as: 'footer',
+    bg: 'secondaryBG',
     ...props,
   }, [
     h(Flex, {

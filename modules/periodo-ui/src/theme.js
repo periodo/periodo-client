@@ -14,9 +14,31 @@ const gradient = (color, m, n) => theme => {
   return x
 }
 
+const mainBG = oc.blue[0]
+    , accent = oc.green[2]
+    , blockBG = 'white'
+    , secondaryBG = oc.gray[2]
+
+const colors = {
+  ...oc,
+
+  accent,
+  mainBG,
+  secondaryBG,
+  blockBG,
+
+  elements: {
+    table: {
+      header: oc.gray[4],
+      body: 'white',
+      hover: accent,
+    },
+  },
+}
+
 
 module.exports = {
-  colors: oc,
+  colors,
 
   buttons: {
     default: {
