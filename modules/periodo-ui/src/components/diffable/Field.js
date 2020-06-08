@@ -274,7 +274,7 @@ function DiffableItem (props) {
     props
   )
 
-  outerProps.is = 'dl'
+  outerProps.as = 'dl'
 
   let children
 
