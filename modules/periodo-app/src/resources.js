@@ -826,7 +826,7 @@ function makeResourceComponent(resource) {
   return Resource
 }
 
-function registerGroups(groups) {
+function registerGroups(into, groups) {
   Object.entries(groups).forEach(([ key, group ]) => {
     const groupKey = `ResourceGroup:${key}`
         , parents = getParents(group)
@@ -934,13 +934,13 @@ function registerGroups(groups) {
 
     })
 
-    module.exports.push(group)
+    into.push(group)
   })
 }
 
-module.exports = []
+const resourceGroups = []
 
-registerGroups({
+registerGroups(resourceGroups, {
   Home,
   ReviewPatch,
   Backend,
@@ -951,13 +951,46 @@ registerGroups({
   // PeriodPatch,
 })
 
-module.exports = module.exports.reduce((acc, group) =>
-  R.merge(
-    acc,
-    R.map(resource => R.merge(resource, ({
+const resources = {}
+
+resourceGroups.forEach(group => {
+  Object.entries(group.resources).forEach(([ key, resource ]) => {
+    resources[key] = {
+      ...resource,
       Component: makeResourceComponent(resource, group),
       makeTitle: () => `${group.label} | ${resource.label}`,
-    })), group.resources)
-  ),
-{}
-)
+    }
+  })
+})
+
+function getRouteGroups(resource, props) {
+  const hierarchy = resource.hierarchy || resources[''].hierarchy
+
+  try {
+    return hierarchy.slice(0, -1).map(group => ({
+      label: group.label,
+      routes: Object.entries(group.resources).reduce(
+        (acc, [ routeName, resource ]) =>
+          (resource.showInMenu || R.T)(props)
+            ? [ ...acc, {
+              route: new Route(
+                routeName,
+                (group.modifyMenuLinkParams || R.identity)(props.params)
+              ),
+              label: resource.label,
+            }]
+            : acc
+        , []),
+    }))
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e)
+    return []
+  }
+}
+
+
+module.exports = {
+  resources,
+  getRouteGroups,
+}
