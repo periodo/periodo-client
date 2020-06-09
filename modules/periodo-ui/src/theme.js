@@ -16,21 +16,32 @@ const gradient = (color, m, n) => theme => {
 
 const mainBG = oc.blue[0]
     , accent = oc.green[2]
-    , blockBG = 'white'
-    , secondaryBG = oc.gray[2]
+    , blockBG = oc.green[1]
+    , secondaryBG = oc.gray[1]
 
 const colors = {
   ...oc,
 
+  // Background for things needing accent:
+  // * Hovered/selected rows on a table
+  // * All things indicating that they can be clicked
   accent,
+
+  // Background for whole page
   mainBG,
+
+  // Background for header/footer
   secondaryBG,
+
+  // Background for blocks
   blockBG,
 
   elements: {
+    link: oc.blue[5],
+
     table: {
-      header: oc.gray[4],
-      body: 'white',
+      header: oc.pink[3],
+      body: oc.pink[0],
       hover: accent,
     },
   },

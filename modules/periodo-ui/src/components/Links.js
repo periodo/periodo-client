@@ -8,7 +8,7 @@ const Link = exports.Link = ORGLink(props =>
   h(Text, {
     as: 'a',
     sx: {
-      color: 'blue.5',
+      color: 'elements.link',
       textDecoration: 'none',
       cursor: 'pointer',
       ':hover': {

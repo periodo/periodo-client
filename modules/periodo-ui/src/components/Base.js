@@ -65,7 +65,9 @@ const ResourceTitle = props =>
 const SectionHeading = props =>
   h(Heading, {
     level: 3,
-    my: 2,
+    py: 2,
+    px: 3,
+    bg: 'blockBG',
     ...props,
   })
 
@@ -74,8 +76,8 @@ const Section = props =>
     className: 'section',
     sx:  {
       p: 3,
-      mb: 3,
-      bg: 'white',
+      mb: 4,
+      bg: 'blockBG',
     },
     ...props,
   })
