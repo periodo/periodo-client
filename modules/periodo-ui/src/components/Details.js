@@ -40,9 +40,11 @@ function Summary({ ...props }) {
       as: 'summary',
       sx: {
         width: '100%',
+        bg: 'blockBG',
         cursor: 'pointer',
-        ':hover': {
-          backgroundColor: '#fff',
+        px: 3,
+        ':hover, :hover h3': {
+          bg: 'accent',
         },
       },
       ...props,
