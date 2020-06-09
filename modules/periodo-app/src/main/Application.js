@@ -35,7 +35,6 @@ class PeriodoApplication extends React.Component {
         menuEl = h(NavigationMenu, {
           activeResource: nextProps.activeResource,
           routeGroups,
-          mb: 3,
         })
       }
 

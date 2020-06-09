@@ -10,11 +10,8 @@ exports.NavigationMenu = ({
   ...props
 }) =>
   h(Flex, {
-    sx: {
-      py: 2,
-      px: 3,
-      bg: 'white',
-    },
+    variant: 'menu',
+    className: 'navigation-menu',
     ...props,
   }, routeGroups.map(({ label, routes }, i) =>
     h(Box, {
@@ -23,13 +20,6 @@ exports.NavigationMenu = ({
         minWidth: 180,
         px: 2,
         py: 1,
-        '& [data-active="true"]::before': {
-          content: '"▸"',
-          position: 'absolute',
-          marginTop: '-1px',
-          marginLeft: '-11px',
-          color: 'orangered',
-        },
       },
     }, [
       h(Heading, {
@@ -42,7 +32,6 @@ exports.NavigationMenu = ({
       return h(Link, {
         display: 'block',
         ['data-active']: isActive,
-        color: `blue.${ isActive ? 8 : 4 }`,
         key: route.resourceName,
         route,
       }, label)

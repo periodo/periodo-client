@@ -6,11 +6,14 @@ const h = require('react-hyperscript')
 exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
   h(Flex, {
     as: 'ol',
+    variant: 'menu',
     sx: {
       maxWidth: 'calc(100vw - 44px)',
-      ml: 1,
+      py: 2,
+      px: 3,
       mb: 3,
       listStyleType: 'none',
+      mt: theme => (-theme.space[3] - 1) + 'px',
     },
     ...props,
   }, [].concat(children || []).map((el, i) =>
@@ -18,7 +21,6 @@ exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
       as: 'li',
       key: i,
       sx: {
-        color: 'gray.7',
         display: 'inline-block',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
