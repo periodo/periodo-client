@@ -76,9 +76,6 @@ const Section = props =>
       p: 3,
       mb: 3,
       bg: 'white',
-      '.block + .block': {
-        marginTop: 3,
-      },
     },
     ...props,
   })

@@ -72,7 +72,11 @@ class LayoutBlock extends React.Component {
     return (
       h(Box, {
         id,
-        className: 'block',
+        sx: {
+          '&:not(:last-of-type)': {
+            mb: 3,
+          },
+        },
         minWidth: 0,
         minHeight: 0,
       }, [
