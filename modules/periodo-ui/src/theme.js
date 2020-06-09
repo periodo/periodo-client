@@ -40,6 +40,32 @@ const colors = {
 module.exports = {
   colors,
 
+  variants: {
+    menu: {
+      py: 2,
+      px: 3,
+      my: 3,
+      bg: 'gray.0',
+      color: 'black',
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      borderColor: 'gray.4',
+      '& a[data-active="true"]::before': {
+        content: '"▸"',
+        position: 'absolute',
+        marginTop: '-1px',
+        marginLeft: '-11px',
+        color: 'orangered',
+      },
+      '& a': {
+        color: 'blue.5',
+      },
+      '& a[data-active="true"]': {
+        color: 'blue.8',
+      },
+    },
+  },
+
   buttons: {
     default: {
       color: 'black',
