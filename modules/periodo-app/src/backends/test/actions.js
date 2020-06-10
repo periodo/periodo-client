@@ -7,11 +7,22 @@ const test = require('blue-tape')
     , makeMockStore = require('../../store_mock')
     , { ReadyState, getResponse } = require('org-async-actions')
     , BackendAction = require('../actions')
+    , MainAction = require('../../main/actions')
     , reducer = require('../reducer')
     , { Backend, BackendMetadata, BackendStorage } = require('../types')
 
-test('Listing data sources', async t => {
+async function createStore() {
   const store = makeMockStore()
+
+  await store.dispatch(MainAction.InitIndexedDB)
+
+  store.clearActions()
+
+  return store
+}
+
+test('Listing data sources', async t => {
+  const store = await createStore()
 
   const action = BackendAction.GetAllBackends
 
@@ -30,7 +41,7 @@ test('Listing data sources', async t => {
 })
 
 test('Adding in-browser data sources', async t => {
-  const store = makeMockStore()
+  const store = await createStore()
 
   const actionType = BackendAction.CreateBackend(
     BackendStorage.IndexedDB(null),
@@ -68,7 +79,7 @@ test('Adding in-browser data sources', async t => {
 });
 
 test('Adding Web data sources', async t => {
-  const store = makeMockStore()
+  const store = await createStore()
 
   const actionType = BackendAction.CreateBackend(
     BackendStorage.Web('http://example.com/'),
@@ -103,7 +114,7 @@ test('Adding Web data sources', async t => {
 })
 
 test('Updating data sources', async t => {
-  const store = makeMockStore()
+  const store = await createStore()
 
   store.replaceReducer(reducer);
 

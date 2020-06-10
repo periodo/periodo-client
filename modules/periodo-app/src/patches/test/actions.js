@@ -5,6 +5,7 @@ global.RETHROW_ERRORS = true;
 const test = require('blue-tape')
     , R = require('ramda')
     , BackendAction = require('../../backends/actions')
+    , MainAction = require('../../main/actions')
     , { BackendStorage } = require('../../backends/types')
     , { ReadyState, getResponse } = require('org-async-actions')
     , PatchAction = require('../actions')
@@ -15,6 +16,10 @@ const test = require('blue-tape')
 
 test('Patch generation actions', async t => {
   const store = makeMockStore()
+
+  await store.dispatch(MainAction.InitIndexedDB)
+
+  store.clearActions()
 
   await store.dispatch(
     BackendAction.CreateBackend(
