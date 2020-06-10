@@ -25,7 +25,7 @@ exports.NavigationMenu = ({
       h(Heading, {
         key: 'heading' + '-i',
         level: 2,
-        fontSize: 2,
+        fontSize: 1,
       }, label),
     ].concat(routes.map(({ route, label }) => {
       const isActive = route.resourceName === activeResource.name
