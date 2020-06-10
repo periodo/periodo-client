@@ -61,8 +61,6 @@ function renderSection (section, blocksProps) {
         ),
         summaryProps: {
           css: {
-            '::marker': { color: '#495057' },
-            '::-webkit-details-marker': { color: '#495057' },
           },
           fontSize: '1.5rem', // h3
         },
