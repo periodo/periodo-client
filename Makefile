@@ -54,6 +54,10 @@ clean:
 	rm -rf node_modules
 	rm -rf dist
 
+update_package_lock:
+	rm -rf node_modules package-lock.json
+	npm install
+
 stage: HOST = data.staging.perio.do
 publish: HOST = data.perio.do
 stage publish: clean upload
@@ -81,7 +85,7 @@ dist:
 	mkdir -p $@
 
 node_modules: package.json
-	npm install || rm -rf $@
+	npm ci || rm -rf $@
 
 node_modules/%: modules/%
 	ln -s ../$< $@
