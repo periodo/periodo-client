@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , BackendAction = require('../../backends/actions')
-    , { Box, Span, Alert } = require('periodo-ui')
+    , { Box, InlineText, Alert } = require('periodo-ui')
     , { Link } = require('periodo-ui')
     , { connect } = require('react-redux')
 
@@ -97,13 +97,13 @@ class SignIn extends React.Component {
               height: '24',
               alt: 'ORCID logo',
             }),
-            h(Span, { ml: 1 }, 'Log in with your ORCID'),
+            h(InlineText, { ml: 1 }, 'Log in with your ORCID'),
           ])
         ),
 
         !!orcidCredential && (
           h(Box, [
-            h(Span, `Currently signed in as ${orcidCredential.name}.`),
+            h(InlineText, `Currently signed in as ${orcidCredential.name}.`),
             h(Link, {
               ml: 2,
               href: '',

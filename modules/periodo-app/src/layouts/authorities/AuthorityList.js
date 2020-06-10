@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , contributorList = require('periodo-utils/src/contributor_list')
     , source = require('periodo-utils/src/source')
     , ListBlock = require('../ListBlock')
-    , { Span, Text } = require('periodo-ui')
+    , { InlineText, Text } = require('periodo-ui')
     , { Route } = require('org-shell')
 
 const columns = {
@@ -19,7 +19,7 @@ const columns = {
 
       return list.length
         ? contributorList.asString(list)
-        : h(Span, {
+        : h(InlineText, {
           color: 'gray',
         }, '(not given)')
     },

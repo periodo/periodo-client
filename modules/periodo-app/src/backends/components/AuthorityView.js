@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Route } = require('org-shell')
-    , { Heading, Box, Span, Link, DownloadValue } = require('periodo-ui')
+    , { Heading, Box, InlineText, Link, DownloadValue } = require('periodo-ui')
     , { PermalinkValue, Section, EditorialNote  } = require('periodo-ui')
     , { Breadcrumb } = require('periodo-ui')
     , { HelpText  } = require('periodo-ui')
@@ -103,7 +103,7 @@ module.exports = class AuthorityLayout extends React.Component {
         }, description.source),
 
         h(Box, { mb:2 }, [
-          h(Span, {
+          h(InlineText, {
             fontSize: 3,
             color: 'gray.6',
           }, 'Permalink '),
@@ -118,7 +118,7 @@ module.exports = class AuthorityLayout extends React.Component {
           mb: description.editorialNote ? 2 : 0,
           fontSize: 3,
         }, [
-          h(Span, { color: 'gray.6' }, 'Download '),
+          h(InlineText, { color: 'gray.6' }, 'Download '),
           h(DownloadValue, {
             value: description.id,
             includeCSV: true,

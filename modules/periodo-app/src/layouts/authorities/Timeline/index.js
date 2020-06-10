@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , AutoSizer = require('react-virtualized-auto-sizer')
-    , { Label, HelpText, Span } = require('periodo-ui')
+    , { Label, HelpText, InlineText } = require('periodo-ui')
     , Plot = require('./Plot')
 
 function Timeline({
@@ -22,7 +22,7 @@ function Timeline({
       ...(selectedPeriod
         ? [
           ', with the selected period in ',
-          h(Span, { color: '#ff0000' }, 'red'),
+          h(InlineText, { color: '#ff0000' }, 'red'),
         ]
         : []
       ),

@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { useState, useRef, useEffect } = require('react')
-    , { Box, Span } = require('./Base')
+    , { Box, InlineText } = require('./Base')
 
 const Tag = ({ label, onDelete, ...props }) =>
   h(Box, {
@@ -26,7 +26,7 @@ const Tag = ({ label, onDelete, ...props }) =>
     ...props,
   }, [
     label,
-    h(Span, {
+    h(InlineText, {
       sx: {
         color: 'gray.6',
         ml: 2,
@@ -56,7 +56,7 @@ const SuggestedTag = ({ label, onAccept, ...props }) =>
     ...props,
   }, [
     label,
-    h(Span, {
+    h(InlineText, {
       sx: {
         color: 'gray.6',
         ml: 2,
@@ -69,7 +69,7 @@ const SuggestedTag = ({ label, onAccept, ...props }) =>
   ])
 
 const Message = ({ text, ...props }) =>
-  h(Span, {
+  h(InlineText, {
     sx: {
       color: 'gray.6',
       height: '27px',

@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , R = require('ramda')
-    , { Box, Span } = require('./Base')
+    , { Box, InlineText } = require('./Base')
     , { Autosuggest } = require('./Autosuggest')
 
 const escapeRegexCharacters = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -79,7 +79,7 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) =>
     },
     ...isHighlighted && { bg: 'gray.2' },
   }, [
-    h(Span, {
+    h(InlineText, {
       display: 'inline-block',
       sx: {
         width: '1em',

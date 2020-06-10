@@ -1,10 +1,10 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Span } = require('./Base')
+    , { InlineText } = require('./Base')
 
 exports.Italic = props =>
-  h(Span, {
+  h(InlineText, {
     sx: {
       fontStyle: 'italic',
     },
@@ -12,7 +12,7 @@ exports.Italic = props =>
   })
 
 exports.InfoText = props =>
-  h(Span, {
+  h(InlineText, {
     sx: {
       fontStyle: 'italic',
       color: 'gray.8',
@@ -21,7 +21,7 @@ exports.InfoText = props =>
   })
 
 exports.WarnText = props =>
-  h(Span, {
+  h(InlineText, {
     sx: {
       fontStyle: 'italic',
       color: 'red.5',

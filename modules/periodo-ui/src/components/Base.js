@@ -86,8 +86,8 @@ const Section = props =>
     ...props,
   })
 
-const Span = props =>
-  h(Box, {
+const InlineText = props =>
+  h(Text, {
     as: 'span',
     ...props,
   })
@@ -112,6 +112,6 @@ module.exports = {
   ResourceTitle,
   Section,
   SectionHeading,
-  Span,
+  InlineText,
   Text,
 }

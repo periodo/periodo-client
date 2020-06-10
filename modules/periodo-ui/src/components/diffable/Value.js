@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , tags = require('language-tags')
     , { Route } = require('org-shell')
-    , { Box, Span, Pre } = require('../Base')
+    , { Box, InlineText, Pre } = require('../Base')
     , { Italic } = require('../Typography')
     , { Link, ExternalLink } = require('../Links')
     , { WorldMap } = require('../WorldMap')
@@ -53,7 +53,7 @@ function Annotated(props) {
   const { value, annotations, ...childProps } = props
 
   return (
-    h(Span, childProps, [
+    h(InlineText, childProps, [
       value,
       h(Italic, { ml: 1 }, R.intersperse(', ', annotations)),
     ])
@@ -66,7 +66,7 @@ function PrimitiveValue(props) {
   const { value, ...childProps } = props
 
   return (
-    h(Span, childProps, value)
+    h(InlineText, childProps, value)
   )
 }
 
@@ -120,7 +120,7 @@ function DownloadValue(props) {
   }
 
   if (downloadURL) {
-    return h(Span, childProps,
+    return h(InlineText, childProps,
       R.intersperse(', ', types.map(({ label, suffix }) => h(
         ExternalLink, { href: downloadURL + suffix }, label
       )))
@@ -149,7 +149,7 @@ function RelatedPeriodValue(props) {
       return h(Link, childProps, period.label)
 
     } else {
-      return h(Span, {}, period.label)
+      return h(InlineText, {}, period.label)
     }
 
   } else {
@@ -157,7 +157,7 @@ function RelatedPeriodValue(props) {
 
     return url
       ? h(ExternalLink, { href: url }, url)
-      : h(Span, {}, value)
+      : h(InlineText, {}, value)
   }
 }
 
@@ -184,7 +184,7 @@ function EntityValue(props) {
 
   return (
     h(ExternalLink, childProps, [
-      h(Span, { fontSize: '12px' }, `${abbreviate(id)}:`),
+      h(InlineText, { fontSize: '12px' }, `${abbreviate(id)}:`),
       label,
     ])
   )
@@ -208,7 +208,7 @@ function LanguageTagValue(props) {
   const { value, ...childProps } = props
 
   return (
-    h(Span, childProps, describeLanguageTag(value))
+    h(InlineText, childProps, describeLanguageTag(value))
   )
 }
 
@@ -237,7 +237,7 @@ function JSONLDContextEntryValue(props) {
 // Diffable values -------------------------------------------------------------
 
 const WhitespacePreservedText = props =>
-  h(Span, {
+  h(InlineText, {
     sx: {
       whiteSpace: 'pre-line',
       wordBreak: 'break-word',
@@ -299,7 +299,7 @@ function AgentValue(props) {
   }
 
   return (
-    h(Span, childProps)
+    h(InlineText, childProps)
   )
 }
 

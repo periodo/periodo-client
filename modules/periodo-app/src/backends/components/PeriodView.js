@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Route } = require('org-shell')
-    , { Box, Span, Heading, Text, Section, Breadcrumb } = require('periodo-ui')
+    , { Box, InlineText, Heading, Text, Section, Breadcrumb } = require('periodo-ui')
     , { Link, PermalinkValue, Note, EditorialNote } = require('periodo-ui')
     , { RelatedAuthorityValue, DownloadValue } = require('periodo-ui')
     , util = require('periodo-utils')
@@ -85,7 +85,7 @@ module.exports = class PeriodLayout extends React.Component {
         }, [
           `${ labelOf(period.start) } – ${ labelOf(period.stop) }`,
           period.spatialCoverageDescription
-            ? h(Span, { color: 'gray.4' }, ' | ')
+            ? h(InlineText, { color: 'gray.4' }, ' | ')
             : null,
           `${ period.spatialCoverageDescription || '' }`,
         ]),
@@ -94,7 +94,7 @@ module.exports = class PeriodLayout extends React.Component {
           mb: 2,
           fontSize: 3,
         }, [
-          h(Span, { color: 'gray.6' }, 'Defined by '),
+          h(InlineText, { color: 'gray.6' }, 'Defined by '),
           h(RelatedAuthorityValue, { value: authority }),
         ]),
 
@@ -102,14 +102,14 @@ module.exports = class PeriodLayout extends React.Component {
           mb: 2,
           fontSize: 3,
         }, [
-          h(Span, { color: 'gray.6' }, 'Permalink '),
+          h(InlineText, { color: 'gray.6' }, 'Permalink '),
           h(PermalinkValue, { value: period.id }),
         ]),
 
         h(Box, {
           fontSize: 3,
         }, [
-          h(Span, { color: 'gray.6' }, 'Download '),
+          h(InlineText, { color: 'gray.6' }, 'Download '),
           h(DownloadValue, { value: period.id }),
         ]),
 
