@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , natsort = require('natsort')
-    , { Box, Pager, HelpText } = require('periodo-ui')
+    , { Box, Table, Pager, HelpText } = require('periodo-ui')
     , ListControls = require('./ListControls')
     , ListHeader = require('./ListHeader')
     , ListRow = require('./ListRow')
@@ -135,15 +135,7 @@ module.exports = function makeList(opts) {
                 updateOpts,
               }),
 
-              h(Box, {
-                as: 'table',
-                css: {
-                  tableLayout: 'fixed',
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                },
-              }, [
-
+              h(Table, [
                 h(ListHeader, {
                   columns,
                   shownColumns,

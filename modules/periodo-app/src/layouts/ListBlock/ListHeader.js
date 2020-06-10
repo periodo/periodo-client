@@ -12,52 +12,54 @@ function ListHeader({
   updateOpts,
   toFirstPage,
 }) {
-  return h(Box, {
-    as: 'thead',
-    mb: 1,
-  }, [
+  return (
     h(Box, {
-      as: 'tr',
-      bg: 'gray.1',
-      textAlign: 'left',
+      as: 'thead',
+      mb: 1,
     }, [
-      h(Box, {
-        as: 'th',
-        key: 'first',
-        style: { width: firstColumnWidth },
-      }),
-    ].concat(shownColumns.map(n =>
-      h(Box, {
-        as: 'th',
-        key: n,
-        p: 2,
-        fontWeight: 'bold',
+      h('tr', {
         style: {
-          width: columns[n].width || 'unset',
-          cursor: 'pointer',
-        },
-        onClick: () => {
-          updateOpts((opts={}) => ({
-            ...opts,
-            sortBy: n,
-            sortDirection: opts.sortBy === n
-              ? (
-                !opts.sortDirection ||
-                opts.sortDirection === 'asc'
-              )
-                ? 'desc' : 'asc'
-              : 'asc',
-          }))
-          toFirstPage()
+          textAlign: 'left',
         },
       }, [
-        columns[n].label,
-        n === sortBy && (
-          sortDirection === 'desc' ? '▲' : '▼'
-        ),
-      ])
-    ))),
-  ])
+        h('th', {
+          key: 'first',
+          style: {
+            width: firstColumnWidth,
+          },
+        }),
+      ].concat(shownColumns.map(n =>
+        h(Box, {
+          as: 'th',
+          key: n,
+          p: 2,
+          style: {
+            width: columns[n].width || 'unset',
+            cursor: 'pointer',
+          },
+          onClick: () => {
+            updateOpts((opts={}) => ({
+              ...opts,
+              sortBy: n,
+              sortDirection: opts.sortBy === n
+                ? (
+                  !opts.sortDirection ||
+                  opts.sortDirection === 'asc'
+                )
+                  ? 'desc' : 'asc'
+                : 'asc',
+            }))
+            toFirstPage()
+          },
+        }, [
+          columns[n].label,
+          n === sortBy && (
+            sortDirection === 'desc' ? '▲' : '▼'
+          ),
+        ])
+      ))),
+    ])
+  )
 }
 
 module.exports = ListHeader
