@@ -3,7 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , { RandomID } = require('periodo-common')
-    , { Box, HelpText } = require('./Base')
+    , { Box } = require('./Base')
+    , { HelpText } = require('./Typography')
     , { Label, Input, Textarea, Select } = require('./FormElements')
     , { Alert } = require('./Alerts')
 
