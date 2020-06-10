@@ -92,22 +92,11 @@ const InlineText = props =>
     ...props,
   })
 
-const HelpText = props =>
-  h(Text, {
-    sx: {
-      fontSize: 1,
-      color: 'gray.7',
-      mb: 1,
-    },
-    ...props,
-  })
-
 module.exports = {
   Box,
   Flex,
   Grid,
   Heading,
-  HelpText,
   Pre,
   ResourceTitle,
   Section,

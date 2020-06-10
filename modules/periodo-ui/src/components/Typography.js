@@ -28,3 +28,13 @@ exports.WarnText = props =>
     },
     ...props,
   })
+
+exports.HelpText = props =>
+  h(Text, {
+    sx: {
+      fontSize: 1,
+      color: 'gray.7',
+      mb: 1,
+    },
+    ...props,
+  })
