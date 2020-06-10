@@ -3,7 +3,6 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , styled = require('@emotion/styled').default
     , { Box, Flex, Link, Table } = require('periodo-ui')
 
 function withoutValue(val, set) {
@@ -21,15 +20,23 @@ function withValue(val, set) {
 const AspectContainer = props =>
   h(Flex, {
     sx: {
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: 'colorsets.table.border',
       '&:not(:last-of-type)': {
         mr: '16px',
+      },
+
+      'a:hover': {
+        textDecoration: 'none',
+      },
+
+      'tr': {
+        cursor: 'pointer',
       },
     },
     ...props,
   })
-
-styled(Flex)`
-`
 
 class AspectTable extends React.Component {
   shouldComponentUpdate(prevProps) {
@@ -53,31 +60,33 @@ class AspectTable extends React.Component {
         const isSelected = selected.has(value)
 
         const el = (
-          h('tr', [
+          h('tr', {
+            onClick: () => {
+              updateOpts(R.pipe(
+                R.over(
+                  R.lensPath([ 'selected', aspectID ]),
+                  () => [ ...(isSelected
+                    ? withoutValue(value, selected)
+                    : withValue(value, selected)) ]),
+                R.ifElse(
+                  val => val.selected[aspectID].length,
+                  R.identity,
+                  R.dissocPath([ 'selected', aspectID ])),
+                R.ifElse(
+                  val => R.isEmpty(val.selected),
+                  R.dissoc('selected'),
+                  R.identity)
+              ), true)
+            },
+          }, [
             h('td', count),
             h('td', [
               h(Link, {
-                href: '',
-                color: `blue.${ isSelected ? 8 : 4 }`,
                 onClick: e => {
                   e.preventDefault();
-                  updateOpts(R.pipe(
-                    R.over(
-                      R.lensPath([ 'selected', aspectID ]),
-                      () => [ ...(isSelected
-                        ? withoutValue(value, selected)
-                        : withValue(value, selected)) ]),
-                    R.ifElse(
-                      val => val.selected[aspectID].length,
-                      R.identity,
-                      R.dissocPath([ 'selected', aspectID ])),
-                    R.ifElse(
-                      val => R.isEmpty(val.selected),
-                      R.dissoc('selected'),
-                      R.identity)
-                  ), true)
-
                 },
+                href: '',
+                color: `blue.${ isSelected ? 9 : 6 }`,
               }, render(label === undefined ? value : label)),
             ]),
           ])
