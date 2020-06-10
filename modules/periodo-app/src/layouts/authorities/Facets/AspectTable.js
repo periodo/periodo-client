@@ -103,7 +103,8 @@ class AspectTable extends React.Component {
         h(Flex, {
           justifyContent: 'space-between',
           alignItems: 'center',
-          bg: 'elements.table.header',
+          bg: 'colorsets.secondary.bg',
+          color: 'colorsets.secondary.fg',
           p: 2,
           fontWeight: 'bold',
           fontSize: 1,
@@ -154,7 +155,7 @@ class AspectTable extends React.Component {
             h(Table, {
               className: 'selected', // FIXME: necessary anywhere?
               compact: true,
-              bg: 'accent',
+              secondary: true,
               px: 1,
               py: 1,
               width: '100%',

@@ -68,7 +68,8 @@ const ListWrapper = styled.div`
 .row__header {
   font-weight: bold;
   z-index: 1;
-  background-color: ${props => props.theme.colors.elements.table.header};
+  background-color: ${props => props.theme.colors.colorsets.secondary.bg};
+  color: ${props => props.theme.colors.colorsets.secondary.fg};
 }
 
 .row__header span {
@@ -111,17 +112,19 @@ const ListWrapper = styled.div`
 }
 
 .row__item {
-  background-color: ${props => props.theme.colors.elements.table.body};
+  background-color: ${props => props.theme.colors.colorsets.table.bg};
+  color: ${props => props.theme.colors.colorsets.table.fg};
 }
 
 .row__item[data-selected="true"],
 .row__item[data-hovered="true"] {
-  background-color: ${props => props.theme.colors.elements.table.hover};
+  background-color: ${props => props.theme.colors.colorsets.tableFocused.bg};
+  color: ${props => props.theme.colors.colorsets.tableFocused.fg};
 }
 
 .row__item[data-selected="true"] {
-  border-top: 1px solid #999;
-  border-bottom: 1px solid #999;
+  border-top: 1px solid ${props => props.theme.colors.colorsets.tableFocused.border};
+  border-bottom: 1px solid ${props => props.theme.colors.colorsets.tableFocused.border};
 }
 
 .row span {

@@ -5,31 +5,41 @@ const h = require('react-hyperscript')
 
 exports.Table = ({
   compact,
-  hoverBG,
+  secondary,
   ...props
-}) =>
-  h(Box, {
-    as: 'table',
-    sx: {
-      width: '100%',
-      borderSpacing: '4px 0',
-      borderCollapse: 'collapse',
-      bg: 'elements.table.body',
+}) => {
+  const colorset = secondary
+    ? 'colorsets.tableSecondary'
+    : 'colorsets.table'
 
-      '& td, & th': {
-        py: compact ? '2px' : 2,
-        px: compact ? '5px' : 3,
-      },
+  return (
+    h(Box, {
+      as: 'table',
+      sx: {
+        width: '100%',
+        borderSpacing: '4px 0',
+        borderCollapse: 'collapse',
+        bg: `${colorset}.bg`,
+        color: `${colorset}.fg`,
 
-      '& tr:hover': {
-        bg: hoverBG || 'elements.table.hover',
-      },
+        '& td, & th': {
+          py: compact ? 1 : 2,
+          px: compact ? 2 : 3,
+        },
 
-      '& th': {
-        bg: 'elements.table.header',
-        textAlign: 'left',
-        fontWeight: 'bold',
+        '& tr:hover': {
+          bg: `${colorset}Focused.bg`,
+          color: `${colorset}Focused.fg`,
+        },
+
+        '& th': {
+          bg: 'colorsets.secondary.bg',
+          color: 'colorsets.secondary.fg',
+          textAlign: 'left',
+          fontWeight: 'bold',
+        },
       },
-    },
-    ...props,
-  })
+      ...props,
+    })
+  )
+}

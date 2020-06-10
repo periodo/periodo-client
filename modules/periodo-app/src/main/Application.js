@@ -76,7 +76,7 @@ class PeriodoApplication extends React.Component {
       h(ThemeProvider, { theme }, [
         h(Grid, {
           minHeight: '100vh',
-          bg: 'mainBG',
+          bg: 'colorsets.page.bg',
           gridTemplateRows: 'auto 1fr auto',
         }, [
           h(Header, {

@@ -14,36 +14,80 @@ const gradient = (color, m, n) => theme => {
   return x
 }
 
-const mainBG = oc.blue[0]
-    , accent = oc.green[2]
-    , blockBG = oc.green[1]
-    , secondaryBG = oc.gray[1]
-
 const colors = {
   ...oc,
 
-  // Background for things needing accent:
-  // * Hovered/selected rows on a table
-  // * All things indicating that they can be clicked
-  accent,
+  colorsets: {
+    // Entire page
+    page: {
+      bg: 'hsla(45,31%,93%,1)',
+      // bg: oc.gray[0],
+      fg: 'black',
+      border: oc.gray[3],
+    },
 
-  // Background for whole page
-  mainBG,
+    // Headers and footers
+    bookends: {
+      bg: oc.gray[1],
+      fg: 'black',
+      border: oc.gray[5],
+    },
 
-  // Background for header/footer
-  secondaryBG,
+    // Menu element
+    menu: {
+      bg: oc.gray[1],
+      fg: 'black',
+      border: oc.gray[5],
+    },
 
-  // Background for blocks
-  blockBG,
+    // Blocks, sections
+    primary: {
+      bg: 'white',
+      fg: 'black',
+      border: oc.gray[5],
+    },
 
-  elements: {
-    link: oc.blue[5],
+    // Contrast to the primary
+    secondary: {
+      bg: oc.gray[3],
+      fg: 'black',
+      border: oc.gray[6],
+    },
 
     table: {
-      header: oc.pink[3],
-      body: oc.pink[0],
-      hover: accent,
+      bg: 'white',
+      fg: 'black',
+      border: oc.gray[3],
     },
+
+    tableFocused: {
+      bg: oc.gray[2],
+      fg: 'black',
+      border: oc.gray[6],
+    },
+
+    tableSecondary: {
+      bg: oc.pink[1],
+      fg: 'black',
+      border: oc.pink[3],
+    },
+
+    tableSecondaryFocused: {
+      bg: oc.pink[2],
+      fg: 'black',
+      border: oc.pink[6],
+    },
+
+    actionable: {
+      bg: oc.pink[2],
+      fg: 'black',
+      border: oc.pink[5],
+    },
+  },
+
+  elements: {
+    link: oc.blue[7],
+    linkFocused: oc.blue[9],
   },
 }
 
@@ -56,11 +100,11 @@ module.exports = {
       py: 2,
       px: 3,
       my: 3,
-      bg: 'gray.0',
-      color: 'black',
+      bg: 'colorsets.menu.bg',
+      color: 'colorsets.menu.fg',
       borderStyle: 'solid',
       borderWidth: '1px',
-      borderColor: 'gray.4',
+      borderColor: 'colorsets.menu.border',
       '& a[data-active="true"]::before': {
         content: '"▸"',
         position: 'absolute',
@@ -69,10 +113,10 @@ module.exports = {
         color: 'orangered',
       },
       '& a': {
-        color: 'blue.5',
+        color: 'elements.link',
       },
       '& a[data-active="true"]': {
-        color: 'blue.8',
+        color: 'elements.linkFocused',
       },
     },
   },
