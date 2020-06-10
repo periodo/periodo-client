@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , { Route } = require('org-shell')
     , { RandomID } = require('periodo-common')
-    , { Box, Link, Text, HelpText, Label, Span, Tag } = require('periodo-ui')
+    , { Box, Link, Text, HelpText, Label, InlineText, Tag } = require('periodo-ui')
     , { Autosuggest, BackendContext } = require('periodo-ui')
     , util = require('periodo-utils')
     , { useContext } = require('react')
@@ -91,7 +91,7 @@ const renderSuggestion = (item, { isHighlighted, isSelected }) => h(Box,
     },
     ...isHighlighted && { bg: 'gray.2' },
   }, [
-    h(Span, {
+    h(InlineText, {
       display: 'inline-block',
       width: '1em',
       color: 'gray.6',
