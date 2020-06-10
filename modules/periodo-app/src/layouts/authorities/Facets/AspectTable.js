@@ -158,6 +158,7 @@ class AspectTable extends React.Component {
               secondary: true,
               px: 1,
               py: 1,
+              mb: 1,
               width: '100%',
             }, [
               h('tbody', selectedRows),
