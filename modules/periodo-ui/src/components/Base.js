@@ -65,9 +65,9 @@ const ResourceTitle = props =>
 const SectionHeading = props =>
   h(Heading, {
     level: 3,
-    py: 2,
-    px: 3,
-    bg: 'blockBG',
+    pt: 2,
+    pb: 1,
+    color: 'colorsets.primary.fg',
     ...props,
   })
 
@@ -77,7 +77,11 @@ const Section = props =>
     sx:  {
       p: 3,
       mb: 4,
-      bg: 'blockBG',
+      bg: 'colorsets.primary.bg',
+      color: 'colorsets.primary.fg',
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      borderColor: 'colorsets.primary.border',
     },
     ...props,
   })

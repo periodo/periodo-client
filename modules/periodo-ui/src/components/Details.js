@@ -40,7 +40,7 @@ function Summary({ ...props }) {
       as: 'summary',
       sx: {
         width: '100%',
-        bg: 'blockBG',
+        color: 'colorsets.page.fg',
         cursor: 'pointer',
         px: 3,
         ':hover, :hover h3': {

@@ -7,7 +7,13 @@ const h = require('react-hyperscript')
 module.exports = ({ showSpinner, ...props }) =>
   h(Box, {
     as: 'header',
-    bg: 'secondaryBG',
+    sx: {
+      bg: 'colorsets.bookends.bg',
+      py: 1,
+      borderBottomStyle: 'solid',
+      borderBottomWidth: '1px',
+      borderBottomColor: 'colorsets.bookends.border',
+    },
     ...props,
   }, [
     h(Flex, {
