@@ -3,6 +3,7 @@
 const h = require('react-hyperscript')
     , { useState, useRef, useEffect } = require('react')
     , { Box, InlineText } = require('./Base')
+    , { LinkButton } = require('./Buttons')
 
 const Tag = ({ label, onDelete, ...props }) =>
   h(Box, {
@@ -95,6 +96,7 @@ const Tags = ({
   onBlur,
   onDeleteItem,
   onAcceptSuggestion,
+  onAcceptAllSuggestions=null,
   emptyMessage = '',
   suggestedTagsLabel = '',
   ...props
@@ -106,7 +108,10 @@ const Tags = ({
 
   useEffect(() => {
     if (focusedIndex >= 0) {
-      ref.current.childNodes[focusedIndex].focus()
+      const focusedChild = ref.current.childNodes[focusedIndex]
+      if (focusedChild) {
+        focusedChild.focus()
+      }
     }
   }, [ focusedIndex ]);
 
@@ -135,7 +140,9 @@ const Tags = ({
       },
     }))
 
-  const suggestedTagsOffset = items.length + (suggestedTagsLabel ? 1 : 0)
+  const suggestedTagsOffset = (
+    tagsOffset + items.length + (suggestedTagsLabel ? 1 : 0)
+  )
 
   const suggestedTags = suggestedItems.map((item, index) =>
     h(SuggestedTag, {
@@ -176,6 +183,15 @@ const Tags = ({
       : null,
 
     ...suggestedTags,
+
+    (suggestedTags.length && onAcceptSuggestion !== null)
+      ? listItem(
+        h(LinkButton, {
+          onSelect: onAcceptAllSuggestions,
+          mb: 1,
+        }, 'add all')
+      )
+      : null,
 
     editLink ? listItem(editLink) : null,
   ]

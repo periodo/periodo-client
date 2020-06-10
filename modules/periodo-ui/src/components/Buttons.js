@@ -26,11 +26,15 @@ exports.Button = ({ sx, variant='default', ...props }) =>
     ...props,
   })
 
-exports.AriaButton = props =>
+exports.AriaButton = ({ sx, ...props }) =>
   h(Box, {
     as: 'span',
     role: 'button',
     tabIndex: 0,
+    sx: {
+      cursor: 'pointer',
+      ...sx,
+    },
     onKeyPress: e => {
       if (e.key === ' ') {
         e.preventDefault();
@@ -45,3 +49,17 @@ exports.AriaButton = props =>
     onClick: props.onSelect,
     ...props,
   }, props.children)
+
+exports.LinkButton = props =>
+  h(exports.AriaButton, {
+    color: 'link',
+    sx: {
+      display: 'inline-block',
+      px: 2,
+      py: 1,
+      ':hover': {
+        textDecoration: 'underline',
+      },
+    },
+    ...props,
+  })
