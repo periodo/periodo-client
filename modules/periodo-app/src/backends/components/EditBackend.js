@@ -25,7 +25,6 @@ module.exports = Navigable((props) => {
     h(Box, [
 
       h(Breadcrumb, {
-        ml: 1,
         mb: 3,
         truncate: [ 1 ],
       }, [
