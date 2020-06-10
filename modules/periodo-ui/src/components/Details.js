@@ -42,9 +42,11 @@ function Summary({ ...props }) {
         width: '100%',
         color: 'colorsets.page.fg',
         cursor: 'pointer',
-        px: 3,
-        ':hover, :hover h3': {
-          bg: 'accent',
+        pl: 1,
+        pb: 2,
+        ':hover': {
+          cursor: 'pointer',
+          opacity: .5,
         },
       },
       ...props,
