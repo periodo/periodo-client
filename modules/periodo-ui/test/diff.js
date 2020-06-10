@@ -3,8 +3,8 @@
 /* eslint object-property-newline: 0, array-bracket-spacing: 0 object-curly-newline: 0 */
 
 const test = require('tape')
-    , { Change } = require('../src/diffable/types')
-    , { findChanges } = require('../src/diffable/Diff')
+    , { Change } = require('../src/components/diffable/types')
+    , { findChanges } = require('../src/components/diffable/Diff')
 
 test('findChanges', t => {
   t.plan(11)

@@ -1,7 +1,7 @@
 "use strict";
 
 const test = require('tape')
-    , { extract } = require('../src/diffable/Field')
+    , { extract } = require('../src/components/diffable/Field')
 
 test('Extract function', t => {
   t.plan(7)

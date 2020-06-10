@@ -1,7 +1,7 @@
 "use strict";
 
 const test = require('tape')
-    , { Change, valueEquals, isAnonymous, isIdentified } = require('../src/diffable/types')
+    , { Change, valueEquals, isAnonymous, isIdentified } = require('../src/components/diffable/types')
 
 test('Anonymous values', t => {
   t.plan(8)
