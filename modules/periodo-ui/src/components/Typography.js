@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { InlineText } = require('./Base')
+    , { InlineText, Text } = require('./Base')
 
 exports.Italic = props =>
   h(InlineText, {
