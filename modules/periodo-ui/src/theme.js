@@ -57,7 +57,7 @@ const colors = {
     table: {
       bg: 'white',
       fg: 'black',
-      border: oc.gray[3],
+      border: oc.gray[5],
     },
 
     tableFocused: {
