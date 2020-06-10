@@ -44,9 +44,11 @@ function Summary({ ...props }) {
         cursor: 'pointer',
         pl: 1,
         pb: 2,
-        ':hover': {
-          cursor: 'pointer',
-          opacity: .5,
+        ':hover, :hover *': {
+          color: 'orange.9',
+        },
+        '::marker, ::-webkit-details-marker': {
+          color: 'colorsets.page.fg',
         },
       },
       ...props,
