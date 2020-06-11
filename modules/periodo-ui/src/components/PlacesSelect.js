@@ -88,7 +88,7 @@ const PlacesSelect = ({
         onAcceptSuggestion: accepted => {
           onChange([ ...coverage, accepted ])
         },
-        onAcceptAllSuggestion: () => {
+        onAcceptAllSuggestions: () => {
           onChange([ ...coverage, ...suggestions ])
         },
         onDeleteItem: deleted => {
