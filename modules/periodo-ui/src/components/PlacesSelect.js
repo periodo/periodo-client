@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { useState } = require('react')
     , { Box } = require('./Base')
-    , { LinkButton } = require('./Links')
+    , { LinkButton } = require('./Buttons')
     , { Tags } = require('./Tags')
     , { LabeledMap } = require('./LabeledMap')
     , { PlaceSuggest } = require('./PlaceSuggest')
