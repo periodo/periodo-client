@@ -129,18 +129,40 @@ class LabelForm extends React.Component {
                 , language = lexvoLanguageURL(tag.language().format())
                 , script = lexvoScriptURL(tag.script())
 
-            onValueChange(
-              R.pipe(
-                R.assoc('label', label),
-                R.assoc('languageTag', languageTag),
-                language
-                  ? R.assoc('language', language)
-                  : R.dissoc('language'),
-                script
-                  ? R.assoc('script', script)
-                  : R.dissoc('script')
-              )(period)
-            )
+            let newLocalizedLabels = null
+
+            if (label !== period.label || languageTag !== period.languageTag) {
+              newLocalizedLabels = R.clone(period.localizedLabels)
+              // remove old label
+              newLocalizedLabels[period.languageTag] = (
+                newLocalizedLabels[period.languageTag] || []
+              ).filter(label => label !== period.label)
+              // remove old language tag labels array if empty
+              if (newLocalizedLabels[period.languageTag].length === 0) {
+                delete newLocalizedLabels[period.languageTag]
+              }
+              // add new label
+              newLocalizedLabels[languageTag] = [
+                ...(newLocalizedLabels[languageTag] || []),
+                label,
+              ]
+            }
+
+            const newPeriod = R.pipe(
+              R.assoc('label', label),
+              R.assoc('languageTag', languageTag),
+              language
+                ? R.assoc('language', language)
+                : R.dissoc('language'),
+              script
+                ? R.assoc('script', script)
+                : R.dissoc('script'),
+              newLocalizedLabels
+                ? R.assoc('localizedLabels', newLocalizedLabels)
+                : R.identity
+            )(period)
+
+            onValueChange(newPeriod)
           },
         }),
 
