@@ -1,10 +1,8 @@
 "use strict";
 
-const h = require('react-hyperscript')
-    , R = require('ramda')
+const R = require('ramda')
     , { Route } = require('org-shell')
     , { connect } = require('react-redux')
-    , { Box } = require('periodo-ui')
     , { withLoadProgress, withReduxState } = require('./wrappers')
     , resourceGroups = require('./resources')
 
@@ -25,27 +23,59 @@ function getParents(group) {
   return parents.reverse()
 }
 
-function makeResourceComponent(resource) {
-  const Resource = props => {
-    return (
-      h(Box, {
-        css: {
-          width: '100%',
-          flexGrow: 1,
-        },
-      }, [
-        h(resource.Component, props),
-      ])
-    )
-  }
+const aggregatedResourceAttributes = {
+  wrappers: {
+    combine: args => args.flat(),
+  },
 
-  Resource.displayName = `Resource:${resource.name}`
+  mapStateToProps: {
+    combine: fns => (state, ownProps) => {
+      const endProps = {}
 
-  return Resource
+      fns.forEach(mapStateToProps => {
+        Object.assign(endProps, mapStateToProps(state, {
+          ...ownProps,
+          ...endProps,
+        }))
+      })
+
+      return endProps
+    },
+  },
+
+  onBeforeRoute: {
+    isAsync: true,
+    combine: fns => async (...args) => {
+      const ret = {}
+
+      for (const onBeforeRoute of fns) {
+        Object.assign(ret, await onBeforeRoute(...args))
+      }
+
+      return ret
+    },
+  },
+
+  loadData: {
+    isAsync: true,
+    combine: fns => async (props, log, finished) => {
+      for (const loadData of fns) {
+        let cont = false
+
+        await loadData(props, log, () => { cont = true })
+
+        if (!cont) return
+      }
+
+      finished()
+    },
+  },
 }
 
-function registerGroups(groups) {
-  const ret = []
+// Turn the tree of groups defined in ./resources.js into one flat object that
+// will be passed to org-shell
+function resourcesFromGroups(groups) {
+  const resources = {}
 
   Object.entries(groups).forEach(([ key, group ]) => {
     const groupKey = `ResourceGroup:${key}`
@@ -54,108 +84,68 @@ function registerGroups(groups) {
     group.name = key;
     group.parents = parents;
 
-    if (group.mapStateToProps) {
-      defineName(group.mapStateToProps, `${groupKey}:mapStateToProps`)
-    }
+    // For each group, modify the name of the aggregated functions at the group
+    // level to reflect that they are part of the group. (For easier debugging).
+    Object.keys(aggregatedResourceAttributes).forEach(attr => {
+      if (typeof group[attr] === 'function') {
+        defineName(group[attr], `${groupKey}:${attr}`)
+      }
+    })
 
-    if (group.modifyMenuLinkParams) {
-      defineName(group.modifyMenuLinkParams, `${groupKey}:modifyMenuLinkParams`)
-    }
+    // Now iterate through the resources defined in the group and construct an
+    // org-shell resource for each
+    Object.entries(group.resources).forEach(([ key, _resource ]) => {
+      const resource = { ..._resource }
+          , resourceKey = `Resource:${key}`
 
-    if (group.onBeforeRoute) {
-      defineName(group.onBeforeRoute, `${groupKey}:onBeforeRoute`)
-    }
-
-    Object.entries(group.resources).forEach(([ key, resource ]) => {
-      const resourceKey = `Resource:${key}`
 
       resource.name = key;
       resource.hierarchy = parents.concat(group, resource)
 
-      if (resource.mapStateToProps) {
-        defineName(resource.mapStateToProps, `${resourceKey}:mapStateToProps`)
-      }
+      // For each of the aggregated functions defined above, aggregate the
+      // fns from the topmost parent down to the resource itself. Combine those
+      // aggregated functions via the `.combine()` method defined in the field
+      // definitions above.
+      Object.entries(aggregatedResourceAttributes).forEach(([ attr, spec ]) => {
+        const { combine } = spec
 
-      if (resource.onBeforeRoute) {
-        defineName(resource.onBeforeRoute, `${resourceKey}:onBeforeRoute`)
-      }
-
-      const aggregated = R.pipe(
-        R.map(R.pick([ 'onBeforeRoute', 'mapStateToProps', 'wrappers', 'loadData' ])),
-        R.reduce(
-          R.mergeWith(R.flip(R.append)),
-          {
-            wrappers: [],
-            onBeforeRoute: [],
-            mapStateToProps: [],
-            loadData: [],
-          }
-        ),
-        R.map(R.filter(R.identity))
-      )(resource.hierarchy)
-
-      resource.onBeforeRoute = async (...args) => {
-        const ret = {}
-
-        for (const fn of aggregated.onBeforeRoute) {
-          Object.assign(ret, await fn(...args))
+        if (typeof resource[attr] === 'function') {
+          defineName(resource[attr], `${resourceKey}:${attr}`)
         }
 
-        return ret
-      }
-      defineName(resource.onBeforeRoute, `${resourceKey}:combinedOnBeforeRoute`)
+        resource[attr] = combine(resource.hierarchy
+          .map(level => level[attr])
+          .filter(x => x))
 
-      resource.mapStateToProps = (state, ownProps) => {
-        return aggregated.mapStateToProps.reduce(
-          (props, fn) => R.merge(props, fn(state, R.merge(ownProps, props))),
-          {}
-        )
-      }
-      defineName(resource.mapStateToProps, `${resourceKey}:combinedMapStateToProps`)
+        defineName(resource[attr], `${resourceKey}:aggregated:${attr}`)
+      })
 
-      resource.loadData = async (props, log, finished) => {
-        for (const fn of aggregated.loadData) {
-          let cont = false
-
-          await fn(props, log, () => { cont = true })
-
-          if (!cont) return
-        }
-
-        finished()
-      }
-
-      const OriginalComponent = R.pipe(
+      // Now wrap the resource's component in higher order components.
+      const componentTransforms = [
         connect(resource.mapStateToProps),
         withLoadProgress(resource),
-        withReduxState
-      )(resource.Component)
+        withReduxState,
+        ...resource.wrappers,
+      ]
 
-      resource.Component = R.flatten(aggregated.wrappers).reduce(
-        (Component, wrapper) => wrapper(Component, resource),
-        OriginalComponent
-      )
+      resource.Component = componentTransforms.reduce(
+        (Component, wrapper) => wrapper(Component),
+        resource.Component)
 
+      resource.Component.displayName = `Resource:${resource.name}`
+
+      resource.makeTitle = () => `${group.label} | ${resource.label}`
+
+      // ...and add it to the list of registered resources
+      resources[key] = resource
     })
-
-    ret.push(group)
   })
 
-  return ret
+  return resources
 }
 
 
-const resources = {}
-
-registerGroups(resourceGroups).forEach(group => {
-  Object.entries(group.resources).forEach(([ key, resource ]) => {
-    resources[key] = {
-      ...resource,
-      Component: makeResourceComponent(resource, group),
-      makeTitle: () => `${group.label} | ${resource.label}`,
-    }
-  })
-})
+const resources = resourcesFromGroups(resourceGroups)
 
 function getRouteGroups(resource, props) {
   const hierarchy = resource.hierarchy || resources[''].hierarchy
