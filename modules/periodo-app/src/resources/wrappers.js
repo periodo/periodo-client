@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
     , { ReactReduxContext, connect } = require('react-redux')
     , { Box, Alert, Link } = require('periodo-ui')
-    , { BackendContext, LoadingIcon } = require('periodo-ui')
+    , { BackendContext, LoadingIcon, NavigationMenu } = require('periodo-ui')
 
 
 const ReadyState = Type({
@@ -190,6 +190,7 @@ function withLoadProgress(resource) {
   }
 }
 
+// FIXME: is this necessary?
 function withReduxState(Component) {
   function ReduxStoreComponent(props) {
     return (
@@ -206,8 +207,65 @@ function withReduxState(Component) {
   return ReduxStoreComponent
 }
 
+function identity(x) {
+  return x
+}
+
+function alwaysTrue() {
+  return true
+}
+
+function getLinkGroups(resource, props) {
+  const { hierarchy=[]} = resource
+      , groups = []
+
+  hierarchy.slice(0, -1).forEach(group => {
+    const linkGroup = {
+      label: group.label,
+      routes: [],
+    }
+
+    Object.entries(group.resources).forEach(([ routeName, resource ]) => {
+      const show = (resource.showInMenu || alwaysTrue)(props)
+
+      if (!show) return
+
+      const routeParams = (group.modifyMenuLinkParams || identity)(props.params)
+
+      linkGroup.routes.push({
+        label: resource.label,
+        route: new Route(routeName, routeParams),
+      })
+    })
+
+    groups.push(linkGroup)
+  })
+
+  return groups
+}
+
+function withNavigation(resource) {
+  return Component => {
+    function NavigableComponent(props) {
+      const routeGroups = getLinkGroups(resource, props)
+
+      return [
+        h(NavigationMenu, {
+          activeResource: resource,
+          routeGroups,
+        }),
+
+        h(Component, props),
+      ]
+    }
+
+    return NavigableComponent
+  }
+}
+
 module.exports = {
   withBackendContext,
   withLoadProgress,
   withReduxState,
+  withNavigation,
 }
