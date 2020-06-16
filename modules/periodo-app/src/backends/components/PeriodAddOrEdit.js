@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, Breadcrumb, Link } = require('periodo-ui')
+    , { Box } = require('periodo-ui')
     , BackendAction = require('../actions')
     , PeriodForm = require('../../forms/PeriodForm')
     , { Navigable, Route } = require('org-shell')
@@ -56,44 +56,8 @@ class AddPeriod extends React.Component {
       params: { nextPage },
     } = this.props
 
-    const editing = this.state.period && this.state.period.id
-
     return (
       h(Box, [
-
-        h(Breadcrumb, {
-          truncate: [ 1 ],
-        }, [
-          h(Link, {
-            route: Route('backend-home', {
-              backendID: backend.asIdentifier(),
-            }),
-          }, backend.metadata.label),
-          h(Link, {
-            route: Route('authority-view', {
-              backendID: backend.asIdentifier(),
-              authorityID: authority.id,
-            }),
-          }, util.authority.displayTitle(authority)),
-
-          ...(
-            editing
-              ? [
-                h(Link, {
-                  route: Route('period-view', {
-                    backendID: backend.asIdentifier(),
-                    authorityID: authority.id,
-                    periodID: this.state.period.id,
-                  }),
-                }, this.state.period.label),
-                'Edit',
-              ]
-              : [
-                'Add period',
-              ]
-          ),
-        ]),
-
         h(PeriodForm, {
           value: this.state.period,
           gazetteers,

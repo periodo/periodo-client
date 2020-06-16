@@ -11,6 +11,7 @@ const h = require('react-hyperscript')
     , { BackendStorage } = require('../backends/types')
     , { handleCompletedAction } = require('org-async-actions')
     , { withBackendContext } = require('./wrappers')
+    , util = require('periodo-utils')
 
 
 // Given a set of props, returns whether the included backend is local
@@ -129,6 +130,13 @@ const Backend = {
     'backend-home': {
       label: 'Browse periods',
       Component: require('../backends/components/BackendHome'),
+      getBreadcrumbs(props) {
+        const { backend } = props
+        return [
+          { label: backend.metadata.label },
+          { label: 'Browse periods' },
+        ]
+      },
       async loadData(props, log, finished) {
         const { dispatch, getState } = props
             , storage = getCurrentBackendStorage(props)
@@ -160,6 +168,21 @@ const Backend = {
     'backend-authorities': {
       label: 'Browse authorities',
       Component: require('../backends/components/BrowseAuthorities'),
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Browse authorities',
+          },
+        ]
+      },
       async loadData(props, log, finished) {
         const { dispatch } = props
             , storage = getCurrentBackendStorage(props)
@@ -191,12 +214,42 @@ const Backend = {
       label: 'Add authority',
       Component: require('../backends/components/AuthorityAddOrEdit'),
       showInMenu: isLocalBackend,
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Add authority',
+          },
+        ]
+      },
     },
     'backend-patches': {
       label: 'Review submitted changes',
       Component: require('../patches/OpenPatches'),
       showInMenu: ({ params }) => {
         return params.backendID.startsWith('web-')
+      },
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Review submitted changes',
+          },
+        ]
       },
 
       async loadData(props, log, finished) {
@@ -250,6 +303,21 @@ const Backend = {
     'backend-sync': {
       label: 'Import changes',
       Component: require('../backends/components/SyncBackend'),
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Import changes',
+          },
+        ]
+      },
       showInMenu: isLocalBackend,
       mapStateToProps(state) {
         return {
@@ -261,6 +329,21 @@ const Backend = {
       label: 'Submit changes',
       Component: require('../backends/components/BackendSubmitPatch'),
       showInMenu: isLocalBackend,
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Submit changes',
+          },
+        ]
+      },
       async loadData(props, log, finished) {
         await checkServerAuthentication(log, props)
 
@@ -282,6 +365,22 @@ const Backend = {
         )
       },
 
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'History',
+          },
+        ]
+      },
+
       async loadData(props, log, finished) {
         const { dispatch } = props
             , storage = getCurrentBackendStorage(props)
@@ -300,6 +399,25 @@ const Backend = {
     'backend-edit': {
       label: 'Settings',
       Component: require('../backends/components/EditBackend'),
+      getBreadcrumbs(props) {
+        const { backend } = props
+
+        // Backend was deleted
+        if (!backend) return null
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Settings',
+            truncate: true,
+          },
+        ]
+      },
       async loadData(props, log, finished) {
         if (props.params.backendID.startsWith('web-')) {
           await checkServerAuthentication(log, props)
@@ -349,6 +467,32 @@ const ReviewPatch = {
     'review-patch': {
       label: 'Review',
       Component: require('../patches/Review'),
+      getBreadcrumbs(props) {
+        const { patch, backend } = props
+            , number = util.patchNumber(patch.url)
+
+        const changeLabel = `Change ${ number ? `#${ number }` : '' }
+        submitted ${ util.formatDate(new Date(patch.created_at)) }
+        ${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: 'Review submitted changes',
+            route: Route('backend-patches', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: changeLabel,
+          },
+        ]
+      },
     },
   },
   async onBeforeRoute(params) {
@@ -407,6 +551,13 @@ const ReviewPatch = {
   },
 }
 
+const labelForPatch = patch => `Change made ${
+  util.formatDate(
+    patch.change.mergeTime || new Date(patch.patch.created)
+  )
+}`
+
+
 const BackendPatch = {
   label: 'Change',
   parent: Backend,
@@ -414,6 +565,24 @@ const BackendPatch = {
     'backend-patch': {
       label: 'View',
       Component: require('../backends/components/BackendPatch'),
+      getBreadcrumbs(props) {
+        const { backend, patch } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: labelForPatch(patch),
+          },
+          {
+            label: 'View',
+          },
+        ]
+      },
     },
   },
 
@@ -457,6 +626,25 @@ const Authority = {
     'authority-view': {
       label: 'View',
       Component: require('../backends/components/AuthorityView'),
+      getBreadcrumbs(props) {
+        const { backend, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            label: 'View',
+          },
+        ]
+      },
       async loadData(props, log, finished) {
         const { dispatch, getState } = props
             , storage = getCurrentBackendStorage(props)
@@ -490,12 +678,58 @@ const Authority = {
       label: 'Edit',
       showInMenu: isLocalBackend,
       Component: require('../backends/components/AuthorityAddOrEdit'),
+      getBreadcrumbs(props) {
+        const { backend, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            route: Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }),
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            label: 'Edit',
+          },
+        ]
+      },
     },
 
     'authority-add-period': {
       label: 'Add period',
       showInMenu: isLocalBackend,
       Component: require('../backends/components/PeriodAddOrEdit'),
+      getBreadcrumbs(props) {
+        const { backend, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            route: Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }),
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            label: 'Add period',
+          },
+        ]
+      },
     },
 
     'authority-history': {
@@ -505,6 +739,29 @@ const Authority = {
           params.backendID.startsWith('web-') ||
           params.backendID.startsWith('local-')
         )
+      },
+      getBreadcrumbs(props) {
+        const { backend, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            route: Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }),
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            label: 'History',
+          },
+        ]
       },
       async loadData(props, log, finished) {
         const { dispatch } = props
@@ -566,12 +823,61 @@ const Period = {
     'period-view': {
       label: 'View',
       Component: require('../backends/components/PeriodView'),
+      getBreadcrumbs(props) {
+        const { backend, period, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            route: Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }),
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            label: period.label,
+          },
+          {
+            label: 'View',
+          },
+        ]
+      },
     },
 
     'period-edit': {
       label: 'Edit',
       showInMenu: isLocalBackend,
       Component: require('../backends/components/PeriodAddOrEdit'),
+      getBreadcrumbs(props) {
+        const { backend, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            route: Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }),
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            label: 'Edit',
+          },
+        ]
+      },
     },
 
     'period-history': {
@@ -581,6 +887,38 @@ const Period = {
           params.backendID.startsWith('web-') ||
           params.backendID.startsWith('local-')
         )
+      },
+      getBreadcrumbs(props) {
+        const { backend, period, authority } = props
+
+        return [
+          {
+            label: backend.metadata.label,
+            route: Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }),
+          },
+          {
+            route: Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }),
+            label: util.authority.displayTitle(authority),
+            truncate: true,
+          },
+          {
+            route: Route('period-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+              periodID: period.id,
+            }),
+            label: period.label,
+            truncate: true,
+          },
+          {
+            label: 'History',
+          },
+        ]
       },
       async loadData(props, log, finished) {
         const { dispatch } = props

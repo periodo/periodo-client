@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
     , { ReactReduxContext, connect } = require('react-redux')
     , { Box, Alert, Link } = require('periodo-ui')
-    , { BackendContext, LoadingIcon, NavigationMenu } = require('periodo-ui')
+    , { BackendContext, Breadcrumb, LoadingIcon, NavigationMenu } = require('periodo-ui')
 
 
 const ReadyState = Type({
@@ -52,7 +52,7 @@ function withBackendContext(Component) {
         h(Alert, {
           variant: 'warning',
           width: '100%',
-          mb: 2,
+          my: 3,
         }, [
           'Warning: Using local data source without persistent data storage. See the ',
           h(Link, {
@@ -148,6 +148,7 @@ function withLoadProgress(resource) {
 
       render() {
         if (this.state.error) throw this.state.error
+
         if (this.state.loaded) return h(Component, this.props)
 
         if (!this.state.showLoading) return null
@@ -244,22 +245,55 @@ function getLinkGroups(resource, props) {
   return groups
 }
 
-function withNavigation(resource) {
+function withMenu(resource) {
   return Component => {
-    function NavigableComponent(props) {
+    function MenuedComponent(props) {
       const routeGroups = getLinkGroups(resource, props)
 
       return [
         h(NavigationMenu, {
+          key: 'menu',
           activeResource: resource,
           routeGroups,
         }),
 
-        h(Component, props),
+        h(Component, {
+          key: 'rest',
+          ...props,
+        }),
       ]
     }
 
-    return NavigableComponent
+    return MenuedComponent
+  }
+}
+
+function withBreadcrumb(resource) {
+  return Component => {
+    function BreadcrumbedComponent(props) {
+      let crumbs = null
+
+      if (resource.getBreadcrumbs) {
+        crumbs = resource.getBreadcrumbs(props)
+      }
+
+      return [
+        !crumbs ? null : (
+          h(Breadcrumb, {
+            key: 'breadcrumb',
+            crumbs,
+          })
+        ),
+
+        h(Component, {
+          key: 'rest',
+          ...props,
+        }),
+      ]
+
+    }
+
+    return BreadcrumbedComponent
   }
 }
 
@@ -267,5 +301,6 @@ module.exports = {
   withBackendContext,
   withLoadProgress,
   withReduxState,
-  withNavigation,
+  withMenu,
+  withBreadcrumb,
 }

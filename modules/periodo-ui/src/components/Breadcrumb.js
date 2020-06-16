@@ -2,8 +2,9 @@
 
 const h = require('react-hyperscript')
     , { Flex, Box } = require('./Base')
+    , { Link } = require('./Links')
 
-exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
+exports.Breadcrumb = ({ crumbs=[], ...props }) =>
   h(Flex, {
     as: 'ol',
     variant: 'menu',
@@ -16,7 +17,7 @@ exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
       mt: theme => (-theme.space[3] - 1) + 'px',
     },
     ...props,
-  }, [].concat(children || []).map((el, i) =>
+  }, crumbs.map(({ label, route, truncate }, i) =>
     h(Box, {
       as: 'li',
       key: i,
@@ -27,7 +28,7 @@ exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
         whiteSpace: 'nowrap',
         textDecoration: 'none',
         ...(
-          truncate.includes(i) ? {} : { flex: '0 0 auto' }
+          truncate ? {} : { flex: '0 0 auto' }
         ),
         ':not(:first-of-type)': {
           '::before': {
@@ -37,5 +38,11 @@ exports.Breadcrumb = ({ children, truncate=[], ...props }) =>
           },
         },
       },
-    }, el)
+    }, [
+      !route ? label : (
+        h(Link, {
+          route,
+        }, label)
+      ),
+    ])
   ))

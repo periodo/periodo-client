@@ -1,7 +1,7 @@
 "use strict";
 
 const { connect } = require('react-redux')
-    , { withLoadProgress, withReduxState, withNavigation } = require('./wrappers')
+    , { withLoadProgress, withReduxState, withMenu, withBreadcrumb } = require('./wrappers')
     , resourceGroups = require('./resources')
 
 
@@ -124,10 +124,11 @@ function resourcesFromGroups(groups) {
 
       // Now wrap the resource's component in higher order components.
       const componentTransforms = [
+        withBreadcrumb(resource),
         connect(resource.mapStateToProps),
         withLoadProgress(resource),
         withReduxState,
-        withNavigation(resource),
+        withMenu(resource),
         ...resource.wrappers,
       ]
 

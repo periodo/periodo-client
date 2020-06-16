@@ -3,32 +3,15 @@
 const h = require('react-hyperscript')
     , Compare = require('../../patches/Compare')
     , { PatchDirection } = require('../../patches/types')
-    , { Flex, Box, Link, Breadcrumb, Section } = require('periodo-ui')
-    , { formatDate } = require('periodo-utils')
+    , { Flex, Box, Link, Section } = require('periodo-ui')
     , { Route } = require('org-shell')
-
-const label = patch => `Change made ${
-  formatDate(
-    patch.change.mergeTime || new Date(patch.patch.created)
-  )
-}`
 
 module.exports = function BackendPatch(props) {
   const { backend, patch } = props
-  const { prevDataset, dataset, position: { prev, next }} = patch
+      , { prevDataset, dataset, position: { prev, next }} = patch
+
   return (
     h(Box, [
-
-      h(Breadcrumb, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        label(patch),
-        'View',
-      ]),
-
       h(Flex, {
         justifyContent: 'space-between',
         mb: 1,

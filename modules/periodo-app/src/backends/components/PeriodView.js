@@ -3,9 +3,8 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Route } = require('org-shell')
-    , { Box, InlineText, Heading, Text, Section, Breadcrumb } = require('periodo-ui')
-    , { Link, PermalinkValue, Note, EditorialNote } = require('periodo-ui')
+    , { Box, InlineText, Heading, Text, Section } = require('periodo-ui')
+    , { PermalinkValue, Note, EditorialNote } = require('periodo-ui')
     , { RelatedAuthorityValue, DownloadValue } = require('periodo-ui')
     , util = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
@@ -53,25 +52,6 @@ module.exports = class PeriodLayout extends React.Component {
         , { blockOpts } = this.state
 
     return h(Box, [
-
-      h(Breadcrumb, {
-        truncate: [ 1 ],
-      }, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        h(Link, {
-          route: Route('authority-view', {
-            backendID: backend.asIdentifier(),
-            authorityID: authority.id,
-          }),
-        }, util.authority.displayTitle(authority)),
-        period.label,
-        'View',
-      ]),
-
       h(Section, [
 
         h(Heading, {

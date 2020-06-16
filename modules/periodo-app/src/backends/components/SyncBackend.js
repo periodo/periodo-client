@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , jsonpatch = require('fast-json-patch')
     , { Box, HelpText, Section } = require('periodo-ui')
-    , { Button, Breadcrumb, Link } = require('periodo-ui')
+    , { Button } = require('periodo-ui')
     , { Navigable, Route } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
     , BackendAction = require('../actions')
@@ -111,14 +111,6 @@ class SyncBackend extends React.Component {
 
     return (
       h(Box, [
-        h(Breadcrumb, [
-          h(Link, {
-            route: Route('backend-home', {
-              backendID: this.props.backend.asIdentifier(),
-            }),
-          }, this.props.backend.metadata.label),
-          'Import changes',
-        ]),
         child,
       ])
     )

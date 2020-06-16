@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Route } = require('org-shell')
-    , { Box, HelpText, Link, Breadcrumb } = require('periodo-ui')
+    , { Box, HelpText, Link } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
 
@@ -77,12 +77,6 @@ module.exports = class BackendHome extends React.Component {
 
     return (
       h(Box, [
-
-        h(Breadcrumb, [
-          backend.metadata.label,
-          'Browse periods',
-        ]),
-
         dataset.authorities.length === 0
           ? h(HelpText, [
             'No periods in this data source.',

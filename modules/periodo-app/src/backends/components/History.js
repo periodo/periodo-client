@@ -2,9 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , { Route } = require('org-shell')
-    , { Box, Breadcrumb, Link, HelpText } = require('periodo-ui')
-    , util = require('periodo-utils')
+    , { Box, HelpText } = require('periodo-ui')
     , PatchLayoutRenderer = require('../../layouts/patches')
 
 const layout = `
@@ -24,43 +22,6 @@ class PatchHistory extends React.Component {
 
     return (
       h(Box, [
-
-        h(Breadcrumb, {
-          truncate: [ 1 ],
-        }, [
-          h(Link, {
-            route: Route('backend-home', {
-              backendID: backend.asIdentifier(),
-            }),
-          }, backend.metadata.label),
-          ...(
-            authority
-              ? [
-                h(Link, {
-                  route: Route('authority-view', {
-                    backendID: backend.asIdentifier(),
-                    authorityID: authority.id,
-                  }),
-                }, util.authority.displayTitle(authority)),
-                ...(
-                  period
-                    ? [
-                      h(Link, {
-                        route: Route('period-view', {
-                          backendID: backend.asIdentifier(),
-                          authorityID: authority.id,
-                          periodID: period.id,
-                        }),
-                      }, period.label),
-                    ]
-                    : []
-                ),
-              ]
-              : []
-          ),
-          'History',
-        ]),
-
         patches.length === 0
           ? h(HelpText, `No history of changes to this ${
             authority
