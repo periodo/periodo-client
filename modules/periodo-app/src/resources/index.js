@@ -1,73 +1,74 @@
 "use strict";
 
-const R = require('ramda')
-    , { Route } = require('org-shell')
-    , { connect } = require('react-redux')
+const { connect } = require('react-redux')
     , { withLoadProgress, withReduxState, withNavigation } = require('./wrappers')
     , resourceGroups = require('./resources')
 
-function defineName(fn, value) {
+
+function defineFunctionName(fn, value) {
   Object.defineProperty(fn, 'name', { value })
 }
 
-function getParents(group) {
-  const parents = []
-
-  let cur = group.parent
-
-  while (cur) {
-    parents.push(cur);
-    cur = cur.parent;
-  }
-
-  return parents.reverse()
+function groupHierarchy(group) {
+  return group.parent
+    ? [ ...groupHierarchy(group.parent), group ]
+    : [ group ]
 }
 
+
+// These are attributes that will be aggregated between resource groups and
+// individual resources, as defined in ./resources.js
 const aggregatedResourceAttributes = {
   wrappers: {
     combine: args => args.flat(),
   },
 
   mapStateToProps: {
-    combine: fns => (state, ownProps) => {
-      const endProps = {}
+    combine(fns) {
+      return (state, ownProps) => {
+        const endProps = {}
 
-      fns.forEach(mapStateToProps => {
-        Object.assign(endProps, mapStateToProps(state, {
-          ...ownProps,
-          ...endProps,
-        }))
-      })
+        fns.forEach(mapStateToProps => {
+          Object.assign(endProps, mapStateToProps(state, {
+            ...ownProps,
+            ...endProps,
+          }))
+        })
 
-      return endProps
+        return endProps
+      }
     },
   },
 
   onBeforeRoute: {
     isAsync: true,
-    combine: fns => async (...args) => {
-      const ret = {}
+    combine(fns) {
+      return async (...args) => {
+        const ret = {}
 
-      for (const onBeforeRoute of fns) {
-        Object.assign(ret, await onBeforeRoute(...args))
+        for (const onBeforeRoute of fns) {
+          Object.assign(ret, await onBeforeRoute(...args))
+        }
+
+        return ret
       }
-
-      return ret
     },
   },
 
   loadData: {
     isAsync: true,
-    combine: fns => async (props, log, finished) => {
-      for (const loadData of fns) {
-        let cont = false
+    combine(fns) {
+      return async (props, log, finished) => {
+        for (const loadData of fns) {
+          let cont = false
 
-        await loadData(props, log, () => { cont = true })
+          await loadData(props, log, () => { cont = true })
 
-        if (!cont) return
+          if (!cont) return
+        }
+
+        finished()
       }
-
-      finished()
     },
   },
 }
@@ -79,7 +80,7 @@ function resourcesFromGroups(groups) {
 
   Object.entries(groups).forEach(([ key, group ]) => {
     const groupKey = `ResourceGroup:${key}`
-        , parents = getParents(group)
+        , parents = groupHierarchy(group)
 
     group.name = key;
     group.parents = parents;
@@ -88,7 +89,7 @@ function resourcesFromGroups(groups) {
     // level to reflect that they are part of the group. (For easier debugging).
     Object.keys(aggregatedResourceAttributes).forEach(attr => {
       if (typeof group[attr] === 'function') {
-        defineName(group[attr], `${groupKey}:${attr}`)
+        defineFunctionName(group[attr], `${groupKey}:${attr}`)
       }
     })
 
@@ -98,9 +99,8 @@ function resourcesFromGroups(groups) {
       const resource = { ..._resource }
           , resourceKey = `Resource:${key}`
 
-
       resource.name = key;
-      resource.hierarchy = parents.concat(group, resource)
+      resource.hierarchy = [ ...parents, resource ]
 
       // For each of the aggregated functions defined above, aggregate the
       // fns from the topmost parent down to the resource itself. Combine those
@@ -110,14 +110,16 @@ function resourcesFromGroups(groups) {
         const { combine } = spec
 
         if (typeof resource[attr] === 'function') {
-          defineName(resource[attr], `${resourceKey}:${attr}`)
+          defineFunctionName(resource[attr], `${resourceKey}:${attr}`)
         }
 
         resource[attr] = combine(resource.hierarchy
           .map(level => level[attr])
           .filter(x => x))
 
-        defineName(resource[attr], `${resourceKey}:aggregated:${attr}`)
+        if (typeof resource[attr] === 'function') {
+          defineFunctionName(resource[attr], `${resourceKey}:aggregated:${attr}`)
+        }
       })
 
       // Now wrap the resource's component in higher order components.
@@ -145,37 +147,4 @@ function resourcesFromGroups(groups) {
   return resources
 }
 
-
-const resources = resourcesFromGroups(resourceGroups)
-
-function getRouteGroups(resource, props) {
-  const hierarchy = resource.hierarchy || resources[''].hierarchy
-
-  try {
-    return hierarchy.slice(0, -1).map(group => ({
-      label: group.label,
-      routes: Object.entries(group.resources).reduce(
-        (acc, [ routeName, resource ]) =>
-          (resource.showInMenu || R.T)(props)
-            ? [ ...acc, {
-              route: new Route(
-                routeName,
-                (group.modifyMenuLinkParams || R.identity)(props.params)
-              ),
-              label: resource.label,
-            }]
-            : acc
-        , []),
-    }))
-  } catch(e) {
-    // eslint-disable-next-line no-console
-    console.error(e)
-    return []
-  }
-}
-
-
-module.exports = {
-  resources,
-  getRouteGroups,
-}
+module.exports = resourcesFromGroups(resourceGroups)
