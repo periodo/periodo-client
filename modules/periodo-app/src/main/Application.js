@@ -5,13 +5,13 @@ const h = require('react-hyperscript')
     , { ORGShell } = require('org-shell')
     , { Provider } = require('react-redux')
     , { ThemeProvider } = require('emotion-theming')
-    , { Box, ClientError, Grid, NavigationMenu, theme } = require('periodo-ui')
+    , { Box, ClientError, Grid, theme } = require('periodo-ui')
     , createStore = require('../store')
     , Footer = require('./components/Footer')
     , Header = require('./components/Header')
     , IndexedDBMessage = require('./components/IndexedDBMessage')
     , Action = require('./actions')
-    , { resources, getRouteGroups } = require('../resources')
+    , resources = require('../resources')
 
 
 
@@ -27,21 +27,10 @@ class PeriodoApplication extends React.Component {
 
   static getDerivedStateFromProps(nextProps, nextState) {
     if (nextProps.activeResource !== nextState.activeResource) {
-      let menuEl = null
-
-      if (nextProps.activeResource) {
-        const routeGroups = getRouteGroups(nextProps.activeResource, nextProps)
-
-        menuEl = h(NavigationMenu, {
-          activeResource: nextProps.activeResource,
-          routeGroups,
-        })
-      }
 
       return {
         error: null,
         activeResource: nextProps.activeResource,
-        menuEl,
       }
     }
 
@@ -59,9 +48,9 @@ class PeriodoApplication extends React.Component {
 
   render() {
     const { showIndexedDBUnsupportedMessage } = this.props
-        , { menuEl, error } = this.state
+        , { error } = this.state
 
-    const children = [ menuEl ]
+    const children = []
 
     if (error) {
       children.push(h(ClientError, { error: this.state.error })

@@ -3,7 +3,7 @@
 const R = require('ramda')
     , { Route } = require('org-shell')
     , { connect } = require('react-redux')
-    , { withLoadProgress, withReduxState } = require('./wrappers')
+    , { withLoadProgress, withReduxState, withNavigation } = require('./wrappers')
     , resourceGroups = require('./resources')
 
 function defineName(fn, value) {
@@ -125,6 +125,7 @@ function resourcesFromGroups(groups) {
         connect(resource.mapStateToProps),
         withLoadProgress(resource),
         withReduxState,
+        withNavigation(resource),
         ...resource.wrappers,
       ]
 
