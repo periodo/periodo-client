@@ -3,7 +3,6 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , { handleCompletedAction } = require('org-async-actions')
-    , { Route } = require('org-shell')
     , { formatDate, patchNumber } = require('periodo-utils')
     , { linkify } = require('periodo-ui')
     , Compare = require('./Compare')
@@ -19,7 +18,6 @@ const {
   Link,
   Section,
   SectionHeading,
-  Breadcrumb,
   TextareaBlock,
   Button,
   Alert,
@@ -122,22 +120,6 @@ class ReviewPatch extends React.Component {
     const number = patchNumber(patch.url)
 
     let children = [
-      h(Breadcrumb, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        h(Link, {
-          route: Route('backend-patches', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, 'Review submitted changes'),
-        `Change ${ number ? `#${ number }` : '' }
-submitted ${ formatDate(new Date(patch.created_at)) }
-${ patch.created_by.label ? ' by ' + patch.created_by.label : '' }`,
-      ]),
-
       this.state.message,
 
       number ? h(SectionHeading, `Change #${ number }`) : null,

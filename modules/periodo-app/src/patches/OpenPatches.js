@@ -2,8 +2,7 @@
 
 const h = require('react-hyperscript')
     , { useState } = require('react')
-    , { Route } = require('org-shell')
-    , { Box, Label, Breadcrumb, Link } = require('periodo-ui')
+    , { Box, Label } = require('periodo-ui')
     , PatchRequestLayout = require('../layouts/patch_requests')
 
 const layout = `
@@ -24,16 +23,6 @@ function ReviewPatches(props) {
 
   return (
     h(Box, [
-
-      h(Breadcrumb, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        'Review submitted changes',
-      ]),
-
       h(Box, { mb: 1 }, [
         h(Label, {
           style: {

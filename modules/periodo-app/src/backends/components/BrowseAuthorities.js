@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { useState } = require('react')
     , { Route } = require('org-shell')
-    , { Box, Breadcrumb, Link, HelpText } = require('periodo-ui')
+    , { Box, Link, HelpText } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
 
 const layout = `
@@ -25,16 +25,6 @@ module.exports = function BrowseAuthorities({
 
   return (
     h(Box, [
-
-      h(Breadcrumb, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        'Browse authorities',
-      ]),
-
       dataset.authorities.length === 0
         ? h(HelpText, [
           'No authorities in this data source.',

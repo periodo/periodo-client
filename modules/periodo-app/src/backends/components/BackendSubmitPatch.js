@@ -15,7 +15,6 @@ const h = require('react-hyperscript')
 const {
   Box,
   Flex,
-  Breadcrumb,
   Section,
   Text,
   Link,
@@ -269,14 +268,6 @@ class SubmitPatch extends React.Component {
 
     return (
       h(Box, [
-        h(Breadcrumb, [
-          h(Link, {
-            route: Route('backend-home', {
-              backendID: this.props.backend.asIdentifier(),
-            }),
-          }, this.props.backend.metadata.label),
-          'Submit changes',
-        ]),
         child,
       ])
     )

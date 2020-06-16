@@ -6,7 +6,6 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
     , { Heading, Box, InlineText, Link, DownloadValue } = require('periodo-ui')
     , { PermalinkValue, Section, EditorialNote  } = require('periodo-ui')
-    , { Breadcrumb } = require('periodo-ui')
     , { HelpText  } = require('periodo-ui')
     , util = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
@@ -82,19 +81,6 @@ module.exports = class AuthorityLayout extends React.Component {
     const description = util.authority.describe(authority)
 
     return h(Box, [
-
-      h(Breadcrumb, {
-        truncate: [ 1 ],
-      }, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        util.authority.displayTitle(authority),
-        'View',
-      ]),
-
       h(Section, [
 
         h(Heading, {

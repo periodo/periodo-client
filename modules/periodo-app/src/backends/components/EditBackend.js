@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Box, Breadcrumb, Link, Button } = require('periodo-ui')
+    , { Box, Button } = require('periodo-ui')
     , { SectionHeading, Section } = require('periodo-ui')
     , { Route, Navigable } = require('org-shell')
     , { handleCompletedAction } = require('org-async-actions')
@@ -23,19 +23,6 @@ module.exports = Navigable((props) => {
 
   return (
     h(Box, [
-
-      h(Breadcrumb, {
-        mb: 3,
-        truncate: [ 1 ],
-      }, [
-        h(Link, {
-          route: Route('backend-home', {
-            backendID: backend.asIdentifier(),
-          }),
-        }, backend.metadata.label),
-        'Settings',
-      ]),
-
       ...(
         backend.storage.case({
           Web: () => ([
