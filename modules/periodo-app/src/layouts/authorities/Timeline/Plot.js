@@ -18,11 +18,11 @@ const PLOT_BG_COLOR = '#ffffff'
 
 const visualizations = {
   Bars: require('./Bars'),
-  Histogram: require('./Histogram'),
-  FrequencyPath: require('./FrequencyPath'),
+  // Histogram: require('./Histogram'),
+  Histogram: require('./FrequencyPath'),
 }
 
-const defaultVisualization = visualizations.FrequencyPath
+const defaultVisualization = visualizations.Histogram
 
 function getEndpoints(period) {
   const earliest = earliestYear(period.start)
