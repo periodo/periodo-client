@@ -19,9 +19,10 @@ const PLOT_BG_COLOR = '#ffffff'
 const visualizations = {
   Bars: require('./Bars'),
   Histogram: require('./Histogram'),
+  FrequencyPath: require('./FrequencyPath'),
 }
 
-const defaultVisualization = visualizations.Histogram
+const defaultVisualization = visualizations.FrequencyPath
 
 function getEndpoints(period) {
   const earliest = earliestYear(period.start)
@@ -187,6 +188,11 @@ module.exports = class Plot extends React.Component {
   async update() {
     const { dataset, data, selectedPeriod } = this.props
         , { visualization } = this.state
+
+    if (!visualization._initialized && visualization.init) {
+      visualization.init(this.plotG)
+      visualization._initialized = true
+    }
 
     let min = Infinity
       , max = -Infinity
