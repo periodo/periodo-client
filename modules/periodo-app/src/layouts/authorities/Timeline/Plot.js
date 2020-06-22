@@ -191,16 +191,13 @@ module.exports = class Plot extends React.Component {
       x: this.g.append('g')
         .attr('transform', `translate(0,${plotHeight})`),
     }
+
+    this.state.visualization._initialized = false
   }
 
   async update() {
     const { dataset, data, selectedPeriod } = this.props
         , { visualization } = this.state
-
-    if (!visualization._initialized && visualization.init) {
-      visualization.init(this.plotG)
-      visualization._initialized = true
-    }
 
     let min = Infinity
       , max = -Infinity
@@ -234,6 +231,15 @@ module.exports = class Plot extends React.Component {
       .tickFormat(yaTickFormat)
 
     this.axisG.x.transition().duration(256).call(xAxis)
+
+    if (!visualization._initialized && visualization.init) {
+      visualization.init({
+        group: this.plotG,
+        xScale,
+        yScale,
+      })
+      visualization._initialized = true
+    }
 
     visualization.update({
       xScale,
