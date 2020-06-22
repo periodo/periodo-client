@@ -105,17 +105,25 @@ function makePath(intervals, xScale, yScale) {
 }
 
 module.exports = class FrequencyVisualization {
-  init(group) {
+  init({ group, yScale }) {
     this.axisG = group.append('g')
     this.axisLabelG = group.append('g')
 
     this.axisLabelG.append('text')
-      .text('# of periods in span')
+      .text('# of defined periods')
       .attr('x', 0)
       .attr('y', 0)
       .attr('dy', -33)
       .attr('text-anchor', 'middle')
       .style('transform', `translateY(calc(50% - ${this.margins.t}px)) rotate(-90deg)`)
+
+    this.axisLabelG.append('line')
+      .attr('x1', 0.5)
+      .attr('x2', 0.5)
+      .attr('y1', yScale.range()[0])
+      .attr('y2', yScale.range()[1])
+      .attr('stroke-width', '1px')
+      .attr('stroke', 'black')
   }
 
   get margins() {
@@ -144,18 +152,6 @@ module.exports = class FrequencyVisualization {
 
     const axis = d3.axisLeft(yScale)
     this.axisG.call(axis)
-
-    if (!this._drawnYAxis) {
-      this.axisLabelG.append('line')
-        .attr('x1', 0.5)
-        .attr('x2', 0.5)
-        .attr('y1', yScale.range()[0])
-        .attr('y2', yScale.range()[1])
-        .attr('stroke-width', '1px')
-        .attr('stroke', 'black')
-
-      this._drawnYAxis = true
-    }
 
     group.selectAll('path').remove()
 
