@@ -58,6 +58,7 @@ module.exports = Validated(validatePeriod, props => {
     validate,
     onValidated,
     onCancel,
+    onDelete,
     ...rest
   } = props
 
@@ -194,6 +195,15 @@ module.exports = Validated(validatePeriod, props => {
               variant: 'danger',
               onClick: () => onCancel(),
             }, 'Cancel')
+          ),
+        ]),
+
+        h('div', [
+          !onDelete ? null : (
+            h(Button, {
+              variant: 'danger',
+              onClick: () => onDelete(),
+            }, 'Delete')
           ),
         ]),
 

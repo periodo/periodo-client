@@ -126,6 +126,7 @@ class AddPeriod extends React.Component {
               periodID: id,
             }, util.getLayoutOpts()))
           },
+
           onCancel: !isEdit ? null : () => {
             navigateTo(new Route('period-view', {
               backendID: backend.asIdentifier(),
@@ -133,6 +134,26 @@ class AddPeriod extends React.Component {
               periodID: period.id,
             }, util.getLayoutOpts()))
           },
+
+          onDelete: !isEdit ? null : async () => {
+            const updatedRawDataset = R.dissocPath(
+              [ 'authorities', authority.id, 'periods', period.id ],
+              dataset.raw)
+
+            const message = `Deleted period ${period.id} in authority ${authority.id}`
+
+            await dispatch(BackendAction.UpdateLocalDataset(
+              backend.storage,
+              updatedRawDataset,
+              message
+            ))
+
+            navigateTo(new Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+            }))
+          },
+
           onValueChange: period => {
             let { related } = this.state
 

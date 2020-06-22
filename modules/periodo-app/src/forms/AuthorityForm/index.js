@@ -38,6 +38,7 @@ module.exports = Validated(
         onValueChange,
         onValidated,
         onCancel,
+        onDelete,
         errors,
         ...props
       } = this.props
@@ -122,6 +123,15 @@ module.exports = Validated(
                   variant: 'danger',
                   onClick: () => onCancel(),
                 }, 'Cancel')
+              ),
+            ]),
+
+            h('div', [
+              !onDelete ? null : (
+                h(Button, {
+                  variant: 'danger',
+                  onClick: () => onDelete(),
+                }, 'Delete')
               ),
             ]),
 

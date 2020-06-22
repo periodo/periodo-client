@@ -58,12 +58,32 @@ class AuthorityAddOrEdit extends React.Component {
               authorityID: id,
             }))
           },
+
           onCancel: !isEdit ? null : () => {
             navigateTo(Route('authority-view', {
               backendID: backend.asIdentifier(),
               authorityID: authority.id,
             }))
           },
+
+          onDelete: !isEdit ? null : async () => {
+            const updatedRawDataset = R.dissocPath(
+              [ 'authorities', authority.id ],
+              dataset.raw)
+
+            const message = `Deleted authority ${authority.id}`
+
+            await dispatch(BackendAction.UpdateLocalDataset(
+              backend.storage,
+              updatedRawDataset,
+              message
+            ))
+
+            navigateTo(new Route('backend-home', {
+              backendID: backend.asIdentifier(),
+            }))
+          },
+
           onValueChange: authority => {
             this.setState({ authority })
           },
