@@ -8,7 +8,11 @@ const h = require('react-hyperscript')
 
 
 const Paragraph = props => h(Box, {
-  mb: 4,
+  sx: {
+    ':not(:last-of-type)': {
+      mb: 4,
+    },
+  },
   fontSize: 16,
   ...props,
 })
@@ -72,6 +76,7 @@ class PersistenceWarning extends React.Component {
           }, ' persistent storage for this site.'),
           h('br'),
           h(Button, {
+            mt: 1,
             onClick: () => {
               this.requestPersistence()
             },
@@ -86,6 +91,7 @@ class PersistenceWarning extends React.Component {
           '. We will not send you any push notifications, but they must be enabled in order to persist storage.',
           h('br'),
           h(Button, {
+            mt: 1,
             onClick: () => {
               this.requestEnablePushNotifications()
             },
