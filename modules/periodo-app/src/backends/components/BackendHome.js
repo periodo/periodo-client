@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Route } = require('org-shell')
-    , { Box, HelpText, Link } = require('periodo-ui')
+    , { Box, Link, Section } = require('periodo-ui')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
     , debounce = require('debounce')
 
@@ -75,11 +75,11 @@ module.exports = class BackendHome extends React.Component {
 
     const { blockOpts } = this.state
 
-    return (
-      h(Box, [
-        dataset.authorities.length === 0
-          ? h(HelpText, [
-            'No periods in this data source.',
+    if (dataset.authorities.length === 0) {
+      return (
+        h(Section, [
+          h('div', [
+            'This data source is empty. ',
             h(Link, {
               mx: 1,
               route: new Route('backend-add-authority', {
@@ -94,29 +94,41 @@ module.exports = class BackendHome extends React.Component {
               }),
             }, 'import changes'),
             'from another data source.',
-          ])
-          : dataset.periods.length === 0
-            ? h(HelpText, [
-              'No periods in this data source.',
-              h(Link, {
-                ml: 1,
-                route: new Route('backend-authorities', {
-                  backendID: backend.asIdentifier(),
-                }),
-              }, 'Browse authorities'),
-            ])
-            : h(AuthorityLayoutRenderer, {
-              data: dataset.periods,
-              backend,
-              dataset,
-              gazetteers,
-              layout,
-              selectedPeriod: dataset.periodByID(periodID),
-              blockOpts,
-              onBlockOptsChange: updatedOpts => {
-                this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
-              },
-            }),
+          ]),
+        ])
+      )
+    }
+
+    if (dataset.periods.length === 0) {
+      return (
+        h(Section, [
+          h('div', [
+            'No periods in this data source.',
+            h(Link, {
+              ml: 1,
+              route: new Route('backend-authorities', {
+                backendID: backend.asIdentifier(),
+              }),
+            }, 'Browse authorities'),
+          ]),
+        ])
+      )
+    }
+
+    return (
+      h(Box, [
+        h(AuthorityLayoutRenderer, {
+          data: dataset.periods,
+          backend,
+          dataset,
+          gazetteers,
+          layout,
+          selectedPeriod: dataset.periodByID(periodID),
+          blockOpts,
+          onBlockOptsChange: updatedOpts => {
+            this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
+          },
+        }),
       ])
     )
   }
