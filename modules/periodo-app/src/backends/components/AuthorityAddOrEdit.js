@@ -19,6 +19,9 @@ class AuthorityAddOrEdit extends React.Component {
   }
 
   render() {
+    const { authority } = this.state
+        , isEdit = !!authority.id
+
     const {
       dispatch,
       backend,
@@ -29,11 +32,11 @@ class AuthorityAddOrEdit extends React.Component {
     return (
       h(Box, [
         h(AuthorityForm, {
-          value: this.state.authority,
+          mb: 4,
+          value: authority,
           onValidated: async authority => {
 
-            const isEdit = !!authority.id
-                , id = isEdit ? authority.id : createSkolemID()
+            const id = isEdit ? authority.id : createSkolemID()
 
             await dispatch(BackendAction.UpdateLocalDataset(
               backend.storage,
@@ -53,6 +56,12 @@ class AuthorityAddOrEdit extends React.Component {
             navigateTo(Route('authority-view', {
               backendID: backend.asIdentifier(),
               authorityID: id,
+            }))
+          },
+          onCancel: !isEdit ? null : () => {
+            navigateTo(Route('authority-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
             }))
           },
           onValueChange: authority => {

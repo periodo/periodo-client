@@ -46,6 +46,9 @@ class AddPeriod extends React.Component {
   }
 
   render() {
+    const { period } = this.state
+        , isEdit = !!period.id
+
     const {
       authority,
       dispatch,
@@ -59,15 +62,15 @@ class AddPeriod extends React.Component {
     return (
       h(Box, [
         h(PeriodForm, {
-          value: this.state.period,
+          mb: 4,
+          value: period,
           gazetteers,
           backendID: backend.asIdentifier(),
           dataset,
           authority,
           onValidated: async period => {
 
-            const isEdit = !!period.id
-                , id = isEdit ? period.id : createSkolemID()
+            const id = isEdit ? period.id : createSkolemID()
 
             const narrower = period.narrower
             delete period.narrower
@@ -121,6 +124,13 @@ class AddPeriod extends React.Component {
               backendID: backend.asIdentifier(),
               authorityID: authority.id,
               periodID: id,
+            }, util.getLayoutOpts()))
+          },
+          onCancel: !isEdit ? null : () => {
+            navigateTo(new Route('period-view', {
+              backendID: backend.asIdentifier(),
+              authorityID: authority.id,
+              periodID: period.id,
             }, util.getLayoutOpts()))
           },
           onValueChange: period => {

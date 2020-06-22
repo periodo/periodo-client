@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, Section, SectionHeading, Errors, Tabs } = require('periodo-ui')
+    , { Flex, Box, Section, SectionHeading, Errors, Tabs } = require('periodo-ui')
     , { TextareaBlock, InputBlock, Button } = require('periodo-ui')
     , { isLinkedData } = require('../../linked-data/utils/source_ld_match')
     , Validated = require('../Validated')
@@ -31,18 +31,29 @@ module.exports = Validated(
 
     render() {
       const { showLDForm } = this.state
-      , { value={}, onValueChange, errors } = this.props
+
+      const {
+        value={},
+        validate,
+        onValueChange,
+        onValidated,
+        onCancel,
+        errors,
+        ...props
+      } = this.props
 
       const get = lens => R.view(lens, value) || ''
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
 
-      const childProps = {
+      const formProps = {
         value: get(lenses.source),
         onValueChange: value => set(lenses.source, value),
       }
 
       return (
-        h(Box, [
+        h(Box, {
+          ...props,
+        }, [
 
           h(SectionHeading, 'Authority source'),
 
@@ -57,12 +68,12 @@ module.exports = Validated(
                 {
                   id: 'ld',
                   label: 'Most published sources',
-                  renderTab: () => h(LDSourceForm, childProps),
+                  renderTab: () => h(LDSourceForm, formProps),
                 },
                 {
                   id: 'non-ld',
                   label: 'Other sources',
-                  renderTab: () => h(NonLDSourceForm, childProps),
+                  renderTab: () => h(NonLDSourceForm, formProps),
                 },
               ],
               value: showLDForm ? 'ld' : 'non-ld',
@@ -102,13 +113,24 @@ module.exports = Validated(
             }),
           ]),
 
-          h(Box, {
-            py: 1,
+          h(Flex, {
+            justifyContent: 'space-between',
           }, [
-            h(Button, {
-              variant: 'primary',
-              onClick: () => this.props.validate(value, this.props.onValidated),
-            }, 'Save'),
+            h('div', [
+              !onCancel ? null : (
+                h(Button, {
+                  variant: 'danger',
+                  onClick: () => onCancel(),
+                }, 'Cancel')
+              ),
+            ]),
+
+            h('div', [
+              h(Button, {
+                variant: 'primary',
+                onClick: () => validate(value, onValidated),
+              }, 'Save'),
+            ]),
           ]),
         ])
       )

@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , LabelForm = require('./LabelForm')
-    , { Box, Alert, Errors } = require('periodo-ui')
+    , { Flex, Box, Alert, Errors } = require('periodo-ui')
     , { SectionHeading, Section } = require('periodo-ui')
     , { InputBlock, TextareaBlock, Button } = require('periodo-ui')
     , RelatedPeriodsForm = require('./RelatedPeriodsForm')
@@ -55,13 +55,19 @@ module.exports = Validated(validatePeriod, props => {
     dataset,
     authority,
     errors,
+    validate,
+    onValidated,
+    onCancel,
+    ...rest
   } = props
 
   const get = lens => R.view(lens, value) || ''
       , set = (lens, val) => onValueChange(R.set(lens, val, value))
 
   return (
-    h(Box, [
+    h(Box, {
+      ...rest,
+    }, [
 
       h(SectionHeading, 'Labels'),
 
@@ -171,21 +177,32 @@ module.exports = Validated(validatePeriod, props => {
         }),
       ]),
 
-      h(Box, {
-        py: 1,
-      }, [
-        h(Button, {
-          variant: 'primary',
-          onClick: () => props.validate(value, props.onValidated),
-        }, 'Save'),
+      Object.keys(errors).length > 0
+        ? h(Alert, {
+          my: 3,
+          variant: 'error',
+          ml: 1,
+        }, 'Please correct the errors above.')
+        : null,
 
-        Object.keys(errors).length > 0
-          ? h(Alert, {
-            variant: 'error',
-            display: 'inline-block',
-            ml: 1,
-          }, 'Please correct the errors above.')
-          : null,
+      h(Flex, {
+        justifyContent: 'space-between',
+      }, [
+        h('div', [
+          !onCancel ? null : (
+            h(Button, {
+              variant: 'danger',
+              onClick: () => onCancel(),
+            }, 'Cancel')
+          ),
+        ]),
+
+        h('div', [
+          h(Button, {
+            variant: 'primary',
+            onClick: () => validate(value, onValidated),
+          }, 'Save'),
+        ]),
       ]),
     ])
   )
