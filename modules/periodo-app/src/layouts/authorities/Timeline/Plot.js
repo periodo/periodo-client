@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { DropdownMenu, DropdownMenuItem } = require('periodo-ui')
     , { earliestYear, latestYear } = require('periodo-utils/src/terminus')
 
-const m = {
+const defaultMargins = {
   l: 20,
   r: 10,
   t: 0,
@@ -83,7 +83,6 @@ const yaTickFormat = R.cond([
 ])
 
 module.exports = class Plot extends React.Component {
-
   constructor (props) {
     super()
 
@@ -130,11 +129,13 @@ module.exports = class Plot extends React.Component {
       }
 
       this.plotG.remove()
-      this.plotG = this.plotGParent.append('g')
 
       this.setState({
         visualization: new nextVisualization(),
-      }, this.update)
+      }, () => {
+        this.initPlot()
+        this.update()
+      })
 
     } else if (needUpdate) {
       this.update()
@@ -143,6 +144,7 @@ module.exports = class Plot extends React.Component {
 
   initPlot() {
     const { width, height=400 } = this.props
+        , { visualization } = this.state
 
     const el = this.svgContainerRef.current
 
@@ -150,9 +152,15 @@ module.exports = class Plot extends React.Component {
       return
     }
 
+    const m = {
+      ...defaultMargins,
+      ...visualization.margins,
+    }
+
     const plotWidth = width - m.l - m.r
         , plotHeight = height - m.t - m.b
 
+    // Clear the plot
     el.textContent = ''
 
     this.svg = d3.select(el)
@@ -162,7 +170,7 @@ module.exports = class Plot extends React.Component {
 
     this.g = this.svg
       .append('g')
-        .attr('transform', `translate(${m.t,m.l})`)
+        .attr('transform', `translate(${m.l},${m.t})`)
 
     this.plotBackground = this.g.append('rect')
       .attr('x', 0)
