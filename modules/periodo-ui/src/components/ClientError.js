@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Box, Heading, Pre } = require('./Base')
 
-return ({ error, ...props }) =>
+exports.ClientError = ({ error, ...props }) =>
   h(Box, {
     ...props,
   }, [

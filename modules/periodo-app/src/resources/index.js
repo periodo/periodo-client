@@ -1,9 +1,15 @@
 "use strict";
 
 const { connect } = require('react-redux')
-    , { withLoadProgress, withReduxState, withMenu, withBreadcrumb } = require('./wrappers')
     , resourceGroups = require('./resources')
 
+const {
+  withLoadProgress,
+  withReduxState,
+  withMenu,
+  withBreadcrumb,
+  withRenderErrorHandling,
+} = require('./wrappers')
 
 function defineFunctionName(fn, value) {
   Object.defineProperty(fn, 'name', { value })
@@ -124,12 +130,20 @@ function resourcesFromGroups(groups) {
 
       // Now wrap the resource's component in higher order components.
       const componentTransforms = [
+
+        // Catch errors from resource component render methods directly,
+        // still showing the navigation menu, breadcrumb, etc.
+        withRenderErrorHandling,
+
         withBreadcrumb(resource),
         connect(resource.mapStateToProps),
         withLoadProgress(resource),
         withReduxState,
         withMenu(resource),
         ...resource.wrappers,
+
+        // Catch errors happening in any of the intervening HOCs
+        withRenderErrorHandling,
       ]
 
       resource.Component = componentTransforms.reduce(

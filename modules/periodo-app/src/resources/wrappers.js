@@ -7,7 +7,7 @@ const h = require('react-hyperscript')
     , { Route } = require('org-shell')
     , { ReactReduxContext, connect } = require('react-redux')
     , { Box, Alert, Link } = require('periodo-ui')
-    , { BackendContext, Breadcrumb, LoadingIcon, NavigationMenu } = require('periodo-ui')
+    , { BackendContext, Breadcrumb, LoadingIcon, NavigationMenu, ClientError } = require('periodo-ui')
 
 
 const ReadyState = Type({
@@ -19,6 +19,39 @@ const ReadyState = Type({
     message: String,
   },
 })
+
+function withRenderErrorHandling(Component) {
+  class RenderErrorHandling extends React.Component {
+    constructor() {
+      super()
+
+      this.state = { error: null }
+    }
+
+    componentDidCatch(err, info) {
+      this.setState({
+        error: {
+          err,
+          info,
+        },
+      })
+    }
+
+    render() {
+      if (this.state.error) {
+        return (
+          h(ClientError, { error: this.state.error })
+        )
+      }
+
+      return (
+        h(Component, this.props)
+      )
+    }
+  }
+
+  return RenderErrorHandling
+}
 
 
 function withBackendContext(Component) {
@@ -303,4 +336,5 @@ module.exports = {
   withReduxState,
   withMenu,
   withBreadcrumb,
+  withRenderErrorHandling,
 }
