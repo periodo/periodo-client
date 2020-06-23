@@ -118,6 +118,34 @@ function withLoadProgress(resource) {
         }
 
         this.addStep = this.addStep.bind(this)
+        this.loadData = this.loadData.bind(this)
+      }
+
+      loadData() {
+        this.setState({
+          loaded: false,
+          steps: {},
+        })
+
+        const load = Promise.resolve(
+          resource.loadData(
+            this.props,
+            this.addStep,
+            () => {
+              if (this._unmounted) return
+              this.setState({ loaded: true })
+            }))
+
+        load.catch(e => {
+          this.setState({
+            error: e,
+          })
+        })
+
+        setTimeout(() => {
+          if (this._unmounted) return
+          this.setState({ showLoading: true })
+        }, 50)
       }
 
       addStep(label, promise) {
@@ -158,31 +186,20 @@ function withLoadProgress(resource) {
       }
 
       componentDidMount() {
-        const load = Promise.resolve(
-          resource.loadData(
-            this.props,
-            this.addStep,
-            () => {
-              if (this._unmounted) return
-              this.setState({ loaded: true })
-            }))
-
-        load.catch(e => {
-          this.setState({
-            error: e,
-          })
-        })
-
-        setTimeout(() => {
-          if (this._unmounted) return
-          this.setState({ showLoading: true })
-        }, 50)
+        this.loadData()
       }
 
       render() {
         if (this.state.error) throw this.state.error
 
-        if (this.state.loaded) return h(Component, this.props)
+        if (this.state.loaded) {
+          return (
+            h(Component, {
+              reloadData: this.loadData,
+              ...this.props,
+            })
+          )
+        }
 
         if (!this.state.showLoading) return null
 

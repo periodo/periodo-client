@@ -113,6 +113,7 @@ class ReviewPatch extends React.Component {
       patch,
       backend,
       mergeURL,
+      reloadData,
     } = this.props
 
     const { comment, submitting, deciding } = this.state
@@ -182,6 +183,9 @@ class ReviewPatch extends React.Component {
         h(ORCIDSettings, {
           backend,
           showAlerts: false,
+          onSuccess: () => {
+            reloadData()
+          },
         }),
       ])
     }

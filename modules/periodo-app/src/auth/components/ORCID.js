@@ -19,7 +19,7 @@ class SignIn extends React.Component {
   }
 
   async handleMessage(e) {
-    const { dispatch, backend } = this.props
+    const { dispatch, backend, onSuccess } = this.props
         , { name, token } = e.data
 
     if (!this.oauthWindow) return
@@ -36,6 +36,10 @@ class SignIn extends React.Component {
     this.setState({
       message: h(Alert, { variant: 'success' }, 'Successfully authenticated'),
     })
+
+    if (onSuccess) {
+      onSuccess()
+    }
   }
 
   componentWillUnmount() {
