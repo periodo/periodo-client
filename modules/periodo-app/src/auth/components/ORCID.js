@@ -58,7 +58,7 @@ class SignIn extends React.Component {
     this.oauthWindow = window.open(
       orcidURL,
       '_blank',
-      'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500');
+      'toolbar=no, scrollbars=yes, width=500, height=600');
 
     window.addEventListener('message', this.handleMessage)
   }
