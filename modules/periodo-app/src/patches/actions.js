@@ -18,6 +18,7 @@ const R = require('ramda')
     , { PatchDirection, PatchFate } = require('./types')
     , { rdfListToArray, parseToPromise } = require('org-n3-utils')
     , { getPatchRepr } = require('../linked-data/utils/patch')
+    , { replaceIDs } = require('../linked-data/utils/skolem_ids')
     , isURL = require('is-url')
     , DatasetProxy = require('../backends/dataset_proxy')
 
@@ -98,6 +99,31 @@ const PatchAction = module.exports = makeTypedAction({
       remoteDataset: Object,
     },
   },
+
+  GetReplaceableIdentifiers: {
+    exec: getReplaceableIdentifiers,
+    request: {
+      origin: BackendStorage,
+      remote: BackendStorage,
+      direction: PatchDirection,
+    },
+    response: {
+      identifiers: Object,
+    },
+  },
+
+  ReplaceIdentifiers: {
+    exec: replaceIdentifiers,
+    request: {
+      origin: BackendStorage,
+      remote: BackendStorage,
+      identifierMap: Object,
+    },
+    response: {
+      dataset: isDatasetProxy,
+    },
+  },
+
   SubmitPatch: {
     exec: submitPatch,
     request: {
@@ -172,6 +198,102 @@ function generatePatch(
       patch,
       localDataset,
       remoteDataset,
+    }
+  }
+}
+
+function getReplaceableIdentifiers(origin, remote, direction) {
+  return async dispatch => {
+    // The *only* case where we should check if there are skolem IRIs that
+    // need to be replaced with permanent URIs is if the origin is IndexedDB,
+    // the remote is Web, and changes are being pulled to origin from remote.
+    let checkIDMap = origin.case({
+      IndexedDB: () => true,
+      _: () => false,
+    })
+
+    checkIDMap = checkIDMap && remote.case({
+      Web: () => true,
+      _: () => false,
+    })
+
+    checkIDMap = checkIDMap && direction.case({
+      Pull: () => true,
+      _: () => false,
+    })
+
+    if (!checkIDMap) return { identifiers: {}}
+
+    const identifierMapURL = new URL('identifier-map.json', remote.url).href
+        , identifierMapResp = await permalinkAwareFetch(identifierMapURL)
+
+    // Identifier map wasn't added until recently. Could be an old server?
+    if (identifierMapResp.status === 404) {
+      return { identifiers: {}}
+    } else if (!identifierMapResp.ok) {
+      throw new Error('Error getting identifier map')
+    }
+
+    const localDatasetReq = await dispatch(
+      BackendAction.GetBackendDataset(origin, true))
+
+    const localDataset = getResponse(localDatasetReq).dataset
+
+
+    const identifierMap = (await identifierMapResp.json()).identifier_map
+        , matchedIdentifiers = {}
+
+    Object.entries(identifierMap).forEach(([ skolemIRI, persistentIRI ]) => {
+      if (skolemIRI in localDataset.periodsByID) {
+        matchedIdentifiers[skolemIRI] = persistentIRI
+      }
+    })
+
+    return {
+      identifiers: matchedIdentifiers,
+    }
+  }
+}
+
+function replaceIdentifiers(backendStorage, remoteStorage, identifierMap) {
+  return async (dispatch, getState, { db }) => {
+    if (!backendStorage.isEditable()) {
+      throw new Error('Can\'t replace identifiers on a non-editable data source')
+    }
+
+    const datasetReq = await dispatch(BackendAction.GetBackendDataset(backendStorage, true))
+        , { dataset } = getResponse(datasetReq)
+        , newDataset = replaceIDs(dataset.raw, identifierMap)
+
+    db.transaction('rw', db.localBackends, db.localBackendPatches, async () => {
+      await dispatch(BackendAction.UpdateLocalDataset(
+        backendStorage,
+        newDataset,
+        'Merged permanent identifiers from ' + remoteStorage.url))
+
+      const backend = db.localBackends.get(backendStorage.id)
+
+      backend.replacedIdentifiers = {
+        ...backend.replacedIdentifiers,
+        ...identifierMap,
+      }
+
+      await db.localBackends.put(backend)
+
+      const localPatches = await db.localBackendPatches.toArray()
+
+      localPatches.forEach(patch => {
+        patch.affectedPeriods = replaceIDs(patch.affectedPeriods, identifierMap)
+        patch.affectedAuthorities = replaceIDs(patch.affectedAuthorities, identifierMap)
+      })
+
+      await db.localBackendPatches.bulkPut(localPatches)
+    })
+
+    const updatedDatasetReq = await dispatch(BackendAction.GetBackendDataset(backendStorage, true))
+
+    return {
+      dataset: getResponse(updatedDatasetReq).dataset,
     }
   }
 }

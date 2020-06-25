@@ -93,4 +93,29 @@ test('Patch generation actions', async t => {
       remoteDataset: new DatasetProxy(emptyRawDataset),
     })),
   }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
+
+  store.clearActions()
+
+  const webBackend = BackendStorage.Web('http://example.com')
+
+  const action3 = PatchAction.ReplaceIdentifiers(
+    backendA,
+    webBackend,
+    { fakeID: 'newID' })
+
+  await store.dispatch(action3)
+
+  t.deepEqual(R.last(store.getActions()), {
+    type: action3,
+    readyState: ReadyState.Success(action3.responseOf({
+      dataset: new DatasetProxy({
+        type: 'rdf:Bag',
+        authorities: {
+          newID: {
+            id: 'newID',
+          },
+        },
+      }),
+    })),
+  }, 'should allow replacing identifiers')
 })
