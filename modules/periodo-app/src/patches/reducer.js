@@ -76,6 +76,14 @@ module.exports = function patches(state=initialState(), action) {
         return state
       },
 
+      GetReplaceableIdentifiers() {
+        return state
+      },
+
+      ReplaceIdentifiers() {
+        return state
+      },
+
       SubmitPatch() {
         return state
       },
