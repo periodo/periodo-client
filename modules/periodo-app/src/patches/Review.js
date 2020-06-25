@@ -194,18 +194,23 @@ class ReviewPatch extends React.Component {
       children = children.concat([
         h(Box, [
           h(SectionHeading, 'Accept changes?'),
+          h(Section, [
+            h(Flex, {
+              justifyContent: 'space-between',
+            }, [
+              h(Button, {
+                variant: 'danger',
+                disabled: deciding,
+                onClick: () => this.decideFate(PatchFate.Reject),
+              }, 'Reject'),
 
-          h(Button, {
-            mr: 1,
-            disabled: deciding,
-            onClick: () => this.decideFate(PatchFate.Accept),
-          }, 'Accept'),
-
-          h(Button, {
-            variant: 'danger',
-            disabled: deciding,
-            onClick: () => this.decideFate(PatchFate.Reject),
-          }, 'Reject'),
+              h(Button, {
+                mr: 1,
+                disabled: deciding,
+                onClick: () => this.decideFate(PatchFate.Accept),
+              }, 'Accept'),
+            ]),
+          ]),
         ]),
       ])
     }
