@@ -123,7 +123,9 @@ function textMatcher(query) {
 }
 
 const patchNumber = patchURL => {
-  const match = patchURL.match(/\d+/)
+  const { pathname } = new URL(patchURL)
+      , match = pathname.match(/\d+/)
+
   return match ? match[0] : ''
 }
 
