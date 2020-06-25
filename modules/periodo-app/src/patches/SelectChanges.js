@@ -23,17 +23,43 @@ class SelectChanges extends React.Component {
       currentPatch: [],
     }
 
+    this.regeneratePatch = this.regeneratePatch.bind(this)
     this.generatePatch = this.generatePatch.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
+    this.regeneratePatch()
+  }
+
+  // Sorry for redundant name...
+  regeneratePatch() {
     if (this.props.remoteBackend) {
-      this.generatePatch(this.props.remoteBackend.storage)
-        .catch(error => {
-          this.setState({ error })
-        })
+      this.setState({
+        patch: null,
+        localDataset: null,
+        remoteDataset: null,
+        currentPatch: [],
+        updatedIdentifiers: null,
+      }, () => {
+        this.generatePatch(this.props.remoteBackend.storage)
+          .catch(error => {
+            this.setState({ error })
+          })
+      })
     }
+  }
+
+  async replaceIdentifiers() {
+    const { dispatch, localBackend } = this.props
+        , { updatedIdentifiers } = this.state
+
+    await dispatch(PatchAction.ReplaceIdentifiers(
+      localBackend.storage,
+      updatedIdentifiers
+    ))
+
+    this.regeneratePatch()
   }
 
   async generatePatch(remoteBackend) {
@@ -41,22 +67,44 @@ class SelectChanges extends React.Component {
 
     this.setState({ generatingPatch: true })
 
-    const patchReq = await dispatch(PatchAction.GeneratePatch(
-      localBackend.storage,
-      remoteBackend,
-      direction
-    ))
+    const [ patchReq, mapReq ] = await Promise.allSettled([
+      dispatch(PatchAction.GeneratePatch(
+        localBackend.storage,
+        remoteBackend,
+        direction
+      )),
 
-    handleCompletedAction(patchReq,
-      ({ patch, localDataset, remoteDataset }) => this.setState({
-        patch,
-        localDataset,
-        remoteDataset,
-      }),
+      dispatch(PatchAction.GetReplaceableIdentifiers(
+        localBackend.storage,
+        remoteBackend,
+        direction
+      )),
+    ])
+
+
+    const nextState = {}
+
+    handleCompletedAction(patchReq.value,
+      ({ patch, localDataset, remoteDataset }) => {
+        nextState.patch = patch
+        nextState.localDataset = localDataset
+        nextState.remoteDataset = remoteDataset
+      },
       error => {
         throw error
       }
     )
+
+    handleCompletedAction(mapReq.value,
+      ({ identifiers }) => {
+        nextState.updatedIdentifiers = identifiers
+      },
+      error => {
+        throw error
+      }
+    )
+
+    this.setState(nextState)
   }
 
   handleChange(patch) {
@@ -65,7 +113,7 @@ class SelectChanges extends React.Component {
 
   render() {
     const { direction, handleSelectPatch } = this.props
-        , { patch, error, localDataset, remoteDataset } = this.state
+        , { patch, error, localDataset, remoteDataset, updatedIdentifiers } = this.state
 
     if (error) {
       return (
@@ -84,9 +132,40 @@ class SelectChanges extends React.Component {
       Pull: () => 'imported',
     })
 
+    if (patch && patch.length === 0) {
+      return (
+        h(Section, [
+          `There are no changes to be ${ action }.`,
+        ])
+      )
+    }
+
     if (patch) {
-      return patch.length > 0
-        ? h(Section, [
+      const numUpdatedIdentifiers = Object.keys(updatedIdentifiers).length
+          , plural = numUpdatedIdentifiers > 1
+
+      return (
+        h(Section, [
+          numUpdatedIdentifiers === 0 ? null : (
+            h(Alert, {
+              mb: 3,
+            }, [
+              numUpdatedIdentifiers +
+              ` item${plural ? 's' : ''} ha${plural ? 've' : 's'} been accepted into
+              this Web data source and assigned a persistent identifier. Merge the
+              new identifier${plural ? 's' : ''} into your local data source?`,
+              h(Box, {
+                mt: 2,
+              }, [
+                h(Button, {
+                  variant: 'primary',
+                  onClick: () => {
+                    this.replaceIdentifiers()
+                  },
+                }, 'Accept new identifiers'),
+              ]),
+            ])
+          ),
           h(HelpText, { mb: 3 },
             `Select the changes to be ${ action }`),
 
@@ -113,7 +192,7 @@ class SelectChanges extends React.Component {
             ),
           }, 'Continue'),
         ])
-        : h(HelpText, `There are no changes to be ${ action }.`)
+      )
     }
 
     return h(Box, [
