@@ -151,6 +151,12 @@ module.exports = {
   },
 
   alerts: {
+    default: {
+      bg: 'blue.1',
+      color: 'gray.8',
+      borderColor: 'blue.6',
+    },
+
     success: {
       bg: 'green.2',
       color: 'green.9',

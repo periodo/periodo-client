@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , { Box } = require('./Base')
 
-exports.Alert = ({ variant='warning', ...props }) =>
+exports.Alert = ({ variant='default', ...props }) =>
   h(Box, {
     variant,
     tx: 'alerts',
