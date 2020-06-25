@@ -132,7 +132,7 @@ class LabelForm extends React.Component {
             let newLocalizedLabels = null
 
             if (label !== period.label || languageTag !== period.languageTag) {
-              newLocalizedLabels = R.clone(period.localizedLabels)
+              newLocalizedLabels = R.clone(period.localizedLabels || {})
               // remove old label
               newLocalizedLabels[period.languageTag] = (
                 newLocalizedLabels[period.languageTag] || []
