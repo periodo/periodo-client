@@ -111,7 +111,6 @@ A full citation is encouraged, but a title alone is sufficient.`,
                 }),
 
                 h(Button, {
-                  size: 1,
                   ml: 1,
                   fontWeight: 'bold',
                   onClick: () => {
@@ -124,7 +123,6 @@ A full citation is encouraged, but a title alone is sufficient.`,
                 }, '+'),
 
                 h(Button, {
-                  size: 1,
                   ml: 1,
                   fontWeight: 'bold',
                   onClick: () => {
