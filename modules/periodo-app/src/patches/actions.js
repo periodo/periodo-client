@@ -271,7 +271,7 @@ function replaceIdentifiers(backendStorage, remoteStorage, identifierMap) {
         newDataset,
         'Merged permanent identifiers from ' + remoteStorage.url))
 
-      const backend = db.localBackends.get(backendStorage.id)
+      const backend = await db.localBackends.get(backendStorage.id)
 
       backend.replacedIdentifiers = {
         ...backend.replacedIdentifiers,
