@@ -5,10 +5,11 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Spinner = require('respin')
     , { connect } = require('react-redux')
-    , { Box, Text, Textarea, HelpText, RefreshIcon } = require('periodo-ui')
+    , { Box, Alert, InlineText, Textarea, HelpText, RefreshIcon } = require('periodo-ui')
     , { asURL, match } = require('../../linked-data/utils/source_ld_match')
     , LinkedDataAction = require('../../linked-data/actions')
     , { Button, Source, Link } = require('periodo-ui')
+    , { ReadyState } = require('org-async-actions')
 
 
 class LDInput extends React.Component {
@@ -72,9 +73,11 @@ class LDInput extends React.Component {
             const url = asURL(sourceMatch)
                 , req = dispatch(LinkedDataAction.FetchSource(url, {}))
 
-            this.setState({ readyState: req.readyState })
+            this.setState({ readyState: ReadyState.Pending })
 
             req.then(resp => {
+              this.setState({ readyState: resp.readyState })
+
               resp.readyState.case({
                 Success: ({ source }) => {
                   onValueChange(source)
@@ -87,7 +90,7 @@ class LDInput extends React.Component {
 
         readyState && h(Box, {
           display: 'inline',
-          ml: 1,
+          ml: 3,
         }, readyState.case({
           Pending: () => ([
             h(Spinner),
@@ -97,7 +100,10 @@ class LDInput extends React.Component {
             // eslint-disable-next-line no-console
             console.error(err);
 
-            return h(Text, 'Failed to fetch source')
+            return h(Alert, {
+              variant: 'error',
+              // FIXME: why did it fail?
+            }, 'Failed to fetch source')
           },
 
           _: R.always('null'),
@@ -113,7 +119,7 @@ const LinkedDataSourceForm = ({ dispatch, value, onValueChange }) =>
       ? h(Box, { p: 3 },  [
         h(Source, { value }),
         h(Box, { mt: 3 }, [
-          h(Text, 'Incorrect source?'),
+          h(InlineText, 'Incorrect source?'),
           h(Box, [
             h(Button, {
               variant: 'danger',

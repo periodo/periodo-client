@@ -179,6 +179,13 @@ function fetchSource(url, opts) {
       ...opts,
     }))
 
+    req.readyState.case({
+      Failure: err => {
+        throw err;
+      },
+      _: () => null,
+    })
+
     const { store } = getResponse(req)
         , source = makeSourceRepr(store, getGraphSubject(url))
 
