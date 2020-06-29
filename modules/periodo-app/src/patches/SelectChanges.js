@@ -51,11 +51,12 @@ class SelectChanges extends React.Component {
   }
 
   async replaceIdentifiers() {
-    const { dispatch, localBackend } = this.props
+    const { dispatch, localBackend, remoteBackend } = this.props
         , { updatedIdentifiers } = this.state
 
     await dispatch(PatchAction.ReplaceIdentifiers(
       localBackend.storage,
+      remoteBackend.storage,
       updatedIdentifiers
     ))
 
