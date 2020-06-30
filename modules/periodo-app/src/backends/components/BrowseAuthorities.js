@@ -19,7 +19,6 @@ section = untitled
 module.exports = function BrowseAuthorities({
   dataset,
   backend,
-  authorityIDs,
 }) {
   const [ blockOpts, setBlockOpts ] = useState({})
 
@@ -44,9 +43,7 @@ module.exports = function BrowseAuthorities({
           'from another data source.',
         ])
         : h(AuthorityLayoutRenderer, {
-          data: dataset.authorities.filter(
-            authority => authorityIDs.has(authority.id)
-          ),
+          data: dataset.authorities,
           layout,
           dataset,
           backend,
