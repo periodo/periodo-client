@@ -14,17 +14,25 @@ const languageDescription = tag => {
 const aspects = {
   language: {
     label: 'Language',
-    getter: period => languageDescription(period.languageTag),
+    getter: () => period => languageDescription(period.languageTag),
   },
 
   spatialCoverage: {
     label: 'Spatial coverage',
-    getter: period => period.spatialCoverageDescription || null,
+    getter: settings => {
+      const { use } = settings
+
+      if (use === 'description') {
+        return period => period.spatialCoverageDescription || null
+      } else {
+        return period => (period.spatialCoverage || []).map(sc => sc.label)
+      }
+    },
   },
 
   authority: {
     label: 'Authority',
-    getter: period => authorityOf(period).id,
+    getter: () => period => authorityOf(period).id,
     renderLabel: (id, dataset) => displayTitle(dataset.authoritiesByID[id]),
   },
 }
@@ -40,8 +48,8 @@ module.exports = function a() {
       break;
 
     case "get_matching": {
-      const { aspect, selected=new Set(), periods } = message
-        , { getter } = aspects[aspect]
+      const { aspect, selected=new Set(), settings={}, periods } = message
+        , { getter: getterFn } = aspects[aspect]
 
       if (!selected.size) {
         return {
@@ -49,13 +57,17 @@ module.exports = function a() {
         }
       }
 
-      const ids = new Set()
+      const getter = getterFn(settings)
+          , ids = new Set()
 
       periods.forEach(period => {
-        const val = getter(dataset.periodsByID[period.id])
+        const vals = [].concat(getter(dataset.periodsByID[period.id]))
 
-        if (selected.has(val)) {
-          ids.add(period.id)
+        for (const val of vals) {
+          if (selected.has(val)) {
+            ids.add(period.id)
+            break;
+          }
         }
       })
 
@@ -63,15 +75,19 @@ module.exports = function a() {
     }
 
     case "get_counts": {
-      const { aspect, periods, selected } = message
-          , { getter, renderLabel } = aspects[aspect]
+      const { aspect, periods, settings, selected } = message
+          , { getter: getterFn, renderLabel } = aspects[aspect]
+          , { sortBy } = settings
           , counts = new Map()
+          , getter = getterFn(settings)
 
       periods.forEach(period => {
-        const key = getter(dataset.periodsByID[period.id])
+        const keys = [].concat(getter(dataset.periodsByID[period.id]))
 
-        if (!counts.has(key)) counts.set(key, 0)
-        counts.set(key, counts.get(key) + 1)
+        for (const key of keys) {
+          if (!counts.has(key)) counts.set(key, 0)
+          counts.set(key, counts.get(key) + 1)
+        }
       })
 
       selected.forEach(key => {

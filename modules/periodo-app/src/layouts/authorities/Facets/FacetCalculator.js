@@ -41,7 +41,7 @@ class FacetCalculator {
     return this.workers
   }
 
-  async runCalculations (selected={}, periods) {
+  async runCalculations (selected={}, settings={}, periods) {
     const workers = await this.getWorkers()
 
     this.resetAspectCounts()
@@ -57,6 +57,7 @@ class FacetCalculator {
         workers[i].promiseWorker.postMessage({
           type: 'get_matching',
           aspect: key,
+          settings: settings[key] || {},
           selected: new Set(selected[key] || []),
           periods,
         }))
@@ -78,6 +79,7 @@ class FacetCalculator {
         type: 'get_counts',
         aspect,
         periods: remainingPeriods,
+        settings: settings[aspect] || {},
         selected: new Set(selected[aspect] || []),
       }).then(({ countArr }) => {
         this.setAspectCount(aspect, countArr)

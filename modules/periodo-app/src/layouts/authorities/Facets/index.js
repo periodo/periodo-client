@@ -24,24 +24,97 @@ const aspects = {
   authority: {
     label: 'Authority',
     flexBasis: 'calc(50% + .66em)',
-    getter: period => authorityOf(period).id,
     render: identityWithDefault('(no value)'),
+    settings: {
+      sortBy: {
+        label: 'Order facets by...',
+        choices: [
+          {
+            key: 'count',
+            label: 'count',
+          },
+          {
+            key: 'label',
+            label: 'label',
+          },
+        ],
+      },
+    },
   },
 
   language: {
     label: 'Language',
     flexBasis: '25%',
-    getter: period => languageDescription(period.languageTag),
     render: identityWithDefault('(no value)'),
+    settings: {
+      sortBy: {
+        label: 'Order facets by...',
+        choices: [
+          {
+            key: 'count',
+            label: 'count',
+          },
+          {
+            key: 'label',
+            label: 'label',
+          },
+        ],
+      },
+    },
   },
 
   spatialCoverage: {
     label: 'Spatial coverage',
     flexBasis: '25%',
-    getter: period => period.spatialCoverageDescription || null,
     render: identityWithDefault('(no value)'),
+    settings: {
+      sortBy: {
+        label: 'Order facets by...',
+        choices: [
+          {
+            key: 'count',
+            label: 'count',
+          },
+          {
+            key: 'label',
+            label: 'label',
+          },
+        ],
+      },
+      use: {
+        label: 'Use spatial coverage...',
+        choices: [
+          {
+            key: 'description',
+            label: 'description',
+          },
+          {
+            key: 'entities',
+            label: 'entities',
+          },
+        ],
+      },
+    },
   },
 }
+
+
+function getSettingWithDefaults(setSettings) {
+  const ret = {}
+
+  Object.entries(aspects).forEach(([ aspectKey, { settings }]) => {
+    ret[aspectKey] = {}
+    Object.entries(settings).forEach(([ settingsKey, { choices }]) => {
+      const valueSet = settingsKey in (setSettings[aspectKey] || {})
+      ret[aspectKey][settingsKey] = valueSet
+        ? setSettings[aspectKey][settingsKey]
+        : choices[0].key
+    })
+  })
+
+  return ret
+}
+
 
 class Facets extends React.Component {
   constructor(props) {
@@ -157,10 +230,13 @@ module.exports = {
   async makeFilter(opts, state, periods) {
     if (! periods) return null
 
-    const { selected={}} = (opts || {})
+    const { selected={}, settings={}} = (opts || {})
         , { facetCalculator } = state
 
-    const matchingIDs = await facetCalculator.runCalculations(selected, periods)
+    const settingsWithDefaults = getSettingWithDefaults(settings)
+
+    const matchingIDs = await facetCalculator.runCalculations(selected, settingsWithDefaults, periods)
+
     return period => matchingIDs.has(period.id)
   },
   Component: Facets,
