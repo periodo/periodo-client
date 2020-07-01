@@ -4,6 +4,8 @@ const registerPromiseWorker = require('promise-worker/register')
     , tags = require('language-tags')
     , { period: { authorityOf }, authority: { displayTitle }} = require('periodo-utils')
     , indexItems = require('../../../backends/dataset_proxy/index_items')
+    , natsort = require('natsort')
+    , sorter = natsort({ insensitive: true })
 
 const languageDescription = tag => {
   const language = tags(tag || '').language()
@@ -95,13 +97,20 @@ module.exports = function a() {
       })
 
       const countArr = ([ ...counts ])
-        .sort((a, b) => a[1] - b[1])
-        .reverse()
 
       if (renderLabel) {
         countArr.forEach(d => {
           d.push(renderLabel(d[0], dataset))
         })
+      }
+
+      if (sortBy === 'count') {
+        countArr
+          .sort((a, b) => a[1] - b[1])
+          .reverse()
+      } else {
+        const idx = renderLabel ? 2 : 0
+        countArr.sort((a, b) => sorter(a[idx], b[idx]))
       }
 
       return { countArr }
