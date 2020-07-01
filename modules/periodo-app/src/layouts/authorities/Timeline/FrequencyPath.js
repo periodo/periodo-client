@@ -19,8 +19,7 @@ function getIntervalPoints(periodsWithEndpoints) {
 
 function countIntervals(periodsWithEndpoints) {
   const intervalPoints = getIntervalPoints(periodsWithEndpoints)
-
-  const intervals = new Map()
+      , intervals = new Map(intervalPoints.map(point => [ point, 0 ]))
       , selectedPoints = new Set()
 
   let maxCount = 0
@@ -32,7 +31,7 @@ function countIntervals(periodsWithEndpoints) {
     // increase counts from start to one less than end
     for (let i = start; i < end; i++) {
       const intervalKey = intervalPoints[i]
-          , curCount = intervals.get(intervalKey) || 0
+          , curCount = intervals.get(intervalKey)
           , nextCount = curCount + 1
 
       intervals.set(intervalKey, nextCount)
@@ -63,9 +62,6 @@ function countIntervals(periodsWithEndpoints) {
       0)
   }
 
-
-  // Delete the last one because it will never have anything in it
-  intervals.delete(intervalPoints.pop())
 
   return {
     intervals,
