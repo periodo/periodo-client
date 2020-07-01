@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, Flex, Link, Table } = require('periodo-ui')
+    , { Box, Text, Button, Flex, Link, Table } = require('periodo-ui')
 
 function withoutValue(val, set) {
   const newSet = new Set(set)
@@ -38,8 +38,75 @@ const AspectContainer = props =>
     ...props,
   })
 
+function AspectSettings({ aspect, aspectID, opts, updateOpts }) {
+  const aspectSettings = R.path([ 'settings', aspectID ], opts) || {}
+
+  return (
+    h(Box, {
+      p: 2,
+    }, Object.entries(aspect.settings).map(([ settingKey, setting ]) =>
+      h(Box, {
+        key: settingKey,
+        sx: {
+          ':not(:last-of-type)': {
+            mb: 3,
+          },
+        },
+      }, [
+        h(Text, {
+          fontWeight: 'bold',
+        }, setting.label),
+        setting.choices.map(({ key: choiceKey, label: choiceLabel }, i) =>
+          h('label', {
+            key: choiceKey,
+            style: {
+              margin: '2px 0',
+              display: 'flex',
+              alignItems: 'center',
+            },
+          }, [
+            h('input', {
+              type: 'radio',
+              name: `${aspectID}:${settingKey}`,
+              value: choiceKey,
+              style: {
+                margin: '0 6px',
+              },
+              onChange: () => {
+                updateOpts(
+                  R.assocPath(
+                    [ 'settings', aspectID, settingKey ],
+                    choiceKey),
+                  true
+                )
+              },
+              checked: (
+                aspectSettings[settingKey] === choiceKey ||
+              !(settingKey in aspectSettings) && i === 0
+              ),
+
+            }),
+            h('span', choiceLabel),
+            h('br'),
+          ])
+        ),
+      ])
+    ))
+  )
+}
+
 class AspectTable extends React.Component {
-  shouldComponentUpdate(prevProps) {
+  constructor() {
+    super();
+
+    this.state = {
+      showOptions: false,
+    }
+  }
+
+  shouldComponentUpdate(prevProps, prevState) {
+    if (this.state.showOptions || this.state.showOptions !== prevState.showOptions ) return true
+
     return (
       prevProps.counts !== this.props.counts
     )
@@ -47,6 +114,7 @@ class AspectTable extends React.Component {
 
   render() {
     const { aspect, aspectID, opts, updateOpts, counts } = this.props
+        , { showOptions } = this.state
         , { label, flexBasis } = aspect
         , render = aspect.render || R.identity
         , height = parseInt(opts.height || '256')
@@ -55,7 +123,7 @@ class AspectTable extends React.Component {
     const selectedRows = []
         , unselectedRows = []
 
-    if (counts) {
+    if (!showOptions && counts) {
       counts.forEach(([ value, count, label ]) => {
         const isSelected = selected.has(value)
 
@@ -120,21 +188,35 @@ class AspectTable extends React.Component {
         }, [
           h('span', label),
 
-          h('span', {}, selected.size === 0 ? null : (
-            h('a', {
-              href: '',
-              style: {
-                color: 'red',
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: 100,
+          h('span', [
+            h('span', {}, selected.size === 0 ? null : (
+              h('a', {
+                href: '',
+                style: {
+                  marginRight: '3px',
+                  color: 'red',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 100,
+                },
+                onClick: e => {
+                  e.preventDefault();
+                  updateOpts(R.dissocPath([ 'selected', aspectID ]), true)
+                },
+              }, 'Clear')
+            )),
+
+            h(Button, {
+              py: 1,
+              px: 2,
+              onClick: () => {
+                this.setState(prev => ({
+                  ...prev,
+                  showOptions: !prev.showOptions,
+                }))
               },
-              onClick: e => {
-                e.preventDefault();
-                updateOpts(R.dissocPath([ 'selected', aspectID ]), true)
-              },
-            }, 'Clear')
-          )),
+            }, '⚙'),
+          ]),
         ]),
 
         h('div', {
@@ -143,7 +225,14 @@ class AspectTable extends React.Component {
             overflowY: 'scroll',
             overscrollBehaviorY: 'contain',
           },
-        }, counts == null ? (
+        }, showOptions ? (
+          h(AspectSettings, {
+            aspect,
+            aspectID,
+            opts,
+            updateOpts,
+          })
+        ) : counts == null ? (
           h('div', {
             style: {
               textAlign: 'center',
