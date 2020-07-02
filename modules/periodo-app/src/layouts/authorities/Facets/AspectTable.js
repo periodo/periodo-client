@@ -207,8 +207,10 @@ class AspectTable extends React.Component {
             )),
 
             h(Button, {
-              py: 1,
-              px: 2,
+              pt: 0,
+              pb: '1px',
+              px: '6px',
+              fontSize: '20px',
               onClick: () => {
                 this.setState(prev => ({
                   ...prev,

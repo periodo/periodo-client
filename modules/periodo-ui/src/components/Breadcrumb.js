@@ -9,7 +9,6 @@ exports.Breadcrumb = ({ crumbs=[], ...props }) =>
     as: 'ol',
     variant: 'menu',
     sx: {
-      maxWidth: 'calc(100vw - 44px)',
       py: 2,
       px: 3,
       mb: 3,

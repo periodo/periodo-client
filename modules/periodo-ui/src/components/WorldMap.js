@@ -253,8 +253,8 @@ const ZoomButton = ({
   ...props
 }) =>
   h(AriaButton, {
-    position: 'absolute',
     sx: {
+      position: 'absolute',
       top,
       left,
       cursor: 'pointer',
@@ -314,7 +314,7 @@ class _Map extends Component {
           onSelect: this.zoomIn,
         }, '+'),
         h(ZoomButton, {
-          top: '34px',
+          top: '32px',
           onSelect: this.zoomOut,
         }, '−'),
       ])

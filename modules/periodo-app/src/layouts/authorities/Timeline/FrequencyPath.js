@@ -106,12 +106,12 @@ module.exports = class FrequencyVisualization {
     this.axisLabelG = group.append('g')
 
     this.axisLabelG.append('text')
-      .text('# of defined periods')
+      .text('# of periods')
       .attr('x', 0)
       .attr('y', 0)
-      .attr('dy', -33)
+      .attr('dy', -40)
       .attr('text-anchor', 'middle')
-      .style('transform', `translateY(calc(50% - ${this.margins.t}px)) rotate(-90deg)`)
+      .style('transform', `rotate(-90deg) translateX(-90px)`)
 
     this.axisLabelG.append('line')
       .attr('x1', 0.5)
