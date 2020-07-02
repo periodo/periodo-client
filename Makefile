@@ -69,7 +69,7 @@ upload: $(PKG) $(PKG).sha256
 	ssh $(HOST) "sed 's/$(VERSION)/latest/' $(DIR)$(PROJECT_NAME)-$(VERSION).tgz.sha256 > $(DIR)$(PROJECT_NAME)-latest.tgz.sha256"
 
 serve:
-	python3 -m http.server 5002
+	python3 -m http.server 5002 --bind 127.0.0.1
 
 serve_ssl: localhost+2.pem localhost+2-key.pem
 	python3 ssl-server.py
