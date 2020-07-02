@@ -253,8 +253,8 @@ const ZoomButton = ({
   ...props
 }) =>
   h(AriaButton, {
-    position: 'absolute',
     sx: {
+      position: 'absolute',
       top,
       left,
       cursor: 'pointer',
