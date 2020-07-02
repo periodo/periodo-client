@@ -314,7 +314,7 @@ class _Map extends Component {
           onSelect: this.zoomIn,
         }, '+'),
         h(ZoomButton, {
-          top: '34px',
+          top: '32px',
           onSelect: this.zoomOut,
         }, '−'),
       ])
