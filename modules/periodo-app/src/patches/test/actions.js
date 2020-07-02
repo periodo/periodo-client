@@ -43,8 +43,8 @@ test('Patch generation actions', async t => {
   const newRawDataset = {
     type: 'rdf:Bag',
     authorities: {
-      fakeID: {
-        id: 'fakeID',
+      'http://localhost/.well-known/genid/fakeID': {
+        id: 'http://localhost/.well-known/genid/fakeID',
       },
     },
   }
@@ -57,7 +57,10 @@ test('Patch generation actions', async t => {
   await store.dispatch(
     BackendAction.UpdateLocalDataset(backendA, newRawDataset, ''))
 
-  const action1 = PatchAction.GeneratePatch(backendA, backendB, PatchDirection.Push)
+  const action1 = PatchAction.GeneratePatch(
+    backendA,
+    backendB,
+    PatchDirection.Push)
 
   await store.dispatch(action1)
 
@@ -67,9 +70,9 @@ test('Patch generation actions', async t => {
       patch: [
         {
           op: 'add',
-          path: '/authorities/fakeID',
+          path: '/authorities/http:~1~1localhost~1.well-known~1genid~1fakeID',
           value: {
-            id: 'fakeID',
+            id: 'http://localhost/.well-known/genid/fakeID',
           },
         },
       ],
@@ -92,7 +95,7 @@ test('Patch generation actions', async t => {
       localDataset: new DatasetProxy(newRawDataset),
       remoteDataset: new DatasetProxy(emptyRawDataset),
     })),
-  }, 'should ignore "deletions" of items that simply aren\'t present in both source/origin')
+  }, 'should ignore "deletions" of items with skolem IDs')
 
   store.clearActions()
 
@@ -101,7 +104,10 @@ test('Patch generation actions', async t => {
   const action3 = PatchAction.ReplaceIdentifiers(
     backendA,
     webBackend,
-    { fakeID: 'newID' })
+    {
+      'http://localhost/.well-known/genid/fakeID':
+      'http://localhost/.well-known/genid/newID',
+    })
 
   await store.dispatch(action3)
 
@@ -111,8 +117,8 @@ test('Patch generation actions', async t => {
       dataset: new DatasetProxy({
         type: 'rdf:Bag',
         authorities: {
-          newID: {
-            id: 'newID',
+          'http://localhost/.well-known/genid/newID': {
+            id: 'http://localhost/.well-known/genid/newID',
           },
         },
       }),
