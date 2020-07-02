@@ -2,7 +2,6 @@
 
 const R = require('ramda')
     , { PatchType } = require('./types')
-    , { hashPatch } = require('./patch')
 
 function groupByChangeType(patches) {
   let ret = {}
@@ -32,51 +31,6 @@ function groupByChangeType(patches) {
   return ret
 }
 
-async function filterByHash(patches, keepMatched, hashMatchFn) {
-  const additions = []
-      , patchesByHash = new Map()
-
-  patches.forEach(patch => {
-    const parsed = PatchType.fromPatch(patch)
-
-    const affectsWholeEntity = (
-      (parsed.authorityID || parsed.periodID) &&
-      !parsed.attribute
-    )
-
-    if (affectsWholeEntity) {
-      // These are patches that add a new period or authority. They will
-      // automatically be added without checking hashes.
-      if (patch.op === 'add') {
-        additions.push(patch)
-      } else if (patch.op !== 'remove') {
-        // FIXME: better error, dummy
-        throw new Error('Invalid patch');
-      }
-
-      // Otherwise, these are patches that "remove" a new period or authority
-      // This is the result of a patch not being in the target dataset. We just
-      // remove them from consideration
-
-    } else {
-      patchesByHash.set(hashPatch(patch), patch);
-    }
-  })
-
-  const matchingHashes = await (patchesByHash.size
-    ? hashMatchFn([ ...patchesByHash.keys() ].sort())
-    : []
-  )
-
-  return [ ...patchesByHash ]
-    .filter(([ hash ]) =>
-      keepMatched
-        ? matchingHashes.indexOf(hash) !== -1
-        : matchingHashes.indexOf(hash) === -1)
-    .map(([ , patch ]) => patch)
-    .concat(additions)
-}
-
 function getOrcids(patches) {
   return R.pipe(
     R.chain(patch => [].concat(
@@ -90,6 +44,5 @@ function getOrcids(patches) {
 
 module.exports = {
   groupByChangeType,
-  filterByHash,
   getOrcids,
 }

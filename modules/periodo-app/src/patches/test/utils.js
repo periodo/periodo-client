@@ -2,7 +2,7 @@
 
 const test = require('blue-tape')
     , R = require('ramda')
-    , { PatchType, LocalPatch } = require('../types')
+    , { PatchType, PatchDirection } = require('../types')
 
 test('Formatting and hashing patches', async t => {
   const { formatPatch } = require('../patch');
@@ -203,51 +203,167 @@ test('Skolem ID utils', t => {
 
 });
 
-test('Patch collection hash filtering', async t => {
-  const { filterByHash } = require('../patch_collection');
+test('Filtered patch creation', async t => {
+  const { makeFilteredPatch, hashPatch } = require('../patch');
 
-  const patches = [
-    {
-      op: 'add',
-      path: '/authorities/a/periods/aa/note',
-    },
-    {
-      op: 'remove',
-      path: '/authorities/b',
-    },
-    {
-      op: 'add',
-      path: '/authorities/c',
-    },
-  ]
+  {
+    const localDataset = {
+      authorities: {
+        'http://example.com/.well-known/genid/1234': {},
+      },
+    }
 
-  const matcher = hashes => {
-    // Hash of '{"op":"add","path":"/authorities/a/periods/aa/note"}'
-    const expectedHash = 'acbf17d2f121127d02a6afeef294b07d'
+    const remoteDataset = {
+      authorities: {
+      },
+    }
 
-    t.deepEqual(hashes, [ expectedHash ]);
+    const pushPatch = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      [],
+      PatchDirection.Push)
 
-    return [ expectedHash ];
+    t.deepEqual(pushPatch, [
+      {
+        op: 'add',
+        path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234',
+        value: {},
+      },
+    ], 'should include added items in a push patch')
+
+    const pullPatch = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      [],
+      PatchDirection.Pull)
+
+    t.deepEqual(pullPatch, [
+    ], 'should not include removals of items in a pull patch with skolem IRIs')
   }
 
   {
-    const filteredPatches = await filterByHash(patches, true, matcher)
+    const localDataset = {
+      authorities: {
+        'http://example.com/.well-known/genid/1234': {
+          title: 'Title',
+        },
+      },
+    }
 
-    t.deepEqual(
-      filteredPatches,
-      [ patches[0], patches[2] ],
-      'should enable patches to be filtered by hash');
+    const remoteDataset = {
+      authorities: {
+        'http://example.com/.well-known/genid/1234': {
+          title: 'Tillte',
+        },
+      },
+    }
+
+    const pushPatch = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      [],
+      PatchDirection.Push)
+
+    t.deepEqual(pushPatch, [
+      {
+        op: 'add',
+        path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234/title',
+        value: 'Title',
+      },
+    ], 'should include changed items in a push patch')
+
+    const pullPatch = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      [],
+      PatchDirection.Pull)
+
+    t.deepEqual(pullPatch, [
+      {
+        op: 'add',
+        path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234/title',
+        value: 'Tillte',
+      },
+    ], 'should include changed items in a pull patch if a local backward hash is not matched')
+
+    const localPatches = [
+      {
+        backwardHashes: hashPatch({
+          op: 'add',
+          path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234/title',
+          value: 'Tillte',
+        }),
+      },
+    ]
+
+    const pullPatch2 = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      localPatches,
+      PatchDirection.Pull)
+
+    t.deepEqual(pullPatch2, [
+    ], 'should not include changed items in a pull patch if local backward hash is matched')
   }
 
-
-  const noneMatcher = () => [];
-
   {
-    const filteredPatches = await filterByHash(patches, true, noneMatcher)
+    const localDataset = {
+      authorities: {},
+    }
 
-    t.deepEqual(
-      filteredPatches,
-      [ patches[2] ],
-      'should only return additions when no hashes match');
+    const remoteDataset = {
+      authorities: {
+        'http://example.com/.well-known/genid/1234': {},
+      },
+    }
+
+    const pushPatch = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      [],
+      PatchDirection.Push)
+
+    t.deepEqual(pushPatch, [
+    ], 'should not include deleted items in a push patch if no local forward hash is matched')
+
+    const localPatches = [
+      {
+        forwardHashes: [
+          hashPatch({
+            op: 'remove',
+            path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234',
+          }),
+        ],
+      },
+    ]
+
+    const pushPatch2 = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      localPatches,
+      PatchDirection.Push)
+
+    t.deepEqual(pushPatch2, [
+      {
+        op: 'remove',
+        path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234',
+      },
+    ], 'should include deleted items in a push patch if a local forward hash is matched')
+
+
+    const pullPatch = makeFilteredPatch(
+      localDataset,
+      remoteDataset,
+      [],
+      PatchDirection.Pull)
+
+    t.deepEqual(pullPatch, [
+      {
+        op: 'add',
+        path: '/authorities/http:~1~1example.com~1.well-known~1genid~11234',
+        value: {},
+      },
+    ], 'should include add items in a pull patch')
   }
 });

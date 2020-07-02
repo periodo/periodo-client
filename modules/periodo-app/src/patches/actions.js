@@ -13,8 +13,7 @@ const R = require('ramda')
     , { normalizeDataset } = require('periodo-utils').dataset
     , { Backend, BackendStorage } = require('../backends/types')
     , { makeTypedAction, getResponse } = require('org-async-actions')
-    , { makePatch } = require('./patch')
-    , { filterByHash } = require('./patch_collection')
+    , { makeFilteredPatch } = require('./patch')
     , { PatchDirection, PatchFate } = require('./types')
     , { rdfListToArray, parseToPromise } = require('org-n3-utils')
     , { getPatchRepr } = require('../linked-data/utils/patch')
@@ -171,28 +170,20 @@ function generatePatch(
     ])
 
     // FIXME: Handle errors in responses?
-    const localID = getResponse(localReq).backend.storage.id
-        , localDataset = getResponse(localReq).dataset
+    const localDataset = getResponse(localReq).dataset
         , remoteDataset = getResponse(remoteReq).dataset
 
-    const hashObjectStore = direction.case({
-      Push: () => 'forwardHashes',
-      Pull: () => 'backwardHashes',
-    })
+    const localPatches = await db.localBackendPatches
+      .where('backendID')
+      .equals(localBackend.id)
+      .toArray()
 
-    const filterHashes = hashes =>
-      db.localBackendPatches
-        .where(hashObjectStore)
-        .anyOf(hashes)
-        .and(({ backendID }) => backendID === localID)
-        .uniqueKeys()
+    const patch = makeFilteredPatch(
+      localDataset.raw,
+      remoteDataset.raw,
+      localPatches,
+      direction)
 
-    const rawPatch = direction.case({
-      Push: () => makePatch(remoteDataset.raw, localDataset.raw),
-      Pull: () => makePatch(localDataset.raw, remoteDataset.raw),
-    })
-
-    const patch = await filterByHash(rawPatch, direction, filterHashes)
 
     return {
       patch,
