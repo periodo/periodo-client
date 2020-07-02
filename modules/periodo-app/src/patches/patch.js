@@ -5,6 +5,7 @@ const jsonpatch = require('fast-json-patch')
     , md5 = require('spark-md5')
     , stringify = require('json-stable-stringify')
     , { PatchType, LocalPatch } = require('./types')
+    , { isSkolemID } = require('../linked-data/utils/skolem_ids')
 
 
 /* Generate a JSON Patch to transform
@@ -102,8 +103,86 @@ function formatPatch(oldData, newData, message) {
   })
 }
 
+function makeFilteredPatch(localDataset, remoteDataset, localPatches, direction) {
+  const finalPatch = []
+
+  const rawPatch = direction.case({
+    Push: () => makePatch(remoteDataset, localDataset),
+    Pull: () => makePatch(localDataset, remoteDataset),
+  })
+
+  const yes = () => true
+      , no = () => false
+
+  const localHashes = {}
+
+  ;[ 'forward', 'backward' ].forEach(dir => {
+    localHashes[dir] = new Set(localPatches.map(p => p[`${dir}Hashes`]).flat())
+  })
+
+  const inLocalForwardPatches = patch => () =>
+    localHashes.forward.has(hashPatch(patch))
+
+  const notInLocalBackwardPatches = patch => () =>
+    !localHashes.backward.has(hashPatch(patch))
+
+  rawPatch.forEach(patch => {
+    const patchType = PatchType.fromPatch(patch)
+
+    const includeInPatch = patchType.case({
+      // Always include added items in a patch
+      AddAuthority: yes,
+
+      ChangeAuthority: () => direction.case({
+        // When pushing changes, always include changed attributes in a patch
+        Push: yes,
+
+        // When pulling changes, do not include changes that would revert a
+        // change that has been done locally
+        Pull: notInLocalBackwardPatches(patch),
+      }),
+      RemoveAuthority: authorityID => direction.case({
+        // When pushing deletions, only include those deletions which were
+        // explicitly carried out. Don't include deletions which are merely
+        // present because the authority was not present in the local data
+        // source (i.e. it wasn't pulled down already)
+        Push: inLocalForwardPatches(patch),
+
+        // When pulling deletions, only include ones where something with a
+        // persistent URI is deleted. Don't delete periods with skolem IRIs
+        // (i.e. periods that were added in the local data source but only
+        // exist there for the moment)
+        Pull: () => !isSkolemID(authorityID),
+      }),
+
+      // Same applies to periods as above
+      AddPeriod: yes,
+      ChangePeriod: () => direction.case({
+        Push: yes,
+        Pull: notInLocalBackwardPatches(patch),
+      }),
+      RemovePeriod: (authorityID, periodID) => direction.case({
+        Push: inLocalForwardPatches(patch),
+        Pull: () => !isSkolemID(periodID),
+      }),
+
+      // These should not be done from the client
+      ChangeLinkedData: no,
+      Unknown: no,
+    })
+
+    if (includeInPatch) {
+      finalPatch.push(patch)
+    }
+  })
+
+  return finalPatch
+}
+
+
 module.exports = {
   makePatch,
+  makeFilteredPatch,
   formatPatch,
   hashPatch,
   getAffected,
