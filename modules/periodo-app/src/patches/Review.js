@@ -195,35 +195,31 @@ class ReviewPatch extends React.Component {
         h(Box, [
           h(SectionHeading, 'Accept changes?'),
           h(Section, [
-            h(Flex, {
-              justifyContent: 'space-between',
-            }, [
-              h(Button, {
-                variant: 'danger',
-                disabled: deciding,
-                onClick: () => this.decideFate(PatchFate.Reject),
-              }, 'Reject'),
+            deciding
+              ? h(Box, { mt: 1 }, [
+                h('span', { style: { marginRight: '8px' }}, [
+                  h(LoadingIcon),
+                ]),
+                'Merging changes',
+              ])
+              : h(Flex, {
+                justifyContent: 'space-between',
+              }, [
+                h(Button, {
+                  variant: 'danger',
+                  disabled: deciding,
+                  onClick: () => this.decideFate(PatchFate.Reject),
+                }, 'Reject'),
 
-              h(Button, {
-                mr: 1,
-                disabled: deciding,
-                onClick: () => this.decideFate(PatchFate.Accept),
-              }, 'Accept'),
-            ]),
+                h(Button, {
+                  mr: 1,
+                  disabled: deciding,
+                  onClick: () => this.decideFate(PatchFate.Accept),
+                }, 'Accept'),
+              ]),
           ]),
         ]),
       ])
-    }
-
-    if (deciding) {
-      children.push(
-        h(Box, { mt: 3 }, [
-          h('span', { style: { marginRight: '8px' }}, [
-            h(LoadingIcon),
-          ]),
-          'Merging changes',
-        ])
-      )
     }
 
     return h(Box, children)
