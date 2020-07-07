@@ -19,58 +19,50 @@ if (typeof window !== 'undefined') {
 
 const tiles = require('../../../../images/maptiles/manifest.json')
 
-const length = bbox => {
-  const lonDelta = bbox[2] - bbox[0]
-  const latDelta = bbox[3] - bbox[1]
-  if (lonDelta > 359) {
-    return latDelta
+const PADDING = 3
+const DEFAULT_VBOX = [ -180, -90, 180, 90 ]
+const MIN_VBOX_HEIGHT = 5
+const MIN_VBOX_WIDTH = 10
+
+const pad = (bbox, vbox) => {
+  const bboxW = bbox[2] - bbox[0]
+  const bboxH = bbox[3] - bbox[1]
+  const vboxW = vbox[2] - vbox[0]
+  const vboxH = vbox[3] - vbox[1]
+  const bboxRatio = bboxW / bboxH
+  const vboxRatio = vboxW / vboxH
+  let w, h
+  if (bboxRatio < 2) {
+    // pad based on bbox height
+    h = Math.max(bboxH * PADDING, MIN_VBOX_HEIGHT)
+    w = h * vboxRatio
+  } else {
+    // pad based on bbox width
+    w = Math.max(bboxW * PADDING, MIN_VBOX_WIDTH)
+    h = w / vboxRatio
   }
-  return Math.max(lonDelta, latDelta)
-}
-
-
-const MINIMUM_ZOOM = 0.25
-const MAXIMUM_ZOOM = 21
-
-const bounded = zoom => Math.max(Math.min(zoom, MAXIMUM_ZOOM), MINIMUM_ZOOM)
-
-const ln360 = Math.log2(360)
-
-const bboxToZoom = bbox => {
-  const dx = bbox[2] - bbox[0]
-  const dy = bbox[3] - bbox[1]
-  const d = Math.max(dx,dy)
-  const zoom = ln360 - Math.log2(d) + 1
-  return bounded(zoom)
-}
-
-const zoomToBbox = (bbox,zoom) => {
-  const dx = bbox[2] - bbox[0]
-  const dy = bbox[3] - bbox[1]
-  const d = Math.pow(2, ln360 - zoom)
-  const x = (bbox[2] + bbox[0]) * 0.5
-  const y = (bbox[3] + bbox[1]) * 0.5
-  const sx = dx < dy ? dx / dy : 1
-  const sy = dy < dx ? dy / dx : 1
-  bbox[0] = x - d * sx
-  bbox[1] = y - d * sy
-  bbox[2] = x + d * sx
-  bbox[3] = y + d * sy
+  const px = (w - bboxW) / 2
+  const py = (h - bboxH) / 2
+  bbox[0] = Math.max(bbox[0] - px, -180)
+  bbox[1] = Math.max(bbox[1] - py, -90)
+  bbox[2] = Math.min(bbox[2] + px,  180)
+  bbox[3] = Math.min(bbox[3] + py,  90)
   return bbox
 }
 
-const pad = (map, bbox) => {
-
-  const zoom = bboxToZoom(bbox)
-
-  const padding = Math.max(1,
-    // the coefficients here were determined through trial & error
-    Math.round((-0.68 * Math.log(length(bbox))) + 3.91)
-  ) + (map._size[0] > map._size[1] ? map._size[0]/map._size[1]*0.5 : 0)
-
-  return padding
-    ? zoomToBbox(bbox, bounded(zoom - padding))
-    : bbox
+const mesh2bbox = mesh => {
+  if (mesh && mesh.triangle.positions.length > 0) {
+    const box = [ 180, 90, -180, -90 ]
+    for (let i = 0; i < mesh.triangle.positions.length; i++) {
+      box[0] = Math.min(box[0], mesh.triangle.positions[i][0])
+      box[1] = Math.min(box[1], mesh.triangle.positions[i][1])
+      box[2] = Math.max(box[2], mesh.triangle.positions[i][0])
+      box[3] = Math.max(box[3], mesh.triangle.positions[i][1])
+    }
+    return box
+  } else {
+    return undefined
+  }
 }
 
 const initializeMap = () => {
@@ -148,7 +140,7 @@ const initializeMap = () => {
           bbox[0], bbox[1], // sw
           bbox[0], bbox[3], // se
           bbox[2], bbox[1], // nw
-          bbox[2], bbox[3],  // ne
+          bbox[2], bbox[3], // ne
         ],
       }
       drawTile.props.push(prop)
@@ -170,9 +162,6 @@ const initializeMap = () => {
       drawTile.props = drawTile.props.filter(p => p.key !== key)
     },
   })
-
-  const RED = 'vec4(1.0,0.0,0.0,0.5)'
-  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.25)'
 
   const drawTriangle = (color, zindex) => map.createDraw({
     frag: `
@@ -196,49 +185,44 @@ const initializeMap = () => {
     elements: map.prop('cells'),
   })
 
+  const RED = 'vec4(1.0,0.0,0.0,0.5)'
+  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.35)'
+
   const drawFeatures = drawTriangle(DEEP_PURPLE, 100)
   const drawFocusedFeatures = drawTriangle(RED, 200)
 
-  const bbox = mesh => {
-    const box = [ 180,90,-180,-90 ]
-    for (let i = 0; i < mesh.triangle.positions.length; i++) {
-      box[0] = Math.min(box[0], mesh.triangle.positions[i][0])
-      box[1] = Math.min(box[1], mesh.triangle.positions[i][1])
-      box[2] = Math.max(box[2], mesh.triangle.positions[i][0])
-      box[3] = Math.max(box[3], mesh.triangle.positions[i][1])
-    }
-    return box
-  }
-
-  map.display = (features, focusedFeatures) => {
-    const unfocusedFeatures = features.filter(
-      f => f.geometry && focusedFeatures.every(feature => feature.id !== f.id)
-    )
-    let viewbox = undefined
+  map.display = (features, focused) => {
+    const focusedFeatures = focused.filter(feature => (
+      'geometry' in feature
+    ))
+    const unfocusedFeatures = features.filter(feature => (
+      'geometry' in feature &&
+      focusedFeatures.every(f => f.id !== feature.id)
+    ))
+    let mesh
     if (unfocusedFeatures.length > 0) {
-      const mesh = createMesh({ features: unfocusedFeatures })
+      mesh = createMesh({ features: unfocusedFeatures })
       drawFeatures.props = [ mesh.triangle ]
-      viewbox = bbox(mesh)
     } else {
       drawFeatures.props = []
     }
     if (focusedFeatures.length > 0) {
-      const mesh = createMesh({ features: focusedFeatures })
+      mesh = createMesh({ features: focusedFeatures })
       drawFocusedFeatures.props = [ mesh.triangle ]
-      viewbox = bbox(mesh)
     } else {
       drawFocusedFeatures.props = []
     }
-    if (viewbox) {
-      map.setViewbox(pad(map, viewbox))
+    const bbox = mesh2bbox(mesh)
+    if (bbox) {
+      map.setViewbox(pad(bbox, map.viewbox))
+    } else {
+      map.setViewbox(DEFAULT_VBOX)
     }
     map.draw()
   }
 
   return map
 }
-
-const getWidth = element => element ? element.getBoundingClientRect().width : 0
 
 const clear = node => {
   while (node.firstChild) {
@@ -325,7 +309,7 @@ class _Map extends Component {
     const map = initializeMap()
     this.innerContainer.current.appendChild(
       map.render({
-        width: getWidth(this.outerContainer.current),
+        width: this.getWidth(),
         height: this.props.height,
       })
     )
@@ -347,17 +331,13 @@ class _Map extends Component {
 
   zoomIn() {
     if (this.state.map) {
-      this.setZoom(
-        Math.min(6, Math.round(this.state.map.getZoom() + 1))
-      )
+      this.setZoom(this.state.map.getZoom() + 1)
     }
   }
 
   zoomOut() {
     if (this.state.map) {
-      this.setZoom(
-        this.state.map.getZoom() - 1
-      )
+      this.setZoom(this.state.map.getZoom() - 1)
     }
   }
 
@@ -378,10 +358,18 @@ class _Map extends Component {
     window.requestAnimationFrame(this.draw)
   }
 
+  getWidth() {
+    if (this.outerContainer.current) {
+      return this.outerContainer.current.getBoundingClientRect().width
+    } else {
+      return 0
+    }
+  }
+
   show() {
     if (this.state.map) {
       const { height, features, focusedFeatures } = this.props
-      this.state.map.resize(getWidth(this.outerContainer.current), height)
+      this.state.map.resize(this.getWidth(), height)
       this.state.map.display(features, focusedFeatures)
     }
   }
@@ -421,7 +409,7 @@ class _Map extends Component {
 exports.WorldMap = ({
   features,
   focusedFeatures,
-  height=200,
+  height=400,
   ...props
 }) =>
   h(Box, {

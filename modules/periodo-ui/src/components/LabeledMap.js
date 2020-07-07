@@ -8,7 +8,6 @@ const h = require('react-hyperscript')
 exports.LabeledMap = ({
   focusedFeatures,
   features,
-  height=300,
   ...props
 }) =>
   h(Flex, {
@@ -18,10 +17,8 @@ exports.LabeledMap = ({
       focusedFeatures,
       features,
       flex: '1 1',
-      height,
     }),
     h(FeatureLabel, {
       features: focusedFeatures,
-      height,
     }),
   ])

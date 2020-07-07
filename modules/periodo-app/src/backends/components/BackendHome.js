@@ -29,7 +29,6 @@ height = 200
 [SpatialCoverage]
 type = spatial-visualization
 section = Period coverage
-height = 200
 
 [TimeRange]
 type = timespan-visualization
