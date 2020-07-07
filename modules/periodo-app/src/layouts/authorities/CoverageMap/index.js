@@ -22,7 +22,6 @@ const allFeatures = (periods, gazetteers) => Object.values(
 )
 
 const CoverageMap = ({
-  opts,
   data: periods,
   selectedPeriod,
   selectedPeriodIsVisible,
@@ -46,7 +45,6 @@ const CoverageMap = ({
 
     h(LabeledMap, {
       key: 'map',
-      height: opts.height ? parseInt(opts.height) : undefined,
       focusedFeatures: selectedPeriodIsVisible
         ? featuresOf(selectedPeriod, gazetteers)
         : [],

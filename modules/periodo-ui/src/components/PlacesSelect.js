@@ -97,11 +97,7 @@ const PlacesSelect = ({
       }),
 
       closed ? null : (
-        h(Box, {
-          sx: {
-            maxWidth: '800px',
-          },
-        }, [
+        h('div', [
           h(LabeledMap, {
             focusedFeatures: focusedFeature ? [ focusedFeature ] : [],
             features: coverage.map(({ id }) => gazetteers.find(id)),
