@@ -19,27 +19,24 @@ if (typeof window !== 'undefined') {
 
 const tiles = require('../../../../images/maptiles/manifest.json')
 
-const PADDING = 3
 const DEFAULT_VBOX = [ -180, -90, 180, 90 ]
 const MIN_VBOX_HEIGHT = 5
 const MIN_VBOX_WIDTH = 10
 
-const pad = (bbox, vbox) => {
+const pad = (bbox, width, height) => {
   const bboxW = bbox[2] - bbox[0]
   const bboxH = bbox[3] - bbox[1]
-  const vboxW = vbox[2] - vbox[0]
-  const vboxH = vbox[3] - vbox[1]
   const bboxRatio = bboxW / bboxH
-  const vboxRatio = vboxW / vboxH
+  const viewRatio = width / height
   let w, h
-  if (bboxRatio < 2) {
-    // pad based on bbox height
-    h = Math.max(bboxH * PADDING, MIN_VBOX_HEIGHT)
-    w = h * vboxRatio
+  if (viewRatio > bboxRatio) {
+    // wide map; pad based on bbox height
+    h = Math.max(bboxH * 6, MIN_VBOX_HEIGHT)
+    w = h * viewRatio
   } else {
-    // pad based on bbox width
-    w = Math.max(bboxW * PADDING, MIN_VBOX_WIDTH)
-    h = w / vboxRatio
+    // narrow map; pad based on bbox width
+    w = Math.max(bboxW * 6, MIN_VBOX_WIDTH)
+    h = w / viewRatio
   }
   const px = (w - bboxW) / 2
   const py = (h - bboxH) / 2
@@ -90,7 +87,7 @@ const initializeMap = () => {
     attribute vec2 position;
     uniform vec4 viewbox;
     uniform vec2 offset;
-    uniform float zindex, aspect;
+    uniform float zindex;
     attribute vec2 tcoord;
     varying vec2 vtcoord;
     void main () {
@@ -98,8 +95,8 @@ const initializeMap = () => {
       vtcoord = tcoord;
       gl_Position = vec4(
         (p.x - viewbox.x) / (viewbox.z - viewbox.x) * 2.0 - 1.0,
-        ((p.y - viewbox.y) / (viewbox.w - viewbox.y) * 2.0 - 1.0) * aspect,
-        1.0/(2.0+zindex), 1);
+        (p.y - viewbox.y) / (viewbox.w - viewbox.y) * 2.0 - 1.0,
+        1.0/(1.0+zindex), 1);
     }
     `,
     uniforms: {
@@ -168,7 +165,21 @@ const initializeMap = () => {
     void main () {
       gl_FragColor = ${color};
     }
-  `,
+   `,
+    vert: `
+    precision highp float;
+    attribute vec2 position;
+    uniform vec4 viewbox;
+    uniform vec2 offset;
+    uniform float zindex;
+    void main () {
+      vec2 p = position + offset;
+      gl_Position = vec4(
+        (p.x - viewbox.x) / (viewbox.z - viewbox.x) * 2.0 - 1.0,
+        (p.y - viewbox.y) / (viewbox.w - viewbox.y) * 2.0 - 1.0,
+        1.0/(1.0+zindex), 1);
+    }
+    `,
     uniforms: {
       zindex,
     },
@@ -186,12 +197,12 @@ const initializeMap = () => {
   })
 
   const RED = 'vec4(1.0,0.0,0.0,0.5)'
-  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.35)'
+  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.25)'
 
   const drawFeatures = drawTriangle(DEEP_PURPLE, 100)
   const drawFocusedFeatures = drawTriangle(RED, 200)
 
-  map.display = (features, focused) => {
+  map.display = ({ width, height, features, focusedFeatures: focused }) => {
     const focusedFeatures = focused.filter(feature => (
       'geometry' in feature
     ))
@@ -214,13 +225,12 @@ const initializeMap = () => {
     }
     const bbox = mesh2bbox(mesh)
     if (bbox) {
-      map.setViewbox(pad(bbox, map.viewbox))
+      map.setViewbox(pad(bbox, width, height))
     } else {
       map.setViewbox(DEFAULT_VBOX)
     }
     map.draw()
   }
-
   return map
 }
 
@@ -272,6 +282,7 @@ class _Map extends Component {
     this.setZoom = this.setZoom.bind(this)
     this.draw = this.draw.bind(this)
     this.redraw = this.redraw.bind(this)
+    this.getWidth = this.getWidth.bind(this)
     this.show = this.show.bind(this)
     this.hide = this.hide.bind(this)
     this.debouncedShow = debounce(this.show)
@@ -287,6 +298,7 @@ class _Map extends Component {
         style: {
           position: 'relative',
           height: this.props.height,
+          //maxWidth: this.props.height * 2,
         },
       }, [
         h('div', {
@@ -307,13 +319,20 @@ class _Map extends Component {
 
   componentDidMount() {
     const map = initializeMap()
+        , width = this.getWidth()
+        , { height, features, focusedFeatures } =  this.props
     this.innerContainer.current.appendChild(
       map.render({
-        width: this.getWidth(),
-        height: this.props.height,
+        width,
+        height,
       })
     )
-    map.display(this.props.features, this.props.focusedFeatures)
+    map.display({
+      width,
+      height,
+      features,
+      focusedFeatures,
+    })
     this.setState({ map })
 
     window.addEventListener('resize', this.debouncedShow)
@@ -368,16 +387,27 @@ class _Map extends Component {
 
   show() {
     if (this.state.map) {
+      const width = this.getWidth()
       const { height, features, focusedFeatures } = this.props
-      this.state.map.resize(this.getWidth(), height)
-      this.state.map.display(features, focusedFeatures)
+      this.state.map.resize(width, height)
+      this.state.map.display({
+        width,
+        height,
+        features,
+        focusedFeatures,
+      })
     }
   }
 
   hide() {
     if (this.state.map) {
       this.state.map.resize(0, 0)
-      this.state.map.display([], [])
+      this.state.map.display({
+        width: 0,
+        height: 0,
+        features: [],
+        focusedFeatures: [],
+      })
     }
   }
 
@@ -415,7 +445,7 @@ exports.WorldMap = ({
   h(Box, {
     sx: {
       // FIXME: Move to theme
-      bg: '#6194b9', // ocean color
+      bg: 'black',
     },
     ...props,
   }, [
