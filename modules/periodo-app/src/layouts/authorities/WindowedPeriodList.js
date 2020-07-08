@@ -347,10 +347,6 @@ class PeriodList extends React.Component {
       this.props.setSelectedPeriodIsVisible(index >= 0)
       this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
       this.setState({ scrollNeedsUpdate: false })
-
-      if (! this.props.opts.fixed) {
-        this.wrapperRef.current.focus()
-      }
     }
   }
 
