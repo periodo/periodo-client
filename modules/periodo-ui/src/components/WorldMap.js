@@ -22,6 +22,7 @@ const tiles = require('../../../../images/maptiles/manifest.json')
 const DEFAULT_VBOX = [ -180, -90, 180, 90 ]
 const MIN_VBOX_HEIGHT = 5
 const MIN_VBOX_WIDTH = 10
+const MAX_ASPECT_RATIO = 2
 
 const pad = (bbox, width, height) => {
   const bboxW = bbox[2] - bbox[0]
@@ -296,9 +297,9 @@ class _Map extends Component {
       h('div', {
         ref: this.outerContainer,
         style: {
-          position: 'relative',
+          backgroundColor: '#000000',
           height: this.props.height,
-          //maxWidth: this.props.height * 2,
+          position: 'relative',
         },
       }, [
         h('div', {
@@ -444,8 +445,7 @@ exports.WorldMap = ({
 }) =>
   h(Box, {
     sx: {
-      // FIXME: Move to theme
-      bg: 'black',
+      maxWidth: height * MAX_ASPECT_RATIO,
     },
     ...props,
   }, [
