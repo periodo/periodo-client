@@ -60,9 +60,9 @@ const permalinkAwareFetch = (resource, init) => {
   }
 
   if (url) {
-    for (const [ arkURL, replacement ] of Object.entries(knownPermalinks)) {
-      if (url.startsWith(arkURL)) {
-        return fetch(url.replace(arkURL, replacement), init)
+    for (const [ permalink, replacement ] of Object.entries(knownPermalinks)) {
+      if (url.startsWith(permalink)) {
+        return fetch(url.replace(permalink, replacement), init)
       }
     }
   }
