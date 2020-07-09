@@ -6,6 +6,7 @@ const h = require('react-hyperscript')
     , { Heading, Button, Alert } = require('periodo-ui')
     , { handleCompletedAction } = require('org-async-actions')
     , { connect } = require('react-redux')
+    , { validatePatch } = require('./patch')
     , PatchAction = require('./actions')
     , Compare = require('./Compare')
 
@@ -111,6 +112,18 @@ class SelectChanges extends React.Component {
     this.setState({ currentPatch: patch })
   }
 
+  getValidatedPatch() {
+    const { direction } = this.props
+        , { currentPatch, localDataset, remoteDataset } = this.state
+
+    const dataset = direction.case({
+      Push: () => remoteDataset,
+      Pull: () => localDataset,
+    })
+
+    return validatePatch(dataset.raw, currentPatch)
+  }
+
   render() {
     const { direction, handleSelectPatch } = this.props
         , { patch, error, localDataset, remoteDataset, updatedIdentifiers } = this.state
@@ -181,15 +194,19 @@ class SelectChanges extends React.Component {
             variant: 'primary',
             mt: 2,
             disabled: !this.state.currentPatch.length,
-            onClick: () => handleSelectPatch(
-              this.state.currentPatch,
-              h(Compare, {
-                localDataset,
-                remoteDataset,
-                direction,
-                patch: this.state.currentPatch,
-              })
-            ),
+            onClick: () => {
+              const validatedPatch = this.getValidatedPatch()
+
+              handleSelectPatch(
+                validatedPatch,
+                h(Compare, {
+                  localDataset,
+                  remoteDataset,
+                  direction,
+                  patch: validatedPatch,
+                })
+              )
+            },
           }, 'Continue'),
         ])
       )
