@@ -232,6 +232,8 @@ function getReplaceableIdentifiers(origin, remote) {
     Object.entries(identifierMap).forEach(([ skolemIRI, persistentIRI ]) => {
       if (skolemIRI in localDataset.periodsByID) {
         matchedIdentifiers[skolemIRI] = persistentIRI
+      } else if (skolemIRI in localDataset.authoritiesByID) {
+        matchedIdentifiers[skolemIRI] = persistentIRI
       }
     })
 
