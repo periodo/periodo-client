@@ -5,11 +5,54 @@ const { getSort } = require('./sort')
     , PromiseWorker = require('promise-worker')
     , indexItems = require('./index_items')
 
+function copy(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}
+
+const SINGLE_VALUED_RELATED_PERIOD_FIELDS = [ 'derivedFrom' ]
+    , MULTI_VALUED_RELATED_PERIOD_FIELDS = [ 'narrower', 'broader' ]
+
+
 module.exports = class DatasetProxy {
   constructor(raw) {
     this.raw = raw
     Object.assign(this, indexItems(raw))
     this.sorts = {}
+  }
+
+  get validated() {
+    const validated = {
+      type: 'rdf:Bag',
+      authorities: copy(this.authoritiesByID),
+    }
+
+    const { periods, periodsByID } = indexItems(validated)
+        , periodInDataset = periodID => periodID in periodsByID
+
+    // Filter out related periods that won't exist in the target dataset. This
+    // will be the case if someone adds local period A, which references local
+    // period B, but does not add local period B.
+    for (const period of periods) {
+      for (const attr of MULTI_VALUED_RELATED_PERIOD_FIELDS) {
+        const value = period[attr]
+
+        if (!value) continue
+
+        period[attr] = period[attr].filter(periodInDataset)
+      }
+
+      for (const attr of SINGLE_VALUED_RELATED_PERIOD_FIELDS) {
+        const value = period[attr]
+
+        if (!value) continue
+
+        if (!periodInDataset(value)) {
+          delete period[attr]
+        }
+      }
+    }
+
+    return validated
   }
 
   getWorker() {
