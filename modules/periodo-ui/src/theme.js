@@ -1,6 +1,6 @@
 "use strict";
 
-const oc = require('open-color')
+const oc = require('./open_color')
     , { themeGet } = require('@styled-system/theme-get')
 
 const gradient = (color, m, n) => theme => {
