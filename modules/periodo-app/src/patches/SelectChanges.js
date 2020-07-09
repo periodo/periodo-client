@@ -78,7 +78,6 @@ class SelectChanges extends React.Component {
       dispatch(PatchAction.GetReplaceableIdentifiers(
         localBackend.storage,
         remoteBackend,
-        direction
       )),
     ])
 

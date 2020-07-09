@@ -104,7 +104,6 @@ const PatchAction = module.exports = makeTypedAction({
     request: {
       origin: BackendStorage,
       remote: BackendStorage,
-      direction: PatchDirection,
     },
     response: {
       identifiers: Object,
@@ -193,11 +192,12 @@ function generatePatch(
   }
 }
 
-function getReplaceableIdentifiers(origin, remote, direction) {
+function getReplaceableIdentifiers(origin, remote) {
   return async dispatch => {
     // The *only* case where we should check if there are skolem IRIs that
-    // need to be replaced with permanent URIs is if the origin is IndexedDB,
-    // the remote is Web, and changes are being pulled to origin from remote.
+    // need to be replaced with permanent URIs is if the origin is IndexedDB
+    // and the remote is Web.
+
     let checkIDMap = origin.case({
       IndexedDB: () => true,
       _: () => false,
@@ -205,11 +205,6 @@ function getReplaceableIdentifiers(origin, remote, direction) {
 
     checkIDMap = checkIDMap && remote.case({
       Web: () => true,
-      _: () => false,
-    })
-
-    checkIDMap = checkIDMap && direction.case({
-      Pull: () => true,
       _: () => false,
     })
 
