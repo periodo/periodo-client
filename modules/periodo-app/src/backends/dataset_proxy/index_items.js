@@ -46,6 +46,10 @@ module.exports = function indexItems(rawDataset) {
       ;[].concat(period[relation] || []).forEach(relatedPeriodID => {
         const relatedPeriod = periodsByID[relatedPeriodID]
 
+        // It's possible that this related period might not exist, if this is
+        // a strangely formed dataset.
+        if (!relatedPeriod) return
+
         period[$$RelatedPeriods][relation][relatedPeriodID] = relatedPeriod
 
         if (inverseRelation) {
