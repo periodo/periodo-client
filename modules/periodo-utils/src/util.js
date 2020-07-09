@@ -2,8 +2,13 @@
 
 const R = require('ramda')
     , qs = require('querystring')
-    , { permalinkURL
-      , periodoServerURL } = require('../../periodo-app/src/globals')
+    , { periodoServerURL } = require('../../periodo-app/src/globals')
+
+const permalinkURL = 'http://n2t.net/ark:/99152/'
+
+const knownPermalinks = {
+  [`${permalinkURL}p0`]: 'https://data.perio.do/',
+}
 
 function oneOf(...candidates) {
   return x => {
@@ -40,11 +45,15 @@ const permalinkAwareFetch = (resource, init) => {
     url = resource.href
   }
 
-  if (url && url.startsWith(permalinkURL)) {
-    return fetch(url.replace(permalinkURL + 'p0', periodoServerURL), init)
-  } else {
-    return fetch(resource, init)
+  if (url) {
+    for (const [ arkURL, replacement ] of Object.entries(knownPermalinks)) {
+      if (url.startsWith(arkURL)) {
+        return fetch(url.replace(arkURL, replacement), init)
+      }
+    }
   }
+
+  return fetch(resource, init)
 }
 
 function getLayoutOpts() {

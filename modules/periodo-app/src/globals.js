@@ -11,7 +11,6 @@ if (typeof window !== 'undefined') {
 
 module.exports = {
   periodoServerURL,
-  permalinkURL: global.PERIODO_PERMALINK_URL,
   corsProxyURL: global.PERIODO_PROXY_URL,
   corsProxyEnabled: global.CORS_PROXY_ENABLED,
 }
