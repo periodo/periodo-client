@@ -50,6 +50,18 @@ test('Formatting and hashing patches', async t => {
     'Changed editorialNote of period p03377fkhrv in authority p03377f.');
 })
 
+test('Validating patches', async t => {
+  const { makePatch, validatePatch } = require('../patch')
+      , { before, after, expected } = require('./fixtures/dangling-related-period.json')
+
+  const unvalidatedPatch = makePatch(before, after)
+      , validatedPatch = validatePatch(before, unvalidatedPatch)
+
+  t.deepEqual(
+    validatedPatch, expected,
+    'should filter out parts of patches that refer to related periods that don\'t exist')
+})
+
 
 test('Patch utils', async t => {
   const { makePatch } = require('../patch')

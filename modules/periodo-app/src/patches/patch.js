@@ -6,6 +6,7 @@ const jsonpatch = require('fast-json-patch')
     , stringify = require('json-stable-stringify')
     , { PatchType, LocalPatch } = require('./types')
     , { isSkolemID } = require('../linked-data/utils/skolem_ids')
+    , DatasetProxy = require('../backends/dataset_proxy')
 
 
 /* Generate a JSON Patch to transform
@@ -179,10 +180,22 @@ function makeFilteredPatch(localDataset, remoteDataset, localPatches, direction)
   return finalPatch
 }
 
+function validatePatch(dataset, patch) {
+  const newRawDataset = jsonpatch.applyPatch(
+    jsonpatch.deepClone(dataset),
+    jsonpatch.deepClone(patch)
+  ).newDocument
+
+  const newDataset = new DatasetProxy(newRawDataset)
+
+  return makePatch(dataset, newDataset.validated)
+}
+
 
 module.exports = {
   makePatch,
   makeFilteredPatch,
+  validatePatch,
   formatPatch,
   hashPatch,
   getAffected,

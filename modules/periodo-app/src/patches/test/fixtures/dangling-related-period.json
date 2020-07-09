@@ -1,0 +1,53 @@
+{
+  "before": {
+    "type": "rdf:Bag",
+    "authorities": {
+      "p0123": {
+        "id": "p0123",
+        "periods": {
+        }
+      }
+    }
+  },
+
+  "after": {
+    "type": "rdf:Bag",
+    "authorities": {
+      "p0123": {
+        "id": "p0123",
+        "periods": {
+          "p0123a": {
+            "id": "p0123a",
+            "narrower": [
+              "p0123b",
+              "p0123c"
+            ]
+          },
+          "p0123b": {
+            "id": "p0123b"
+          }
+        }
+      }
+    }
+  },
+
+  "expected": [
+    {
+      "op": "add",
+      "path": "/authorities/p0123/periods/p0123a",
+      "value": {
+        "id": "p0123a",
+        "narrower": [
+          "p0123b"
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/authorities/p0123/periods/p0123b",
+      "value": {
+        "id": "p0123b"
+      }
+    }
+  ]
+}
