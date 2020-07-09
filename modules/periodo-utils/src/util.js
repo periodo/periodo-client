@@ -25,15 +25,29 @@ const valueAsArray = R.curry(
   (prop, obj) => ensureArray(R.propOr([], prop, obj))
 )
 
-const permalink = ({ id }) => id && id.startsWith('p0')
-  ? `${ permalinkURL }${ id }`
-  : null
+// FIXME?: In the following two functions, our ARK shoulder, and the URI of
+// our production server are hardcoded. This is fine now, but in some imagined
+// future where someone wanted to start their own periodo instance with their
+// own persistent URI scheme, this would not work.
+const permalink = ({ id }) => {
+  if (id && id.startsWith('p0')) {
+    return `${ permalinkURL }${ id }`
+  }
 
-const downloadURL = ({ id }) => periodoServerURL.includes('://data.perio.do')
-  ? permalink({ id })
-  : id && id.startsWith('p0')
-    ? `${ periodoServerURL }${ id.slice(2) }`
-    : null
+  return null
+}
+
+const downloadURL = ({ id }) => {
+  if (periodoServerURL.includes('://data.perio.do')) {
+    return permalink({ id })
+  }
+
+  if (id && id.startsWith('p0')) {
+    return `${ periodoServerURL }${ id.slice(2) }`
+  }
+
+  return null
+}
 
 const permalinkAwareFetch = (resource, init) => {
   let url = undefined
