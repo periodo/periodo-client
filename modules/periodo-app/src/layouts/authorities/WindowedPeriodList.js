@@ -336,16 +336,22 @@ class PeriodList extends React.Component {
   }
 
   updateScroll() {
-    if (this.wrapperRef.current &&
-        this.listRef.current &&
-        this.state.scrollNeedsUpdate) {
+    const mustUpdate = (
+      this.wrapperRef.current &&
+      this.listRef.current &&
+      this.state.scrollNeedsUpdate
+    )
 
+    if (mustUpdate) {
       const index = findPeriodIndex(
         this.props.selectedPeriod,
         this.state.sortedData
       )
-      this.props.setSelectedPeriodIsVisible(index >= 0)
-      this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
+
+      if (index !== -1) {
+        this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
+      }
+
       this.setState({ scrollNeedsUpdate: false })
     }
   }
@@ -365,7 +371,6 @@ class PeriodList extends React.Component {
       setHoveredPeriod,
       selectedPeriod,
       setSelectedPeriod,
-      setSelectedPeriodIsVisible,
       backend,
       totalCount,
       opts: { fixed },
@@ -481,7 +486,6 @@ class PeriodList extends React.Component {
               selectedPeriod,
               setHoveredPeriod,
               setSelectedPeriod,
-              setSelectedPeriodIsVisible,
               layoutOpts,
               layoutParams,
               showEditLink: backend.asIdentifier().startsWith('local-'),

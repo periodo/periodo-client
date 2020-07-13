@@ -1,6 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , { Label, HelpText, InlineText, LabeledMap } = require('periodo-ui')
 
 const featuresOf = (period, gazetteers) => {
@@ -21,36 +22,50 @@ const allFeatures = (periods, gazetteers) => Object.values(
   )
 )
 
-const CoverageMap = ({
-  data: periods,
-  selectedPeriod,
-  selectedPeriodIsVisible,
-  gazetteers,
-}) => {
+class CoverageMap extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    return (
+      nextProps.data !== this.props.data ||
+      nextProps.selectedPeriod !== this.props.selectedPeriod ||
+      nextProps.gazetteers !== this.props.gazetteers
+    )
+  }
 
-  return (h('div'), [
-    h(Label, { key: 'label' }, 'Spatial coverage'),
+  render() {
+    const {
+      data: periods,
+      selectedPeriod,
+      gazetteers,
+    } = this.props
 
-    h(HelpText, { key: 'help' }, [
-      'Places covered by the listed periods',
-      ...(selectedPeriod
-        ? [
-          ', with the selected period in ',
-          h(InlineText, { color: '#ff0000' }, 'red'),
-        ]
-        : []
-      ),
-      '. Use mouse or touch to pan',
-    ]),
+    const showSelectedPeriod = !!selectedPeriod && periods.includes(selectedPeriod)
 
-    h(LabeledMap, {
-      key: 'map',
-      focusedFeatures: selectedPeriodIsVisible
-        ? featuresOf(selectedPeriod, gazetteers)
-        : [],
-      features: allFeatures(periods, gazetteers),
-    }),
-  ])
+    return (
+      h('div', [
+        h(Label, { key: 'label' }, 'Spatial coverage'),
+
+        h(HelpText, { key: 'help' }, [
+          'Places covered by the listed periods',
+          ...(showSelectedPeriod
+            ? [
+              ', with the selected period in ',
+              h(InlineText, { color: '#ff0000' }, 'red'),
+            ]
+            : []
+          ),
+          '. Use mouse or touch to pan',
+        ]),
+
+        h(LabeledMap, {
+          key: 'map',
+          focusedFeatures: showSelectedPeriod
+            ? featuresOf(selectedPeriod, gazetteers)
+            : [],
+          features: allFeatures(periods, gazetteers),
+        }),
+      ])
+    )
+  }
 }
 
 module.exports = {
