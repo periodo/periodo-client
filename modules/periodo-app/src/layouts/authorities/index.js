@@ -1,18 +1,19 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , R = require('ramda')
     , { useState } = require('react')
-    , { updateLayoutParams } = require('periodo-utils')
     , LayoutRenderer = require('../LayoutRenderer')
     , { Navigable } = require('org-shell')
     , blocks = require('./blocks')
 
-const noop = () => {}
-
 module.exports = Navigable(({
   data,
   fixedPeriod,
-  selectedPeriod: selectedPeriodFromProps,
+
+  shellOpts,
+  updateShellOpts,
+
   dataset,
   backend,
   navigateTo,
@@ -20,23 +21,22 @@ module.exports = Navigable(({
   gazetteers,
   ...props
 }) => {
+  let selectedPeriod = null
 
-  const [ hoveredPeriod, setHoveredPeriod ] = fixedPeriod
-    ? [ null, noop ]
-    : useState(null)
+  if (fixedPeriod) {
+    selectedPeriod = fixedPeriod
+  } else if (shellOpts.selectedPeriod) {
+    selectedPeriod = dataset.periodByID(shellOpts.selectedPeriod)
+  }
 
-  const [ selectedPeriod, _setSelectedPeriod ] = fixedPeriod
-    ? [ fixedPeriod, noop ]
-    : useState(selectedPeriodFromProps)
-
-  const [ selectedPeriodIsVisible, setSelectedPeriodIsVisible ] = fixedPeriod
-    ? [ true, noop ]
-    : useState(!!selectedPeriodFromProps)
+  const [ hoveredPeriod, setHoveredPeriod ] = useState(null)
 
   const setSelectedPeriod = period => {
-    _setSelectedPeriod(period)
-    setSelectedPeriodIsVisible(!!period)
-    updateLayoutParams({ periodID: period ? period.id : null })
+    updateShellOpts(
+      period
+        ? R.assoc('selectedPeriod', period.id)
+        : R.dissoc('selectedPeriod'),
+      true)
   }
 
   return (
@@ -51,12 +51,12 @@ module.exports = Navigable(({
         defaultYearRangeStart,
         gazetteers,
         navigateTo,
+
         hoveredPeriod,
         setHoveredPeriod,
+
         selectedPeriod,
         setSelectedPeriod,
-        selectedPeriodIsVisible,
-        setSelectedPeriodIsVisible,
       },
     })
   )

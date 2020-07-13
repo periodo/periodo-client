@@ -69,7 +69,8 @@ module.exports = class BackendHome extends React.Component {
       backend,
       dataset,
       gazetteers,
-      params: { periodID },
+      opts,
+      updateOpts,
     } = this.props
 
     const { blockOpts } = this.state
@@ -122,7 +123,10 @@ module.exports = class BackendHome extends React.Component {
           dataset,
           gazetteers,
           layout,
-          selectedPeriod: dataset.periodByID(periodID),
+
+          shellOpts: opts,
+          updateShellOpts: updateOpts,
+
           blockOpts,
           onBlockOptsChange: updatedOpts => {
             this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
