@@ -37,6 +37,10 @@ const aspects = {
             key: 'label',
             label: 'label',
           },
+          {
+            key: 'year',
+            label: 'year of source',
+          },
         ],
       },
     },
