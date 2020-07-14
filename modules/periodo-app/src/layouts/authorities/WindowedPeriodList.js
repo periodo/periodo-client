@@ -10,7 +10,12 @@ const h = require('react-hyperscript')
     , styled = require('@emotion/styled').default
     , { Link, Text, Label, HelpText } = require('periodo-ui')
     , { Route } = require('org-shell')
-    , { getLayoutOpts, getLayoutParams } = require('periodo-utils')
+
+function getReturnToURL() {
+  const { search, hash } = window.location
+
+  return search + hash
+}
 
 const columns = {
   label: {
@@ -145,8 +150,6 @@ function ItemRow({
     selectedPeriod,
     setHoveredPeriod,
     setSelectedPeriod,
-    layoutOpts,
-    layoutParams,
     showEditLink,
   },
 }) {
@@ -166,7 +169,10 @@ function ItemRow({
       style,
       ['data-selected']: selectedPeriod === period,
       ['data-hovered']: hoveredPeriod === period,
-      onMouseDown: toggleSelectedPeriod,
+      onMouseDown: e => {
+        if (e.target.nodeName === 'A') return
+        toggleSelectedPeriod()
+      },
       onTouchStart: toggleSelectedPeriod,
       onMouseEnter: () => {
         setHoveredPeriod(period)
@@ -197,8 +203,8 @@ function ItemRow({
               backendID: backend.asIdentifier(),
               authorityID: authorityOf(period).id,
               periodID: period.id,
-              nextPage: layoutParams.page,
-            }, layoutOpts),
+              returnTo: getReturnToURL(),
+            }),
           }, 'edit')
           : null,
       ]),
@@ -376,9 +382,6 @@ class PeriodList extends React.Component {
       opts: { fixed },
     } = this.props
 
-    const layoutOpts = getLayoutOpts()
-        , layoutParams = getLayoutParams()
-
     const itemCount = periods ? periods.length : 0
         , filteredCount = totalCount === undefined
           ? undefined
@@ -486,8 +489,6 @@ class PeriodList extends React.Component {
               selectedPeriod,
               setHoveredPeriod,
               setSelectedPeriod,
-              layoutOpts,
-              layoutParams,
               showEditLink: backend.asIdentifier().startsWith('local-'),
             },
             itemCount,
