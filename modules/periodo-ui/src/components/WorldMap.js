@@ -196,9 +196,9 @@ const initializeMap = () => {
   })
 
   const RED = 'vec4(1.0,0.0,0.0,0.5)'
-  const DEEP_PURPLE = 'vec4(0.4,0.0,0.4,0.25)'
+  const YELLOW = 'vec4(1.0,1.0,0.0,0.25)'
 
-  const drawFeatures = drawTriangle(DEEP_PURPLE, 100)
+  const drawFeatures = drawTriangle(YELLOW, 100)
   const drawFocusedFeatures = drawTriangle(RED, 200)
 
   map.display = ({ width, height, features, focusedFeatures: focused }) => {
