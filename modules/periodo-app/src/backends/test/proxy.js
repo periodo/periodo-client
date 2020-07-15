@@ -10,15 +10,15 @@ const danglingRelatedPeriodsDataset = {
       periods: {
         p0123a: {
           id: 'p0123a',
-          derivedFrom: 'p0123d',
-          broader: [
+          broader: 'p0123d',
+          derivedFrom: [
             'p0123b',
             'p0123c',
           ],
         },
         p0123b: {
           id: 'p0123b',
-          derivedFrom: 'p0123a',
+          broader: 'p0123a',
         },
       },
     },
@@ -38,13 +38,13 @@ test('Dataset proxy validation', async t => {
           periods: {
             p0123a: {
               id: 'p0123a',
-              broader: [
+              derivedFrom: [
                 'p0123b',
               ],
             },
             p0123b: {
               id: 'p0123b',
-              derivedFrom: 'p0123a',
+              broader: 'p0123a',
             },
           },
         },
