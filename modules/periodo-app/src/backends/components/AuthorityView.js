@@ -72,7 +72,8 @@ module.exports = class AuthorityLayout extends React.Component {
       dataset,
       authority,
       gazetteers,
-      params: { periodID },
+      opts,
+      updateOpts,
     } = this.props
 
     const { blockOpts } = this.state
@@ -133,10 +134,11 @@ module.exports = class AuthorityLayout extends React.Component {
             dataset,
             gazetteers,
             layout,
+            shellOpts: opts,
+            updateShellOpts: updateOpts,
             defaultYearRangeStart: description.earliest
               ? description.earliest.iso
               : null,
-            selectedPeriod: dataset.periodByID(periodID),
             blockOpts,
             onBlockOptsChange: updatedOpts => {
               this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
