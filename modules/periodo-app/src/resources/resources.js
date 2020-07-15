@@ -99,6 +99,10 @@ const Home = {
       label: 'Settings',
       Component: require('../auth/components/Settings'),
     },
+    'About': {
+      label: 'About',
+      Component: require('../main/components/About'),
+    },
   },
   async loadData(props, log, finished) {
     const { dispatch } = props
