@@ -1,7 +1,6 @@
 "use strict";
 
 const R = require('ramda')
-    , qs = require('querystring')
     , { periodoServerURL } = require('../../periodo-app/src/globals')
 
 const permalinkURL = 'http://n2t.net/ark:/99152/'
@@ -70,43 +69,6 @@ const permalinkAwareFetch = (resource, init) => {
   return fetch(resource, init)
 }
 
-function getLayoutOpts() {
-  if (window.location.hash.length == 0) {
-    return {}
-  }
-  const opts = Object.fromEntries(
-    Object.entries(qs.parse(window.location.hash.slice(1)))
-      .map(([ k, v ]) => [ k, JSON.parse(v) ])
-  )
-  return opts
-}
-
-function getLayoutParams() {
-  if (window.location.search.length == 0) {
-    return {}
-  }
-  return qs.parse(window.location.search.slice(1))
-}
-
-function updateLayoutParams(updatedParams) {
-  const prevParams = getLayoutParams()
-      , { pathname, hash } = window.location
-
-  const params = Object.fromEntries(
-    Object.entries({
-      ...prevParams,
-      ...updatedParams,
-    })
-    .filter(([ , v ]) => v !== null)
-  )
-
-  history.replaceState(
-    null,
-    '',
-    `${ pathname }?${ qs.stringify(params) }${ hash }`
-  );
-}
-
 const formatter = new Intl.DateTimeFormat('en', {
   year: 'numeric',
   month: 'long',
@@ -159,9 +121,6 @@ module.exports = {
   permalink,
   downloadURL,
   permalinkAwareFetch,
-  getLayoutOpts,
-  getLayoutParams,
-  updateLayoutParams,
   formatDate: formatter.format,
   textMatcher,
   patchNumber,

@@ -9,7 +9,6 @@ const h = require('react-hyperscript')
     , { Navigable, Route } = require('org-shell')
     , { $$Authority } = require('periodo-utils/src/symbols')
     , createSkolemID = require('../../linked-data/utils/generate_skolem_id')
-    , util = require('periodo-utils')
 
 const $$RelatedPeriods = Symbol.for('RelatedPeriods')
 
@@ -56,7 +55,7 @@ class AddPeriod extends React.Component {
       dataset,
       navigateTo,
       gazetteers,
-      params: { nextPage },
+      params: { returnTo },
     } = this.props
 
     return (
@@ -120,19 +119,19 @@ class AddPeriod extends React.Component {
               message
             ))
 
-            navigateTo(new Route(nextPage || 'period-view', {
+            navigateTo(returnTo || new Route('period-view', {
               backendID: backend.asIdentifier(),
               authorityID: authority.id,
               periodID: id,
-            }, util.getLayoutOpts()))
+            }))
           },
 
           onCancel: !isEdit ? null : () => {
-            navigateTo(new Route('period-view', {
+            navigateTo(returnTo || new Route('period-view', {
               backendID: backend.asIdentifier(),
               authorityID: authority.id,
               periodID: period.id,
-            }, util.getLayoutOpts()))
+            }))
           },
 
           onDelete: !isEdit ? null : async () => {

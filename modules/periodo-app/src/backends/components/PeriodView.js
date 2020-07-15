@@ -48,8 +48,17 @@ module.exports = class PeriodLayout extends React.Component {
   }
 
   render() {
-    const { backend, dataset, authority, period, gazetteers } = this.props
-        , { blockOpts } = this.state
+    const {
+      backend,
+      dataset,
+      authority,
+      period,
+      gazetteers,
+      opts,
+      updateOpts,
+    } = this.props
+
+    const { blockOpts } = this.state
 
     return h(Box, [
       h(Section, [
@@ -112,6 +121,8 @@ module.exports = class PeriodLayout extends React.Component {
         dataset,
         gazetteers,
         blockOpts,
+        shellOpts: opts,
+        updateShellOpts: updateOpts,
         onBlockOptsChange: updatedOpts => {
           this.setState({ blockOpts: updatedOpts }, this.persistBlockOpts)
         },

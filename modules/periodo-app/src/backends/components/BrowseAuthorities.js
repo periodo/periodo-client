@@ -19,6 +19,8 @@ section = untitled
 module.exports = function BrowseAuthorities({
   dataset,
   backend,
+  opts,
+  updateOpts,
 }) {
   const [ blockOpts, setBlockOpts ] = useState({})
 
@@ -48,6 +50,8 @@ module.exports = function BrowseAuthorities({
           dataset,
           backend,
           blockOpts,
+          shellOpts: opts,
+          updateShellOpts: updateOpts,
           onBlockOptsChange: setBlockOpts,
         }),
     ])

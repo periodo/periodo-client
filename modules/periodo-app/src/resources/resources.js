@@ -428,9 +428,9 @@ const Backend = {
     }
   },
   modifyMenuLinkParams(params) {
-    // eslint-disable-next-line no-unused-vars
-    const { periodID, authorityID, ...rest } = params
-    return rest
+    const { backendID } = params
+
+    return { backendID }
   },
 }
 

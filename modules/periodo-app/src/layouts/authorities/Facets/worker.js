@@ -2,10 +2,15 @@
 
 const registerPromiseWorker = require('promise-worker/register')
     , tags = require('language-tags')
-    , { period: { authorityOf }, authority: { displayTitle }} = require('periodo-utils')
     , indexItems = require('../../../backends/dataset_proxy/index_items')
     , natsort = require('natsort')
     , sorter = natsort({ insensitive: true })
+
+const {
+  period: { authorityOf },
+  authority: { displayTitle },
+  source: { yearPublished },
+} = require('periodo-utils')
 
 const languageDescription = tag => {
   const language = tags(tag || '').language()
@@ -108,6 +113,26 @@ module.exports = function a() {
         countArr
           .sort((a, b) => a[1] - b[1])
           .reverse()
+      } else if (sortBy === 'year') {
+        countArr
+          .sort((a, b) => {
+            const sourceA = dataset.authoritiesByID[a[0]].source
+                , sourceB = dataset.authoritiesByID[b[0]].source
+
+            const aYear = parseInt(yearPublished(sourceA))
+                , bYear = parseInt(yearPublished(sourceB))
+
+            if (isNaN(aYear)) {
+              if(isNaN(bYear)) return 0
+              return 1
+            }
+
+            if (isNaN(bYear)) {
+              return -1
+            }
+
+            return bYear - aYear
+          })
       } else {
         const idx = renderLabel ? 2 : 0
         countArr.sort((a, b) => sorter(a[idx], b[idx]))

@@ -10,7 +10,12 @@ const h = require('react-hyperscript')
     , styled = require('@emotion/styled').default
     , { Link, Text, Label, HelpText } = require('periodo-ui')
     , { Route } = require('org-shell')
-    , { getLayoutOpts, getLayoutParams } = require('periodo-utils')
+
+function getReturnToURL() {
+  const { search, hash } = window.location
+
+  return search + hash
+}
 
 const columns = {
   label: {
@@ -145,8 +150,6 @@ function ItemRow({
     selectedPeriod,
     setHoveredPeriod,
     setSelectedPeriod,
-    layoutOpts,
-    layoutParams,
     showEditLink,
   },
 }) {
@@ -166,7 +169,10 @@ function ItemRow({
       style,
       ['data-selected']: selectedPeriod === period,
       ['data-hovered']: hoveredPeriod === period,
-      onMouseDown: toggleSelectedPeriod,
+      onMouseDown: e => {
+        if (e.target.nodeName === 'A') return
+        toggleSelectedPeriod()
+      },
       onTouchStart: toggleSelectedPeriod,
       onMouseEnter: () => {
         setHoveredPeriod(period)
@@ -197,8 +203,8 @@ function ItemRow({
               backendID: backend.asIdentifier(),
               authorityID: authorityOf(period).id,
               periodID: period.id,
-              nextPage: layoutParams.page,
-            }, layoutOpts),
+              returnTo: getReturnToURL(),
+            }),
           }, 'edit')
           : null,
       ]),
@@ -336,16 +342,22 @@ class PeriodList extends React.Component {
   }
 
   updateScroll() {
-    if (this.wrapperRef.current &&
-        this.listRef.current &&
-        this.state.scrollNeedsUpdate) {
+    const mustUpdate = (
+      this.wrapperRef.current &&
+      this.listRef.current &&
+      this.state.scrollNeedsUpdate
+    )
 
+    if (mustUpdate) {
       const index = findPeriodIndex(
         this.props.selectedPeriod,
         this.state.sortedData
       )
-      this.props.setSelectedPeriodIsVisible(index >= 0)
-      this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
+
+      if (index !== -1) {
+        this.listRef.current.scrollToItem(Math.max(index, 0), 'center')
+      }
+
       this.setState({ scrollNeedsUpdate: false })
     }
   }
@@ -365,14 +377,10 @@ class PeriodList extends React.Component {
       setHoveredPeriod,
       selectedPeriod,
       setSelectedPeriod,
-      setSelectedPeriodIsVisible,
       backend,
       totalCount,
       opts: { fixed },
     } = this.props
-
-    const layoutOpts = getLayoutOpts()
-        , layoutParams = getLayoutParams()
 
     const itemCount = periods ? periods.length : 0
         , filteredCount = totalCount === undefined
@@ -481,9 +489,6 @@ class PeriodList extends React.Component {
               selectedPeriod,
               setHoveredPeriod,
               setSelectedPeriod,
-              setSelectedPeriodIsVisible,
-              layoutOpts,
-              layoutParams,
               showEditLink: backend.asIdentifier().startsWith('local-'),
             },
             itemCount,
