@@ -122,9 +122,7 @@ const initializeMap = () => {
   map.addLayer({
     viewbox(bbox, zoom, cb) {
       zoom = Math.round(zoom)
-      if (zoom < 2) cb(null, tiles[0])
-      else if (zoom < 4) cb(null, tiles[1])
-      else cb(null, tiles[2])
+      cb(null, tiles[(zoom < 2) ? 0 : (zoom < 3) ? 1 : 2])
     },
     add(key, bbox) {
       const file = key.split('!')[1]
