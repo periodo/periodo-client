@@ -9,8 +9,8 @@ function copy(obj) {
   return JSON.parse(JSON.stringify(obj))
 }
 
-const SINGLE_VALUED_RELATED_PERIOD_FIELDS = [ 'derivedFrom' ]
-    , MULTI_VALUED_RELATED_PERIOD_FIELDS = [ 'narrower', 'broader' ]
+const SINGLE_VALUED_RELATED_PERIOD_FIELDS = [ 'broader' ]
+    , MULTI_VALUED_RELATED_PERIOD_FIELDS = [ 'narrower', 'derivedFrom' ]
 
 
 module.exports = class DatasetProxy {
