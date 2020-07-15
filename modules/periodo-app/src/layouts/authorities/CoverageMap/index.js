@@ -1,7 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , { Label, HelpText, InlineText, LabeledMap } = require('periodo-ui')
+    , { HelpText, InlineText, LabeledMap } = require('periodo-ui')
 
 const featuresOf = (period, gazetteers) => {
   if (!period) return []
@@ -29,8 +29,6 @@ const CoverageMap = ({
 }) => {
 
   return (h('div'), [
-    h(Label, { key: 'label' }, 'Spatial coverage'),
-
     h(HelpText, { key: 'help' }, [
       'Places covered by the listed periods',
       ...(selectedPeriod

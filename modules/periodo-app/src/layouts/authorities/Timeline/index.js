@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , AutoSizer = require('react-virtualized-auto-sizer')
-    , { Label, HelpText, InlineText } = require('periodo-ui')
+    , { HelpText, InlineText } = require('periodo-ui')
     , Plot = require('./Plot')
 
 function Timeline({
@@ -15,8 +15,6 @@ function Timeline({
 }) {
 
   return (h('div'), [
-    h(Label, { key: 'label' }, 'Temporal coverage'),
-
     h(HelpText, { key: 'help' }, [
       'Temporal extents covered by the listed periods',
       ...(selectedPeriod

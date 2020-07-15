@@ -33,11 +33,11 @@ aspectProportions = 33%,67%
 
 [SpatialCoverage]
 type = spatial-visualization
-section = Period coverage
+section = Spatial coverage
 
 [TimeRange]
 type = timespan-visualization
-section = Period coverage
+section = Temporal coverage
 height = 200
 
 [PeriodList]
