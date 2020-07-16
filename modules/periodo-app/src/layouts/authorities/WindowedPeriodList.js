@@ -121,15 +121,15 @@ const ListWrapper = styled.div`
   color: ${props => props.theme.colors.colorsets.table.fg};
 }
 
-.row__item[data-selected="true"],
-.row__item[data-hovered="true"] {
+.row__item[data-selected="true"] {
   background-color: ${props => props.theme.colors.colorsets.tableFocused.bg};
   color: ${props => props.theme.colors.colorsets.tableFocused.fg};
 }
 
-.row__item[data-selected="true"] {
-  border-top: 1px solid ${props => props.theme.colors.colorsets.tableFocused.border};
-  border-bottom: 1px solid ${props => props.theme.colors.colorsets.tableFocused.border};
+.row__item[data-faux-hovered="true"],
+.row__item[data-hovered="true"] {
+  border-top: 1px solid ${props => props.theme.colors.colorsets.table.border};
+  border-bottom: 1px solid ${props => props.theme.colors.colorsets.table.border};
 }
 
 .row span {
@@ -165,12 +165,22 @@ function ItemRow({
     )
   }
 
+  const isFauxHovered = (
+    !isHovering &&
+    hoveredPeriod === period &&
+    !(
+      selectedPeriod &&
+      periods.includes(selectedPeriod)
+    )
+  )
+
   return (
     h('div', {
       className: 'row row__item',
       style,
       ['data-selected']: selectedPeriod === period,
       ['data-hovered']: isHovering && hoveredPeriod === period,
+      ['data-faux-hovered']: isFauxHovered,
       onMouseDown: e => {
         if (e.target.nodeName === 'A') return
         toggleSelectedPeriod()
