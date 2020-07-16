@@ -153,6 +153,7 @@ function ItemRow({
     setHoveredPeriod,
     setSelectedPeriod,
     showEditLink,
+    isFixed,
   },
 }) {
   const period = periods[index]
@@ -183,6 +184,7 @@ function ItemRow({
       ['data-faux-hovered']: isFauxHovered,
       onMouseDown: e => {
         if (e.target.nodeName === 'A') return
+        if (isFixed) return
         toggleSelectedPeriod()
       },
       onTouchStart: toggleSelectedPeriod,
@@ -397,6 +399,7 @@ class PeriodList extends React.Component {
       setHoveredPeriod,
       selectedPeriod,
       setSelectedPeriod,
+      isFixed,
       backend,
       totalCount,
       isHovering,
@@ -513,6 +516,7 @@ class PeriodList extends React.Component {
               setIsHovering,
               setHoveredPeriod,
               setSelectedPeriod,
+              isFixed,
               showEditLink: backend.asIdentifier().startsWith('local-'),
             },
             itemCount,

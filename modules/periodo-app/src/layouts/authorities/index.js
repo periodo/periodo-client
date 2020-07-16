@@ -53,6 +53,8 @@ module.exports = Navigable(({
         gazetteers,
         navigateTo,
 
+        isFixed: !!fixedPeriod,
+
         isHovering,
         setIsHovering,
 
