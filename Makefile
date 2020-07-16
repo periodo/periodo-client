@@ -104,7 +104,8 @@ $(VERSIONED_DIRECTORY)/package.json: package.json
 
 $(PKG): $(VERSIONED_DIRECTORY)
 	cd $< && npm pack
-	cp $</periodo-client-*.tgz $(PKG)
+	if ["$</periodo-client-$(VERSION).tgz" != "$(PKG)"] ; \
+	then cp $</periodo-client-$(VERSION).tgz $(PKG) ; fi
 
 $(PKG).sha256: $(PKG)
 	sha256sum $< | sed "s/dist\/$(PROJECT_NAME)-$(VERSION)\///" > $@
