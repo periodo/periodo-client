@@ -6,6 +6,7 @@ const h = require('react-hyperscript')
     , PeriodDetail = require('./PeriodDetail').Component
 
 function AuthorityPeriodDetail({
+  isHovering,
   hoveredPeriod,
   selectedPeriod,
   backend,
@@ -13,10 +14,12 @@ function AuthorityPeriodDetail({
 }) {
   let showPeriod = null
 
-  if (hoveredPeriod) {
+  if (isHovering && hoveredPeriod) {
     showPeriod = hoveredPeriod
   } else if (selectedPeriod && data.includes(selectedPeriod)) {
     showPeriod = selectedPeriod
+  } else if (hoveredPeriod) {
+    showPeriod = hoveredPeriod
   }
 
   if (!showPeriod) {

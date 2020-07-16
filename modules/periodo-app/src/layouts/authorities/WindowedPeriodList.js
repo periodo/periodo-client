@@ -148,6 +148,8 @@ function ItemRow({
     periods,
     hoveredPeriod,
     selectedPeriod,
+    isHovering,
+    setIsHovering,
     setHoveredPeriod,
     setSelectedPeriod,
     showEditLink,
@@ -168,7 +170,7 @@ function ItemRow({
       className: 'row row__item',
       style,
       ['data-selected']: selectedPeriod === period,
-      ['data-hovered']: hoveredPeriod === period,
+      ['data-hovered']: isHovering && hoveredPeriod === period,
       onMouseDown: e => {
         if (e.target.nodeName === 'A') return
         toggleSelectedPeriod()
@@ -176,9 +178,10 @@ function ItemRow({
       onTouchStart: toggleSelectedPeriod,
       onMouseEnter: () => {
         setHoveredPeriod(period)
+        setIsHovering(true)
       },
       onMouseLeave: () => {
-        setHoveredPeriod(null)
+        setIsHovering(false)
       },
     }, [
       h('span', [
@@ -246,9 +249,11 @@ class PeriodList extends React.Component {
       prevProps.sortDirection !== this.props.sortDirection ||
       prevProps.data !== this.props.data
     )
+
     if (updateSort) {
       this.updateSort()
     }
+
     this.updateScroll()
   }
 
@@ -307,6 +312,7 @@ class PeriodList extends React.Component {
     const {
       sortBy,
       sortDirection,
+      setHoveredPeriod,
       data,
     } = this.props
 
@@ -337,6 +343,10 @@ class PeriodList extends React.Component {
       this.setState({
         sortedData,
         scrollNeedsUpdate: !!this.props.selectedPeriod,
+      }, () => {
+        if (sortedData.length) {
+          setHoveredPeriod(sortedData[0])
+        }
       })
     }
   }
@@ -379,6 +389,8 @@ class PeriodList extends React.Component {
       setSelectedPeriod,
       backend,
       totalCount,
+      isHovering,
+      setIsHovering,
       opts: { fixed },
     } = this.props
 
@@ -487,6 +499,8 @@ class PeriodList extends React.Component {
               periods,
               hoveredPeriod,
               selectedPeriod,
+              isHovering,
+              setIsHovering,
               setHoveredPeriod,
               setSelectedPeriod,
               showEditLink: backend.asIdentifier().startsWith('local-'),

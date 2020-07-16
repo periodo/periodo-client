@@ -30,6 +30,7 @@ module.exports = Navigable(({
   }
 
   const [ hoveredPeriod, setHoveredPeriod ] = useState(null)
+      , [ isHovering, setIsHovering ] = useState(false)
 
   const setSelectedPeriod = period => {
     updateShellOpts(
@@ -51,6 +52,9 @@ module.exports = Navigable(({
         defaultYearRangeStart,
         gazetteers,
         navigateTo,
+
+        isHovering,
+        setIsHovering,
 
         hoveredPeriod,
         setHoveredPeriod,
