@@ -66,7 +66,7 @@ upload: DIR = /var/www/$(HOST)/client_packages/
 upload: $(PKG) $(PKG).sha256
 	rsync -vuh -e ssh $^ $(HOST):$(DIR)
 	ssh $(HOST) ln -f $(DIR)$(PROJECT_NAME)-$(VERSION).tgz $(DIR)$(PROJECT_NAME)-latest.tgz
-	ssh $(HOST) "sed 's/$(VERSION)/latest/' $(DIR)$(PROJECT_NAME)-$(VERSION).tgz.sha256 > $(DIR)$(PROJECT_NAME)-latest.tgz.sha256"
+	ssh $(HOST) "sed 's/$(subst .,\.,$(VERSION))/latest/' $(DIR)$(PROJECT_NAME)-$(VERSION).tgz.sha256 > $(DIR)$(PROJECT_NAME)-latest.tgz.sha256"
 
 serve:
 	python3 -m http.server 5002 --bind 127.0.0.1
