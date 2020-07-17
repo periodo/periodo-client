@@ -26,19 +26,17 @@ function AuthorityPeriodDetail({
     return h(Box, { mt: -3 })
   }
 
-  const period = hoveredPeriod || selectedPeriod
-
   return (
     h(Flex, [
       h(AuthorityDetail, {
         flex: 0.5,
         mr: 3,
-        period,
+        period: showPeriod,
         backend,
       }),
       h(PeriodDetail, {
         flex: 0.5,
-        period,
+        period: showPeriod,
         backend,
       }),
     ])
