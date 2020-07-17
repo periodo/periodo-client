@@ -32,11 +32,11 @@ const pad = (bbox, width, height) => {
   let w, h
   if (viewRatio > bboxRatio) {
     // wide map; pad based on bbox height
-    h = Math.max(bboxH * 6, MIN_VBOX_HEIGHT)
+    h = Math.max(bboxH * 4, MIN_VBOX_HEIGHT)
     w = h * viewRatio
   } else {
     // narrow map; pad based on bbox width
-    w = Math.max(bboxW * 6, MIN_VBOX_WIDTH)
+    w = Math.max(bboxW * 4, MIN_VBOX_WIDTH)
     h = w / viewRatio
   }
   const px = (w - bboxW) / 2
@@ -195,10 +195,10 @@ const initializeMap = () => {
     elements: map.prop('cells'),
   })
 
-  const RED = 'vec4(1.0,0.0,0.0,0.5)'
-  const YELLOW = 'vec4(1.0,1.0,0.0,0.25)'
+  const RED = 'vec4(1.0,0.0,0.0,0.6)'
+  const PURPLE = 'vec4(0.8,0.4,0.9,0.4)'
 
-  const drawFeatures = drawTriangle(YELLOW, 100)
+  const drawFeatures = drawTriangle(PURPLE, 100)
   const drawFocusedFeatures = drawTriangle(RED, 200)
 
   map.display = ({ width, height, features, focusedFeatures: focused }) => {
