@@ -180,15 +180,22 @@ function makeFilteredPatch(localDataset, remoteDataset, localPatches, direction)
   return finalPatch
 }
 
+// Validate a patch generated to be applied from one data source to another.
+// First, apply the patch to the dataset, then validate it using
+// `DatasetProxy.validate`. Then generate a patch that *only* includes changes
+// to periods and authorities. (i.e. not linked data entities or anything
+// else).
 function validatePatch(dataset, patch) {
   const newRawDataset = jsonpatch.applyPatch(
     jsonpatch.deepClone(dataset),
     jsonpatch.deepClone(patch)
   ).newDocument
 
-  const newDataset = new DatasetProxy(newRawDataset)
+  const newValidatedDataset = new DatasetProxy(newRawDataset).validated
 
-  return makePatch(dataset, newDataset.validated)
+  return makePatch(
+    { authorities: dataset.authorities },
+    { authorities: newValidatedDataset.authorities })
 }
 
 
