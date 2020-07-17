@@ -67,21 +67,21 @@ const colors = {
     },
 
     tableSecondary: {
-      bg: oc.pink[1],
+      bg: oc.grape[1],
       fg: 'black',
-      border: oc.pink[3],
+      border: oc.grape[3],
     },
 
     tableSecondaryFocused: {
-      bg: oc.pink[2],
+      bg: oc.grape[2],
       fg: 'black',
-      border: oc.pink[6],
+      border: oc.grape[6],
     },
 
     actionable: {
-      bg: oc.pink[2],
+      bg: oc.grape[2],
       fg: 'black',
-      border: oc.pink[5],
+      border: oc.grape[5],
     },
   },
 
