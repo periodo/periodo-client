@@ -104,8 +104,8 @@ $(VERSIONED_DIRECTORY)/package.json: package.json
 
 $(PKG): $(VERSIONED_DIRECTORY)
 	cd $< && npm pack
-	if ["$</periodo-client-$(VERSION).tgz" != "$(PKG)"] ; \
-	then cp $</periodo-client-$(VERSION).tgz $(PKG) ; fi
+	TARBALL="$$(ls $</periodo-client-*.tgz)" ; \
+	if [ "$$TARBALL" != "$(PKG)" ] ; then cp $$TARBALL $(PKG) ; fi
 
 $(PKG).sha256: $(PKG)
 	sha256sum $< | sed "s/dist\/$(PROJECT_NAME)-$(VERSION)\///" > $@
