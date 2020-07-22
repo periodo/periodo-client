@@ -1,12 +1,12 @@
 /* eslint-disable */
 "use strict";
 
-const test = require('tape')
+const test = require('blue-tape')
     , util = require('../')
     , { symbols } = util
 
 
-test('Period terminus utility functions', t => {
+test('Period terminus utility functions', async t => {
   t.plan(8)
 
   const termini = require('./fixtures/termini.json')
@@ -72,7 +72,7 @@ test('Period terminus utility functions', t => {
 })
 
 
-test('Period terminus sequence utility functions', t => {
+test('Period terminus sequence utility functions', async t => {
   t.plan(2)
 
   const termini = require('./fixtures/termini.json')
@@ -98,7 +98,7 @@ test('Period terminus sequence utility functions', t => {
 })
 
 
-test('Period authority utility functions', t => {
+test('Period authority utility functions', async t => {
   t.plan(1)
 
   const data = require('./fixtures/authority.json')
@@ -119,7 +119,7 @@ test('Period authority utility functions', t => {
   }, 'should describe an authority')
 });
 
-test('Authority sequence utility functions', t => {
+test('Authority sequence utility functions', async t => {
   t.plan(4);
 
   const data = [
@@ -212,7 +212,7 @@ test('Authority sequence utility functions', t => {
 });
 
 
-test('Multi label periods', t => {
+test('Multi label periods', async t => {
   t.plan(3)
 
   const multiLabelPeriod = require('./fixtures/multi-label-period.json');

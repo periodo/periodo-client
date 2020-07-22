@@ -79,7 +79,6 @@
     "ramda": "^0.27.0",
     "redux-mock-store": "^1.5.4",
     "source-map": "^0.7.3",
-    "tape": "^5.0.1",
     "terser": "^4.7.0",
     "union-type": "github:ptgolden/union-type",
     "watchify": "^3.11.1"
@@ -91,7 +90,7 @@
   },
   "scripts": {
     "prepublishOnly": "echo 'Use the `make publish` command instead.' && exit 1",
-    "test": "tape $(find modules -path */test/*.js -not -path */node_modules/*)",
+    "test": "blue-tape $(find modules -path */test/*.js -not -path */node_modules/*)",
     "start": "serve -p 8000"
   }
 }

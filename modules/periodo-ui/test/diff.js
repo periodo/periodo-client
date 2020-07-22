@@ -2,11 +2,11 @@
 
 /* eslint object-property-newline: 0, array-bracket-spacing: 0 object-curly-newline: 0 */
 
-const test = require('tape')
+const test = require('blue-tape')
     , { Change } = require('../src/components/diffable/types')
     , { findChanges } = require('../src/components/diffable/Diff')
 
-test('findChanges', t => {
+test('findChanges', async t => {
   t.plan(11)
 
   t.deepEqual(

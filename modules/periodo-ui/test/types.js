@@ -1,9 +1,9 @@
 "use strict";
 
-const test = require('tape')
+const test = require('blue-tape')
     , { Change, valueEquals, isAnonymous, isIdentified } = require('../src/components/diffable/types')
 
-test('Anonymous values', t => {
+test('Anonymous values', async t => {
   t.plan(8)
 
   t.false(
@@ -39,7 +39,7 @@ test('Anonymous values', t => {
     'can be an object whose id is `@id`')
 })
 
-test('Identified values', t => {
+test('Identified values', async t => {
   t.plan(9)
 
   t.false(
@@ -79,7 +79,7 @@ test('Identified values', t => {
     'can be an object with an `id` property')
 })
 
-test('Value equality', t => {
+test('Value equality', async t => {
   t.plan(3)
 
   t.true(
@@ -104,7 +104,7 @@ test('Value equality', t => {
 
 })
 
-test('Changes', t => {
+test('Changes', async t => {
   t.plan(9)
 
   t.equal(Change.Addition('foo').value, 'foo')

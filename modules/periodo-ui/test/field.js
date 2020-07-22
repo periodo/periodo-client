@@ -1,9 +1,9 @@
 "use strict";
 
-const test = require('tape')
+const test = require('blue-tape')
     , { extract } = require('../src/components/diffable/Field')
 
-test('Extract function', t => {
+test('Extract function', async t => {
   t.plan(7)
 
   const o = {
@@ -47,7 +47,7 @@ test('Extract function', t => {
   t.throws(() => extract('f')(o), /^TypeError/)
 })
 
-test('Extract with key', t => {
+test('Extract with key', async t => {
   t.plan(5)
 
   const o = {

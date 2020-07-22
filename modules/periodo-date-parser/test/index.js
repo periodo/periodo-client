@@ -1,6 +1,6 @@
 "use strict";
 
-const test = require('tape')
+const test = require('blue-tape')
     , { parse, SyntaxError } = require('../')
 
 const formatYear = (format, label, yearOrYears) => ({
@@ -12,7 +12,7 @@ const formatYear = (format, label, yearOrYears) => ({
 })
 
 
-test('Date parser (single dates)', t => {
+test('Date parser (single dates)', async t => {
   t.plan(10)
 
   t.comment('-- ISO8601 --')
