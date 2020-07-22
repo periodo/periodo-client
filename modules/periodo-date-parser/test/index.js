@@ -1,7 +1,7 @@
 "use strict";
 
 const test = require('tape')
-    , { parse, SyntaxError } = require('./')
+    , { parse, SyntaxError } = require('../')
 
 const formatYear = (format, label, yearOrYears) => ({
   _type: format,
