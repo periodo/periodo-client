@@ -28,12 +28,10 @@ test('Date parser (single dates)', t => {
   ], 'should parse valid ISO years')
 
 
-  /*
   // ISO8601 years without a +/- must be 4 digits.
   // (People didn't like the above constraint, so those are actually OK.)
-  assert.throws(isoParser('4'), parser.SyntaxError);
-  assert.throws(isoParser('500000000'), parser.SyntaxError);
-  */
+  // assert.throws(isoParser('4'), parser.SyntaxError);
+  // assert.throws(isoParser('500000000'), parser.SyntaxError);
 
   t.comment('-- Gregorian --')
 
@@ -113,9 +111,7 @@ test('Date parser (single dates)', t => {
 });
 
 
-test('Date parser (ranges)', t => {
-  t.plan(2);
-
+test('Date parser (ranges)', async t => {
   t.deepEqual([
     parse('21st century'),
     parse('21st century BC'),
@@ -131,11 +127,27 @@ test('Date parser (ranges)', t => {
   ], 'should handle descriptions of centuries or millenia');
 
   t.deepEqual([
+    parse('1890s'),
+    parse('late 1960s'),
+    parse('middle of the 1200s'),
+  ], [
+    formatYear('gregorian', '1890s', ['1890', '1899']),
+    formatYear('gregorian', 'late 1960s', ['1966', '1969']),
+    formatYear('gregorian', 'middle of the 1200s', ['1203', '1206']),
+  ], 'should handle descriptions of decades');
+
+  t.deepEqual([
     parse('410/314 BCE'),
     parse('1200/1400'),
   ], [
     formatYear('gregorian', '410/314 BCE', ['-0409', '-0313']),
     formatYear('iso8601', '1200/1400', ['1200', '1400']),
   ], 'should handle "slashed" date ranges');
+
+  t.deepEqual([
+    parse('1800 or 1812'),
+  ], [
+    formatYear('iso8601', '1800 or 1812', ['1800', '1812']),
+  ], 'should handle "or" dates');
 
 })
