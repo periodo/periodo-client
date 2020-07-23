@@ -1,20 +1,11 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , R = require('ramda')
     , React = require('react')
-    , tags = require('language-tags')
     , { Label, HelpText } = require('periodo-ui')
-    , { period: { authorityOf }} = require('periodo-utils')
     , { shallowEqualObjects } = require('shallow-equal')
     , AspectTable = require('./AspectTable')
     , FacetCalculator = require('./FacetCalculator')
-
-const languageDescription = R.memoizeWith(R.toString, tag => {
-  const language = tags(tag || '').language()
-
-  return language ? language.descriptions()[0] : '(bad value)'
-})
 
 function identityWithDefault(defaultLabel) {
   return x => x || defaultLabel
