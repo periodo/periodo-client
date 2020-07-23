@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, Text, Button, Flex, Link, Table } = require('periodo-ui')
+    , { Box, Text, SettingsButton, Flex, Link, Table } = require('periodo-ui')
 
 function withoutValue(val, set) {
   const newSet = new Set(set)
@@ -211,18 +211,14 @@ class AspectTable extends React.Component {
             }, 'Clear')
           )),
 
-          h(Button, {
-            pt: 0,
-            pb: '1px',
-            px: '6px',
-            fontSize: '20px',
+          h(SettingsButton, {
             onClick: () => {
               this.setState(prev => ({
                 ...prev,
                 showOptions: !prev.showOptions,
               }))
             },
-          }, '⚙'),
+          }),
         ]),
 
         h('div', {

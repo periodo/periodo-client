@@ -2,6 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box } = require('./Base')
+    , { SettingsIcon } = require('./Icons')
 
 exports.Button = ({ sx, variant='default', ...props }) =>
   h(Box, {
@@ -63,3 +64,17 @@ exports.LinkButton = props =>
     },
     ...props,
   })
+
+exports.SettingsButton = props =>
+  h(exports.Button, {
+    sx: {
+      py: 1,
+      px: 2,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ...props,
+  }, [
+    h(SettingsIcon),
+  ])
