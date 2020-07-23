@@ -22,8 +22,8 @@ LINKED_MODULES := $(wildcard modules/*)
 LINKED_MODULE_SYMLINKS := $(subst modules/,node_modules/,$(LINKED_MODULES))
 
 DATE_PARSER := modules/periodo-date-parser/parser.js
-JS_FILES := $(shell find modules/ -type f -name '*js' -not -path '*/node_modules/*') $(DATE_PARSER)
-ASSET_FILES := $(shell find images/ -type f)
+JS_FILES := $(shell find modules -type f -name '*js' -not -path '*/node_modules/*') $(DATE_PARSER)
+ASSET_FILES := $(shell find images -type f)
 PACKAGE_JSON_FILES := $(shell find . -name package.json -not -path '*/node_modules/*')
 
 ZIPPED_FILES = $(VERSIONED_JS_BUNDLE) \
