@@ -84,7 +84,7 @@ module.exports = class TerminusInput extends React.Component {
               name: 'earliest',
               label: `Earliest ${label.toLowerCase()} year`,
               helpText: `Earliest ${label.toLowerCase()} of the period
- as an ISO Gregorian year value`,
+ (ISO Gregorian year)`,
               width: .5,
               pr: 2,
               disabled: autoparse,
@@ -101,7 +101,7 @@ module.exports = class TerminusInput extends React.Component {
             : h(InputBlock, {
               name: 'year',
               label: `${label} year`,
-              helpText: `${label} of the period as an ISO Gregorian year value`,
+              helpText: `${label} of the period (ISO Gregorian year)`,
               width: .5,
               pr: 2,
               disabled: autoparse,
@@ -120,7 +120,7 @@ module.exports = class TerminusInput extends React.Component {
             name: 'latest',
             label: `Latest ${label.toLowerCase()} year`,
             helpText: `Latest ${label.toLowerCase()} of the period
- as an ISO Gregorian year value`,
+ (ISO Gregorian year)`,
             width: .5,
             disabled: autoparse,
             value: R.path([ 'in', 'latestYear' ], terminus) || '',
