@@ -27,7 +27,7 @@ const aspects = {
     render: identityWithDefault('(no value)'),
     settings: {
       sortBy: {
-        label: 'Order facets by...',
+        label: 'Order by…',
         choices: [
           {
             key: 'count',
@@ -39,7 +39,7 @@ const aspects = {
           },
           {
             key: 'year',
-            label: 'year of source',
+            label: 'publication year',
           },
         ],
       },
@@ -52,7 +52,7 @@ const aspects = {
     render: identityWithDefault('(no value)'),
     settings: {
       sortBy: {
-        label: 'Order facets by...',
+        label: 'Order by…',
         choices: [
           {
             key: 'count',
@@ -73,7 +73,7 @@ const aspects = {
     render: identityWithDefault('(no value)'),
     settings: {
       sortBy: {
-        label: 'Order facets by...',
+        label: 'Order by…',
         choices: [
           {
             key: 'count',
@@ -86,7 +86,7 @@ const aspects = {
         ],
       },
       use: {
-        label: 'Use spatial coverage...',
+        label: 'Use spatial coverage…',
         choices: [
           {
             key: 'description',
@@ -94,7 +94,7 @@ const aspects = {
           },
           {
             key: 'entities',
-            label: 'entities',
+            label: 'linked places',
           },
         ],
       },
