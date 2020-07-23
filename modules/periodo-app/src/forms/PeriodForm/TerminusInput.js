@@ -67,6 +67,7 @@ module.exports = class TerminusInput extends React.Component {
 
           h(Box, { width: .5 }, [
             h(Checkbox, {
+              mr: 1,
               disabled: autoparse,
               checked: isMultipart(terminus),
               onChange: () => {

@@ -32,6 +32,7 @@ module.exports = class TemporalCoverageForm extends React.Component {
       h(Box, { my: 1 }, [
         h(Label, [
           h(Checkbox, {
+            mr: 1,
             checked: autoparse,
             onChange: () =>
               this.setState(prev => ({ autoparse: !prev.autoparse })),
