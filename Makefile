@@ -92,7 +92,7 @@ node_modules: package.json
 node_modules/%: modules/%
 	ln -s ../$< $@
 
-$(DATE_PARSER): modules/periodo-date-parser/grammar.pegjs
+$(DATE_PARSER): modules/periodo-date-parser/grammar.pegjs node_modules
 	export PATH=$$PATH:$$PWD/$(NPM_BIN); cd modules/periodo-date-parser && npm run compile
 
 $(VERSIONED_JS_BUNDLE): node_modules $(LINKED_MODULE_SYMLINKS) $(JS_FILES) | dist
