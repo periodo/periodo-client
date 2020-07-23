@@ -188,37 +188,41 @@ class AspectTable extends React.Component {
         }, [
           h('span', label),
 
-          h('span', [
-            h('span', {}, selected.size === 0 ? null : (
-              h('a', {
-                href: '',
-                style: {
-                  marginRight: '3px',
-                  color: 'red',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 100,
-                },
-                onClick: e => {
-                  e.preventDefault();
-                  updateOpts(R.dissocPath([ 'selected', aspectID ]), true)
-                },
-              }, 'Clear')
-            )),
-
-            h(Button, {
-              pt: 0,
-              pb: '1px',
-              px: '6px',
-              fontSize: '20px',
-              onClick: () => {
-                this.setState(prev => ({
-                  ...prev,
-                  showOptions: !prev.showOptions,
-                }))
+          h('span', {
+            style: {
+              flex: 'auto',
+              paddingRight: '4px',
+              textAlign: 'right',
+            },
+          }, selected.size === 0 ? null : (
+            h('a', {
+              href: '',
+              style: {
+                marginRight: '3px',
+                color: 'red',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 100,
               },
-            }, '⚙'),
-          ]),
+              onClick: e => {
+                e.preventDefault();
+                updateOpts(R.dissocPath([ 'selected', aspectID ]), true)
+              },
+            }, 'Clear')
+          )),
+
+          h(Button, {
+            pt: 0,
+            pb: '1px',
+            px: '6px',
+            fontSize: '20px',
+            onClick: () => {
+              this.setState(prev => ({
+                ...prev,
+                showOptions: !prev.showOptions,
+              }))
+            },
+          }, '⚙'),
         ]),
 
         h('div', {
