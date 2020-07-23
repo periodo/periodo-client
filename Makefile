@@ -21,7 +21,8 @@ BROWSERIFY_ENTRY = modules/periodo-app/src/index.js
 LINKED_MODULES := $(wildcard modules/*)
 LINKED_MODULE_SYMLINKS := $(subst modules/,node_modules/,$(LINKED_MODULES))
 
-JS_FILES := $(shell find modules/ -type f -name '*js' -not -path '*/node_modules/*')
+DATE_PARSER := modules/periodo-date-parser/parser.js
+JS_FILES := $(shell find modules/ -type f -name '*js' -not -path '*/node_modules/*') $(DATE_PARSER)
 ASSET_FILES := $(shell find images/ -type f)
 PACKAGE_JSON_FILES := $(shell find . -name package.json -not -path '*/node_modules/*')
 
@@ -44,15 +45,16 @@ OS := $(shell uname | tr '[:upper:]' '[:lower:]')
 
 all: $(VERSIONED_ZIPFILE)
 
-watch: node_modules $(LINKED_MODULE_SYMLINKS) | dist
+watch: node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER) | dist
 	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
 
-test: node_modules $(LINKED_MODULE_SYMLINKS)
+test: node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER)
 	npm test
 
 clean:
 	rm -rf node_modules
 	rm -rf dist
+	rm -f $(DATE_PARSER)
 
 update_package_lock:
 	rm -rf node_modules package-lock.json
@@ -89,6 +91,9 @@ node_modules: package.json
 
 node_modules/%: modules/%
 	ln -s ../$< $@
+
+$(DATE_PARSER): modules/periodo-date-parser/grammar.pegjs
+	export PATH=$$PATH:$$PWD/$(NPM_BIN); cd modules/periodo-date-parser && npm run compile
 
 $(VERSIONED_JS_BUNDLE): node_modules $(LINKED_MODULE_SYMLINKS) $(JS_FILES) | dist
 	$(BROWSERIFY_PREAMBLE) NODE_ENV=production $(NPM_BIN)/browserify -d $(BROWSERIFY_ENTRY) -o $@

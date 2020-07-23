@@ -1,5 +1,3 @@
-// vim: set filetype=javascript
-
 {
   var bpBase = parseInt(options.bpBase || 1950);
 
@@ -73,7 +71,9 @@ singleyear =
 range =
   century
   / millennium
+  / decade
   / slashSeparatedRange
+  / orRange
 
 // Unclear prefixes
 unclear =
@@ -102,6 +102,20 @@ slashSeparatedRange =
       ret._type = 'iso8601';
       return ret;
     }
+
+orRange = year1:simpleyear ' or ' year2:simpleyear {
+    const y1 = parseInt(year1, 10)
+        , y2 = parseInt(year2, 10)
+
+    const ret = y1 > y2
+      ? formatRange(y2, y1)
+      : formatRange(y1, y2)
+
+    ret._type = 'iso8601'
+
+    return ret
+}
+
 
 simpleyear = sign:sign? digits:digitsorquestionmark { return (sign || '') + digits.join('') }
 
@@ -137,6 +151,31 @@ century = modifier:modifier? SPACE* value:ordinal SPACE+ ('century'i / 'cent.' /
 
 millennium = modifier:modifier? SPACE* value:ordinal SPACE+ 'millennium'i SPACE* suffix:(bc /ad)?
   { return makeEpoch(1000, value, suffix ? suffix.neg : false, modifier) }
+
+decade = modifier:modifier? SPACE* value:fourdigits 's'i {
+  const intValue = parseInt(value, 10)
+
+  let start, end
+
+  if (modifier === 1) {
+    start = intValue;
+    end = intValue + 3
+  } else if (modifier === 2) {
+    start = intValue + 3
+    end = intValue + 6
+  } else if (modifier === 3) {
+    start = intValue + 6
+    end = intValue + 9
+  } else {
+    start = intValue
+    end = intValue + 9
+  }
+
+  const ret = formatRange(start, end)
+  ret._type = 'gregorian';
+
+  return ret
+}
 
 
 // Constants
