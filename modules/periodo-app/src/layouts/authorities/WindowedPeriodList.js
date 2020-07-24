@@ -358,6 +358,8 @@ class PeriodList extends React.Component {
       }, () => {
         if (sortedData.length) {
           setHoveredPeriod(sortedData[0])
+        } else {
+          setHoveredPeriod(null)
         }
       })
     }
@@ -425,13 +427,15 @@ class PeriodList extends React.Component {
           }, `${ filteredCount } periods not shown.
  Adjust filters to see more`),
 
-          h(HelpText, {
-            key: 'help',
-            mb: 2,
-          }, [
-            'Click a period to select it, ',
-            'then use up and down arrows to change the selection',
-          ]),
+          itemCount === 0 ? null : (
+            h(HelpText, {
+              key: 'help',
+              mb: 2,
+            }, [
+              'Click a period to select it, ',
+              'then use up and down arrows to change the selection',
+            ])
+          ),
         ]
       ),
 
