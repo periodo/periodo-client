@@ -20,7 +20,12 @@ class SignIn extends React.Component {
 
   async handleMessage(e) {
     const { dispatch, backend, onSuccess } = this.props
-        , { name, token } = e.data
+
+    if (e.origin !== new URL(backend.storage.url).origin) {
+      return
+    }
+
+    const { name, token } = e.data
 
     if (!this.oauthWindow) return
 
