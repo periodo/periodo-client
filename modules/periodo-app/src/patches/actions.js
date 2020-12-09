@@ -344,11 +344,9 @@ function getPatchRequest(remoteBackend, patchURL) {
 
     const link = parseLinkHeader(patchResp.headers.get('Link'))
 
-    if (link && link.merge) {
-      ret.mergeURL = url.resolve(patchResp.url, link.merge.url)
-    } else {
-      ret.mergeURL = null
-    }
+    const mergeURL = (link && link.merge)
+      ? url.resolve(patchResp.url, link.merge.url)
+      : null
 
     if (!patchResp.ok) throw new Error('Could not fetch patch')
 
@@ -363,10 +361,14 @@ function getPatchRequest(remoteBackend, patchURL) {
     ])(getState())
 
     // If we've already generated the source and destination datasets, only
-    // refresh the patch resource itself. (Which may change in the case of,
-    // e.g. commenting, or merging a patch.
+    // refresh the patch resource itself (which may change in the case of,
+    // e.g. commenting, or merging a patch) and the merge URL (which may
+    // change when logged-in status changes).
     if (existing) {
-      Object.assign(ret, existing, { patch })
+      Object.assign(ret, existing, {
+        patch,
+        mergeURL,
+      })
     } else {
       const [ fromRawDatasetResp, patchTextResp ] = await Promise.all([
         permalinkAwareFetch(patch.created_from + '&inline-context'),
@@ -391,6 +393,7 @@ function getPatchRequest(remoteBackend, patchURL) {
 
       Object.assign(ret, {
         patch,
+        mergeURL,
         fromDataset: new DatasetProxy(fromRawDataset),
         toDataset: new DatasetProxy(toRawDataset),
         patchText,
