@@ -62,7 +62,7 @@ update_package_lock:
 
 stage: HOST = data.staging.perio.do
 publish: HOST = data.perio.do
-stage publish: clean upload
+stage publish: clean test upload
 
 upload: DIR = /var/www/$(HOST)/client_packages/
 upload: $(PKG) $(PKG).sha256
