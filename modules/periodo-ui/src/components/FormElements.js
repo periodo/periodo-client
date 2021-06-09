@@ -23,7 +23,7 @@ exports.Select = props =>
     as: 'select',
     sx: {
       bg: 'white',
-      fontFamily: 'sans-serif',
+      fontFamily: 'Arial, sans-serif',
       fontSize: 1,
       height: '36px',
       pl: 2,
@@ -48,7 +48,7 @@ exports.Textarea = props =>
     sx: {
       p: 2,
       width: '100%',
-      fontFamily: 'sans-serif',
+      fontFamily: 'Arial, sans-serif',
       fontSize: 1,
 
       ...borderStyle,
