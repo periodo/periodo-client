@@ -25,7 +25,7 @@ Once you have set up a server to serve the root directory, run `make watch` to r
 
 ## Publishing a new version
 
-We distribute the built version of the code via npm. To publish a new version, run the following commands:
+To publish a new version, run the following commands:
 
 ```
 npm version patch
