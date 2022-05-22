@@ -37,15 +37,22 @@ const permalink = ({ id }) => {
 }
 
 const downloadURL = ({ id }) => {
+  let url = null
+
   if (periodoServerURL.includes('://data.perio.do')) {
-    return permalink({ id })
+    url = permalink({ id })
+  } else if (id && id.startsWith('p0')) {
+    url = `${ periodoServerURL }${ id.slice(2) }`
   }
 
-  if (id && id.startsWith('p0')) {
-    return `${ periodoServerURL }${ id.slice(2) }`
+  if (url && window.location.protocol === 'https:') {
+    // avoid non-HTTPS downloads started on secure pages
+    const urlObject = new URL(url)
+    urlObject.protocol = 'https:'
+    url = urlObject.toString()
   }
 
-  return null
+  return url
 }
 
 const permalinkAwareFetch = (resource, init) => {
