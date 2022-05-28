@@ -83,6 +83,7 @@ serve_ssl: $(JS_BUNDLE) localhost+2.pem localhost+2-key.pem
 start: $(JS_BUNDLE)
 	mkdir -p run
 	python3 -m http.server 5002 --bind 127.0.0.1 \
+	2> run/http.server.log \
 	& echo $$! > run/http.server.pid
 
 stop:
