@@ -45,6 +45,9 @@ OS := $(shell uname | tr '[:upper:]' '[:lower:]')
 
 all: $(VERSIONED_ZIPFILE)
 
+$(JS_BUNDLE):  node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER) | dist
+	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/browserify -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
+
 watch: node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER) | dist
 	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/watchify -v -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
 
@@ -55,6 +58,7 @@ clean:
 	rm -rf node_modules
 	rm -rf dist
 	rm -f $(DATE_PARSER)
+	rm -f $(JS_BUNDLE)
 
 update_package_lock:
 	rm -rf node_modules package-lock.json
@@ -70,10 +74,10 @@ upload: $(PKG) $(PKG).sha256
 	ssh $(HOST) ln -f $(DIR)$(PROJECT_NAME)-$(VERSION).tgz $(DIR)$(PROJECT_NAME)-latest.tgz
 	ssh $(HOST) "sed 's/$(subst .,\.,$(VERSION))/latest/' $(DIR)$(PROJECT_NAME)-$(VERSION).tgz.sha256 > $(DIR)$(PROJECT_NAME)-latest.tgz.sha256"
 
-serve:
+serve: $(JS_BUNDLE)
 	python3 -m http.server 5002 --bind 127.0.0.1
 
-serve_ssl: localhost+2.pem localhost+2-key.pem
+serve_ssl: $(JS_BUNDLE) localhost+2.pem localhost+2-key.pem
 	python3 ssl-server.py
 
 .PHONY: all watch serve serve_ssl test clean upload stage publish
