@@ -80,7 +80,18 @@ serve: $(JS_BUNDLE)
 serve_ssl: $(JS_BUNDLE) localhost+2.pem localhost+2-key.pem
 	python3 ssl-server.py
 
-.PHONY: all watch serve serve_ssl test clean upload stage publish
+start: $(JS_BUNDLE)
+	mkdir -p run
+	python3 -m http.server 5002 --bind 127.0.0.1 \
+	& echo $$! > run/http.server.pid
+
+stop:
+	if [ -e run/http.server.pid ]; then \
+	kill $$(cat run/http.server.pid) || true; \
+	rm -f run/http.server.pid; \
+	fi
+
+.PHONY: all watch serve serve_ssl start stop test clean upload stage publish
 
 
 #############
