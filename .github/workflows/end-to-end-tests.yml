@@ -12,5 +12,5 @@ jobs:
             repo: 'periodo-tests',
             workflow_id: 'run-tests-on-branch.yml',
             ref: 'master'
-            inputs: { clientBranch: ${{ env.GITHUB_REF_NAME }} }
+            inputs: { clientBranch: '${{ env.GITHUB_REF_NAME }}' }
           })
