@@ -11,6 +11,6 @@ jobs:
             owner: 'periodo',
             repo: 'periodo-tests',
             workflow_id: 'run-tests-on-branch.yml',
-            ref: 'master'
+            ref: 'master',
             inputs: { clientBranch: '${{ env.GITHUB_REF_NAME }}' }
           })
