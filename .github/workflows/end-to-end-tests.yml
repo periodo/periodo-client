@@ -3,14 +3,10 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/github-script@v6
+    - uses: aurelien-baudet/workflow-dispatch@v2
       with:
-        github-token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
-        script: |
-          await github.rest.actions.createWorkflowDispatch({
-            owner: 'periodo',
-            repo: 'periodo-tests',
-            workflow_id: 'run-tests-on-branch.yml',
-            ref: 'master',
-            inputs: { clientBranch: '${{ env.GITHUB_REF_NAME }}' }
-          })
+        repo: periodo/periodo-tests
+        ref: master
+        workflow: run-tests-on-branch.yml
+        token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
+        inputs: '{ "clientBranch": "${{ env.GITHUB_REF_NAME }}" }'
