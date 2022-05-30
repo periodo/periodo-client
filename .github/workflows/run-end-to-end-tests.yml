@@ -4,11 +4,11 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "$GITHUB_REF_NAME"
-    # - uses: aurelien-baudet/workflow-dispatch@v2
-    #   with:
-    #     repo: periodo/periodo-tests
-    #     ref: master
-    #     workflow: run-tests-on-branch.yml
-    #     token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
-    #     inputs: '{ "clientBranch": "${{ env.GITHUB_REF_NAME }}" }'
+    - run: echo "Dispatching end-to-end tests against $GITHUB_REF_NAME"
+    - uses: aurelien-baudet/workflow-dispatch@v2
+      with:
+        repo: periodo/periodo-tests
+        ref: master
+        workflow: run-tests-on-branch.yml
+        token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
+        inputs: '{ "clientBranch": "${{ env.GITHUB_REF_NAME }}" }'
