@@ -11,4 +11,4 @@ jobs:
         ref: master
         workflow: run-tests-on-branch.yml
         token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
-        inputs: '{ "clientBranch": "${{ env.GITHUB_REF_NAME }}" }'
+        inputs: '{ "clientBranch": "${{ github.ref_name }}" }'
