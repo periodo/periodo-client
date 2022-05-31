@@ -63,7 +63,7 @@
     "shallow-equal": "^1.2.1",
     "spark-md5": "^3.0.1",
     "styled-system": "^5.1.5",
-    "transliteration": "2.1.11",
+    "transliteration": "2.2.0",
     "union-type": "github:ptgolden/union-type",
     "webworkify": "^1.5.0"
   },
