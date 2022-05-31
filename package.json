@@ -47,7 +47,7 @@
     "prop-types": "^15.7.2",
     "ramda": "^0.27.0",
     "react": "^16.13.1",
-    "react-aria-menubutton": "^6.3.0",
+    "react-aria-menubutton": "^7.0.3",
     "react-autosuggest": "^10.0.2",
     "react-compound-slider": "^3.3.1",
     "react-dom": "^16.13.1",
