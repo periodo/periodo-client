@@ -5,10 +5,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: echo "Dispatching end-to-end tests against $GITHUB_REF_NAME"
-    - uses: aurelien-baudet/workflow-dispatch@v2
+    - name: "Dispatch workflow"
+      id: dispatch
+      uses: mathze/workflow-dispatch-action@v1
       with:
-        repo: periodo/periodo-tests
+        owner: periodo
+        repo: periodo-tests
         ref: master
-        workflow: run-tests-on-branch.yml
         token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
-        inputs: '{ "clientBranch": "${{ github.ref_name }}" }'
+        use-marker-step: true
+        workflow-name: run-tests-on-branch.yml
+        payload: |
+          { "client_branch": "${{  github.ref_name }}" }
+    - name: "Wait for workflow completion"
+      uses: mathze/workflow-dispatch-action@v1
+      with:
+        token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
+        run-id: ${{ steps.dispatch.outputs.run-id }}
+        fail-on-error: true
