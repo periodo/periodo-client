@@ -17,6 +17,7 @@ jobs:
         workflow-name: run-tests-on-branch.yml
         payload: |
           { "client_branch": "${{  github.ref_name }}" }
+    - run: echo 'Workflow log at https://github.com/periodo/periodo-tests/actions/runs/${{ steps.dispatch.outputs.run-id }}'
     - name: "Wait for workflow completion"
       uses: mathze/workflow-dispatch-action@v1
       with:
