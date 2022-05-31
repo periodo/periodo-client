@@ -39,7 +39,7 @@
     "mixmap": "github:periodo/mixmap",
     "n3": "^1.3.7",
     "nanostate": "^1.2.1",
-    "natsort": "^1.0.6",
+    "natsort": "^2.0.3",
     "org-n3-utils": "^2.0.1",
     "org-shell": "^6.0.4",
     "parse-link-header": "^2.0.0",
