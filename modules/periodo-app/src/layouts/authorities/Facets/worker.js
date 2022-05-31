@@ -3,7 +3,7 @@
 const registerPromiseWorker = require('promise-worker/register')
     , tags = require('language-tags')
     , indexItems = require('../../../backends/dataset_proxy/index_items')
-    , natsort = require('natsort')
+    , natsort = require('natsort').default
     , sorter = natsort({ insensitive: true })
 
 const {

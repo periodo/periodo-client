@@ -1,7 +1,7 @@
 "use strict";
 
 const { terminus } = require('periodo-utils')
-    , natsort = require('natsort')
+    , natsort = require('natsort').default
     , sorter = natsort({ insensitive: true })
     , { transliterate } = require('transliteration')
 

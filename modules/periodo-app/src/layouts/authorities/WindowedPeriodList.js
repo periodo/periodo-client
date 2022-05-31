@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , natsort = require('natsort')
+    , natsort = require('natsort').default
     , { FixedSizeList: List } = require('react-window')
     , AutoSizer = require('react-virtualized-auto-sizer')
     , { authorityOf } = require('periodo-utils/src/period')

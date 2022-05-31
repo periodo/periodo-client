@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , natsort = require('natsort')
+    , natsort = require('natsort').default
     , { Box, Table, Pager, HelpText } = require('periodo-ui')
     , ListControls = require('./ListControls')
     , ListHeader = require('./ListHeader')
