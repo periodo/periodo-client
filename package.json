@@ -52,7 +52,7 @@
     "react-compound-slider": "^2.5.0",
     "react-dom": "^16.13.1",
     "react-hyperscript": "github:periodo/react-hyperscript",
-    "react-redux": "^7.2.0",
+    "react-redux": "^8.0.2",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.5",
     "rebass": "^4.0.7",
