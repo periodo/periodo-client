@@ -20,6 +20,9 @@ jobs:
     - name: "Wait for workflow completion"
       uses: mathze/workflow-dispatch-action@v1
       with:
+        owner: periodo
+        repo: periodo-tests
+        ref: master
         token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
         run-id: ${{ steps.dispatch.outputs.run-id }}
         fail-on-error: true
