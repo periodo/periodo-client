@@ -28,6 +28,4 @@ jobs:
         token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
         run-id: ${{ steps.dispatch.outputs.run-id }}
         fail-on-error: true
-    - run: echo 'End-to-end tests failure is ${{ steps.wait.outputs.failed }}'
-    - run: echo '  status is ${{ steps.wait.outputs.run-status }}'
-    - run: echo '  conclusion is ${{ steps.wait.outputs.run-conclusion }}'
+    - run: echo 'End-to-end tests failure is ${{ steps.wait.outputs.failed }}, status is ${{ steps.wait.outputs.run-status }}, conclusion is ${{ steps.wait.outputs.run-conclusion }}'
