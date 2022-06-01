@@ -57,7 +57,7 @@
     "react-window": "^1.8.5",
     "rebass": "^4.0.7",
     "redux": "^4.0.5",
-    "regl": "^1.5.0",
+    "regl": "^2.1.0",
     "resl": "^1.0.3",
     "respin": "^1.0.1",
     "shallow-equal": "^1.2.1",
