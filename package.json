@@ -79,7 +79,7 @@
     "source-map": "^0.7.3",
     "terser": "^4.7.0",
     "union-type": "github:ptgolden/union-type",
-    "watchify": "^3.11.1"
+    "watchify": "^4.0.0"
   },
   "browserify": {
     "transform": [
