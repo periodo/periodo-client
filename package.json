@@ -77,7 +77,7 @@
     "ramda": "^0.27.0",
     "redux-mock-store": "^1.5.4",
     "source-map": "^0.7.3",
-    "terser": "^4.7.0",
+    "terser": "^5.14.0",
     "union-type": "github:ptgolden/union-type",
     "watchify": "^4.0.0"
   },
