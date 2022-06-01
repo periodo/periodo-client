@@ -337,7 +337,7 @@ function SpatialExtentValue(props) {
 
   return (
     h('div', [
-      h(Annotated, R.merge(
+      h(Annotated, R.mergeRight(
         R.omit([ 'value', 'compare', 'showMap' ], props),
         annotationProps
       )),

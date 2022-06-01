@@ -17,13 +17,13 @@ module.exports = function auth(state=initialState(), action) {
       GetAllSettings() {
         const { settings } = resp
 
-        return R.merge(state, { settings })
+        return R.mergeRight(state, { settings })
       },
 
       UpdateSettings() {
         const { settings } = resp
 
-        return R.merge(state, { settings })
+        return R.mergeRight(state, { settings })
       },
 
     }),
