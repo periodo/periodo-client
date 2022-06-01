@@ -27,6 +27,7 @@ jobs:
         ref: master
         token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
         run-id: ${{ steps.dispatch.outputs.run-id }}
+        wait-interval: 30s
     - name: "Check workflow conclusion"
       run: |
         if [[ "success" != "${{ steps.wait.outputs.run-conclusion }}" ]]; then
