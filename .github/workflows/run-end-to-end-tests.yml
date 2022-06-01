@@ -27,16 +27,11 @@ jobs:
         ref: master
         token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
         run-id: ${{ steps.dispatch.outputs.run-id }}
-        fail-on-error: true
-    - name: "Check result"
+    - name: "Check workflow conclusion"
       run: |
-        if [[ "completed" != "${{ steps.wait.outputs.run-status }}" ]] ||
-           [[ "failure" != "${{ steps.wait.outputs.run-conclusion }}" ]] ||
-           [[ false -ne ${{ steps.wait.outputs.failed }} ]]; then
-           echo "Run-Status should be <completed> but was <${{ steps.wait.outputs.run-status }}>"
-           echo "Run-Conclusion should be <failure> but was <${{ steps.wait.outputs.run-conclusion }}>"
-           echo "Failed should be <false> but was <${{ steps.wait.outputs.failed }}>"
+        if [[ "success" != "${{ steps.wait.outputs.run-conclusion }}" ]]; then
+           echo "End-to-end tests failed (conclusion was <${{ steps.wait.outputs.run-conclusion }}>)"
            exit 1
         else
-          echo "Checks passed"
+          echo "End-to-end tests succeeded"
         fi
