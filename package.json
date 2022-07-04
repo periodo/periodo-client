@@ -71,7 +71,7 @@
     "blue-tape": "^1.0.0",
     "browserify": "^17.0.0",
     "envify": "^4.1.0",
-    "fake-indexeddb": "^3.0.0",
+    "fake-indexeddb": "^4.0.0",
     "fast-json-patch": "^3.1.1",
     "pegjs": "^0.10.0",
     "ramda": "^0.28.0",
