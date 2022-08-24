@@ -32,7 +32,7 @@
     "is-url": "^1.2.4",
     "json-pointer": "^0.6.0",
     "json-stable-stringify": "^1.0.1",
-    "jsonld": "^7.0.0",
+    "jsonld": "^8.0.0",
     "language-tags": "^1.0.5",
     "linkify-it": "^4.0.1",
     "lov-ns": "^2.0.3",
