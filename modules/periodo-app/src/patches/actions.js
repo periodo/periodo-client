@@ -408,7 +408,7 @@ function getPatchRequest(remoteBackend, patchURL) {
     ret.patch.comments.forEach(comment => {
       comment.author = {
         url: comment.author,
-        label: getState().linkedData.nameByORCID[comment.author],
+        label: getState().linkedData.infoByORCID[comment.author].label,
       }
     })
 
@@ -512,16 +512,16 @@ function getBackendHistory(storage) {
 
     await dispatch(LinkedDataAction.FetchORCIDs([ ...new Set(orcids) ]))
 
-    const { nameByORCID } = getState().linkedData
+    const { infoByORCID } = getState().linkedData
 
     patches.forEach(p => {
       [ 'submittedBy', 'mergedBy', 'updatedBy' ].forEach(attr => {
         if (!p[attr]) return;
 
-        p[attr] = nameByORCID[p[attr]]
+        p[attr] = infoByORCID[p[attr]]
           ? {
             url: p[attr],
-            label: nameByORCID[p[attr]],
+            label: infoByORCID[p[attr]].label,
           }
           : { label: p[attr] }
       })

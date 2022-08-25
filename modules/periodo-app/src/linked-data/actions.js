@@ -44,7 +44,7 @@ const LinkedDataAction = module.exports = makeTypedAction({
       orcids: Array,
     },
     response: {
-      nameByORCID: Object,
+      infoByORCID: Object,
     },
   },
 
@@ -162,11 +162,20 @@ function fetchORCIDs(orcids, opts) {
         ? label.object.value
         : orcid
 
-      return [ orcid, label ]
+      let [ mbox ] = store.getQuads(orcid, ns('foaf')('mbox'))
+
+      mbox = (mbox && Util.isNamedNode(mbox.object))
+        ? mbox.object.value
+        : null
+
+      return [ orcid, {
+        label,
+        mbox,
+      }]
     }))
 
     return {
-      nameByORCID: R.fromPairs(pairs),
+      infoByORCID: R.fromPairs(pairs),
     }
   }
 }
