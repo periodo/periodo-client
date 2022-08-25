@@ -6,8 +6,8 @@
 Because this is a browser-based application that makes frequent use of
 cross-origin linked data, it is often necessary to tunnel requests through a
 proxy that adds CORS headers or fixes broken CORS implementations. The proxy URL
-is configurable, and can be changed in the `CORS_PROXY_URL` variable
-defined in `src/linked_data_cache.js`.
+is configurable, and can be changed in the `PERIODO_PROXY_URL` variable
+defined in `index.html`.
 
 ## Modules
 
