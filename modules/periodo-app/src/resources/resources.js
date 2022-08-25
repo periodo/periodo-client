@@ -253,7 +253,7 @@ const Backend = {
 
       mapStateToProps: (state, ownProps) => {
         const storage = getCurrentBackendStorage(ownProps)
-            , { nameByORCID } = state.linkedData
+            , { infoByORCID } = state.linkedData
 
         const patchRequests = R.path([
           'patches',
@@ -263,7 +263,7 @@ const Backend = {
         ])(state) || []
 
         const urlize = url => ({
-          label: nameByORCID[url],
+          ...infoByORCID[url],
           url,
         })
 
@@ -501,7 +501,7 @@ const ReviewPatch = {
   },
   mapStateToProps(state, props) {
     const storage = getCurrentBackendStorage(props)
-        , { nameByORCID } = state.linkedData
+        , { infoByORCID } = state.linkedData
 
     const patchURL = new URL(
       decodeURIComponent(props.params.patchURL), storage.url
@@ -516,7 +516,7 @@ const ReviewPatch = {
     ])(state)
 
     const urlize = url => ({
-      label: nameByORCID[url],
+      ...infoByORCID[url],
       url,
     })
 

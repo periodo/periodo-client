@@ -58,6 +58,19 @@ const PatchRequestList = ListBlock({
         ),
     },
 
+    creator_email: {
+      width: '17em',
+      label: 'Email',
+      getSortValue: x => x.mbox,
+      getValue: x => x.created_by,
+      render: x =>
+        !x.mbox ? h('span', { style: { fontStyle: 'italic' }}, 'unlisted') : (
+          h(Link, {
+            href: x.mbox,
+          }, x.mbox.slice(7))
+        ),
+    },
+
     submitted: {
       width: '7em',
       label: 'Submitted',

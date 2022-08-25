@@ -18,6 +18,7 @@ const {
   Section,
   Text,
   Link,
+  ExternalLink,
   HelpText,
   TextareaBlock,
   Button,
@@ -85,8 +86,13 @@ class SubmitPatch extends React.Component {
           message: (
             h(Alert, {
               mb: 2,
-              variant: 'success',
-            }, 'Successfully submitted changes')
+              variant: 'warning',
+            }, [
+              h(Box, [
+                'To complete your submission, use the form below to submit ',
+                'a brief comment describing your proposed changes.',
+              ]),
+            ])
           ),
         })
       },
@@ -125,14 +131,23 @@ class SubmitPatch extends React.Component {
           pending: false,
           comment: '',
           message: (
-            h(Flex, [
-              h(Alert, { variant: 'success' }, 'Successfully submitted comment.'),
-              h(Link, {
-                p: 2,
-                route: Route('backend-patches', {
-                  backendID: remoteBackend.asIdentifier(),
-                }),
-              }, 'Review submitted changes'),
+            h(Box, [
+              h(Alert, { variant: 'warning' }, [
+                h(Box, {mb: 2}, 'Successfully submitted proposed changes.'),
+                h(Box, [
+                  'To ensure that your submission is reviewed promptly, ',
+                  h(ExternalLink, {href: 'https://perio.do/contact/'}, 'contact us '),
+                  'and tell us how to contact you in case we have questions ',
+                  'about your submission.'
+                ])
+              ]),
+              h(Box, {mt: 3}, [
+                h(Link, {
+                  route: Route('backend-patches', {
+                    backendID: remoteBackend.asIdentifier(),
+                  }),
+                }, 'Review submitted changes'),
+              ])
             ])
           ),
         })

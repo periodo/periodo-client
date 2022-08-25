@@ -4,7 +4,7 @@ const R = require('ramda')
     , LinkedDataAction = require('./actions')
 
 const initialState = () => ({
-  nameByORCID: {},
+  infoByORCID: {},
   sources: {},
 })
 
@@ -24,11 +24,11 @@ module.exports = function linkedData(state=initialState(), action) {
       },
 
       FetchORCIDs() {
-        const { nameByORCID } = resp
+        const { infoByORCID } = resp
 
         return R.over(
-          R.lensProp('nameByORCID'),
-          R.flip(R.mergeRight)(nameByORCID),
+          R.lensProp('infoByORCID'),
+          R.flip(R.mergeRight)(infoByORCID),
           state
         )
       },
