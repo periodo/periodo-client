@@ -22,6 +22,8 @@ Natural language date parsing for historical time periods.
   * Date ranges
 
     Example: *21st century*, *early 14th century*, *1200/1400*
+    
+See the [tests](test/index.js#L15-L151) for more specific examples.
 
 # Example
 
