@@ -60,7 +60,7 @@
     "regl": "^2.1.0",
     "resl": "^1.0.3",
     "respin": "^1.0.1",
-    "shallow-equal": "^1.2.1",
+    "shallow-equal": "^3.0.0",
     "spark-md5": "^3.0.1",
     "styled-system": "^5.1.5",
     "transliteration": "2.3.5",
