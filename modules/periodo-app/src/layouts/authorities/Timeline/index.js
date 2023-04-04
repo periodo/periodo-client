@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , AutoSizer = require('react-virtualized-auto-sizer')
+    , AutoSizer = require('react-virtualized-auto-sizer').default
     , { HelpText, InlineText } = require('periodo-ui')
     , Plot = require('./Plot')
 
