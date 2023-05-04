@@ -4,6 +4,9 @@ A Web browser application for browsing and editing [PeriodO](http://perio.do/) d
 
 Compatible with all browsers that support ES2017 and IndexedDB. Safari has known issues complying with the latter, and we cannot guarantee that PeriodO supports it (as of March 2017).
 
+[![client tests status](https://github.com/periodo/periodo-client/actions/workflows/run-tests.yml/badge.svg)](https://github.com/periodo/periodo-client/actions/workflows/run-tests.yml)
+[![end-to-end tests status](https://github.com/periodo/periodo-client/actions/workflows/run-end-to-end-tests.yml/badge.svg)](https://github.com/periodo/periodo-client/actions/workflows/run-end-to-end-tests.yml)
+
 
 # Building
 
