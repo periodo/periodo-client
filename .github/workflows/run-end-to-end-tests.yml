@@ -7,7 +7,7 @@ jobs:
     - run: echo "Dispatching end-to-end tests against $GITHUB_REF_NAME"
     - name: "Dispatch workflow"
       id: dispatch
-      uses: mathze/workflow-dispatch-action@v1.2.0
+      uses: mathze/workflow-dispatch-action@v1.2.1
       with:
         owner: periodo
         repo: periodo-tests
@@ -20,7 +20,7 @@ jobs:
     - run: echo 'Workflow log at https://github.com/periodo/periodo-tests/actions/runs/${{ steps.dispatch.outputs.run-id }}'
     - name: "Wait for workflow completion"
       id: wait
-      uses: mathze/workflow-dispatch-action@v1.2.0
+      uses: mathze/workflow-dispatch-action@v1.2.1
       with:
         owner: periodo
         repo: periodo-tests
