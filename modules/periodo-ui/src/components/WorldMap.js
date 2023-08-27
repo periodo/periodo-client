@@ -23,6 +23,7 @@ const DEFAULT_VBOX = [ -180, -90, 180, 90 ]
 const MIN_VBOX_HEIGHT = 5
 const MIN_VBOX_WIDTH = 10
 const MAX_ASPECT_RATIO = 2
+const SMALL_POLYGON_THRESHOLD = 0.1
 
 const pad = (bbox, width, height) => {
   const bboxW = bbox[2] - bbox[0]
@@ -49,18 +50,71 @@ const pad = (bbox, width, height) => {
 }
 
 const mesh2bbox = mesh => {
-  if (mesh && mesh.triangle.positions.length > 0) {
-    const box = [ 180, 90, -180, -90 ]
-    for (let i = 0; i < mesh.triangle.positions.length; i++) {
-      box[0] = Math.min(box[0], mesh.triangle.positions[i][0])
-      box[1] = Math.min(box[1], mesh.triangle.positions[i][1])
-      box[2] = Math.max(box[2], mesh.triangle.positions[i][0])
-      box[3] = Math.max(box[3], mesh.triangle.positions[i][1])
+  if (mesh) {
+    const positions = mesh.triangle.positions.length > 0
+          ? mesh.triangle.positions
+          : mesh.point.positions
+    if (positions.length > 0) {
+      const box = [ 180, 90, -180, -90 ]
+      for (let i = 0; i < positions.length; i++) {
+        box[0] = Math.min(box[0], positions[i][0])
+        box[1] = Math.min(box[1], positions[i][1])
+        box[2] = Math.max(box[2], positions[i][0])
+        box[3] = Math.max(box[3], positions[i][1])
+      }
+      return box
     }
-    return box
-  } else {
-    return undefined
   }
+  return undefined
+}
+
+const geometryOf = feature => 'geometry' in feature ? feature.geometry.geometries[0] : null
+
+const splitIntoPolygonsAndPoints = features => {
+  const polygons = []
+  const points = []
+  for (const feature of features) {
+    const geometry = geometryOf(feature)
+    if (geometry) {
+      // change small polygons to points
+      if (geometry.type == "Polygon") {
+        let minLon = 180
+        let maxLon = -180
+        let minLat = 90
+        let maxLat = -90
+        for (const [lon, lat] of geometry.coordinates[0]) {
+          if (lon < minLon) {
+            minLon = lon
+          }
+          if (lon > maxLon) {
+            maxLon = lon
+          }
+          if (lat < minLat) {
+            minLat = lat
+          }
+          if (lat > maxLat) {
+            maxLat = lat
+          }
+        }
+        const w = maxLon - minLon
+        const h = maxLat - minLat
+        if (w < SMALL_POLYGON_THRESHOLD && h < SMALL_POLYGON_THRESHOLD) {
+          const centerLon = (minLon + maxLon) / 2
+          const centerLat = (minLat + maxLat) / 2
+          feature.geometry.geometries[0] = {
+            "coordinates": [ centerLon, centerLat ],
+            "type": "Point"
+          }
+          points.push(feature)
+        } else {
+          polygons.push(feature)
+        }
+      } else if (geometry.type == "Point") {
+        points.push(feature)
+      }
+    }
+  }
+  return { polygons, points }
 }
 
 const initializeMap = () => {
@@ -195,33 +249,86 @@ const initializeMap = () => {
     elements: map.prop('cells'),
   })
 
+  const drawPoint = (color, zindex) => map.createDraw({
+    frag: `
+    precision highp float;
+    void main () {
+      gl_FragColor = ${color};
+    }
+    `,
+    vert: `
+    precision highp float;
+    attribute vec2 position;
+    uniform vec4 viewbox;
+    uniform vec2 offset;
+    uniform float zindex;
+    uniform float zoom;
+    void main () {
+      vec2 p = position + offset;
+      gl_PointSize = pow(zoom,1.2)*2.0;
+      gl_Position = vec4(
+        (p.x - viewbox.x) / (viewbox.z - viewbox.x) * 2.0 - 1.0,
+        (p.y - viewbox.y) / (viewbox.w - viewbox.y) * 2.0 - 1.0,
+        1.0/(1.0+zindex), 1);
+    }
+    `,
+    uniforms: {
+      zindex,
+    },
+    primitive: 'points',
+    attributes: {
+      position: map.prop('positions'),
+    },
+    count: map.prop('count'),
+  })
+
   const RED = 'vec4(1.0,0.0,0.0,0.6)'
   const PURPLE = 'vec4(0.8,0.4,0.9,0.4)'
 
   const drawFeatures = drawTriangle(PURPLE, 100)
   const drawFocusedFeatures = drawTriangle(RED, 200)
+  const drawPointFeatures = drawPoint(PURPLE, 300)
+  const drawFocusedPointFeatures = drawPoint(RED, 400)
 
-  map.display = ({ width, height, features, focusedFeatures: focused }) => {
-    const focusedFeatures = focused.filter(feature => (
-      'geometry' in feature
-    ))
-    const unfocusedFeatures = features.filter(feature => (
-      'geometry' in feature &&
-      focusedFeatures.every(f => f.id !== feature.id)
-    ))
+  map.display = ({ width, height, features, focusedFeatures }) => {
+
+    const unfocusedFeatures = features.filter(
+      feature => focusedFeatures.every(f => f.id !== feature.id))
+    const {
+      polygons:focusedPolygons,
+      points:focusedPoints
+    } = splitIntoPolygonsAndPoints(focusedFeatures)
+    const {
+      polygons:unfocusedPolygons,
+      points:unfocusedPoints
+    } = splitIntoPolygonsAndPoints(unfocusedFeatures)
+
     let mesh
-    if (unfocusedFeatures.length > 0) {
-      mesh = createMesh({ features: unfocusedFeatures })
+    if (unfocusedPolygons.length > 0) {
+      mesh = createMesh({ features: unfocusedPolygons })
       drawFeatures.props = [ mesh.triangle ]
     } else {
       drawFeatures.props = []
     }
-    if (focusedFeatures.length > 0) {
-      mesh = createMesh({ features: focusedFeatures })
+    if (focusedPolygons.length > 0) {
+      mesh = createMesh({ features: focusedPolygons })
       drawFocusedFeatures.props = [ mesh.triangle ]
     } else {
       drawFocusedFeatures.props = []
     }
+    if (unfocusedPoints.length > 0) {
+      mesh = createMesh({ features: unfocusedPoints })
+      drawPointFeatures.props = [ mesh.point ]
+    } else {
+      drawPointFeatures.props = []
+    }
+    if (focusedPoints.length > 0) {
+      mesh = createMesh({ features: focusedPoints })
+      drawFocusedPointFeatures.props = [ mesh.point ]
+    } else {
+      drawFocusedPointFeatures.props = []
+    }
+
     const bbox = mesh2bbox(mesh)
     if (bbox) {
       map.setViewbox(pad(bbox, width, height))
