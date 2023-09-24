@@ -43,7 +43,18 @@ OS := $(shell uname | tr '[:upper:]' '[:lower:]')
 #  Phony targets  #
 ###################
 
-all: $(VERSIONED_ZIPFILE)
+stage: APP_CONFIG = fly.stage.toml
+stage: DATA_HOST = data.staging.perio.do
+stage: CORSPROXY_HOST = corsproxy.staging.perio.do
+
+publish: APP_CONFIG = fly.publish.toml
+publish: DATA_HOST = data.perio.do
+publish: CORSPROXY_HOST = corsproxy.perio.do
+
+stage publish: clean test $(VERSIONED_DIRECTORY)
+	fly deploy \
+	--config $(APP_CONFIG) \
+	--build-arg CLIENT_VERSION=$(VERSION)
 
 $(JS_BUNDLE):  node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER) | dist
 	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/browserify -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
@@ -64,16 +75,6 @@ update_package_lock:
 	rm -rf node_modules package-lock.json
 	npm install
 
-stage: HOST = data.staging.perio.do
-publish: HOST = data.perio.do
-stage publish: clean test upload
-
-upload: DIR = /var/www/$(HOST)/client_packages/
-upload: $(PKG) $(PKG).sha256
-	rsync -vuh -e ssh $^ $(HOST):$(DIR)
-	ssh $(HOST) ln -f $(DIR)$(PROJECT_NAME)-$(VERSION).tgz $(DIR)$(PROJECT_NAME)-latest.tgz
-	ssh $(HOST) "sed 's/$(subst .,\.,$(VERSION))/latest/' $(DIR)$(PROJECT_NAME)-$(VERSION).tgz.sha256 > $(DIR)$(PROJECT_NAME)-latest.tgz.sha256"
-
 serve: $(JS_BUNDLE)
 	python3 -m http.server 5002 --bind 127.0.0.1
 
@@ -92,7 +93,7 @@ stop:
 	rm -f run/http.server.pid; \
 	fi
 
-.PHONY: all watch serve serve_ssl start stop test clean upload stage publish
+.PHONY: all watch serve serve_ssl start stop test clean stage publish
 
 
 #############
@@ -120,17 +121,6 @@ $(MINIFIED_VERSIONED_JS_BUNDLE): $(VERSIONED_JS_BUNDLE)
 $(VERSIONED_DIRECTORY): $(VERSIONED_ZIPFILE)
 	unzip $(VERSIONED_ZIPFILE) -d dist
 
-$(VERSIONED_DIRECTORY)/package.json: package.json
-	jq '{ name, version, author, contributors, license, description }' $< > $@
-
-$(PKG): $(VERSIONED_DIRECTORY)
-	cd $< && npm pack
-	TARBALL="$$(ls $</periodo-client-*.tgz)" ; \
-	if [ "$$TARBALL" != "$(PKG)" ] ; then cp $$TARBALL $(PKG) ; fi
-
-$(PKG).sha256: $(PKG)
-	sha256sum $< | sed "s/dist\/$(PROJECT_NAME)-$(VERSION)\///" > $@
-
 $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rm -rf $@ $(VERSIONED_DIRECTORY)
 	mkdir $(VERSIONED_DIRECTORY)
@@ -139,12 +129,18 @@ $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rm -rf $(VERSIONED_DIRECTORY)/dist
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
 	cp $(VERSIONED_DIRECTORY)/index.html $(VERSIONED_DIRECTORY)/index.dev.html
-	sed -i \
-		-e 's|$(JS_BUNDLE)|$(notdir $(MINIFIED_VERSIONED_JS_BUNDLE))|' \
-		$(VERSIONED_DIRECTORY)/index.html
-	sed -i \
-		-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
-		$(VERSIONED_DIRECTORY)/index.dev.html
+	sed -E -i .bak \
+	-e 's|$(JS_BUNDLE)|$(notdir $(MINIFIED_VERSIONED_JS_BUNDLE))|' \
+	-e 's;<link rel="(preconnect|dns-prefetch)" href="[^"]*">;<link rel="\1" href="https://$(DATA_HOST)">;' \
+	-e "s;PERIODO_SERVER_URL = '[^']*';PERIODO_SERVER_URL = 'https://$(DATA_HOST)/';" \
+	-e "s;PERIODO_PROXY_URL = '[^']*';PERIODO_PROXY_URL = 'https://$(CORSPROXY_HOST)/';" \
+	$(VERSIONED_DIRECTORY)/index.html
+	sed -E -i .bak \
+	-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
+	-e 's;<link rel="(preconnect|dns-prefetch)" href="[^"]*">;<link rel="\1" href="https://$(DATA_HOST)">;' \
+	-e "s;PERIODO_SERVER_URL = '[^']*';PERIODO_SERVER_URL = 'https://$(DATA_HOST)/';" \
+	-e "s;PERIODO_PROXY_URL = '[^']*';PERIODO_PROXY_URL = 'https://$(CORSPROXY_HOST)/';" \
+	$(VERSIONED_DIRECTORY)/index.dev.html
 	cd dist && zip -r $(notdir $@) $(notdir $(VERSIONED_DIRECTORY))
 	rm -rf $(VERSIONED_DIRECTORY)
 
