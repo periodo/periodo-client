@@ -43,14 +43,18 @@ OS := $(shell uname | tr '[:upper:]' '[:lower:]')
 #  Phony targets  #
 ###################
 
+stage: APP_CONFIG = fly.stage.toml
 stage: DATA_HOST = data.staging.perio.do
 stage: CORSPROXY_HOST = corsproxy.staging.perio.do
+
+publish: APP_CONFIG = fly.publish.toml
 publish: DATA_HOST = data.perio.do
 publish: CORSPROXY_HOST = corsproxy.perio.do
 
-stage publish: $(VERSIONED_DIRECTORY)
-	@echo
-	@echo 'Ready to deploy with `fly deploy`.'
+stage publish: clean $(VERSIONED_DIRECTORY)
+	fly deploy \
+	--config $(APP_CONFIG) \
+	--build-arg CLIENT_VERSION=$(VERSION)
 
 $(JS_BUNDLE):  node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER) | dist
 	$(BROWSERIFY_PREAMBLE) $(NPM_BIN)/browserify -d -o $(JS_BUNDLE) $(BROWSERIFY_ENTRY)
