@@ -51,7 +51,7 @@ publish: APP_CONFIG = fly.publish.toml
 publish: DATA_HOST = data.perio.do
 publish: CORSPROXY_HOST = corsproxy.perio.do
 
-stage publish: clean $(VERSIONED_DIRECTORY)
+stage publish: clean test $(VERSIONED_DIRECTORY)
 	fly deploy \
 	--config $(APP_CONFIG) \
 	--build-arg CLIENT_VERSION=$(VERSION)
