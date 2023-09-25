@@ -4,7 +4,7 @@ const R = require('ramda')
     , doi = require('identifiers-doi')
     , Type = require('union-type')
 
-const worldcatUrlRegex = /worldcat.org\/.*?oclc\/(\d+).*/i
+const worldcatUrlRegex = /worldcat.org\/(?:[a-z]+\/)?(?:oclc|title)\/(\d+).*/i
 
 const Identifier = Type({
   Worldcat: {
