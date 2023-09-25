@@ -44,7 +44,7 @@ function asURL(identifier) {
   return identifier.case({
     //Worldcat: id => `https://www.worldcat.org/oclc/${id}`,
     Worldcat: id => `http://experiment.worldcat.org/oclc/${id}.ttl`,
-    Crossref: doi => `https://data.crossref.org/${doi}`,
+    Crossref: doi => `https://doi.org/${doi}`,
   })
 }
 
