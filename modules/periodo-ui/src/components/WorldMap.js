@@ -365,8 +365,7 @@ const ZoomButton = ({
       userSelect: 'none',
     },
     bg: 'white',
-    pb: '4px',
-    fontSize: 4,
+    fontSize: 5,
     lineHeight: 1,
     textAlign: 'center',
     width: 30,
@@ -416,7 +415,7 @@ class _Map extends Component {
           onSelect: this.zoomIn,
         }, '+'),
         h(ZoomButton, {
-          top: '32px',
+          top: '36px',
           onSelect: this.zoomOut,
         }, '−'),
       ])
