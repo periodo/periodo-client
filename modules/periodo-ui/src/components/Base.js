@@ -92,6 +92,13 @@ const InlineText = props =>
     ...props,
   })
 
+const MonospaceText = props =>
+  h(InlineText, {
+    fontFamily: "monospace",
+    fontSize: "1.1em",
+    ...props,
+  })
+
 module.exports = {
   Box,
   Flex,
@@ -102,5 +109,6 @@ module.exports = {
   Section,
   SectionHeading,
   InlineText,
+  MonospaceText,
   Text,
 }

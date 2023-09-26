@@ -4,8 +4,8 @@ const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
     , { Route } = require('org-shell')
-    , { Heading, Box, InlineText, Link, DownloadValue } = require('periodo-ui')
-    , { PermalinkValue, Section, EditorialNote  } = require('periodo-ui')
+    , { Heading, Box, InlineText, MonospaceText, Link, DownloadValue } = require('periodo-ui')
+    , { PermalinkValue, Section, EditorialNote } = require('periodo-ui')
     , { HelpText  } = require('periodo-ui')
     , util = require('periodo-utils')
     , AuthorityLayoutRenderer = require('../../layouts/authorities')
@@ -74,9 +74,25 @@ module.exports = class AuthorityLayout extends React.Component {
       gazetteers,
       opts,
       updateOpts,
+      params,
     } = this.props
 
     const { blockOpts } = this.state
+
+    if (! authority) {
+      if (params.authorityID) {
+        return h(Box, [
+          h(MonospaceText, [ params.authorityID ]),
+          " is not a valid authority identifier.",
+          " Perhaps you followed a broken link?"
+        ])
+      } else {
+        return h(Box, [
+          "No authority identifier was specified.",
+          " Perhaps you followed a broken link?"
+        ])
+      }
+    }
 
     const description = util.authority.describe(authority)
 
