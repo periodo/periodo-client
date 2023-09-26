@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , R = require('ramda')
     , React = require('react')
-    , { Box, InlineText, Heading, Text, Section } = require('periodo-ui')
+    , { Box, InlineText, MonospaceText, Heading, Text, Section } = require('periodo-ui')
     , { PermalinkValue, Note, EditorialNote } = require('periodo-ui')
     , { RelatedAuthorityValue, DownloadValue } = require('periodo-ui')
     , util = require('periodo-utils')
@@ -56,9 +56,40 @@ module.exports = class PeriodLayout extends React.Component {
       gazetteers,
       opts,
       updateOpts,
+      params,
     } = this.props
 
     const { blockOpts } = this.state
+
+    if (! authority) {
+      if (params.authorityID) {
+        return h(Box, [
+          h(MonospaceText, [ params.authorityID ]),
+          " is not a valid authority identifier.",
+          " Perhaps you followed a broken link?"
+        ])
+      } else {
+        return h(Box, [
+          "No authority identifier was specified.",
+          " Perhaps you followed a broken link?"
+        ])
+      }
+    }
+
+    if (! period) {
+      if (params.periodID) {
+        return h(Box, [
+          h(MonospaceText, [ params.periodID ]),
+          " is not a valid period identifier.",
+          " Perhaps you followed a broken link?"
+        ])
+      } else {
+        return h(Box, [
+          "No period identifier was specified.",
+          " Perhaps you followed a broken link?"
+        ])
+      }
+    }
 
     return h(Box, [
       h(Section, [

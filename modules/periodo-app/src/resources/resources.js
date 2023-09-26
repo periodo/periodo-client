@@ -607,21 +607,28 @@ const Authority = {
       getBreadcrumbs(props) {
         const { backend, authority } = props
 
-        return [
+        const crumbs = [
           {
             label: backend.metadata.label,
             route: Route('backend-home', {
               backendID: backend.asIdentifier(),
             }),
-          },
-          {
-            label: util.authority.displayTitle(authority),
-            truncate: true,
-          },
-          {
-            label: 'View',
-          },
+          }
         ]
+
+        if (authority) {
+          crumbs.push(
+            {
+              label: util.authority.displayTitle(authority),
+              truncate: true,
+            },
+            {
+              label: 'View',
+            }
+          )
+        }
+
+        return crumbs
       },
       async loadData(props, log, finished) {
         const { dispatch, getState } = props
@@ -770,9 +777,6 @@ const Authority = {
       Component: require('../backends/components/History'),
     },
   },
-  onBeforeRoute(params) {
-    requireParam(params, 'authorityID');
-  },
   async loadData(props, log, finished) {
     const { dispatch } = props
 
@@ -783,7 +787,7 @@ const Authority = {
   },
   mapStateToProps(state, props) {
     return {
-      authority: props.dataset && props.dataset.authorityByID(props.params.authorityID),
+      authority: props.dataset && props.params.authorityID && props.dataset.authorityByID(props.params.authorityID),
       gazetteers: state.graphs.gazetteers,
     }
   },
@@ -804,28 +808,40 @@ const Period = {
       getBreadcrumbs(props) {
         const { backend, period, authority } = props
 
-        return [
+        const crumbs = [
           {
             label: backend.metadata.label,
             route: Route('backend-home', {
               backendID: backend.asIdentifier(),
             }),
-          },
-          {
-            route: Route('authority-view', {
-              backendID: backend.asIdentifier(),
-              authorityID: authority.id,
-            }),
-            label: util.authority.displayTitle(authority),
-            truncate: true,
-          },
-          {
-            label: period.label,
-          },
-          {
-            label: 'View',
-          },
+          }
         ]
+
+        if (authority) {
+          crumbs.push(
+            {
+              route: Route('authority-view', {
+                backendID: backend.asIdentifier(),
+                authorityID: authority.id,
+              }),
+              label: util.authority.displayTitle(authority),
+              truncate: true,
+            }
+          )
+        }
+
+        if (period) {
+          crumbs.push(
+            {
+              label: period.label,
+            },
+            {
+              label: 'View',
+            },
+          )
+        }
+
+        return crumbs
       },
     },
 
@@ -928,12 +944,11 @@ const Period = {
     },
   },
   async onBeforeRoute(params, redirectTo, { dispatch }) {
-    requireParam(params, 'periodID')
     await throwIfUnsuccessful(dispatch(GraphsAction.FetchGazetteers))
   },
   mapStateToProps(state, props) {
     return {
-      period: props.authority.periods[props.params.periodID],
+      period: props.authority && props.params.periodID && props.authority.periods[props.params.periodID],
       gazetteers: state.graphs.gazetteers,
     }
   },
