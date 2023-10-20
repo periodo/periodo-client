@@ -49,21 +49,37 @@ const pad = (bbox, width, height) => {
   return bbox
 }
 
+const findBbox = positions => {
+ if (positions.length > 0) {
+   const box = [ 180, 90, -180, -90 ]
+   for (let i = 0; i < positions.length; i++) {
+     box[0] = Math.min(box[0], positions[i][0])
+     box[1] = Math.min(box[1], positions[i][1])
+     box[2] = Math.max(box[2], positions[i][0])
+     box[3] = Math.max(box[3], positions[i][1])
+   }
+   return box
+ }
+ return undefined
+}
+
+const shiftNegativeLongitudes = ([lon, lat]) => [lon < 0 ? 360 + lon : lon, lat]
+
 const mesh2bbox = mesh => {
   if (mesh) {
     const positions = mesh.triangle.positions.length > 0
           ? mesh.triangle.positions
           : mesh.point.positions
-    if (positions.length > 0) {
-      const box = [ 180, 90, -180, -90 ]
-      for (let i = 0; i < positions.length; i++) {
-        box[0] = Math.min(box[0], positions[i][0])
-        box[1] = Math.min(box[1], positions[i][1])
-        box[2] = Math.max(box[2], positions[i][0])
-        box[3] = Math.max(box[3], positions[i][1])
-      }
-      return box
+
+    let box = findBbox(positions)
+    // A box of width 360 (entire earth) may be due to
+    // positions crossing the +/- 180 longitude. Try to
+    // fix this by shifting the negative longitudes to
+    // positive.
+    if (box[2] - box[0] === 360) {
+      box = findBbox(positions.map(shiftNegativeLongitudes))
     }
+    return box
   }
   return undefined
 }
