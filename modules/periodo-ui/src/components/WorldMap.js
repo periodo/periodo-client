@@ -70,6 +70,8 @@ const mesh2bbox = mesh => {
 
 const geometryOf = feature => 'geometry' in feature ? feature.geometry.geometries[0] : null
 
+const coordinatesOf = geometry => geometry.type == "Polygon" ? geometry.coordinates[0] : geometry.coordinates[0].flat()
+
 const splitIntoPolygonsAndPoints = features => {
   const polygons = []
   const points = []
@@ -77,12 +79,12 @@ const splitIntoPolygonsAndPoints = features => {
     const geometry = geometryOf(feature)
     if (geometry) {
       // change small polygons to points
-      if (geometry.type == "Polygon") {
+      if (geometry.type == "Polygon" || geometry.type == "MultiPolygon") {
         let minLon = 180
         let maxLon = -180
         let minLat = 90
         let maxLat = -90
-        for (const [lon, lat] of geometry.coordinates[0]) {
+        for (const [lon, lat] of coordinatesOf(geometry)) {
           if (lon < minLon) {
             minLon = lon
           }
