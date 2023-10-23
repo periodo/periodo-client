@@ -2,7 +2,7 @@
 
 const h = require('react-hyperscript')
     , { Box, HelpText, InputBlock, Label } = require('periodo-ui')
-    , { PlacesSelect } = require('periodo-ui')
+    , { PlacesSelect, ExternalLink } = require('periodo-ui')
 
 const SpatialCoverageForm = ({
   onValueChange,
@@ -31,8 +31,12 @@ const SpatialCoverageForm = ({
         htmlFor: 'coverage-area',
       }, 'Coverage area'),
 
-      h(HelpText,
-        'Set of places that approximate the area of spatial coverage'),
+      h(HelpText, {}, [
+        'Set of places that approximate the area of spatial coverage. ',
+        "If you cannot find a suitable place, ",
+        h(ExternalLink, { href: "https://perio.do/contact/" }, "contact us "),
+        "and we can add it."
+      ]),
 
       h(PlacesSelect, {
         onChange: places => onValueChange({ spatialCoverage: places }),

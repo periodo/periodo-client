@@ -120,7 +120,7 @@ exports.PlaceSuggest = ({
     },
     multiSection: true,
     getSuggestions: getSuggestions(gazetteers),
-    shouldRenderSuggestions: value => value.trim().length > 0,
+    shouldRenderSuggestions: () => true,
     highlightFirstSuggestion: false,
     renderSectionTitle,
     renderSuggestion: (item, info) => renderSuggestion(
