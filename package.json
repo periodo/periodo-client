@@ -19,7 +19,7 @@
     "@rebass/preset": "^4.0.5",
     "@styled-system/theme-get": "^5.1.2",
     "d3": "^5.16.0",
-    "debounce": "^1.2.0",
+    "debounce": "^2.0.0",
     "dexie": "^3.0.1",
     "diff-match-patch": "^1.0.5",
     "earth-mesh": "^2.1.0",
