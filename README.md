@@ -10,7 +10,7 @@ Compatible with all browsers that support ES2017 and IndexedDB. Safari has known
 
 # Building
 
-To build a standalone version of the client which can be run from a static web directory, run `make production`.
+To build a standalone version of the client which can be run from a static web directory, run `make production`
 
 Run `make test` to run all tests. Because we use recent JavaScript features like `async`/`await` and object rest/spread, you must have Node 11+ installed.
 
