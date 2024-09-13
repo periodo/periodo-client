@@ -75,7 +75,7 @@ A full citation is encouraged, but a title alone is sufficient.`,
           my: 3,
           name: 'yearPublished',
           label: 'Year published',
-          value: (value.yearPublished || '').trim(),
+          value: (value.yearPublished || '').toString().trim(),
           onChange: this.handleChange,
         }),
 
