@@ -13,6 +13,7 @@ const h = require('react-hyperscript')
 
 const lenses = {
   source: R.lensProp('source'),
+  sameAs: R.lensProp('sameAs'),
   locator: R.lensPath([ 'source', 'locator' ]),
   editorialNote: R.lensProp('editorialNote'),
 }
@@ -49,6 +50,7 @@ module.exports = Validated(
       const formProps = {
         value: get(lenses.source),
         onValueChange: value => set(lenses.source, value),
+        sameAs: get(lenses.sameAs),
       }
 
       return (

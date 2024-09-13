@@ -29,7 +29,7 @@ module.exports = RandomID(class NonLDSourceForm extends React.Component {
   }
 
   render() {
-    const { onValueChange } = this.props
+    const { onValueChange, sameAs } = this.props
         , value = this.props.value || {}
 
 
@@ -67,7 +67,7 @@ A full citation is encouraged, but a title alone is sufficient.`,
           my: 3,
           name: 'sameAs',
           label: 'Same as (read-only)',
-          value: value.sameAs || '',
+          value: sameAs || '',
           disabled: true,
         }),
 

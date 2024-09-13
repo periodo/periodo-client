@@ -18,6 +18,7 @@ const VALID_AUTHORITY_FIELDS = [
   'source',
   'periods',
   'editorialNote',
+  'sameAs',
 ]
 
 const VALID_AUTHORITY_SOURCE_AGENT_FIELDS = [
