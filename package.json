@@ -33,7 +33,7 @@
     "json-pointer": "^0.6.0",
     "json-stable-stringify": "^1.0.1",
     "jsonld": "^8.0.0",
-    "language-tags": "^1.0.5",
+    "language-tags": "^2.0.0",
     "linkify-it": "^5.0.0",
     "lov-ns": "^2.0.3",
     "mixmap": "github:periodo/mixmap",
