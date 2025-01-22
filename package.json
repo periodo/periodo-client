@@ -46,7 +46,7 @@
     "promise-worker": "^2.0.1",
     "prop-types": "^15.7.2",
     "ramda": "^0.30.0",
-    "react": "^16.13.1",
+    "react": "^18.3.1",
     "react-aria-menubutton": "^7.0.3",
     "react-autosuggest": "^10.0.2",
     "react-compound-slider": "^3.3.1",
