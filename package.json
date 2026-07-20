@@ -76,7 +76,7 @@
     "pegjs": "^0.10.0",
     "ramda": "^0.32.0",
     "redux-mock-store": "^1.5.4",
-    "source-map": "^0.7.3",
+    "source-map": "^0.8.0",
     "terser": "^5.14.0",
     "watchify": "^4.0.0"
   },
