@@ -9,6 +9,14 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    # Emotion 11 moves ThemeProvider to @emotion/react, so the v10 -> v11 bump
+    # is a coordinated migration rather than a dependency update. Ignore the
+    # major only; 10.x patches (including security fixes) still come through.
+    ignore:
+      - dependency-name: "emotion-theming"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "@emotion/styled"
+        update-types: [ "version-update:semver-major" ]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
