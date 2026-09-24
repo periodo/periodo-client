@@ -6,8 +6,7 @@ const N3 = require('n3')
 module.exports = async function (doc) {
   if (typeof doc === 'string') doc = JSON.parse(doc)
 
-  const store = new N3.Store()
-      , quads = await jsonld.promises.toRDF(doc)
+  const quads = await jsonld.promises.toRDF(doc)
 
   const replacements = {}
 
@@ -21,7 +20,16 @@ module.exports = async function (doc) {
     })
   })
 
-  store.addQuads(quads)
+  // Normalize to N3 terms, as returned by the N3 parser. (jsonld's quads
+  // lack a `Quad` termType, so N3.DataFactory.fromQuad rejects them.)
+  const { quad, fromTerm } = N3.DataFactory
 
-  return { store }
+  return {
+    quads: quads.map(q => quad(
+      fromTerm(q.subject),
+      fromTerm(q.predicate),
+      fromTerm(q.object),
+      fromTerm(q.graph)
+    )),
+  }
 }

@@ -8,7 +8,7 @@ const R = require('ramda')
     , makeSourceRepr = require('./utils/make_source_repr')
     , { getGraphSubject } = require('./utils/source_ld_match')
     , ns = require('./ns')
-    , jsonldToStore = require('./utils/parse_jsonld')
+    , parseJSONLD = require('./utils/parse_jsonld')
     , formatLDURL = require('./utils/format_url')
     , { parseToPromise } = require('org-n3-utils')
 
@@ -68,8 +68,8 @@ const LinkedDataAction = module.exports = makeTypedAction({
 
 async function _fetchLinkedData(url, type="text/turtle") {
   // TODO: Validate the type here... or base it off of the extension on the URL
-  const parser = type === 'application/json+ld'
-    ? jsonldToStore
+  const parser = type === 'application/ld+json'
+    ? parseJSONLD
     : parseToPromise.bind(null, createParser())
 
   const resp = await fetch(formatLDURL(url), {
