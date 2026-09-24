@@ -141,6 +141,28 @@ function fetchLinkedData(url, opts={}) {
   }
 }
 
+// ORCID's RDF endpoint fails for some records whose JSON-LD is still
+// available. The JSON-LD uses a remote schema.org context, so rather than
+// processing it as RDF, read the name properties directly.
+async function fetchORCIDNameFromJSONLD(orcid) {
+  const resp = await fetch(formatLDURL(orcid), {
+    mode: 'cors',
+    headers: { Accept: 'application/ld+json' },
+  })
+
+  if (!resp.ok) {
+    throw new Error(`Could not fetch ${resp.url} (${resp.status})`)
+  }
+
+  const { name, givenName, familyName } = await resp.json()
+
+  if (typeof name === 'string' && name) return name
+
+  return [ givenName, familyName ]
+    .filter(x => typeof x === 'string' && x)
+    .join(' ') || null
+}
+
 function fetchORCIDs(orcids, opts) {
   return async (dispatch) => {
     const pairs = await Promise.all(orcids.map(async orcid => {
@@ -148,13 +170,34 @@ function fetchORCIDs(orcids, opts) {
         orcid = 'https' + orcid.slice(4)
       }
 
-      const req = await dispatch(LinkedDataAction.FetchLinkedData(orcid, {
-        tryCache: true,
-        populateCache: true,
-        ...opts,
-      }))
+      let store
 
-      const { store } = getResponse(req)
+      // A failure to fetch one ORCID (e.g. an error from ORCID's RDF
+      // endpoint) should not prevent the rest from loading; fall back to
+      // getting the name from ORCID's JSON-LD, or else using the ORCID URL
+      // as the label.
+      try {
+        const req = await dispatch(LinkedDataAction.FetchLinkedData(orcid, {
+          tryCache: true,
+          populateCache: true,
+          ...opts,
+        }))
+
+        store = getResponse(req).store
+      } catch (e) {
+        let label
+
+        try {
+          label = await fetchORCIDNameFromJSONLD(orcid)
+        } catch (e) {
+          label = null
+        }
+
+        return [ orcid, {
+          label: label || orcid,
+          mbox: null,
+        }]
+      }
 
       let [ label ] = store.getQuads(orcid, ns('rdfs')('label'))
 

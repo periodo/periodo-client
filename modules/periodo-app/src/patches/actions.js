@@ -405,10 +405,14 @@ function getPatchRequest(remoteBackend, patchURL) {
       [ ...new Set(patch.comments.map(patch => patch.author)) ]
     ))
 
+    const { infoByORCID } = getState().linkedData
+
     ret.patch.comments.forEach(comment => {
       comment.author = {
         url: comment.author,
-        label: getState().linkedData.infoByORCID[comment.author].label,
+        label: infoByORCID[comment.author]
+          ? infoByORCID[comment.author].label
+          : comment.author,
       }
     })
 
