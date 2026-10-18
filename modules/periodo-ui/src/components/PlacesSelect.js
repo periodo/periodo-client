@@ -100,7 +100,9 @@ const PlacesSelect = ({
         h('div', [
           h(LabeledMap, {
             focusedFeatures: focusedFeature ? [ focusedFeature ] : [],
-            features: coverage.map(({ id }) => gazetteers.find(id)),
+            features: coverage
+              .map(({ id }) => gazetteers.find(id))
+              .filter(Boolean),
             mt: 1,
           }),
 
