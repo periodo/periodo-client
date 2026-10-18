@@ -68,11 +68,15 @@
     "webworkify": "^1.5.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "blue-tape": "^1.0.0",
     "browserify": "^17.0.0",
     "envify": "^4.1.0",
+    "eslint": "^10.13.0",
     "fake-indexeddb": "^4.0.0",
     "fast-json-patch": "^3.1.1",
+    "globals": "^17.13.0",
     "pegjs": "^0.10.0",
     "ramda": "^0.32.0",
     "redux-mock-store": "^1.5.4",
@@ -87,6 +91,7 @@
   },
   "scripts": {
     "prepublishOnly": "echo 'Use the `make publish` command instead.' && exit 1",
+    "lint": "eslint .",
     "test": "blue-tape $(find modules -path */test/*.js -not -path */node_modules/*)",
     "start": "serve -p 8000"
   }
