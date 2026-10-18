@@ -173,39 +173,38 @@ class LayoutRenderer extends React.Component {
     dataForBlocks[0] = this.props.data
 
     for (let i = 0; i < numBlocks; i++) {
-      await new Promise(async resolve => {
-        const block = processedLayout.blocks[i]
-            , blockOpts = processedOpts[i]
-            , lastData = dataForBlocks[i]
-            , state = this.blockState[i]
+      const block = processedLayout.blocks[i]
+          , blockOpts = processedOpts[i]
+          , lastData = dataForBlocks[i]
+          , state = this.blockState[i]
 
-        if (this.dataResets !== renderID) {
-          return resolve()
+      if (this.dataResets !== renderID) {
+        return
+      }
+
+      let nextData = lastData
+
+      const { makeFilter } = block.block
+
+      if (makeFilter) {
+        const filterFn = await makeFilter(blockOpts, state, lastData)
+
+        if (filterFn) {
+          nextData = await lastData.filter(filterFn)
         }
+      }
 
-        let nextData = lastData
+      dataForBlocks[i+1] = nextData
 
-        const { makeFilter } = block.block
+      if (this.dataResets !== renderID) {
+        return
+      }
 
-        if (makeFilter) {
-          const filterFn = await makeFilter(blockOpts, state, lastData)
-
-          if (filterFn) {
-            nextData = await lastData.filter(filterFn)
-          }
-        }
-
-        dataForBlocks[i+1] = nextData
-
-        if (this.dataResets !== renderID) {
-          return resolve()
-        }
-
-        if (this._isMounted) {
-          this.setState({ dataForBlocks })
-        }
-        setTimeout(resolve, 0)
-      })
+      if (this._isMounted) {
+        this.setState({ dataForBlocks })
+      }
+      // Yield to the event loop between blocks
+      await new Promise(resolve => setTimeout(resolve, 0))
     }
   }
 

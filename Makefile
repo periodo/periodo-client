@@ -65,6 +65,9 @@ watch: node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER) | dist
 test: node_modules $(LINKED_MODULE_SYMLINKS) $(DATE_PARSER)
 	npm test
 
+lint: node_modules
+	npm run lint
+
 clean:
 	rm -rf node_modules
 	rm -rf dist
@@ -93,7 +96,7 @@ stop:
 	rm -f run/http.server.pid; \
 	fi
 
-.PHONY: all watch serve serve_ssl start stop test clean stage publish
+.PHONY: all watch serve serve_ssl start stop test lint clean stage publish
 
 
 #############

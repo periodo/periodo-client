@@ -1,6 +1,6 @@
 "use strict";
 
-/* eslint object-property-newline: 0, array-bracket-spacing: 0 object-curly-newline: 0 */
+/* eslint @stylistic/object-property-newline: 0, @stylistic/array-bracket-spacing: 0, @stylistic/object-curly-newline: 0 */
 
 const test = require('blue-tape')
     , { Change } = require('../src/components/diffable/types')

@@ -36,7 +36,7 @@ module.exports = function main(state=initialState(), action) {
       },
     }),
 
-    Failure: err => action.type.case({
+    Failure: () => action.type.case({
       InitIndexedDB() {
         return R.assocPath([ 'browser', 'indexedDBSupported' ], false, state)
       },

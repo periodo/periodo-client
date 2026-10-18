@@ -84,12 +84,12 @@ module.exports = class AuthorityLayout extends React.Component {
         return h(Box, [
           h(MonospaceText, [ params.authorityID ]),
           " is not a valid authority identifier.",
-          " Perhaps you followed a broken link?"
+          " Perhaps you followed a broken link?",
         ])
       } else {
         return h(Box, [
           "No authority identifier was specified.",
-          " Perhaps you followed a broken link?"
+          " Perhaps you followed a broken link?",
         ])
       }
     }

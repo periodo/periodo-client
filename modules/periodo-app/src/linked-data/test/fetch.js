@@ -23,7 +23,10 @@ function mockFetch(body, contentType) {
   const requests = []
 
   const fetch = async (url, opts) => {
-    requests.push({ url, opts })
+    requests.push({
+      url,
+      opts,
+    })
 
     return new Response(body, {
       status: 200,
@@ -31,7 +34,10 @@ function mockFetch(body, contentType) {
     })
   }
 
-  return { fetch, requests }
+  return {
+    fetch,
+    requests,
+  }
 }
 
 test('Fetching linked data as JSON-LD', async t => {
