@@ -613,7 +613,7 @@ const Authority = {
             route: Route('backend-home', {
               backendID: backend.asIdentifier(),
             }),
-          }
+          },
         ]
 
         if (authority) {
@@ -814,7 +814,7 @@ const Period = {
             route: Route('backend-home', {
               backendID: backend.asIdentifier(),
             }),
-          }
+          },
         ]
 
         if (authority) {
@@ -837,7 +837,7 @@ const Period = {
             },
             {
               label: 'View',
-            },
+            }
           )
         }
 

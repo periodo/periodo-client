@@ -6,7 +6,10 @@ const Dexie = require('dexie')
 const DB_NAME = '_PERIODO'
 
 module.exports = function periodoDB(dexieOpts) {
-  const db = new Dexie(DB_NAME, { autoOpen: false, ...dexieOpts })
+  const db = new Dexie(DB_NAME, {
+    autoOpen: false,
+    ...dexieOpts,
+  })
 
   require('./version-01')(db)
   require('./version-02')(db)

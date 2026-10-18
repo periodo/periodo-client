@@ -35,7 +35,7 @@ const SpatialCoverageForm = ({
         'Set of places that approximate the area of spatial coverage. ',
         "If you cannot find a suitable place, ",
         h(ExternalLink, { href: "https://perio.do/contact/" }, "contact us "),
-        "and we can add it."
+        "and we can add it.",
       ]),
 
       h(PlacesSelect, {

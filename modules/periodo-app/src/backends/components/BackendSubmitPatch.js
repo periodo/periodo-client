@@ -14,7 +14,6 @@ const h = require('react-hyperscript')
 
 const {
   Box,
-  Flex,
   Section,
   Text,
   Link,
@@ -133,21 +132,21 @@ class SubmitPatch extends React.Component {
           message: (
             h(Box, [
               h(Alert, { variant: 'warning' }, [
-                h(Box, {mb: 2}, 'Successfully submitted proposed changes.'),
+                h(Box, { mb: 2 }, 'Successfully submitted proposed changes.'),
                 h(Box, [
                   'To ensure that your submission is reviewed promptly, ',
-                  h(ExternalLink, {href: 'https://perio.do/contact/'}, 'contact us '),
+                  h(ExternalLink, { href: 'https://perio.do/contact/' }, 'contact us '),
                   'and tell us how to contact you in case we have questions ',
-                  'about your submission.'
-                ])
+                  'about your submission.',
+                ]),
               ]),
-              h(Box, {mt: 3}, [
+              h(Box, { mt: 3 }, [
                 h(Link, {
                   route: Route('backend-patches', {
                     backendID: remoteBackend.asIdentifier(),
                   }),
                 }, 'Review submitted changes'),
-              ])
+              ]),
             ])
           ),
         })
