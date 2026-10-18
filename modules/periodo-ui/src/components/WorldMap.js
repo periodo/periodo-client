@@ -310,6 +310,10 @@ const initializeMap = () => {
 
   map.display = ({ width, height, features, focusedFeatures }) => {
 
+    // Ignore missing features (e.g. places not found in any gazetteer)
+    features = features.filter(Boolean)
+    focusedFeatures = focusedFeatures.filter(Boolean)
+
     const unfocusedFeatures = features.filter(
       feature => focusedFeatures.every(f => f.id !== feature.id))
     const {
