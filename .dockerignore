@@ -1,0 +1,5 @@
+# The image only needs nginx.conf and the versioned client directory
+# (see Dockerfile), so exclude everything else from the build context.
+*
+!nginx.conf
+!dist/periodo-client-*/**

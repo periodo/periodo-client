@@ -132,13 +132,13 @@ $(VERSIONED_ZIPFILE): $(ZIPPED_FILES) | dist
 	rm -rf $(VERSIONED_DIRECTORY)/dist
 	jq '{ name, version, author, contributors, license, description, repository, bugs }' package.json > $(VERSIONED_DIRECTORY)/package.json
 	cp $(VERSIONED_DIRECTORY)/index.html $(VERSIONED_DIRECTORY)/index.dev.html
-	sed -E -i .bak \
+	sed -E -i.bak \
 	-e 's|$(JS_BUNDLE)|$(notdir $(MINIFIED_VERSIONED_JS_BUNDLE))|' \
 	-e 's;<link rel="(preconnect|dns-prefetch)" href="[^"]*">;<link rel="\1" href="https://$(DATA_HOST)">;' \
 	-e "s;PERIODO_SERVER_URL = '[^']*';PERIODO_SERVER_URL = 'https://$(DATA_HOST)/';" \
 	-e "s;PERIODO_PROXY_URL = '[^']*';PERIODO_PROXY_URL = 'https://$(CORSPROXY_HOST)/';" \
 	$(VERSIONED_DIRECTORY)/index.html
-	sed -E -i .bak \
+	sed -E -i.bak \
 	-e 's|$(JS_BUNDLE)|$(notdir $(VERSIONED_JS_BUNDLE))|' \
 	-e 's;<link rel="(preconnect|dns-prefetch)" href="[^"]*">;<link rel="\1" href="https://$(DATA_HOST)">;' \
 	-e "s;PERIODO_SERVER_URL = '[^']*';PERIODO_SERVER_URL = 'https://$(DATA_HOST)/';" \
